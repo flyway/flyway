@@ -1,0 +1,6 @@
+syntax: glob
+
+flyway-core/target/*
+*.iml
+*.ipr
+*.iws
