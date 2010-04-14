@@ -6,14 +6,9 @@
 	<packaging>jar</packaging>
 	<name>${pom.artifactId}</name>
     <properties>
-        <version.spring>[2.0.0,)</version.spring>
+        <version.spring>[2.5.0,)</version.spring>
     </properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-aop</artifactId>
-            <version>${version.spring}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
@@ -21,20 +16,20 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-tx</artifactId>
+			<artifactId>spring-test</artifactId>
             <version>${version.spring}</version>
+            <scope>test</scope>
 		</dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.1</version>
+            <version>4.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.12</version>
-            <scope>test</scope>
+            <version>[5.0.0,)</version>
             <optional>true</optional>
         </dependency>
 	</dependencies>

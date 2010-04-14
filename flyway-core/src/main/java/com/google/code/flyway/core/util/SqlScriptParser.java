@@ -1,4 +1,4 @@
-package com.google.code.flyway.core;
+package com.google.code.flyway.core.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

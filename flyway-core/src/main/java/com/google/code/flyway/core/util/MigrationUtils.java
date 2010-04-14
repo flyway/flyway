@@ -1,5 +1,7 @@
-package com.google.code.flyway.core;
+package com.google.code.flyway.core.util;
 
+import com.google.code.flyway.core.SchemaVersion;
+import com.google.code.flyway.core.util.SqlScriptParser;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 

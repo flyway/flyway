@@ -1,5 +1,7 @@
 package com.google.code.flyway.core;
 
+import java.util.Arrays;
+
 /**
  * A version of a database schema.
  *
@@ -7,14 +9,9 @@ package com.google.code.flyway.core;
  */
 public final class SchemaVersion implements Comparable<SchemaVersion> {
     /**
-     * The latest version string.
-     */
-    private static final String LATEST_STR = "latest";
-
-    /**
      * Latest schema version.
      */
-    public static final SchemaVersion LATEST = new SchemaVersion(LATEST_STR);
+    public static final SchemaVersion LATEST = new SchemaVersion();
 
     /**
      * Is it the latest version?
@@ -22,25 +19,22 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     private final boolean latest;
 
     /**
-     * The major version.
+     * The version components. These are the numbers of the version. ([major, minor, patch, ...]) At least one component must be present.
      */
-    private final int major;
+    private final long[] components;
 
     /**
-     * The minor version.
+     * The printable version.
      */
-    private final int minor;
+    private final String versionStr;
 
     /**
-     * Creates a SchemaVersion composed of a major and a minor version number.
-     *
-     * @param major The major version.
-     * @param minor The minor version.
+     * Creates *the* latest version.
      */
-    public SchemaVersion(int major, int minor) {
-        this.major = major;
-        this.minor = minor;
-        latest = false;
+    private SchemaVersion() {
+        latest = true;
+        components = new long[0];
+        versionStr = "<< latest >>";
     }
 
     /**
@@ -50,76 +44,55 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
      *                      <li>major.minor Ex.: 6.2</li> <li>'latest' for the latest version available.</li> </ul>
      */
     public SchemaVersion(String targetVersion) {
-        if (LATEST_STR.equals(targetVersion)) {
-            major = Integer.MAX_VALUE;
-            minor = Integer.MAX_VALUE;
-            latest = true;
-        } else {
-            String[] versions = targetVersion.split("\\.");
-            major = Integer.parseInt(versions[0]);
-            if (versions.length == 1) {
-                minor = 0;
-            } else {
-                minor = Integer.parseInt(versions[1]);
-            }
-            latest = false;
+        latest = false;
+
+        String[] numbers = targetVersion.split("\\.");
+        if (numbers == null) {
+            numbers = new String[]{targetVersion};
         }
+
+        components = new long[numbers.length];
+        for (int i = 0; i < numbers.length; i++) {
+            components[i] = Long.parseLong(numbers[i]);
+        }
+
+        versionStr = targetVersion;
     }
 
     /**
-     * @return The version in the format major.minor. Ex.: 6.2
+     * @return The version in printable format. Ex.: 6.2
      */
     @Override
     public String toString() {
-        if (latest) {
-            return LATEST_STR;
-        }
-
-        return major + "." + minor;
+        return versionStr;
     }
 
-    /**
-     * @return The major version.
-     */
-    public int getMajor() {
-        return major;
-    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    /**
-     * @return The minor version.
-     */
-    public int getMinor() {
-        return minor;
+        SchemaVersion that = (SchemaVersion) o;
+
+        if (latest != that.latest) return false;
+        if (!Arrays.equals(components, that.components)) return false;
+        return versionStr.equals(that.versionStr);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (latest ? 1231 : 1237);
-        result = prime * result + major;
-        result = prime * result + minor;
+        int result = (latest ? 1 : 0);
+        result = 31 * result + Arrays.hashCode(components);
+        result = 31 * result + versionStr.hashCode();
         return result;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        SchemaVersion other = (SchemaVersion) obj;
-        if (latest != other.latest)
-            return false;
-        if (major != other.major)
-            return false;
-        return minor == other.minor;
-    }
-
-    @Override
     public int compareTo(SchemaVersion o) {
+        if (o == null) {
+            return 1;
+        }
+
         if (equals(o)) {
             return 0;
         }
@@ -132,11 +105,26 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
             return Integer.MIN_VALUE;
         }
 
-        int majorDiff = major - o.major;
-        if (majorDiff != 0) {
-            return majorDiff;
+        int maxComponents = Math.max(components.length, o.components.length);
+        for (int i = 0; i < maxComponents; i++) {
+            long myComponent = 0;
+            if (i < components.length) {
+                myComponent = components[i];
+            }
+
+            long otherComponent = 0;
+            if (i < o.components.length) {
+                otherComponent = o.components[i];
+            }
+
+            if (myComponent > otherComponent) {
+                return 1;
+            }
+            if (myComponent < otherComponent) {
+                return -1;
+            }
         }
 
-        return minor - o.minor;
+        return 0;
     }
 }

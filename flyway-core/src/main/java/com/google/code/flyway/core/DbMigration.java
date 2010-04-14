@@ -1,5 +1,8 @@
 package com.google.code.flyway.core;
 
+import com.google.code.flyway.core.dbsupport.DbSupport;
+import com.google.code.flyway.core.dbsupport.MySqlDbSupport;
+import com.google.code.flyway.core.util.MigrationUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
@@ -11,9 +14,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ClassUtils;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,49 +44,54 @@ public class DbMigration implements InitializingBean {
     private static final Log log = LogFactory.getLog(DbMigration.class);
 
     /**
-     * The base package where the migrations are located.
+     * The datasource to use. Must have the necessary privileges to execute ddl.
      */
-    private String basePackage;
+    private DataSource dataSource;
 
     /**
-     * The name of the database.
+     * The schema to use.
      */
-    private String database;
+    private String schema;
+
+    /**
+     * The type of database being used.
+     */
+    private DatabaseType databaseType;
+
+    /**
+     * The base package where the Java migrations are located. (default: db.migration)
+     */
+    private String basePackage = "db.migration";
+
+    /**
+     * The base directory on the classpath where the Sql migrations are located. (default: sql/location)
+     */
+    private String baseDir = "db/migration";
+
+    /**
+     * The name of the schema metadata table that will be used by flyway. (default: schema_maintenance_history)
+     */
+    private String schemaMetaDataTable = "schema_maintenance_history";
 
     /**
      * The target version of the migration, default is the latest version.
      */
-    private SchemaVersion targetVersion = SchemaVersion.LATEST;
-
-    /**
-     * Username of the user with admin privileges (ddl modification) on this database.
-     */
-    private String adminUsername;
-
-    /**
-     * Password of the user with admin privileges (ddl modification) on this database.
-     */
-    private String adminPassword;
-
-    /**
-     * Username of the user with user privileges (data modification) on this database.
-     */
-    private String userUsername;
-
-    /**
-     * Password of the user with user privileges (data modification) on this database.
-     */
-    private String userPassword;
-
-    /**
-     * SimpleJdbcTemplate with root access to the database.
-     */
-    private SimpleJdbcTemplate rootJdbcTemplate;
+    private final SchemaVersion targetVersion = SchemaVersion.LATEST;
 
     /**
      * SimpleJdbcTemplate with ddl manipulation access to the database.
      */
-    private SimpleJdbcTemplate ddlJdbcTemplate;
+    private SimpleJdbcTemplate simpleJdbcTemplate;
+
+    /**
+     * Database-specific functionality.
+     */
+    private DbSupport dbSupport;
+
+    /**
+     * The transaction template to use.
+     */
+    private TransactionTemplate transactionTemplate;
 
     /**
      * Spring utility for loading resources from the classpath using wildcards.
@@ -86,96 +100,61 @@ public class DbMigration implements InitializingBean {
             new PathMatchingResourcePatternResolver();
 
     /**
-     * @param rootJdbcTemplate SimpleJdbcTemplate with root access to the database.
+     * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
      */
-    public void setRootJdbcTemplate(SimpleJdbcTemplate rootJdbcTemplate) {
-        this.rootJdbcTemplate = rootJdbcTemplate;
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
-     * @param ddlJdbcTemplate SimpleJdbcTemplate with ddl manipulation access to the database.
+     * @param schema The schema to use.
      */
-    public void setDdlJdbcTemplate(SimpleJdbcTemplate ddlJdbcTemplate) {
-        this.ddlJdbcTemplate = ddlJdbcTemplate;
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 
     /**
-     * @param basePackage The base package where the migrations are located.
+     * @param databaseType The type of database being used.
+     */
+    public void setDatabaseType(DatabaseType databaseType) {
+        this.databaseType = databaseType;
+    }
+
+    /**
+     * @param basePackage The base package where the migrations are located. (default: db.migration)
      */
     public void setBasePackage(String basePackage) {
         this.basePackage = basePackage;
     }
 
     /**
-     * @param database The name of the database.
+     * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: sql/location)
      */
-    public void setDatabase(String database) {
-        this.database = database;
+    public void setBaseDir(String baseDir) {
+        this.baseDir = baseDir;
     }
 
     /**
-     * @param targetVersion The target version of the migration, default is the latest version.
+     * @param schemaMetaDataTable The name of the schema metadata table that will be used by flyway. (default: schema_maintenance_history)
      */
-    public void setTargetVersion(String targetVersion) {
-        this.targetVersion = new SchemaVersion(targetVersion);
-    }
-
-    /**
-     * @param adminUsername Username of the user with admin privileges (ddl modification) on this database.
-     */
-    public void setAdminUsername(String adminUsername) {
-        this.adminUsername = adminUsername;
-    }
-
-    /**
-     * @param adminPassword Password of the user with admin privileges (ddl modification) on this database.
-     */
-    public void setAdminPassword(String adminPassword) {
-        this.adminPassword = adminPassword;
-    }
-
-    /**
-     * @param userUsername Username of the user with user privileges (data modification) on this database.
-     */
-    public void setUserUsername(String userUsername) {
-        this.userUsername = userUsername;
-    }
-
-    /**
-     * @param userPassword Password of the user with user privileges (data modification) on this database.
-     */
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
+    public void setSchemaMetaDataTable(String schemaMetaDataTable) {
+        this.schemaMetaDataTable = schemaMetaDataTable;
     }
 
     /**
      * Starts the actual migration.
      */
     public void migrate() {
-        log.debug("Database: " + database);
-        log.debug("Admin user: " + adminUsername);
-        log.debug("Normal user: " + userUsername);
+        log.debug("Schema: " + schema);
 
-        boolean adminExists = userExists(adminUsername);
-        log.debug("Admin user exists: " + adminExists);
-        if (!adminExists) {
-            createUser(adminUsername, adminPassword);
-            log.info("Admin user created: " + adminUsername);
-        }
-
-        boolean userExists = userExists(userUsername);
-        log.debug("Normal user exists: " + userExists);
-        if (!userExists) {
-            createUser(userUsername, userPassword);
-            log.info("Normal user created: " + userUsername);
-        }
-
-        boolean databaseExists = databaseExists();
-        log.debug("Database exists: " + databaseExists);
-
-        if (!databaseExists) {
-            createDatabase();
-            initSchemaMetadataTables();
+        if (!dbSupport.tableExists(schemaMetaDataTable)) {
+            transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction(TransactionStatus status) {
+                    dbSupport.createSchemaMetaDataTable(schemaMetaDataTable);
+                    return null;
+                }
+            });
         }
 
         SchemaVersion currentSchemaVersion = currentSchemaVersion();
@@ -183,13 +162,13 @@ public class DbMigration implements InitializingBean {
         log.debug("Target schema version: " + targetVersion);
 
         List<Migration> pendingMigrations = getPendingMigrations(currentSchemaVersion);
-        for (Migration pendingMigration : pendingMigrations) {
-            log.debug("Pending migration: " + pendingMigration.getVersion() + " - " + pendingMigration.getScriptName());
-        }
-
         if (pendingMigrations.isEmpty()) {
             log.debug("Schema is up to date. No migration necessary.");
             return;
+        }
+
+        for (Migration pendingMigration : pendingMigrations) {
+            log.debug("Pending migration: " + pendingMigration.getVersion() + " - " + pendingMigration.getScriptName());
         }
 
         log.debug("Starting migration...");
@@ -206,14 +185,6 @@ public class DbMigration implements InitializingBean {
     }
 
     /**
-     * Initializes the schema metadata tables.
-     */
-    private void initSchemaMetadataTables() {
-        MigrationUtils.executeSqlScript(ddlJdbcTemplate, new ClassPathResource("sql/initSchemaMetadata.sql"));
-        ddlJdbcTemplate.update("insert into schema_version (major,minor) values (?,?)", 0, 0);
-    }
-
-    /**
      * Executes this migration.
      *
      * @param migration The migration to execute.
@@ -221,89 +192,31 @@ public class DbMigration implements InitializingBean {
      */
     @Transactional
     private void execute(Migration migration) throws Exception {
-        migration.migrate(ddlJdbcTemplate);
-        updateSchemaVersion(migration.getVersion());
-        updateSchemaMaintenanceHistory(migration.getScriptName());
+        migration.migrate(simpleJdbcTemplate);
+        updateSchemaMaintenanceHistory(migration);
     }
 
     /**
      * Updates the schema maintenance history table.
      *
-     * @param scriptName The name of the script that was run.
+     * @param migration The migration that was run.
      */
-    private void updateSchemaMaintenanceHistory(String scriptName) {
-        ddlJdbcTemplate.update("insert into schema_maintenance_history (script) values (?)",
-                scriptName);
-    }
-
-    /**
-     * Updates the schema version table to this version.
-     *
-     * @param version The version of the schema.
-     */
-    private void updateSchemaVersion(SchemaVersion version) {
-        ddlJdbcTemplate.update("update schema_version set major=?, minor=?, installed_on=?",
-                version.getMajor(), version.getMinor(), new Date());
-    }
-
-    /**
-     * Checks whether this database exists.
-     *
-     * @return {@code true} if it exists, {@code false} if not.
-     */
-    private boolean databaseExists() {
-        int count = rootJdbcTemplate.queryForInt(
-                "select count(schema_name) from information_schema.schemata where schema_name=?",
-                database);
-        return count == 1;
-    }
-
-    /**
-     * Checks whether this user exists.
-     *
-     * @param username The user.
-     * @return {@code true} if it exists, {@code false} if not.
-     */
-    private boolean userExists(String username) {
-        int count = rootJdbcTemplate.queryForInt("select count(user) from mysql.user where user=?",
-                username);
-        return count > 0;
+    private void updateSchemaMaintenanceHistory(Migration migration) {
+        simpleJdbcTemplate.update("insert into " + schemaMetaDataTable
+                + " (version, script, state, current_version) values (?, ?, 'SUCCESS', '1')",
+                migration.getVersion().toString(), migration.getScriptName());
     }
 
     /**
      * @return The version of the currently installed schema.
      */
     private SchemaVersion currentSchemaVersion() {
-        int major = ddlJdbcTemplate.queryForInt("select major from schema_version");
-        int minor = ddlJdbcTemplate.queryForInt("select minor from schema_version");
-        return new SchemaVersion(major, minor);
-    }
-
-    /**
-     * Creates a new user with this username and this password.
-     *
-     * @param username The username.
-     * @param password The password.
-     */
-    private void createUser(String username, String password) {
-        rootJdbcTemplate.update("CREATE USER ?@'localhost' IDENTIFIED BY ?", username, password);
-    }
-
-    /**
-     * Creates the database.
-     */
-    private void createDatabase() {
-        rootJdbcTemplate.update("CREATE DATABASE " + database
-                + " DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin'");
-        log.info("Database created: " + database);
-
-        rootJdbcTemplate.update("GRANT all ON " + database + ".* TO ?@'localhost' IDENTIFIED BY ?",
-                adminUsername, adminPassword);
-        rootJdbcTemplate.update("GRANT select,insert,update,delete ON " + database
-                + ".* TO ?@'localhost' IDENTIFIED BY ?", userUsername, userPassword);
-        rootJdbcTemplate.update("FLUSH PRIVILEGES");
-        log.info("Admin access granted to " + adminUsername);
-        log.info("User access granted to " + userUsername);
+        String version = simpleJdbcTemplate.queryForObject(
+                "select version from " + schemaMetaDataTable + " where current_version=1", String.class);
+        if (version == null) {
+            return null;
+        }
+        return new SchemaVersion(version);
     }
 
     /**
@@ -344,7 +257,7 @@ public class DbMigration implements InitializingBean {
         Collection<Migration> migrations = new ArrayList<Migration>();
 
         try {
-            Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath*:sql/V?*_?*.sql");
+            Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*_?*.sql");
             for (Resource resource : resources) {
                 migrations.add(new SqlFileMigration(resource));
             }
@@ -377,6 +290,15 @@ public class DbMigration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
+
+        switch (databaseType) {
+            case MYSQL: dbSupport = new MySqlDbSupport(simpleJdbcTemplate, schema);
+        }
+        
+        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+        transactionTemplate = new TransactionTemplate(transactionManager);
+
         migrate();
     }
 }

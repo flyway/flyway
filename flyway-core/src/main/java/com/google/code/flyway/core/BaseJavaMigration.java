@@ -1,5 +1,6 @@
 package com.google.code.flyway.core;
 
+import com.google.code.flyway.core.util.MigrationUtils;
 import org.springframework.util.ClassUtils;
 
 /**

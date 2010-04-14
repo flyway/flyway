@@ -1,6 +1,8 @@
 package com.google.code.flyway.core;
 
 import static org.junit.Assert.assertEquals;
+
+import com.google.code.flyway.core.util.MigrationUtils;
 import org.junit.Test;
 
 /**
