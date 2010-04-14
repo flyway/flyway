@@ -57,17 +57,8 @@ public class MigrationUtils {
      */
     public static SchemaVersion extractSchemaVersion(String versionStr) {
         int underscorePosition = versionStr.indexOf("_");
-        int major = Integer.parseInt(versionStr.substring(1, underscorePosition));
+        String version = versionStr.substring(1, underscorePosition);
 
-        String remainder = versionStr.substring(underscorePosition + 1);
-        int nextUnderscorePosition = remainder.indexOf("_");
-        int minor;
-        if (nextUnderscorePosition < 0) {
-            minor = Integer.parseInt(remainder);
-        } else {
-            minor = Integer.parseInt(remainder.substring(0, nextUnderscorePosition));
-        }
-
-        return new SchemaVersion(major, minor);
+        return new SchemaVersion(version);
     }
 }
