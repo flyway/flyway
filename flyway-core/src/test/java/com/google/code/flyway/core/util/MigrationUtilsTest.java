@@ -1,4 +1,4 @@
-package com.google.code.flyway.core;
+package com.google.code.flyway.core.util;
 
 import static org.junit.Assert.assertEquals;
 

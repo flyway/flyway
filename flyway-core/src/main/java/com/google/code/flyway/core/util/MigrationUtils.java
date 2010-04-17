@@ -1,7 +1,6 @@
 package com.google.code.flyway.core.util;
 
 import com.google.code.flyway.core.SchemaVersion;
-import com.google.code.flyway.core.util.SqlScriptParser;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -50,15 +49,21 @@ public class MigrationUtils {
     }
 
     /**
-     * Extracts the schema version from a version string formatted as Vmajor_minor.
+     * Extracts the schema version from a migration name formatted as V1_2__Description.
      *
-     * @param versionStr The string to parse.
+     * @param migrationName The string to parse.
      * @return The extracted schema version.
      */
-    public static SchemaVersion extractSchemaVersion(String versionStr) {
-        int underscorePosition = versionStr.indexOf("_");
-        String version = versionStr.substring(1, underscorePosition);
+    public static SchemaVersion extractSchemaVersion(String migrationName) {
+        // Drop the leading V
+        String version = migrationName.substring(1);
 
-        return new SchemaVersion(version);
+        // Cut off the description
+        int descriptionPos = version.indexOf("__");
+        if (descriptionPos != -1) {
+            version = migrationName.substring(0, descriptionPos);
+        }
+
+        return new SchemaVersion(version.replace("_", "."));
     }
 }

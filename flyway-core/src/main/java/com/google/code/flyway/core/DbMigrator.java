@@ -1,17 +1,15 @@
 package com.google.code.flyway.core;
 
 import com.google.code.flyway.core.dbsupport.DbSupport;
-import com.google.code.flyway.core.dbsupport.MySqlDbSupport;
-import com.google.code.flyway.core.util.MigrationUtils;
+import com.google.code.flyway.core.dbsupport.MySQLDbSupport;
+import com.google.code.flyway.core.java.JavaMigrationResolver;
+import com.google.code.flyway.core.sql.SqlMigrationResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -23,13 +21,15 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ClassUtils;
 
 import javax.sql.DataSource;
-import java.io.IOException;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -37,11 +37,11 @@ import java.util.Set;
  *
  * @author Axel Fontaine
  */
-public class DbMigration implements InitializingBean {
+public class DbMigrator implements InitializingBean {
     /**
      * Logger.
      */
-    private static final Log log = LogFactory.getLog(DbMigration.class);
+    private static final Log log = LogFactory.getLog(DbMigrator.class);
 
     /**
      * The datasource to use. Must have the necessary privileges to execute ddl.
@@ -52,11 +52,6 @@ public class DbMigration implements InitializingBean {
      * The schema to use.
      */
     private String schema;
-
-    /**
-     * The type of database being used.
-     */
-    private DatabaseType databaseType;
 
     /**
      * The base package where the Java migrations are located. (default: db.migration)
@@ -72,6 +67,11 @@ public class DbMigration implements InitializingBean {
      * The name of the schema metadata table that will be used by flyway. (default: schema_maintenance_history)
      */
     private String schemaMetaDataTable = "schema_maintenance_history";
+
+    /**
+     * The metadata of the database.
+     */
+    private DatabaseMetaData databaseMetaData;
 
     /**
      * The target version of the migration, default is the latest version.
@@ -94,30 +94,15 @@ public class DbMigration implements InitializingBean {
     private TransactionTemplate transactionTemplate;
 
     /**
-     * Spring utility for loading resources from the classpath using wildcards.
+     * The available migration resolvers.
      */
-    private final PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver =
-            new PathMatchingResourcePatternResolver();
+    private Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 
     /**
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    /**
-     * @param schema The schema to use.
-     */
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
-
-    /**
-     * @param databaseType The type of database being used.
-     */
-    public void setDatabaseType(DatabaseType databaseType) {
-        this.databaseType = databaseType;
     }
 
     /**
@@ -143,18 +128,12 @@ public class DbMigration implements InitializingBean {
 
     /**
      * Starts the actual migration.
+     *
+     * @throws SQLException Thrown when the migration failed.
      */
-    public void migrate() {
-        log.debug("Schema: " + schema);
-
-        if (!dbSupport.tableExists(schemaMetaDataTable)) {
-            transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction(TransactionStatus status) {
-                    dbSupport.createSchemaMetaDataTable(schemaMetaDataTable);
-                    return null;
-                }
-            });
+    public void migrate() throws SQLException {
+        if (!metaDataTableExists()) {
+            createMetaDataTable();
         }
 
         SchemaVersion currentSchemaVersion = currentSchemaVersion();
@@ -185,6 +164,33 @@ public class DbMigration implements InitializingBean {
     }
 
     /**
+     * Creates Flyway's metadata table.
+     */
+    private void createMetaDataTable() {
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                String[] statements = dbSupport.createSchemaMetaDataTableSql(schemaMetaDataTable);
+                for (String statement : statements) {
+                    simpleJdbcTemplate.update(statement);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Checks whether Flyway's metadata table is already present in the database.
+     *
+     * @return {@code true} if the table exists, {@false if it doesn't}
+     * @throws SQLException Thrown when the database metadata could not be read.
+     */
+    private boolean metaDataTableExists() throws SQLException {
+        ResultSet resultSet = dataSource.getConnection().getMetaData().getTables(schema, null, schemaMetaDataTable, null);
+        return resultSet.next();
+    }
+
+    /**
      * Executes this migration.
      *
      * @param migration The migration to execute.
@@ -210,13 +216,14 @@ public class DbMigration implements InitializingBean {
     /**
      * @return The version of the currently installed schema.
      */
-    private SchemaVersion currentSchemaVersion() {
-        String version = simpleJdbcTemplate.queryForObject(
-                "select version from " + schemaMetaDataTable + " where current_version=1", String.class);
-        if (version == null) {
+    /* private -> for testing */
+    SchemaVersion currentSchemaVersion() {
+        List<Map<String,Object>> result = simpleJdbcTemplate.queryForList(
+                "select version from " + schemaMetaDataTable + " where current_version=1");
+        if (result.isEmpty()) {
             return null;
         }
-        return new SchemaVersion(version);
+        return new SchemaVersion((String) result.get(0).get("version"));
     }
 
     /**
@@ -227,8 +234,9 @@ public class DbMigration implements InitializingBean {
      */
     private List<Migration> getPendingMigrations(SchemaVersion currentVersion) {
         Collection<Migration> allMigrations = new ArrayList<Migration>();
-        allMigrations.addAll(findClassBasedMigrations());
-        allMigrations.addAll(findSqlFileBasedMigrations());
+        for (MigrationResolver migrationResolver : migrationResolvers) {
+            allMigrations.addAll(migrationResolver.resolvesMigrations());
+        }
 
         List<Migration> pendingMigrations = new ArrayList<Migration>();
         for (Migration migration : allMigrations) {
@@ -248,56 +256,25 @@ public class DbMigration implements InitializingBean {
         return pendingMigrations;
     }
 
-    /**
-     * Find all migrations based on Sql Files. The files must lie in the classpath and be named Vmajor_minor.sql
-     *
-     * @return The list of migrations based on Sql Files.
-     */
-    private Collection<Migration> findSqlFileBasedMigrations() {
-        Collection<Migration> migrations = new ArrayList<Migration>();
-
-        try {
-            Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*_?*.sql");
-            for (Resource resource : resources) {
-                migrations.add(new SqlFileMigration(resource));
-            }
-        } catch (IOException e) {
-            log.error("Error loading sql migration files", e);
-        }
-
-        return migrations;
-    }
-
-    /**
-     * Find all migrations based on Java Classes.
-     *
-     * @return The list of migrations based on Java Classes.
-     */
-    private Collection<Migration> findClassBasedMigrations() {
-        Collection<Migration> migrations = new ArrayList<Migration>();
-
-        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new AssignableTypeFilter(Migration.class));
-        Set<BeanDefinition> components = provider.findCandidateComponents(basePackage);
-        for (BeanDefinition beanDefinition : components) {
-            Class<?> clazz = ClassUtils.resolveClassName(beanDefinition.getBeanClassName(), null);
-            Migration migration = (Migration) BeanUtils.instantiateClass(clazz);
-            migrations.add(migration);
-        }
-
-        return migrations;
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
         simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
 
-        switch (databaseType) {
-            case MYSQL: dbSupport = new MySqlDbSupport(simpleJdbcTemplate, schema);
+        String databaseProductName = dataSource.getConnection().getMetaData().getDatabaseProductName();
+        log.debug("Database: " + databaseProductName);
+
+        if (MySQLDbSupport.databaseProductName.equals(databaseProductName)) {
+            dbSupport = new MySQLDbSupport();
         }
-        
+
+        schema = dataSource.getConnection().getCatalog();
+        log.debug("Schema: " + schema);
+
         PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
         transactionTemplate = new TransactionTemplate(transactionManager);
+
+        migrationResolvers.add(new SqlMigrationResolver(baseDir));
+        migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
         migrate();
     }
