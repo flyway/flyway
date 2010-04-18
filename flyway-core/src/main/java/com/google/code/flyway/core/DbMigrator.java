@@ -6,11 +6,7 @@ import com.google.code.flyway.core.java.JavaMigrationResolver;
 import com.google.code.flyway.core.sql.SqlMigrationResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -18,7 +14,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.ClassUtils;
 
 import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
@@ -30,7 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Main workflow for migrating the database.
@@ -185,7 +179,8 @@ public class DbMigrator implements InitializingBean {
      * @return {@code true} if the table exists, {@false if it doesn't}
      * @throws SQLException Thrown when the database metadata could not be read.
      */
-    private boolean metaDataTableExists() throws SQLException {
+    /* private -> for testing */
+    boolean metaDataTableExists() throws SQLException {
         ResultSet resultSet = dataSource.getConnection().getMetaData().getTables(schema, null, schemaMetaDataTable, null);
         return resultSet.next();
     }
@@ -218,7 +213,7 @@ public class DbMigrator implements InitializingBean {
      */
     /* private -> for testing */
     SchemaVersion currentSchemaVersion() {
-        List<Map<String,Object>> result = simpleJdbcTemplate.queryForList(
+        List<Map<String, Object>> result = simpleJdbcTemplate.queryForList(
                 "select version from " + schemaMetaDataTable + " where current_version=1");
         if (result.isEmpty()) {
             return null;
