@@ -15,6 +15,6 @@ public class SqlFileMigrationTest {
     @Test
     public void extractVersionStringFromFileName() {
         assertEquals("V8_0", SqlMigration.extractVersionStringFromFileName("sql/V8_0.sql"));
-        assertEquals("V9_0", SqlMigration.extractVersionStringFromFileName("sql/V9_0-CommentAboutContents.sql"));
+        assertEquals("V9_0__CommentAboutContents", SqlMigration.extractVersionStringFromFileName("sql/V9_0__CommentAboutContents.sql"));
     }
 }

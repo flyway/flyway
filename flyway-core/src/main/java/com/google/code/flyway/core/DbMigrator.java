@@ -2,6 +2,7 @@ package com.google.code.flyway.core;
 
 import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.dbsupport.MySQLDbSupport;
+import com.google.code.flyway.core.dbsupport.OracleDbSupport;
 import com.google.code.flyway.core.java.JavaMigrationResolver;
 import com.google.code.flyway.core.sql.SqlMigrationResolver;
 import org.apache.commons.logging.Log;
@@ -181,6 +182,12 @@ public class DbMigrator implements InitializingBean {
      */
     /* private -> for testing */
     boolean metaDataTableExists() throws SQLException {
+        if (dbSupport instanceof OracleDbSupport) {
+            int count = simpleJdbcTemplate.queryForInt(
+                    "SELECT count(*) FROM user_tables WHERE table_name = ?", schemaMetaDataTable.toUpperCase());
+            return count > 0;
+        }
+
         ResultSet resultSet = dataSource.getConnection().getMetaData().getTables(schema, null, schemaMetaDataTable, null);
         return resultSet.next();
     }
@@ -214,11 +221,11 @@ public class DbMigrator implements InitializingBean {
     /* private -> for testing */
     SchemaVersion currentSchemaVersion() {
         List<Map<String, Object>> result = simpleJdbcTemplate.queryForList(
-                "select version from " + schemaMetaDataTable + " where current_version=1");
+                "select VERSION from " + schemaMetaDataTable + " where current_version=1");
         if (result.isEmpty()) {
             return null;
         }
-        return new SchemaVersion((String) result.get(0).get("version"));
+        return new SchemaVersion((String) result.get(0).get("VERSION"));
     }
 
     /**
@@ -258,11 +265,13 @@ public class DbMigrator implements InitializingBean {
         String databaseProductName = dataSource.getConnection().getMetaData().getDatabaseProductName();
         log.debug("Database: " + databaseProductName);
 
-        if (MySQLDbSupport.databaseProductName.equals(databaseProductName)) {
+        if (MySQLDbSupport.DATABASE_PRODUCT_NAME.equals(databaseProductName)) {
             dbSupport = new MySQLDbSupport();
+            schema = dataSource.getConnection().getCatalog();
+        } else if (OracleDbSupport.DATABASE_PRODUCT_NAME.equals(databaseProductName)) {
+            dbSupport = new OracleDbSupport();
+            schema = dataSource.getConnection().getMetaData().getUserName();
         }
-
-        schema = dataSource.getConnection().getCatalog();
         log.debug("Schema: " + schema);
 
         PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);

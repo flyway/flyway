@@ -1,8 +1,6 @@
 package com.google.code.flyway.core;
 
 import com.google.code.flyway.core.util.MigrationUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
@@ -12,20 +10,20 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 /**
- * Utility for creating and dropping database schemas and users.
+ * Utility for creating and dropping Oracle database schemas and users.
  */
-public class DbCreator {
-    @Autowired
+public class OracleDbCreator {
+@Autowired
     @Qualifier("root-simpleJdbcTemplate")
     private SimpleJdbcTemplate rootSimpleJdbcTemplate;
 
     @PostConstruct
     public void createDatabase() {
-        MigrationUtils.executeSqlScript(rootSimpleJdbcTemplate, new ClassPathResource("migration/mysql/createDatabase.sql"));
+        //MigrationUtils.executeSqlScript(rootSimpleJdbcTemplate, new ClassPathResource("migration/oracle/createDatabase.sql"));
     }
 
     @PreDestroy
     public void dropDatabase() {
-        MigrationUtils.executeSqlScript(rootSimpleJdbcTemplate, new ClassPathResource("migration/mysql/dropDatabase.sql"));
+        //MigrationUtils.executeSqlScript(rootSimpleJdbcTemplate, new ClassPathResource("migration/oracle/dropDatabase.sql"));
     }
 }

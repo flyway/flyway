@@ -7,7 +7,7 @@ public class MySQLDbSupport implements DbSupport {
     /**
      * The mysql database product name as reported through the jdbc connection metadata.
      */
-    public static final String databaseProductName = "MySQL";
+    public static final String DATABASE_PRODUCT_NAME = "MySQL";
 
     @Override
     public String[] createSchemaMetaDataTableSql(String tableName) {
