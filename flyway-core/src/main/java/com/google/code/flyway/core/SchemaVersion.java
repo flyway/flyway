@@ -26,7 +26,12 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     /**
      * The printable version.
      */
-    private final String versionStr;
+    private final String version;
+
+    /**
+     * The description of this version.
+     */
+    private final String description;
 
     /**
      * Creates *the* latest version.
@@ -34,37 +39,60 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     private SchemaVersion() {
         latest = true;
         components = new long[0];
-        versionStr = "<< latest >>";
+        version = "<< latest >>";
+        description = null;
     }
 
     /**
      * Creates a SchemaVersion using this version string.
      *
-     * @param targetVersion The version in one of the following formats:<br/> <ul> <li>major Ex.: 6 (meaning 6.0)</li>
-     *                      <li>major.minor Ex.: 6.2</li> <li>'latest' for the latest version available.</li> </ul>
+     * @param rawVersion The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
+     * @param description The description of this version.
      */
-    public SchemaVersion(String targetVersion) {
+    public SchemaVersion(String rawVersion, String description) {
         latest = false;
 
-        String[] numbers = targetVersion.split("\\.");
+        String[] numbers = rawVersion.split("\\.");
         if (numbers == null) {
-            numbers = new String[]{targetVersion};
+            numbers = new String[]{rawVersion};
         }
 
+        String versionStr = "";
         components = new long[numbers.length];
         for (int i = 0; i < numbers.length; i++) {
             components[i] = Long.parseLong(numbers[i]);
+
+            if (i > 0) {
+                versionStr += ".";
+            }
+            versionStr += components[i];
         }
 
-        versionStr = targetVersion;
+        version = versionStr;
+        this.description = description;
     }
 
     /**
      * @return The version in printable format. Ex.: 6.2
      */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * @return The description of this version.
+     */
+    public String getDescription() {
+        return description;
+    }
+
     @Override
     public String toString() {
-        return versionStr;
+        if (description == null) {
+            return version;
+        }
+
+        return version + " (" + description + ")";
     }
 
     @Override
@@ -76,14 +104,14 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
 
         if (latest != that.latest) return false;
         if (!Arrays.equals(components, that.components)) return false;
-        return versionStr.equals(that.versionStr);
+        return version.equals(that.version);
     }
 
     @Override
     public int hashCode() {
         int result = (latest ? 1 : 0);
         result = 31 * result + Arrays.hashCode(components);
-        result = 31 * result + versionStr.hashCode();
+        result = 31 * result + version.hashCode();
         return result;
     }
 

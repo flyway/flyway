@@ -1,34 +1,32 @@
-package com.google.code.flyway.core;
+package com.google.code.flyway.core.mysql;
 
-import com.google.code.flyway.core.util.MigrationUtils;
-import org.junit.After;
-import org.junit.Before;
+import com.google.code.flyway.core.DbMigrator;
+import com.google.code.flyway.core.SchemaVersion;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.sql.SQLException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:spring/mysql-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/mysql/mysql-context.xml"})
 public class MySQLTest {
     @Autowired
     private DbMigrator dbMigrator;
 
     @Test
     public void createAndMigrate() throws SQLException {
-        assertEquals(new SchemaVersion("1"), dbMigrator.currentSchemaVersion());
+        SchemaVersion schemaVersion = dbMigrator.currentSchemaVersion();
+        Assert.assertEquals("1.1", schemaVersion.getVersion());
+        Assert.assertEquals("Populate table", schemaVersion.getDescription());
         assertTrue(dbMigrator.metaDataTableExists());
     }
 }

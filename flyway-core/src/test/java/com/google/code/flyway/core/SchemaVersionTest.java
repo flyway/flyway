@@ -10,14 +10,14 @@ import static org.junit.Assert.assertTrue;
 public class SchemaVersionTest {
     @Test
     public void compareTo() {
-        SchemaVersion v1 = new SchemaVersion("1");
-        SchemaVersion v10 = new SchemaVersion("1.0");
-        SchemaVersion v11 = new SchemaVersion("1.1");
-        SchemaVersion v1100 = new SchemaVersion("1.1.0.0");
-        SchemaVersion v1101 = new SchemaVersion("1.1.0.1");
-        SchemaVersion v2 = new SchemaVersion("2");
-        SchemaVersion v201004171859 = new SchemaVersion("201004171859");
-        SchemaVersion v201004180000 = new SchemaVersion("201004180000");
+        SchemaVersion v1 = new SchemaVersion("1", null);
+        SchemaVersion v10 = new SchemaVersion("1.0", null);
+        SchemaVersion v11 = new SchemaVersion("1.1", null);
+        SchemaVersion v1100 = new SchemaVersion("1.1.0.0", null);
+        SchemaVersion v1101 = new SchemaVersion("1.1.0.1", null);
+        SchemaVersion v2 = new SchemaVersion("2", null);
+        SchemaVersion v201004171859 = new SchemaVersion("201004171859", null);
+        SchemaVersion v201004180000 = new SchemaVersion("201004180000", null);
 
         assertTrue(v1.compareTo(v10) == 0);
         assertTrue(v10.compareTo(v1) == 0);

@@ -58,12 +58,14 @@ public class MigrationUtils {
         // Drop the leading V
         String version = migrationName.substring(1);
 
-        // Cut off the description
+        // Handle the description
+        String description = null;
         int descriptionPos = version.indexOf("__");
         if (descriptionPos != -1) {
-            version = migrationName.substring(0, descriptionPos);
+            description = version.substring(descriptionPos + 2).replaceAll("_", " ");
+            version = version.substring(0, descriptionPos);
         }
 
-        return new SchemaVersion(version.replace("_", "."));
+        return new SchemaVersion(version.replace("_", "."), description);
     }
 }

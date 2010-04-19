@@ -1,0 +1,1 @@
+INSERT INTO test_user (name) VALUES ('Mr. T');

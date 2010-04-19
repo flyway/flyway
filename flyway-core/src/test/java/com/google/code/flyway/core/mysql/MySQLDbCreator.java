@@ -1,4 +1,4 @@
-package com.google.code.flyway.core;
+package com.google.code.flyway.core.mysql;
 
 import com.google.code.flyway.core.util.MigrationUtils;
 import org.springframework.beans.factory.annotation.Autowired;

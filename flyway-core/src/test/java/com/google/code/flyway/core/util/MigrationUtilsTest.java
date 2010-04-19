@@ -1,34 +1,52 @@
 package com.google.code.flyway.core.util;
 
-import static org.junit.Assert.assertEquals;
-
-import com.google.code.flyway.core.util.MigrationUtils;
-import org.junit.Ignore;
+import com.google.code.flyway.core.SchemaVersion;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test for MigrationUtils.
  */
 public class MigrationUtilsTest {
     /**
-     * Tests a class name that includes a description.
+     * Tests a schema version that lacks a description.
      */
-    @Ignore
     @Test
-    public void extractSchemaVersionWithDescription() {
-//        SchemaVersion schemaVersion = MigrationUtils.extractSchemaVersion("V9_4_EmailAxel");
-//        assertEquals("9.4", schemaVersion.toString());
-//        assertEquals("EmailAxel", schemaVersion.getMinor());
+    public void extractSchemaVersionNoDescription() {
+        SchemaVersion schemaVersion = MigrationUtils.extractSchemaVersion("V9_4");
+        assertEquals("9.4", schemaVersion.getVersion());
+        assertNull(schemaVersion.getDescription());
     }
 
     /**
-     * Tests a class name that includes a version with leading zeroes.
+     * Tests a schema version that includes a description.
      */
-    @Ignore
+    @Test
+    public void extractSchemaVersionWithDescription() {
+        SchemaVersion schemaVersion = MigrationUtils.extractSchemaVersion("V9_4__EmailAxel");
+        assertEquals("9.4", schemaVersion.getVersion());
+        assertEquals("EmailAxel", schemaVersion.getDescription());
+    }
+
+    /**
+     * Tests a schema version that includes a description with spaces.
+     */
+    @Test
+    public void extractSchemaVersionWithDescriptionWithSpaces() {
+        SchemaVersion schemaVersion = MigrationUtils.extractSchemaVersion("V9_4__Big_jump");
+        assertEquals("9.4", schemaVersion.getVersion());
+        assertEquals("Big jump", schemaVersion.getDescription());
+    }
+
+    /**
+     * Tests a schema version that includes a version with leading zeroes.
+     */
     @Test
     public void extractSchemaVersionWithLeadingZeroes() {
-//        SchemaVersion schemaVersion = MigrationUtils.extractSchemaVersion("V009_4_EmailAxel");
-//        assertEquals(9, schemaVersion.getMajor());
-//        assertEquals(4, schemaVersion.getMinor());
+        SchemaVersion schemaVersion = MigrationUtils.extractSchemaVersion("V009_4__EmailAxel");
+        assertEquals("9.4", schemaVersion.getVersion());
+        assertEquals("EmailAxel", schemaVersion.getDescription());
     }
 }

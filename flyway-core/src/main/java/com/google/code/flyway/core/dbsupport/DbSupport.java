@@ -1,5 +1,10 @@
 package com.google.code.flyway.core.dbsupport;
 
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
 /**
  * Abstraction for database-specific functionality.
  */
@@ -11,4 +16,38 @@ public interface DbSupport {
      * @return The sql statements.
      */
     String[] createSchemaMetaDataTableSql(String tableName);
+
+    /**
+     * Retrieves the current schema for this connection.
+     *
+     * @param connection The connection to check.
+     * @return The current schema for this connection.
+     */
+    String getCurrentSchema(Connection connection) throws SQLException;
+
+    /**
+     * Checks whether this DbSupport class supports the database with this product name.
+     *
+     * @param databaseProductName The name of the database.
+     * @return {@code true} if the database is supported, {@code false} if not.
+     */
+    boolean supportsDatabase(String databaseProductName);
+
+    /**
+     * Checks whether Flyway's metadata table is already present in the database.
+     *
+     * @param jdbcTemplate        The jdbc template used for querying the database.
+     * @param schema              The schema to check.
+     * @param schemaMetaDataTable The table to look for.
+     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     * @throws SQLException Thrown when the database metadata could not be read.
+     */
+    boolean metaDataTableExists(SimpleJdbcTemplate jdbcTemplate, String schema, String schemaMetaDataTable) throws SQLException;
+
+    /**
+     * Checks whether ddl transactions are supported for this database.
+     *
+     * @return {@code true} if ddl transactions are supported, {@code false} if not.
+     */
+    boolean supportsDdlTransactions();
 }

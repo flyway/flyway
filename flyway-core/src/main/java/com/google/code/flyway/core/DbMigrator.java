@@ -7,18 +7,15 @@ import com.google.code.flyway.core.java.JavaMigrationResolver;
 import com.google.code.flyway.core.sql.SqlMigrationResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +29,7 @@ import java.util.Map;
  *
  * @author Axel Fontaine
  */
-public class DbMigrator implements InitializingBean {
+public class DbMigrator {
     /**
      * Logger.
      */
@@ -64,11 +61,6 @@ public class DbMigrator implements InitializingBean {
     private String schemaMetaDataTable = "schema_maintenance_history";
 
     /**
-     * The metadata of the database.
-     */
-    private DatabaseMetaData databaseMetaData;
-
-    /**
      * The target version of the migration, default is the latest version.
      */
     private final SchemaVersion targetVersion = SchemaVersion.LATEST;
@@ -76,7 +68,7 @@ public class DbMigrator implements InitializingBean {
     /**
      * SimpleJdbcTemplate with ddl manipulation access to the database.
      */
-    private SimpleJdbcTemplate simpleJdbcTemplate;
+    private SimpleJdbcTemplate jdbcTemplate;
 
     /**
      * Database-specific functionality.
@@ -94,10 +86,22 @@ public class DbMigrator implements InitializingBean {
     private Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 
     /**
+     * The available db support classes.
+     */
+    private Collection<DbSupport> dbSupports = new ArrayList<DbSupport>();
+
+    /**
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    /**
+     * @param schema The schema to use.
+     */
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 
     /**
@@ -159,6 +163,16 @@ public class DbMigrator implements InitializingBean {
     }
 
     /**
+     * Checks whether Flyway's metadata table is already present in the database.
+     *
+     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     * @throws SQLException Thrown when the database metadata could not be read.
+     */
+    public boolean metaDataTableExists() throws SQLException {
+        return dbSupport.metaDataTableExists(jdbcTemplate, schema, schemaMetaDataTable);
+    }
+
+    /**
      * Creates Flyway's metadata table.
      */
     private void createMetaDataTable() {
@@ -167,29 +181,11 @@ public class DbMigrator implements InitializingBean {
             public Object doInTransaction(TransactionStatus status) {
                 String[] statements = dbSupport.createSchemaMetaDataTableSql(schemaMetaDataTable);
                 for (String statement : statements) {
-                    simpleJdbcTemplate.update(statement);
+                    jdbcTemplate.update(statement);
                 }
                 return null;
             }
         });
-    }
-
-    /**
-     * Checks whether Flyway's metadata table is already present in the database.
-     *
-     * @return {@code true} if the table exists, {@false if it doesn't}
-     * @throws SQLException Thrown when the database metadata could not be read.
-     */
-    /* private -> for testing */
-    boolean metaDataTableExists() throws SQLException {
-        if (dbSupport instanceof OracleDbSupport) {
-            int count = simpleJdbcTemplate.queryForInt(
-                    "SELECT count(*) FROM user_tables WHERE table_name = ?", schemaMetaDataTable.toUpperCase());
-            return count > 0;
-        }
-
-        ResultSet resultSet = dataSource.getConnection().getMetaData().getTables(schema, null, schemaMetaDataTable, null);
-        return resultSet.next();
     }
 
     /**
@@ -198,34 +194,74 @@ public class DbMigrator implements InitializingBean {
      * @param migration The migration to execute.
      * @throws Exception in case the migration failed.
      */
-    @Transactional
-    private void execute(Migration migration) throws Exception {
-        migration.migrate(simpleJdbcTemplate);
-        updateSchemaMaintenanceHistory(migration);
+    private void execute(final Migration migration) throws Exception {
+        try {
+            transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction(TransactionStatus status) {
+                    long start = System.currentTimeMillis();
+                    migration.migrate(jdbcTemplate);
+                    long finish = System.currentTimeMillis();
+                    long duration = finish - start;
+                    
+                    migrationSucceeded(migration, duration);
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            if (!dbSupport.supportsDdlTransactions()) {
+                migrationFailed(migration);
+            }
+            throw e;
+        }
     }
 
     /**
-     * Updates the schema maintenance history table.
+     * Marks this migration as succeeded.
+     *
+     * @param migration     The migration that was run.
+     * @param executionTime The time (in ms) it took to execute.
+     */
+    private void migrationSucceeded(final Migration migration, final long executionTime) {
+        jdbcTemplate.update("UPDATE " + schemaMetaDataTable + " SET current_version=0");
+        jdbcTemplate.update("INSERT INTO " + schemaMetaDataTable
+                 + " (version, description, script, execution_time, state, current_version)"
+                 + " VALUES (?, ?, ?, ?, 'SUCCESS', 1)",
+                 migration.getVersion().getVersion(), migration.getVersion().getDescription(),
+                 migration.getScriptName(), executionTime);
+    }
+
+    /**
+     * Marks this migration as failed.
      *
      * @param migration The migration that was run.
      */
-    private void updateSchemaMaintenanceHistory(Migration migration) {
-        simpleJdbcTemplate.update("insert into " + schemaMetaDataTable
-                + " (version, script, state, current_version) values (?, ?, 'SUCCESS', '1')",
-                migration.getVersion().toString(), migration.getScriptName());
+    private void migrationFailed(final Migration migration) {
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                jdbcTemplate.update("UPDATE " + schemaMetaDataTable + " SET current_version=0");
+                jdbcTemplate.update("INSERT INTO " + schemaMetaDataTable
+                        + " (version, description, script, state, current_version)"
+                        + " VALUES (?, ?, ?, 'FAILED', '1')",
+                        migration.getVersion().getVersion(), migration.getVersion().getDescription(),
+                        migration.getScriptName());
+                return null;
+            }
+        });
     }
 
     /**
      * @return The version of the currently installed schema.
      */
-    /* private -> for testing */
-    SchemaVersion currentSchemaVersion() {
-        List<Map<String, Object>> result = simpleJdbcTemplate.queryForList(
-                "select VERSION from " + schemaMetaDataTable + " where current_version=1");
+    public SchemaVersion currentSchemaVersion() {
+        List<Map<String, Object>> result = jdbcTemplate.queryForList(
+                "select VERSION, DESCRIPTION from " + schemaMetaDataTable + " where current_version=1");
         if (result.isEmpty()) {
             return null;
         }
-        return new SchemaVersion((String) result.get(0).get("VERSION"));
+        return new SchemaVersion((String) result.get(0).get("VERSION"),
+                (String) result.get(0).get("DESCRIPTION"));
     }
 
     /**
@@ -258,27 +294,57 @@ public class DbMigrator implements InitializingBean {
         return pendingMigrations;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
+    /**
+     * Registers the available migration resolvers.
+     */
+    protected void registerMigrationResolvers() {
+        migrationResolvers.add(new SqlMigrationResolver(baseDir));
+        migrationResolvers.add(new JavaMigrationResolver(basePackage));
+    }
+
+    /**
+     * Registers the available db support classes.
+     */
+    protected void registerDbSupports() {
+        dbSupports.add(new MySQLDbSupport());
+        dbSupports.add(new OracleDbSupport());
+    }
+
+    /**
+     * Finds the appropriate DbSupport class for the database product with this name.
+     *
+     * @param databaseProductName The name of the database product.
+     * @return The appropriate DbSupport class.
+     * @throws IllegalArgumentException Thrown when none of the available dbSupports support this databaseProductName.
+     */
+    private DbSupport selectDbSupport(String databaseProductName) {
+        for (DbSupport aDbSupport : dbSupports) {
+            if (aDbSupport.supportsDatabase(databaseProductName)) {
+                return aDbSupport;
+            }
+        }
+
+        throw new IllegalArgumentException("Unsupported Database: " + databaseProductName);
+    }
+
+    @PostConstruct
+    public void init() throws Exception {
+        registerDbSupports();
+        registerMigrationResolvers();
 
         String databaseProductName = dataSource.getConnection().getMetaData().getDatabaseProductName();
+        dbSupport = selectDbSupport(databaseProductName);
         log.debug("Database: " + databaseProductName);
 
-        if (MySQLDbSupport.DATABASE_PRODUCT_NAME.equals(databaseProductName)) {
-            dbSupport = new MySQLDbSupport();
-            schema = dataSource.getConnection().getCatalog();
-        } else if (OracleDbSupport.DATABASE_PRODUCT_NAME.equals(databaseProductName)) {
-            dbSupport = new OracleDbSupport();
-            schema = dataSource.getConnection().getMetaData().getUserName();
+        if (schema == null) {
+            schema = dbSupport.getCurrentSchema(dataSource.getConnection());
         }
         log.debug("Schema: " + schema);
 
+        jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+
         PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
         transactionTemplate = new TransactionTemplate(transactionManager);
-
-        migrationResolvers.add(new SqlMigrationResolver(baseDir));
-        migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
         migrate();
     }
