@@ -1,25 +1,26 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.google.code.flyway</groupId>
-	<artifactId>flyway-core</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.google.code.flyway</groupId>
+    <artifactId>flyway-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>${pom.artifactId}</name>
+    <packaging>jar</packaging>
+    <name>${pom.artifactId}</name>
     <properties>
         <version.spring>[2.5.0,)</version.spring>
     </properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
             <version>${version.spring}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
             <version>${version.spring}</version>
             <scope>test</scope>
-		</dependency>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -62,7 +63,7 @@
             <version>10.2.0.1.0</version>
             <optional>true</optional>
         </dependency>
-	</dependencies>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -102,6 +103,14 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.5.1</version>
+                <configuration>
+                    <header>src/etc/header.txt</header>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <reporting>
@@ -122,5 +131,5 @@
                 </configuration>
             </plugin>
         </plugins>
-    </reporting>    
+    </reporting>
 </project>
