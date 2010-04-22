@@ -37,7 +37,7 @@ public class OracleDbSupport implements DbSupport {
                 "    current_version NUMBER(1) NOT NULL" +
                 ")";
         String addIndexSql =
-                "ALTER TABLE " + tableName + " ADD INDEX " + tableName + "_current_version_index (current_version)";
+                "CREATE INDEX " + tableName + "_cv_idx ON " + tableName + "(current_version)";
 
         return new String[]{createTableSql, addIndexSql};
     }

@@ -72,9 +72,9 @@ public class DbMigrator {
     private String baseDir = "db/migration";
 
     /**
-     * The name of the schema metadata table that will be used by flyway. (default: schema_maintenance_history)
+     * The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
-    private String schemaMetaDataTable = "schema_maintenance_history";
+    private String schemaMetaDataTable = "schema_version";
 
     /**
      * The target version of the migration, default is the latest version.

@@ -38,7 +38,7 @@
     <!--  -->
     <bean id="dbMigrator" class="com.google.code.flyway.core.DbMigrator" depends-on="dbCreator">
         <property name="dataSource">
-            <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+            <bean class="com.google.code.flyway.core.DestroyableSimpleDriverDataSource">
                 <property name="username" value="test_ddl_user" />
                 <property name="password" value="ddlPassword" />
                 <property name="driverClass" value="oracle.jdbc.OracleDriver" />

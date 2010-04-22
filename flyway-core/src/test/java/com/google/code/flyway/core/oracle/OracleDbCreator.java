@@ -29,17 +29,17 @@ import javax.annotation.PreDestroy;
  * Utility for creating and dropping Oracle database schemas and users.
  */
 public class OracleDbCreator {
-@Autowired
+    @Autowired
     @Qualifier("root-simpleJdbcTemplate")
     private SimpleJdbcTemplate rootSimpleJdbcTemplate;
 
     @PostConstruct
     public void createDatabase() {
-        //MigrationUtils.executeSqlScript(rootSimpleJdbcTemplate, new ClassPathResource("migration/oracle/createDatabase.sql"));
+        MigrationUtils.executeSqlScript(rootSimpleJdbcTemplate, new ClassPathResource("migration/oracle/createDatabase.sql"));
     }
 
     @PreDestroy
     public void dropDatabase() {
-        //MigrationUtils.executeSqlScript(rootSimpleJdbcTemplate, new ClassPathResource("migration/oracle/dropDatabase.sql"));
+        MigrationUtils.executeSqlScript(rootSimpleJdbcTemplate, new ClassPathResource("migration/oracle/dropDatabase.sql"));
     }
 }
