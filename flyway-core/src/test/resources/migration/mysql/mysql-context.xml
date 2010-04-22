@@ -23,18 +23,17 @@
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 	<!--  -->
-    <bean id="root-simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-        <constructor-arg>
+    <bean id="dbCreator" class="com.google.code.flyway.core.DbCreator">
+        <property name="baseDir" value="migration/mysql"/>
+        <property name="rootDataSource">
             <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
                 <property name="username" value="root" />
                 <property name="password" value="" />
                 <property name="driverClass" value="com.mysql.jdbc.Driver" />
                 <property name="url" value="jdbc:mysql://localhost" />
             </bean>
-        </constructor-arg>
+        </property>
     </bean>
-    <!-- -->
-    <bean id="dbCreator" class="com.google.code.flyway.core.mysql.MySQLDbCreator"/>
     <!--  -->
     <bean id="dbMigrator" class="com.google.code.flyway.core.DbMigrator" depends-on="dbCreator">
         <property name="dataSource">
