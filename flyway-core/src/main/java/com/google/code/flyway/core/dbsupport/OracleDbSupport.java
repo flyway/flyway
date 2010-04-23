@@ -61,6 +61,6 @@ public class OracleDbSupport implements DbSupport {
 
     @Override
     public boolean supportsDdlTransactions() {
-        return true;
+        return false;
     }
 }

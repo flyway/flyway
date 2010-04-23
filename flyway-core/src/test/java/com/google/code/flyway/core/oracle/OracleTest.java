@@ -22,11 +22,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -38,11 +41,17 @@ public class OracleTest {
     @Autowired
     private DbMigrator dbMigrator;
 
+    @Autowired
+    private DataSource dataSource;
+
     @Test
     public void createAndMigrate() throws SQLException {
         SchemaVersion schemaVersion = dbMigrator.currentSchemaVersion();
-        Assert.assertEquals("1.1", schemaVersion.getVersion());
-        Assert.assertEquals("Populate table", schemaVersion.getDescription());
+        assertEquals("1.1", schemaVersion.getVersion());
+        assertEquals("Populate table", schemaVersion.getDescription());
         assertTrue(dbMigrator.metaDataTableExists());
+
+        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+        assertEquals("Mr. T triggered", jdbcTemplate.queryForObject("select name from test_user", String.class));
     }
 }

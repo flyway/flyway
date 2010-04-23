@@ -45,9 +45,9 @@ public class SqlScriptParser {
     private static final Log s_log = LogFactory.getLog(SqlScriptParser.class);
 
     /**
-     * Statement delimiter.
+     * The default Statement delimiter.
      */
-    private static final char STATEMENT_DELIMITER = ';';
+    private static final String DEFAULT_STATEMENT_DELIMITER = ";";
 
     /**
      * Parse the SQL script to produce an array of database statements.
@@ -62,6 +62,7 @@ public class SqlScriptParser {
         String line = "";
         BufferedReader in = new BufferedReader(sqlScriptReader);
         int lineNumber = 0;
+        String statementDelimiter = DEFAULT_STATEMENT_DELIMITER;
 
         try {
             // Read each line and build up statements.
@@ -69,7 +70,10 @@ public class SqlScriptParser {
                 lineNumber++;
                 parseLine(line, sql, lineNumber); // Trim, validate, and strip comments.
                 if (sql.length() > 0) {
-                    if (sql.charAt(sql.length() - 1) == STATEMENT_DELIMITER) {
+                    if (sql.toString().toUpperCase().endsWith("BEGIN")) {
+                        statementDelimiter = "/";
+                    }
+                    if (statementDelimiter.equals(sql.substring(sql.length() - 1))) {
                         // This line terminates the statement.
                         String statement = sql.toString().substring(0, sql.length() - 1).trim(); // Lose
                         // the
@@ -79,6 +83,7 @@ public class SqlScriptParser {
                             s_log.debug("Found statement: " + statement);
                         }
                         sql.replace(0, sql.length(), ""); // Clear buffer for the next statement.
+                        statementDelimiter = DEFAULT_STATEMENT_DELIMITER;
                     } else {
                         // This line does not terminate the statement. Add a space and go on to the
                         // next one.
@@ -153,7 +158,7 @@ public class SqlScriptParser {
                 }
                 // Thwart any attempt to have the statement delimiter embedded in a line. Not
                 // supported at this point.
-                int statementEndIndex = token.indexOf(STATEMENT_DELIMITER);
+                int statementEndIndex = token.indexOf(DEFAULT_STATEMENT_DELIMITER);
                 if (statementEndIndex >= 0 && statementEndIndex != (token.length() - 1)) {
                     throw new IllegalStateException("Multiple Statements Per Line Not Allowed. Line: " + lineNumber);
                 }
