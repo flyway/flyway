@@ -25,6 +25,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
+import java.util.HashMap;
 
 /**
  * Utility for creating and dropping database schemas and users.
@@ -60,7 +61,7 @@ public class DbCreator {
     @PostConstruct
     public void createDatabase() {
         MigrationUtils.executeSqlScript(new SimpleJdbcTemplate(rootDataSource),
-                new ClassPathResource(baseDir + "/createDatabase.sql"));
+                new ClassPathResource(baseDir + "/createDatabase.sql"), new HashMap<String, String>());
     }
 
     /**
@@ -69,6 +70,6 @@ public class DbCreator {
     @PreDestroy
     public void dropDatabase() {
         MigrationUtils.executeSqlScript(new SimpleJdbcTemplate(rootDataSource),
-                new ClassPathResource(baseDir + "/dropDatabase.sql"));
+                new ClassPathResource(baseDir + "/dropDatabase.sql"), new HashMap<String, String>());
     }
 }

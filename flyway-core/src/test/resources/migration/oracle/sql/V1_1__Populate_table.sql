@@ -14,4 +14,4 @@
 -- limitations under the License.
 --
 
-INSERT INTO test_user (name) VALUES ('Mr. T');
+INSERT INTO ${tableName} (name) VALUES ('Mr. T');

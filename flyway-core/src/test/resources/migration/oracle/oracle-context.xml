@@ -45,5 +45,10 @@
     <bean id="dbMigrator" class="com.google.code.flyway.core.DbMigrator">
         <property name="dataSource" ref="ddlDataSource"/>
         <property name="baseDir" value="migration/oracle/sql"/>
+        <property name="placeholders">
+            <map>
+                <entry key="tableName" value="test_user"/>
+            </map>
+        </property>
     </bean>
 </beans>

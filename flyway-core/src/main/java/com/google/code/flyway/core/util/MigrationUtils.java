@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Map;
 
 /**
  * Collection of utility methods used in migrations.
@@ -42,12 +43,13 @@ public class MigrationUtils {
      *
      * @param jdbcTemplate   To execute the script.
      * @param scriptResource Classpath resource containing the script.
+     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
-    public static void executeSqlScript(SimpleJdbcTemplate jdbcTemplate, Resource scriptResource) {
+    public static void executeSqlScript(SimpleJdbcTemplate jdbcTemplate, Resource scriptResource, Map<String, String> placeholders) {
         Reader reader = null;
         try {
             reader = new InputStreamReader(scriptResource.getInputStream(), "UTF-8");
-            String[] sqlStatements = SqlScriptParser.parse(reader);
+            String[] sqlStatements = SqlScriptParser.parse(reader, placeholders);
             for (String sqlStatement : sqlStatements) {
                 jdbcTemplate.update(sqlStatement);
             }

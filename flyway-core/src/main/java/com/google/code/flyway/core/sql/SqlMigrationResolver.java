@@ -26,6 +26,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Migration resolver for sql files on the classpath.
@@ -49,12 +51,23 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final String baseDir;
 
     /**
+     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     */
+    private Map<String, String> placeholders;
+
+    /**
      * Creates a new instance.
      *
      * @param baseDir The base directory on the classpath where to migrations are located.
+     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
-    public SqlMigrationResolver(String baseDir) {
+    public SqlMigrationResolver(String baseDir, Map<String, String> placeholders) {
         this.baseDir = baseDir;
+        if (placeholders == null) {
+            this.placeholders = new HashMap<String, String>();
+        } else {
+            this.placeholders = placeholders;
+        }
     }
 
     @Override
@@ -64,7 +77,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         try {
             Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
             for (Resource resource : resources) {
-                migrations.add(new SqlMigration(resource));
+                migrations.add(new SqlMigration(resource, placeholders));
             }
         } catch (IOException e) {
             log.error("Error loading sql migration files", e);

@@ -22,6 +22,8 @@ import com.google.code.flyway.core.util.MigrationUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import java.util.Map;
+
 /**
  * Database migration based on a sql file.
  */
@@ -37,15 +39,22 @@ public class SqlMigration implements Migration {
     private SchemaVersion schemaVersion;
 
     /**
+     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     */
+    private Map<String, String> placeholders;
+
+    /**
      * Creates a new sql file migration.
      *
      * @param resource The resource containing the sql script. In order to correctly guess the target schema version,
      *                 the resource should follow this pattern: sql/Vmajor_minor.sql .
+     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
-    public SqlMigration(Resource resource) {
+    public SqlMigration(Resource resource, Map<String, String> placeholders) {
         this.resource = resource;
         String versionStr = extractVersionStringFromFileName(resource.getFilename());
         this.schemaVersion = MigrationUtils.extractSchemaVersion(versionStr);
+        this.placeholders = placeholders;
     }
 
     /**
@@ -74,6 +83,6 @@ public class SqlMigration implements Migration {
 
     @Override
     public void migrate(SimpleJdbcTemplate jdbcTemplate) {
-        MigrationUtils.executeSqlScript(jdbcTemplate, resource);
+        MigrationUtils.executeSqlScript(jdbcTemplate, resource, placeholders);
     }
 }

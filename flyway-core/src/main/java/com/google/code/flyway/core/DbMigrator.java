@@ -77,6 +77,11 @@ public class DbMigrator {
     private String schemaMetaDataTable = "schema_version";
 
     /**
+     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     */
+    private Map<String, String> placeholders;
+
+    /**
      * The target version of the migration, default is the latest version.
      */
     private final SchemaVersion targetVersion = SchemaVersion.LATEST;
@@ -139,6 +144,13 @@ public class DbMigrator {
      */
     public void setSchemaMetaDataTable(String schemaMetaDataTable) {
         this.schemaMetaDataTable = schemaMetaDataTable;
+    }
+
+    /**
+     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     */
+    public void setPlaceholders(Map<String, String> placeholders) {
+        this.placeholders = placeholders;
     }
 
     /**
@@ -314,7 +326,7 @@ public class DbMigrator {
      * Registers the available migration resolvers.
      */
     protected void registerMigrationResolvers() {
-        migrationResolvers.add(new SqlMigrationResolver(baseDir));
+        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
     }
 

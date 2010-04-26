@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parses a textual SQL script containing a group of database commands separated by semi-colons and converts it into an
@@ -53,9 +56,10 @@ public class SqlScriptParser {
      * Parse the SQL script to produce an array of database statements.
      *
      * @param sqlScriptReader A reader that reads the SQL script text.
+     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
      * @return An array of strings, each containing a single statement.
      */
-    public static String[] parse(Reader sqlScriptReader) {
+    public static String[] parse(Reader sqlScriptReader, Map<String, String> placeholders) {
         Collection<String> statements = new ArrayList<String>();
 
         StringBuilder sql = new StringBuilder();
@@ -68,7 +72,8 @@ public class SqlScriptParser {
             // Read each line and build up statements.
             while ((line = in.readLine()) != null) {
                 lineNumber++;
-                parseLine(line, sql, lineNumber); // Trim, validate, and strip comments.
+                String noPlaceholdersLine = replacePlaceholders(line, placeholders);
+                parseLine(noPlaceholdersLine, sql, lineNumber); // Trim, validate, and strip comments.
                 if (sql.length() > 0) {
                     if (sql.toString().toUpperCase().endsWith("BEGIN")) {
                         statementDelimiter = "/";
@@ -105,6 +110,23 @@ public class SqlScriptParser {
 
         String[] result = new String[statements.size()];
         statements.toArray(result);
+        return result;
+    }
+
+    /**
+     * Replaces the placeholders in this text with their values.
+     *
+     * @param text The text to analyse.
+     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @return The text with placeholders replaced.
+     */
+    private static String replacePlaceholders(String text, Map<String, String> placeholders) {
+        String result = text;
+        for (String placeholder: placeholders.keySet()) {
+            String searchTerm = "${" + placeholder + "}";
+            result = result.replaceAll(Pattern.quote(searchTerm),
+                    Matcher.quoteReplacement(placeholders.get(placeholder)));
+        }
         return result;
     }
 
