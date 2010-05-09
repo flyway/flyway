@@ -16,8 +16,10 @@
 
 package com.google.code.flyway.core.sql;
 
+import com.google.code.flyway.core.DbSupport;
 import com.google.code.flyway.core.Migration;
 import com.google.code.flyway.core.MigrationResolver;
+import com.google.code.flyway.core.SqlScript;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
@@ -53,21 +55,28 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
-    private Map<String, String> placeholders;
+    private final Map<String, String> placeholders;
+
+    /**
+     * The support for database-specific extensions.
+     */
+    private final DbSupport dbSupport;
 
     /**
      * Creates a new instance.
      *
-     * @param baseDir The base directory on the classpath where to migrations are located.
+     * @param baseDir      The base directory on the classpath where to migrations are located.
      * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @param dbSupport    The support for database-specific extensions.
      */
-    public SqlMigrationResolver(String baseDir, Map<String, String> placeholders) {
+    public SqlMigrationResolver(String baseDir, Map<String, String> placeholders, DbSupport dbSupport) {
         this.baseDir = baseDir;
         if (placeholders == null) {
             this.placeholders = new HashMap<String, String>();
         } else {
             this.placeholders = placeholders;
         }
+        this.dbSupport = dbSupport;
     }
 
     @Override
@@ -77,7 +86,8 @@ public class SqlMigrationResolver implements MigrationResolver {
         try {
             Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
             for (Resource resource : resources) {
-                migrations.add(new SqlMigration(resource, placeholders));
+                SqlScript sqlScript = dbSupport.createSqlScript(resource, placeholders);
+                migrations.add(new SqlMigration(sqlScript));
             }
         } catch (IOException e) {
             log.error("Error loading sql migration files", e);

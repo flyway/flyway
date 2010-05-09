@@ -16,19 +16,21 @@
 
 package com.google.code.flyway.core;
 
-import com.google.code.flyway.core.dbsupport.DbSupport;
-import com.google.code.flyway.core.dbsupport.MySQLDbSupport;
-import com.google.code.flyway.core.dbsupport.OracleDbSupport;
 import com.google.code.flyway.core.java.JavaMigrationResolver;
 import com.google.code.flyway.core.sql.SqlMigrationResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.ClassUtils;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -39,6 +41,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Main workflow for migrating the database.
@@ -105,11 +108,6 @@ public class DbMigrator {
      * The available migration resolvers.
      */
     private Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-
-    /**
-     * The available db support classes.
-     */
-    private Collection<DbSupport> dbSupports = new ArrayList<DbSupport>();
 
     /**
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
@@ -179,7 +177,7 @@ public class DbMigrator {
 
         log.debug("Starting migration...");
         for (Migration migration : pendingMigrations) {
-            log.info("Migrating to version " + migration.getVersion());
+            log.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
             try {
                 execute(migration);
             } catch (Exception e) {
@@ -326,16 +324,8 @@ public class DbMigrator {
      * Registers the available migration resolvers.
      */
     protected void registerMigrationResolvers() {
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders));
+        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders, dbSupport));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
-    }
-
-    /**
-     * Registers the available db support classes.
-     */
-    protected void registerDbSupports() {
-        dbSupports.add(new MySQLDbSupport());
-        dbSupports.add(new OracleDbSupport());
     }
 
     /**
@@ -346,9 +336,20 @@ public class DbMigrator {
      * @throws IllegalArgumentException Thrown when none of the available dbSupports support this databaseProductName.
      */
     private DbSupport selectDbSupport(String databaseProductName) {
-        for (DbSupport aDbSupport : dbSupports) {
-            if (aDbSupport.supportsDatabase(databaseProductName)) {
-                return aDbSupport;
+        Collection<DbSupport> dbSupports = new ArrayList<DbSupport>();
+
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AssignableTypeFilter(DbSupport.class));
+        Set<BeanDefinition> components = provider.findCandidateComponents(getClass().getPackage().getName());
+        for (BeanDefinition beanDefinition : components) {
+            Class<?> clazz = ClassUtils.resolveClassName(beanDefinition.getBeanClassName(), null);
+            DbSupport dbSupport = (DbSupport) BeanUtils.instantiateClass(clazz);
+            dbSupports.add(dbSupport);
+        }
+
+        for (DbSupport dbSupport : dbSupports) {
+            if (dbSupport.supportsDatabase(databaseProductName)) {
+                return dbSupport;
             }
         }
 
@@ -357,12 +358,11 @@ public class DbMigrator {
 
     @PostConstruct
     public void init() throws Exception {
-        registerDbSupports();
-        registerMigrationResolvers();
-
         String databaseProductName = dataSource.getConnection().getMetaData().getDatabaseProductName();
         dbSupport = selectDbSupport(databaseProductName);
         log.debug("Database: " + databaseProductName);
+
+        registerMigrationResolvers();
 
         if (schema == null) {
             schema = dbSupport.getCurrentSchema(dataSource.getConnection());

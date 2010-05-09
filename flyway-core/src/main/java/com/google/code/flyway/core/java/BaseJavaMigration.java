@@ -16,19 +16,18 @@
 
 package com.google.code.flyway.core.java;
 
-import com.google.code.flyway.core.Migration;
-import com.google.code.flyway.core.SchemaVersion;
-import com.google.code.flyway.core.util.MigrationUtils;
+import com.google.code.flyway.core.BaseMigration;
 import org.springframework.util.ClassUtils;
 
 /**
- * Base class for java migration classes whose name conforms to Vmajor_minor.
+ * Base class for java migration classes whose name conforms to the Flyway standard.
  */
-public abstract class BaseJavaMigration implements Migration {
-    @Override
-    public SchemaVersion getVersion() {
-        String className = ClassUtils.getShortName(getClass());
-        return MigrationUtils.extractSchemaVersion(className);
+public abstract class BaseJavaMigration extends BaseMigration {
+    /**
+     * Initializes this Migration with this standard Flyway name.
+     */
+    protected BaseJavaMigration() {
+        initVersion(ClassUtils.getShortName(getClass()));
     }
 
     @Override

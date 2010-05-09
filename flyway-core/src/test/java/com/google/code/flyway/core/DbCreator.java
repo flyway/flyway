@@ -16,9 +16,6 @@
 
 package com.google.code.flyway.core;
 
-import com.google.code.flyway.core.util.MigrationUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -60,8 +57,9 @@ public class DbCreator {
      */
     @PostConstruct
     public void createDatabase() {
-        MigrationUtils.executeSqlScript(new SimpleJdbcTemplate(rootDataSource),
-                new ClassPathResource(baseDir + "/createDatabase.sql"), new HashMap<String, String>());
+        SqlScript sqlScript =
+                new StandardSqlScript(new ClassPathResource(baseDir + "/createDatabase.sql"), new HashMap<String, String>());
+        sqlScript.execute(new SimpleJdbcTemplate(rootDataSource));
     }
 
     /**
@@ -69,7 +67,8 @@ public class DbCreator {
      */
     @PreDestroy
     public void dropDatabase() {
-        MigrationUtils.executeSqlScript(new SimpleJdbcTemplate(rootDataSource),
-                new ClassPathResource(baseDir + "/dropDatabase.sql"), new HashMap<String, String>());
+        SqlScript sqlScript =
+                new StandardSqlScript(new ClassPathResource(baseDir + "/dropDatabase.sql"), new HashMap<String, String>());
+        sqlScript.execute(new SimpleJdbcTemplate(rootDataSource));
     }
 }

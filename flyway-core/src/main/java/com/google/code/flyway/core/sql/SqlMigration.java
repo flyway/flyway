@@ -16,45 +16,27 @@
 
 package com.google.code.flyway.core.sql;
 
-import com.google.code.flyway.core.Migration;
-import com.google.code.flyway.core.SchemaVersion;
-import com.google.code.flyway.core.util.MigrationUtils;
-import org.springframework.core.io.Resource;
+import com.google.code.flyway.core.BaseMigration;
+import com.google.code.flyway.core.SqlScript;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
-import java.util.Map;
 
 /**
  * Database migration based on a sql file.
  */
-public class SqlMigration implements Migration {
+public class SqlMigration extends BaseMigration {
     /**
-     * The resource containing the sql script.
+     * The sql script.
      */
-    private Resource resource;
+    private final SqlScript sqlScript;
 
     /**
-     * The target schema version of this migration.
-     */
-    private SchemaVersion schemaVersion;
-
-    /**
-     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
-     */
-    private Map<String, String> placeholders;
-
-    /**
-     * Creates a new sql file migration.
+     * Creates a new sql script migration based on this sql script.
      *
-     * @param resource The resource containing the sql script. In order to correctly guess the target schema version,
-     *                 the resource should follow this pattern: sql/Vmajor_minor.sql .
-     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @param sqlScript The sql script.
      */
-    public SqlMigration(Resource resource, Map<String, String> placeholders) {
-        this.resource = resource;
-        String versionStr = extractVersionStringFromFileName(resource.getFilename());
-        this.schemaVersion = MigrationUtils.extractSchemaVersion(versionStr);
-        this.placeholders = placeholders;
+    public SqlMigration(SqlScript sqlScript) {
+        initVersion(extractVersionStringFromFileName(sqlScript.getFilename()));
+        this.sqlScript = sqlScript;
     }
 
     /**
@@ -72,17 +54,12 @@ public class SqlMigration implements Migration {
     }
 
     @Override
-    public SchemaVersion getVersion() {
-        return schemaVersion;
-    }
-
-    @Override
     public String getScriptName() {
-        return "Sql File: " + resource.getFilename();
+        return "Sql File: " + sqlScript.getFilename();
     }
 
     @Override
     public void migrate(SimpleJdbcTemplate jdbcTemplate) {
-        MigrationUtils.executeSqlScript(jdbcTemplate, resource, placeholders);
+        sqlScript.execute(jdbcTemplate);
     }
 }
