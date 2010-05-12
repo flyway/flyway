@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test for OracleSqlScript.
  */
-public class OracleSqlScriptTest {
+public class OracleSqlScriptSmallTest {
     @Test
     public void testSqlStatements() {
         OracleSqlScript sqlScript =

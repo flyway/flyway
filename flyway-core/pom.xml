@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
     <name>${pom.artifactId}</name>
     <properties>
-        <version.spring>[2.5.0,)</version.spring>
+        <version.spring>3.0.2.RELEASE</version.spring>
     </properties>
     <dependencies>
         <dependency>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.4</version>
+            <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -117,6 +117,37 @@
                         <goals>
                             <goal>format</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <includes>
+                        <include>**/*SmallTest.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*MediumTest.java</exclude>
+                    </excludes>
+                    <parallel>methods</parallel>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>MediumTests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*MediumTest.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*SmallTest.java</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

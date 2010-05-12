@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
-public class OracleTest {
+public class OracleMediumTest {
     @Autowired
     private DbMigrator dbMigrator;
 

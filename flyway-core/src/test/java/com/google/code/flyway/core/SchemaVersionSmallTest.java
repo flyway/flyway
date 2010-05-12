@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests SchemaVersion.
  */
-public class SchemaVersionTest {
+public class SchemaVersionSmallTest {
     @Test
     public void compareTo() {
         SchemaVersion v1 = new SchemaVersion("1", null);

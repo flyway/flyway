@@ -24,7 +24,7 @@ import org.junit.Test;
 /**
  * Testcase for SqlMigration.
  */
-public class SqlMigrationTest {
+public class SqlMigrationSmallTest {
     /**
      * Test for extractVersionStringFromFileName.
      */

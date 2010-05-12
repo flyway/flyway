@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:migration/mysql/mysql-context.xml"})
-public class MySQLTest {
+public class MySQLMediumTest {
     @Autowired
     private DbMigrator dbMigrator;
 

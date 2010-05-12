@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Test for BaseMigration.
  */
-public class BaseMigrationTest {
+public class BaseMigrationSmallTest {
     /**
      * Tests a schema version that lacks a description.
      */

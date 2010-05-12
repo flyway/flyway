@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Test for SqlScript.
  */
-public class SqlScriptTest {
+public class SqlScriptSmallTest {
     /**
      * Class under test.
      */
