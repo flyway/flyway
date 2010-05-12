@@ -29,3 +29,4 @@ BEGIN
     UPDATE test_user SET name = CONCAT(name, ' triggered');
 END;
 /
+COMMIT;

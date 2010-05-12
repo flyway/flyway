@@ -143,8 +143,8 @@ public class SqlScript {
 
         String delimiter = DEFAULT_STATEMENT_DELIMITER;
 
-        for (int lineNumber = 0; lineNumber < lines.size(); lineNumber++) {
-            String line = lines.get(lineNumber);
+        for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
+            String line = lines.get(lineNumber - 1);
 
             if (line.isEmpty()) {
                 continue;
@@ -163,11 +163,11 @@ public class SqlScript {
             }
 
             if (line.endsWith(delimiter)) {
-                int humanAdjustedStatementLineNumber = statementLineNumber + 1;
                 String noDelimiterStatementSql = stripDelimiter(statementSql, delimiter);
-                statements.add(new SqlStatement(humanAdjustedStatementLineNumber, noDelimiterStatementSql));
-                LOG.debug("Found statement at line " + humanAdjustedStatementLineNumber + ": " + statementSql);
+                statements.add(new SqlStatement(statementLineNumber, noDelimiterStatementSql));
+                LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
 
+                delimiter = DEFAULT_STATEMENT_DELIMITER;
                 statementSql = "";
             }
         }

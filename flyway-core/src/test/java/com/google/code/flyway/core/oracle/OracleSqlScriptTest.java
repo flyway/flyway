@@ -34,8 +34,10 @@ public class OracleSqlScriptTest {
         OracleSqlScript sqlScript =
                 new OracleSqlScript(new ClassPathResource("migration/oracle/sql/V1.sql"), new HashMap<String, String>());
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(2, sqlStatements.size());
+        assertEquals(3, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
         assertEquals(27, sqlStatements.get(1).getLineNumber());
+        assertEquals(32, sqlStatements.get(2).getLineNumber());
+        assertEquals("COMMIT", sqlStatements.get(2).getSql());
     }
 }
