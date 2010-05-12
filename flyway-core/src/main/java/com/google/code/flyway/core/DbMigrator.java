@@ -16,32 +16,19 @@
 
 package com.google.code.flyway.core;
 
-import com.google.code.flyway.core.java.JavaMigrationResolver;
-import com.google.code.flyway.core.sql.SqlMigrationResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.ClassUtils;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Main workflow for migrating the database.
@@ -55,49 +42,24 @@ public class DbMigrator {
     private static final Log log = LogFactory.getLog(DbMigrator.class);
 
     /**
-     * The datasource to use. Must have the necessary privileges to execute ddl.
-     */
-    private DataSource dataSource;
-
-    /**
-     * The schema to use.
-     */
-    private String schema;
-
-    /**
-     * The base package where the Java migrations are located. (default: db.migration)
-     */
-    private String basePackage = "db.migration";
-
-    /**
-     * The base directory on the classpath where the Sql migrations are located. (default: sql/location)
-     */
-    private String baseDir = "db/migration";
-
-    /**
-     * The name of the schema metadata table that will be used by flyway. (default: schema_version)
-     */
-    private String schemaMetaDataTable = "schema_version";
-
-    /**
-     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
-     */
-    private Map<String, String> placeholders;
-
-    /**
      * The target version of the migration, default is the latest version.
      */
     private final SchemaVersion targetVersion = SchemaVersion.LATEST;
 
     /**
-     * SimpleJdbcTemplate with ddl manipulation access to the database.
-     */
-    private SimpleJdbcTemplate jdbcTemplate;
-
-    /**
      * Database-specific functionality.
      */
-    private DbSupport dbSupport;
+    private final DbSupport dbSupport;
+
+    /**
+     * The available migration resolvers.
+     */
+    private final Collection<MigrationResolver> migrationResolvers;
+
+    /**
+     * The database metadata table.
+     */
+    private final MetaDataTable metaDataTable;
 
     /**
      * The transaction template to use.
@@ -105,50 +67,26 @@ public class DbMigrator {
     private TransactionTemplate transactionTemplate;
 
     /**
-     * The available migration resolvers.
+     * SimpleJdbcTemplate with ddl manipulation access to the database.
      */
-    private Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
+    private SimpleJdbcTemplate jdbcTemplate;
 
     /**
-     * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
+     * Creates a new database migration.
+     *
+     * @param transactionTemplate The transaction template to use.
+     * @param jdbcTemplate        SimpleJdbcTemplate with ddl manipulation access to the database.
+     * @param dbSupport           Database-specific functionality.
+     * @param migrationResolvers  The migration. resolvers
+     * @param metaDataTable       The database metadata table.
      */
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    /**
-     * @param schema The schema to use.
-     */
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
-
-    /**
-     * @param basePackage The base package where the migrations are located. (default: db.migration)
-     */
-    public void setBasePackage(String basePackage) {
-        this.basePackage = basePackage;
-    }
-
-    /**
-     * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: sql/location)
-     */
-    public void setBaseDir(String baseDir) {
-        this.baseDir = baseDir;
-    }
-
-    /**
-     * @param schemaMetaDataTable The name of the schema metadata table that will be used by flyway. (default: schema_maintenance_history)
-     */
-    public void setSchemaMetaDataTable(String schemaMetaDataTable) {
-        this.schemaMetaDataTable = schemaMetaDataTable;
-    }
-
-    /**
-     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
-     */
-    public void setPlaceholders(Map<String, String> placeholders) {
-        this.placeholders = placeholders;
+    public DbMigrator(TransactionTemplate transactionTemplate, SimpleJdbcTemplate jdbcTemplate, DbSupport dbSupport,
+                      Collection<MigrationResolver> migrationResolvers, MetaDataTable metaDataTable) {
+        this.transactionTemplate = transactionTemplate;
+        this.jdbcTemplate = jdbcTemplate;
+        this.dbSupport = dbSupport;
+        this.migrationResolvers = migrationResolvers;
+        this.metaDataTable = metaDataTable;
     }
 
     /**
@@ -157,11 +95,11 @@ public class DbMigrator {
      * @throws SQLException Thrown when the migration failed.
      */
     public void migrate() throws SQLException {
-        if (!metaDataTableExists()) {
-            createMetaDataTable();
+        if (!metaDataTable.exists()) {
+            metaDataTable.create();
         }
 
-        SchemaVersion currentSchemaVersion = currentSchemaVersion();
+        SchemaVersion currentSchemaVersion = metaDataTable.currentSchemaVersion();
         log.debug("Current schema version: " + currentSchemaVersion);
         log.debug("Target schema version: " + targetVersion);
 
@@ -178,116 +116,46 @@ public class DbMigrator {
         log.debug("Starting migration...");
         for (Migration migration : pendingMigrations) {
             log.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
-            try {
-                execute(migration);
-            } catch (Exception e) {
-                log.fatal("Migration failed! Please restore backups and roll back database and code!", e);
-                throw new IllegalStateException("Migration failed! Please restore backups and roll back database and code!", e);
+
+            final long start = System.currentTimeMillis();
+            boolean success = executeInTransaction(migration);
+            long finish = System.currentTimeMillis();
+            long duration = finish - start;
+
+            if (success) {
+                metaDataTable.migrationFinished(migration, duration, "SUCCESS");
+            } else {
+                if (dbSupport.supportsDdlTransactions()) {
+                    throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
+                } else {
+                    metaDataTable.migrationFinished(migration, duration, "FAILED");
+                    throw new IllegalStateException("Migration failed! Please restore backups and roll back database and code!");
+                }
             }
         }
         log.debug("Migration completed.");
     }
 
     /**
-     * Checks whether Flyway's metadata table is already present in the database.
-     *
-     * @return {@code true} if the table exists, {@code false} if it doesn't.
-     * @throws SQLException Thrown when the database metadata could not be read.
-     */
-    public boolean metaDataTableExists() throws SQLException {
-        return dbSupport.metaDataTableExists(jdbcTemplate, schema, schemaMetaDataTable);
-    }
-
-    /**
-     * Creates Flyway's metadata table.
-     */
-    private void createMetaDataTable() {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                String[] statements = dbSupport.createSchemaMetaDataTableSql(schemaMetaDataTable);
-                for (String statement : statements) {
-                    jdbcTemplate.update(statement);
-                }
-                return null;
-            }
-        });
-    }
-
-    /**
-     * Executes this migration.
+     * Executes this migration in a transaction.
      *
      * @param migration The migration to execute.
-     * @throws Exception in case the migration failed.
+     * @return {@code true} if the migration succeeded, {@code false} if it didn't.
      */
-    private void execute(final Migration migration) throws Exception {
+    private boolean executeInTransaction(final Migration migration) {
         try {
             transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Object doInTransaction(TransactionStatus status) {
-                    long start = System.currentTimeMillis();
                     migration.migrate(jdbcTemplate);
-                    long finish = System.currentTimeMillis();
-                    long duration = finish - start;
-                    
-                    migrationSucceeded(migration, duration);
                     return null;
                 }
             });
+            return true;
         } catch (Exception e) {
-            if (!dbSupport.supportsDdlTransactions()) {
-                migrationFailed(migration);
-            }
-            throw e;
+            log.fatal("Migration failed: " + migration.getVersion() + " - " + migration.getScriptName(), e);
+            return false;
         }
-    }
-
-    /**
-     * Marks this migration as succeeded.
-     *
-     * @param migration     The migration that was run.
-     * @param executionTime The time (in ms) it took to execute.
-     */
-    private void migrationSucceeded(final Migration migration, final long executionTime) {
-        jdbcTemplate.update("UPDATE " + schemaMetaDataTable + " SET current_version=0");
-        jdbcTemplate.update("INSERT INTO " + schemaMetaDataTable
-                 + " (version, description, script, execution_time, state, current_version)"
-                 + " VALUES (?, ?, ?, ?, 'SUCCESS', 1)",
-                 migration.getVersion().getVersion(), migration.getVersion().getDescription(),
-                 migration.getScriptName(), executionTime);
-    }
-
-    /**
-     * Marks this migration as failed.
-     *
-     * @param migration The migration that was run.
-     */
-    private void migrationFailed(final Migration migration) {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                jdbcTemplate.update("UPDATE " + schemaMetaDataTable + " SET current_version=0");
-                jdbcTemplate.update("INSERT INTO " + schemaMetaDataTable
-                        + " (version, description, script, state, current_version)"
-                        + " VALUES (?, ?, ?, 'FAILED', '1')",
-                        migration.getVersion().getVersion(), migration.getVersion().getDescription(),
-                        migration.getScriptName());
-                return null;
-            }
-        });
-    }
-
-    /**
-     * @return The version of the currently installed schema.
-     */
-    public SchemaVersion currentSchemaVersion() {
-        List<Map<String, Object>> result = jdbcTemplate.queryForList(
-                "select VERSION, DESCRIPTION from " + schemaMetaDataTable + " where current_version=1");
-        if (result.isEmpty()) {
-            return null;
-        }
-        return new SchemaVersion((String) result.get(0).get("VERSION"),
-                (String) result.get(0).get("DESCRIPTION"));
     }
 
     /**
@@ -318,62 +186,5 @@ public class DbMigrator {
         });
 
         return pendingMigrations;
-    }
-
-    /**
-     * Registers the available migration resolvers.
-     */
-    protected void registerMigrationResolvers() {
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders, dbSupport));
-        migrationResolvers.add(new JavaMigrationResolver(basePackage));
-    }
-
-    /**
-     * Finds the appropriate DbSupport class for the database product with this name.
-     *
-     * @param databaseProductName The name of the database product.
-     * @return The appropriate DbSupport class.
-     * @throws IllegalArgumentException Thrown when none of the available dbSupports support this databaseProductName.
-     */
-    private DbSupport selectDbSupport(String databaseProductName) {
-        Collection<DbSupport> dbSupports = new ArrayList<DbSupport>();
-
-        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new AssignableTypeFilter(DbSupport.class));
-        Set<BeanDefinition> components = provider.findCandidateComponents(getClass().getPackage().getName());
-        for (BeanDefinition beanDefinition : components) {
-            Class<?> clazz = ClassUtils.resolveClassName(beanDefinition.getBeanClassName(), null);
-            DbSupport dbSupport = (DbSupport) BeanUtils.instantiateClass(clazz);
-            dbSupports.add(dbSupport);
-        }
-
-        for (DbSupport dbSupport : dbSupports) {
-            if (dbSupport.supportsDatabase(databaseProductName)) {
-                return dbSupport;
-            }
-        }
-
-        throw new IllegalArgumentException("Unsupported Database: " + databaseProductName);
-    }
-
-    @PostConstruct
-    public void init() throws Exception {
-        String databaseProductName = dataSource.getConnection().getMetaData().getDatabaseProductName();
-        dbSupport = selectDbSupport(databaseProductName);
-        log.debug("Database: " + databaseProductName);
-
-        registerMigrationResolvers();
-
-        if (schema == null) {
-            schema = dbSupport.getCurrentSchema(dataSource.getConnection());
-        }
-        log.debug("Schema: " + schema);
-
-        jdbcTemplate = new SimpleJdbcTemplate(dataSource);
-
-        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
-        transactionTemplate = new TransactionTemplate(transactionManager);
-
-        migrate();
     }
 }

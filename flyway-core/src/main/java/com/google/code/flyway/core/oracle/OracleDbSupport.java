@@ -19,6 +19,8 @@ package com.google.code.flyway.core.oracle;
 import com.google.code.flyway.core.DbSupport;
 import com.google.code.flyway.core.SqlScript;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import java.sql.Connection;
@@ -47,8 +49,13 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public String getCurrentSchema(Connection connection) throws SQLException {
-        return connection.getMetaData().getUserName();
+    public String getCurrentSchema(SimpleJdbcTemplate jdbcTemplate) {
+         return (String) jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback() {
+            @Override
+            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+                return connection.getMetaData().getUserName();
+            }
+        });
     }
 
     @Override
@@ -57,7 +64,7 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean metaDataTableExists(SimpleJdbcTemplate jdbcTemplate, String schema, String schemaMetaDataTable) throws SQLException {
+    public boolean metaDataTableExists(SimpleJdbcTemplate jdbcTemplate, String schemaMetaDataTable) {
         int count = jdbcTemplate.queryForInt(
                 "SELECT count(*) FROM user_tables WHERE table_name = ?", schemaMetaDataTable.toUpperCase());
         return count > 0;

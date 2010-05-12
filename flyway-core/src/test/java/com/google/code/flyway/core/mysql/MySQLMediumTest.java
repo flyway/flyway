@@ -17,6 +17,7 @@
 package com.google.code.flyway.core.mysql;
 
 import com.google.code.flyway.core.DbMigrator;
+import com.google.code.flyway.core.Flyway;
 import com.google.code.flyway.core.SchemaVersion;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,13 +37,13 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(locations = {"classpath:migration/mysql/mysql-context.xml"})
 public class MySQLMediumTest {
     @Autowired
-    private DbMigrator dbMigrator;
+    private Flyway flyway;
 
     @Test
     public void createAndMigrate() throws SQLException {
-        SchemaVersion schemaVersion = dbMigrator.currentSchemaVersion();
+        SchemaVersion schemaVersion = flyway.getMetaDataTable().currentSchemaVersion();
         Assert.assertEquals("1.1", schemaVersion.getVersion());
         Assert.assertEquals("Populate table", schemaVersion.getDescription());
-        assertTrue(dbMigrator.metaDataTableExists());
+        assertTrue(flyway.getMetaDataTable().exists());
     }
 }

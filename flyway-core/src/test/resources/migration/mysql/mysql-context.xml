@@ -35,7 +35,7 @@
         </property>
     </bean>
     <!--  -->
-    <bean id="dbMigrator" class="com.google.code.flyway.core.DbMigrator" depends-on="dbCreator">
+    <bean id="dbMigrator" class="com.google.code.flyway.core.Flyway" depends-on="dbCreator" init-method="migrate">
         <property name="dataSource">
             <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
                 <property name="username" value="test_ddl_user" />

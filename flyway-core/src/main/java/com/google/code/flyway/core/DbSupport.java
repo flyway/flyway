@@ -36,12 +36,12 @@ public interface DbSupport {
     String[] createSchemaMetaDataTableSql(String tableName);
 
     /**
-     * Retrieves the current schema for this connection.
+     * Retrieves the current schema.
      *
-     * @param connection The connection to check.
+     * @param jdbcTemplate        The jdbc template used for querying the database.
      * @return The current schema for this connection.
      */
-    String getCurrentSchema(Connection connection) throws SQLException;
+    String getCurrentSchema(SimpleJdbcTemplate jdbcTemplate);
 
     /**
      * Checks whether this DbSupport class supports the database with this product name.
@@ -55,12 +55,10 @@ public interface DbSupport {
      * Checks whether Flyway's metadata table is already present in the database.
      *
      * @param jdbcTemplate        The jdbc template used for querying the database.
-     * @param schema              The schema to check.
      * @param schemaMetaDataTable The table to look for.
      * @return {@code true} if the table exists, {@code false} if it doesn't.
-     * @throws SQLException Thrown when the database metadata could not be read.
      */
-    boolean metaDataTableExists(SimpleJdbcTemplate jdbcTemplate, String schema, String schemaMetaDataTable) throws SQLException;
+    boolean metaDataTableExists(SimpleJdbcTemplate jdbcTemplate, String schemaMetaDataTable);
 
     /**
      * Checks whether ddl transactions are supported for this database.

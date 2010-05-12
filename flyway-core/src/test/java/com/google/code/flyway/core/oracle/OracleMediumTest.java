@@ -17,6 +17,8 @@
 package com.google.code.flyway.core.oracle;
 
 import com.google.code.flyway.core.DbMigrator;
+import com.google.code.flyway.core.Flyway;
+import com.google.code.flyway.core.MetaDataTable;
 import com.google.code.flyway.core.SchemaVersion;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,17 +41,17 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
 public class OracleMediumTest {
     @Autowired
-    private DbMigrator dbMigrator;
+    private Flyway flyway;
 
     @Autowired
     private DataSource dataSource;
 
     @Test
     public void createAndMigrate() throws SQLException {
-        SchemaVersion schemaVersion = dbMigrator.currentSchemaVersion();
+        SchemaVersion schemaVersion = flyway.getMetaDataTable().currentSchemaVersion();
         assertEquals("1.1", schemaVersion.getVersion());
         assertEquals("Populate table", schemaVersion.getDescription());
-        assertTrue(dbMigrator.metaDataTableExists());
+        assertTrue(flyway.getMetaDataTable().exists());
 
         SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
         assertEquals("Mr. T triggered", jdbcTemplate.queryForObject("select name from test_user", String.class));
