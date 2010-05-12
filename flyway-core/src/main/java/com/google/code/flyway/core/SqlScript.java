@@ -16,6 +16,8 @@
 
 package com.google.code.flyway.core;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -34,7 +36,17 @@ import java.util.regex.Pattern;
  * Sql script containing a series of statements terminated by semi-columns (;).
  * Single-line (--) and multi-line (/* * /) comments are stripped and ignored.
  */
-public abstract class SqlScript {
+public class SqlScript {
+    /**
+     * Logger.
+     */
+    private static final Log LOG = LogFactory.getLog(SqlScript.class);
+
+    /**
+     * The default Statement delimiter.
+     */
+    private static final String DEFAULT_STATEMENT_DELIMITER = ";";
+
     /**
      * The filename of this script.
      */
@@ -122,7 +134,75 @@ public abstract class SqlScript {
      *
      * @return The statements contained in these lines (in order).
      */
-    protected abstract List<SqlStatement> linesToStatements(List<String> lines);
+    /* private -> for testing */
+    List<SqlStatement> linesToStatements(List<String> lines) {
+        List<SqlStatement> statements = new ArrayList<SqlStatement>();
+
+        int statementLineNumber = 0;
+        String statementSql = "";
+
+        String delimiter = DEFAULT_STATEMENT_DELIMITER;
+
+        for (int lineNumber = 0; lineNumber < lines.size(); lineNumber++) {
+            String line = lines.get(lineNumber);
+
+            if (line.isEmpty()) {
+                continue;
+            }
+
+            if (statementSql.isEmpty()) {
+                statementLineNumber = lineNumber;
+            } else {
+                statementSql += " ";
+            }
+            statementSql += line;
+
+            String newDelimiter = checkForNewDelimiter(line);
+            if (newDelimiter != null) {
+                delimiter = newDelimiter;
+            }
+
+            if (line.endsWith(delimiter)) {
+                int humanAdjustedStatementLineNumber = statementLineNumber + 1;
+                String noDelimiterStatementSql = stripDelimiter(statementSql, delimiter);
+                statements.add(new SqlStatement(humanAdjustedStatementLineNumber, noDelimiterStatementSql));
+                LOG.debug("Found statement at line " + humanAdjustedStatementLineNumber + ": " + statementSql);
+
+                statementSql = "";
+            }
+        }
+
+        // Catch any statements not followed by delimiter.
+        if (!statementSql.isEmpty()) {
+            statements.add(new SqlStatement(statementLineNumber, statementSql));
+        }
+
+        return statements;
+    }
+
+    /**
+     * Checks whether this line in the sql script indicates that the statement delimiter will be different from the
+     * default one. Useful for database-specific stored procedures and block constructs.
+     *
+     * @param line The line to analyse.
+     *
+     * @return The new delimiter to use or {@code null} if no change in delimiter is required.
+     */
+    @SuppressWarnings({"UnusedDeclaration"})
+    protected String checkForNewDelimiter(String line) {
+        return null;
+    }
+
+    /**
+     * Strips this delimiter from this sql statement.
+     *
+     * @param sql       The statement to parse.
+     * @param delimiter The delimiter to strip.
+     * @return The sql statement without delimiter.
+     */
+    private static String stripDelimiter(String sql, String delimiter) {
+        return sql.substring(0, sql.length() - delimiter.length());
+    }
 
     /**
      * Strip single line (--) and multi-line (/* * /) comments from these lines.

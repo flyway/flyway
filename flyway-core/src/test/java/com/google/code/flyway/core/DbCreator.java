@@ -58,7 +58,7 @@ public class DbCreator {
     @PostConstruct
     public void createDatabase() {
         SqlScript sqlScript =
-                new StandardSqlScript(new ClassPathResource(baseDir + "/createDatabase.sql"), new HashMap<String, String>());
+                new SqlScript(new ClassPathResource(baseDir + "/createDatabase.sql"), new HashMap<String, String>());
         sqlScript.execute(new SimpleJdbcTemplate(rootDataSource));
     }
 
@@ -68,7 +68,7 @@ public class DbCreator {
     @PreDestroy
     public void dropDatabase() {
         SqlScript sqlScript =
-                new StandardSqlScript(new ClassPathResource(baseDir + "/dropDatabase.sql"), new HashMap<String, String>());
+                new SqlScript(new ClassPathResource(baseDir + "/dropDatabase.sql"), new HashMap<String, String>());
         sqlScript.execute(new SimpleJdbcTemplate(rootDataSource));
     }
 }

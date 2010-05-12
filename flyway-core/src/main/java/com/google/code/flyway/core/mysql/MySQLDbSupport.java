@@ -18,7 +18,6 @@ package com.google.code.flyway.core.mysql;
 
 import com.google.code.flyway.core.DbSupport;
 import com.google.code.flyway.core.SqlScript;
-import com.google.code.flyway.core.StandardSqlScript;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -48,7 +47,7 @@ public class MySQLDbSupport implements DbSupport {
         String addIndexSql =
                 "ALTER TABLE " + tableName + " ADD INDEX " + tableName + "_current_version_index (current_version)";
 
-        return new String[] {createTableSql, addIndexSql};
+        return new String[]{createTableSql, addIndexSql};
     }
 
     @Override
@@ -79,6 +78,6 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
-        return new StandardSqlScript(resource, placeholders);
+        return new SqlScript(resource, placeholders);
     }
 }

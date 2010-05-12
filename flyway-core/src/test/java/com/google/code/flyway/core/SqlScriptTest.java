@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test for SqlScript.
@@ -30,12 +31,7 @@ public class SqlScriptTest {
     /**
      * Class under test.
      */
-    private SqlScript sqlScript = new SqlScript() {
-        @Override
-        protected List<SqlStatement> linesToStatements(List<String> lines) {
-            return null;
-        }
-    };
+    private SqlScript sqlScript = new SqlScript();
 
     /**
      * Input lines.
@@ -72,5 +68,21 @@ public class SqlScriptTest {
         List<String> result = sqlScript.stripSqlComments(lines);
         assertEquals("", result.get(0));
         assertEquals("", result.get(1));        
+    }
+
+    @Test
+    public void linesToStatements() {
+        List<String> lines = new ArrayList<String>();
+        lines.add("select col1, col2");
+        lines.add("from mytable");
+        lines.add("where col1 > 10;");
+
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertNotNull(sqlStatements);
+        assertEquals(1, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(1, sqlStatement.getLineNumber());
+        assertEquals("select col1, col2 from mytable where col1 > 10", sqlStatement.getSql());
     }
 }

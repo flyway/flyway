@@ -18,7 +18,6 @@ package com.google.code.flyway.core.oracle;
 
 import com.google.code.flyway.core.DbSupport;
 import com.google.code.flyway.core.SqlScript;
-import com.google.code.flyway.core.StandardSqlScript;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
