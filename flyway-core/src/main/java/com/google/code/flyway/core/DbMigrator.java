@@ -144,14 +144,13 @@ public class DbMigrator {
      */
     private boolean executeInTransaction(final Migration migration) {
         try {
-            transactionTemplate.execute(new TransactionCallback() {
+            return transactionTemplate.execute(new TransactionCallback<Boolean>() {
                 @Override
-                public Object doInTransaction(TransactionStatus status) {
+                public Boolean doInTransaction(TransactionStatus status) {
                     migration.migrate(jdbcTemplate);
-                    return null;
+                    return true;
                 }
             });
-            return true;
         } catch (Exception e) {
             log.fatal("Migration failed: " + migration.getVersion() + " - " + migration.getScriptName(), e);
             return false;
