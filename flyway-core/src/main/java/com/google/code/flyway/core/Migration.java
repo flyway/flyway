@@ -18,8 +18,6 @@ package com.google.code.flyway.core;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import java.sql.SQLException;
-
 /**
  * A migration of a single version of the schema.
  *

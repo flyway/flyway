@@ -50,9 +50,9 @@ public class OracleDbSupport implements DbSupport {
 
     @Override
     public String getCurrentSchema(SimpleJdbcTemplate jdbcTemplate) {
-         return (String) jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback() {
+         return jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<String>() {
             @Override
-            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 return connection.getMetaData().getUserName();
             }
         });

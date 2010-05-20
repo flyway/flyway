@@ -19,8 +19,6 @@ package com.google.code.flyway.core;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -38,7 +36,7 @@ public interface DbSupport {
     /**
      * Retrieves the current schema.
      *
-     * @param jdbcTemplate        The jdbc template used for querying the database.
+     * @param jdbcTemplate The jdbc template used for querying the database.
      * @return The current schema for this connection.
      */
     String getCurrentSchema(SimpleJdbcTemplate jdbcTemplate);
@@ -72,6 +70,9 @@ public interface DbSupport {
      *
      * @param resource     The resource containing the sql script.
      * @param placeholders A map of <placeholder, replacementValue> to replace in sql statements.
+     *
+     * @return A new sql script, containing the statements from this resource, with all placeholders replaced.
+     *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     SqlScript createSqlScript(Resource resource, Map<String, String> placeholders);

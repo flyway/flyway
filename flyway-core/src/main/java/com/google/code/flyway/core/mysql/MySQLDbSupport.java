@@ -52,9 +52,9 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public String getCurrentSchema(SimpleJdbcTemplate jdbcTemplate) {
-        return (String) jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback() {
+        return jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<String>() {
             @Override
-            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 return connection.getCatalog();
             }
         });
@@ -67,9 +67,9 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public boolean metaDataTableExists(final SimpleJdbcTemplate jdbcTemplate, final String schemaMetaDataTable) {
-        return (Boolean) jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback() {
+        return jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<Boolean>() {
             @Override
-            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet =
                         connection.getMetaData().getTables(getCurrentSchema(jdbcTemplate), null, schemaMetaDataTable, null);
                 return resultSet.next();
