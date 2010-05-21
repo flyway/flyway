@@ -7,14 +7,24 @@
         <version>0.0.6-SNAPSHOT</version>
     </parent>
     <groupId>com.google.code.flyway</groupId>
-    <artifactId>flyway-maven-plugin</artifactId>
+    <artifactId>flyway-sample</artifactId>
     <version>0.0.6-SNAPSHOT</version>
-    <packaging>maven-plugin</packaging>
+    <packaging>jar</packaging>
     <name>${pom.artifactId}</name>
     <dependencies>
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${pom.version}</version>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>${pom.groupId}</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>${pom.version}</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>

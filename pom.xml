@@ -10,6 +10,7 @@
     <modules>
         <module>flyway-core</module>
         <module>flyway-maven-plugin</module>
+        <module>flyway-sample</module>
     </modules>
 
     <properties>
