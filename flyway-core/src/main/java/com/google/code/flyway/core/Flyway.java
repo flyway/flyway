@@ -156,9 +156,9 @@ public class Flyway {
      * @return The appropriate DbSupport class.
      */
     private DbSupport initDbSupport() {
-        String databaseProductName = (String) jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback() {
+        String databaseProductName = jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<String>() {
             @Override
-            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 DatabaseMetaData databaseMetaData = connection.getMetaData();
                 if (databaseMetaData == null) {
                     throw new IllegalStateException("Unable to read database metadata while it is null!");

@@ -9,6 +9,7 @@
 
     <modules>
         <module>flyway-core</module>
+        <module>flyway-maven-plugin</module>
     </modules>
 
     <properties>

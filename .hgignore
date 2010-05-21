@@ -1,6 +1,6 @@
 syntax: glob
 
-flyway-core/target/*
+**/target/*
 *.iml
 *.ipr
 *.iws
