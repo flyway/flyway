@@ -15,6 +15,7 @@
 
     <properties>
         <version.spring>3.0.2.RELEASE</version.spring>
+        <version.maven>2.2.1</version.maven>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -81,8 +82,28 @@
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
-                <version>2.0</version>
+                <version>${version.maven}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-artifact</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-project</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-model</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
+            <dependency>
+                 <groupId>org.apache.maven</groupId>
+                 <artifactId>maven-core</artifactId>
+                 <version>${version.maven}</version>
+             </dependency>
         </dependencies>
     </dependencyManagement>
     <build>

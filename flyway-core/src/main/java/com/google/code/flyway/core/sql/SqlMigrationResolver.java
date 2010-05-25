@@ -22,6 +22,7 @@ import com.google.code.flyway.core.MigrationResolver;
 import com.google.code.flyway.core.SqlScript;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
@@ -83,12 +84,18 @@ public class SqlMigrationResolver implements MigrationResolver {
     public Collection<Migration> resolvesMigrations() {
         Collection<Migration> migrations = new ArrayList<Migration>();
 
+        Resource classPathBaseDir = new ClassPathResource(baseDir + "/");
+        if (! classPathBaseDir.exists()) {
+            log.warn("Unable to find path for sql migrations: " + baseDir);
+            return migrations;
+        }
+
         try {
-            Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
-            for (Resource resource : resources) {
-                SqlScript sqlScript = dbSupport.createSqlScript(resource, placeholders);
-                migrations.add(new SqlMigration(sqlScript));
-            }
+                Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
+                for (Resource resource : resources) {
+                    SqlScript sqlScript = dbSupport.createSqlScript(resource, placeholders);
+                    migrations.add(new SqlMigration(sqlScript));
+                }
         } catch (IOException e) {
             log.error("Error loading sql migration files", e);
         }

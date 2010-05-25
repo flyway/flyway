@@ -32,6 +32,12 @@
                 <groupId>${pom.groupId}</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${pom.version}</version>
+                <configuration>
+                    <driver>org.hsqldb.jdbcDriver</driver>
+                    <url>jdbc:hsqldb:mem:flyway_sample</url>
+                    <user>SA</user>
+                    <password> </password>
+                </configuration>
             </plugin>
         </plugins>
     </build>
