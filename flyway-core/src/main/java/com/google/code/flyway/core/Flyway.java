@@ -16,6 +16,7 @@
 
 package com.google.code.flyway.core;
 
+import com.google.code.flyway.core.hsql.HsqlDbSupport;
 import com.google.code.flyway.core.java.JavaMigrationResolver;
 import com.google.code.flyway.core.mysql.MySQLDbSupport;
 import com.google.code.flyway.core.oracle.OracleDbSupport;
@@ -171,6 +172,7 @@ public class Flyway {
 
         Collection<DbSupport> dbSupports = new ArrayList<DbSupport>();
 
+        dbSupports.add(new HsqlDbSupport());
         dbSupports.add(new MySQLDbSupport());
         dbSupports.add(new OracleDbSupport());
 
