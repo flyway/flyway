@@ -17,26 +17,42 @@
 package com.google.code.flyway.core.sql;
 
 import com.google.code.flyway.core.BaseMigration;
+import com.google.code.flyway.core.DbSupport;
 import com.google.code.flyway.core.SqlScript;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+
+import java.util.Map;
 
 /**
  * Database migration based on a sql file.
  */
 public class SqlMigration extends BaseMigration {
     /**
-     * The sql script.
+     * The resource containing the sql script.
      */
-    private final SqlScript sqlScript;
+    private final Resource sqlScriptResource;
+
+    /**
+     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     */
+    private final Map<String, String> placeholders;
+
+    /**
+     * The support for database-specific extensions.
+     */
+    private final DbSupport dbSupport;
 
     /**
      * Creates a new sql script migration based on this sql script.
      *
-     * @param sqlScript The sql script.
+     * @param sqlScriptResource The resource containing the sql script.
      */
-    public SqlMigration(SqlScript sqlScript) {
-        initVersion(extractVersionStringFromFileName(sqlScript.getFilename()));
-        this.sqlScript = sqlScript;
+    public SqlMigration(Resource sqlScriptResource, Map<String, String> placeholders, DbSupport dbSupport) {
+        initVersion(extractVersionStringFromFileName(sqlScriptResource.getFilename()));
+        this.sqlScriptResource = sqlScriptResource;
+        this.placeholders = placeholders;
+        this.dbSupport = dbSupport;
     }
 
     /**
@@ -55,11 +71,12 @@ public class SqlMigration extends BaseMigration {
 
     @Override
     public String getScriptName() {
-        return "Sql File: " + sqlScript.getFilename();
+        return "Sql File: " + sqlScriptResource.getFilename();
     }
 
     @Override
-    public void migrate(SimpleJdbcTemplate jdbcTemplate) {
+    public void doMigrate(SimpleJdbcTemplate jdbcTemplate) {
+        SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptResource, placeholders);
         sqlScript.execute(jdbcTemplate);
     }
 }

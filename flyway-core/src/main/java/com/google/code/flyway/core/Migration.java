@@ -30,12 +30,22 @@ public interface Migration {
     SchemaVersion getVersion();
 
     /**
+     * @return The state of this migration.
+     */
+    MigrationState getState();
+
+    /**
+     * @return The time (in ms) it took to execute.
+     */
+    long getExecutionTime();
+
+    /**
      * @return The script name for the migration history.
      */
     String getScriptName();
 
     /**
-     * Performs the migration.
+     * Performs the migration. The migration state and the execution time are updated accordingly.
      *
      * @param jdbcTemplate To execute the migration statements.
      */

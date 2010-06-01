@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.sql.SQLException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -39,10 +40,11 @@ public class HsqlMediumTest {
     private Flyway flyway;
 
     @Test
-    public void createAndMigrate() throws SQLException {
-        SchemaVersion schemaVersion = flyway.getMetaDataTable().currentSchemaVersion();
-        Assert.assertEquals("1.1", schemaVersion.getVersion());
-        Assert.assertEquals("Populate table", schemaVersion.getDescription());
+    public void createAndMigrate() throws Exception {
         assertTrue(flyway.getMetaDataTable().exists());
+        SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
+        assertEquals("1.1", schemaVersion.getVersion());
+        assertEquals("Populate table", schemaVersion.getDescription());
+        assertEquals(0, flyway.migrate());
     }
 }

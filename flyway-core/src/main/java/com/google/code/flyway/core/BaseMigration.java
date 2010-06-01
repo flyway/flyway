@@ -16,15 +16,34 @@
 
 package com.google.code.flyway.core;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+
 /**
  * Base migration for migrations that use the standard Flyway version + description embedding in their name.
  * These migrations have names like V1_2__Description .
  */
 public abstract class BaseMigration implements Migration {
     /**
+     * Logger.
+     */
+    private static final Log log = LogFactory.getLog(BaseMigration.class);
+
+    /**
      * The target schema version of this migration.
      */
     private SchemaVersion schemaVersion;
+
+    /**
+     * The state of this migration.
+     */
+    private MigrationState migrationState = MigrationState.UNKNOWN;
+
+    /**
+     * The time (in ms) it took to execute.
+     */
+    private long executionTime = -1;
 
     @Override
     public SchemaVersion getVersion() {
@@ -64,4 +83,37 @@ public abstract class BaseMigration implements Migration {
 
         return new SchemaVersion(version.replace("_", "."), description);
     }
+
+    @Override
+    public MigrationState getState() {
+        return migrationState;
+    }
+
+    @Override
+    public long getExecutionTime() {
+        return executionTime;
+    }
+
+    @Override
+    public final void migrate(SimpleJdbcTemplate jdbcTemplate) {
+        final long start = System.currentTimeMillis();
+        try {
+            doMigrate(jdbcTemplate);
+            migrationState = MigrationState.SUCCESS;
+        } catch (Exception e) {
+            log.fatal("Migration failed: " + schemaVersion + " - " + getScriptName(), e);
+            migrationState = MigrationState.FAILED;
+        }
+        long finish = System.currentTimeMillis();
+        executionTime = finish - start;
+    }
+
+    /**
+     * Performs the migration.
+     *
+     * @param jdbcTemplate To execute the migration statements.
+     *
+     * @throws Exception Thrown when the migration failed.
+     */
+    protected abstract void doMigrate(SimpleJdbcTemplate jdbcTemplate) throws Exception;
 }

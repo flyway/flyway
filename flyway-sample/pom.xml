@@ -24,7 +24,7 @@
         <dependency>
             <groupId>hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-        </dependency>        
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -34,10 +34,38 @@
                 <version>${pom.version}</version>
                 <configuration>
                     <driver>org.hsqldb.jdbcDriver</driver>
-                    <url>jdbc:hsqldb:mem:flyway_sample</url>
+                    <url>jdbc:hsqldb:file:${project.build.directory}/db/flyway_sample;shutdown=true</url>
                     <user>SA</user>
                     <password> </password>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.google.code.flyway.sample.Main</mainClass>
+                            <packageName>com.google.code.flyway.sample</packageName>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

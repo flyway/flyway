@@ -25,14 +25,14 @@ import java.util.Arrays;
  */
 public final class SchemaVersion implements Comparable<SchemaVersion> {
     /**
-     * Latest schema version.
+     * Schema version for an empty schema.
      */
-    public static final SchemaVersion LATEST = new SchemaVersion();
+    public static final SchemaVersion EMPTY = new SchemaVersion("<< empty schema >>");
 
     /**
-     * Is it the latest version?
+     * Latest schema version.
      */
-    private final boolean latest;
+    public static final SchemaVersion LATEST = new SchemaVersion("<< latest >>");
 
     /**
      * The version components. These are the numbers of the version. ([major, minor, patch, ...]) At least one component must be present.
@@ -50,12 +50,13 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     private final String description;
 
     /**
-     * Creates *the* latest version.
+     * Creates a special version. For internal use only.
+     *
+     * @param version The version to display.
      */
-    private SchemaVersion() {
-        latest = true;
+    private SchemaVersion(String version) {
+        this.version = version;
         components = new long[0];
-        version = "<< latest >>";
         description = null;
     }
 
@@ -66,7 +67,7 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
      * @param description The description of this version.
      */
     public SchemaVersion(String rawVersion, String description) {
-        latest = false;
+        this.description = description;
 
         String[] numbers = rawVersion.split("\\.");
         if (numbers == null) {
@@ -85,7 +86,6 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
         }
 
         version = versionStr;
-        this.description = description;
     }
 
     /**
@@ -118,16 +118,16 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
 
         SchemaVersion that = (SchemaVersion) o;
 
-        if (latest != that.latest) return false;
         if (!Arrays.equals(components, that.components)) return false;
+        if (description != null ? !description.equals(that.description) : that.description != null) return false;
         return version.equals(that.version);
     }
 
     @Override
     public int hashCode() {
-        int result = (latest ? 1 : 0);
-        result = 31 * result + Arrays.hashCode(components);
+        int result = components != null ? Arrays.hashCode(components) : 0;
         result = 31 * result + version.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
 
@@ -141,11 +141,19 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
             return 0;
         }
 
-        if (latest) {
+        if (equals(EMPTY)) {
+            return Integer.MIN_VALUE;
+        }
+
+        if (equals(LATEST)) {
             return Integer.MAX_VALUE;
         }
 
-        if (o.latest) {
+        if (o.equals(EMPTY)) {
+            return Integer.MAX_VALUE;
+        }
+
+        if (o.equals(LATEST)) {
             return Integer.MIN_VALUE;
         }
 

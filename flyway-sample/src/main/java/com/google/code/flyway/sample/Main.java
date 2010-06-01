@@ -34,7 +34,7 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         DataSource dataSource =
-                new SimpleDriverDataSource(new org.hsqldb.jdbcDriver(), "jdbc:hsqldb:mem:flyway_sample", "SA", "");
+                new SimpleDriverDataSource(new org.hsqldb.jdbcDriver(), "jdbc:hsqldb:file:db/flyway_sample;shutdown=true", "SA", "");
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.migrate();

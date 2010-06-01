@@ -41,7 +41,7 @@ public class MySQLMediumTest {
 
     @Test
     public void createAndMigrate() throws SQLException {
-        SchemaVersion schemaVersion = flyway.getMetaDataTable().currentSchemaVersion();
+        SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
         Assert.assertEquals("1.1", schemaVersion.getVersion());
         Assert.assertEquals("Populate table", schemaVersion.getDescription());
         assertTrue(flyway.getMetaDataTable().exists());

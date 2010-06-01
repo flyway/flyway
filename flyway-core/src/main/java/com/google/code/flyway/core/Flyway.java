@@ -139,16 +139,17 @@ public class Flyway {
     /**
      * Starts the database migration.
      *
+     * @return The number of successfully applied migrations.
      * @throws Exception Thrown when the migration failed.
      */
-    public void migrate() throws Exception {
+    public int migrate() throws Exception {
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
         migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders, dbSupport));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
         DbMigrator dbMigrator =
                 new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrationResolvers, metaDataTable);
-        dbMigrator.migrate();
+        return dbMigrator.migrate();
     }
 
     /**

@@ -48,7 +48,7 @@ public class OracleMediumTest {
 
     @Test
     public void createAndMigrate() throws SQLException {
-        SchemaVersion schemaVersion = flyway.getMetaDataTable().currentSchemaVersion();
+        SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
         assertEquals("1.1", schemaVersion.getVersion());
         assertEquals("Populate table", schemaVersion.getDescription());
         assertTrue(flyway.getMetaDataTable().exists());

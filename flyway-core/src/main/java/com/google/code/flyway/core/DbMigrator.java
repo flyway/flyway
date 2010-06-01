@@ -23,7 +23,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -92,21 +91,25 @@ public class DbMigrator {
     /**
      * Starts the actual migration.
      *
-     * @throws SQLException Thrown when the migration failed.
+     * @return The number of successfully applied migrations.
+     * @throws Exception Thrown when a migration failed.
      */
-    public void migrate() throws SQLException {
+    public int migrate() throws Exception {
         if (!metaDataTable.exists()) {
             metaDataTable.create();
         }
 
-        SchemaVersion currentSchemaVersion = metaDataTable.currentSchemaVersion();
-        log.debug("Current schema version: " + currentSchemaVersion);
-        log.debug("Target schema version: " + targetVersion);
+        Migration latestAppliedMigration = metaDataTable.latestAppliedMigration();
+        log.info("Current schema version: " + latestAppliedMigration.getVersion());
 
-        List<Migration> pendingMigrations = getPendingMigrations(currentSchemaVersion);
+        if (MigrationState.FAILED.equals(latestAppliedMigration.getState())) {
+            throw new IllegalStateException("A previous migration failed! Please restore backups and roll back database!");
+        }
+
+        List<Migration> pendingMigrations = getPendingMigrations(latestAppliedMigration.getVersion());
         if (pendingMigrations.isEmpty()) {
-            log.debug("Schema is up to date. No migration necessary.");
-            return;
+            log.info("Schema is up to date. No migration necessary.");
+            return 0;
         }
 
         for (Migration pendingMigration : pendingMigrations) {
@@ -116,45 +119,41 @@ public class DbMigrator {
         log.debug("Starting migration...");
         for (Migration migration : pendingMigrations) {
             log.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
+            executeInTransaction(migration);
 
-            final long start = System.currentTimeMillis();
-            boolean success = executeInTransaction(migration);
-            long finish = System.currentTimeMillis();
-            long duration = finish - start;
+            if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
+                throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
+            }
 
-            if (success) {
-                metaDataTable.migrationFinished(migration, duration, "SUCCESS");
-            } else {
-                if (dbSupport.supportsDdlTransactions()) {
-                    throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
-                } else {
-                    metaDataTable.migrationFinished(migration, duration, "FAILED");
-                    throw new IllegalStateException("Migration failed! Please restore backups and roll back database and code!");
-                }
+            metaDataTable.migrationFinished(migration);
+
+            if (MigrationState.FAILED.equals(migration.getState())) {
+                throw new IllegalStateException("Migration failed! Please restore backups and roll back database and code!");
             }
         }
-        log.debug("Migration completed.");
+
+        if (pendingMigrations.size() == 1) {
+            log.info("Migration completed. Successfully applied 1 migration.");
+        } else {
+            log.info("Migration completed. Successfully applied " + pendingMigrations.size() + " migrations.");
+        }
+
+        return pendingMigrations.size();
     }
 
     /**
      * Executes this migration in a transaction.
      *
      * @param migration The migration to execute.
-     * @return {@code true} if the migration succeeded, {@code false} if it didn't.
      */
-    private boolean executeInTransaction(final Migration migration) {
-        try {
-            return transactionTemplate.execute(new TransactionCallback<Boolean>() {
-                @Override
-                public Boolean doInTransaction(TransactionStatus status) {
-                    migration.migrate(jdbcTemplate);
-                    return true;
-                }
-            });
-        } catch (Exception e) {
-            log.fatal("Migration failed: " + migration.getVersion() + " - " + migration.getScriptName(), e);
-            return false;
-        }
+    private void executeInTransaction(final Migration migration) {
+        transactionTemplate.execute(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                migration.migrate(jdbcTemplate);
+                return null;
+            }
+        });
     }
 
     /**
@@ -164,12 +163,32 @@ public class DbMigrator {
      * @return The list of migrations still to be performed.
      */
     private List<Migration> getPendingMigrations(SchemaVersion currentVersion) {
-        Collection<Migration> allMigrations = new ArrayList<Migration>();
+        List<Migration> allMigrations = new ArrayList<Migration>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
             allMigrations.addAll(migrationResolver.resolvesMigrations());
         }
 
-        List<Migration> pendingMigrations = new ArrayList<Migration>();
+        if (allMigrations.isEmpty()) {
+            log.warn("No migrations found!");
+            return allMigrations;
+        }
+
+        Collections.sort(allMigrations, new Comparator<Migration>() {
+            @Override
+            public int compare(Migration o1, Migration o2) {
+                //newest migration first
+                return o2.getVersion().compareTo(o1.getVersion());
+            }
+        });
+
+        SchemaVersion newestMigrationVersion = allMigrations.get(0).getVersion();
+        if (newestMigrationVersion.compareTo(currentVersion) < 0) {
+            log.warn("Database version (" + currentVersion.getVersion() + ") is newer than the latest migration ("
+                    + newestMigrationVersion + ") !");
+            return new ArrayList<Migration>();
+        }
+
+        ArrayList<Migration> pendingMigrations = new ArrayList<Migration>();
         for (Migration migration : allMigrations) {
             if ((migration.getVersion().compareTo(currentVersion) > 0)
                     && (migration.getVersion().compareTo(targetVersion) <= 0)) {
@@ -177,12 +196,7 @@ public class DbMigrator {
             }
         }
 
-        Collections.sort(pendingMigrations, new Comparator<Migration>() {
-            @Override
-            public int compare(Migration o1, Migration o2) {
-                return o1.getVersion().compareTo(o2.getVersion());
-            }
-        });
+        Collections.reverse(pendingMigrations);
 
         return pendingMigrations;
     }

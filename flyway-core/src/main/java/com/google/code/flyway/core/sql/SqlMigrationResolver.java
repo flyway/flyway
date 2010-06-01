@@ -93,8 +93,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         try {
                 Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
                 for (Resource resource : resources) {
-                    SqlScript sqlScript = dbSupport.createSqlScript(resource, placeholders);
-                    migrations.add(new SqlMigration(sqlScript));
+                    migrations.add(new SqlMigration(resource, placeholders, dbSupport));
                 }
         } catch (IOException e) {
             log.error("Error loading sql migration files", e);
