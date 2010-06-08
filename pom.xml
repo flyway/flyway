@@ -68,6 +68,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>1.2.137</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>5.1.12</version>
@@ -100,10 +106,10 @@
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
-                 <groupId>org.apache.maven</groupId>
-                 <artifactId>maven-core</artifactId>
-                 <version>${version.maven}</version>
-             </dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${version.maven}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
