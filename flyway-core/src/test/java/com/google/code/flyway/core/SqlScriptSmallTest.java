@@ -72,7 +72,6 @@ public class SqlScriptSmallTest {
 
     @Test
     public void linesToStatements() {
-        List<String> lines = new ArrayList<String>();
         lines.add("select col1, col2");
         lines.add("from mytable");
         lines.add("where col1 > 10;");
