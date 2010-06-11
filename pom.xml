@@ -190,6 +190,7 @@
                 <version>2.0</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <mavenExecutorId>forked-path</mavenExecutorId>                    
                 </configuration>
             </plugin>
             <plugin>
