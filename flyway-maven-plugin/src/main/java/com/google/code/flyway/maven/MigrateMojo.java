@@ -26,7 +26,7 @@ import java.sql.Driver;
 import java.util.Map;
 
 /**
- * Maven goal that triggers the database migration.
+ * Maven goal that triggers the migration of the configured database to the latest version.
  *
  * @goal migrate
  * @requiresDependencyResolution compile
@@ -34,15 +34,15 @@ import java.util.Map;
  */
 public class MigrateMojo extends AbstractMojo {
     /**
-     * The jdbc driver to use to connect to the database.
+     * The fully qualified classname of the jdbc driver to use to connect to the database.
      *
      * @parameter
      * @required
      */
-    private String driver = null;
+    private String driver;
 
     /**
-     * The url to use to connect to the database.
+     * The jdbc url to use to connect to the database.
      *
      * @parameter
      * @required
