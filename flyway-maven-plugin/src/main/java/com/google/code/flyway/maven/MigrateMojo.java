@@ -16,14 +16,11 @@
 
 package com.google.code.flyway.maven;
 
-import com.google.code.flyway.core.Flyway;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-
-import javax.sql.DataSource;
-import java.sql.Driver;
 import java.util.Map;
+
+import org.apache.maven.plugin.MojoExecutionException;
+
+import com.google.code.flyway.core.Flyway;
 
 /**
  * Maven goal that triggers the migration of the configured database to the latest version.

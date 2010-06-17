@@ -16,21 +16,21 @@
 
 package com.google.code.flyway.core.sql;
 
-import com.google.code.flyway.core.DbSupport;
-import com.google.code.flyway.core.Migration;
-import com.google.code.flyway.core.MigrationResolver;
-import com.google.code.flyway.core.SqlScript;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.code.flyway.core.DbSupport;
+import com.google.code.flyway.core.Migration;
+import com.google.code.flyway.core.MigrationResolver;
 
 /**
  * Migration resolver for sql files on the classpath.

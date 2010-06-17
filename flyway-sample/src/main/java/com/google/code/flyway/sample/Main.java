@@ -16,12 +16,12 @@
 
 package com.google.code.flyway.sample;
 
-import com.google.code.flyway.core.Flyway;
+import javax.sql.DataSource;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-import javax.sql.DataSource;
-import java.util.List;
+import com.google.code.flyway.core.Flyway;
 
 /**
  * Simplest possible sample to demonstrate the usage of Flyway.
