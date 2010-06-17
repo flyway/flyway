@@ -18,6 +18,7 @@ package com.google.code.flyway.core.oracle;
 
 import com.google.code.flyway.core.DbSupport;
 import com.google.code.flyway.core.SqlScript;
+import com.google.code.flyway.core.SqlStatement;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -25,6 +26,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,7 +53,7 @@ public class OracleDbSupport implements DbSupport {
 
     @Override
     public String getCurrentSchema(SimpleJdbcTemplate jdbcTemplate) {
-         return jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<String>() {
+        return jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<String>() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 return connection.getMetaData().getUserName();
@@ -79,4 +82,21 @@ public class OracleDbSupport implements DbSupport {
     public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
         return new OracleSqlScript(resource, placeholders);
     }
+
+    @Override
+    public SqlScript createDropAllObjectsScript(SimpleJdbcTemplate jdbcTemplate) {
+        String query = "SELECT 'DROP ' ||  object_type ||' ' || object_name || ' ' || DECODE(OBJECT_TYPE,'TABLE','CASCADE CONSTRAINTS')" +
+                " FROM user_objects WHERE object_type IN ('FUNCTION','MATERIALIZED VIEW','PACKAGE','PROCEDURE','SEQUENCE','SYNONYM','TABLE','TYPE','VIEW')";
+        final List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(query);
+        int count = 0;
+        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
+        for (Map<String, Object> row : resultSet) {
+            final String dropStatement = (String) row.values().iterator().next();
+            count++;
+            sqlStatements.add(new SqlStatement(count, dropStatement));
+        }
+        return new SqlScript(sqlStatements, "oracle drop all objects script");
+    }
+
+
 }

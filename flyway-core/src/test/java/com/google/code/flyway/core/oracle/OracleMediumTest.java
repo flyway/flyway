@@ -16,11 +16,7 @@
 
 package com.google.code.flyway.core.oracle;
 
-import com.google.code.flyway.core.DbMigrator;
-import com.google.code.flyway.core.Flyway;
-import com.google.code.flyway.core.MetaDataTable;
-import com.google.code.flyway.core.SchemaVersion;
-import org.junit.Assert;
+import com.google.code.flyway.core.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +24,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -44,10 +40,10 @@ public class OracleMediumTest {
     private Flyway flyway;
 
     @Autowired
-    private DataSource dataSource;
+    private DestroyableSimpleDriverDataSource dataSource;
 
     @Test
-    public void createAndMigrate() throws SQLException {
+    public void createAndMigrateAndDrop() throws SQLException {
         SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
         assertEquals("1.1", schemaVersion.getVersion());
         assertEquals("Populate table", schemaVersion.getDescription());
@@ -55,5 +51,15 @@ public class OracleMediumTest {
 
         SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
         assertEquals("Mr. T triggered", jdbcTemplate.queryForObject("select name from test_user", String.class));
+
+        flyway.clean();
+        
+        dataSource.destroy();
+        assertFalse(flyway.getMetaDataTable().exists());
+        dataSource.destroy();
+        int countUserObjects = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
+        assertEquals(0, countUserObjects);
+        dataSource.destroy();
     }
+
 }

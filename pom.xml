@@ -225,6 +225,7 @@
                         <exclude>**/*MediumTest.java</exclude>
                     </excludes>
                     <parallel>methods</parallel>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -240,6 +241,7 @@
                             <excludes>
                                 <exclude>**/*SmallTest.java</exclude>
                             </excludes>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         </configuration>
                     </execution>
                 </executions>

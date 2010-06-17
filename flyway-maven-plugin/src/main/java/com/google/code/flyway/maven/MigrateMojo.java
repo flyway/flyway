@@ -32,38 +32,7 @@ import java.util.Map;
  * @requiresDependencyResolution compile
  * @configurator include-project-dependencies
  */
-public class MigrateMojo extends AbstractMojo {
-    /**
-     * The jdbc driver to use to connect to the database.
-     *
-     * @parameter
-     * @required
-     */
-    private String driver = null;
-
-    /**
-     * The url to use to connect to the database.
-     *
-     * @parameter
-     * @required
-     */
-    private String url;
-
-    /**
-     * The user to use to connect to the database.
-     *
-     * @parameter
-     * @required
-     */
-    private String user;
-
-    /**
-     * The password to use to connect to the database.
-     *
-     * @parameter
-     */
-    private String password = "";
-
+public class MigrateMojo extends AbstractFlywayMojo {
     /**
      * The base package where the Java migrations are located. (default: db.migration)
      *
@@ -95,12 +64,8 @@ public class MigrateMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException {
         try {
-            Driver driverClazz = (Driver) Class.forName(driver).newInstance();
-            DataSource dataSource =
-                    new SimpleDriverDataSource(driverClazz, url, user, password);
-
             Flyway flyway = new Flyway();
-            flyway.setDataSource(dataSource);
+            flyway.setDataSource(getDataSource());
             if (basePackage != null) {
                 flyway.setBasePackage(basePackage);
             }
@@ -115,14 +80,9 @@ public class MigrateMojo extends AbstractMojo {
             }
 
             flyway.migrate();
-        } catch (ClassNotFoundException e) {
-            throw new MojoExecutionException("Unable to find driver class: " + driver, e);
-        } catch (InstantiationException e) {
-            throw new MojoExecutionException("Unable to instantiate driver class: " + driver, e);
-        } catch (IllegalAccessException e) {
-            throw new MojoExecutionException("Unable to access driver class: " + driver, e);
         } catch (Exception e) {
             throw new MojoExecutionException("Error migrating database: " + e.getMessage(), e);
         }
     }
+
 }

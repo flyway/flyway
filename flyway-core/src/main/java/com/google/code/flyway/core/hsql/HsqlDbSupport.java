@@ -92,4 +92,10 @@ public class HsqlDbSupport implements DbSupport {
     public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
         return new SqlScript(resource, placeholders);
     }
+
+    @Override
+    public SqlScript createDropAllObjectsScript(SimpleJdbcTemplate jdbcTemplate) {
+        throw new UnsupportedOperationException();
+    }
+
 }

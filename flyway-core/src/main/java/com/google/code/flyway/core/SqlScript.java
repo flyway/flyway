@@ -21,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,9 +50,9 @@ public class SqlScript {
     private static final String DEFAULT_STATEMENT_DELIMITER = ";";
 
     /**
-     * The filename of this script.
+     * The description of this script.
      */
-    private final String filename;
+    private String description;
 
     /**
      * The sql statements contained in this script.
@@ -75,7 +77,7 @@ public class SqlScript {
             List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholders);
 
             sqlStatements = linesToStatements(noPlaceholderLines);
-            filename = resource.getFilename();
+            description = resource.getFilename();
         } catch (IOException e) {
             throw new IllegalStateException("Unable to read sql script: " + resource.getFilename(), e);
         } finally {
@@ -89,19 +91,17 @@ public class SqlScript {
         }
     }
 
+    public SqlScript(List<SqlStatement> sqlStatements, String description) {
+        this.sqlStatements = sqlStatements;
+        this.description = description;
+    }
+
     /**
      * Dummy constructor to increase testability.
      */
     protected SqlScript() {
         sqlStatements = null;
-        filename = null;
-    }
-
-    /**
-     * @return The filename of this script.
-     */
-    public String getFilename() {
-        return filename;
+        description = null;
     }
 
     /**
@@ -121,12 +121,12 @@ public class SqlScript {
             try {
                 jdbcTemplate.update(sqlStatement.getSql());
             } catch (DataAccessException e) {
-                throw new IllegalStateException("Error executing statement at " + filename + ":" + sqlStatement.getLineNumber()
+                throw new IllegalStateException("Error executing statement at " + description + ":" + sqlStatement.getLineNumber()
                         + " -> " + sqlStatement.getSql(), e);
             }
         }
     }
-
+    
     /**
      * Turns these lines in a series of statements.
      *

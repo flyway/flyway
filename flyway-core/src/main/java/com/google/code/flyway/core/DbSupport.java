@@ -76,4 +76,14 @@ public interface DbSupport {
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     SqlScript createSqlScript(Resource resource, Map<String, String> placeholders);
+
+    /**
+     * Creates a new sql script which drops all objects for the datasource
+     *
+     * @param jdbcTemplate        The jdbc template used for querying the database.
+     *
+     * @return A new sql script, containing drop statements for all objects
+     */
+    SqlScript createDropAllObjectsScript(SimpleJdbcTemplate jdbcTemplate);
+
 }

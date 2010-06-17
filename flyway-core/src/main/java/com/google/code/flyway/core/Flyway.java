@@ -29,6 +29,8 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
@@ -151,6 +153,22 @@ public class Flyway {
         DbMigrator dbMigrator =
                 new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrationResolvers, metaDataTable);
         return dbMigrator.migrate();
+    }
+
+    /**
+     * drops all object for the given database user
+     */
+    public void clean() {
+        log.info("Starting to drop all database objects ...");
+        final SqlScript dropAllObjectsScript = dbSupport.createDropAllObjectsScript(jdbcTemplate);
+        transactionTemplate.execute(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                dropAllObjectsScript.execute(jdbcTemplate);
+                return null;
+            }
+        });
+        log.info("Finished to drop all database objects.");
     }
 
     /**
