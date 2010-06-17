@@ -26,7 +26,7 @@ import java.sql.Driver;
 import java.util.Map;
 
 /**
- * Maven goal that triggers the database migration.
+ * Maven goal that triggers the migration of the configured database to the latest version.
  *
  * @goal migrate
  * @requiresDependencyResolution compile

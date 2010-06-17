@@ -29,7 +29,7 @@ import java.sql.Driver;
 abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
-     * The jdbc driver to use to connect to the database.
+     * The fully qualified classname of the jdbc driver to use to connect to the database.
      *
      * @parameter
      * @required
@@ -37,7 +37,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     protected String driver = null;
 
     /**
-     * The url to use to connect to the database.
+     * The jdbc url to use to connect to the database.
      *
      * @parameter
      * @required
