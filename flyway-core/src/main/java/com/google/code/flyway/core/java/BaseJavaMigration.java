@@ -16,22 +16,20 @@
 
 package com.google.code.flyway.core.java;
 
-import com.google.code.flyway.core.BaseMigration;
 import org.springframework.util.ClassUtils;
 
+import com.google.code.flyway.core.BaseMigration;
+
 /**
- * Base class for java migration classes whose name conforms to the Flyway standard.
+ * Base class for java migration classes whose name conforms to the Flyway
+ * standard.
  */
 public abstract class BaseJavaMigration extends BaseMigration {
-    /**
-     * Initializes this Migration with this standard Flyway name.
-     */
-    protected BaseJavaMigration() {
-        initVersion(ClassUtils.getShortName(getClass()));
-    }
-
-    @Override
-    public String getScriptName() {
-        return "Java Class: " + ClassUtils.getShortName(getClass());
-    }
+	/**
+	 * Initializes this Migration with this standard Flyway name.
+	 */
+	protected BaseJavaMigration() {
+		initVersion(ClassUtils.getShortName(getClass()));
+		scriptName = "Java Class: " + ClassUtils.getShortName(getClass());
+	}
 }
