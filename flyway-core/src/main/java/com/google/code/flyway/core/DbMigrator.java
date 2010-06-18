@@ -25,8 +25,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -122,7 +120,7 @@ public class DbMigrator {
 			}
 
 			LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
-			executeInTransaction(migration);
+			migration.migrate(transactionTemplate, jdbcTemplate);
 
 			if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
 				throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
@@ -144,22 +142,6 @@ public class DbMigrator {
 		}
 
 		return migrationSuccessCount;
-	}
-
-	/**
-	 * Executes this migration in a transaction.
-	 * 
-	 * @param migration
-	 *            The migration to execute.
-	 */
-	private void executeInTransaction(final Migration migration) {
-		transactionTemplate.execute(new TransactionCallback<Void>() {
-			@Override
-			public Void doInTransaction(TransactionStatus status) {
-				migration.migrate(jdbcTemplate);
-				return null;
-			}
-		});
 	}
 
 	/**

@@ -16,7 +16,11 @@
 
 package com.google.code.flyway.core;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * A migration of a single version of the schema.
@@ -89,8 +93,49 @@ public abstract class Migration {
 	 * Performs the migration. The migration state and the execution time are
 	 * updated accordingly.
 	 * 
+	 * @param transactionTemplate
+	 *            The transaction template to use.
 	 * @param jdbcTemplate
 	 *            To execute the migration statements.
 	 */
-	public abstract void migrate(SimpleJdbcTemplate jdbcTemplate);
+	public final void migrate(final TransactionTemplate transactionTemplate, final SimpleJdbcTemplate jdbcTemplate) {
+		final long start = System.currentTimeMillis();
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					transactionTemplate.execute(new TransactionCallback<Void>() {
+						@Override
+						public Void doInTransaction(TransactionStatus status) {
+							doMigrate(jdbcTemplate);
+							return null;
+						}
+					});
+					migrationState = MigrationState.SUCCESS;
+				} catch (Exception e) {
+					migrationState = MigrationState.FAILED;
+				}
+			}
+		};
+		Thread migrationThread = new Thread(runnable, "Flyway Migration");
+		migrationThread.start();
+		try {
+			migrationThread.join();
+		} catch (InterruptedException e) {
+			// Ignore
+		}
+		long finish = System.currentTimeMillis();
+		executionTime = (int) (finish - start);
+	}
+
+	/**
+	 * Performs the migration.
+	 * 
+	 * @param jdbcTemplate
+	 *            To execute the migration statements.
+	 * 
+	 * @throws DataAccessException
+	 *             Thrown when the migration failed.
+	 */
+	protected abstract void doMigrate(SimpleJdbcTemplate jdbcTemplate) throws DataAccessException;
 }

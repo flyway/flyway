@@ -16,21 +16,12 @@
 
 package com.google.code.flyway.core;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
 /**
  * Base migration for migrations that use the standard Flyway version +
  * description embedding in their name. These migrations have names like
  * V1_2__Description .
  */
 public abstract class BaseMigration extends Migration {
-	/**
-	 * Logger.
-	 */
-	private static final Log log = LogFactory.getLog(BaseMigration.class);
-
 	/**
 	 * Initializes the version of this Migration based on this standard Flyway
 	 * name.
@@ -66,29 +57,4 @@ public abstract class BaseMigration extends Migration {
 
 		return new SchemaVersion(version.replace("_", "."), description);
 	}
-
-	@Override
-	public final void migrate(SimpleJdbcTemplate jdbcTemplate) {
-		final long start = System.currentTimeMillis();
-		try {
-			doMigrate(jdbcTemplate);
-			migrationState = MigrationState.SUCCESS;
-		} catch (Exception e) {
-			log.fatal("Migration failed: " + schemaVersion + " - " + getScriptName(), e);
-			migrationState = MigrationState.FAILED;
-		}
-		long finish = System.currentTimeMillis();
-		executionTime = (int) (finish - start);
-	}
-
-	/**
-	 * Performs the migration.
-	 * 
-	 * @param jdbcTemplate
-	 *            To execute the migration statements.
-	 * 
-	 * @throws Exception
-	 *             Thrown when the migration failed.
-	 */
-	protected abstract void doMigrate(SimpleJdbcTemplate jdbcTemplate) throws Exception;
 }

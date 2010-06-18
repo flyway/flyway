@@ -132,7 +132,7 @@ public class MetaDataTable {
 		if (result.isEmpty()) {
 			return new Migration() {
 				@Override
-				public void migrate(SimpleJdbcTemplate jdbcTemplate) {
+				public void doMigrate(SimpleJdbcTemplate jdbcTemplate) {
 					// Do nothing.
 				}
 			};
@@ -148,7 +148,7 @@ public class MetaDataTable {
 			}
 
 			@Override
-			public void migrate(SimpleJdbcTemplate jdbcTemplate) {
+			public void doMigrate(SimpleJdbcTemplate jdbcTemplate) {
 				// Do nothing.
 			}
 		};
