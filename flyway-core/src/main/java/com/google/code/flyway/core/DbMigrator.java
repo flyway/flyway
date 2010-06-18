@@ -38,7 +38,7 @@ public class DbMigrator {
 	/**
 	 * Logger.
 	 */
-	private static final Log log = LogFactory.getLog(DbMigrator.class);
+	private static final Log LOG = LogFactory.getLog(DbMigrator.class);
 
 	/**
 	 * The target version of the migration, default is the latest version.
@@ -106,28 +106,22 @@ public class DbMigrator {
 			metaDataTable.create();
 		}
 
-		Migration latestAppliedMigration = metaDataTable.latestAppliedMigration();
-		log.info("Current schema version: " + latestAppliedMigration.getVersion());
-
-		if (MigrationState.FAILED.equals(latestAppliedMigration.getState())) {
-			throw new IllegalStateException(
-					"A previous migration failed! Please restore backups and roll back database!");
-		}
-
 		List<Migration> allMigrations = findAvailableMigrations();
-		List<Migration> pendingMigrations = getPendingMigrations(allMigrations, latestAppliedMigration.getVersion());
-		if (pendingMigrations.isEmpty()) {
-			log.info("Schema is up to date. No migration necessary.");
-			return 0;
-		}
 
-		for (Migration pendingMigration : pendingMigrations) {
-			log.debug("Pending migration: " + pendingMigration.getVersion() + " - " + pendingMigration.getScriptName());
-		}
+		int migrationSuccessCount = 0;
+		while (true) {
+			Migration latestAppliedMigration = metaDataTable.latestAppliedMigration();
+			LOG.info("Current schema version: " + latestAppliedMigration.getVersion());
 
-		log.debug("Starting migration...");
-		for (Migration migration : pendingMigrations) {
-			log.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
+			latestAppliedMigration.assertNotFailed();
+
+			Migration migration = getNextMigration(allMigrations, latestAppliedMigration.getVersion());
+			if (migration == null) {
+				LOG.info("Schema is up to date. No migration necessary.");
+				break;
+			}
+
+			LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
 			executeInTransaction(migration);
 
 			if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
@@ -136,19 +130,20 @@ public class DbMigrator {
 
 			metaDataTable.migrationFinished(migration);
 
-			if (MigrationState.FAILED.equals(migration.getState())) {
-				throw new IllegalStateException(
-						"Migration failed! Please restore backups and roll back database and code!");
-			}
+			migration.assertNotFailed();
+
+			migrationSuccessCount++;
 		}
 
-		if (pendingMigrations.size() == 1) {
-			log.info("Migration completed. Successfully applied 1 migration.");
+		if (migrationSuccessCount == 0) {
+			LOG.info("Migration completed.");
+		} else if (migrationSuccessCount == 1) {
+			LOG.info("Migration completed. Successfully applied 1 migration.");
 		} else {
-			log.info("Migration completed. Successfully applied " + pendingMigrations.size() + " migrations.");
+			LOG.info("Migration completed. Successfully applied " + migrationSuccessCount + " migrations.");
 		}
 
-		return pendingMigrations.size();
+		return migrationSuccessCount;
 	}
 
 	/**
@@ -168,33 +163,33 @@ public class DbMigrator {
 	}
 
 	/**
-	 * Returns the list of migrations still to be performed.
+	 * Returns the next migration to apply.
 	 * 
 	 * @param currentVersion
 	 *            The current version of the schema.
 	 * @param allMigrations
 	 *            All available migrations, sorted by version, newest first.
-	 * @return The list of migrations still to be performed.
+	 * @return The next migration to apply.
 	 */
-	private List<Migration> getPendingMigrations(List<Migration> allMigrations, SchemaVersion currentVersion) {
+	private Migration getNextMigration(List<Migration> allMigrations, SchemaVersion currentVersion) {
 		SchemaVersion newestMigrationVersion = allMigrations.get(0).getVersion();
 		if (newestMigrationVersion.compareTo(currentVersion) < 0) {
-			log.warn("Database version (" + currentVersion.getVersion() + ") is newer than the latest migration ("
+			LOG.warn("Database version (" + currentVersion.getVersion() + ") is newer than the latest migration ("
 					+ newestMigrationVersion + ") !");
-			return new ArrayList<Migration>();
+			return null;
 		}
 
-		ArrayList<Migration> pendingMigrations = new ArrayList<Migration>();
+		Migration nextMigration = null;
 		for (Migration migration : allMigrations) {
 			if ((migration.getVersion().compareTo(currentVersion) > 0)
 					&& (migration.getVersion().compareTo(targetVersion) <= 0)) {
-				pendingMigrations.add(migration);
+				nextMigration = migration;
+			} else {
+				return nextMigration;
 			}
 		}
 
-		Collections.reverse(pendingMigrations);
-
-		return pendingMigrations;
+		return nextMigration;
 	}
 
 	/**
@@ -211,7 +206,7 @@ public class DbMigrator {
 		}
 
 		if (allMigrations.isEmpty()) {
-			log.warn("No migrations found!");
+			LOG.warn("No migrations found!");
 			return allMigrations;
 		}
 

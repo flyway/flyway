@@ -73,6 +73,19 @@ public abstract class Migration {
 	}
 
 	/**
+	 * Asserts that this migration has not failed.
+	 * 
+	 * @throws IlllegalStateException
+	 *             Thrown when this migration has failed.
+	 */
+	public void assertNotFailed() {
+		if (MigrationState.FAILED == migrationState) {
+			throw new IllegalStateException("Migration to version " + schemaVersion
+					+ " failed! Please restore backups and roll back database and code!");
+		}
+	}
+
+	/**
 	 * Performs the migration. The migration state and the execution time are
 	 * updated accordingly.
 	 * 
