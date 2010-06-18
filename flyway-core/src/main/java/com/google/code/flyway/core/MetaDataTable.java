@@ -107,6 +107,14 @@ public class MetaDataTable {
 	}
 
 	/**
+	 * Acquires an exclusive read-write lock on the metadata table. This lock
+	 * will be released automatically on commit.
+	 */
+	public void lock() {
+		// TODO: Implement
+	}
+
+	/**
 	 * Marks this migration as succeeded.
 	 * 
 	 * @param migration

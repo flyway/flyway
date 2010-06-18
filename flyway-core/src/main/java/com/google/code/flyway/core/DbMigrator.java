@@ -25,6 +25,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
@@ -104,33 +106,45 @@ public class DbMigrator {
 			metaDataTable.create();
 		}
 
-		List<Migration> allMigrations = findAvailableMigrations();
+		final List<Migration> allMigrations = findAvailableMigrations();
 
 		int migrationSuccessCount = 0;
 		while (true) {
-			Migration latestAppliedMigration = metaDataTable.latestAppliedMigration();
-			LOG.info("Current schema version: " + latestAppliedMigration.getVersion());
+			int result = transactionTemplate.execute(new TransactionCallback<Integer>() {
+				@Override
+				public Integer doInTransaction(TransactionStatus status) {
+					metaDataTable.lock();
 
-			latestAppliedMigration.assertNotFailed();
+					Migration latestAppliedMigration = metaDataTable.latestAppliedMigration();
+					LOG.info("Current schema version: " + latestAppliedMigration.getVersion());
 
-			Migration migration = getNextMigration(allMigrations, latestAppliedMigration.getVersion());
-			if (migration == null) {
-				LOG.info("Schema is up to date. No migration necessary.");
+					latestAppliedMigration.assertNotFailed();
+
+					Migration migration = getNextMigration(allMigrations, latestAppliedMigration.getVersion());
+					if (migration == null) {
+						LOG.info("Schema is up to date. No migration necessary.");
+						return 0;
+					}
+
+					LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
+					migration.migrate(transactionTemplate, jdbcTemplate);
+
+					if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
+						throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
+					}
+
+					metaDataTable.migrationFinished(migration);
+
+					migration.assertNotFailed();
+
+					return 1;
+				}
+			});
+
+			if (result == 0) {
 				break;
 			}
-
-			LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
-			migration.migrate(transactionTemplate, jdbcTemplate);
-
-			if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
-				throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
-			}
-
-			metaDataTable.migrationFinished(migration);
-
-			migration.assertNotFailed();
-
-			migrationSuccessCount++;
+			migrationSuccessCount += result;
 		}
 
 		if (migrationSuccessCount == 0) {
