@@ -151,7 +151,7 @@ public class MetaDataTable {
 				schemaVersion = new SchemaVersion((String) result.get(0).get("VERSION"), (String) result.get(0).get(
 						"DESCRIPTION"));
 				migrationState = MigrationState.valueOf((String) result.get(0).get("STATE"));
-				executionTime = (Integer) result.get(0).get("EXECUTION_TIME");
+				executionTime = ((Number) result.get(0).get("EXECUTION_TIME")).intValue();
 				scriptName = (String) result.get(0).get("SCRIPT");
 			}
 
