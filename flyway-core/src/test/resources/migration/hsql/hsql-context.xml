@@ -16,22 +16,20 @@
     limitations under the License.
 
 -->
-
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
-    <!--  -->
-    <bean id="dbMigrator" class="com.google.code.flyway.core.Flyway" init-method="migrate">
-        <property name="dataSource">
-            <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-                <property name="username" value="SA" />
-                <property name="password" value="" />
-                <property name="driverClass" value="org.hsqldb.jdbcDriver" />
-                <property name="url" value="jdbc:hsqldb:mem:flyway_test" />
-            </bean>
-        </property>
-        <property name="baseDir" value="migration/sql"/>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- -->
+    <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+        <property name="username" value="SA" />
+        <property name="password" value="" />
+        <property name="driverClass" value="org.hsqldb.jdbcDriver" />
+        <property name="url" value="jdbc:hsqldb:mem:flyway_test" />
+    </bean>
+    <!-- -->
+    <bean id="concurrentMigrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+        <property name="username" value="SA" />
+        <property name="password" value="" />
+        <property name="driverClass" value="org.hsqldb.jdbcDriver" />
+        <property name="url" value="jdbc:hsqldb:mem:flyway_test_concurrent" />
     </bean>
 </beans>

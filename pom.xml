@@ -55,7 +55,7 @@
 
 
     <properties>
-        <version.spring>3.0.2.RELEASE</version.spring>
+        <version.spring>3.0.3.RELEASE</version.spring>
         <version.maven>2.2.1</version.maven>
     </properties>
     <dependencyManagement>
@@ -105,7 +105,7 @@
             <dependency>
                 <groupId>hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
-                <version>1.8.0.10</version>
+                <version>2.0.0</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

@@ -111,7 +111,7 @@ public class MetaDataTable {
 	 * will be released automatically on commit.
 	 */
 	public void lock() {
-		// TODO: Implement
+		jdbcTemplate.queryForList("select * from " + tableName + " for update");
 	}
 
 	/**
@@ -160,5 +160,12 @@ public class MetaDataTable {
 				// Do nothing.
 			}
 		};
+	}
+
+	/**
+	 * @return Retrieves the number migrations applied to this database.
+	 */
+	public int migrationCount() {
+		return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + tableName);
 	}
 }
