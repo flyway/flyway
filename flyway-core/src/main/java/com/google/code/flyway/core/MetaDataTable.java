@@ -111,7 +111,9 @@ public class MetaDataTable {
 	 * will be released automatically on commit.
 	 */
 	public void lock() {
-		jdbcTemplate.queryForList("select * from " + tableName + " for update");
+		if (dbSupport.supportsLocking()) {
+			jdbcTemplate.queryForList("select * from " + tableName + " for update");
+		}
 	}
 
 	/**

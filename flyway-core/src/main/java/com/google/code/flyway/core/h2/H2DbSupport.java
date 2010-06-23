@@ -85,6 +85,11 @@ public class H2DbSupport implements DbSupport {
 	}
 
 	@Override
+	public boolean supportsLocking() {
+		return true;
+	}
+
+	@Override
 	public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
 		return new SqlScript(resource, placeholders);
 	}
