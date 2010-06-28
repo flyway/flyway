@@ -48,12 +48,13 @@ public abstract class MigrationTestCase {
 		Flyway flyway = new Flyway();
 		flyway.setDataSource(migrationDataSource);
 		flyway.setBaseDir(getBaseDir());
+        flyway.clean();
 		assertFalse(flyway.getMetaDataTable().exists());
 		flyway.migrate();
 		assertTrue(flyway.getMetaDataTable().exists());
 		SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
-		assertEquals("1.1", schemaVersion.getVersion());
-		assertEquals("Populate table", schemaVersion.getDescription());
+		assertEquals("2.0", schemaVersion.getVersion());
+		assertEquals("Add foreign key", schemaVersion.getDescription());
 		assertEquals(0, flyway.migrate());
 	}
 }

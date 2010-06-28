@@ -16,6 +16,12 @@
 
 package com.google.code.flyway.core;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,12 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
  * Sql script containing a series of statements terminated by semi-columns (;).
@@ -114,7 +114,7 @@ public class SqlScript {
      *
      * @param jdbcTemplate The jdbc template to use to execute this script.
      */
-    public void execute(SimpleJdbcTemplate jdbcTemplate) {
+    public void execute(JdbcTemplate jdbcTemplate) {
         for (SqlStatement sqlStatement : sqlStatements) {
             try {
                 jdbcTemplate.update(sqlStatement.getSql());
@@ -124,12 +124,11 @@ public class SqlScript {
             }
         }
     }
-    
+
     /**
      * Turns these lines in a series of statements.
      *
      * @param lines The lines to analyse.
-     *
      * @return The statements contained in these lines (in order).
      */
     /* private -> for testing */
@@ -183,7 +182,6 @@ public class SqlScript {
      * default one. Useful for database-specific stored procedures and block constructs.
      *
      * @param line The line to analyse.
-     *
      * @return The new delimiter to use or {@code null} if no change in delimiter is required.
      */
     @SuppressWarnings({"UnusedDeclaration"})
@@ -261,7 +259,6 @@ public class SqlScript {
      *
      * @param reader The reader for the textual data.
      * @return The list of lines (in order).
-     *
      * @throws IllegalStateException Thrown when the textual data parsing failed.
      */
     private List<String> readLines(Reader reader) {
@@ -284,7 +281,7 @@ public class SqlScript {
     /**
      * Replaces the placeholders in these lines with their values.
      *
-     * @param lines The input lines.
+     * @param lines        The input lines.
      * @param placeholders A map of <placeholder, replacementValue> to replace in these lines.
      * @return The lines with placeholders replaced.
      */

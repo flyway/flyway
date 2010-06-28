@@ -16,81 +16,92 @@
 
 package com.google.code.flyway.core.mysql;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map;
-
+import com.google.code.flyway.core.DbSupport;
+import com.google.code.flyway.core.SqlScript;
+import com.google.code.flyway.core.SqlStatement;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.google.code.flyway.core.DbSupport;
-import com.google.code.flyway.core.SqlScript;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Mysql-specific support.
  */
 public class MySQLDbSupport implements DbSupport {
-	@Override
-	public String[] createSchemaMetaDataTableSql(String tableName) {
-		String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR(20) NOT NULL UNIQUE,"
-				+ "    description VARCHAR(100)," + "    script VARCHAR(100) NOT NULL UNIQUE,"
-				+ "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
-				+ "    state VARCHAR(15) NOT NULL," + "    current_version BOOL NOT NULL," + "    PRIMARY KEY(version)"
-				+ ") ENGINE=InnoDB";
-		String addIndexSql = "ALTER TABLE " + tableName + " ADD INDEX " + tableName
-				+ "_current_version_index (current_version)";
+    @Override
+    public String[] createSchemaMetaDataTableSql(String tableName) {
+        String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR(20) NOT NULL UNIQUE,"
+                + "    description VARCHAR(100)," + "    script VARCHAR(100) NOT NULL UNIQUE,"
+                + "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
+                + "    state VARCHAR(15) NOT NULL," + "    current_version BOOL NOT NULL," + "    PRIMARY KEY(version)"
+                + ") ENGINE=InnoDB";
+        String addIndexSql = "ALTER TABLE " + tableName + " ADD INDEX " + tableName
+                + "_current_version_index (current_version)";
 
-		return new String[] { createTableSql, addIndexSql };
-	}
+        return new String[]{createTableSql, addIndexSql};
+    }
 
-	@Override
-	public String getCurrentSchema(SimpleJdbcTemplate jdbcTemplate) {
-		return jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<String>() {
-			@Override
-			public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-				return connection.getCatalog();
-			}
-		});
-	}
+    @Override
+    public String getCurrentSchema(JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.execute(new ConnectionCallback<String>() {
+            @Override
+            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
+                return connection.getCatalog();
+            }
+        });
+    }
 
-	@Override
-	public boolean supportsDatabase(String databaseProductName) {
-		return "MySQL".equals(databaseProductName);
-	}
+    @Override
+    public boolean supportsDatabase(String databaseProductName) {
+        return "MySQL".equals(databaseProductName);
+    }
 
-	@Override
-	public boolean metaDataTableExists(final SimpleJdbcTemplate jdbcTemplate, final String schemaMetaDataTable) {
-		return jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<Boolean>() {
-			@Override
-			public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-				ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(jdbcTemplate), null,
-						schemaMetaDataTable, null);
-				return resultSet.next();
-			}
-		});
-	}
+    @Override
+    public boolean metaDataTableExists(final JdbcTemplate jdbcTemplate, final String schemaMetaDataTable) {
+        return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
+            @Override
+            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(jdbcTemplate), null,
+                        schemaMetaDataTable, null);
+                return resultSet.next();
+            }
+        });
+    }
 
-	@Override
-	public boolean supportsDdlTransactions() {
-		return false;
-	}
+    @Override
+    public boolean supportsDdlTransactions() {
+        return false;
+    }
 
-	@Override
-	public boolean supportsLocking() {
-		return true;
-	}
+    @Override
+    public boolean supportsLocking() {
+        return true;
+    }
 
-	@Override
-	public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
-		return new SqlScript(resource, placeholders);
-	}
+    @Override
+    public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
+        return new SqlScript(resource, placeholders);
+    }
 
-	@Override
-	public SqlScript createDropAllObjectsScript(SimpleJdbcTemplate jdbcTemplate) {
-		throw new UnsupportedOperationException();
-	}
-
+    @Override
+    public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
+        List<String> tableNames =
+                jdbcTemplate.queryForList(
+                        "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
+                        String.class,
+                        getCurrentSchema(jdbcTemplate));
+        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
+        int lineNumber = 1;
+        for (String tableName : tableNames) {
+            sqlStatements.add(new SqlStatement(lineNumber, "DROP TABLE " + tableName));
+        }
+        return new SqlScript(sqlStatements, "Clean schema " + getCurrentSchema(jdbcTemplate));
+    }
 }

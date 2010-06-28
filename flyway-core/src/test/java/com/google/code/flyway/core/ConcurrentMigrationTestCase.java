@@ -23,6 +23,8 @@ import static org.junit.Assert.assertTrue;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -48,26 +50,39 @@ public abstract class ConcurrentMigrationTestCase {
 	@Resource
 	protected DataSource concurrentMigrationDataSource;
 
+    /**
+     * The instance under test.
+     */
+    protected Flyway flyway;
+
 	/**
 	 * @return The directory containing the migrations for the tests.
 	 */
 	protected abstract String getBaseDir();
 
-	@Test
-	public void migrateConcurrently() throws Exception {
-		final Flyway flyway = new Flyway();
+    @Before
+    public void setUp() {
+        flyway = new Flyway();
 		flyway.setDataSource(concurrentMigrationDataSource);
 		flyway.setBaseDir(getBaseDir());
+        flyway.clean();
+    }
 
+	@Test
+	public void migrateConcurrently() throws Exception {
 		assertFalse(flyway.getMetaDataTable().exists());
 		flyway.getMetaDataTable().create();
 		assertTrue(flyway.getMetaDataTable().exists());
+        flyway.getMetaDataTable().init();
 
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
 				try {
-					flyway.migrate();
+                    Flyway flyway2 = new Flyway();
+                    flyway2.setDataSource(concurrentMigrationDataSource);
+                    flyway2.setBaseDir(getBaseDir());
+					flyway2.migrate();
 				} catch (Exception e) {
 					e.printStackTrace();
 					failed = true;
@@ -87,10 +102,10 @@ public abstract class ConcurrentMigrationTestCase {
 		}
 
 		assertFalse(failed);
-		assertEquals(2, flyway.getMetaDataTable().migrationCount());
+		assertEquals(4, flyway.getMetaDataTable().migrationCount());
 		SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
-		assertEquals("1.1", schemaVersion.getVersion());
-		assertEquals("Populate table", schemaVersion.getDescription());
+		assertEquals("2.0", schemaVersion.getVersion());
+		assertEquals("Add foreign key", schemaVersion.getDescription());
 		assertEquals(0, flyway.migrate());
 	}
 }

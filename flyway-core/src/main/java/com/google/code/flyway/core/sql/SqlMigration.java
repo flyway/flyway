@@ -16,68 +16,67 @@
 
 package com.google.code.flyway.core.sql;
 
-import java.util.Map;
-
-import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
 import com.google.code.flyway.core.BaseMigration;
 import com.google.code.flyway.core.DbSupport;
 import com.google.code.flyway.core.SqlScript;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.Map;
 
 /**
  * Database migration based on a sql file.
  */
 public class SqlMigration extends BaseMigration {
-	/**
-	 * The resource containing the sql script.
-	 */
-	private final Resource sqlScriptResource;
+    /**
+     * The resource containing the sql script.
+     */
+    private final Resource sqlScriptResource;
 
-	/**
-	 * A map of <placeholder, replacementValue> to apply to sql migration
-	 * scripts.
-	 */
-	private final Map<String, String> placeholders;
+    /**
+     * A map of <placeholder, replacementValue> to apply to sql migration
+     * scripts.
+     */
+    private final Map<String, String> placeholders;
 
-	/**
-	 * The support for database-specific extensions.
-	 */
-	private final DbSupport dbSupport;
+    /**
+     * The support for database-specific extensions.
+     */
+    private final DbSupport dbSupport;
 
-	/**
-	 * Creates a new sql script migration based on this sql script.
-	 * 
-	 * @param sqlScriptResource
-	 *            The resource containing the sql script.
-	 */
-	public SqlMigration(Resource sqlScriptResource, Map<String, String> placeholders, DbSupport dbSupport) {
-		initVersion(extractVersionStringFromFileName(sqlScriptResource.getFilename()));
-		scriptName = "Sql File: " + sqlScriptResource.getFilename();
+    /**
+     * Creates a new sql script migration based on this sql script.
+     *
+     * @param sqlScriptResource The resource containing the sql script.
+     * @param placeholders The placeholders to replace in the sql script.
+     * @param dbSupport Database-specific support code.
+     */
+    public SqlMigration(Resource sqlScriptResource, Map<String, String> placeholders, DbSupport dbSupport) {
+        initVersion(extractVersionStringFromFileName(sqlScriptResource.getFilename()));
+        scriptName = "Sql File: " + sqlScriptResource.getFilename();
 
-		this.sqlScriptResource = sqlScriptResource;
-		this.placeholders = placeholders;
-		this.dbSupport = dbSupport;
-	}
+        this.sqlScriptResource = sqlScriptResource;
+        this.placeholders = placeholders;
+        this.dbSupport = dbSupport;
+    }
 
-	/**
-	 * Extracts the sql file version string from this file name.
-	 * 
-	 * @param fileName
-	 *            The file name to parse.
-	 * @return The version string.
-	 */
-	/* private -> for testing */
-	static String extractVersionStringFromFileName(String fileName) {
-		int lastDirSeparator = fileName.lastIndexOf("/");
-		int extension = fileName.lastIndexOf(".sql");
+    /**
+     * Extracts the sql file version string from this file name.
+     *
+     * @param fileName The file name to parse.
+     * @return The version string.
+     */
+    /* private -> for testing */
+    static String extractVersionStringFromFileName(String fileName) {
+        int lastDirSeparator = fileName.lastIndexOf("/");
+        int extension = fileName.lastIndexOf(".sql");
 
-		return fileName.substring(lastDirSeparator + 1, extension);
-	}
+        return fileName.substring(lastDirSeparator + 1, extension);
+    }
 
-	@Override
-	public void doMigrate(SimpleJdbcTemplate jdbcTemplate) {
-		SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptResource, placeholders);
-		sqlScript.execute(jdbcTemplate);
+    @Override
+    public void doMigrate(JdbcTemplate jdbcTemplate) {
+        SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptResource, placeholders);
+        sqlScript.execute(jdbcTemplate);
 	}
 }

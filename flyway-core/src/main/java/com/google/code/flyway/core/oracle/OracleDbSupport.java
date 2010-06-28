@@ -16,86 +16,85 @@
 
 package com.google.code.flyway.core.oracle;
 
+import com.google.code.flyway.core.DbSupport;
+import com.google.code.flyway.core.SqlScript;
+import com.google.code.flyway.core.SqlStatement;
+import org.springframework.core.io.Resource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.core.io.Resource;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
-import com.google.code.flyway.core.DbSupport;
-import com.google.code.flyway.core.SqlScript;
-import com.google.code.flyway.core.SqlStatement;
-
 /**
  * Oracle-specific support.
  */
 public class OracleDbSupport implements DbSupport {
-	@Override
-	public String[] createSchemaMetaDataTableSql(String tableName) {
-		String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR2(20) NOT NULL PRIMARY KEY,"
-				+ "    description VARCHAR2(100)," + "    script VARCHAR2(100) NOT NULL UNIQUE,"
-				+ "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
-				+ "    state VARCHAR2(15) NOT NULL," + "    current_version NUMBER(1) NOT NULL" + ")";
-		String addIndexSql = "CREATE INDEX " + tableName + "_cv_idx ON " + tableName + "(current_version)";
+    @Override
+    public String[] createSchemaMetaDataTableSql(String tableName) {
+        String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR2(20) NOT NULL PRIMARY KEY,"
+                + "    description VARCHAR2(100)," + "    script VARCHAR2(100) NOT NULL UNIQUE,"
+                + "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
+                + "    state VARCHAR2(15) NOT NULL," + "    current_version NUMBER(1) NOT NULL" + ")";
+        String addIndexSql = "CREATE INDEX " + tableName + "_cv_idx ON " + tableName + "(current_version)";
 
-		return new String[] { createTableSql, addIndexSql };
-	}
+        return new String[]{createTableSql, addIndexSql};
+    }
 
-	@Override
-	public String getCurrentSchema(SimpleJdbcTemplate jdbcTemplate) {
-		return jdbcTemplate.getJdbcOperations().execute(new ConnectionCallback<String>() {
-			@Override
-			public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-				return connection.getMetaData().getUserName();
-			}
-		});
-	}
+    @Override
+    public String getCurrentSchema(JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.execute(new ConnectionCallback<String>() {
+            @Override
+            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
+                return connection.getMetaData().getUserName();
+            }
+        });
+    }
 
-	@Override
-	public boolean supportsDatabase(String databaseProductName) {
-		return "Oracle".equals(databaseProductName);
-	}
+    @Override
+    public boolean supportsDatabase(String databaseProductName) {
+        return "Oracle".equals(databaseProductName);
+    }
 
-	@Override
-	public boolean metaDataTableExists(SimpleJdbcTemplate jdbcTemplate, String schemaMetaDataTable) {
-		int count = jdbcTemplate.queryForInt("SELECT count(*) FROM user_tables WHERE table_name = ?",
-				schemaMetaDataTable.toUpperCase());
-		return count > 0;
-	}
+    @Override
+    public boolean metaDataTableExists(JdbcTemplate jdbcTemplate, String schemaMetaDataTable) {
+        int count = jdbcTemplate.queryForInt("SELECT count(*) FROM user_tables WHERE table_name = ?",
+                schemaMetaDataTable.toUpperCase());
+        return count > 0;
+    }
 
-	@Override
-	public boolean supportsDdlTransactions() {
-		return false;
-	}
+    @Override
+    public boolean supportsDdlTransactions() {
+        return false;
+    }
 
-	@Override
-	public boolean supportsLocking() {
-		return true;
-	}
+    @Override
+    public boolean supportsLocking() {
+        return true;
+    }
 
-	@Override
-	public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
-		return new OracleSqlScript(resource, placeholders);
-	}
+    @Override
+    public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
+        return new OracleSqlScript(resource, placeholders);
+    }
 
-	@Override
-	public SqlScript createDropAllObjectsScript(SimpleJdbcTemplate jdbcTemplate) {
-		String query = "SELECT 'DROP ' ||  object_type ||' ' || object_name || ' ' || DECODE(OBJECT_TYPE,'TABLE','CASCADE CONSTRAINTS')"
-				+ " FROM user_objects WHERE object_type IN ('FUNCTION','MATERIALIZED VIEW','PACKAGE','PROCEDURE','SEQUENCE','SYNONYM','TABLE','TYPE','VIEW')";
-		final List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(query);
-		int count = 0;
-		List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-		for (Map<String, Object> row : resultSet) {
-			final String dropStatement = (String) row.values().iterator().next();
-			count++;
-			sqlStatements.add(new SqlStatement(count, dropStatement));
-		}
-		return new SqlScript(sqlStatements, "oracle drop all objects script");
-	}
+    @Override
+    public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
+        String query = "SELECT 'DROP ' ||  object_type ||' ' || object_name || ' ' || DECODE(OBJECT_TYPE,'TABLE','CASCADE CONSTRAINTS')"
+                + " FROM user_objects WHERE object_type IN ('FUNCTION','MATERIALIZED VIEW','PACKAGE','PROCEDURE','SEQUENCE','SYNONYM','TABLE','TYPE','VIEW')";
+        final List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(query);
+        int count = 0;
+        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
+        for (Map<String, Object> row : resultSet) {
+            final String dropStatement = (String) row.values().iterator().next();
+            count++;
+            sqlStatements.add(new SqlStatement(count, dropStatement));
+        }
+        return new SqlScript(sqlStatements, "oracle drop all objects script");
+    }
 
 }
