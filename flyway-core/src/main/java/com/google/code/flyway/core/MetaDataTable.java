@@ -110,8 +110,8 @@ public class MetaDataTable {
             public Void doInTransaction(TransactionStatus status) {
                 jdbcTemplate
                         .update("INSERT INTO " + tableName
-                                + " (version, description, script, execution_time, state, current_version)"
-                                + " VALUES (0, '<< Empty schema >>', '<< Flyway Init >>', 0, 'SUCCESS', 1)");
+                                + " (version, script, execution_time, state, current_version)"
+                                + " VALUES (0, '<< Flyway Init >>', 0, 'SUCCESS', 1)");
                 return null;
             }
         });
