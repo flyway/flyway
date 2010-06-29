@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
-public class OracleMediumTest {
+public class OracleMigrationMediumTest {
     @Autowired
     private Flyway flyway;
 
@@ -43,7 +43,9 @@ public class OracleMediumTest {
     private DestroyableSimpleDriverDataSource dataSource;
 
     @Test
-    public void createAndMigrateAndDrop() throws SQLException {
+    public void createAndMigrateAndDrop() throws Exception {
+        flyway.clean();
+        flyway.migrate();
         SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
         assertEquals("1.1", schemaVersion.getVersion());
         assertEquals("Populate table", schemaVersion.getDescription());

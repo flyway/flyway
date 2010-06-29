@@ -42,7 +42,7 @@
         <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
     </bean>
     <!-- -->
-    <bean id="dbMigrator" class="com.google.code.flyway.core.Flyway" init-method="migrate">
+    <bean id="dbMigrator" class="com.google.code.flyway.core.Flyway">
         <property name="dataSource" ref="ddlDataSource"/>
         <property name="baseDir" value="migration/oracle/sql"/>
         <property name="placeholders">
