@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.mysql;
+package com.google.code.flyway.core.dbsupport.mysql;
 
 import com.google.code.flyway.core.ConcurrentMigrationTestCase;
 import org.springframework.test.context.ContextConfiguration;

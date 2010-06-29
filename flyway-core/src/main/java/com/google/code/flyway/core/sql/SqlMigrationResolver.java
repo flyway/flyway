@@ -22,13 +22,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.code.flyway.core.dbsupport.DbSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import com.google.code.flyway.core.DbSupport;
 import com.google.code.flyway.core.Migration;
 import com.google.code.flyway.core.MigrationResolver;
 

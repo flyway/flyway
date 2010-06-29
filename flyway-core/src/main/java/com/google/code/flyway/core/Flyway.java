@@ -16,11 +16,12 @@
 
 package com.google.code.flyway.core;
 
-import com.google.code.flyway.core.h2.H2DbSupport;
-import com.google.code.flyway.core.hsql.HsqlDbSupport;
+import com.google.code.flyway.core.dbsupport.DbSupport;
+import com.google.code.flyway.core.dbsupport.h2.H2DbSupport;
+import com.google.code.flyway.core.dbsupport.hsql.HsqlDbSupport;
 import com.google.code.flyway.core.java.JavaMigrationResolver;
-import com.google.code.flyway.core.mysql.MySQLDbSupport;
-import com.google.code.flyway.core.oracle.OracleDbSupport;
+import com.google.code.flyway.core.dbsupport.mysql.MySQLDbSupport;
+import com.google.code.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.google.code.flyway.core.sql.SqlMigrationResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

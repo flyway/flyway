@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.oracle;
+package com.google.code.flyway.core.dbsupport.mysql;
 
-import com.google.code.flyway.core.ConcurrentMigrationTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.google.code.flyway.core.MigrationTestCase;
+
 /**
- * Test to demonstrate the migration functionality using Oracle.
+ * Test to demonstrate the migration functionality using Mysql.
  */
-@ContextConfiguration(locations = { "classpath:migration/oracle/oracle-context.xml" })
-public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+@ContextConfiguration(locations = { "classpath:migration/mysql/mysql-context.xml" })
+public class MySQLMigrationMediumTest extends MigrationTestCase {
 	@Override
 	protected String getBaseDir() {
 		return "migration/sql";

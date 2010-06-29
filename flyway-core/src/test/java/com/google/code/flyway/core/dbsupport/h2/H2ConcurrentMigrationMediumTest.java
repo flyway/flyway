@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.mysql;
+package com.google.code.flyway.core.dbsupport.h2;
 
 import org.springframework.test.context.ContextConfiguration;
 
-import com.google.code.flyway.core.MigrationTestCase;
+import com.google.code.flyway.core.ConcurrentMigrationTestCase;
 
 /**
- * Test to demonstrate the migration functionality using Mysql.
+ * Test to demonstrate the migration functionality using H2.
  */
-@ContextConfiguration(locations = { "classpath:migration/mysql/mysql-context.xml" })
-public class MySQLMigrationMediumTest extends MigrationTestCase {
+@ContextConfiguration(locations = { "classpath:migration/h2/h2-context.xml" })
+public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
 	@Override
 	protected String getBaseDir() {
 		return "migration/sql";

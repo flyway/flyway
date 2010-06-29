@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.mysql;
+package com.google.code.flyway.core.dbsupport.h2;
 
-import com.google.code.flyway.core.DbSupport;
+import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.SqlScript;
 import com.google.code.flyway.core.SqlStatement;
 import org.springframework.core.io.Resource;
@@ -28,22 +28,21 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Mysql-specific support.
+ * H2 database specific support
  */
-public class MySQLDbSupport implements DbSupport {
+public class H2DbSupport implements DbSupport {
     @Override
     public String[] createSchemaMetaDataTableSql(String tableName) {
-        String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR(20) NOT NULL UNIQUE,"
-                + "    description VARCHAR(100)," + "    script VARCHAR(100) NOT NULL UNIQUE,"
+        String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR(20) PRIMARY KEY,"
+                + "    description VARCHAR(100)," + "    script VARCHAR(100) NOT NULL,"
                 + "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
-                + "    state VARCHAR(15) NOT NULL," + "    current_version BOOL NOT NULL," + "    PRIMARY KEY(version)"
-                + ") ENGINE=InnoDB";
-        String addIndexSql = "ALTER TABLE " + tableName + " ADD INDEX " + tableName
-                + "_current_version_index (current_version)";
+                + "    state VARCHAR(15) NOT NULL," + "    current_version BOOLEAN NOT NULL,"
+                + "    CONSTRAINT unique_script UNIQUE (script)" + ")";
+        String addIndexSql = "CREATE INDEX " + tableName + "_current_version_index ON " + tableName
+                + " (current_version)";
 
         return new String[]{createTableSql, addIndexSql};
     }
@@ -53,14 +52,20 @@ public class MySQLDbSupport implements DbSupport {
         return jdbcTemplate.execute(new ConnectionCallback<String>() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-                return connection.getCatalog();
+                ResultSet resultSet = connection.getMetaData().getSchemas();
+                while (resultSet.next()) {
+                    if (resultSet.getBoolean("IS_DEFAULT")) {
+                        return resultSet.getString("TABLE_SCHEM");
+                    }
+                }
+                return null;
             }
         });
     }
 
     @Override
     public boolean supportsDatabase(String databaseProductName) {
-        return "MySQL".equals(databaseProductName);
+        return "H2".equals(databaseProductName);
     }
 
     @Override
@@ -68,8 +73,8 @@ public class MySQLDbSupport implements DbSupport {
         return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(jdbcTemplate), null,
-                        schemaMetaDataTable, null);
+                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(jdbcTemplate),
+                        schemaMetaDataTable.toUpperCase(), null);
                 return resultSet.next();
             }
         });
@@ -92,16 +97,6 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        List<String> tableNames =
-                jdbcTemplate.queryForList(
-                        "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                        String.class,
-                        getCurrentSchema(jdbcTemplate));
-        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int lineNumber = 1;
-        for (String tableName : tableNames) {
-            sqlStatements.add(new SqlStatement(lineNumber, "DROP TABLE " + tableName));
-        }
-        return new SqlScript(sqlStatements, "Clean schema " + getCurrentSchema(jdbcTemplate));
+        return new SqlScript(new ArrayList<SqlStatement>(), "Clean schema " + getCurrentSchema(jdbcTemplate));
     }
 }

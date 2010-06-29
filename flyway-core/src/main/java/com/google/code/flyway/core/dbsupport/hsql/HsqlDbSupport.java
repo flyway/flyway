@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.h2;
+package com.google.code.flyway.core.dbsupport.hsql;
 
-import com.google.code.flyway.core.DbSupport;
+import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.SqlScript;
 import com.google.code.flyway.core.SqlStatement;
 import org.springframework.core.io.Resource;
@@ -31,15 +31,15 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * H2 database specific support
+ * HsqlDb-specific support
  */
-public class H2DbSupport implements DbSupport {
+public class HsqlDbSupport implements DbSupport {
     @Override
     public String[] createSchemaMetaDataTableSql(String tableName) {
         String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR(20) PRIMARY KEY,"
                 + "    description VARCHAR(100)," + "    script VARCHAR(100) NOT NULL,"
                 + "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
-                + "    state VARCHAR(15) NOT NULL," + "    current_version BOOLEAN NOT NULL,"
+                + "    state VARCHAR(15) NOT NULL," + "    current_version BIT NOT NULL,"
                 + "    CONSTRAINT unique_script UNIQUE (script)" + ")";
         String addIndexSql = "CREATE INDEX " + tableName + "_current_version_index ON " + tableName
                 + " (current_version)";
@@ -65,7 +65,7 @@ public class H2DbSupport implements DbSupport {
 
     @Override
     public boolean supportsDatabase(String databaseProductName) {
-        return "H2".equals(databaseProductName);
+        return "HSQL Database Engine".equals(databaseProductName);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class H2DbSupport implements DbSupport {
 
     @Override
     public boolean supportsLocking() {
-        return true;
+        return false;
     }
 
     @Override

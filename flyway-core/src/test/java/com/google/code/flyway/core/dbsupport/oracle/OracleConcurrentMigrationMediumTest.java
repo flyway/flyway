@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.h2;
-
-import org.springframework.test.context.ContextConfiguration;
+package com.google.code.flyway.core.dbsupport.oracle;
 
 import com.google.code.flyway.core.ConcurrentMigrationTestCase;
+import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Test to demonstrate the migration functionality using H2.
+ * Test to demonstrate the migration functionality using Oracle.
  */
-@ContextConfiguration(locations = { "classpath:migration/h2/h2-context.xml" })
-public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+@ContextConfiguration(locations = { "classpath:migration/oracle/oracle-context.xml" })
+public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
 	@Override
 	protected String getBaseDir() {
 		return "migration/sql";

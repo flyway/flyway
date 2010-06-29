@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.hsql;
+package com.google.code.flyway.core.dbsupport.oracle;
 
-import com.google.code.flyway.core.DbSupport;
+import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.SqlScript;
 import com.google.code.flyway.core.SqlStatement;
 import org.springframework.core.io.Resource;
@@ -25,24 +25,22 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
- * HsqlDb-specific support
+ * Oracle-specific support.
  */
-public class HsqlDbSupport implements DbSupport {
+public class OracleDbSupport implements DbSupport {
     @Override
     public String[] createSchemaMetaDataTableSql(String tableName) {
-        String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR(20) PRIMARY KEY,"
-                + "    description VARCHAR(100)," + "    script VARCHAR(100) NOT NULL,"
+        String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR2(20) NOT NULL PRIMARY KEY,"
+                + "    description VARCHAR2(100)," + "    script VARCHAR2(100) NOT NULL UNIQUE,"
                 + "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
-                + "    state VARCHAR(15) NOT NULL," + "    current_version BIT NOT NULL,"
-                + "    CONSTRAINT unique_script UNIQUE (script)" + ")";
-        String addIndexSql = "CREATE INDEX " + tableName + "_current_version_index ON " + tableName
-                + " (current_version)";
+                + "    state VARCHAR2(15) NOT NULL," + "    current_version NUMBER(1) NOT NULL" + ")";
+        String addIndexSql = "CREATE INDEX " + tableName + "_cv_idx ON " + tableName + "(current_version)";
 
         return new String[]{createTableSql, addIndexSql};
     }
@@ -52,32 +50,21 @@ public class HsqlDbSupport implements DbSupport {
         return jdbcTemplate.execute(new ConnectionCallback<String>() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getSchemas();
-                while (resultSet.next()) {
-                    if (resultSet.getBoolean("IS_DEFAULT")) {
-                        return resultSet.getString("TABLE_SCHEM");
-                    }
-                }
-                return null;
+                return connection.getMetaData().getUserName();
             }
         });
     }
 
     @Override
     public boolean supportsDatabase(String databaseProductName) {
-        return "HSQL Database Engine".equals(databaseProductName);
+        return "Oracle".equals(databaseProductName);
     }
 
     @Override
-    public boolean metaDataTableExists(final JdbcTemplate jdbcTemplate, final String schemaMetaDataTable) {
-        return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(jdbcTemplate),
-                        schemaMetaDataTable.toUpperCase(), null);
-                return resultSet.next();
-            }
-        });
+    public boolean metaDataTableExists(JdbcTemplate jdbcTemplate, String schemaMetaDataTable) {
+        int count = jdbcTemplate.queryForInt("SELECT count(*) FROM user_tables WHERE table_name = ?",
+                schemaMetaDataTable.toUpperCase());
+        return count > 0;
     }
 
     @Override
@@ -87,16 +74,27 @@ public class HsqlDbSupport implements DbSupport {
 
     @Override
     public boolean supportsLocking() {
-        return false;
+        return true;
     }
 
     @Override
     public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
-        return new SqlScript(resource, placeholders);
+        return new OracleSqlScript(resource, placeholders);
     }
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        return new SqlScript(new ArrayList<SqlStatement>(), "Clean schema " + getCurrentSchema(jdbcTemplate));
+        String query = "SELECT 'DROP ' ||  object_type ||' ' || object_name || ' ' || DECODE(OBJECT_TYPE,'TABLE','CASCADE CONSTRAINTS')"
+                + " FROM user_objects WHERE object_type IN ('FUNCTION','MATERIALIZED VIEW','PACKAGE','PROCEDURE','SEQUENCE','SYNONYM','TABLE','TYPE','VIEW')";
+        final List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(query);
+        int count = 0;
+        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
+        for (Map<String, Object> row : resultSet) {
+            final String dropStatement = (String) row.values().iterator().next();
+            count++;
+            sqlStatements.add(new SqlStatement(count, dropStatement));
+        }
+        return new SqlScript(sqlStatements, "oracle drop all objects script");
     }
+
 }

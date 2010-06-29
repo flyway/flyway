@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.oracle;
+package com.google.code.flyway.core.dbsupport.oracle;
 
 import com.google.code.flyway.core.SqlScript;
 import org.springframework.core.io.Resource;

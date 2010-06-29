@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.hsql;
+package com.google.code.flyway.core.dbsupport.hsql;
 
 import org.springframework.test.context.ContextConfiguration;
 

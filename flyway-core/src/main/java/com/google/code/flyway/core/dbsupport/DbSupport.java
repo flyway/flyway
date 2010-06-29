@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core;
+package com.google.code.flyway.core.dbsupport;
 
+import com.google.code.flyway.core.SqlScript;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 

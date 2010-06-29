@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.code.flyway.core.h2;
+package com.google.code.flyway.core.dbsupport.h2;
 
 import org.springframework.test.context.ContextConfiguration;
 
