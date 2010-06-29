@@ -16,6 +16,7 @@
 
 package com.google.code.flyway.core;
 
+import com.google.code.flyway.core.dbsupport.DbSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.TransactionStatus;
@@ -79,7 +80,7 @@ public class Migration {
     /**
      * Asserts that this migration has not failed.
      *
-     * @throws IlllegalStateException Thrown when this migration has failed.
+     * @throws IllegalStateException Thrown when this migration has failed.
      */
     public void assertNotFailed() {
         if (MigrationState.FAILED == migrationState) {
@@ -94,20 +95,15 @@ public class Migration {
      *
      * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        To execute the migration statements.
+     * @param dbSupport           The support for database-specific extensions.
      */
-    public final void migrate(final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate) {
+    public final void migrate(final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) {
         final long start = System.currentTimeMillis();
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    transactionTemplate.execute(new TransactionCallback<Void>() {
-                        @Override
-                        public Void doInTransaction(TransactionStatus status) {
-                            doMigrate(jdbcTemplate);
-                            return null;
-                        }
-                    });
+                    doMigrate(transactionTemplate, jdbcTemplate, dbSupport);
                     migrationState = MigrationState.SUCCESS;
                 } catch (Exception e) {
                     migrationState = MigrationState.FAILED;
@@ -128,10 +124,12 @@ public class Migration {
     /**
      * Performs the migration.
      *
-     * @param jdbcTemplate To execute the migration statements.
+     * @param transactionTemplate The transaction template to use.
+     * @param jdbcTemplate        To execute the migration statements.
+     * @param dbSupport           The support for database-specific extensions.
      * @throws DataAccessException Thrown when the migration failed.
      */
-    protected void doMigrate(JdbcTemplate jdbcTemplate) throws DataAccessException {
+    protected void doMigrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException {
         // Do nothing by default.
     }
 }

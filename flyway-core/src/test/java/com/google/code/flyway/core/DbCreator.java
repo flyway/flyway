@@ -18,6 +18,8 @@ package com.google.code.flyway.core;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -59,7 +61,7 @@ public class DbCreator {
     public void createDatabase() {
         SqlScript sqlScript =
                 new SqlScript(new ClassPathResource(baseDir + "/createDatabase.sql"), new HashMap<String, String>());
-        sqlScript.execute(new JdbcTemplate(rootDataSource));
+        sqlScript.execute(new TransactionTemplate(new DataSourceTransactionManager(rootDataSource)), new JdbcTemplate(rootDataSource));
     }
 
     /**
@@ -69,6 +71,6 @@ public class DbCreator {
     public void dropDatabase() {
         SqlScript sqlScript =
                 new SqlScript(new ClassPathResource(baseDir + "/dropDatabase.sql"), new HashMap<String, String>());
-        sqlScript.execute(new JdbcTemplate(rootDataSource));
+        sqlScript.execute(new TransactionTemplate(new DataSourceTransactionManager(rootDataSource)), new JdbcTemplate(rootDataSource));
     }
 }

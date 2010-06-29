@@ -16,6 +16,9 @@
 
 package com.google.code.flyway.core;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
@@ -53,5 +56,19 @@ public class SqlStatement {
      */
     public String getSql() {
         return sql;
+    }
+
+    /**
+     * Executes this statement against the database.
+     *
+     * @param jdbcTemplate        The jdbc template to use to execute this statement.
+     */
+    public void execute(JdbcTemplate jdbcTemplate) {
+        try {
+            jdbcTemplate.update(sql);
+        } catch (DataAccessException e) {
+            throw new IllegalStateException("Error executing statement at line " + lineNumber
+                    + ": " + sql, e);
+        }
     }
 }

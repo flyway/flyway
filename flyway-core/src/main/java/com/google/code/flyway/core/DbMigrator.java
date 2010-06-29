@@ -122,7 +122,7 @@ public class DbMigrator {
                     }
 
                     LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
-                    migration.migrate(transactionTemplate, jdbcTemplate);
+                    migration.migrate(transactionTemplate, jdbcTemplate, dbSupport);
 
                     if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
                         throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");

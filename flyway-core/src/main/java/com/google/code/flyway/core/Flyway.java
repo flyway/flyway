@@ -19,9 +19,9 @@ package com.google.code.flyway.core;
 import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.dbsupport.h2.H2DbSupport;
 import com.google.code.flyway.core.dbsupport.hsql.HsqlDbSupport;
-import com.google.code.flyway.core.java.JavaMigrationResolver;
 import com.google.code.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.google.code.flyway.core.dbsupport.oracle.OracleDbSupport;
+import com.google.code.flyway.core.java.JavaMigrationResolver;
 import com.google.code.flyway.core.sql.SqlMigrationResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,8 +30,6 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
@@ -161,7 +159,7 @@ public class Flyway {
         }
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders, dbSupport));
+        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
         DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrationResolvers,
@@ -173,16 +171,10 @@ public class Flyway {
      * Drops all object in the schema.
      */
     public void clean() {
-        LOG.info("Starting to drop all database objects ...");
+        LOG.debug("Starting to drop all database objects ...");
         final SqlScript dropAllObjectsScript = dbSupport.createCleanScript(jdbcTemplate);
-        transactionTemplate.execute(new TransactionCallback<Void>() {
-            @Override
-            public Void doInTransaction(TransactionStatus status) {
-                dropAllObjectsScript.execute(jdbcTemplate);
-                return null;
-            }
-        });
-        LOG.info("Finished to drop all database objects.");
+        dropAllObjectsScript.execute(transactionTemplate, jdbcTemplate);
+        LOG.info("Cleaned database schema " + dbSupport.getCurrentSchema(jdbcTemplate));
     }
 
     /**

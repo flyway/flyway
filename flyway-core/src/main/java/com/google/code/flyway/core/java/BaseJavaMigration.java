@@ -16,20 +16,56 @@
 
 package com.google.code.flyway.core.java;
 
-import org.springframework.util.ClassUtils;
-
 import com.google.code.flyway.core.BaseMigration;
+import com.google.code.flyway.core.dbsupport.DbSupport;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.ClassUtils;
 
 /**
  * Base class for java migration classes whose name conforms to the Flyway
  * standard.
  */
 public abstract class BaseJavaMigration extends BaseMigration {
-	/**
-	 * Initializes this Migration with this standard Flyway name.
-	 */
-	protected BaseJavaMigration() {
-		initVersion(ClassUtils.getShortName(getClass()));
-		scriptName = "Java Class: " + ClassUtils.getShortName(getClass());
-	}
+    /**
+     * Initializes this Migration with this standard Flyway name.
+     */
+    protected BaseJavaMigration() {
+        initVersion(ClassUtils.getShortName(getClass()));
+        scriptName = "Java Class: " + ClassUtils.getShortName(getClass());
+    }
+
+    /**
+     * Performs the migration.
+     *
+     * @param transactionTemplate The transaction template to use.
+     * @param jdbcTemplate        To execute the migration statements.
+     * @param dbSupport           The support for database-specific extensions.
+     * @throws org.springframework.dao.DataAccessException
+     *          Thrown when the migration failed.
+     */
+    @Override
+    protected void doMigrate(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) throws DataAccessException {
+        transactionTemplate.execute(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                doMigrateInTransaction(jdbcTemplate, dbSupport);
+                return null;
+            }
+        });
+
+    }
+
+    /**
+     * Performs the migration inside a transaction.
+     *
+     * @param jdbcTemplate To execute the migration statements.
+     * @param dbSupport    The support for database-specific extensions.
+     * @throws org.springframework.dao.DataAccessException
+     *          Thrown when the migration failed.
+     */
+    protected abstract void doMigrateInTransaction(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;
 }

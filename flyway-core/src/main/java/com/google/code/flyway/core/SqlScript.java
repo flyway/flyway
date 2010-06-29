@@ -19,8 +19,10 @@ package com.google.code.flyway.core;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,9 +50,9 @@ public class SqlScript {
     private static final String DEFAULT_STATEMENT_DELIMITER = ";";
 
     /**
-     * The description of this script.
+     * The name of this script.
      */
-    private String description;
+    private String name;
 
     /**
      * The sql statements contained in this script.
@@ -75,7 +77,7 @@ public class SqlScript {
             List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholders);
 
             sqlStatements = linesToStatements(noPlaceholderLines);
-            description = resource.getFilename();
+            name = resource.getFilename();
         } catch (IOException e) {
             throw new IllegalStateException("Unable to read sql script: " + resource.getFilename(), e);
         } finally {
@@ -89,9 +91,15 @@ public class SqlScript {
         }
     }
 
-    public SqlScript(List<SqlStatement> sqlStatements, String description) {
+    /**
+     * Creates a new SqlScript with these statements and this name.
+     *
+     * @param sqlStatements The statements of the script.
+     * @param name          The name of the script.
+     */
+    public SqlScript(List<SqlStatement> sqlStatements, String name) {
         this.sqlStatements = sqlStatements;
-        this.description = description;
+        this.name = name;
     }
 
     /**
@@ -99,7 +107,7 @@ public class SqlScript {
      */
     protected SqlScript() {
         sqlStatements = null;
-        description = null;
+        name = null;
     }
 
     /**
@@ -110,19 +118,22 @@ public class SqlScript {
     }
 
     /**
-     * Executes this script using this jdbc template.
+     * Executes this script against the database.
      *
-     * @param jdbcTemplate The jdbc template to use to execute this script.
+     * @param transactionTemplate The transaction template to use.
+     * @param jdbcTemplate        The jdbc template to use to execute this script.
      */
-    public void execute(JdbcTemplate jdbcTemplate) {
-        for (SqlStatement sqlStatement : sqlStatements) {
-            try {
-                jdbcTemplate.update(sqlStatement.getSql());
-            } catch (DataAccessException e) {
-                throw new IllegalStateException("Error executing statement at " + description + ":" + sqlStatement.getLineNumber()
-                        + " -> " + sqlStatement.getSql(), e);
+    public void execute(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate) {
+        LOG.info("Executing " + name);
+        transactionTemplate.execute(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                for (SqlStatement sqlStatement : sqlStatements) {
+                    sqlStatement.execute(jdbcTemplate);
+                }
+                return null;
             }
-        }
+        });
     }
 
     /**

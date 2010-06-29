@@ -21,6 +21,7 @@ import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.SqlScript;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Map;
 
@@ -40,24 +41,17 @@ public class SqlMigration extends BaseMigration {
     private final Map<String, String> placeholders;
 
     /**
-     * The support for database-specific extensions.
-     */
-    private final DbSupport dbSupport;
-
-    /**
      * Creates a new sql script migration based on this sql script.
      *
      * @param sqlScriptResource The resource containing the sql script.
      * @param placeholders The placeholders to replace in the sql script.
-     * @param dbSupport Database-specific support code.
      */
-    public SqlMigration(Resource sqlScriptResource, Map<String, String> placeholders, DbSupport dbSupport) {
+    public SqlMigration(Resource sqlScriptResource, Map<String, String> placeholders) {
         initVersion(extractVersionStringFromFileName(sqlScriptResource.getFilename()));
         scriptName = "Sql File: " + sqlScriptResource.getFilename();
 
         this.sqlScriptResource = sqlScriptResource;
         this.placeholders = placeholders;
-        this.dbSupport = dbSupport;
     }
 
     /**
@@ -75,8 +69,8 @@ public class SqlMigration extends BaseMigration {
     }
 
     @Override
-    public void doMigrate(JdbcTemplate jdbcTemplate) {
+    public void doMigrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptResource, placeholders);
-        sqlScript.execute(jdbcTemplate);
+        sqlScript.execute(transactionTemplate, jdbcTemplate);
 	}
 }
