@@ -19,6 +19,8 @@ package com.google.code.flyway.core.dbsupport.oracle;
 import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.SqlScript;
 import com.google.code.flyway.core.SqlStatement;
+
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -27,6 +29,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,14 +38,13 @@ import java.util.Map;
  */
 public class OracleDbSupport implements DbSupport {
     @Override
-    public String[] createSchemaMetaDataTableSql(String tableName) {
-        String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR2(20) NOT NULL PRIMARY KEY,"
-                + "    description VARCHAR2(100)," + "    script VARCHAR2(100) NOT NULL UNIQUE,"
-                + "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
-                + "    state VARCHAR2(15) NOT NULL," + "    current_version NUMBER(1) NOT NULL" + ")";
-        String addIndexSql = "CREATE INDEX " + tableName + "_cv_idx ON " + tableName + "(current_version)";
+    public SqlScript createCreateMetaDataTableScript(String tableName) {
+    	Resource resource = new ClassPathResource("com/google/code/flyway/core/dbsupport/oracle/createMetaDataTable.sql");
+    	
+    	Map<String, String> placeholders = new HashMap<String, String>();
+    	placeholders.put("tableName", tableName);
 
-        return new String[]{createTableSql, addIndexSql};
+        return new SqlScript(resource, placeholders);
     }
 
     @Override

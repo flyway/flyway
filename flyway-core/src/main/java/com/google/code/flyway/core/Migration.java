@@ -19,8 +19,6 @@ package com.google.code.flyway.core;
 import com.google.code.flyway.core.dbsupport.DbSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**

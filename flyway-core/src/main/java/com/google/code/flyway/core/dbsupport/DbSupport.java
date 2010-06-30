@@ -27,57 +27,6 @@ import java.util.Map;
  */
 public interface DbSupport {
     /**
-     * Generates the sql statements for creating the schema meta-data table.
-     *
-     * @param tableName The name to give to this table.
-     * @return The sql statements.
-     */
-    String[] createSchemaMetaDataTableSql(String tableName);
-
-    /**
-     * Retrieves the current schema.
-     *
-     * @param jdbcTemplate The jdbc template used for querying the database.
-     * @return The current schema for this connection.
-     */
-    String getCurrentSchema(JdbcTemplate jdbcTemplate);
-
-    /**
-     * Checks whether this DbSupport class supports the database with this
-     * product name.
-     *
-     * @param databaseProductName The name of the database.
-     * @return {@code true} if the database is supported, {@code false} if not.
-     */
-    boolean supportsDatabase(String databaseProductName);
-
-    /**
-     * Checks whether Flyway's metadata table is already present in the
-     * database.
-     *
-     * @param jdbcTemplate        The jdbc template used for querying the database.
-     * @param schemaMetaDataTable The table to look for.
-     * @return {@code true} if the table exists, {@code false} if it doesn't.
-     */
-    boolean metaDataTableExists(JdbcTemplate jdbcTemplate, String schemaMetaDataTable);
-
-    /**
-     * Checks whether ddl transactions are supported for this database.
-     *
-     * @return {@code true} if ddl transactions are supported, {@code false} if
-     *         not.
-     */
-    boolean supportsDdlTransactions();
-
-    /**
-     * Checks whether locking using select ... for update is supported for this
-     * database.
-     *
-     * @return {@code true} if locking is supported, {@code false} if not.
-     */
-    boolean supportsLocking();
-
-    /**
      * Creates a new sql script from this resource with these placeholders to
      * replace.
      *
@@ -97,4 +46,55 @@ public interface DbSupport {
      * @return A new sql script, containing drop statements for all objects
      */
 	SqlScript createCleanScript(JdbcTemplate jdbcTemplate);
+
+	/**
+     * Generates the sql script for creating the schema meta-data table.
+     *
+     * @param tableName The name to give to this table.
+     * @return The sql script.
+     */
+    SqlScript createCreateMetaDataTableScript(String tableName);
+
+    /**
+     * Checks whether Flyway's metadata table is already present in the
+     * database.
+     *
+     * @param jdbcTemplate        The jdbc template used for querying the database.
+     * @param schemaMetaDataTable The table to look for.
+     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     */
+    boolean metaDataTableExists(JdbcTemplate jdbcTemplate, String schemaMetaDataTable);
+
+    /**
+     * Retrieves the current schema.
+     *
+     * @param jdbcTemplate The jdbc template used for querying the database.
+     * @return The current schema for this connection.
+     */
+    String getCurrentSchema(JdbcTemplate jdbcTemplate);
+
+    /**
+     * Checks whether this DbSupport class supports the database with this
+     * product name.
+     *
+     * @param databaseProductName The name of the database.
+     * @return {@code true} if the database is supported, {@code false} if not.
+     */
+    boolean supportsDatabase(String databaseProductName);
+
+    /**
+     * Checks whether ddl transactions are supported for this database.
+     *
+     * @return {@code true} if ddl transactions are supported, {@code false} if
+     *         not.
+     */
+    boolean supportsDdlTransactions();
+
+    /**
+     * Checks whether locking using select ... for update is supported for this
+     * database.
+     *
+     * @return {@code true} if locking is supported, {@code false} if not.
+     */
+    boolean supportsLocking();
 }

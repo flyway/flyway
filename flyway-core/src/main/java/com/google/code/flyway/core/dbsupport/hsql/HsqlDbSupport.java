@@ -19,6 +19,8 @@ package com.google.code.flyway.core.dbsupport.hsql;
 import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.SqlScript;
 import com.google.code.flyway.core.SqlStatement;
+
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -28,6 +30,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,16 +38,13 @@ import java.util.Map;
  */
 public class HsqlDbSupport implements DbSupport {
     @Override
-    public String[] createSchemaMetaDataTableSql(String tableName) {
-        String createTableSql = "CREATE TABLE " + tableName + " (" + "    version VARCHAR(20) PRIMARY KEY,"
-                + "    description VARCHAR(100)," + "    script VARCHAR(100) NOT NULL,"
-                + "    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP," + "    execution_time INT,"
-                + "    state VARCHAR(15) NOT NULL," + "    current_version BIT NOT NULL,"
-                + "    CONSTRAINT unique_script UNIQUE (script)" + ")";
-        String addIndexSql = "CREATE INDEX " + tableName + "_current_version_index ON " + tableName
-                + " (current_version)";
+    public SqlScript createCreateMetaDataTableScript(String tableName) {
+    	Resource resource = new ClassPathResource("com/google/code/flyway/core/dbsupport/hsql/createMetaDataTable.sql");
+    	
+    	Map<String, String> placeholders = new HashMap<String, String>();
+    	placeholders.put("tableName", tableName);
 
-        return new String[]{createTableSql, addIndexSql};
+        return new SqlScript(resource, placeholders);
     }
 
     @Override

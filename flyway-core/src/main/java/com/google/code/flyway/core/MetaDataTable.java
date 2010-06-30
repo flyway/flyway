@@ -89,16 +89,8 @@ public class MetaDataTable {
      * Creates Flyway's metadata table.
      */
     public void create() {
-        transactionTemplate.execute(new TransactionCallback<Void>() {
-            @Override
-            public Void doInTransaction(TransactionStatus status) {
-                String[] statements = dbSupport.createSchemaMetaDataTableSql(tableName);
-                for (String statement : statements) {
-                    jdbcTemplate.update(statement);
-                }
-                return null;
-            }
-        });
+        SqlScript createMetaDataTableScript = dbSupport.createCreateMetaDataTableScript(tableName);
+        createMetaDataTableScript.execute(transactionTemplate, jdbcTemplate);
         LOG.info("Metadata table created: " + tableName);
     }
 
