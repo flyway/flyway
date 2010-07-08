@@ -8,3 +8,4 @@ target
 .classpath
 .settings
 .metadata
+.idea
