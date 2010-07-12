@@ -17,6 +17,7 @@
 package com.google.code.flyway.core;
 
 import com.google.code.flyway.core.dbsupport.DbSupport;
+import com.google.code.flyway.core.util.LogTimer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,11 +25,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Main workflow for migrating the database.
@@ -125,6 +122,8 @@ public class DbMigrator {
                     if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
                         throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
                     }
+                    LOG.info(String.format("Finished migrating to version %s - %s (execution time %s)",
+                            migration.getVersion(), migration.getScriptName(), LogTimer.format(migration.getExecutionTime())));
 
                     metaDataTable.finishMigration(migration);
 

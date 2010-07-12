@@ -23,6 +23,7 @@
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 	<!--  -->
+<!--
     <bean id="dbCreator" class="com.google.code.flyway.core.DbCreator">
         <property name="baseDir" value="migration/oracle"/>
         <property name="rootDataSource">
@@ -34,8 +35,9 @@
             </bean>
         </property>
     </bean>
+-->
     <!--  -->
-    <bean id="ddlDataSource" class="com.google.code.flyway.core.DestroyableSimpleDriverDataSource" depends-on="dbCreator">
+    <bean id="ddlDataSource" class="com.google.code.flyway.core.DestroyableSimpleDriverDataSource">
         <property name="username" value="test_ddl_user" />
         <property name="password" value="ddlPassword" />
         <property name="driverClass" value="oracle.jdbc.OracleDriver" />

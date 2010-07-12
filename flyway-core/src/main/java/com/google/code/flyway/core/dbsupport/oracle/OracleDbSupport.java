@@ -16,9 +16,9 @@
 
 package com.google.code.flyway.core.dbsupport.oracle;
 
-import com.google.code.flyway.core.dbsupport.DbSupport;
 import com.google.code.flyway.core.SqlScript;
 import com.google.code.flyway.core.SqlStatement;
+import com.google.code.flyway.core.dbsupport.DbSupport;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -86,8 +86,9 @@ public class OracleDbSupport implements DbSupport {
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        String query = "SELECT 'DROP ' ||  object_type ||' ' || object_name || ' ' || DECODE(OBJECT_TYPE,'TABLE','CASCADE CONSTRAINTS')"
-                + " FROM user_objects WHERE object_type IN ('FUNCTION','MATERIALIZED VIEW','PACKAGE','PROCEDURE','SEQUENCE','SYNONYM','TABLE','TYPE','VIEW')";
+        String query = "SELECT 'DROP ' ||  object_type ||' ' || object_name || ' ' || DECODE(OBJECT_TYPE,'TABLE','CASCADE CONSTRAINTS PURGE')" +
+                " FROM user_objects WHERE object_type IN ('FUNCTION','MATERIALIZED VIEW','PACKAGE','PROCEDURE','SEQUENCE','SYNONYM','TABLE','TYPE','VIEW') " +
+                "order by object_type desc";
         final List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(query);
         int count = 0;
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();

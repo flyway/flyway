@@ -23,6 +23,7 @@ import com.google.code.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.google.code.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.google.code.flyway.core.java.JavaMigrationResolver;
 import com.google.code.flyway.core.sql.SqlMigrationResolver;
+import com.google.code.flyway.core.util.LogTimer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -172,9 +173,11 @@ public class Flyway {
      */
     public void clean() {
         LOG.debug("Starting to drop all database objects ...");
+        final LogTimer timer = new LogTimer();
         final SqlScript dropAllObjectsScript = dbSupport.createCleanScript(jdbcTemplate);
         dropAllObjectsScript.execute(transactionTemplate, jdbcTemplate);
-        LOG.info("Cleaned database schema " + dbSupport.getCurrentSchema(jdbcTemplate));
+        LOG.info(String.format("Cleaned database schema '%s' (execution time %s)",
+                dbSupport.getCurrentSchema(jdbcTemplate), timer.getFormatted()));
     }
 
     /**
