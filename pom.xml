@@ -55,7 +55,7 @@
 
 
     <properties>
-        <version.spring>3.0.3.RELEASE</version.spring>
+        <version.spring>2.5.6</version.spring>
         <version.maven>2.2.1</version.maven>
     </properties>
     <dependencyManagement>
@@ -75,13 +75,13 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.8.1</version>
+                <version>4.4</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
-                <version>1.2.15</version>
+                <version>1.2.16</version>
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
@@ -105,7 +105,7 @@
             <dependency>
                 <groupId>hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
-                <version>2.0.0</version>
+                <version>1.8.0.7</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

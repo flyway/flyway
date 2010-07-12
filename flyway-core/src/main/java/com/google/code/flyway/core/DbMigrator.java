@@ -100,7 +100,7 @@ public class DbMigrator {
 
         int migrationSuccessCount = 0;
         while (true) {
-            int result = transactionTemplate.execute(new TransactionCallback<Integer>() {
+            int result = (Integer) transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public Integer doInTransaction(TransactionStatus status) {
                     metaDataTable.lock();

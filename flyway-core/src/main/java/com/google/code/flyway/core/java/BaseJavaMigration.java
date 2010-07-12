@@ -49,7 +49,7 @@ public abstract class BaseJavaMigration extends BaseMigration {
      */
     @Override
     protected void doMigrate(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) throws DataAccessException {
-        transactionTemplate.execute(new TransactionCallback<Void>() {
+        transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 doMigrateInTransaction(jdbcTemplate, dbSupport);

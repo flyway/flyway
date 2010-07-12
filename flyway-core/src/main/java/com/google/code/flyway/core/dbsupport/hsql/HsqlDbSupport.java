@@ -49,7 +49,7 @@ public class HsqlDbSupport implements DbSupport {
 
     @Override
     public String getCurrentSchema(JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.execute(new ConnectionCallback<String>() {
+        return (String) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getSchemas();
@@ -70,7 +70,7 @@ public class HsqlDbSupport implements DbSupport {
 
     @Override
     public boolean metaDataTableExists(final JdbcTemplate jdbcTemplate, final String schemaMetaDataTable) {
-        return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
+        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(jdbcTemplate),

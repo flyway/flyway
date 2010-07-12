@@ -221,7 +221,7 @@ public class Flyway {
      * @return The name of the database product. Ex.: Oracle, MySQL, ...
      */
     private String getDatabaseProductName() {
-        return jdbcTemplate.execute(new ConnectionCallback<String>() {
+        return (String) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 DatabaseMetaData databaseMetaData = connection.getMetaData();

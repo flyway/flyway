@@ -40,7 +40,7 @@ public class Main {
         flyway.migrate();
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        String name = jdbcTemplate.queryForObject("select name from test_user", String.class);
+        String name = (String) jdbcTemplate.queryForObject("select name from test_user", String.class);
         System.out.println("Name: " + name);
     }
 }

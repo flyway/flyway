@@ -49,7 +49,7 @@ public class OracleDbSupport implements DbSupport {
 
     @Override
     public String getCurrentSchema(JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.execute(new ConnectionCallback<String>() {
+        return (String) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 return connection.getMetaData().getUserName();
@@ -65,7 +65,7 @@ public class OracleDbSupport implements DbSupport {
     @Override
     public boolean metaDataTableExists(JdbcTemplate jdbcTemplate, String schemaMetaDataTable) {
         int count = jdbcTemplate.queryForInt("SELECT count(*) FROM user_tables WHERE table_name = ?",
-                schemaMetaDataTable.toUpperCase());
+                new Object[] {schemaMetaDataTable.toUpperCase()});
         return count > 0;
     }
 

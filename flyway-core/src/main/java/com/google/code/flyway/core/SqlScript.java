@@ -125,7 +125,7 @@ public class SqlScript {
      */
     public void execute(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate) {
         LOG.info("Executing " + name);
-        transactionTemplate.execute(new TransactionCallback<Void>() {
+        transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Void doInTransaction(TransactionStatus status) {
                 for (SqlStatement sqlStatement : sqlStatements) {

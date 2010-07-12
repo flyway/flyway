@@ -50,7 +50,7 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public String getCurrentSchema(JdbcTemplate jdbcTemplate) {
-        return jdbcTemplate.execute(new ConnectionCallback<String>() {
+        return (String) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 return connection.getCatalog();
@@ -65,7 +65,7 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public boolean metaDataTableExists(final JdbcTemplate jdbcTemplate, final String schemaMetaDataTable) {
-        return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
+        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(jdbcTemplate), null,
@@ -92,14 +92,14 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        List<String> tableNames =
+        List<Map<String,String>> tableNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                        String.class,
-                        getCurrentSchema(jdbcTemplate));
+                        new Object[] {getCurrentSchema(jdbcTemplate)});
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int lineNumber = 1;
-        for (String tableName : tableNames) {
+        for (Map<String,String> row : tableNames) {
+            String tableName = row.get("table_name");
             sqlStatements.add(new SqlStatement(lineNumber, "DROP TABLE " + tableName));
         }
         return new SqlScript(sqlStatements, "Clean schema " + getCurrentSchema(jdbcTemplate));

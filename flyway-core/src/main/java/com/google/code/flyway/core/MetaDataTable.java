@@ -121,7 +121,7 @@ public class MetaDataTable {
     		migrationState = MigrationState.SUCCESS;
     	}};
     	
-    	transactionTemplate.execute(new TransactionCallback<Void>() {
+    	transactionTemplate.execute(new TransactionCallback() {
 			@Override
 			public Void doInTransaction(TransactionStatus status) {
 		    	finishMigration(initialMigration);
@@ -150,9 +150,9 @@ public class MetaDataTable {
         jdbcTemplate
                 .update("INSERT INTO " + tableName
                         + " (version, description, script, execution_time, state, current_version)"
-                        + " VALUES (?, ?, ?, ?, ?, 1)", migration.getVersion().getVersion(), migration.getVersion()
+                        + " VALUES (?, ?, ?, ?, ?, 1)", new Object[] { migration.getVersion().getVersion(), migration.getVersion()
                         .getDescription(), migration.getScriptName(), migration.getExecutionTime(), migration
-                        .getState().name());
+                        .getState().name()});
     }
 
     /**
