@@ -16,27 +16,9 @@
     limitations under the License.
 
 -->
-
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
 	<!--  -->
-<!--
-    <bean id="dbCreator" class="com.google.code.flyway.core.DbCreator">
-        <property name="baseDir" value="migration/oracle"/>
-        <property name="rootDataSource">
-            <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-                <property name="username" value="SYSTEM" />
-                <property name="password" value="flyway" />
-                <property name="driverClass" value="oracle.jdbc.OracleDriver" />
-                <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
-            </bean>
-        </property>
-    </bean>
--->
-    <!--  -->
     <bean id="ddlDataSource" class="com.google.code.flyway.core.DestroyableSimpleDriverDataSource">
         <property name="username" value="test_ddl_user" />
         <property name="password" value="ddlPassword" />

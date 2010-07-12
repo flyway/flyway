@@ -40,7 +40,7 @@ import java.util.Map;
 public class MySQLDbSupport implements DbSupport {
     @Override
     public SqlScript createCreateMetaDataTableScript(String tableName) {
-    	Resource resource = new ClassPathResource("com/google/code/flyway/core/dbsupport/oracle/createMetaDataTable.sql");
+    	Resource resource = new ClassPathResource("com/google/code/flyway/core/dbsupport/mysql/createMetaDataTable.sql");
     	
     	Map<String, String> placeholders = new HashMap<String, String>();
     	placeholders.put("tableName", tableName);
