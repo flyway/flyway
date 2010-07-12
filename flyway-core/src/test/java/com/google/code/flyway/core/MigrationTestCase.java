@@ -17,8 +17,6 @@
 package com.google.code.flyway.core;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -49,9 +47,7 @@ public abstract class MigrationTestCase {
 		flyway.setDataSource(migrationDataSource);
 		flyway.setBaseDir(getBaseDir());
         flyway.clean();
-		assertFalse(flyway.getMetaDataTable().exists());
 		flyway.migrate();
-		assertTrue(flyway.getMetaDataTable().exists());
 		SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
 		assertEquals("2.0", schemaVersion.getVersion());
 		assertEquals("Add foreign key", schemaVersion.getDescription());

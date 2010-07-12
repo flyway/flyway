@@ -25,8 +25,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
@@ -47,16 +45,12 @@ public class OracleMigrationMediumTest {
         SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
         assertEquals("1.1", schemaVersion.getVersion());
         assertEquals("Populate table", schemaVersion.getDescription());
-        assertTrue(flyway.getMetaDataTable().exists());
 
         SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
         assertEquals("Mr. T triggered", jdbcTemplate.queryForObject("select name from test_user", String.class));
 
         flyway.clean();
         
-        dataSource.destroy();
-        assertFalse(flyway.getMetaDataTable().exists());
-        dataSource.destroy();
         int countUserObjects = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
         assertEquals(0, countUserObjects);
         dataSource.destroy();

@@ -24,7 +24,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -79,35 +78,56 @@ public class MetaDataTable {
      * database.
      *
      * @return {@code true} if the table exists, {@code false} if it doesn't.
-     * @throws java.sql.SQLException Thrown when the database metadata could not be read.
      */
-    public boolean exists() throws SQLException {
-        return dbSupport.metaDataTableExists(jdbcTemplate, tableName);
+    private boolean exists() {
+		return dbSupport.metaDataTableExists(jdbcTemplate, tableName);
     }
 
     /**
      * Creates Flyway's metadata table.
      */
-    public void create() {
+    private void create() {
         SqlScript createMetaDataTableScript = dbSupport.createCreateMetaDataTableScript(tableName);
         createMetaDataTableScript.execute(transactionTemplate, jdbcTemplate);
         LOG.info("Metadata table created: " + tableName);
     }
 
     /**
-     * Initializes Flyway's metadata table with an initial version.
+     * Creates and initializes the Flyway metadata table.
+     * 
+     * @param initialVersion (optional) The initial version to put in the metadata table.
+     *                       Only migrations with a version number higher than this one
+     *                       will be considered for this database.
+     *                       {@code null} defaults the initial version to 0.
      */
-    public void init() {
-        transactionTemplate.execute(new TransactionCallback<Void>() {
-            @Override
-            public Void doInTransaction(TransactionStatus status) {
-                jdbcTemplate
-                        .update("INSERT INTO " + tableName
-                                + " (version, script, execution_time, state, current_version)"
-                                + " VALUES (0, '<< Flyway Init >>', 0, 'SUCCESS', 1)");
-                return null;
-            }
-        });
+    public void init(final SchemaVersion initialVersion) {
+    	if (!exists()) {
+    		create();
+    	} else {
+    		return;
+    	}
+    	
+    	final SchemaVersion version;
+    	if (initialVersion == null) {
+    		version = new SchemaVersion("0", null);
+    	} else {
+    		version = initialVersion;
+    	}
+    	
+    	final Migration initialMigration = new Migration() {{
+    		schemaVersion = version;
+    		scriptName = "<< Flyway Init >>";
+    		executionTime = 0;
+    		migrationState = MigrationState.SUCCESS;
+    	}};
+    	
+    	transactionTemplate.execute(new TransactionCallback<Void>() {
+			@Override
+			public Void doInTransaction(TransactionStatus status) {
+		    	finishMigration(initialMigration);
+				return null;
+			}
+		});
     }
 
     /**
@@ -121,11 +141,11 @@ public class MetaDataTable {
     }
 
     /**
-     * Marks this migration as succeeded.
+     * Persists the result of this migration.
      *
      * @param migration The migration that was run.
      */
-    public void migrationFinished(final Migration migration) {
+    public void finishMigration(final Migration migration) {
         jdbcTemplate.update("UPDATE " + tableName + " SET current_version=0");
         jdbcTemplate
                 .update("INSERT INTO " + tableName
@@ -146,15 +166,13 @@ public class MetaDataTable {
             return new Migration();
         }
 
-        return new Migration() {
-            {
-                schemaVersion = new SchemaVersion((String) result.get(0).get("VERSION"), (String) result.get(0).get(
-                        "DESCRIPTION"));
-                migrationState = MigrationState.valueOf((String) result.get(0).get("STATE"));
-                executionTime = ((Number) result.get(0).get("EXECUTION_TIME")).intValue();
-                scriptName = (String) result.get(0).get("SCRIPT");
-            }
-        };
+        return new Migration() {{
+            schemaVersion =
+            	new SchemaVersion((String) result.get(0).get("VERSION"), (String) result.get(0).get("DESCRIPTION"));
+            migrationState = MigrationState.valueOf((String) result.get(0).get("STATE"));
+            executionTime = ((Number) result.get(0).get("EXECUTION_TIME")).intValue();
+            scriptName = (String) result.get(0).get("SCRIPT");
+        }};
     }
 
     /**

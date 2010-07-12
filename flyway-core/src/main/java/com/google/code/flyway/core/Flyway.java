@@ -178,6 +178,16 @@ public class Flyway {
     }
 
     /**
+     * Creates and initializes the Flyway metadata table.
+     * 
+     * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version number
+     *                       higher than this one will be considered for this database.
+     */
+    public void init(SchemaVersion initialVersion) {
+    	metaDataTable.init(initialVersion);
+    }
+    
+    /**
      * Initializes the appropriate DbSupport class for the database product used
      * by the data source.
      *

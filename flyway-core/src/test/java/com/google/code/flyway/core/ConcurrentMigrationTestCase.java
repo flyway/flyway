@@ -18,12 +18,10 @@ package com.google.code.flyway.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,15 +64,11 @@ public abstract class ConcurrentMigrationTestCase {
 		flyway.setDataSource(concurrentMigrationDataSource);
 		flyway.setBaseDir(getBaseDir());
         flyway.clean();
+        flyway.init(null);
     }
 
 	@Test
 	public void migrateConcurrently() throws Exception {
-		assertFalse(flyway.getMetaDataTable().exists());
-		flyway.getMetaDataTable().create();
-		assertTrue(flyway.getMetaDataTable().exists());
-        flyway.getMetaDataTable().init();
-
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {

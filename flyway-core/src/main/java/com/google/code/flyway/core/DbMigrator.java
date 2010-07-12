@@ -97,9 +97,7 @@ public class DbMigrator {
      * @throws Exception Thrown when a migration failed.
      */
     public int migrate() throws Exception {
-        if (!metaDataTable.exists()) {
-            metaDataTable.create();
-        }
+        metaDataTable.init(null);
 
         final List<Migration> allMigrations = findAvailableMigrations();
 
@@ -128,7 +126,7 @@ public class DbMigrator {
                         throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
                     }
 
-                    metaDataTable.migrationFinished(migration);
+                    metaDataTable.finishMigration(migration);
 
                     migration.assertNotFailed();
 
