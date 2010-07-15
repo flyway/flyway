@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.StopWatch;
 
 /**
  * A migration of a single version of the schema.
@@ -96,7 +97,8 @@ public class Migration {
      * @param dbSupport           The support for database-specific extensions.
      */
     public final void migrate(final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) {
-        final long start = System.currentTimeMillis();
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -115,8 +117,8 @@ public class Migration {
         } catch (InterruptedException e) {
             // Ignore
         }
-        long finish = System.currentTimeMillis();
-        executionTime = (int) (finish - start);
+        stopWatch.stop();
+        executionTime = (int) stopWatch.getLastTaskTimeMillis();
     }
 
     /**

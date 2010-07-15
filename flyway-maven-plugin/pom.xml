@@ -32,6 +32,14 @@
             <artifactId>maven-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.pyx4j</groupId>
+            <artifactId>maven-plugin-log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>flyway-core</artifactId>
             <version>${pom.version}</version>

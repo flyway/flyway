@@ -16,8 +16,10 @@
 
 package com.googlecode.flyway.maven;
 
+import com.pyx4j.log4j.MavenLogAppender;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
@@ -72,4 +74,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         }
     }
 
+    @Override
+    public final void execute() throws MojoExecutionException, MojoFailureException {
+        MavenLogAppender.startPluginLog(this);
+        try {
+            doExecute();
+        } finally {
+            MavenLogAppender.endPluginLog(this);
+        }
+    }
+
+    /**
+     * @see org.apache.maven.plugin.AbstractMojo#execute()
+     */
+    protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
 }

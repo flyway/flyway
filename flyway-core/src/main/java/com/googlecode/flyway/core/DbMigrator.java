@@ -17,7 +17,7 @@
 package com.googlecode.flyway.core;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.util.LogTimer;
+import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -112,7 +112,6 @@ public class DbMigrator {
 
                     Migration migration = getNextMigration(allMigrations, latestAppliedMigration.getVersion());
                     if (migration == null) {
-                        LOG.info("Schema is up to date. No migration necessary.");
                         return 0;
                     }
 
@@ -123,7 +122,7 @@ public class DbMigrator {
                         throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
                     }
                     LOG.info(String.format("Finished migrating to version %s - %s (execution time %s)",
-                            migration.getVersion(), migration.getScriptName(), LogTimer.format(migration.getExecutionTime())));
+                            migration.getVersion(), migration.getScriptName(), TimeFormat.format(migration.getExecutionTime())));
 
                     metaDataTable.finishMigration(migration);
 
@@ -140,7 +139,7 @@ public class DbMigrator {
         }
 
         if (migrationSuccessCount == 0) {
-            LOG.info("Migration completed.");
+            LOG.info("Schema is up to date. No migration necessary.");
         } else if (migrationSuccessCount == 1) {
             LOG.info("Migration completed. Successfully applied 1 migration.");
         } else {

@@ -28,9 +28,8 @@ import org.apache.maven.plugin.MojoExecutionException;
  * @since 0.7
  */
 public class CleanMojo extends AbstractFlywayMojo {
-
     @Override
-    public void execute() throws MojoExecutionException {
+    protected void doExecute() throws MojoExecutionException {
         try {
             Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());

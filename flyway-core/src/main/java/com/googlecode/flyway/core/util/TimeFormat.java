@@ -21,32 +21,24 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * measure execution time for log statements
+ * Formats execution times.
  */
-public class LogTimer {
-
-    private long start;
-    private long stop;
-    private boolean stopped = false;
-
-    public LogTimer() {
-        start = System.currentTimeMillis();
+public class TimeFormat {
+    /**
+     * Prevent instantiation.
+     */
+    private TimeFormat() {
+        // Do nothing
     }
 
-    public void stop() {
-        stopped = true;
-        stop = System.currentTimeMillis();
-    }
-
-    public String getFormatted() {
-        if (!stopped) {
-            stop();
-        }
-        return format(stop - start);
-    }
-
+    /**
+     * Formats this execution time.
+     *
+     * @param millis The number of millis.
+     * @return The execution in a human-readable format.
+     */
     public static String format(long millis) {
-        DateFormat formatter = new SimpleDateFormat("mm:ss,S");
-        return formatter.format(new Date(millis));
+        DateFormat dateFormat = new SimpleDateFormat("mm:ss.S");
+        return dateFormat.format(new Date(millis)) + "s";
     }
 }

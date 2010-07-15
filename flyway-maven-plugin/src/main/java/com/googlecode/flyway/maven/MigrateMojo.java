@@ -59,7 +59,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
     private Map<String, String> placeholders;
 
     @Override
-    public void execute() throws MojoExecutionException {
+    protected void doExecute() throws MojoExecutionException {
         try {
             Flyway flyway = new Flyway();
             flyway.setDataSource(getDataSource());

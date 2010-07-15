@@ -23,7 +23,7 @@ import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.util.LogTimer;
+import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -32,6 +32,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.StopWatch;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -39,6 +40,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -173,11 +175,13 @@ public class Flyway {
      */
     public void clean() {
         LOG.debug("Starting to drop all database objects ...");
-        final LogTimer timer = new LogTimer();
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         final SqlScript dropAllObjectsScript = dbSupport.createCleanScript(jdbcTemplate);
         dropAllObjectsScript.execute(transactionTemplate, jdbcTemplate);
-        LOG.info(String.format("Cleaned database schema '%s' (execution time %s)",
-                dbSupport.getCurrentSchema(jdbcTemplate), timer.getFormatted()));
+        stopWatch.stop();
+        LOG.info(String.format(Locale.ENGLISH, "Cleaned database schema '%s' (execution time %s)",
+                dbSupport.getCurrentSchema(jdbcTemplate), TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
     /**
