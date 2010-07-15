@@ -30,7 +30,7 @@
         <property name="url" value="jdbc:mysql://localhost/migration_test_db" />
     </bean>
     <!--
-    <bean id="dbCreator" class="com.google.code.flyway.core.DbCreator">
+    <bean id="dbCreator" class="com.googlecodecode.code.flyway.core.DbCreator">
         <property name="baseDir" value="migration/mysql"/>
         <property name="rootDataSource">
             <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">

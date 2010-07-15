@@ -43,8 +43,8 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.google.code.flyway.sample.Main</mainClass>
-                            <packageName>com.google.code.flyway.sample</packageName>
+                            <mainClass>com.googlecode.flyway.sample.Main</mainClass>
+                            <packageName>com.googlecode.flyway.sample</packageName>
                             <addClasspath>true</addClasspath>
                         </manifest>
                     </archive>

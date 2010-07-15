@@ -19,14 +19,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
 	<!--  -->
-    <bean id="ddlDataSource" class="com.google.code.flyway.core.DestroyableSimpleDriverDataSource">
+    <bean id="ddlDataSource" class="com.googlecode.flyway.core.DestroyableSimpleDriverDataSource">
         <property name="username" value="test_ddl_user" />
         <property name="password" value="ddlPassword" />
         <property name="driverClass" value="oracle.jdbc.OracleDriver" />
         <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
     </bean>
     <!-- -->
-    <bean id="dbMigrator" class="com.google.code.flyway.core.Flyway">
+    <bean id="dbMigrator" class="com.googlecode.flyway.core.Flyway">
         <property name="dataSource" ref="ddlDataSource"/>
         <property name="baseDir" value="migration/oracle/sql"/>
         <property name="placeholders">
