@@ -19,9 +19,13 @@ package com.google.code.flyway.sample;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import com.google.code.flyway.core.Flyway;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Simplest possible sample to demonstrate the usage of Flyway.
@@ -37,10 +41,13 @@ public class Main {
                 new SimpleDriverDataSource(new org.hsqldb.jdbcDriver(), "jdbc:hsqldb:file:db/flyway_sample;shutdown=true", "SA", "");
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
+        flyway.setBasePackage("com.google.code.flyway.sample.migration");
         flyway.migrate();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        String name = (String) jdbcTemplate.queryForObject("select name from test_user", String.class);
-        System.out.println("Name: " + name);
+        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+        List<Map<String,Object>> results = jdbcTemplate.queryForList("select name from test_user");
+        for (Map<String,Object> result : results) {
+            System.out.println("Name: " + result.get("NAME"));
+        }
     }
 }
