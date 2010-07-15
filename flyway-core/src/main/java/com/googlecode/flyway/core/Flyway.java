@@ -23,6 +23,7 @@ import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.sql.SqlMigrationResolver;
+import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -185,15 +186,36 @@ public class Flyway {
     }
 
     /**
+     * Logs the status (current version) of the database.
+     */
+    public void status() {
+        LOG.info("+-------------+---------------------------+----------------+-----------+");
+        LOG.info("| Version     | Description               | Execution time | State     |");
+        LOG.info("+-------------+---------------------------+----------------+-----------+");
+
+        Migration migration = getMetaDataTable().latestAppliedMigration();
+        if (migration == null) {
+            LOG.info("| No migrations applied yet                                            |");
+        } else {
+            LOG.info("| " + StringUtils.trimOrPad(migration.getVersion().getVersion(), 11)
+                    + " | " + StringUtils.trimOrPad(migration.getVersion().getDescription(), 25)
+                    + " | " + StringUtils.trimOrPad(TimeFormat.format(migration.getExecutionTime()), 14)
+                    + " | " + StringUtils.trimOrPad(migration.getState().name(), 9) + " |");
+        }
+        
+        LOG.info("+-------------+---------------------------+----------------+-----------+");
+    }
+
+    /**
      * Creates and initializes the Flyway metadata table.
-     * 
+     *
      * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version number
      *                       higher than this one will be considered for this database.
      */
     public void init(SchemaVersion initialVersion) {
-    	metaDataTable.init(initialVersion);
+        metaDataTable.init(initialVersion);
     }
-    
+
     /**
      * Initializes the appropriate DbSupport class for the database product used
      * by the data source.

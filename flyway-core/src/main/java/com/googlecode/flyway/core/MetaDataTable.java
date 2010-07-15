@@ -156,9 +156,13 @@ public class MetaDataTable {
     }
 
     /**
-     * @return The latest migration applied on the schema.
+     * @return The latest migration applied on the schema. {@code null} if no migration has been applied so far.
      */
     public Migration latestAppliedMigration() {
+        if (!exists()) {
+            return null;
+        }
+
         final List<Map<String, Object>> result = jdbcTemplate
                 .queryForList("select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE from " + tableName
                         + " where current_version=1");
