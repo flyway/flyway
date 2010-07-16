@@ -27,7 +27,7 @@ import org.springframework.util.StopWatch;
  *
  * @author Axel Fontaine
  */
-public class Migration {
+public class Migration implements Comparable<Migration> {
     /**
      * The target schema version of this migration.
      */
@@ -41,7 +41,7 @@ public class Migration {
     /**
      * The time (in ms) it took to execute.
      */
-    protected int executionTime = -1;
+    protected Integer executionTime;
 
     /**
      * The script name for the migration history.
@@ -65,7 +65,7 @@ public class Migration {
     /**
      * @return The time (in ms) it took to execute.
      */
-    public long getExecutionTime() {
+    public Integer getExecutionTime() {
         return executionTime;
     }
 
@@ -119,6 +119,11 @@ public class Migration {
         }
         stopWatch.stop();
         executionTime = (int) stopWatch.getLastTaskTimeMillis();
+    }
+
+    @Override
+    public int compareTo(Migration o) {
+        return o.getVersion().compareTo(getVersion());
     }
 
     /**

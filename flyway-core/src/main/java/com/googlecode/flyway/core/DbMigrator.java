@@ -195,13 +195,7 @@ public class DbMigrator {
             return allMigrations;
         }
 
-        Collections.sort(allMigrations, new Comparator<Migration>() {
-            @Override
-            public int compare(Migration o1, Migration o2) {
-                // newest migration first
-                return o2.getVersion().compareTo(o1.getVersion());
-			}
-		});
+        Collections.sort(allMigrations);
 		return allMigrations;
 	}
 }
