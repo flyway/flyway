@@ -29,23 +29,26 @@ import java.util.Map;
  */
 public class MigrateMojo extends AbstractFlywayMojo {
     /**
-     * The base package where the Java migrations are located. (default: db.migration)
+     * The base package where the Java migrations are located. (default: db.migration) <br>
+     * default property: ${flyway.base.package}
      *
-     * @parameter
+     * @parameter default-value="${flyway.base.package}"
      */
     private String basePackage;
 
     /**
-     * The base directory on the classpath where the Sql migrations are located. (default: sql/location)
+     * The base directory on the classpath where the Sql migrations are located. (default: sql/location)<br>
+     * default property: ${flyway.base.dir}
      *
-     * @parameter
+     * @parameter default-value="${flyway.base.dir}"
      */
     private String baseDir;
 
     /**
-     * The name of the schema metadata table that will be used by flyway. (default: schema_version)
+     * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
+     * default property: ${flyway.schemaMetaDataTable}
      *
-     * @parameter
+     * @parameter default-value="${flyway.schema.meta.data.table}"
      */
     private String schemaMetaDataTable;
 

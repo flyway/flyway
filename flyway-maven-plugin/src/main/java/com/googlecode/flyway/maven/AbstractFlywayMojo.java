@@ -37,33 +37,37 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private static final Log LOG = LogFactory.getLog(AbstractFlywayMojo.class);
 
     /**
-     * The fully qualified classname of the jdbc driver to use to connect to the database.
+     * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
+     * default property: ${flyway.driver}
      *
-     * @parameter
+     * @parameter default-value="${flyway.driver}"
      * @required
      */
     protected String driver = null;
 
     /**
-     * The jdbc url to use to connect to the database.
+     * The jdbc url to use to connect to the database.<br>
+     * default property: ${flyway.url}
      *
-     * @parameter
+     * @parameter default-value="${flyway.url}"
      * @required
      */
     protected String url;
 
     /**
-     * The user to use to connect to the database.
+     * The user to use to connect to the database.<br>
+     * default property: ${flyway.user}
      *
-     * @parameter
+     * @parameter default-value="${flyway.user}"
      * @required
      */
     protected String user;
 
     /**
-     * The password to use to connect to the database.
+     * The password to use to connect to the database.<br>
+     * default property: ${flyway.password}
      *
-     * @parameter
+     * @parameter default-value="${flyway.password}"
      */
     protected String password = "";
 
