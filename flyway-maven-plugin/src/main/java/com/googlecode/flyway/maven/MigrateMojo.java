@@ -27,20 +27,21 @@ import java.util.Map;
  * @requiresDependencyResolution compile
  * @configurator include-project-dependencies
  */
+@SuppressWarnings({"UnusedDeclaration"})
 public class MigrateMojo extends AbstractFlywayMojo {
     /**
      * The base package where the Java migrations are located. (default: db.migration) <br>
-     * default property: ${flyway.base.package}
+     * default property: ${flyway.basePackage}
      *
-     * @parameter default-value="${flyway.base.package}"
+     * @parameter default-value="${flyway.basePackage}"
      */
     private String basePackage;
 
     /**
      * The base directory on the classpath where the Sql migrations are located. (default: sql/location)<br>
-     * default property: ${flyway.base.dir}
+     * default property: ${flyway.baseDir}
      *
-     * @parameter default-value="${flyway.base.dir}"
+     * @parameter default-value="${flyway.baseDir}"
      */
     private String baseDir;
 
@@ -48,7 +49,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
      * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
      * default property: ${flyway.schemaMetaDataTable}
      *
-     * @parameter default-value="${flyway.schema.meta.data.table}"
+     * @parameter default-value="${flyway.schemaMetaDataTable}"
      */
     private String schemaMetaDataTable;
 
