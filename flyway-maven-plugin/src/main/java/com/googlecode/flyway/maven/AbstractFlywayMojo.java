@@ -17,6 +17,8 @@
 package com.googlecode.flyway.maven;
 
 import com.pyx4j.log4j.MavenLogAppender;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -29,6 +31,10 @@ import java.sql.Driver;
  * Description.<br>
  */
 abstract class AbstractFlywayMojo extends AbstractMojo {
+    /**
+     * Logger.
+     */
+    private static final Log LOG = LogFactory.getLog(AbstractFlywayMojo.class);
 
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.
@@ -79,6 +85,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         MavenLogAppender.startPluginLog(this);
         try {
             doExecute();
+        } catch (Exception e) {
+            LOG.error(e);
+            throw new MojoExecutionException("Flyway Error: " + e.getMessage(), e);
         } finally {
             MavenLogAppender.endPluginLog(this);
         }
@@ -87,5 +96,5 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * @see org.apache.maven.plugin.AbstractMojo#execute()
      */
-    protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
+    protected abstract void doExecute() throws Exception;
 }

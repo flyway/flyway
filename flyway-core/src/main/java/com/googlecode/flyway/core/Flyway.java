@@ -41,6 +41,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -189,20 +190,44 @@ public class Flyway {
      * Logs the status (current version) of the database.
      */
     public void status() {
+        Migration migration = getMetaDataTable().latestAppliedMigration();
+
+        List<Migration> migrations = new ArrayList<Migration>();
+        if (migration != null) {
+            migrations.add(migration);
+        }
+
+        dumpMigrations(migrations);
+    }
+
+    /**
+     * Logs the history (all applied migrations) of the database.
+     */
+    public void history() {
+        dumpMigrations(getMetaDataTable().allAppliedMigrations());
+    }
+
+    /**
+     * Dumps this list of migrations in the log file.
+     *
+     * @param migrations The list of migrations to dump.
+     */
+    private void dumpMigrations(List<Migration> migrations) {
         LOG.info("+-------------+---------------------------+----------------+-----------+");
         LOG.info("| Version     | Description               | Execution time | State     |");
         LOG.info("+-------------+---------------------------+----------------+-----------+");
 
-        Migration migration = getMetaDataTable().latestAppliedMigration();
-        if (migration == null) {
+        if (migrations.isEmpty()) {
             LOG.info("| No migrations applied yet                                            |");
         } else {
-            LOG.info("| " + StringUtils.trimOrPad(migration.getVersion().getVersion(), 11)
-                    + " | " + StringUtils.trimOrPad(migration.getVersion().getDescription(), 25)
-                    + " | " + StringUtils.trimOrPad(TimeFormat.format(migration.getExecutionTime()), 14)
-                    + " | " + StringUtils.trimOrPad(migration.getState().name(), 9) + " |");
+            for (Migration migration : migrations) {
+                LOG.info("| " + StringUtils.trimOrPad(migration.getVersion().getVersion(), 11)
+                        + " | " + StringUtils.trimOrPad(migration.getVersion().getDescription(), 25)
+                        + " | " + StringUtils.trimOrPad(TimeFormat.format(migration.getExecutionTime()), 14)
+                        + " | " + StringUtils.trimOrPad(migration.getState().name(), 9) + " |");
+            }
         }
-        
+
         LOG.info("+-------------+---------------------------+----------------+-----------+");
     }
 

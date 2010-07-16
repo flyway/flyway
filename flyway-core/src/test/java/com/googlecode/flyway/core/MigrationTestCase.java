@@ -52,5 +52,6 @@ public abstract class MigrationTestCase {
 		assertEquals("2.0", schemaVersion.getVersion());
 		assertEquals("Add foreign key", schemaVersion.getDescription());
 		assertEquals(0, flyway.migrate());
+        assertEquals(4, flyway.getMetaDataTable().allAppliedMigrations().size());
 	}
 }

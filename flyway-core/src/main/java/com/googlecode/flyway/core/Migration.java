@@ -123,7 +123,7 @@ public class Migration implements Comparable<Migration> {
 
     @Override
     public int compareTo(Migration o) {
-        return o.getVersion().compareTo(getVersion());
+        return getVersion().compareTo(o.getVersion());
     }
 
     /**

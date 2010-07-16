@@ -20,18 +20,18 @@ import com.googlecode.flyway.core.Flyway;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Maven goal that shows the status (current version) of the database.
+ * Maven goal that shows the history (all applied migrations) of the database.
  *
- * @goal status
+ * @goal history
  * @requiresDependencyResolution compile
  * @configurator include-project-dependencies
- * @since 0.8
+ * @since 0.9
  */
-public class StatusMojo extends AbstractFlywayMojo {
+public class HistoryMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute() throws MojoExecutionException {
         Flyway flyway = new Flyway();
         flyway.setDataSource(getDataSource());
-        flyway.status();
+        flyway.history();
     }
 }

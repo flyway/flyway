@@ -16,11 +16,9 @@
 
 package com.googlecode.flyway.maven;
 
-import java.util.Map;
-
-import org.apache.maven.plugin.MojoExecutionException;
-
 import com.googlecode.flyway.core.Flyway;
+
+import java.util.Map;
 
 /**
  * Maven goal that triggers the migration of the configured database to the latest version.
@@ -59,27 +57,22 @@ public class MigrateMojo extends AbstractFlywayMojo {
     private Map<String, String> placeholders;
 
     @Override
-    protected void doExecute() throws MojoExecutionException {
-        try {
-            Flyway flyway = new Flyway();
-            flyway.setDataSource(getDataSource());
-            if (basePackage != null) {
-                flyway.setBasePackage(basePackage);
-            }
-            if (baseDir != null) {
-                flyway.setBaseDir(baseDir);
-            }
-            if (schemaMetaDataTable != null) {
-                flyway.setSchemaMetaDataTable(schemaMetaDataTable);
-            }
-            if (placeholders != null) {
-                flyway.setPlaceholders(placeholders);
-            }
-
-            flyway.migrate();
-        } catch (Exception e) {
-            throw new MojoExecutionException("Error migrating database: " + e.getMessage(), e);
+    protected void doExecute() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(getDataSource());
+        if (basePackage != null) {
+            flyway.setBasePackage(basePackage);
         }
-    }
+        if (baseDir != null) {
+            flyway.setBaseDir(baseDir);
+        }
+        if (schemaMetaDataTable != null) {
+            flyway.setSchemaMetaDataTable(schemaMetaDataTable);
+        }
+        if (placeholders != null) {
+            flyway.setPlaceholders(placeholders);
+        }
 
+        flyway.migrate();
+    }
 }

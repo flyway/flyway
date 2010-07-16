@@ -196,6 +196,8 @@ public class DbMigrator {
         }
 
         Collections.sort(allMigrations);
+        Collections.reverse(allMigrations);
+        
 		return allMigrations;
 	}
 }

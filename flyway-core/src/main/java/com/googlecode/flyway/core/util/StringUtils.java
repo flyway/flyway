@@ -30,16 +30,22 @@ public class StringUtils {
     /**
      * Trims or pads (with spaces) this string, so it has this exact length.
      *
-     * @param str The string to adjust.
+     * @param str The string to adjust. {@code null} is treated as an empty string.
      * @param length The exact length to reach.
      * @return The adjusted string.
      */
     public static String trimOrPad(String str, int length) {
-        if (str.length() > length) {
-            return str.substring(0, length);
+        String result;
+        if (str == null) {
+            result = "";
+        } else {
+            result = str;
         }
 
-        String result = str;
+        if (result.length() > length) {
+            return result.substring(0, length);
+        }
+
         while (result.length() < length) {
             result += " ";
         }

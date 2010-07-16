@@ -17,7 +17,6 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import org.apache.maven.plugin.MojoExecutionException;
 
 /**
  * Maven goal that drops all database object.
@@ -29,14 +28,9 @@ import org.apache.maven.plugin.MojoExecutionException;
  */
 public class CleanMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute() throws MojoExecutionException {
-        try {
-            Flyway flyway = new Flyway();
-            flyway.setDataSource(getDataSource());
-            flyway.clean();
-        } catch (Exception e) {
-            throw new MojoExecutionException("Error 'cleaning' database: " + e.getMessage(), e);
-        }
+    protected void doExecute() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(getDataSource());
+        flyway.clean();
     }
-
 }

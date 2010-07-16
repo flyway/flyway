@@ -27,6 +27,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -167,23 +169,32 @@ public class MetaDataTable {
 
         String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE from " + tableName + " where current_version=1";
         @SuppressWarnings({"unchecked"})
-        final List<Migration> migrations = jdbcTemplate.query(query, new RowMapper() {
-            @Override
-            public Migration mapRow(final ResultSet rs, int rowNum) throws SQLException {
-                return new Migration() {{
-                    schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
-                    migrationState = MigrationState.valueOf(rs.getString("STATE"));
-                    executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
-                    scriptName = rs.getString("SCRIPT");
-                }};
-            }
-        });
+        final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
 
         if (migrations.isEmpty()) {
             return new Migration();
         }
 
         return migrations.get(0);
+    }
+
+    /**
+     * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
+     *         applied so far.
+     */
+    public List<Migration> allAppliedMigrations() {
+        if (!exists()) {
+            return new ArrayList<Migration>();
+        }
+
+        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE from " + tableName;
+
+        @SuppressWarnings({"unchecked"})
+        final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
+
+        Collections.sort(migrations);
+
+        return migrations;
     }
 
     /**
@@ -205,5 +216,20 @@ public class MetaDataTable {
      */
     public int migrationCount() {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + tableName);
+    }
+
+    /**
+     * Row mapper for Migrations.
+     */
+    private class MigrationRowMapper implements RowMapper {
+        @Override
+        public Migration mapRow(final ResultSet rs, int rowNum) throws SQLException {
+            return new Migration() {{
+                schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
+                migrationState = MigrationState.valueOf(rs.getString("STATE"));
+                executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
+                scriptName = rs.getString("SCRIPT");
+            }};
+        }
     }
 }
