@@ -36,7 +36,7 @@ public class StringUtils {
      */
     public static String trimOrPad(String str, int length) {
         if (str.length() > length) {
-            return str.substring(length);
+            return str.substring(0, length);
         }
 
         String result = str;
