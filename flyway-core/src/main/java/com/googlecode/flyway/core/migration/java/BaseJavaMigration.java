@@ -52,7 +52,7 @@ public abstract class BaseJavaMigration extends BaseMigration {
         transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Void doInTransaction(TransactionStatus status) {
-                doMigrateInTransaction(jdbcTemplate, dbSupport);
+                doMigrateInTransaction(jdbcTemplate);
                 return null;
             }
         });
@@ -63,9 +63,8 @@ public abstract class BaseJavaMigration extends BaseMigration {
      * Performs the migration inside a transaction.
      *
      * @param jdbcTemplate To execute the migration statements.
-     * @param dbSupport    The support for database-specific extensions.
      * @throws org.springframework.dao.DataAccessException
      *          Thrown when the migration failed.
      */
-    protected abstract void doMigrateInTransaction(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;
+    protected abstract void doMigrateInTransaction(JdbcTemplate jdbcTemplate) throws DataAccessException;
 }
