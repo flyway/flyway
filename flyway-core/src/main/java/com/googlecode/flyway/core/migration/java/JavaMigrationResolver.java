@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.java;
+package com.googlecode.flyway.core.migration.java;
 
-import com.googlecode.flyway.core.Migration;
-import com.googlecode.flyway.core.MigrationResolver;
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationResolver;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;

@@ -16,7 +16,7 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.SqlScript;
+import com.googlecode.flyway.core.runtime.SqlScript;
 import org.springframework.core.io.Resource;
 
 import java.util.Map;

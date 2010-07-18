@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.java;
+package com.googlecode.flyway.core.migration.java;
 
-import com.googlecode.flyway.core.BaseMigration;
+import com.googlecode.flyway.core.migration.BaseMigration;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

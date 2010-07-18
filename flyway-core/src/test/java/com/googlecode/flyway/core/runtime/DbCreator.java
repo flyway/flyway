@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core;
+package com.googlecode.flyway.core.runtime;
 
+import com.googlecode.flyway.core.runtime.SqlScript;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;

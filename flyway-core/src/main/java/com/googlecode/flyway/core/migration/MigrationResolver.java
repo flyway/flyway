@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core;
+package com.googlecode.flyway.core.migration;
 
 import java.util.Collection;
 

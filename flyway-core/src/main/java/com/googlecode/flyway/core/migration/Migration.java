@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core;
+package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import org.springframework.dao.DataAccessException;

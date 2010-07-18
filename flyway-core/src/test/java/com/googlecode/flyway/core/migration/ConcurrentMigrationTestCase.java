@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core;
+package com.googlecode.flyway.core.migration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,6 +22,8 @@ import static org.junit.Assert.assertFalse;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
+import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

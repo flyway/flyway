@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core;
+package com.googlecode.flyway.core.runtime;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.migration.MigrationState;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

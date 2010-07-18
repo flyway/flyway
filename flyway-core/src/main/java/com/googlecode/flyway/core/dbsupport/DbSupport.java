@@ -16,7 +16,7 @@
 
 package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.SqlScript;
+import com.googlecode.flyway.core.runtime.SqlScript;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 

@@ -16,7 +16,7 @@
 
 package com.googlecode.flyway.core.dbsupport.mysql;
 
-import com.googlecode.flyway.core.ConcurrentMigrationTestCase;
+import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
 /**

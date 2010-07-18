@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.sql;
+package com.googlecode.flyway.core.migration.sql;
 
 import static org.junit.Assert.assertEquals;
 

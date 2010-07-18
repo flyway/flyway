@@ -16,7 +16,9 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.*;
+import com.googlecode.flyway.core.util.DestroyableSimpleDriverDataSource;
+import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,7 @@ public class OracleMigrationMediumTest {
         assertEquals("Mr. T triggered", jdbcTemplate.queryForObject("select name from test_user", String.class));
 
         flyway.clean();
-        
+
         int countUserObjects = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
         assertEquals(0, countUserObjects);
         dataSource.destroy();

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core;
+package com.googlecode.flyway.core.migration;
 
 import static org.junit.Assert.assertEquals;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
+import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;

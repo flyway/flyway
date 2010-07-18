@@ -16,9 +16,8 @@
 
 package com.googlecode.flyway.core.dbsupport.hsql;
 
+import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.springframework.test.context.ContextConfiguration;
-
-import com.googlecode.flyway.core.MigrationTestCase;
 
 /**
  * Test to demonstrate the migration functionality using Hsql.

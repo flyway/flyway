@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.sql;
+package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.BaseMigration;
+import com.googlecode.flyway.core.migration.BaseMigration;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.SqlScript;
+import com.googlecode.flyway.core.runtime.SqlScript;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;

@@ -18,7 +18,7 @@ package com.googlecode.flyway.core.dbsupport.h2;
 
 import org.springframework.test.context.ContextConfiguration;
 
-import com.googlecode.flyway.core.ConcurrentMigrationTestCase;
+import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 
 /**
  * Test to demonstrate the migration functionality using H2.

@@ -17,7 +17,7 @@
 package com.googlecode.flyway.sample.migration;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.java.BaseJavaMigration;
+import com.googlecode.flyway.core.migration.java.BaseJavaMigration;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 

@@ -16,7 +16,7 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.SqlStatement;
+import com.googlecode.flyway.core.runtime.SqlStatement;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 

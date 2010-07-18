@@ -17,8 +17,8 @@
 package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.SqlScript;
-import com.googlecode.flyway.core.SqlStatement;
+import com.googlecode.flyway.core.runtime.SqlScript;
+import com.googlecode.flyway.core.runtime.SqlStatement;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;

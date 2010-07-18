@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.sql;
+package com.googlecode.flyway.core.migration.sql;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,8 +28,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import com.googlecode.flyway.core.Migration;
-import com.googlecode.flyway.core.MigrationResolver;
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationResolver;
 
 /**
  * Migration resolver for sql files on the classpath.
