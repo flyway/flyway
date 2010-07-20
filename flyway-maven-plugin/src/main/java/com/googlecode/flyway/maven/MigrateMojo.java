@@ -46,6 +46,14 @@ public class MigrateMojo extends AbstractFlywayMojo {
     private String baseDir;
 
     /**
+     * The encoding of Sql migrations. (default: UTF-8)<br>
+     * default property: ${flyway.encoding}
+     *
+     * @parameter default-value="${flyway.encoding}"
+     */
+    private String encoding;
+
+    /**
      * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
      * default property: ${flyway.schemaMetaDataTable}
      *
@@ -69,6 +77,9 @@ public class MigrateMojo extends AbstractFlywayMojo {
         }
         if (baseDir != null) {
             flyway.setBaseDir(baseDir);
+        }
+        if (encoding != null) {
+            flyway.setEncoding(encoding);
         }
         if (schemaMetaDataTable != null) {
             flyway.setSchemaMetaDataTable(schemaMetaDataTable);
