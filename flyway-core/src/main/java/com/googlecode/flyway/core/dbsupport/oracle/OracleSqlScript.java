@@ -17,7 +17,6 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.runtime.SqlScript;
-import org.springframework.core.io.Resource;
 
 import java.util.Map;
 
@@ -26,14 +25,14 @@ import java.util.Map;
  */
 public class OracleSqlScript extends SqlScript {
     /**
-     * Creates a new sql script from this resource with these placeholders to replace.
+     * Creates a new sql script from this source with these placeholders to replace.
      *
-     * @param resource     The resource containing the sql script.
-     * @param placeholders A map of <placeholder, replacementValue> to replace in sql statements.
+     * @param sqlScriptSource The sql script as a text block with all placeholders still present.
+     * @param placeholders    A map of <placeholder, replacementValue> to replace in sql statements.
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    public OracleSqlScript(Resource resource, Map<String, String> placeholders) {
-        super(resource, placeholders);
+    public OracleSqlScript(String sqlScriptSource, Map<String, String> placeholders) {
+        super(sqlScriptSource, placeholders);
     }
 
     @Override

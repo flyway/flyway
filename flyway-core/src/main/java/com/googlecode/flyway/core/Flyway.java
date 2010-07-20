@@ -47,6 +47,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -73,6 +74,12 @@ public class Flyway {
     private String baseDir = "db/migration";
 
     /**
+     * The encoding of Sql migrations.
+     * (default: UTF-8)
+     */
+    private String encoding = "UTF-8";
+
+    /**
      * The name of the schema metadata table that will be used by flyway.
      * (default: schema_version)
      */
@@ -82,7 +89,7 @@ public class Flyway {
      * A map of <placeholder, replacementValue> to apply to sql migration
      * scripts.
      */
-    private Map<String, String> placeholders;
+    private Map<String, String> placeholders = new HashMap<String, String>();
 
     /**
      * @param basePackage The base package where the migrations are located. (default:
@@ -98,6 +105,14 @@ public class Flyway {
      */
     public void setBaseDir(String baseDir) {
         this.baseDir = baseDir;
+    }
+
+    /**
+     * @param encoding The encoding of Sql migrations.
+     *                 (default: UTF-8)
+     */
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
     }
 
     /**
@@ -170,7 +185,7 @@ public class Flyway {
         }
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders));
+        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders, encoding));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
         DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrationResolvers,
@@ -185,8 +200,8 @@ public class Flyway {
         LOG.debug("Starting to drop all database objects ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        final SqlScript dropAllObjectsScript = dbSupport.createCleanScript(jdbcTemplate);
-        dropAllObjectsScript.execute(transactionTemplate, jdbcTemplate);
+        final SqlScript cleanScript = dbSupport.createCleanScript(jdbcTemplate);
+        cleanScript.execute(transactionTemplate, jdbcTemplate);
         stopWatch.stop();
         LOG.info(String.format(Locale.ENGLISH, "Cleaned database schema '%s' (execution time %s)",
                 dbSupport.getCurrentSchema(jdbcTemplate), TimeFormat.format(stopWatch.getTotalTimeMillis())));

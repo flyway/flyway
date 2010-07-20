@@ -17,7 +17,6 @@
 package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.runtime.SqlScript;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Map;
@@ -30,14 +29,14 @@ public interface DbSupport {
      * Creates a new sql script from this resource with these placeholders to
      * replace.
      *
-     * @param resource     The resource containing the sql script.
-     * @param placeholders A map of <placeholder, replacementValue> to replace in sql
-     *                     statements.
+     * @param sqlScriptSource The sql script as a text block with all placeholders still present.
+     * @param placeholders    A map of <placeholder, replacementValue> to replace in sql
+     *                        statements.
      * @return A new sql script, containing the statements from this resource,
      *         with all placeholders replaced.
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    SqlScript createSqlScript(Resource resource, Map<String, String> placeholders);
+    SqlScript createSqlScript(String sqlScriptSource, Map<String, String> placeholders);
 
     /**
      * Creates a new sql script which clean the current schema, by dropping all objects.
@@ -45,15 +44,12 @@ public interface DbSupport {
      * @param jdbcTemplate The jdbc template used for querying the database.
      * @return A new sql script, containing drop statements for all objects
      */
-	SqlScript createCleanScript(JdbcTemplate jdbcTemplate);
+    SqlScript createCleanScript(JdbcTemplate jdbcTemplate);
 
-	/**
-     * Generates the sql script for creating the schema meta-data table.
-     *
-     * @param tableName The name to give to this table.
-     * @return The sql script.
+    /**
+     * @return The location on the classpath where the create metadata table script resides.
      */
-    SqlScript createCreateMetaDataTableScript(String tableName);
+    String getCreateMetaDataTableScriptLocation();
 
     /**
      * Checks whether Flyway's metadata table is already present in the

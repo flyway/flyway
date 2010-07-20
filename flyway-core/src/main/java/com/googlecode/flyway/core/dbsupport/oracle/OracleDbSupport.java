@@ -16,12 +16,9 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.runtime.SqlScript;
 import com.googlecode.flyway.core.runtime.SqlStatement;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,7 +26,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,13 +34,8 @@ import java.util.Map;
  */
 public class OracleDbSupport implements DbSupport {
     @Override
-    public SqlScript createCreateMetaDataTableScript(String tableName) {
-    	Resource resource = new ClassPathResource("com/googlecode/flyway/core/dbsupport/oracle/createMetaDataTable.sql");
-    	
-    	Map<String, String> placeholders = new HashMap<String, String>();
-    	placeholders.put("tableName", tableName);
-
-        return new SqlScript(resource, placeholders);
+    public String getCreateMetaDataTableScriptLocation() {
+        return "com/googlecode/flyway/core/dbsupport/oracle/createMetaDataTable.sql";
     }
 
     @Override
@@ -65,7 +56,7 @@ public class OracleDbSupport implements DbSupport {
     @Override
     public boolean metaDataTableExists(JdbcTemplate jdbcTemplate, String schemaMetaDataTable) {
         int count = jdbcTemplate.queryForInt("SELECT count(*) FROM user_tables WHERE table_name = ?",
-                new Object[] {schemaMetaDataTable.toUpperCase()});
+                new Object[]{schemaMetaDataTable.toUpperCase()});
         return count > 0;
     }
 
@@ -80,8 +71,8 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
-        return new OracleSqlScript(resource, placeholders);
+    public SqlScript createSqlScript(String sqlScriptSource, Map<String, String> placeholders) {
+        return new OracleSqlScript(sqlScriptSource, placeholders);
     }
 
     @Override
@@ -97,7 +88,7 @@ public class OracleDbSupport implements DbSupport {
             count++;
             sqlStatements.add(new SqlStatement(count, dropStatement));
         }
-        return new SqlScript(sqlStatements, "oracle drop all objects script");
+        return new SqlScript(sqlStatements);
     }
 
 }

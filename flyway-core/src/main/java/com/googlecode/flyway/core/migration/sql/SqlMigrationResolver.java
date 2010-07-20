@@ -16,20 +16,19 @@
 
 package com.googlecode.flyway.core.migration.sql;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationResolver;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Migration resolver for sql files on the classpath.
@@ -58,18 +57,21 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final Map<String, String> placeholders;
 
     /**
+     * The encoding of Sql migrations.
+     */
+    private final String encoding;
+
+    /**
      * Creates a new instance.
      *
      * @param baseDir      The base directory on the classpath where to migrations are located.
      * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @param encoding     The encoding of Sql migrations.
      */
-    public SqlMigrationResolver(String baseDir, Map<String, String> placeholders) {
+    public SqlMigrationResolver(String baseDir, Map<String, String> placeholders, String encoding) {
         this.baseDir = baseDir;
-        if (placeholders == null) {
-            this.placeholders = new HashMap<String, String>();
-        } else {
-            this.placeholders = placeholders;
-        }
+        this.placeholders = placeholders;
+        this.encoding = encoding;
     }
 
     @Override
@@ -77,16 +79,16 @@ public class SqlMigrationResolver implements MigrationResolver {
         Collection<Migration> migrations = new ArrayList<Migration>();
 
         Resource classPathBaseDir = new ClassPathResource(baseDir + "/");
-        if (! classPathBaseDir.exists()) {
+        if (!classPathBaseDir.exists()) {
             log.warn("Unable to find path for sql migrations: " + baseDir);
             return migrations;
         }
 
         try {
-                Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
-                for (Resource resource : resources) {
-                    migrations.add(new SqlMigration(resource, placeholders));
-                }
+            Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
+            for (Resource resource : resources) {
+                migrations.add(new SqlMigration(resource, placeholders, encoding));
+            }
         } catch (IOException e) {
             log.error("Error loading sql migration files", e);
         }

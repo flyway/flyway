@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.ResourceUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,7 +33,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Supports reading and writing to the metadata table.
@@ -94,8 +97,14 @@ public class MetaDataTable {
      * Creates Flyway's metadata table.
      */
     private void create() {
-        SqlScript createMetaDataTableScript = dbSupport.createCreateMetaDataTableScript(tableName);
-        createMetaDataTableScript.execute(transactionTemplate, jdbcTemplate);
+        String location = dbSupport.getCreateMetaDataTableScriptLocation();
+        String createMetaDataTableScriptSource = ResourceUtils.loadResourceAsString(location);
+
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("tableName", tableName);
+
+        SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholders);
+        sqlScript.execute(transactionTemplate, jdbcTemplate);
         LOG.info("Metadata table created: " + tableName);
     }
 

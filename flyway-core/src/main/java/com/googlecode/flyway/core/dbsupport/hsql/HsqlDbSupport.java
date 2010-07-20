@@ -19,9 +19,6 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.runtime.SqlScript;
 import com.googlecode.flyway.core.runtime.SqlStatement;
-
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,7 +27,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,13 +34,8 @@ import java.util.Map;
  */
 public class HsqlDbSupport implements DbSupport {
     @Override
-    public SqlScript createCreateMetaDataTableScript(String tableName) {
-    	Resource resource = new ClassPathResource("com/googlecode/flyway/core/dbsupport/hsql/createMetaDataTable.sql");
-    	
-    	Map<String, String> placeholders = new HashMap<String, String>();
-    	placeholders.put("tableName", tableName);
-
-        return new SqlScript(resource, placeholders);
+    public String getCreateMetaDataTableScriptLocation() {
+        return "com/googlecode/flyway/core/dbsupport/hsql/createMetaDataTable.sql";
     }
 
     @Override
@@ -91,12 +82,12 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createSqlScript(Resource resource, Map<String, String> placeholders) {
-        return new SqlScript(resource, placeholders);
+    public SqlScript createSqlScript(String sqlScriptSource, Map<String, String> placeholders) {
+        return new SqlScript(sqlScriptSource, placeholders);
     }
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        return new SqlScript(new ArrayList<SqlStatement>(), "Clean schema " + getCurrentSchema(jdbcTemplate));
+        return new SqlScript(new ArrayList<SqlStatement>());
     }
 }

@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.runtime;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -26,8 +25,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,44 +49,30 @@ public class SqlScript {
     private static final String DEFAULT_STATEMENT_DELIMITER = ";";
 
     /**
-     * The name of this script.
-     */
-    private String name;
-
-    /**
      * The sql statements contained in this script.
      */
     private final List<SqlStatement> sqlStatements;
 
     /**
-     * Creates a new sql script from this resource with these placeholders to replace.
+     * Creates a new sql script from this source with these placeholders to replace.
      *
-     * @param resource     The resource containing the sql script.
-     * @param placeholders A map of <placeholder, replacementValue> to replace in sql statements.
+     * @param sqlScriptSource The sql script as a text block with all placeholders still present.
+     * @param placeholders    A map of <placeholder, replacementValue> to replace in sql statements.
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    public SqlScript(Resource resource, Map<String, String> placeholders) {
-        Reader reader = null;
+    public SqlScript(String sqlScriptSource, Map<String, String> placeholders) {
+        Reader reader = new StringReader(sqlScriptSource);
+        List<String> rawLines = readLines(reader);
+
+        List<String> trimmedLines = trimLines(rawLines);
+        List<String> noCommentLines = stripSqlComments(trimmedLines);
+        List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholders);
+
+        sqlStatements = linesToStatements(noPlaceholderLines);
         try {
-            reader = new InputStreamReader(resource.getInputStream(), "UTF-8");
-            List<String> rawLines = readLines(reader);
-
-            List<String> trimmedLines = trimLines(rawLines);
-            List<String> noCommentLines = stripSqlComments(trimmedLines);
-            List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholders);
-
-            sqlStatements = linesToStatements(noPlaceholderLines);
-            name = resource.getFilename();
+            reader.close();
         } catch (IOException e) {
-            throw new IllegalStateException("Unable to read sql script: " + resource.getFilename(), e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    //ignore
-                }
-            }
+            //ignore
         }
     }
 
@@ -95,11 +80,9 @@ public class SqlScript {
      * Creates a new SqlScript with these statements and this name.
      *
      * @param sqlStatements The statements of the script.
-     * @param name          The name of the script.
      */
-    public SqlScript(List<SqlStatement> sqlStatements, String name) {
+    public SqlScript(List<SqlStatement> sqlStatements) {
         this.sqlStatements = sqlStatements;
-        this.name = name;
     }
 
     /**
@@ -107,7 +90,6 @@ public class SqlScript {
      */
     protected SqlScript() {
         sqlStatements = null;
-        name = null;
     }
 
     /**
@@ -124,7 +106,6 @@ public class SqlScript {
      * @param jdbcTemplate        The jdbc template to use to execute this script.
      */
     public void execute(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate) {
-        LOG.info("Executing " + name);
         transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Void doInTransaction(TransactionStatus status) {
