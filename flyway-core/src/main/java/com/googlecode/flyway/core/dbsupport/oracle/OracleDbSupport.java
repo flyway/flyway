@@ -22,8 +22,10 @@ import com.googlecode.flyway.core.runtime.SqlStatement;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,18 +79,60 @@ public class OracleDbSupport implements DbSupport {
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        String query = "SELECT 'DROP ' ||  object_type ||' ' || object_name || ' ' || DECODE(OBJECT_TYPE,'TABLE','CASCADE CONSTRAINTS PURGE')" +
-                " FROM user_objects WHERE object_type IN ('FUNCTION','MATERIALIZED VIEW','PACKAGE','PROCEDURE','SEQUENCE','SYNONYM','TABLE','TYPE','VIEW') " +
-                "order by object_type desc";
-        final List<Map<String, Object>> resultSet = jdbcTemplate.queryForList(query);
-        int count = 0;
+        final List<String> allDropStatements = new ArrayList<String>();
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "SEQUENCE", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "FUNCTION", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "MATERIALIZED VIEW", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "PACKAGE", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "PROCEDURE", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "SYNONYM", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "TABLE", "CASCADE CONSTRAINTS PURGE"));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "TYPE", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "VIEW", ""));
+        allDropStatements.addAll(generateDropStatementsForSpatialExtensions(jdbcTemplate));
+
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        for (Map<String, Object> row : resultSet) {
-            final String dropStatement = (String) row.values().iterator().next();
+        int count = 0;
+        for (String dropStatement : allDropStatements) {
             count++;
             sqlStatements.add(new SqlStatement(count, dropStatement));
         }
+
         return new SqlScript(sqlStatements);
     }
 
+    /**
+     * Generates the drop statements for all database objects of this type.
+     *
+     * @param jdbcTemplate   The jdbc template to use to query the database.
+     * @param objectType     The type of database object to drop.
+     * @param extraArguments The extra arguments to add to the drop statement.
+     * @return The complete drop statements, ready to execute.
+     */
+    @SuppressWarnings({"unchecked"})
+    private List<String> generateDropStatementsForObjectType(JdbcTemplate jdbcTemplate, String objectType, final String extraArguments) {
+        return jdbcTemplate.query("SELECT object_type, object_name FROM user_objects WHERE object_type = ?",
+                new Object[]{objectType}, new RowMapper() {
+                    @Override
+                    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        return "DROP " + rs.getString("OBJECT_TYPE") + " " + rs.getString("OBJECT_NAME") + " " + extraArguments;
+                    }
+                });
+    }
+
+    /**
+     * Generates the drop statements for Oracle Spatial Extensions-related database objects.
+     *
+     * @param jdbcTemplate   The jdbc template to use to query the database.
+     * @return The complete drop statements, ready to execute.
+     */
+    @SuppressWarnings({"unchecked"})
+    private List<String> generateDropStatementsForSpatialExtensions(JdbcTemplate jdbcTemplate) {
+        List<String> statements = new ArrayList<String>();
+
+        String user = getCurrentSchema(jdbcTemplate);
+        statements.add("DELETE FROM mdsys.sdo_geom_metadata_table WHERE sdo_owner = '" + user + "'");
+        statements.add("DELETE FROM mdsys.sdo_index_metadata_table WHERE sdo_index_owner = '" + user + "'");
+        return statements;
+    }
 }

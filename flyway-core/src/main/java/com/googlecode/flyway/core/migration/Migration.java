@@ -17,6 +17,8 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -28,6 +30,11 @@ import org.springframework.util.StopWatch;
  * @author Axel Fontaine
  */
 public class Migration implements Comparable<Migration> {
+    /**
+     * Logger.
+     */
+    private static final Log LOG = LogFactory.getLog(Migration.class);
+
     /**
      * The target schema version of this migration.
      */
@@ -106,6 +113,8 @@ public class Migration implements Comparable<Migration> {
                     doMigrate(transactionTemplate, jdbcTemplate, dbSupport);
                     migrationState = MigrationState.SUCCESS;
                 } catch (Exception e) {
+                    LOG.error(e.getMessage());
+                    LOG.error(e.getCause().getMessage());
                     migrationState = MigrationState.FAILED;
                 }
             }

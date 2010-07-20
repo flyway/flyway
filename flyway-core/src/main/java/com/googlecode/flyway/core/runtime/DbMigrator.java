@@ -102,6 +102,11 @@ public class DbMigrator {
 
         final List<Migration> allMigrations = findAvailableMigrations();
 
+        if (allMigrations.isEmpty()) {
+            LOG.info("No migrations found");
+            return 0;
+        }
+
         int migrationSuccessCount = 0;
         while (true) {
             int result = (Integer) transactionTemplate.execute(new TransactionCallback() {
