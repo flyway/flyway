@@ -16,7 +16,6 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.util.DestroyableSimpleDriverDataSource;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Before;
@@ -28,7 +27,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,7 +81,7 @@ public class OracleMigrationMediumTest {
     public void cleanSpatialExtensions() throws Exception {
         flyway.setBaseDir("migration/oracle/sql/spatial");
         flyway.migrate();
-        
+
         flyway.clean();
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.

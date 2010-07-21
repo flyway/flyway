@@ -25,7 +25,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
-import java.util.HashMap;
 
 /**
  * Utility for creating and dropping database schemas and users.

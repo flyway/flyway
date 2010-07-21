@@ -30,7 +30,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Oracle-specific support.
@@ -124,10 +123,9 @@ public class OracleDbSupport implements DbSupport {
     /**
      * Generates the drop statements for Oracle Spatial Extensions-related database objects.
      *
-     * @param jdbcTemplate   The jdbc template to use to query the database.
+     * @param jdbcTemplate The jdbc template to use to query the database.
      * @return The complete drop statements, ready to execute.
      */
-    @SuppressWarnings({"unchecked"})
     private List<String> generateDropStatementsForSpatialExtensions(JdbcTemplate jdbcTemplate) {
         List<String> statements = new ArrayList<String>();
 

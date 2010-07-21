@@ -84,7 +84,7 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        List<Map<String, String>> tableNames =
+        @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
                         new Object[]{getCurrentSchema(jdbcTemplate)});
