@@ -16,7 +16,7 @@
 
 package com.googlecode.flyway.core.migration;
 
-import java.util.Arrays;
+import com.googlecode.flyway.core.util.StringUtils;
 
 /**
  * A version of a database schema.
@@ -35,14 +35,9 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     public static final SchemaVersion LATEST = new SchemaVersion("<< latest >>");
 
     /**
-     * The version components. These are the numbers of the version. ([major, minor, patch, ...]) At least one component must be present.
-     */
-    private final long[] components;
-
-    /**
      * The printable version.
      */
-    private final String version;
+    private final String rawVersion;
 
     /**
      * The description of this version.
@@ -52,47 +47,57 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     /**
      * Creates a special version. For internal use only.
      *
-     * @param version The version to display.
+     * @param rawVersion The version to display.
      */
-    private SchemaVersion(String version) {
-        this.version = version;
-        components = new long[0];
+    private SchemaVersion(String rawVersion) {
+        this.rawVersion = rawVersion;
         description = null;
     }
 
     /**
      * Creates a SchemaVersion using this version string.
      *
-     * @param rawVersion The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
+     * @param rawVersion  The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
      * @param description The description of this version.
      */
     public SchemaVersion(String rawVersion, String description) {
         this.description = description;
+        this.rawVersion = rawVersion;
+    }
 
-        String[] numbers = rawVersion.split("\\.");
+    /**
+     * evaluates a normalized version without leading or trailing '0'
+     * @return version without leading 0
+     */
+    private String getNormalizedVersion() {
+        String[] numbers = getElements();
         if (numbers == null) {
             numbers = new String[]{rawVersion};
         }
 
         String versionStr = "";
-        components = new long[numbers.length];
         for (int i = 0; i < numbers.length; i++) {
-            components[i] = Long.parseLong(numbers[i]);
-
             if (i > 0) {
+                //if (justTrailingNull(numbers, i)) {
+                //    break;
+                //}
                 versionStr += ".";
             }
-            versionStr += components[i];
+            final String s = numbers[i];
+            if (StringUtils.isNumeric(s)) {
+                versionStr += Long.parseLong(s);
+            } else {
+                versionStr += s;
+            }
         }
-
-        version = versionStr;
+        return versionStr;
     }
 
     /**
      * @return The version in printable format. Ex.: 6.2
      */
     public String getVersion() {
-        return version;
+        return getNormalizedVersion();
     }
 
     /**
@@ -102,13 +107,17 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
         return description;
     }
 
+    private String[] getElements() {
+        return StringUtils.split(rawVersion, "_.-");
+    }
+
     @Override
     public String toString() {
         if (description == null) {
-            return version;
+            return rawVersion;
         }
 
-        return version + " (" + description + ")";
+        return rawVersion + " (" + description + ")";
     }
 
     @Override
@@ -118,15 +127,14 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
 
         SchemaVersion that = (SchemaVersion) o;
 
-        if (!Arrays.equals(components, that.components)) return false;
+        //noinspection SimplifiableIfStatement
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        return version.equals(that.version);
+        return rawVersion.equals(that.rawVersion);
     }
 
     @Override
     public int hashCode() {
-        int result = components != null ? Arrays.hashCode(components) : 0;
-        result = 31 * result + version.hashCode();
+        int result = rawVersion.hashCode();
         result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
@@ -156,27 +164,41 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
         if (o.equals(LATEST)) {
             return Integer.MIN_VALUE;
         }
-
-        int maxComponents = Math.max(components.length, o.components.length);
-        for (int i = 0; i < maxComponents; i++) {
-            long myComponent = 0;
-            if (i < components.length) {
-                myComponent = components[i];
+        final String[] elements1 = getElements();
+        final String[] elements2 = o.getElements();
+        int max = Math.min(elements1.length, elements2.length);
+        for (int i = 0; i < max; i++) {
+            String element1 = elements1[i];
+            String element2 = elements2[i];
+            final int compared;
+            if (StringUtils.isNumeric(element1) && StringUtils.isNumeric(element2)) {
+                compared = Long.valueOf(element1).compareTo(Long.valueOf(element2));
+            } else {
+                compared = element1.compareTo(element2);
             }
-
-            long otherComponent = 0;
-            if (i < o.components.length) {
-                otherComponent = o.components[i];
-            }
-
-            if (myComponent > otherComponent) {
-                return 1;
-            }
-            if (myComponent < otherComponent) {
-                return -1;
+            if (compared != 0) {
+                return compared;
             }
         }
-
-        return 0;
+        final int result = new Integer(elements1.length).compareTo(elements2.length);
+        if (result > 0 && justTrailingNull(elements1, max)) {
+            return 0;
+        }
+        if (result < 0 && justTrailingNull(elements2, max)) {
+            return 0;
+        }
+        return result;
     }
+
+    private boolean justTrailingNull(String[] elements1, int max) {
+        for (int i = max; i < elements1.length; i++) {
+            String element = elements1[i];
+            if (!StringUtils.isNumeric(element) || !Long.valueOf(element).equals(0L)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 }

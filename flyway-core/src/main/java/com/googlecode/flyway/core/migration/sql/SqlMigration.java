@@ -49,27 +49,13 @@ public class SqlMigration extends BaseMigration {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of this Sql migration.
      */
-    public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
-        initVersion(extractVersionStringFromFileName(sqlScriptResource.getFilename()));
+    public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, String versionString) {
+        initVersion(versionString);
         scriptName = "Sql File: " + sqlScriptResource.getFilename();
 
         this.sqlScriptResource = sqlScriptResource;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
-    }
-
-    /**
-     * Extracts the sql file version string from this file name.
-     *
-     * @param fileName The file name to parse.
-     * @return The version string.
-     */
-    /* private -> for testing */
-    static String extractVersionStringFromFileName(String fileName) {
-        int lastDirSeparator = fileName.lastIndexOf("/");
-        int extension = fileName.lastIndexOf(".sql");
-
-        return fileName.substring(lastDirSeparator + 1, extension);
     }
 
     @Override

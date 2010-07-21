@@ -32,7 +32,7 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionNoDescription() {
-        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("V9_4");
+        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("9_4");
         assertEquals("9.4", schemaVersion.getVersion());
         assertNull(schemaVersion.getDescription());
     }
@@ -42,7 +42,7 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionWithDescription() {
-        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("V9_4__EmailAxel");
+        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("9_4__EmailAxel");
         assertEquals("9.4", schemaVersion.getVersion());
         assertEquals("EmailAxel", schemaVersion.getDescription());
     }
@@ -52,7 +52,7 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionWithDescriptionWithSpaces() {
-        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("V9_4__Big_jump");
+        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("9_4__Big_jump");
         assertEquals("9.4", schemaVersion.getVersion());
         assertEquals("Big jump", schemaVersion.getDescription());
     }
@@ -62,7 +62,7 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionWithLeadingZeroes() {
-        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("V009_4__EmailAxel");
+        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("009_4__EmailAxel");
         assertEquals("9.4", schemaVersion.getVersion());
         assertEquals("EmailAxel", schemaVersion.getDescription());
     }

@@ -44,17 +44,14 @@ public abstract class BaseMigration extends Migration {
 	 */
 	/* private -> for testing */
 	static SchemaVersion extractSchemaVersion(String migrationName) {
-		// Drop the leading V
-		String version = migrationName.substring(1);
-
 		// Handle the description
 		String description = null;
-		int descriptionPos = version.indexOf("__");
+		int descriptionPos = migrationName.indexOf("__");
 		if (descriptionPos != -1) {
-			description = version.substring(descriptionPos + 2).replaceAll("_", " ");
-			version = version.substring(0, descriptionPos);
+			description = migrationName.substring(descriptionPos + 2).replaceAll("_", " ");
+			migrationName = migrationName.substring(0, descriptionPos);
 		}
 
-		return new SchemaVersion(version.replace("_", "."), description);
+		return new SchemaVersion(migrationName, description);
 	}
 }

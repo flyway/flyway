@@ -23,13 +23,13 @@ import org.junit.Test;
 /**
  * Testcase for SqlMigration.
  */
-public class SqlMigrationSmallTest {
+public class SqlMigrationResolverSmallTest {
     /**
      * Test for extractVersionStringFromFileName.
      */
     @Test
     public void extractVersionStringFromFileName() {
-        assertEquals("V8_0", SqlMigration.extractVersionStringFromFileName("sql/V8_0.sql"));
-        assertEquals("V9_0__CommentAboutContents", SqlMigration.extractVersionStringFromFileName("sql/V9_0__CommentAboutContents.sql"));
+        assertEquals("8_0", SqlMigrationResolver.extractVersionStringFromFileName("sql/V8_0.sql", "V", ".sql"));
+        assertEquals("9_0__CommentAboutContents", SqlMigrationResolver.extractVersionStringFromFileName("sql/V9_0__CommentAboutContents.sql", "V", ".sql"));
     }
 }

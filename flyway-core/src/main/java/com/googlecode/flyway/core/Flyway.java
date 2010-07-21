@@ -182,6 +182,31 @@ public class Flyway {
     }
 
     /**
+     * prefix for sql migrations (default: V)
+     */
+    private String sqlMigrationPrefix = "V";
+
+    /**
+     * suffix for sql migrations (default: .sql)
+     */
+    private String sqlMigrationSuffix = ".sql";
+
+
+    /**
+     * @param sqlMigrationPrefix prefix for sql migrations (default: V)
+     */
+    public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
+        this.sqlMigrationPrefix = sqlMigrationPrefix;
+    }
+
+    /**
+     * @param sqlMigrationSuffix suffix for sql migrations (default: .sql)
+     */
+    public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
+        this.sqlMigrationSuffix = sqlMigrationSuffix;
+    }
+
+    /**
      * @param dataSource The datasource to use. Must have the necessary privileges to
      *                   execute ddl.
      */
@@ -210,7 +235,7 @@ public class Flyway {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding));
+        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
         DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrationResolvers,

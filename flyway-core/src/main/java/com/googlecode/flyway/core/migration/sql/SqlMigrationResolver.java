@@ -59,18 +59,35 @@ public class SqlMigrationResolver implements MigrationResolver {
      */
     private final String encoding;
 
+
+    /**
+     * The prefix for sql migrations
+     */
+    private final String sqlMigrationPrefix;
+
+    /**
+     * The suffix for sql migrations
+     */
+    private final String sqlMigrationSuffix;
+
     /**
      * Creates a new instance.
      *
      * @param baseDir             The base directory on the classpath where to migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of Sql migrations.
+     * @param sqlMigrationPrefix  The prefix for sql migrations
+     * @param sqlMigrationSuffix  The suffix for sql migrations
      */
-    public SqlMigrationResolver(String baseDir, PlaceholderReplacer placeholderReplacer, String encoding) {
+    public SqlMigrationResolver(String baseDir, PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix) {
         this.baseDir = baseDir;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
+        this.sqlMigrationPrefix = sqlMigrationPrefix;
+        this.sqlMigrationSuffix = sqlMigrationSuffix;
     }
+
+
 
     @Override
     public Collection<Migration> resolvesMigrations() {
@@ -83,14 +100,33 @@ public class SqlMigrationResolver implements MigrationResolver {
         }
 
         try {
-            Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
+            final String searchPattern = sqlMigrationPrefix + "?*" + sqlMigrationSuffix;
+            Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/" + searchPattern);
             for (Resource resource : resources) {
-                migrations.add(new SqlMigration(resource, placeholderReplacer, encoding));
+                final String versionString = extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
+                migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString));
             }
         } catch (IOException e) {
             log.error("Error loading sql migration files", e);
         }
 
         return migrations;
+    }
+
+    /**
+     * Extracts the sql file version string from this file name.
+     *
+     * @param fileName The file name to parse.
+     * @return The version string.
+     */
+    /* private -> for testing */
+    static String extractVersionStringFromFileName(String fileName, String prefix, String suffix) {
+        int lastDirSeparator = fileName.lastIndexOf("/");
+        int extension = fileName.lastIndexOf(suffix);
+        String withoutPathAndSuffix = fileName.substring(lastDirSeparator + 1, extension);
+        if (withoutPathAndSuffix.startsWith(prefix)) {
+            return withoutPathAndSuffix.substring(prefix.length());
+        }
+        return withoutPathAndSuffix;
     }
 }
