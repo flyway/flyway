@@ -34,7 +34,7 @@ public class DbCleaner {
     /**
      * Logger.
      */
-    private static final Log LOG = LogFactory.getLog(DbMigrator.class);
+    private static final Log LOG = LogFactory.getLog(DbCleaner.class);
 
     /**
      * Database-specific functionality.
