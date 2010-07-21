@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.runtime;
+package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;

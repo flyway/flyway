@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.migration.sql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.BaseMigration;
-import com.googlecode.flyway.core.runtime.SqlScript;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;

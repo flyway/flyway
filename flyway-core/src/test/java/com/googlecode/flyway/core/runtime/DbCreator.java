@@ -17,6 +17,7 @@
 package com.googlecode.flyway.core.runtime;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;

@@ -73,7 +73,7 @@ public class DbMigrator {
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * Creates a new database migration.
+     * Creates a new database migrator.
      *
      * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the

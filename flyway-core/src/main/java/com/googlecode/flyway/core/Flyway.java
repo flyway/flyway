@@ -27,9 +27,9 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
+import com.googlecode.flyway.core.runtime.DbCleaner;
 import com.googlecode.flyway.core.runtime.DbMigrator;
 import com.googlecode.flyway.core.runtime.MetaDataTable;
-import com.googlecode.flyway.core.runtime.SqlScript;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
@@ -40,7 +40,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.StopWatch;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -50,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -224,14 +222,8 @@ public class Flyway {
      * Drops all object in the schema.
      */
     public void clean() {
-        LOG.debug("Starting to drop all database objects ...");
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        final SqlScript cleanScript = dbSupport.createCleanScript(jdbcTemplate);
-        cleanScript.execute(transactionTemplate, jdbcTemplate);
-        stopWatch.stop();
-        LOG.info(String.format(Locale.ENGLISH, "Cleaned database schema '%s' (execution time %s)",
-                dbSupport.getCurrentSchema(jdbcTemplate), TimeFormat.format(stopWatch.getTotalTimeMillis())));
+        DbCleaner dbCleaner = new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport);
+        dbCleaner.clean();
     }
 
     /**

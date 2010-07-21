@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.runtime;
+package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.runtime.SqlScript;
-import com.googlecode.flyway.core.runtime.SqlStatement;
+import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import org.junit.Test;
 
 import java.util.ArrayList;
