@@ -19,12 +19,18 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 import com.googlecode.flyway.core.util.DestroyableSimpleDriverDataSource;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.sql.DataSource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,14 +41,27 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
 public class OracleMigrationMediumTest {
     @Autowired
+    private DataSource dataSource;
+
     private Flyway flyway;
 
-    @Autowired
-    private DestroyableSimpleDriverDataSource dataSource;
-
-    @Test
-    public void createAndMigrateAndDrop() throws Exception {
+    @Before
+    public void setUp() {
+        flyway = new Flyway();
+        flyway.setDataSource(dataSource);
         flyway.clean();
+    }
+
+    /**
+     * Tests migrations containing placeholders.
+     */
+    @Test
+    public void migrationsWithPlaceholders() throws Exception {
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("tableName", "test_user");
+        flyway.setPlaceholders(placeholders);
+        flyway.setBaseDir("migration/oracle/sql/placeholders");
+
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
         assertEquals("1.1", schemaVersion.getVersion());
@@ -55,7 +74,19 @@ public class OracleMigrationMediumTest {
 
         int countUserObjects = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
         assertEquals(0, countUserObjects);
-        dataSource.destroy();
     }
 
+    /**
+     * Tests clean for Oracle Spatial Extensions.
+     */
+    @Test
+    public void cleanSpatialExtensions() throws Exception {
+        flyway.setBaseDir("migration/oracle/sql/spatial");
+        flyway.migrate();
+        
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
 }

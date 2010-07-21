@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 public class OracleSqlScriptSmallTest {
     @Test
     public void testSqlStatements() throws Exception {
-        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/oracle/sql/V1.sql").getInputStream(), Charset.forName("UTF-8")));
+        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/oracle/sql/placeholders/V1.sql").getInputStream(), Charset.forName("UTF-8")));
 
         OracleSqlScript sqlScript = new OracleSqlScript(source, new HashMap<String, String>());
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();

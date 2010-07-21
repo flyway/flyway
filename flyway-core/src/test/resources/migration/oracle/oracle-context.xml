@@ -25,14 +25,4 @@
         <property name="driverClass" value="oracle.jdbc.OracleDriver" />
         <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
     </bean>
-    <!-- -->
-    <bean id="dbMigrator" class="com.googlecode.flyway.core.Flyway">
-        <property name="dataSource" ref="ddlDataSource"/>
-        <property name="baseDir" value="migration/oracle/sql"/>
-        <property name="placeholders">
-            <map>
-                <entry key="tableName" value="test_user"/>
-            </map>
-        </property>
-    </bean>
 </beans>
