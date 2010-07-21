@@ -16,10 +16,9 @@
 
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.runtime.SqlScript;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.Map;
 
 /**
  * Abstraction for database-specific functionality.
@@ -29,14 +28,13 @@ public interface DbSupport {
      * Creates a new sql script from this resource with these placeholders to
      * replace.
      *
-     * @param sqlScriptSource The sql script as a text block with all placeholders still present.
-     * @param placeholders    A map of <placeholder, replacementValue> to replace in sql
-     *                        statements.
+     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
+     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @return A new sql script, containing the statements from this resource,
      *         with all placeholders replaced.
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    SqlScript createSqlScript(String sqlScriptSource, Map<String, String> placeholders);
+    SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer);
 
     /**
      * Creates a new sql script which clean the current schema, by dropping all objects.

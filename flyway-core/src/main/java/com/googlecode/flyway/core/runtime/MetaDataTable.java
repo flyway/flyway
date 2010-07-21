@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,8 +103,9 @@ public class MetaDataTable {
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("tableName", tableName);
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
-        SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholders);
+        SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholderReplacer);
         sqlScript.execute(transactionTemplate, jdbcTemplate);
         LOG.info("Metadata table created: " + tableName);
     }

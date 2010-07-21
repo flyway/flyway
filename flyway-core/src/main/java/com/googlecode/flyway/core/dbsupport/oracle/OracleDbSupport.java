@@ -17,6 +17,7 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.runtime.SqlScript;
 import com.googlecode.flyway.core.runtime.SqlStatement;
 import org.springframework.dao.DataAccessException;
@@ -73,8 +74,8 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createSqlScript(String sqlScriptSource, Map<String, String> placeholders) {
-        return new OracleSqlScript(sqlScriptSource, placeholders);
+    public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+        return new OracleSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
     @Override

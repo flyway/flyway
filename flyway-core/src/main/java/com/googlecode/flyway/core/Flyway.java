@@ -25,6 +25,7 @@ import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.runtime.DbMigrator;
 import com.googlecode.flyway.core.runtime.MetaDataTable;
@@ -92,6 +93,16 @@ public class Flyway {
     private Map<String, String> placeholders = new HashMap<String, String>();
 
     /**
+     * The prefix of every placeholder. (default: ${ )
+     */
+    private String placeholderPrefix = "${";
+
+    /**
+     * The suffix of every placeholder. (default: } )
+     */
+    private String placeholderSuffix = "}";
+
+    /**
      * @param basePackage The base package where the migrations are located. (default:
      *                    db.migration)
      */
@@ -129,6 +140,20 @@ public class Flyway {
      */
     public void setPlaceholders(Map<String, String> placeholders) {
         this.placeholders = placeholders;
+    }
+
+    /**
+     * @param placeholderPrefix The prefix of every placeholder. (default: ${ )
+     */
+    public void setPlaceholderPrefix(String placeholderPrefix) {
+        this.placeholderPrefix = placeholderPrefix;
+    }
+
+    /**
+     * @param placeholderSuffix The suffix of every placeholder. (default: } )
+     */
+    public void setPlaceholderSuffix(String placeholderSuffix) {
+        this.placeholderSuffix = placeholderSuffix;
     }
 
     /**
@@ -184,8 +209,10 @@ public class Flyway {
             LOG.info(getDatabaseProductName() + " does not support locking. No concurrent migration supported.");
         }
 
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholders, encoding));
+        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
         DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrationResolvers,

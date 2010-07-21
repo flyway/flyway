@@ -27,8 +27,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Migration resolver for sql files on the classpath.
@@ -52,9 +50,9 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final String baseDir;
 
     /**
-     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * The placeholder replacer to apply to sql migration scripts.
      */
-    private final Map<String, String> placeholders;
+    private final PlaceholderReplacer placeholderReplacer;
 
     /**
      * The encoding of Sql migrations.
@@ -64,13 +62,13 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param baseDir      The base directory on the classpath where to migrations are located.
-     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
-     * @param encoding     The encoding of Sql migrations.
+     * @param baseDir             The base directory on the classpath where to migrations are located.
+     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     * @param encoding            The encoding of Sql migrations.
      */
-    public SqlMigrationResolver(String baseDir, Map<String, String> placeholders, String encoding) {
+    public SqlMigrationResolver(String baseDir, PlaceholderReplacer placeholderReplacer, String encoding) {
         this.baseDir = baseDir;
-        this.placeholders = placeholders;
+        this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
     }
 
@@ -87,7 +85,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         try {
             Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/V?*.sql");
             for (Resource resource : resources) {
-                migrations.add(new SqlMigration(resource, placeholders, encoding));
+                migrations.add(new SqlMigration(resource, placeholderReplacer, encoding));
             }
         } catch (IOException e) {
             log.error("Error loading sql migration files", e);

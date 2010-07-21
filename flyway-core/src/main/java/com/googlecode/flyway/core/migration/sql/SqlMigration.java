@@ -24,8 +24,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.Map;
-
 /**
  * Database migration based on a sql file.
  */
@@ -36,10 +34,9 @@ public class SqlMigration extends BaseMigration {
     private final Resource sqlScriptResource;
 
     /**
-     * A map of <placeholder, replacementValue> to apply to sql migration
-     * scripts.
+     * The placeholder replacer to apply to sql migration scripts.
      */
-    private final Map<String, String> placeholders;
+    private final PlaceholderReplacer placeholderReplacer;
 
     /**
      * The encoding of this Sql migration.
@@ -49,16 +46,16 @@ public class SqlMigration extends BaseMigration {
     /**
      * Creates a new sql script migration based on this sql script.
      *
-     * @param sqlScriptResource The resource containing the sql script.
-     * @param placeholders      The placeholders to replace in the sql script.
-     * @param encoding          The encoding of this Sql migration.
+     * @param sqlScriptResource   The resource containing the sql script.
+     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     * @param encoding            The encoding of this Sql migration.
      */
-    public SqlMigration(Resource sqlScriptResource, Map<String, String> placeholders, String encoding) {
+    public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
         initVersion(extractVersionStringFromFileName(sqlScriptResource.getFilename()));
         scriptName = "Sql File: " + sqlScriptResource.getFilename();
 
         this.sqlScriptResource = sqlScriptResource;
-        this.placeholders = placeholders;
+        this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
     }
 
@@ -79,7 +76,7 @@ public class SqlMigration extends BaseMigration {
     @Override
     public void doMigrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
-        SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholders);
+        SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
         sqlScript.execute(transactionTemplate, jdbcTemplate);
     }
 }

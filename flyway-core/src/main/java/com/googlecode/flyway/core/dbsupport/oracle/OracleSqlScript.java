@@ -16,9 +16,8 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.runtime.SqlScript;
-
-import java.util.Map;
 
 /**
  * SqlScript supporting Oracle-specific PL/SQL constructs.
@@ -27,12 +26,12 @@ public class OracleSqlScript extends SqlScript {
     /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
-     * @param sqlScriptSource The sql script as a text block with all placeholders still present.
-     * @param placeholders    A map of <placeholder, replacementValue> to replace in sql statements.
+     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
+     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    public OracleSqlScript(String sqlScriptSource, Map<String, String> placeholders) {
-        super(sqlScriptSource, placeholders);
+    public OracleSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+        super(sqlScriptSource, placeholderReplacer);
     }
 
     @Override

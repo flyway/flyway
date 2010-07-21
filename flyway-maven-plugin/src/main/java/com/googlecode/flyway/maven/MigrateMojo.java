@@ -68,6 +68,22 @@ public class MigrateMojo extends AbstractFlywayMojo {
      */
     private Map<String, String> placeholders;
 
+    /**
+     * The prefix of every placeholder. (default: ${ )<br>
+     * default property: ${flyway.placeholderPrefix}
+     *
+     * @parameter default-value="${flyway.placeholderPrefix}"
+     */
+    private String placeholderPrefix = "${";
+
+    /**
+     * The suffix of every placeholder. (default: } )<br>
+     * default property: ${flyway.placeholderSuffix}
+     *
+     * @parameter default-value="${flyway.placeholderSuffix}"
+     */
+    private String placeholderSuffix = "}";
+
     @Override
     protected void doExecute() throws Exception {
         Flyway flyway = new Flyway();
@@ -86,6 +102,12 @@ public class MigrateMojo extends AbstractFlywayMojo {
         }
         if (placeholders != null) {
             flyway.setPlaceholders(placeholders);
+        }
+        if (placeholderPrefix != null) {
+            flyway.setPlaceholderPrefix(placeholderPrefix);
+        }
+        if (placeholderSuffix != null) {
+            flyway.setPlaceholderSuffix(placeholderSuffix);
         }
 
         flyway.migrate();

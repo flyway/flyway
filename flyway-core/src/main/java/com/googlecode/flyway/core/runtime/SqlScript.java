@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core.runtime;
 
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,9 +30,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Sql script containing a series of statements terminated by semi-columns (;).
@@ -56,17 +54,17 @@ public class SqlScript {
     /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
-     * @param sqlScriptSource The sql script as a text block with all placeholders still present.
-     * @param placeholders    A map of <placeholder, replacementValue> to replace in sql statements.
+     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
+     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    public SqlScript(String sqlScriptSource, Map<String, String> placeholders) {
+    public SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         Reader reader = new StringReader(sqlScriptSource);
         List<String> rawLines = readLines(reader);
 
         List<String> trimmedLines = trimLines(rawLines);
         List<String> noCommentLines = stripSqlComments(trimmedLines);
-        List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholders);
+        List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholderReplacer);
 
         sqlStatements = linesToStatements(noPlaceholderLines);
         try {
@@ -273,23 +271,15 @@ public class SqlScript {
     /**
      * Replaces the placeholders in these lines with their values.
      *
-     * @param lines        The input lines.
-     * @param placeholders A map of <placeholder, replacementValue> to replace in these lines.
+     * @param lines               The input lines.
+     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @return The lines with placeholders replaced.
      */
-    private List<String> replacePlaceholders(List<String> lines, Map<String, String> placeholders) {
+    private List<String> replacePlaceholders(List<String> lines, PlaceholderReplacer placeholderReplacer) {
         List<String> noPlaceholderLines = new ArrayList<String>(lines.size());
 
         for (String line : lines) {
-            String noPlaceholderLine = line;
-
-            for (String placeholder : placeholders.keySet()) {
-                String searchTerm = "${" + placeholder + "}";
-                noPlaceholderLine = noPlaceholderLine.replaceAll(Pattern.quote(searchTerm),
-                        Matcher.quoteReplacement(placeholders.get(placeholder)));
-            }
-
-            noPlaceholderLines.add(noPlaceholderLine);
+            noPlaceholderLines.add(placeholderReplacer.replacePlaceholders(line));
         }
 
         return noPlaceholderLines;
