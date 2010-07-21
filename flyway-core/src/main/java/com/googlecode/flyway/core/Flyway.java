@@ -17,10 +17,7 @@
 package com.googlecode.flyway.core;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
-import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
-import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
-import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
+import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -34,17 +31,12 @@ import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -215,7 +207,7 @@ public class Flyway {
         transactionTemplate = new TransactionTemplate(transactionManager);
         jdbcTemplate = new JdbcTemplate(dataSource);
 
-        dbSupport = initDbSupport();
+        dbSupport = DbSupportFactory.createDbSupport(jdbcTemplate);
         LOG.debug("Schema: " + dbSupport.getCurrentSchema(jdbcTemplate));
 
         metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, schemaMetaDataTable);
@@ -228,10 +220,6 @@ public class Flyway {
      * @throws Exception Thrown when the migration failed.
      */
     public int migrate() throws Exception {
-        if (!dbSupport.supportsLocking()) {
-            LOG.info(getDatabaseProductName() + " does not support locking. No concurrent migration supported.");
-        }
-
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
@@ -304,48 +292,5 @@ public class Flyway {
      */
     public void init(SchemaVersion initialVersion) {
         metaDataTable.init(initialVersion);
-    }
-
-    /**
-     * Initializes the appropriate DbSupport class for the database product used
-     * by the data source.
-     *
-     * @return The appropriate DbSupport class.
-     */
-    private DbSupport initDbSupport() {
-        String databaseProductName = getDatabaseProductName();
-
-        LOG.debug("Database: " + databaseProductName);
-
-        Collection<DbSupport> dbSupports = new ArrayList<DbSupport>();
-
-        dbSupports.add(new HsqlDbSupport());
-        dbSupports.add(new H2DbSupport());
-        dbSupports.add(new MySQLDbSupport());
-        dbSupports.add(new OracleDbSupport());
-
-        for (DbSupport dbSupport : dbSupports) {
-            if (dbSupport.supportsDatabase(databaseProductName)) {
-                return dbSupport;
-            }
-        }
-
-        throw new IllegalArgumentException("Unsupported Database: " + databaseProductName);
-    }
-
-    /**
-     * @return The name of the database product. Ex.: Oracle, MySQL, ...
-     */
-    private String getDatabaseProductName() {
-        return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
-            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-                DatabaseMetaData databaseMetaData = connection.getMetaData();
-                if (databaseMetaData == null) {
-                    throw new IllegalStateException("Unable to read database metadata while it is null!");
-                }
-                return connection.getMetaData().getDatabaseProductName();
-            }
-        });
     }
 }
