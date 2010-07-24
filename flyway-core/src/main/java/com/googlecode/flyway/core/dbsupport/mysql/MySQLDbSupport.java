@@ -90,10 +90,14 @@ public class MySQLDbSupport implements DbSupport {
                         new Object[]{getCurrentSchema(jdbcTemplate)});
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int lineNumber = 1;
+        sqlStatements.add(new SqlStatement(lineNumber, "SET FOREIGN_KEY_CHECKS = 0"));
         for (Map<String, String> row : tableNames) {
+            lineNumber++;
             String tableName = row.get("table_name");
             sqlStatements.add(new SqlStatement(lineNumber, "DROP TABLE " + tableName));
         }
+        lineNumber++;
+        sqlStatements.add(new SqlStatement(lineNumber, "SET FOREIGN_KEY_CHECKS = 1"));
         return new SqlScript(sqlStatements);
     }
 }
