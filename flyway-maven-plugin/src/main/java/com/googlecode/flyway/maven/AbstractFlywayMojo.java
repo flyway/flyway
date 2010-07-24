@@ -34,7 +34,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Logger.
      */
-    private static final Log LOG = LogFactory.getLog(AbstractFlywayMojo.class);
+    protected static final Log LOG = LogFactory.getLog(AbstractFlywayMojo.class);
 
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br>

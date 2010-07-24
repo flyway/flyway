@@ -17,8 +17,11 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import org.apache.maven.project.MavenProject;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Maven goal that triggers the migration of the configured database to the latest version.
@@ -29,6 +32,11 @@ import java.util.Map;
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class MigrateMojo extends AbstractFlywayMojo {
+    /**
+     * Prefix for additional placeholders that are configured through properties (System or POM).
+     */
+    private static final String ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+
     /**
      * The base package where the Java migrations are located. (default: db.migration) <br>
      * default property: ${flyway.basePackage}
@@ -84,6 +92,11 @@ public class MigrateMojo extends AbstractFlywayMojo {
      */
     private String placeholderSuffix = "}";
 
+    /**
+     * @parameter expression="${project}" required="true"
+     */
+    private MavenProject mavenProject;
+
     @Override
     protected void doExecute() throws Exception {
         Flyway flyway = new Flyway();
@@ -100,9 +113,15 @@ public class MigrateMojo extends AbstractFlywayMojo {
         if (schemaMetaDataTable != null) {
             flyway.setSchemaMetaDataTable(schemaMetaDataTable);
         }
+
+        Map<String, String> mergedPlaceholders = new HashMap<String, String>();
+        addPlaceholdersFromProperties(mergedPlaceholders, mavenProject.getProperties());
+        addPlaceholdersFromProperties(mergedPlaceholders, System.getProperties());
         if (placeholders != null) {
-            flyway.setPlaceholders(placeholders);
+            mergedPlaceholders.putAll(placeholders);
         }
+        flyway.setPlaceholders(mergedPlaceholders);
+
         if (placeholderPrefix != null) {
             flyway.setPlaceholderPrefix(placeholderPrefix);
         }
@@ -111,5 +130,23 @@ public class MigrateMojo extends AbstractFlywayMojo {
         }
 
         flyway.migrate();
+    }
+
+    /**
+     * Adds the additional placeholders contained in these properties to the existing list.
+     *
+     * @param placeholders The existing list of placeholders.
+     * @param properties   The properties containing additional placeholders.
+     */
+    private void addPlaceholdersFromProperties(Map<String, String> placeholders, Properties properties) {
+        for (Object property : properties.keySet()) {
+            String propertyName = (String) property;
+            if (propertyName.startsWith(ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX)
+                    && propertyName.length() > ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX.length()) {
+                String placeholderName = propertyName.substring(ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX.length());
+                String placeholderValue = properties.getProperty(propertyName);
+                placeholders.put(placeholderName, placeholderValue);
+            }
+        }
     }
 }
