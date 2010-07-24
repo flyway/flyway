@@ -98,8 +98,8 @@ public abstract class ConcurrentMigrationTestCase {
 		}
 
 		assertFalse(failed);
-		assertEquals(4, flyway.getMetaDataTable().migrationCount());
-		SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
+		assertEquals(4, flyway.history().size());
+		SchemaVersion schemaVersion = flyway.status().getVersion();
 		assertEquals("2.0", schemaVersion.getVersion());
 		assertEquals("Add foreign key", schemaVersion.getDescription());
 		assertEquals(0, flyway.migrate());

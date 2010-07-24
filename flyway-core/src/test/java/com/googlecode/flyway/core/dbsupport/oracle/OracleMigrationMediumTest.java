@@ -16,16 +16,12 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -57,7 +53,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/oracle/sql/placeholders");
 
         flyway.migrate();
-        SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
+        SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("1.1", schemaVersion.getVersion());
         assertEquals("Populate table", schemaVersion.getDescription());
 

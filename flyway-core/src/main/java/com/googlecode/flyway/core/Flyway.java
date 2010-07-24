@@ -165,13 +165,6 @@ public class Flyway {
     private MetaDataTable metaDataTable;
 
     /**
-     * @return Supports reading and writing to the metadata table.
-     */
-    public MetaDataTable getMetaDataTable() {
-        return metaDataTable;
-    }
-
-    /**
      * prefix for sql migrations (default: V)
      */
     private String sqlMigrationPrefix = "V";
@@ -245,7 +238,7 @@ public class Flyway {
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
     public Migration status() {
-        return getMetaDataTable().latestAppliedMigration();
+        return metaDataTable.latestAppliedMigration();
     }
 
     /**
@@ -254,7 +247,7 @@ public class Flyway {
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      */
     public List<Migration> history() {
-        return getMetaDataTable().allAppliedMigrations();
+        return metaDataTable.allAppliedMigrations();
     }
 
     /**

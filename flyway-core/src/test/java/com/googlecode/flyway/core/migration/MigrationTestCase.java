@@ -57,11 +57,11 @@ public abstract class MigrationTestCase {
     public void migrate() throws Exception {
         flyway.setBaseDir(getBaseDir());
         flyway.migrate();
-        SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
+        SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("2.0", schemaVersion.getVersion());
         assertEquals("Add foreign key", schemaVersion.getDescription());
         assertEquals(0, flyway.migrate());
-        assertEquals(3, flyway.getMetaDataTable().allAppliedMigrations().size());
+        assertEquals(3, flyway.history().size());
     }
 
     @Test
@@ -75,11 +75,11 @@ public abstract class MigrationTestCase {
             //Expected
         }
 
-        Migration migration = flyway.getMetaDataTable().latestAppliedMigration();
+        Migration migration = flyway.status();
         SchemaVersion schemaVersion = migration.getVersion();
         assertEquals("1", schemaVersion.getVersion());
         assertEquals("Should Fail", schemaVersion.getDescription());
         assertEquals(MigrationState.FAILED, migration.getState());
-        assertEquals(1, flyway.getMetaDataTable().allAppliedMigrations().size());
+        assertEquals(1, flyway.history().size());
     }
 }
