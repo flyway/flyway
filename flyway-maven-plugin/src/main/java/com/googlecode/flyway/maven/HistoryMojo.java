@@ -17,7 +17,10 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.Migration;
 import org.apache.maven.plugin.MojoExecutionException;
+
+import java.util.List;
 
 /**
  * Maven goal that shows the history (all applied migrations) of the database.
@@ -32,6 +35,7 @@ public class HistoryMojo extends AbstractFlywayMojo {
     protected void doExecute() throws MojoExecutionException {
         Flyway flyway = new Flyway();
         flyway.setDataSource(getDataSource());
-        flyway.history();
+        List<Migration> migrations = flyway.history();
+        MigrationDumper.dumpMigrations(migrations);
     }
 }

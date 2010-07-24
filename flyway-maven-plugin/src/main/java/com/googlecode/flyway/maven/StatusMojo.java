@@ -17,7 +17,11 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.Migration;
 import org.apache.maven.plugin.MojoExecutionException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Maven goal that shows the status (current version) of the database.
@@ -32,6 +36,13 @@ public class StatusMojo extends AbstractFlywayMojo {
     protected void doExecute() throws MojoExecutionException {
         Flyway flyway = new Flyway();
         flyway.setDataSource(getDataSource());
-        flyway.status();
+        Migration migration = flyway.status();
+
+        List<Migration> migrations = new ArrayList<Migration>();
+        if (migration != null) {
+            migrations.add(migration);
+        }
+
+        MigrationDumper.dumpMigrations(migrations);
     }
 }

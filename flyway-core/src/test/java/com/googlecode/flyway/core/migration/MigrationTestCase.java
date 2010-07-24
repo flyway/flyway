@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -75,7 +74,7 @@ public abstract class MigrationTestCase {
         } catch (IllegalStateException e) {
             //Expected
         }
-        
+
         Migration migration = flyway.getMetaDataTable().latestAppliedMigration();
         SchemaVersion schemaVersion = migration.getVersion();
         assertEquals("1", schemaVersion.getVersion());

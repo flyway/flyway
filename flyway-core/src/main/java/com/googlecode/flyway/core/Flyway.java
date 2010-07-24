@@ -242,48 +242,21 @@ public class Flyway {
     }
 
     /**
-     * Logs the status (current version) of the database.
-     */
-    public void status() {
-        Migration migration = getMetaDataTable().latestAppliedMigration();
-
-        List<Migration> migrations = new ArrayList<Migration>();
-        if (migration != null) {
-            migrations.add(migration);
-        }
-
-        dumpMigrations(migrations);
-    }
-
-    /**
-     * Logs the history (all applied migrations) of the database.
-     */
-    public void history() {
-        dumpMigrations(getMetaDataTable().allAppliedMigrations());
-    }
-
-    /**
-     * Dumps this list of migrations in the log file.
+     * Returns the status (current version) of the database.
      *
-     * @param migrations The list of migrations to dump.
+     * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
-    private void dumpMigrations(List<Migration> migrations) {
-        LOG.info("+-------------+---------------------------+----------------+-----------+");
-        LOG.info("| Version     | Description               | Execution time | State     |");
-        LOG.info("+-------------+---------------------------+----------------+-----------+");
+    public Migration status() {
+        return getMetaDataTable().latestAppliedMigration();
+    }
 
-        if (migrations.isEmpty()) {
-            LOG.info("| No migrations applied yet                                            |");
-        } else {
-            for (Migration migration : migrations) {
-                LOG.info("| " + StringUtils.trimOrPad(migration.getVersion().getVersion(), 11)
-                        + " | " + StringUtils.trimOrPad(migration.getVersion().getDescription(), 25)
-                        + " | " + StringUtils.trimOrPad(TimeFormat.format(migration.getExecutionTime()), 14)
-                        + " | " + StringUtils.trimOrPad(migration.getState().name(), 9) + " |");
-            }
-        }
-
-        LOG.info("+-------------+---------------------------+----------------+-----------+");
+    /**
+     * Returns the history (all applied migrations) of the database.
+     *
+     * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
+     */
+    public List<Migration> history() {
+        return getMetaDataTable().allAppliedMigrations();
     }
 
     /**
