@@ -17,6 +17,7 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,19 +36,14 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test to demonstrate the migration functionality using Mysql.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
-public class OracleMigrationMediumTest {
+public class OracleMigrationMediumTest extends MigrationTestCase {
     @Autowired
     private DataSource dataSource;
 
-    private Flyway flyway;
-
-    @Before
-    public void setUp() {
-        flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-        flyway.clean();
+    @Override
+    protected String getBaseDir() {
+        return "migration/sql";
     }
 
     /**

@@ -28,6 +28,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * H2 database specific support
@@ -88,6 +90,15 @@ public class H2DbSupport implements DbSupport {
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        return new SqlScript(new ArrayList<SqlStatement>());
+        @SuppressWarnings({"unchecked"})
+        List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + getCurrentSchema(jdbcTemplate));
+
+        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
+        int count = 0;
+        for (Map<String, Object> table : tables) {
+            count++;
+            sqlStatements.add(new SqlStatement(count, "DROP TABLE " + table.get("TABLE_NAME") + " CASCADE"));
+        }
+        return new SqlScript(sqlStatements);
     }
 }

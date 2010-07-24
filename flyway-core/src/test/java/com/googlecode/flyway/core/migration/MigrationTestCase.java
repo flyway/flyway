@@ -16,44 +16,64 @@
 
 package com.googlecode.flyway.core.migration;
 
-import static org.junit.Assert.assertEquals;
+import com.googlecode.flyway.core.Flyway;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.SchemaVersion;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using H2.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public abstract class MigrationTestCase {
-	/**
-	 * The datasource to use for single-threaded migration tests.
-	 */
-	@Resource
-	protected DataSource migrationDataSource;
+    /**
+     * The datasource to use for single-threaded migration tests.
+     */
+    @Resource
+    protected DataSource migrationDataSource;
 
-	/**
-	 * @return The directory containing the migrations for the tests.
-	 */
-	protected abstract String getBaseDir();
+    protected Flyway flyway;
 
-	@Test
-	public void migrate() throws Exception {
-		Flyway flyway = new Flyway();
-		flyway.setDataSource(migrationDataSource);
-		flyway.setBaseDir(getBaseDir());
+    @Before
+    public void setUp() {
+        flyway = new Flyway();
+        flyway.setDataSource(migrationDataSource);
         flyway.clean();
-		flyway.migrate();
-		SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
-		assertEquals("2.0", schemaVersion.getVersion());
-		assertEquals("Add foreign key", schemaVersion.getDescription());
-		assertEquals(0, flyway.migrate());
+    }
+
+    /**
+     * @return The directory containing the migrations for the tests.
+     */
+    protected abstract String getBaseDir();
+
+    @Test
+    public void migrate() throws Exception {
+        flyway.setBaseDir(getBaseDir());
+        flyway.migrate();
+        SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
+        assertEquals("2.0", schemaVersion.getVersion());
+        assertEquals("Add foreign key", schemaVersion.getDescription());
+        assertEquals(0, flyway.migrate());
         assertEquals(4, flyway.getMetaDataTable().allAppliedMigrations().size());
-	}
+    }
+
+    @Test
+    @Ignore
+    public void failedMigration() throws Exception {
+        flyway.setBaseDir("migration/failed");
+        flyway.migrate();
+        Migration migration = flyway.getMetaDataTable().latestAppliedMigration();
+        SchemaVersion schemaVersion = migration.getVersion();
+        assertEquals("1", schemaVersion.getVersion());
+        assertEquals("Should Fail", schemaVersion.getDescription());
+        assertEquals(MigrationState.FAILED, migration.getState());
+        assertEquals(1, flyway.getMetaDataTable().allAppliedMigrations().size());
+    }
 }
