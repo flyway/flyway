@@ -38,7 +38,7 @@ public class TimeFormat {
      * @return The execution in a human-readable format.
      */
     public static String format(long millis) {
-        DateFormat dateFormat = new SimpleDateFormat("mm:ss.S");
+        DateFormat dateFormat = new SimpleDateFormat("mm:ss.SSS");
         return dateFormat.format(new Date(millis)) + "s";
     }
 }
