@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test for BaseJavaMigration.
  */
-public class BaseJavaMigrationTest {
+public class BaseJavaMigrationSmallTest {
     @Test
     public void version() {
         Migration migration = new V1_2_3__Dummy_migration();
