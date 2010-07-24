@@ -98,8 +98,6 @@ public class DbMigrator {
      * @throws Exception Thrown when a migration failed.
      */
     public int migrate() throws Exception {
-        metaDataTable.init(null);
-
         final List<Migration> allMigrations = findAvailableMigrations();
 
         if (allMigrations.isEmpty()) {
@@ -109,9 +107,9 @@ public class DbMigrator {
 
         int migrationSuccessCount = 0;
         while (true) {
-            int result = (Integer) transactionTemplate.execute(new TransactionCallback() {
+            Migration appliedMigration = (Migration) transactionTemplate.execute(new TransactionCallback() {
                 @Override
-                public Integer doInTransaction(TransactionStatus status) {
+                public Migration doInTransaction(TransactionStatus status) {
                     metaDataTable.lock();
 
                     Migration latestAppliedMigration = metaDataTable.latestAppliedMigration();
@@ -121,7 +119,7 @@ public class DbMigrator {
 
                     Migration migration = getNextMigration(allMigrations, latestAppliedMigration.getVersion());
                     if (migration == null) {
-                        return 0;
+                        return null;
                     }
 
                     LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
@@ -135,16 +133,17 @@ public class DbMigrator {
 
                     metaDataTable.finishMigration(migration);
 
-                    migration.assertNotFailed();
-
-                    return 1;
+                    return migration;
                 }
             });
 
-            if (result == 0) {
+            if (appliedMigration == null) {
                 break;
             }
-            migrationSuccessCount += result;
+
+            appliedMigration.assertNotFailed();
+
+            migrationSuccessCount++;
         }
 
         if (migrationSuccessCount == 0) {

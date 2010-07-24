@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Test to demonstrate the migration functionality using H2.
@@ -61,14 +62,20 @@ public abstract class MigrationTestCase {
         assertEquals("2.0", schemaVersion.getVersion());
         assertEquals("Add foreign key", schemaVersion.getDescription());
         assertEquals(0, flyway.migrate());
-        assertEquals(4, flyway.getMetaDataTable().allAppliedMigrations().size());
+        assertEquals(3, flyway.getMetaDataTable().allAppliedMigrations().size());
     }
 
     @Test
-    @Ignore
     public void failedMigration() throws Exception {
         flyway.setBaseDir("migration/failed");
-        flyway.migrate();
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (IllegalStateException e) {
+            //Expected
+        }
+        
         Migration migration = flyway.getMetaDataTable().latestAppliedMigration();
         SchemaVersion schemaVersion = migration.getVersion();
         assertEquals("1", schemaVersion.getVersion());

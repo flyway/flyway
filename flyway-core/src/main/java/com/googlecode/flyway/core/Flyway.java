@@ -220,6 +220,8 @@ public class Flyway {
      * @throws Exception Thrown when the migration failed.
      */
     public int migrate() throws Exception {
+        metaDataTable.createIfNotExists();
+
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
@@ -291,6 +293,7 @@ public class Flyway {
      *                       higher than this one will be considered for this database.
      */
     public void init(SchemaVersion initialVersion) {
+        metaDataTable.createIfNotExists();
         metaDataTable.init(initialVersion);
     }
 }

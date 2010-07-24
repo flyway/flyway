@@ -112,6 +112,15 @@ public class MetaDataTable {
     }
 
     /**
+     * Creates the metadata table if it doesn't already exist. 
+     */
+    public void createIfNotExists() {
+        if (!exists()) {
+            create();
+        }
+    }
+
+    /**
      * Creates and initializes the Flyway metadata table.
      *
      * @param initialVersion (optional) The initial version to put in the metadata table.
@@ -120,15 +129,9 @@ public class MetaDataTable {
      *                       {@code null} defaults the initial version to 0.
      */
     public void init(final SchemaVersion initialVersion) {
-        if (!exists()) {
-            create();
-        } else {
-            return;
-        }
-
         final SchemaVersion version;
         if (initialVersion == null) {
-            version = new SchemaVersion("0", null);
+            version = new SchemaVersion("0", "<< Flyway Init >>");
         } else {
             version = initialVersion;
         }
