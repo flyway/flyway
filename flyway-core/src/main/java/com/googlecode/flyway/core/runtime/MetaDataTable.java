@@ -185,7 +185,7 @@ public class MetaDataTable {
             return null;
         }
 
-        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE from " + tableName + " where current_version=1";
+        String query = getSelectStatement() + " where current_version=1";
         @SuppressWarnings({"unchecked"})
         final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
 
@@ -205,7 +205,7 @@ public class MetaDataTable {
             return new ArrayList<Migration>();
         }
 
-        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE from " + tableName;
+        String query = getSelectStatement();
 
         @SuppressWarnings({"unchecked"})
         final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
@@ -213,6 +213,13 @@ public class MetaDataTable {
         Collections.sort(migrations);
 
         return migrations;
+    }
+
+    /**
+     * @return The select statement for reading the metadata table.
+     */
+    private String getSelectStatement() {
+        return "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, INSTALLED_ON from " + tableName;
     }
 
     /**
@@ -245,6 +252,7 @@ public class MetaDataTable {
             return new Migration() {{
                 schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
                 migrationState = MigrationState.valueOf(rs.getString("STATE"));
+                installedOn = rs.getTimestamp("INSTALLED_ON");
                 executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
                 scriptName = rs.getString("SCRIPT");
             }};

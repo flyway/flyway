@@ -27,14 +27,15 @@ import org.springframework.util.ClassUtils;
 
 /**
  * Base class for java migration classes whose name conforms to the Flyway
- * standard.
+ * standard. Example: V1_2__Change_values
  */
 public abstract class BaseJavaMigration extends BaseMigration {
     /**
      * Initializes this Migration with this standard Flyway name.
      */
     protected BaseJavaMigration() {
-        initVersion(ClassUtils.getShortName(getClass()));
+        String nameWithoutV = ClassUtils.getShortName(getClass()).substring(1);
+        initVersion(nameWithoutV);
         scriptName = "Java Class: " + ClassUtils.getShortName(getClass());
     }
 

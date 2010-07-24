@@ -27,8 +27,6 @@ import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.runtime.DbCleaner;
 import com.googlecode.flyway.core.runtime.DbMigrator;
 import com.googlecode.flyway.core.runtime.MetaDataTable;
-import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
