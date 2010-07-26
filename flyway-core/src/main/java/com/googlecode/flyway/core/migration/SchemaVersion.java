@@ -66,6 +66,27 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     }
 
     /**
+     * Creates an initial SchemaVersion using this version string.
+     *
+     * @param rawVersion  (Optional) The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
+     * Default: 0.
+     * @param description (Optional) The description of this version. (Default: << Flyway Init >>)
+     */
+    public static SchemaVersion createInitialVersion(String rawVersion, String description) {
+        String initRawVersion = rawVersion;
+        if (initRawVersion == null) {
+            initRawVersion = "0";
+        }
+
+        String initDescription = description;
+        if (initDescription == null) {
+            initDescription = "<< Flyway Init >>";
+        }
+
+        return new SchemaVersion(initRawVersion, initDescription);
+    }
+
+    /**
      * evaluates a normalized version without leading or trailing '0'
      * @return version without leading 0
      */

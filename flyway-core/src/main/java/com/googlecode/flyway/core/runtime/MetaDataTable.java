@@ -129,16 +129,14 @@ public class MetaDataTable {
      *                       {@code null} defaults the initial version to 0.
      */
     public void init(final SchemaVersion initialVersion) {
-        final SchemaVersion version;
-        if (initialVersion == null) {
-            version = new SchemaVersion("0", "<< Flyway Init >>");
-        } else {
-            version = initialVersion;
+        Migration migration = latestAppliedMigration();
+        if (migration != null) {
+            throw new IllegalStateException("Schema already initialized. Current Version: " + migration.getVersion());
         }
 
         final Migration initialMigration = new Migration() {{
-            schemaVersion = version;
-            scriptName = "<< Flyway Init >>";
+            schemaVersion = initialVersion;
+            scriptName = initialVersion.getDescription();
             executionTime = 0;
             migrationState = MigrationState.SUCCESS;
         }};
@@ -150,6 +148,8 @@ public class MetaDataTable {
                 return null;
             }
         });
+
+        LOG.info("Schema initialized with version: " + initialVersion);
     }
 
     /**
@@ -190,7 +190,7 @@ public class MetaDataTable {
         final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
 
         if (migrations.isEmpty()) {
-            return new Migration();
+            return null;
         }
 
         return migrations.get(0);
@@ -234,13 +234,6 @@ public class MetaDataTable {
         }
 
         return number.intValue();
-    }
-
-    /**
-     * @return Retrieves the number migrations applied to this database.
-     */
-    public int migrationCount() {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + tableName);
     }
 
     /**

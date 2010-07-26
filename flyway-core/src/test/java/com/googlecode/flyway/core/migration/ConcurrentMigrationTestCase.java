@@ -66,7 +66,7 @@ public abstract class ConcurrentMigrationTestCase {
 		flyway.setDataSource(concurrentMigrationDataSource);
 		flyway.setBaseDir(getBaseDir());
         flyway.clean();
-        flyway.init(null);
+        flyway.init(SchemaVersion.createInitialVersion(null, null));
     }
 
 	@Test

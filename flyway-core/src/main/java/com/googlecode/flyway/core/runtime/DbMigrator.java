@@ -113,11 +113,17 @@ public class DbMigrator {
                     metaDataTable.lock();
 
                     Migration latestAppliedMigration = metaDataTable.latestAppliedMigration();
-                    LOG.info("Current schema version: " + latestAppliedMigration.getVersion());
+                    SchemaVersion currentSchemaVersion;
+                    if (latestAppliedMigration == null) {
+                        currentSchemaVersion = SchemaVersion.EMPTY;
+                    } else {
+                        latestAppliedMigration.assertNotFailed();
+                        currentSchemaVersion = latestAppliedMigration.getVersion();
+                    }
 
-                    latestAppliedMigration.assertNotFailed();
+                    LOG.info("Current schema version: " + currentSchemaVersion);
 
-                    Migration migration = getNextMigration(allMigrations, latestAppliedMigration.getVersion());
+                    Migration migration = getNextMigration(allMigrations, currentSchemaVersion);
                     if (migration == null) {
                         return null;
                     }
