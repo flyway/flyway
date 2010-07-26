@@ -79,17 +79,34 @@ public class MySQLDbSupport implements DbSupport {
 
     @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        return new SqlScript(sqlScriptSource, placeholderReplacer);
+        return new MySQLSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
     @Override
     public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
+        int lineNumber = 0;
+        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
+
+        lineNumber = cleanRoutines(jdbcTemplate, lineNumber, sqlStatements);
+        lineNumber = cleanViews(jdbcTemplate, lineNumber, sqlStatements);
+        cleanTables(jdbcTemplate, lineNumber, sqlStatements);
+
+        return new SqlScript(sqlStatements);
+    }
+
+    /**
+     * Cleans the tables in this schema.
+     *
+     * @param jdbcTemplate The jdbcTemplate pointing to the schema to clean.
+     * @param lineNumber The initial line number of the clean script.
+     * @param sqlStatements The statement list to add to.
+     */
+    private void cleanTables(JdbcTemplate jdbcTemplate, int lineNumber, List<SqlStatement> sqlStatements) {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
                         new Object[]{getCurrentSchema(jdbcTemplate)});
-        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int lineNumber = 1;
+        lineNumber++;
         sqlStatements.add(new SqlStatement(lineNumber, "SET FOREIGN_KEY_CHECKS = 0"));
         for (Map<String, String> row : tableNames) {
             lineNumber++;
@@ -98,6 +115,48 @@ public class MySQLDbSupport implements DbSupport {
         }
         lineNumber++;
         sqlStatements.add(new SqlStatement(lineNumber, "SET FOREIGN_KEY_CHECKS = 1"));
-        return new SqlScript(sqlStatements);
+    }
+
+    /**
+     * Cleans the routines in this schema.
+     *
+     * @param jdbcTemplate The jdbcTemplate pointing to the schema to clean.
+     * @param lineNumber The initial line number of the clean script.
+     * @param sqlStatements The statement list to add to.
+     * @return The final line number.
+     */
+    private int cleanRoutines(JdbcTemplate jdbcTemplate, int lineNumber, List<SqlStatement> sqlStatements) {
+        @SuppressWarnings({"unchecked"}) List<Map<String, String>> routineNames =
+                jdbcTemplate.queryForList(
+                        "SELECT routine_name, routine_type FROM information_schema.routines WHERE routine_schema=?",
+                        new Object[]{getCurrentSchema(jdbcTemplate)});
+        for (Map<String, String> row : routineNames) {
+            lineNumber++;
+            String routineName = row.get("routine_name");
+            String routineType = row.get("routine_type");
+            sqlStatements.add(new SqlStatement(lineNumber, "DROP " + routineType + " " + routineName));
+        }
+        return lineNumber;
+    }
+
+    /**
+     * Cleans the views in this schema.
+     *
+     * @param jdbcTemplate The jdbcTemplate pointing to the schema to clean.
+     * @param lineNumber The initial line number of the clean script.
+     * @param sqlStatements The statement list to add to.
+     * @return The final line number.
+     */
+    private int cleanViews(JdbcTemplate jdbcTemplate, int lineNumber, List<SqlStatement> sqlStatements) {
+        @SuppressWarnings({"unchecked"}) List<Map<String, String>> viewNames =
+                jdbcTemplate.queryForList(
+                        "SELECT table_name FROM information_schema.views WHERE table_schema=?",
+                        new Object[]{getCurrentSchema(jdbcTemplate)});
+        for (Map<String, String> row : viewNames) {
+            lineNumber++;
+            String viewName = row.get("table_name");
+            sqlStatements.add(new SqlStatement(lineNumber, "DROP VIEW " + viewName));
+        }
+        return lineNumber;
     }
 }
