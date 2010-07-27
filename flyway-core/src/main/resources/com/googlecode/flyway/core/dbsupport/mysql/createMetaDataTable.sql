@@ -22,6 +22,7 @@ CREATE TABLE ${tableName} (
     execution_time INT,
     state VARCHAR(15) NOT NULL,
     current_version BOOL NOT NULL,
+    checksum BIGINT,    
     PRIMARY KEY(version)
 ) ENGINE=InnoDB;
 ALTER TABLE ${tableName} ADD INDEX ${tableName}_current_version_index (current_version);

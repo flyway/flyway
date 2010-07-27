@@ -47,6 +47,7 @@ public class SqlMigration extends BaseMigration {
      *
      * @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     * @param versionString The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g. 1_2__Description
      * @param encoding            The encoding of this Sql migration.
      */
     public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, String versionString) {
@@ -62,6 +63,7 @@ public class SqlMigration extends BaseMigration {
     public void doMigrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
+        checksum = sqlScript.getChecksum();
         sqlScript.execute(transactionTemplate, jdbcTemplate);
     }
 }

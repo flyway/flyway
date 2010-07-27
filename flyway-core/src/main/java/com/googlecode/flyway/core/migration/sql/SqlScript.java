@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core.migration.sql;
 
+import com.googlecode.flyway.core.util.ResourceUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,6 +52,11 @@ public class SqlScript {
     private final List<SqlStatement> sqlStatements;
 
     /**
+     * The crc32 checksum of the sql script.
+     */
+    private final Long checksum;
+
+    /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
@@ -58,19 +64,8 @@ public class SqlScript {
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     public SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        Reader reader = new StringReader(sqlScriptSource);
-        List<String> rawLines = readLines(reader);
-
-        List<String> trimmedLines = trimLines(rawLines);
-        List<String> noCommentLines = stripSqlComments(trimmedLines);
-        List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholderReplacer);
-
-        sqlStatements = linesToStatements(noPlaceholderLines);
-        try {
-            reader.close();
-        } catch (IOException e) {
-            //ignore
-        }
+        this.sqlStatements = parse(sqlScriptSource, placeholderReplacer);
+        this.checksum = ResourceUtils.calculateChecksum(sqlScriptSource);
     }
 
     /**
@@ -80,6 +75,7 @@ public class SqlScript {
      */
     public SqlScript(List<SqlStatement> sqlStatements) {
         this.sqlStatements = sqlStatements;
+        this.checksum = null;
     }
 
     /**
@@ -87,6 +83,7 @@ public class SqlScript {
      */
     protected SqlScript() {
         sqlStatements = null;
+        checksum = null;
     }
 
     /**
@@ -94,6 +91,10 @@ public class SqlScript {
      */
     public List<SqlStatement> getSqlStatements() {
         return sqlStatements;
+    }
+
+    public Long getChecksum() {
+        return checksum;
     }
 
     /**
@@ -113,6 +114,21 @@ public class SqlScript {
             }
         });
     }
+
+    private List<SqlStatement> parse(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+        Reader reader = new StringReader(sqlScriptSource);
+        try {
+            List<String> rawLines = readLines(reader);
+
+            List<String> trimmedLines = trimLines(rawLines);
+            List<String> noCommentLines = stripSqlComments(trimmedLines);
+            List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholderReplacer);
+            return linesToStatements(noPlaceholderLines);
+        } finally {
+            ResourceUtils.closeQuietly(reader);
+        }
+    }
+
 
     /**
      * Turns these lines in a series of statements.
@@ -151,7 +167,9 @@ public class SqlScript {
             if (line.endsWith(delimiter)) {
                 String noDelimiterStatementSql = stripDelimiter(statementSql, delimiter);
                 statements.add(new SqlStatement(statementLineNumber, noDelimiterStatementSql));
-                LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
+                }
 
                 delimiter = DEFAULT_STATEMENT_DELIMITER;
                 statementSql = "";

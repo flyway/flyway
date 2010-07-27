@@ -33,11 +33,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Supports reading and writing to the metadata table.
@@ -166,12 +162,15 @@ public class MetaDataTable {
      */
     public void finishMigration(final Migration migration) {
         jdbcTemplate.update("UPDATE " + tableName + " SET current_version=0");
+        final SchemaVersion schemaVersion = migration.getVersion();
+        final String version = schemaVersion.getVersion();
+        final String description = schemaVersion.getDescription();
+        final String state = migration.getState().name();
         jdbcTemplate
                 .update("INSERT INTO " + tableName
-                        + " (version, description, script, execution_time, state, current_version)"
-                        + " VALUES (?, ?, ?, ?, ?, 1)", new Object[]{migration.getVersion().getVersion(), migration.getVersion()
-                        .getDescription(), migration.getScriptName(), migration.getExecutionTime(), migration
-                        .getState().name()});
+                        + " (version, description, script, execution_time, state, current_version, checksum)"
+                        + " VALUES (?, ?, ?, ?, ?, 1, ?)", new Object[]{version, description, migration.getScriptName(), 
+                        migration.getExecutionTime(), state, migration.getChecksum()});
     }
 
     /**
@@ -182,7 +181,7 @@ public class MetaDataTable {
             return null;
         }
 
-        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE from " + tableName + " where current_version=1";
+        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, CHECKSUM from " + tableName + " where current_version=1";
         @SuppressWarnings({"unchecked"})
         final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
 
@@ -202,7 +201,7 @@ public class MetaDataTable {
             return new ArrayList<Migration>();
         }
 
-        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE from " + tableName;
+        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, CHECKSUM from " + tableName;
 
         @SuppressWarnings({"unchecked"})
         final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
@@ -227,6 +226,20 @@ public class MetaDataTable {
     }
 
     /**
+     * Converts this number into an Long.
+     *
+     * @param number The Number to convert.
+     * @return The matching Long.
+     */
+    private Long toLong(Number number) {
+        if (number == null) {
+            return null;
+        }
+
+        return number.longValue();
+    }
+
+    /**
      * @return Retrieves the number migrations applied to this database.
      */
     public int migrationCount() {
@@ -244,6 +257,7 @@ public class MetaDataTable {
                 migrationState = MigrationState.valueOf(rs.getString("STATE"));
                 executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
                 scriptName = rs.getString("SCRIPT");
+                checksum = toLong((Number) rs.getObject("CHECKSUM"));
             }};
         }
     }

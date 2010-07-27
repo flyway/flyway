@@ -90,12 +90,5 @@ public class SchemaVersionSmallTest {
         Assert.assertEquals(-1, a1.compareTo(a2));
     }
 
-    @Test
-    public void normalizedVersion() {
-        Assert.assertEquals("1.2.1", new SchemaVersion("1.2.1", null).getVersion());
-        Assert.assertEquals("1.0", new SchemaVersion("1_0", null).getVersion());
-        Assert.assertEquals("1.0.SNAPSHOT", new SchemaVersion("1_0-SNAPSHOT", null).getVersion());
-        Assert.assertEquals("1.2", new SchemaVersion("01.02", null).getVersion());
-    }
 }
 

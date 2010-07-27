@@ -16,8 +16,6 @@
 
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.migration.sql.SqlScript;
-import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -30,6 +28,7 @@ import static org.junit.Assert.assertNotNull;
  * Test for SqlScript.
  */
 public class SqlScriptSmallTest {
+
     /**
      * Class under test.
      */

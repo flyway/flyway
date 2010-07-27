@@ -21,6 +21,7 @@ CREATE TABLE ${tableName} (
     installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     execution_time INT,
     state VARCHAR2(15) NOT NULL,
-    current_version NUMBER(1) NOT NULL
+    current_version NUMBER(1) NOT NULL,
+    checksum NUMBER(19)
 );
 CREATE INDEX ${tableName}_cv_idx ON ${tableName} (current_version);

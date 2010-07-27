@@ -16,16 +16,17 @@
 
 package com.googlecode.flyway.core.migration;
 
-import static org.junit.Assert.assertEquals;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.SchemaVersion;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using H2.
@@ -55,5 +56,11 @@ public abstract class MigrationTestCase {
 		assertEquals("Add foreign key", schemaVersion.getDescription());
 		assertEquals(0, flyway.migrate());
         assertEquals(4, flyway.getMetaDataTable().allAppliedMigrations().size());
-	}
+        final List<Migration> migrationList = flyway.getMetaDataTable().allAppliedMigrations();
+        for (Migration migration : migrationList) {
+            if (!migration.getVersion().equals(new SchemaVersion("0", null))) {
+                Assert.assertNotNull(migration.getScriptName() + " has no checksum", migration.getChecksum());
+            }
+        }
+    }
 }

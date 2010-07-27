@@ -56,6 +56,18 @@ public class Migration implements Comparable<Migration> {
     protected String scriptName;
 
     /**
+     * The crc-32 checksum of the script.
+     */
+    protected Long checksum;
+
+    /**
+     * @return The crc-32 checksum of the script.
+     */
+    public Long getChecksum() {
+        return checksum;
+    }
+
+    /**
      * @return The schema version after the migration is complete.
      */
     public SchemaVersion getVersion() {

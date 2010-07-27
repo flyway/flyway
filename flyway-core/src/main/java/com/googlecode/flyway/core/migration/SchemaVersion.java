@@ -37,7 +37,7 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     /**
      * The printable version.
      */
-    private final String rawVersion;
+    private final String version;
 
     /**
      * The description of this version.
@@ -47,57 +47,29 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     /**
      * Creates a special version. For internal use only.
      *
-     * @param rawVersion The version to display.
+     * @param version The version to display.
      */
-    private SchemaVersion(String rawVersion) {
-        this.rawVersion = rawVersion;
-        description = null;
+    private SchemaVersion(String version) {
+        this.version = version;
+        this.description = null;
     }
 
     /**
      * Creates a SchemaVersion using this version string.
      *
-     * @param rawVersion  The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
+     * @param version  The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
      * @param description The description of this version.
      */
-    public SchemaVersion(String rawVersion, String description) {
+    public SchemaVersion(String version, String description) {
         this.description = description;
-        this.rawVersion = rawVersion;
+        this.version = version;
     }
 
     /**
-     * evaluates a normalized version without leading or trailing '0'
-     * @return version without leading 0
-     */
-    private String getNormalizedVersion() {
-        String[] numbers = getElements();
-        if (numbers == null) {
-            numbers = new String[]{rawVersion};
-        }
-
-        String versionStr = "";
-        for (int i = 0; i < numbers.length; i++) {
-            if (i > 0) {
-                //if (justTrailingNull(numbers, i)) {
-                //    break;
-                //}
-                versionStr += ".";
-            }
-            final String s = numbers[i];
-            if (StringUtils.isNumeric(s)) {
-                versionStr += Long.parseLong(s);
-            } else {
-                versionStr += s;
-            }
-        }
-        return versionStr;
-    }
-
-    /**
-     * @return The version in printable format. Ex.: 6.2
+     * @return The version
      */
     public String getVersion() {
-        return getNormalizedVersion();
+        return version;
     }
 
     /**
@@ -108,16 +80,16 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     }
 
     private String[] getElements() {
-        return StringUtils.split(rawVersion, "_.-");
+        return StringUtils.split(version, ".-");
     }
 
     @Override
     public String toString() {
         if (description == null) {
-            return rawVersion;
+            return version;
         }
 
-        return rawVersion + " (" + description + ")";
+        return version + " (" + description + ")";
     }
 
     @Override
@@ -129,12 +101,12 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
 
         //noinspection SimplifiableIfStatement
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        return rawVersion.equals(that.rawVersion);
+        return version.equals(that.version);
     }
 
     @Override
     public int hashCode() {
-        int result = rawVersion.hashCode();
+        int result = version.hashCode();
         result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }

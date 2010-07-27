@@ -16,8 +16,6 @@
 
 package com.googlecode.flyway.core.migration;
 
-import com.googlecode.flyway.core.migration.BaseMigration;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -63,7 +61,7 @@ public class BaseMigrationSmallTest {
     @Test
     public void extractSchemaVersionWithLeadingZeroes() {
         SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("009_4__EmailAxel");
-        assertEquals("9.4", schemaVersion.getVersion());
+        assertEquals("009.4", schemaVersion.getVersion());
         assertEquals("EmailAxel", schemaVersion.getDescription());
     }
 }

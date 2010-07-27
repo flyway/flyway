@@ -50,7 +50,7 @@ public class ResourceUtils {
      * @return The resource contents as a string.
      */
     public static String loadResourceAsString(String location) {
-        return loadResourceAsString(new ClassPathResource(location), "UTF-8");
+        return loadResourceAsString(new ClassPathResource(location), "UTF-8", null);
     }
 
     /**
@@ -61,36 +61,57 @@ public class ResourceUtils {
      * @return The resource contents as a string.
      */
     public static String loadResourceAsString(Resource resource, String encoding) {
+        return loadResourceAsString(resource, encoding, null);
+    }
+
+    /**
+     * Loads this resource in a string using this encoding and optionally calculates a CRC-32 checksum
+     *
+     * @param resource The resource to load.
+     * @param encoding The encoding of the resource.
+     * @param checksum the checksum object to be used, if <code>null</code> no checksum is calculated
+     * @return The resource contents as a string.
+     */
+    public static String loadResourceAsString(Resource resource, String encoding, Checksum checksum) {
+        InputStream inputStream = null;
         try {
-            InputStream inputStream = resource.getInputStream();
-            Reader reader = new InputStreamReader(inputStream, Charset.forName(encoding));
+            inputStream = resource.getInputStream();
+            final InputStream checkedInputStream;
+            if (checksum != null) {
+                checkedInputStream = new CheckedInputStream(inputStream, checksum);
+            } else {
+                checkedInputStream = inputStream;
+            }
+            Reader reader = new InputStreamReader(checkedInputStream, Charset.forName(encoding));
             return FileCopyUtils.copyToString(reader);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to load resource: " + resource.getDescription() + " (encoding: " + encoding + ")", e);
+        } finally {
+            closeQuietly(inputStream);
         }
     }
 
     /**
      * Computes the checksum of a classpath resource using.
      *
-     * @param location The location of the resource on the classpath.
+     * @param resource the classpath resource.
      * @return the calculated checksum
      * @throws java.io.IOException      if an IO error occurs reading the resource
      */
-    public static long checksum(String location) throws IOException {
-        return checksum(location, new CRC32()).getValue();
+    public static long checksum(Resource resource) throws IOException {
+        return checksum(resource, new CRC32()).getValue();
     }
 
     /**
      * Computes the checksum of a classpath resource using the specified checksum object.
      *
-     * @param location The location of the resource on the classpath.
+     * @param resource the classpath resource.
      * @param checksum the checksum object to be used, must not be <code>null</code>
      * @return the checksum specified, updated with the content of the file
      * @throws java.io.IOException      if an IO error occurs reading the resource
      */
-    public static Checksum checksum(String location, Checksum checksum) throws IOException {
-        InputStream in = new ClassPathResource(location).getInputStream();
+    public static Checksum checksum(Resource resource, Checksum checksum) throws IOException {
+        InputStream in = resource.getInputStream();
         try {
             in = new CheckedInputStream(in, checksum);
             copyLarge(in, new NullOutputStream());
@@ -142,6 +163,29 @@ public class ResourceUtils {
         } catch (IOException ioe) {
             // ignore
         }
+    }
+    /**
+     * Unconditionally close an <code>Reader</code>.
+     * <p>
+     * Equivalent to {@link Reader#close()}, except any exceptions will be ignored.
+     * This is typically used in finally blocks.
+     *
+     * @param reader  the Reader to close, may be null or already closed
+     */
+    public static void closeQuietly(Reader reader) {
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+        } catch (IOException ioe) {
+            // ignore
+        }
+    }
+
+    public static long calculateChecksum(String source) {
+        final CRC32 crc32 = new CRC32();
+        crc32.update(source.getBytes());
+        return crc32.getValue();
     }
 
     private static class NullOutputStream extends OutputStream {
