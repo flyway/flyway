@@ -16,17 +16,14 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -38,19 +35,15 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test to demonstrate the migration functionality using Mysql.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@SuppressWarnings({"JavaDoc"})
 @ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
-public class OracleMigrationMediumTest {
+public class OracleMigrationMediumTest extends MigrationTestCase {
     @Autowired
     private DataSource dataSource;
 
-    private Flyway flyway;
-
-    @Before
-    public void setUp() {
-        flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-        flyway.clean();
+    @Override
+    protected String getBaseDir() {
+        return "migration/sql";
     }
 
     /**
@@ -64,7 +57,7 @@ public class OracleMigrationMediumTest {
         flyway.setBaseDir("migration/oracle/sql/placeholders");
 
         flyway.migrate();
-        SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
+        SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("1.1", schemaVersion.getVersion());
         assertEquals("Populate table", schemaVersion.getDescription());
 
@@ -76,7 +69,7 @@ public class OracleMigrationMediumTest {
         int countUserObjects = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
         assertEquals(0, countUserObjects);
 
-        final List<Migration> migrationList = flyway.getMetaDataTable().allAppliedMigrations();
+        final List<Migration> migrationList = flyway.history();
         for (Migration migration : migrationList) {
             Assert.assertNotNull(migration.getScriptName() + " has no checksum", migration.getChecksum());
         }

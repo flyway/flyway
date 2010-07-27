@@ -182,7 +182,7 @@ public class ResourceUtils {
         }
     }
 
-    public static long calculateChecksum(String source) {
+    public static Long calculateChecksum(String source) {
         final CRC32 crc32 = new CRC32();
         crc32.update(source.getBytes());
         return crc32.getValue();

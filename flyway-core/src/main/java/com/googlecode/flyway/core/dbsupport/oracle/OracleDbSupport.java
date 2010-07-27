@@ -86,9 +86,9 @@ public class OracleDbSupport implements DbSupport {
         allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "PACKAGE", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "PROCEDURE", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "SYNONYM", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "VIEW", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "TABLE", "CASCADE CONSTRAINTS PURGE"));
         allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "TYPE", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "VIEW", ""));
         allDropStatements.addAll(generateDropStatementsForSpatialExtensions(jdbcTemplate));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();

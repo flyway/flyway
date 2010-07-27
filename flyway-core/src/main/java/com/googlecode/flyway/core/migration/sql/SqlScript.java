@@ -162,6 +162,11 @@ public class SqlScript {
             String newDelimiter = checkForNewDelimiter(line);
             if (newDelimiter != null) {
                 delimiter = newDelimiter;
+
+                if (isDelimiterChangeExplicit()) {
+                    statementSql = "";
+                    continue;
+                }
             }
 
             if (line.endsWith(delimiter)) {
@@ -171,7 +176,9 @@ public class SqlScript {
                     LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
                 }
 
-                delimiter = DEFAULT_STATEMENT_DELIMITER;
+                if (!isDelimiterChangeExplicit()) {
+                    delimiter = DEFAULT_STATEMENT_DELIMITER;
+                }
                 statementSql = "";
             }
         }
@@ -194,6 +201,14 @@ public class SqlScript {
     @SuppressWarnings({"UnusedDeclaration"})
     protected String checkForNewDelimiter(String line) {
         return null;
+    }
+
+    /**
+     * @return {@code true} if this database uses an explicit delimiter change statement.
+     *         {@code false} if a delimiter change is implied by certain statements.
+     */
+    protected boolean isDelimiterChangeExplicit() {
+        return false;
     }
 
     /**

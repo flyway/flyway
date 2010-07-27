@@ -108,6 +108,15 @@ public class MetaDataTable {
     }
 
     /**
+     * Creates the metadata table if it doesn't already exist. 
+     */
+    public void createIfNotExists() {
+        if (!exists()) {
+            create();
+        }
+    }
+
+    /**
      * Creates and initializes the Flyway metadata table.
      *
      * @param initialVersion (optional) The initial version to put in the metadata table.
@@ -116,22 +125,14 @@ public class MetaDataTable {
      *                       {@code null} defaults the initial version to 0.
      */
     public void init(final SchemaVersion initialVersion) {
-        if (!exists()) {
-            create();
-        } else {
-            return;
-        }
-
-        final SchemaVersion version;
-        if (initialVersion == null) {
-            version = new SchemaVersion("0", null);
-        } else {
-            version = initialVersion;
+        Migration migration = latestAppliedMigration();
+        if (migration != null) {
+            throw new IllegalStateException("Schema already initialized. Current Version: " + migration.getVersion());
         }
 
         final Migration initialMigration = new Migration() {{
-            schemaVersion = version;
-            scriptName = "<< Flyway Init >>";
+            schemaVersion = initialVersion;
+            scriptName = initialVersion.getDescription();
             executionTime = 0;
             migrationState = MigrationState.SUCCESS;
         }};
@@ -143,6 +144,8 @@ public class MetaDataTable {
                 return null;
             }
         });
+
+        LOG.info("Schema initialized with version: " + initialVersion);
     }
 
     /**
@@ -181,12 +184,12 @@ public class MetaDataTable {
             return null;
         }
 
-        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, CHECKSUM from " + tableName + " where current_version=1";
+        String query = getSelectStatement() + " where current_version=1";
         @SuppressWarnings({"unchecked"})
         final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
 
         if (migrations.isEmpty()) {
-            return new Migration();
+            return null;
         }
 
         return migrations.get(0);
@@ -201,7 +204,7 @@ public class MetaDataTable {
             return new ArrayList<Migration>();
         }
 
-        String query = "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, CHECKSUM from " + tableName;
+        String query = getSelectStatement();
 
         @SuppressWarnings({"unchecked"})
         final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
@@ -209,6 +212,13 @@ public class MetaDataTable {
         Collections.sort(migrations);
 
         return migrations;
+    }
+
+    /**
+     * @return The select statement for reading the metadata table.
+     */
+    private String getSelectStatement() {
+        return "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, INSTALLED_ON, CHECKSUM from " + tableName;
     }
 
     /**
@@ -240,13 +250,6 @@ public class MetaDataTable {
     }
 
     /**
-     * @return Retrieves the number migrations applied to this database.
-     */
-    public int migrationCount() {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + tableName);
-    }
-
-    /**
      * Row mapper for Migrations.
      */
     private class MigrationRowMapper implements RowMapper {
@@ -255,6 +258,7 @@ public class MetaDataTable {
             return new Migration() {{
                 schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
                 migrationState = MigrationState.valueOf(rs.getString("STATE"));
+                installedOn = rs.getTimestamp("INSTALLED_ON");
                 executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
                 scriptName = rs.getString("SCRIPT");
                 checksum = toLong((Number) rs.getObject("CHECKSUM"));

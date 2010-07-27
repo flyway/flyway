@@ -16,9 +16,8 @@
 
 package com.googlecode.flyway.core.migration.java;
 
-import com.googlecode.flyway.core.migration.BaseMigration;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import org.springframework.dao.DataAccessException;
+import com.googlecode.flyway.core.migration.BaseMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -27,14 +26,15 @@ import org.springframework.util.ClassUtils;
 
 /**
  * Base class for java migration classes whose name conforms to the Flyway
- * standard.
+ * standard. Example: V1_2__Change_values
  */
 public abstract class BaseJavaMigration extends BaseMigration {
     /**
      * Initializes this Migration with this standard Flyway name.
      */
     protected BaseJavaMigration() {
-        initVersion(ClassUtils.getShortName(getClass()));
+        String nameWithoutV = ClassUtils.getShortName(getClass()).substring(1);
+        initVersion(nameWithoutV);
         scriptName = "Java Class: " + ClassUtils.getShortName(getClass());
     }
 
@@ -44,15 +44,18 @@ public abstract class BaseJavaMigration extends BaseMigration {
      * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        To execute the migration statements.
      * @param dbSupport           The support for database-specific extensions.
-     * @throws org.springframework.dao.DataAccessException
-     *          Thrown when the migration failed.
+     * @throws IllegalStateException Thrown when the migration failed.
      */
     @Override
-    protected void doMigrate(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) throws DataAccessException {
+    protected final void doMigrate(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) throws IllegalStateException {
         transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Void doInTransaction(TransactionStatus status) {
-                doMigrateInTransaction(jdbcTemplate);
+                try {
+                    doMigrateInTransaction(jdbcTemplate);
+                } catch (Exception e) {
+                    throw new IllegalStateException("Migration failed !", e);
+                }
                 return null;
             }
         });
@@ -66,5 +69,5 @@ public abstract class BaseJavaMigration extends BaseMigration {
      * @throws org.springframework.dao.DataAccessException
      *          Thrown when the migration failed.
      */
-    protected abstract void doMigrateInTransaction(JdbcTemplate jdbcTemplate) throws DataAccessException;
+    protected abstract void doMigrateInTransaction(JdbcTemplate jdbcTemplate) throws Exception;
 }

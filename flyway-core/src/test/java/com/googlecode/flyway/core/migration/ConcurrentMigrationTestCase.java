@@ -16,18 +16,17 @@
 
 package com.googlecode.flyway.core.migration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Test to demonstrate the migration functionality using H2.
@@ -66,7 +65,7 @@ public abstract class ConcurrentMigrationTestCase {
 		flyway.setDataSource(concurrentMigrationDataSource);
 		flyway.setBaseDir(getBaseDir());
         flyway.clean();
-        flyway.init(null);
+        flyway.init(SchemaVersion.createInitialVersion(null, null));
     }
 
 	@Test
@@ -98,8 +97,8 @@ public abstract class ConcurrentMigrationTestCase {
 		}
 
 		assertFalse(failed);
-		assertEquals(4, flyway.getMetaDataTable().migrationCount());
-		SchemaVersion schemaVersion = flyway.getMetaDataTable().latestAppliedMigration().getVersion();
+		assertEquals(4, flyway.history().size());
+		SchemaVersion schemaVersion = flyway.status().getVersion();
 		assertEquals("2.0", schemaVersion.getVersion());
 		assertEquals("Add foreign key", schemaVersion.getDescription());
 		assertEquals(0, flyway.migrate());

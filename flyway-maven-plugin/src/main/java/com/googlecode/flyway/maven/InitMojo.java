@@ -17,33 +17,38 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.Migration;
-import org.apache.maven.plugin.MojoExecutionException;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 
 /**
- * Maven goal that shows the status (current version) of the database.
+ * Maven goal that initializes the metadata table in an existing schema.
  *
- * @goal status
+ * @goal init
  * @requiresDependencyResolution compile
  * @configurator include-project-dependencies
- * @since 0.8
+ * @since 0.8.5
  */
 @SuppressWarnings({"UnusedDeclaration"})
-public class StatusMojo extends AbstractFlywayMojo {
+public class InitMojo extends AbstractFlywayMojo {
+    /**
+     * The initial version to put in the database. (default: 0) <br>
+     * default property: ${flyway.initialVersion}
+     *
+     * @parameter default-value="${flyway.initialVersion}"
+     */
+    private String initialVersion;
+
+    /**
+     * The description of the initial version. (default: << Flyway Init >>)<br>
+     * default property: ${flyway.initialDescription}
+     *
+     * @parameter default-value="${flyway.initialDescription}"
+     */
+    private String initialDescription;
+
     @Override
-    protected void doExecute() throws MojoExecutionException {
+    protected void doExecute() throws Exception {
         Flyway flyway = new Flyway();
         flyway.setDataSource(getDataSource());
-        Migration migration = flyway.status();
-
-        List<Migration> migrations = new ArrayList<Migration>();
-        if (migration != null) {
-            migrations.add(migration);
-        }
-
-        MigrationDumper.dumpMigrations(migrations);
+        flyway.init(SchemaVersion.createInitialVersion(initialVersion, initialDescription));
     }
 }

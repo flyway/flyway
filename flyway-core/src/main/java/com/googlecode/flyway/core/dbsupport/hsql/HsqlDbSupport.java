@@ -28,6 +28,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * HsqlDb-specific support
@@ -87,7 +88,27 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
-        return new SqlScript(new ArrayList<SqlStatement>());
+    public SqlScript createCleanScript(final JdbcTemplate jdbcTemplate) {
+        final List<String> tables = new ArrayList<String>();
+
+        jdbcTemplate.execute(new ConnectionCallback() {
+            @Override
+            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(jdbcTemplate),
+                        null, null);
+                while (resultSet.next()) {
+                    tables.add(resultSet.getString("TABLE_NAME"));
+                }
+                return null;
+            }
+        });
+
+        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
+        int count = 0;
+        for (String table : tables) {
+            count++;
+            sqlStatements.add(new SqlStatement(count, "DROP TABLE " + table + " CASCADE"));
+        }
+        return new SqlScript(sqlStatements);
     }
 }

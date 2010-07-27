@@ -19,7 +19,7 @@ package com.googlecode.flyway.core.migration;
 /**
  * Base migration for migrations that use the standard Flyway version +
  * description embedding in their name. These migrations have names like
- * V1_2__Description .
+ * 1_2__Description .
  */
 public abstract class BaseMigration extends Migration {
 	/**
@@ -27,6 +27,7 @@ public abstract class BaseMigration extends Migration {
 	 * name.
 	 * 
 	 * @param migrationName The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g. 1_2__Description
+	 *            The migration name in standard Flyway format. Ex.:
 	 */
 	protected final void initVersion(String migrationName) {
 		schemaVersion = extractSchemaVersion(migrationName);
@@ -34,7 +35,7 @@ public abstract class BaseMigration extends Migration {
 
 	/**
 	 * Extracts the schema version from a migration name formatted as
-	 * V1_2__Description.
+	 * 1_2__Description.
 	 * 
 	 * @param migrationName
 	 *            The string to parse.
@@ -42,14 +43,18 @@ public abstract class BaseMigration extends Migration {
 	 */
 	/* private -> for testing */
 	static SchemaVersion extractSchemaVersion(String migrationName) {
+        String rawVersion;
+
 		// Handle the description
 		String description = null;
 		int descriptionPos = migrationName.indexOf("__");
-		if (descriptionPos != -1) {
+		if (descriptionPos < 0) {
+            rawVersion = migrationName;
+        } else {
 			description = migrationName.substring(descriptionPos + 2).replaceAll("_", " ");
-			migrationName = migrationName.substring(0, descriptionPos);
+			rawVersion = migrationName.substring(0, descriptionPos);
 		}
 
-		return new SchemaVersion(migrationName.replace("_", "."), description);
+		return new SchemaVersion(rawVersion.replace("_", "."), description);
 	}
 }

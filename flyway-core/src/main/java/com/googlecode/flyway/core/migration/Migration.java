@@ -24,6 +24,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StopWatch;
 
+import java.util.Date;
+
 /**
  * A migration of a single version of the schema.
  *
@@ -44,6 +46,11 @@ public class Migration implements Comparable<Migration> {
      * The state of this migration.
      */
     protected MigrationState migrationState = MigrationState.UNKNOWN;
+
+    /**
+     * The timestamp when this migration was applied to the database. (Automatically set by the database)
+     */
+    protected Date installedOn;
 
     /**
      * The time (in ms) it took to execute.
@@ -79,6 +86,13 @@ public class Migration implements Comparable<Migration> {
      */
     public MigrationState getState() {
         return migrationState;
+    }
+
+    /**
+     * @return The timestamp when this migration was applied to the database. (Automatically set by the database)
+     */
+    public Date getInstalledOn() {
+        return installedOn;
     }
 
     /**

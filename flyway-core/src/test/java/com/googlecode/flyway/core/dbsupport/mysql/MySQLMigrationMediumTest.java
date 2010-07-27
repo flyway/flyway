@@ -16,17 +16,72 @@
 
 package com.googlecode.flyway.core.dbsupport.mysql;
 
+import com.googlecode.flyway.core.migration.MigrationTestCase;
+import org.junit.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.googlecode.flyway.core.migration.MigrationTestCase;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
  */
-@ContextConfiguration(locations = { "classpath:migration/mysql/mysql-context.xml" })
+@SuppressWarnings({"JavaDoc"})
+@ContextConfiguration(locations = {"classpath:migration/mysql/mysql-context.xml"})
 public class MySQLMigrationMediumTest extends MigrationTestCase {
-	@Override
-	protected String getBaseDir() {
-		return "migration/sql";
-	}
+    @Override
+    protected String getBaseDir() {
+        return "migration/sql";
+    }
+
+    /**
+     * Tests clean and migrate for MySQL Stored Procedures.
+     */
+    @Test
+    public void storedProcedure() throws Exception {
+        flyway.setBaseDir("migration/mysql/sql/procedure");
+        flyway.migrate();
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
+        assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for MySQL Triggers.
+     */
+    @Test
+    public void trigger() throws Exception {
+        flyway.setBaseDir("migration/mysql/sql/trigger");
+        flyway.migrate();
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
+        assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for MySQL Views.
+     */
+    @Test
+    public void view() throws Exception {
+        flyway.setBaseDir("migration/mysql/sql/view");
+        flyway.migrate();
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
+        assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
 }
