@@ -34,9 +34,7 @@ import java.util.List;
 @SuppressWarnings({"UnusedDeclaration"})
 public class StatusMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute() throws MojoExecutionException {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(getDataSource());
+    protected void doExecute(Flyway flyway) throws MojoExecutionException {
         Migration migration = flyway.status();
 
         List<Migration> migrations = new ArrayList<Migration>();

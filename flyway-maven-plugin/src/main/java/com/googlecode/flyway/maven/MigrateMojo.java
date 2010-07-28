@@ -62,14 +62,6 @@ public class MigrateMojo extends AbstractFlywayMojo {
     private String encoding;
 
     /**
-     * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
-     * default property: ${flyway.schemaMetaDataTable}
-     *
-     * @parameter default-value="${flyway.schemaMetaDataTable}"
-     */
-    private String schemaMetaDataTable;
-
-    /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.
      *
      * @parameter
@@ -98,9 +90,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
     private MavenProject mavenProject;
 
     @Override
-    protected void doExecute() throws Exception {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(getDataSource());
+    protected void doExecute(Flyway flyway) throws Exception {
         if (basePackage != null) {
             flyway.setBasePackage(basePackage);
         }
@@ -109,9 +99,6 @@ public class MigrateMojo extends AbstractFlywayMojo {
         }
         if (encoding != null) {
             flyway.setEncoding(encoding);
-        }
-        if (schemaMetaDataTable != null) {
-            flyway.setSchemaMetaDataTable(schemaMetaDataTable);
         }
 
         Map<String, String> mergedPlaceholders = new HashMap<String, String>();

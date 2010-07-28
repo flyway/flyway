@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.maven;
 
+import com.googlecode.flyway.core.Flyway;
 import com.pyx4j.log4j.MavenLogAppender;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,24 +72,37 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     protected String password = "";
 
-    protected DataSource getDataSource() throws MojoExecutionException {
-        try {
-            Driver driverClazz = (Driver) Class.forName(driver).newInstance();
-            return new SimpleDriverDataSource(driverClazz, url, user, password);
-        } catch (ClassNotFoundException e) {
-            throw new MojoExecutionException("Unable to find driver class: " + driver, e);
-        } catch (InstantiationException e) {
-            throw new MojoExecutionException("Unable to instantiate driver class: " + driver, e);
-        } catch (IllegalAccessException e) {
-            throw new MojoExecutionException("Unable to access driver class: " + driver, e);
-        }
+    /**
+     * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
+     * default property: ${flyway.schemaMetaDataTable}
+     *
+     * @parameter default-value="${flyway.schemaMetaDataTable}"
+     */
+    private String schemaMetaDataTable;
+
+    /**
+     * Creates the datasource base on the provided parameters.
+     *
+     * @return The fully configured datasource.
+     * @throws Exception Thrown when the datasource could not be created.
+     */
+    private DataSource getDataSource() throws Exception {
+        Driver driverClazz = (Driver) Class.forName(driver).newInstance();
+        return new SimpleDriverDataSource(driverClazz, url, user, password);
     }
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         MavenLogAppender.startPluginLog(this);
         try {
-            doExecute();
+            Flyway flyway = new Flyway();
+            flyway.setDataSource(getDataSource());
+
+            if (schemaMetaDataTable != null) {
+                flyway.setSchemaMetaDataTable(schemaMetaDataTable);
+            }
+            
+            doExecute(flyway);
         } catch (Exception e) {
             LOG.error(e);
             throw new MojoExecutionException("Flyway Error: " + e.getMessage(), e);
@@ -98,8 +112,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     }
 
     /**
-     * @see org.apache.maven.plugin.AbstractMojo#execute()
+     * Executes this mojo.
+     *
+     * @param flyway The flyway instance to operate on.
+     *
      * @throws Exception any exception
      */
-    protected abstract void doExecute() throws Exception;
+    protected abstract void doExecute(Flyway flyway) throws Exception;
 }
