@@ -20,6 +20,8 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,6 +37,11 @@ import java.util.List;
  * Oracle-specific support.
  */
 public class OracleDbSupport implements DbSupport {
+    /**
+     * Logger.
+     */
+    private static final Log LOG = LogFactory.getLog(OracleDbSupport.class);
+
     @Override
     public String getCreateMetaDataTableScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/oracle/createMetaDataTable.sql";
@@ -129,9 +136,24 @@ public class OracleDbSupport implements DbSupport {
     private List<String> generateDropStatementsForSpatialExtensions(JdbcTemplate jdbcTemplate) {
         List<String> statements = new ArrayList<String>();
 
-        String user = getCurrentSchema(jdbcTemplate);
-        statements.add("DELETE FROM mdsys.sdo_geom_metadata_table WHERE sdo_owner = '" + user + "'");
-        statements.add("DELETE FROM mdsys.sdo_index_metadata_table WHERE sdo_index_owner = '" + user + "'");
+        if (spatialExtensionsAvailable(jdbcTemplate)) {
+            String user = getCurrentSchema(jdbcTemplate);
+            statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
+            statements.add("DELETE FROM mdsys.sdo_index_metadata_table WHERE sdo_index_owner = '" + user + "'");
+        } else {
+            LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
+        }
+
         return statements;
+    }
+
+    /**
+     * Checks whether Oracle Spatial extensions are available or not.
+     *
+     * @param jdbcTemplate The jdbc template to use to query the database.
+     * @return {@code true} if they are available, {@code false} if not.
+     */
+    private boolean spatialExtensionsAvailable(JdbcTemplate jdbcTemplate) {
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_tables WHERE owner = 'MDSYS' AND table_name = 'SDO_INDEX_METADATA_TABLE'") > 0;
     }
 }

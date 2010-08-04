@@ -77,8 +77,17 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * default property: ${flyway.schemaMetaDataTable}
      *
      * @parameter default-value="${flyway.schemaMetaDataTable}"
+     * @deprecated
      */
     private String schemaMetaDataTable;
+
+    /**
+     * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
+     * default property: ${flyway.schemaMetaDataTable}
+     *
+     * @parameter default-value="${flyway.table}"
+     */
+    private String table;
 
     /**
      * Creates the datasource base on the provided parameters.
@@ -99,9 +108,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setDataSource(getDataSource());
 
             if (schemaMetaDataTable != null) {
-                flyway.setSchemaMetaDataTable(schemaMetaDataTable);
+                flyway.setTable(schemaMetaDataTable);
             }
-            
+            if (table != null) {
+                flyway.setTable(table);
+            }
+
             doExecute(flyway);
         } catch (Exception e) {
             LOG.error(e);
