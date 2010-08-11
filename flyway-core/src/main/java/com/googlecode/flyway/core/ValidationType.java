@@ -54,7 +54,7 @@ public enum ValidationType {
     public static ValidationType fromCode(String code) {
         final ValidationType[] types = ValidationType.values();
         for (ValidationType type : types) {
-            if (type.code.equals(code)) {
+            if (type.code.equalsIgnoreCase(code)) {
                 return type;
             }
         }

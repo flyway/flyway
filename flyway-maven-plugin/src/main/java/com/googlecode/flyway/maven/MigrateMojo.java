@@ -17,6 +17,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.ValidationType;
 import org.apache.maven.project.MavenProject;
 
 import java.util.HashMap;
@@ -74,7 +75,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
      *
      * @parameter default-value="${flyway.placeholderPrefix}"
      */
-    private String placeholderPrefix = "${";
+    private String placeholderPrefix;
 
     /**
      * The suffix of every placeholder. (default: } )<br>
@@ -82,7 +83,37 @@ public class MigrateMojo extends AbstractFlywayMojo {
      *
      * @parameter default-value="${flyway.placeholderSuffix}"
      */
-    private String placeholderSuffix = "}";
+    private String placeholderSuffix;
+
+
+    /**
+     * The prefix for sql migrations (default: V)
+     * default property: ${flyway.sqlMigrationPrefix}
+     *
+     * @parameter default-value="${flyway.sqlMigrationPrefix}"
+     */
+    private String sqlMigrationPrefix;
+
+    /**
+     * The suffix for sql migrations (default: .sql)
+     * default property: ${flyway.sqlMigrationSuffix}
+     *
+     * @parameter default-value="${flyway.sqlMigrationSuffix}"
+     */
+    private String sqlMigrationSuffix;
+
+    /**
+     * The validation type for performed before migrating.
+     * For each sql migration a CRC32 checksum is calculated when the sql script is executed.
+     * The validate mechanism checks if the sql migrations in the classpath still has the same checksum
+     * as the sql migration already executed in the database.
+     * Possible values are: none | all | all-clean (clean schema if validation fail and run database migration from scratch)
+     * default property: ${flyway.validate}
+     *
+     * @parameter default-value="${flyway.validate}"
+     */
+    private String validate;
+
 
     /**
      * @parameter expression="${project}" required="true"
@@ -114,6 +145,19 @@ public class MigrateMojo extends AbstractFlywayMojo {
         }
         if (placeholderSuffix != null) {
             flyway.setPlaceholderSuffix(placeholderSuffix);
+        }
+        if (sqlMigrationPrefix != null) {
+            flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
+        }
+        if (sqlMigrationSuffix != null) {
+            flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
+        }
+        if (validate != null) {
+            final ValidationType validationType = ValidationType.fromCode(validate);
+            if (validationType == null) {
+                throw new IllegalStateException("unsupported value for validate: " + validate);
+            }
+            flyway.setValidationType(validationType);
         }
 
         flyway.migrate();
