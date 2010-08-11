@@ -68,6 +68,26 @@ public class Migration implements Comparable<Migration> {
     protected Long checksum;
 
     /**
+     * The type of migration (SQL or JAVA)
+     */
+    protected MigrationType migrationType;
+
+
+    /**
+     * @return The type of migration (SQL or JAVA)
+     */
+    public MigrationType getMigrationType() {
+        return migrationType;
+    }
+
+    /**
+     * @param migrationType The type of migration (SQL or JAVA)
+     */
+    public void setMigrationType(MigrationType migrationType) {
+        this.migrationType = migrationType;
+    }
+
+    /**
      * @return The crc-32 checksum of the script.
      */
     public Long getChecksum() {

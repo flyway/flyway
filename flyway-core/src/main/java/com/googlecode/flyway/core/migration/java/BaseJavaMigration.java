@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.migration.java;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.BaseMigration;
+import com.googlecode.flyway.core.migration.MigrationType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -35,7 +36,12 @@ public abstract class BaseJavaMigration extends BaseMigration {
     protected BaseJavaMigration() {
         String nameWithoutV = ClassUtils.getShortName(getClass()).substring(1);
         initVersion(nameWithoutV);
-        scriptName = "Java Class: " + ClassUtils.getShortName(getClass());
+        // scriptName = "Java Class: " + ClassUtils.getShortName(getClass());
+        this.scriptName = getClass().getName();
+        if (scriptName.length() > 200) {
+            scriptName = scriptName.substring(scriptName.length() - 200);
+        }
+        this.migrationType = MigrationType.JAVA;
     }
 
     /**

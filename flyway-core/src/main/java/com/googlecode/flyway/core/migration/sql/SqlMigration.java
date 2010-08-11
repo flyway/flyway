@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.migration.sql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.BaseMigration;
+import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,6 +43,8 @@ public class SqlMigration extends BaseMigration {
      */
     private final String encoding;
 
+
+
     /**
      * Creates a new sql script migration based on this sql script.
      *
@@ -52,18 +55,36 @@ public class SqlMigration extends BaseMigration {
      */
     public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, String versionString) {
         initVersion(versionString);
-        scriptName = "Sql File: " + sqlScriptResource.getFilename();
-
+        // old scriptName = "Sql File: " + sqlScriptResource.getFilename();
+        this.scriptName = sqlScriptResource.getFilename();
         this.sqlScriptResource = sqlScriptResource;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
+        this.migrationType = MigrationType.SQL;
     }
 
     @Override
     public void doMigrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
-        checksum = sqlScript.getChecksum();
+        checksum = ResourceUtils.calculateChecksum(sqlScriptSource);
         sqlScript.execute(transactionTemplate, jdbcTemplate);
+    }
+
+    /**
+     * calculate checksum on demand
+     * @return The crc-32 checksum of the script.
+     */
+    @Override
+    public Long getChecksum() {
+        if (checksum == null) {
+            calculateChecksum();
+        }
+        return super.getChecksum();
+    }
+
+    private void calculateChecksum() {
+        String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
+        checksum = ResourceUtils.calculateChecksum(sqlScriptSource);
     }
 }

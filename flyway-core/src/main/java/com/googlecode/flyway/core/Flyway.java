@@ -26,6 +26,7 @@ import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.runtime.DbCleaner;
 import com.googlecode.flyway.core.runtime.DbMigrator;
+import com.googlecode.flyway.core.runtime.DbValidator;
 import com.googlecode.flyway.core.runtime.MetaDataTable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -87,6 +88,49 @@ public class Flyway {
     private String placeholderSuffix = "}";
 
     /**
+     * JdbcTemplate with ddl manipulation access to the database.
+     */
+    private JdbcTemplate jdbcTemplate;
+
+    /**
+     * The transaction template to use.
+     */
+    private TransactionTemplate transactionTemplate;
+
+    /**
+     * Database-specific functionality.
+     */
+    private DbSupport dbSupport;
+
+    /**
+     * Supports reading and writing to the metadata table.
+     */
+    private MetaDataTable metaDataTable;
+
+    /**
+     * prefix for sql migrations (default: V)
+     */
+    private String sqlMigrationPrefix = "V";
+
+    /**
+     * suffix for sql migrations (default: .sql)
+     */
+    private String sqlMigrationSuffix = ".sql";
+
+    /**
+     * The ValidationType for checksum validation
+     */
+    private ValidationType validationType = ValidationType.NONE;
+
+
+    /**
+     * @param validationType The ValidationType for checksum validation
+     */
+    public void setValidationType(ValidationType validationType) {
+        this.validationType = validationType;
+    }
+
+    /**
      * @param basePackage The base package where the migrations are located. (default:
      *                    db.migration)
      */
@@ -141,37 +185,6 @@ public class Flyway {
     }
 
     /**
-     * JdbcTemplate with ddl manipulation access to the database.
-     */
-    private JdbcTemplate jdbcTemplate;
-
-    /**
-     * The transaction template to use.
-     */
-    private TransactionTemplate transactionTemplate;
-
-    /**
-     * Database-specific functionality.
-     */
-    private DbSupport dbSupport;
-
-    /**
-     * Supports reading and writing to the metadata table.
-     */
-    private MetaDataTable metaDataTable;
-
-    /**
-     * prefix for sql migrations (default: V)
-     */
-    private String sqlMigrationPrefix = "V";
-
-    /**
-     * suffix for sql migrations (default: .sql)
-     */
-    private String sqlMigrationSuffix = ".sql";
-
-
-    /**
      * @param sqlMigrationPrefix prefix for sql migrations (default: V)
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
@@ -207,18 +220,61 @@ public class Flyway {
      * @throws Exception Thrown when the migration failed.
      */
     public int migrate() throws Exception {
+        final List<Migration> migrations = findAvailableMigrations();
+        validate(migrations);
+
         metaDataTable.createIfNotExists();
 
+        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrations,
+                metaDataTable);
+        return dbMigrator.migrate();
+    }
+
+    private void validate(List<Migration> migrations) {
+        DbValidator dbValidator = new DbValidator(validationType, metaDataTable, migrations);
+        final String validationError = dbValidator.validate();
+
+        if (validationError != null) {
+            final String msg = "Flyway validate failed. Found differences between applied migrations and classpath migrations: " + validationError;
+            if (validationType.isCleanOnError()) {
+                LOG.warn(msg + " running clean and migrate again.");
+                clean();
+            } else {
+                throw new IllegalStateException(msg);
+            }
+        }
+    }
+
+    /**
+     * Finds all available migrations using all migration resolvers (sql, java,
+     * ...).
+     *
+     * @return The available migrations, sorted by version, newest first. An
+     *         empty list is returned when no migrations can be found.
+     */
+    private List<Migration> findAvailableMigrations() {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
         migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
-        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrationResolvers,
-                metaDataTable);
-        return dbMigrator.migrate();
+        List<Migration> allMigrations = new ArrayList<Migration>();
+        for (MigrationResolver migrationResolver : migrationResolvers) {
+            allMigrations.addAll(migrationResolver.resolvesMigrations());
+        }
+
+        if (allMigrations.isEmpty()) {
+            LOG.warn("No migrations found!");
+            return allMigrations;
+        }
+
+        Collections.sort(allMigrations);
+        Collections.reverse(allMigrations);
+
+        return allMigrations;
     }
+
 
     /**
      * Drops all object in the schema.
@@ -226,6 +282,14 @@ public class Flyway {
     public void clean() {
         DbCleaner dbCleaner = new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport);
         dbCleaner.clean();
+    }
+
+    /**
+     * Validate applied migration with classpath migrations to detect accidental changes.
+     */
+    public void validate() {     
+        final List<Migration> migrations = findAvailableMigrations();
+        validate(migrations);
     }
 
     /**

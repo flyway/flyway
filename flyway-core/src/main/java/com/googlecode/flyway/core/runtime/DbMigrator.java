@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.runtime;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.TimeFormat;
@@ -29,9 +28,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -56,9 +52,9 @@ public class DbMigrator {
     private final DbSupport dbSupport;
 
     /**
-     * The available migration resolvers.
+     * The available migrations.
      */
-    private final Collection<MigrationResolver> migrationResolvers;
+    private final List<Migration> migrations;
 
     /**
      * The database metadata table.
@@ -82,15 +78,15 @@ public class DbMigrator {
      * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the
      *                            database.
      * @param dbSupport           Database-specific functionality.
-     * @param migrationResolvers  The migration. resolvers
+     * @param migrations  The available migrations.
      * @param metaDataTable       The database metadata table.
      */
     public DbMigrator(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport,
-                      Collection<MigrationResolver> migrationResolvers, MetaDataTable metaDataTable) {
+                      List<Migration> migrations, MetaDataTable metaDataTable) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = jdbcTemplate;
         this.dbSupport = dbSupport;
-        this.migrationResolvers = migrationResolvers;
+        this.migrations = migrations;
         this.metaDataTable = metaDataTable;
     }
 
@@ -101,9 +97,7 @@ public class DbMigrator {
      * @throws Exception Thrown when a migration failed.
      */
     public int migrate() throws Exception {
-        final List<Migration> allMigrations = findAvailableMigrations();
-
-        if (allMigrations.isEmpty()) {
+        if (migrations.isEmpty()) {
             LOG.info("No migrations found");
             return 0;
         }
@@ -126,7 +120,7 @@ public class DbMigrator {
 
                     LOG.info("Current schema version: " + currentSchemaVersion);
 
-                    Migration migration = getNextMigration(allMigrations, currentSchemaVersion);
+                    Migration migration = getNextMigration(migrations, currentSchemaVersion);
                     if (migration == null) {
                         return null;
                     }
@@ -194,27 +188,4 @@ public class DbMigrator {
         return nextMigration;
     }
 
-    /**
-     * Finds all available migrations using all migration resolvers (sql, java,
-     * ...).
-     *
-     * @return The available migrations, sorted by version, newest first. An
-     *         empty list is returned when no migrations can be found.
-     */
-    private List<Migration> findAvailableMigrations() {
-        List<Migration> allMigrations = new ArrayList<Migration>();
-        for (MigrationResolver migrationResolver : migrationResolvers) {
-            allMigrations.addAll(migrationResolver.resolvesMigrations());
-        }
-
-        if (allMigrations.isEmpty()) {
-            LOG.warn("No migrations found!");
-            return allMigrations;
-        }
-
-        Collections.sort(allMigrations);
-        Collections.reverse(allMigrations);
-        
-		return allMigrations;
-	}
 }

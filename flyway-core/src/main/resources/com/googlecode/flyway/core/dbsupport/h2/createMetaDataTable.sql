@@ -17,7 +17,8 @@
 CREATE TABLE ${tableName} (
     version VARCHAR(20) PRIMARY KEY,
     description VARCHAR(100),
-    script VARCHAR(100) NOT NULL,
+    migration_type VARCHAR(10) NOT NULL,
+    script VARCHAR(200) NOT NULL,
     installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     execution_time INT,
     state VARCHAR(15) NOT NULL,

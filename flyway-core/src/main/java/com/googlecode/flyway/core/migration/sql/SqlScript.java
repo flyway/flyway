@@ -52,11 +52,6 @@ public class SqlScript {
     private final List<SqlStatement> sqlStatements;
 
     /**
-     * The crc32 checksum of the sql script.
-     */
-    private final Long checksum;
-
-    /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
@@ -65,7 +60,6 @@ public class SqlScript {
      */
     public SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         this.sqlStatements = parse(sqlScriptSource, placeholderReplacer);
-        this.checksum = ResourceUtils.calculateChecksum(sqlScriptSource);
     }
 
     /**
@@ -75,7 +69,6 @@ public class SqlScript {
      */
     public SqlScript(List<SqlStatement> sqlStatements) {
         this.sqlStatements = sqlStatements;
-        this.checksum = null;
     }
 
     /**
@@ -83,7 +76,6 @@ public class SqlScript {
      */
     protected SqlScript() {
         sqlStatements = null;
-        checksum = null;
     }
 
     /**
@@ -91,10 +83,6 @@ public class SqlScript {
      */
     public List<SqlStatement> getSqlStatements() {
         return sqlStatements;
-    }
-
-    public Long getChecksum() {
-        return checksum;
     }
 
     /**

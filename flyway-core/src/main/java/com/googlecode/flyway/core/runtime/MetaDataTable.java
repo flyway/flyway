@@ -19,6 +19,7 @@ package com.googlecode.flyway.core.runtime;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
+import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
@@ -87,7 +88,7 @@ public class MetaDataTable {
      *
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
-    private boolean exists() {
+    public boolean exists() {
         return dbSupport.metaDataTableExists(jdbcTemplate, tableName);
     }
 
@@ -135,6 +136,7 @@ public class MetaDataTable {
             scriptName = initialVersion.getDescription();
             executionTime = 0;
             migrationState = MigrationState.SUCCESS;
+            migrationType = MigrationType.INIT;
         }};
 
         transactionTemplate.execute(new TransactionCallback() {
@@ -169,11 +171,14 @@ public class MetaDataTable {
         final String version = schemaVersion.getVersion();
         final String description = schemaVersion.getDescription();
         final String state = migration.getState().name();
-        jdbcTemplate
-                .update("INSERT INTO " + tableName
-                        + " (version, description, script, execution_time, state, current_version, checksum)"
-                        + " VALUES (?, ?, ?, ?, ?, 1, ?)", new Object[]{version, description, migration.getScriptName(), 
-                        migration.getExecutionTime(), state, migration.getChecksum()});
+        final String migrationType = migration.getMigrationType().name();
+        final Long checksum = migration.getChecksum();
+        final String scriptName = migration.getScriptName();
+        final Integer executionTime = migration.getExecutionTime();
+        jdbcTemplate.update("INSERT INTO " + tableName
+                        + " (version, description, script, execution_time, state, current_version, checksum, migration_type)"
+                        + " VALUES (?, ?, ?, ?, ?, 1, ?, ?)",
+                        new Object[]{version, description, scriptName, executionTime, state, checksum, migrationType});
     }
 
     /**
@@ -218,7 +223,7 @@ public class MetaDataTable {
      * @return The select statement for reading the metadata table.
      */
     private String getSelectStatement() {
-        return "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, INSTALLED_ON, CHECKSUM from " + tableName;
+        return "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, INSTALLED_ON, CHECKSUM, MIGRATION_TYPE from " + tableName;
     }
 
     /**
@@ -262,6 +267,7 @@ public class MetaDataTable {
                 executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
                 scriptName = rs.getString("SCRIPT");
                 checksum = toLong((Number) rs.getObject("CHECKSUM"));
+                migrationType = MigrationType.valueOf(rs.getString("MIGRATION_TYPE"));
             }};
         }
     }
