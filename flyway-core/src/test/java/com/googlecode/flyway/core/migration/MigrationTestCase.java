@@ -17,6 +17,7 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.ValidationType;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,6 +49,7 @@ public abstract class MigrationTestCase {
     public void setUp() {
         flyway = new Flyway();
         flyway.setDataSource(migrationDataSource);
+        flyway.setValidationType(ValidationType.ALL);
         flyway.clean();
     }
 
@@ -66,10 +68,38 @@ public abstract class MigrationTestCase {
         assertEquals(0, flyway.migrate());
         assertEquals(3, flyway.history().size());
 
-        assertChecksum(0, "V1.sql");
+        assertChecksum(0, "V1__First.sql");
         assertChecksum(1, "V1_1__Populate_table.sql");
         assertChecksum(2, "V2_0__Add_foreign_key.sql");
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void validateFails() throws Exception {
+        flyway.setBaseDir(getBaseDir());
+        flyway.setSqlMigrationSuffix("First.sql");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.getVersion());
+
+        flyway.setSqlMigrationPrefix("CheckValidate");
+        flyway.validate();
+    }
+
+    @Test
+    public void validateClean() throws Exception {
+        flyway.setBaseDir(getBaseDir());
+        flyway.setSqlMigrationSuffix("First.sql");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.getVersion());
+
+        flyway.setValidationType(ValidationType.ALL_CLEAN);
+        flyway.setSqlMigrationPrefix("CheckValidate");
+        assertEquals(1, flyway.migrate());
+    }
+
 
     private void assertChecksum(int index, String sqlFile) {
         final List<Migration> migrationList = flyway.history();

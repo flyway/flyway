@@ -159,6 +159,7 @@ public class Flyway {
      *
      * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
+    @SuppressWarnings({"UnusedDeclaration"})
     @Deprecated
     public void setSchemaMetaDataTable(String table) {
         this.table = table;
@@ -230,7 +231,7 @@ public class Flyway {
      */
     public int migrate() throws Exception {
         final List<Migration> migrations = findAvailableMigrations();
-        validate(migrations);
+        validate(migrations, validationType);
 
         metaDataTable.createIfNotExists();
 
@@ -239,7 +240,7 @@ public class Flyway {
         return dbMigrator.migrate();
     }
 
-    private void validate(List<Migration> migrations) {
+    private void validate(List<Migration> migrations, ValidationType validationType) {
         DbValidator dbValidator = new DbValidator(validationType, metaDataTable, migrations);
         final String validationError = dbValidator.validate();
 
@@ -295,10 +296,11 @@ public class Flyway {
 
     /**
      * Validate applied migration with classpath migrations to detect accidental changes.
+     * Uses validation type ALL if NONE is set.
      */
-    public void validate() {     
+    public void validate() {
         final List<Migration> migrations = findAvailableMigrations();
-        validate(migrations);
+        validate(migrations, validationType != ValidationType.NONE ? validationType : ValidationType.ALL);
     }
 
     /**

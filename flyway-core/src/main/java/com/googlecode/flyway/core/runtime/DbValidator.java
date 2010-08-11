@@ -24,6 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.StopWatch;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -48,7 +50,7 @@ public class DbValidator {
     private final MetaDataTable metaDataTable;
 
     /**
-     * The available migrations.
+     * All available classpath migrations, sorted by version, newest last.
      */
     private final List<Migration> migrations;
 
@@ -56,12 +58,14 @@ public class DbValidator {
      * Creates a new database validator.
      * @param validationType The ValidationType for checksum validation.
      * @param metaDataTable Supports reading and writing to the metadata table.
-     * @param migrations The available migrations.
+     * @param migrations All available classpath migrations, sorted by version, newest first.
      */
     public DbValidator(ValidationType validationType, MetaDataTable metaDataTable, List<Migration> migrations) {
         this.validationType = validationType;
         this.metaDataTable = metaDataTable;
-        this.migrations = migrations;
+        // reverse order
+        this.migrations = new ArrayList<Migration>(migrations);
+        Collections.reverse(this.migrations);
     }
 
     /**
