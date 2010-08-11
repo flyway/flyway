@@ -69,7 +69,7 @@ public class Flyway {
      * The name of the schema metadata table that will be used by flyway.
      * (default: schema_version)
      */
-    private String schemaMetaDataTable = "schema_version";
+    private String table = "schema_version";
 
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration
@@ -155,11 +155,20 @@ public class Flyway {
     }
 
     /**
-     * @param schemaMetaDataTable The name of the schema metadata table that will be used by
-     *                            flyway. (default: schema_maintenance_history)
+     * Deprecated. Use setTable(String table) instead.
+     *
+     * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
-    public void setSchemaMetaDataTable(String schemaMetaDataTable) {
-        this.schemaMetaDataTable = schemaMetaDataTable;
+    @Deprecated
+    public void setSchemaMetaDataTable(String table) {
+        this.table = table;
+    }
+
+    /**
+     * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
+     */
+    public void setTable(String table) {
+        this.table = table;
     }
 
     /**
@@ -210,7 +219,7 @@ public class Flyway {
         dbSupport = DbSupportFactory.createDbSupport(jdbcTemplate);
         LOG.debug("Schema: " + dbSupport.getCurrentSchema(jdbcTemplate));
 
-        metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, schemaMetaDataTable);
+        metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
     }
 
     /**

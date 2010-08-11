@@ -28,9 +28,7 @@ import com.googlecode.flyway.core.Flyway;
  */
 public class CleanMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute() throws Exception {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(getDataSource());
+    protected void doExecute(Flyway flyway) throws Exception {
         flyway.clean();
     }
 }

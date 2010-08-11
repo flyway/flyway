@@ -46,9 +46,7 @@ public class InitMojo extends AbstractFlywayMojo {
     private String initialDescription;
 
     @Override
-    protected void doExecute() throws Exception {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(getDataSource());
+    protected void doExecute(Flyway flyway) throws Exception {
         flyway.init(SchemaVersion.createInitialVersion(initialVersion, initialDescription));
     }
 }

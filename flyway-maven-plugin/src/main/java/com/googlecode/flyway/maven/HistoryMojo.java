@@ -33,9 +33,7 @@ import java.util.List;
 @SuppressWarnings({"UnusedDeclaration"})
 public class HistoryMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute() throws MojoExecutionException {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(getDataSource());
+    protected void doExecute(Flyway flyway) throws MojoExecutionException {
         List<Migration> migrations = flyway.history();
         MigrationDumper.dumpMigrations(migrations);
     }
