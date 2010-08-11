@@ -19,6 +19,7 @@ package com.googlecode.flyway.core.migration.java;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.BaseMigration;
 import com.googlecode.flyway.core.migration.MigrationType;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -30,19 +31,39 @@ import org.springframework.util.ClassUtils;
  * standard. Example: V1_2__Change_values
  */
 public abstract class BaseJavaMigration extends BaseMigration {
+
     /**
      * Initializes this Migration with this standard Flyway name.
      */
     protected BaseJavaMigration() {
-        String nameWithoutV = ClassUtils.getShortName(getClass()).substring(1);
-        initVersion(nameWithoutV);
-        // scriptName = "Java Class: " + ClassUtils.getShortName(getClass());
+        initVersionFromClassName();
+        initScriptName();
+        this.migrationType = MigrationType.JAVA;
+    }
+
+    /**
+     * Initializes this Migration with this version
+     * @param version The version string for this migration, e.g. 1.2.3
+     * @param description The description for this migration
+     */
+    protected BaseJavaMigration(String version, String description) {
+        this.schemaVersion = new SchemaVersion(version, description);
+        initScriptName();
+        this.migrationType = MigrationType.JAVA;
+    }
+
+    private void initScriptName() {
         this.scriptName = getClass().getName();
         if (scriptName.length() > 200) {
             scriptName = scriptName.substring(scriptName.length() - 200);
         }
-        this.migrationType = MigrationType.JAVA;
     }
+
+    private void initVersionFromClassName() {
+        String nameWithoutV = ClassUtils.getShortName(getClass()).substring(1);
+        initVersion(nameWithoutV);
+    }
+
 
     /**
      * Performs the migration.

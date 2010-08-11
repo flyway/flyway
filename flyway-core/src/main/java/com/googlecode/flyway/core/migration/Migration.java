@@ -63,7 +63,9 @@ public class Migration implements Comparable<Migration> {
     protected String scriptName;
 
     /**
-     * The crc-32 checksum of the script.
+     * The checksum of the migration.
+     * Sql migrations use a crc-32 checksum of the sql script.
+     * Java migrations use the SUID or a custom checksum.
      */
     protected Long checksum;
 

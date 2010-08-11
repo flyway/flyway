@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.runtime;
 
 import com.googlecode.flyway.core.ValidationType;
 import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,9 +55,10 @@ public class DbValidator {
 
     /**
      * Creates a new database validator.
+     *
      * @param validationType The ValidationType for checksum validation.
-     * @param metaDataTable Supports reading and writing to the metadata table.
-     * @param migrations All available classpath migrations, sorted by version, newest first.
+     * @param metaDataTable  Supports reading and writing to the metadata table.
+     * @param migrations     All available classpath migrations, sorted by version, newest first.
      */
     public DbValidator(ValidationType validationType, MetaDataTable metaDataTable, List<Migration> migrations) {
         this.validationType = validationType;
@@ -71,6 +71,7 @@ public class DbValidator {
     /**
      * Validate the checksum of all existing sql migration in the metadata table
      * with the checksum of the sql migrations in the classpath
+     *
      * @return description of validation error or NULL if no validation error war found
      */
     public String validate() {
@@ -100,11 +101,11 @@ public class DbValidator {
                 return String.format("different migration type in migration %s: applied migrations=%s, classpath migrations=%s",
                         i, appliedMigration.getMigrationType(), classpathMigration.getMigrationType());
             }
-            if (appliedMigration.getMigrationType().equals(MigrationType.SQL)) {
-                if (!appliedMigration.getChecksum().equals(classpathMigration.getChecksum())) {
-                    return String.format("different checksum for sql migration %s: applied migrations=%s, classpath migrations=%s",
-                            i, appliedMigration.getChecksum(), classpathMigration.getChecksum());
-                }
+            final Long appliedChecksum = appliedMigration.getChecksum();
+            final Long classpathChecksum = classpathMigration.getChecksum();
+            if (!isEqualsWithNull(appliedChecksum, classpathChecksum)) {
+                return String.format("different checksum for sql migration %s: applied migrations=%s, classpath migrations=%s",
+                        i, appliedChecksum, classpathMigration.getChecksum());
             }
         }
 
@@ -113,5 +114,9 @@ public class DbValidator {
                 validationType, TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
         return null;
+    }
+
+    private boolean isEqualsWithNull(Object o1, Object o2) {
+        return (o1 == null && o2 == null) || (o1 != null && o1.equals(o2));
     }
 }
