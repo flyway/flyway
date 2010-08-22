@@ -28,6 +28,7 @@ import com.googlecode.flyway.core.runtime.DbCleaner;
 import com.googlecode.flyway.core.runtime.DbMigrator;
 import com.googlecode.flyway.core.runtime.DbValidator;
 import com.googlecode.flyway.core.runtime.MetaDataTable;
+import com.googlecode.flyway.core.runtime.MetaDataTable085Upgrader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -230,6 +231,10 @@ public class Flyway {
      * @throws Exception Thrown when the migration failed.
      */
     public int migrate() throws Exception {
+        MetaDataTable085Upgrader metaDataTable085Upgrader =
+                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
+        metaDataTable085Upgrader.upgrade();
+
         final List<Migration> migrations = findAvailableMigrations();
         validate(migrations, validationType);
 
@@ -299,6 +304,10 @@ public class Flyway {
      * Uses validation type ALL if NONE is set.
      */
     public void validate() {
+        MetaDataTable085Upgrader metaDataTable085Upgrader =
+                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
+        metaDataTable085Upgrader.upgrade();
+
         final List<Migration> migrations = findAvailableMigrations();
         validate(migrations, validationType != ValidationType.NONE ? validationType : ValidationType.ALL);
     }
@@ -309,6 +318,10 @@ public class Flyway {
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
     public Migration status() {
+        MetaDataTable085Upgrader metaDataTable085Upgrader =
+                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
+        metaDataTable085Upgrader.upgrade();
+
         return metaDataTable.latestAppliedMigration();
     }
 
@@ -318,6 +331,10 @@ public class Flyway {
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      */
     public List<Migration> history() {
+        MetaDataTable085Upgrader metaDataTable085Upgrader =
+                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
+        metaDataTable085Upgrader.upgrade();
+
         return metaDataTable.allAppliedMigrations();
     }
 
