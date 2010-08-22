@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core.dbsupport.oracle;
 
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -44,6 +45,11 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getBaseDir() {
         return "migration/sql";
+    }
+
+    @Override
+    protected DbSupport getDbSupport() {
+        return new OracleDbSupport();
     }
 
     /**

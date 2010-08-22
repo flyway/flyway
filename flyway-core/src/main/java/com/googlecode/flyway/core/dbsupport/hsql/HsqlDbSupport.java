@@ -35,8 +35,13 @@ import java.util.List;
  */
 public class HsqlDbSupport implements DbSupport {
     @Override
-    public String getCreateMetaDataTableScriptLocation() {
-        return "com/googlecode/flyway/core/dbsupport/hsql/createMetaDataTable.sql";
+    public String getScriptLocation() {
+        return "com/googlecode/flyway/core/dbsupport/hsql/";
+    }
+
+    @Override
+    public String getCurrentUserFunction() {
+        return "USER()";
     }
 
     @Override
@@ -61,12 +66,24 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean metaDataTableExists(final JdbcTemplate jdbcTemplate, final String schemaMetaDataTable) {
+    public boolean tableExists(final JdbcTemplate jdbcTemplate, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(jdbcTemplate),
-                        schemaMetaDataTable.toUpperCase(), null);
+                        table.toUpperCase(), null);
+                return resultSet.next();
+            }
+        });
+    }
+
+    @Override
+    public boolean columnExists(final JdbcTemplate jdbcTemplate, final String table, final String column) {
+         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
+            @Override
+            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(jdbcTemplate),
+                        table.toUpperCase(), column);
                 return resultSet.next();
             }
         });

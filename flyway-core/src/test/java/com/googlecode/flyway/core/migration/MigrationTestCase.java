@@ -18,22 +18,27 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.ValidationType;
-import com.googlecode.flyway.core.util.ResourceUtils;
-import org.junit.Assert;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.migration.sql.SqlMigration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import java.util.List;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Test to demonstrate the migration functionality using H2.
+ * Test to demonstrate the migration functionality.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public abstract class MigrationTestCase {
@@ -58,6 +63,11 @@ public abstract class MigrationTestCase {
      */
     protected abstract String getBaseDir();
 
+    /**
+     * @return The DbSupport class to test.
+     */
+    protected abstract DbSupport getDbSupport();
+
     @Test
     public void migrate() throws Exception {
         flyway.setBaseDir(getBaseDir());
@@ -68,9 +78,21 @@ public abstract class MigrationTestCase {
         assertEquals(0, flyway.migrate());
         assertEquals(3, flyway.history().size());
 
-        assertChecksum(0, "V1__First.sql");
-        assertChecksum(1, "V1_1__Populate_table.sql");
-        assertChecksum(2, "V2_0__Add_foreign_key.sql");
+        for (Migration migration : flyway.history()) {
+            assertChecksum(migration);
+        }
+    }
+
+    /**
+     * Compares the DB checksum to the classpath checksum of this migration.
+     *
+     * @param appliedMigration The migration to check.
+     */
+    private void assertChecksum(Migration appliedMigration) {
+        ClassPathResource resource = new ClassPathResource(getBaseDir() + "/" + appliedMigration.getScriptName());
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "", "");
+        Migration sqlMigration = new SqlMigration(resource, placeholderReplacer, "UTF-8", "1");
+        assertEquals("Wrong checksum for " + appliedMigration.getScriptName(), sqlMigration.getChecksum(), appliedMigration.getChecksum());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -100,15 +122,6 @@ public abstract class MigrationTestCase {
         assertEquals(1, flyway.migrate());
     }
 
-
-    private void assertChecksum(int index, String sqlFile) {
-        final List<Migration> migrationList = flyway.history();
-        Migration migration1 = migrationList.get(index);
-        final String sql1 = ResourceUtils.loadResourceAsString(getBaseDir() + "/" + sqlFile);
-        ResourceUtils.calculateChecksum(sql1);
-        Assert.assertEquals("wrong checksum for " + migration1.getScriptName(), ResourceUtils.calculateChecksum(sql1), migration1.getChecksum());
-    }
-
     @Test
     public void failedMigration() throws Exception {
         flyway.setBaseDir("migration/failed");
@@ -126,5 +139,20 @@ public abstract class MigrationTestCase {
         assertEquals("Should Fail", schemaVersion.getDescription());
         assertEquals(MigrationState.FAILED, migration.getState());
         assertEquals(1, flyway.history().size());
+    }
+
+    @Test
+    public void tableExists() throws Exception {
+        flyway.init(SchemaVersion.createInitialVersion(null, null));
+        assertTrue(getDbSupport().tableExists(new JdbcTemplate(migrationDataSource), "SCHEMA_VERSION"));
+    }
+
+    @Test
+    public void columnExists() throws Exception {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
+
+        flyway.init(SchemaVersion.createInitialVersion(null, null));
+        assertTrue(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "DESCRIPTION"));
+        assertFalse(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "INVALID"));
     }
 }

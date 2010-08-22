@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.dbsupport.h2;
+package com.googlecode.flyway.core.dbsupport.mysql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.runtime.MetaDataTable085UpgraderTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Test to demonstrate the migration functionality using H2.
+ * Testcase for the upgrade of the metadata table using MySQL.
  */
-@ContextConfiguration(locations = {"classpath:migration/h2/h2-context.xml"})
-public class H2MigrationMediumTest extends MigrationTestCase {
+@ContextConfiguration(locations = {"classpath:upgrade/mysql/mysql-context.xml"})
+public class MySQLMetaDataTable085UpgraderMediumTest extends MetaDataTable085UpgraderTestCase {
     @Override
     protected String getBaseDir() {
-        return "migration/sql";
+        return "upgrade/sql";
     }
 
     @Override
     protected DbSupport getDbSupport() {
-        return new H2DbSupport();
+        return new MySQLDbSupport();
+    }
+
+    @Override
+    protected String getMetaDataTable085CreateScriptLocation() {
+        return "upgrade/mysql/createMetaDataTable085.sql";
     }
 }

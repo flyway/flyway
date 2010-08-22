@@ -36,7 +36,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Logger.
      */
-    private static final Log log = LogFactory.getLog(SqlMigrationResolver.class);
+    private static final Log LOG = LogFactory.getLog(SqlMigrationResolver.class);
 
     /**
      * Spring utility for loading resources from the classpath using wildcards.
@@ -58,7 +58,6 @@ public class SqlMigrationResolver implements MigrationResolver {
      * The encoding of Sql migrations.
      */
     private final String encoding;
-
 
     /**
      * The prefix for sql migrations
@@ -88,26 +87,27 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
 
-
     @Override
-    public Collection<Migration> resolvesMigrations() {
+    public Collection<Migration> resolveMigrations() {
         Collection<Migration> migrations = new ArrayList<Migration>();
 
         Resource classPathBaseDir = new ClassPathResource(baseDir + "/");
         if (!classPathBaseDir.exists()) {
-            log.warn("Unable to find path for sql migrations: " + baseDir);
+            LOG.warn("Unable to find path for sql migrations: " + baseDir);
             return migrations;
         }
 
+        Resource[] resources = null;
         try {
             final String searchPattern = sqlMigrationPrefix + "?*" + sqlMigrationSuffix;
-            Resource[] resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/" + searchPattern);
-            for (Resource resource : resources) {
-                final String versionString = extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
-                migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString));
-            }
+            resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/" + searchPattern);
         } catch (IOException e) {
-            log.error("Error loading sql migration files", e);
+            throw new IllegalStateException("Error loading sql migration files", e);
+        }
+
+        for (Resource resource : resources) {
+            final String versionString = extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
+            migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString));
         }
 
         return migrations;

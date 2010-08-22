@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class DbValidator {
      *
      * @param validationType The ValidationType for checksum validation.
      * @param metaDataTable  Supports reading and writing to the metadata table.
-     * @param migrations     All available classpath migrations, sorted by version, newest first.
+     * @param migrations     All migrations available on the classpath , sorted by version, newest first.
      */
     public DbValidator(ValidationType validationType, MetaDataTable metaDataTable, List<Migration> migrations) {
         this.validationType = validationType;
@@ -79,7 +80,7 @@ public class DbValidator {
             return null;
         }
 
-        LOG.debug(String.format("Starting to validate (mode %s) migrations ...", validationType));
+        LOG.debug(String.format("Validating (mode %s) migrations ...", validationType));
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -92,31 +93,29 @@ public class DbValidator {
         for (int i = 0; i < appliedMigrations.size(); i++) {
             Migration appliedMigration = appliedMigrations.get(i);
             Migration classpathMigration = migrations.get(i);
-            if (appliedMigration.getVersion().compareTo(classpathMigration.getVersion()) != 0) {
-                return String.format("different schema version in migration %s: applied migrations=%s, classpath migrations=%s",
-                        i, appliedMigration.getVersion().getVersion(), classpathMigration.getVersion().getVersion());
+
+            if (! appliedMigration.getVersion().equals(classpathMigration.getVersion())) {
+                return String.format("Version mismatch for migration %s: DB=%s, Classpath=%s",
+                        appliedMigration.getScriptName(), appliedMigration.getVersion().getVersion(), classpathMigration.getVersion().getVersion());
 
             }
-            if (!appliedMigration.getMigrationType().equals(classpathMigration.getMigrationType())) {
-                return String.format("different migration type in migration %s: applied migrations=%s, classpath migrations=%s",
-                        i, appliedMigration.getMigrationType(), classpathMigration.getMigrationType());
+            if (! appliedMigration.getMigrationType().equals(classpathMigration.getMigrationType())) {
+                return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
+                        appliedMigration.getScriptName(), appliedMigration.getMigrationType(), classpathMigration.getMigrationType());
             }
-            final Long appliedChecksum = appliedMigration.getChecksum();
-            final Long classpathChecksum = classpathMigration.getChecksum();
-            if (!isEqualsWithNull(appliedChecksum, classpathChecksum)) {
-                return String.format("different checksum for sql migration %s: applied migrations=%s, classpath migrations=%s",
-                        i, appliedChecksum, classpathMigration.getChecksum());
+
+            final Integer appliedChecksum = appliedMigration.getChecksum();
+            final Integer classpathChecksum = classpathMigration.getChecksum();
+            if (! ObjectUtils.nullSafeEquals(appliedChecksum, classpathChecksum)) {
+                return String.format("Checksum mismatch for migration %s: DB=%s, Classpath=%s",
+                        appliedMigration.getScriptName(), appliedChecksum, classpathMigration.getChecksum());
             }
         }
 
         stopWatch.stop();
-        LOG.info(String.format(Locale.ENGLISH, "Validated (mode %s) migrations (execution time %s)",
+        LOG.info(String.format("Validated (mode %s) migrations (execution time %s)",
                 validationType, TimeFormat.format(stopWatch.getTotalTimeMillis())));
 
         return null;
-    }
-
-    private boolean isEqualsWithNull(Object o1, Object o2) {
-        return (o1 == null && o2 == null) || (o1 != null && o1.equals(o2));
     }
 }

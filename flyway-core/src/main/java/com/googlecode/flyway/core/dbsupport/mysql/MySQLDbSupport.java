@@ -36,8 +36,13 @@ import java.util.Map;
  */
 public class MySQLDbSupport implements DbSupport {
     @Override
-    public String getCreateMetaDataTableScriptLocation() {
-        return "com/googlecode/flyway/core/dbsupport/mysql/createMetaDataTable.sql";
+    public String getScriptLocation() {
+        return "com/googlecode/flyway/core/dbsupport/mysql/";
+    }
+
+    @Override
+    public String getCurrentUserFunction() {
+        return "SUBSTRING_INDEX(USER(),'@',1)";
     }
 
     @Override
@@ -56,12 +61,24 @@ public class MySQLDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean metaDataTableExists(final JdbcTemplate jdbcTemplate, final String schemaMetaDataTable) {
+    public boolean tableExists(final JdbcTemplate jdbcTemplate, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(jdbcTemplate), null,
-                        schemaMetaDataTable, null);
+                        table, null);
+                return resultSet.next();
+            }
+        });
+    }
+
+    @Override
+    public boolean columnExists(final JdbcTemplate jdbcTemplate, final String table, final String column) {
+        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
+            @Override
+            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getColumns(getCurrentSchema(jdbcTemplate), null,
+                        table, column);
                 return resultSet.next();
             }
         });

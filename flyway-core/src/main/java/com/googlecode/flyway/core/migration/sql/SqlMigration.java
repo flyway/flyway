@@ -24,26 +24,21 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.zip.CRC32;
+
 /**
  * Database migration based on a sql file.
  */
 public class SqlMigration extends BaseMigration {
-    /**
-     * The resource containing the sql script.
-     */
-    private final Resource sqlScriptResource;
-
     /**
      * The placeholder replacer to apply to sql migration scripts.
      */
     private final PlaceholderReplacer placeholderReplacer;
 
     /**
-     * The encoding of this Sql migration.
+     * The source of the Sql script, loaded on demand.
      */
-    private final String encoding;
-
-
+    private String sqlScriptSource;
 
     /**
      * Creates a new sql script migration based on this sql script.
@@ -55,36 +50,29 @@ public class SqlMigration extends BaseMigration {
      */
     public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, String versionString) {
         initVersion(versionString);
+        sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
+        checksum = calculateChecksum(sqlScriptSource);
+
         // old scriptName = "Sql File: " + sqlScriptResource.getFilename();
         this.scriptName = sqlScriptResource.getFilename();
-        this.sqlScriptResource = sqlScriptResource;
         this.placeholderReplacer = placeholderReplacer;
-        this.encoding = encoding;
         this.migrationType = MigrationType.SQL;
     }
 
     @Override
     public void doMigrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
-        String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
-        checksum = ResourceUtils.calculateChecksum(sqlScriptSource);
         sqlScript.execute(transactionTemplate, jdbcTemplate);
     }
 
     /**
-     * calculate checksum on demand
+     * Calculates the checksum of this sql script.
+     *
      * @return The crc-32 checksum of the script.
      */
-    @Override
-    public Long getChecksum() {
-        if (checksum == null) {
-            calculateChecksum();
-        }
-        return super.getChecksum();
-    }
-
-    private void calculateChecksum() {
-        String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
-        checksum = ResourceUtils.calculateChecksum(sqlScriptSource);
+    private int calculateChecksum(String sql) {
+        final CRC32 crc32 = new CRC32();
+        crc32.update(sql.getBytes());
+        return (int) crc32.getValue();
     }
 }

@@ -19,11 +19,12 @@ CREATE TABLE ${tableName} (
     description VARCHAR(100),
     migration_type VARCHAR(10) NOT NULL,
     script VARCHAR(200) NOT NULL,
+    checksum INT,
+    installed_by VARCHAR(50) NOT NULL,
     installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     execution_time INT,
     state VARCHAR(15) NOT NULL,
     current_version BIT NOT NULL,
-    checksum BIGINT,
     CONSTRAINT unique_script UNIQUE (script)
 );
  CREATE INDEX ${tableName}_current_version_index ON ${tableName} (current_version);

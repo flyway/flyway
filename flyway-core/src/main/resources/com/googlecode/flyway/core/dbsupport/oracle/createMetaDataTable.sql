@@ -19,10 +19,11 @@ CREATE TABLE ${tableName} (
     description VARCHAR2(100),
     migration_type VARCHAR2(10) NOT NULL,
     script VARCHAR2(200) NOT NULL UNIQUE,
+    checksum INT,
+    installed_by VARCHAR(30) NOT NULL,
     installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     execution_time INT,
     state VARCHAR2(15) NOT NULL,
-    current_version NUMBER(1) NOT NULL,
-    checksum NUMBER(19)
+    current_version NUMBER(1) NOT NULL
 );
 CREATE INDEX ${tableName}_cv_idx ON ${tableName} (current_version);

@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core.dbsupport.mysql;
 
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,6 +33,11 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getBaseDir() {
         return "migration/sql";
+    }
+
+    @Override
+    protected DbSupport getDbSupport() {
+        return new MySQLDbSupport();
     }
 
     /**

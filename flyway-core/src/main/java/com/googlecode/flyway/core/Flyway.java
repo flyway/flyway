@@ -271,7 +271,7 @@ public class Flyway {
 
         List<Migration> allMigrations = new ArrayList<Migration>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
-            allMigrations.addAll(migrationResolver.resolvesMigrations());
+            allMigrations.addAll(migrationResolver.resolveMigrations());
         }
 
         if (allMigrations.isEmpty()) {

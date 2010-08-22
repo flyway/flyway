@@ -85,7 +85,6 @@ public class MigrateMojo extends AbstractFlywayMojo {
      */
     private String placeholderSuffix;
 
-
     /**
      * The prefix for sql migrations (default: V)
      * default property: ${flyway.sqlMigrationPrefix}
@@ -107,15 +106,16 @@ public class MigrateMojo extends AbstractFlywayMojo {
      * For each sql migration a CRC32 checksum is calculated when the sql script is executed.
      * The validate mechanism checks if the sql migrations in the classpath still has the same checksum
      * as the sql migration already executed in the database.
-     * Possible values are: none | all | all-clean (clean schema if validation fail and run database migration from scratch)
+     * Possible values are: none (default) | all | all-clean (clean schema if validation fail and run database migration from scratch)
      * default property: ${flyway.validate}
      *
      * @parameter default-value="${flyway.validate}"
      */
     private String validate;
 
-
     /**
+     * Reference to the current project that includes the Flyway Maven plugin.
+     *
      * @parameter expression="${project}" required="true"
      */
     private MavenProject mavenProject;

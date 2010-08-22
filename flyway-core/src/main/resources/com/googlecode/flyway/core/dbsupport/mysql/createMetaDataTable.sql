@@ -19,11 +19,12 @@ CREATE TABLE ${tableName} (
     description VARCHAR(100),
     migration_type VARCHAR(10) NOT NULL,
     script VARCHAR(200) NOT NULL UNIQUE,
+    checksum INT,
+    installed_by VARCHAR(50) NOT NULL,
     installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     execution_time INT,
     state VARCHAR(15) NOT NULL,
     current_version BOOL NOT NULL,
-    checksum BIGINT,
     PRIMARY KEY(version)
 ) ENGINE=InnoDB;
 ALTER TABLE ${tableName} ADD INDEX ${tableName}_current_version_index (current_version);

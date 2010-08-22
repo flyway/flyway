@@ -27,5 +27,5 @@ public interface MigrationResolver {
      *
      * @return The available migrations.
      */
-    Collection<Migration> resolvesMigrations();
+    Collection<Migration> resolveMigrations();
 }

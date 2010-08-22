@@ -16,7 +16,6 @@
 
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.util.ResourceUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -105,16 +104,12 @@ public class SqlScript {
 
     private List<SqlStatement> parse(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         Reader reader = new StringReader(sqlScriptSource);
-        try {
-            List<String> rawLines = readLines(reader);
+        List<String> rawLines = readLines(reader);
 
-            List<String> trimmedLines = trimLines(rawLines);
-            List<String> noCommentLines = stripSqlComments(trimmedLines);
-            List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholderReplacer);
-            return linesToStatements(noPlaceholderLines);
-        } finally {
-            ResourceUtils.closeQuietly(reader);
-        }
+        List<String> trimmedLines = trimLines(rawLines);
+        List<String> noCommentLines = stripSqlComments(trimmedLines);
+        List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholderReplacer);
+        return linesToStatements(noPlaceholderLines);
     }
 
 

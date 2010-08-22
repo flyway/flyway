@@ -89,14 +89,14 @@ public class MetaDataTable {
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
     public boolean exists() {
-        return dbSupport.metaDataTableExists(jdbcTemplate, tableName);
+        return dbSupport.tableExists(jdbcTemplate, tableName);
     }
 
     /**
      * Creates Flyway's metadata table.
      */
     private void create() {
-        String location = dbSupport.getCreateMetaDataTableScriptLocation();
+        String location = dbSupport.getScriptLocation() + "createMetaDataTable.sql";
         String createMetaDataTableScriptSource = ResourceUtils.loadResourceAsString(location);
 
         Map<String, String> placeholders = new HashMap<String, String>();
@@ -172,13 +172,13 @@ public class MetaDataTable {
         final String description = schemaVersion.getDescription();
         final String state = migration.getState().name();
         final String migrationType = migration.getMigrationType().name();
-        final Long checksum = migration.getChecksum();
+        final Integer checksum = migration.getChecksum();
         final String scriptName = migration.getScriptName();
         final Integer executionTime = migration.getExecutionTime();
         jdbcTemplate.update("INSERT INTO " + tableName
-                        + " (version, description, script, execution_time, state, current_version, checksum, migration_type)"
-                        + " VALUES (?, ?, ?, ?, ?, 1, ?, ?)",
-                        new Object[]{version, description, scriptName, executionTime, state, checksum, migrationType});
+                        + " (version, description, migration_type, script, checksum, installed_by, execution_time, state, current_version)"
+                        + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, 1)",
+                        new Object[]{version, description, migrationType, scriptName, checksum, executionTime, state});
     }
 
     /**
@@ -241,20 +241,6 @@ public class MetaDataTable {
     }
 
     /**
-     * Converts this number into an Long.
-     *
-     * @param number The Number to convert.
-     * @return The matching Long.
-     */
-    private Long toLong(Number number) {
-        if (number == null) {
-            return null;
-        }
-
-        return number.longValue();
-    }
-
-    /**
      * Row mapper for Migrations.
      */
     private class MigrationRowMapper implements RowMapper {
@@ -266,7 +252,7 @@ public class MetaDataTable {
                 installedOn = rs.getTimestamp("INSTALLED_ON");
                 executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
                 scriptName = rs.getString("SCRIPT");
-                checksum = toLong((Number) rs.getObject("CHECKSUM"));
+                checksum = toInteger((Number) rs.getObject("CHECKSUM"));
                 migrationType = MigrationType.valueOf(rs.getString("MIGRATION_TYPE"));
             }};
         }

@@ -43,8 +43,13 @@ public class OracleDbSupport implements DbSupport {
     private static final Log LOG = LogFactory.getLog(OracleDbSupport.class);
 
     @Override
-    public String getCreateMetaDataTableScriptLocation() {
-        return "com/googlecode/flyway/core/dbsupport/oracle/createMetaDataTable.sql";
+    public String getScriptLocation() {
+        return "com/googlecode/flyway/core/dbsupport/oracle/";
+    }
+
+    @Override
+    public String getCurrentUserFunction() {
+        return "USER";
     }
 
     @Override
@@ -63,10 +68,27 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean metaDataTableExists(JdbcTemplate jdbcTemplate, String schemaMetaDataTable) {
-        int count = jdbcTemplate.queryForInt("SELECT count(*) FROM user_tables WHERE table_name = ?",
-                new Object[]{schemaMetaDataTable.toUpperCase()});
-        return count > 0;
+    public boolean tableExists(final JdbcTemplate jdbcTemplate, final String table) {
+        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
+            @Override
+            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(jdbcTemplate),
+                        table.toUpperCase(), null);
+                return resultSet.next();
+            }
+        });
+    }
+
+    @Override
+    public boolean columnExists(final JdbcTemplate jdbcTemplate, final String table, final String column) {
+        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
+             @Override
+             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(jdbcTemplate),
+                         table.toUpperCase(), column.toUpperCase());
+                 return resultSet.next();
+             }
+         });
     }
 
     @Override

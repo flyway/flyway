@@ -48,7 +48,7 @@ public class JavaMigrationResolver implements MigrationResolver {
     }
 
     @Override
-    public Collection<Migration> resolvesMigrations() {
+    public Collection<Migration> resolveMigrations() {
         Collection<Migration> migrations = new ArrayList<Migration>();
 
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);

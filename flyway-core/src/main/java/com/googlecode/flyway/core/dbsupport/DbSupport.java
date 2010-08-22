@@ -45,19 +45,30 @@ public interface DbSupport {
     SqlScript createCleanScript(JdbcTemplate jdbcTemplate);
 
     /**
-     * @return The location on the classpath where the create metadata table script resides.
+     * Returns the location on the classpath where the scripts for this database reside.
+     *
+     * @return The folder on the classpath, including a trailing slash.
      */
-    String getCreateMetaDataTableScriptLocation();
+    String getScriptLocation();
 
     /**
-     * Checks whether Flyway's metadata table is already present in the
-     * database.
+     * Checks whether this table is already present in the database.
      *
-     * @param jdbcTemplate        The jdbc template used for querying the database.
-     * @param schemaMetaDataTable The table to look for.
+     * @param jdbcTemplate The jdbc template used for querying the database.
+     * @param table        The table to look for.
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
-    boolean metaDataTableExists(JdbcTemplate jdbcTemplate, String schemaMetaDataTable);
+    boolean tableExists(JdbcTemplate jdbcTemplate, String table);
+
+    /**
+     * Checks whether this column is already present in this table in the database.
+     *
+     * @param jdbcTemplate The jdbc template used for querying the database.
+     * @param table        The table to look for.
+     * @param column       The column to look for.
+     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     */
+    boolean columnExists(JdbcTemplate jdbcTemplate, String table, String column);
 
     /**
      * Retrieves the current schema.
@@ -66,6 +77,11 @@ public interface DbSupport {
      * @return The current schema for this connection.
      */
     String getCurrentSchema(JdbcTemplate jdbcTemplate);
+
+    /**
+     * @return The database function that returns the current user.
+     */
+    String getCurrentUserFunction();
 
     /**
      * Checks whether this DbSupport class supports the database with this

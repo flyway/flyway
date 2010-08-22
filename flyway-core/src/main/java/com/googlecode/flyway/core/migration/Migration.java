@@ -67,7 +67,7 @@ public class Migration implements Comparable<Migration> {
      * Sql migrations use a crc-32 checksum of the sql script.
      * Java migrations use the SUID or a custom checksum.
      */
-    protected Long checksum;
+    protected Integer checksum;
 
     /**
      * The type of migration (SQL or JAVA)
@@ -83,16 +83,9 @@ public class Migration implements Comparable<Migration> {
     }
 
     /**
-     * @param migrationType The type of migration (SQL or JAVA)
+     * @return The checksum of the migration.
      */
-    public void setMigrationType(MigrationType migrationType) {
-        this.migrationType = migrationType;
-    }
-
-    /**
-     * @return The crc-32 checksum of the script.
-     */
-    public Long getChecksum() {
+    public Integer getChecksum() {
         return checksum;
     }
 

@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.dbsupport.h2;
+package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.runtime.MetaDataTable085UpgraderTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Test to demonstrate the migration functionality using H2.
+ * Testcase for the upgrade of the metadata table using Oracle.
  */
-@ContextConfiguration(locations = {"classpath:migration/h2/h2-context.xml"})
-public class H2MigrationMediumTest extends MigrationTestCase {
+@ContextConfiguration(locations = {"classpath:upgrade/oracle/oracle-context.xml"})
+public class OracleMetaDataTable085UpgraderMediumTest extends MetaDataTable085UpgraderTestCase {
     @Override
     protected String getBaseDir() {
-        return "migration/sql";
+        return "upgrade/sql";
     }
 
     @Override
     protected DbSupport getDbSupport() {
-        return new H2DbSupport();
+        return new OracleDbSupport();
+    }
+
+    @Override
+    protected String getMetaDataTable085CreateScriptLocation() {
+        return "upgrade/oracle/createMetaDataTable085.sql";
     }
 }

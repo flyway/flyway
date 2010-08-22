@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core.dbsupport.hsql;
 
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -28,4 +29,9 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
 	protected String getBaseDir() {
 		return "migration/sql";
 	}
+
+    @Override
+    protected DbSupport getDbSupport() {
+        return new HsqlDbSupport();
+    }
 }
