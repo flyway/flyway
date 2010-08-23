@@ -31,14 +31,12 @@ import org.springframework.util.ClassUtils;
  * standard. Example: V1_2__Change_values
  */
 public abstract class BaseJavaMigration extends BaseMigration {
-
     /**
      * Initializes this Migration with this standard Flyway name.
      */
     protected BaseJavaMigration() {
         initVersionFromClassName();
         initScriptName();
-        this.migrationType = MigrationType.JAVA;
     }
 
     /**
@@ -49,7 +47,6 @@ public abstract class BaseJavaMigration extends BaseMigration {
     protected BaseJavaMigration(String version, String description) {
         this.schemaVersion = new SchemaVersion(version, description);
         initScriptName();
-        this.migrationType = MigrationType.JAVA;
     }
 
     private void initScriptName() {
@@ -64,6 +61,10 @@ public abstract class BaseJavaMigration extends BaseMigration {
         initVersion(nameWithoutV);
     }
 
+    @Override
+    public MigrationType getMigrationType() {
+        return MigrationType.JAVA;
+    }
 
     /**
      * Performs the migration.
