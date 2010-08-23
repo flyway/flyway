@@ -137,12 +137,13 @@ public class MetaDataTable085Upgrader {
         jdbcTemplate.update("UPDATE " + tableName + " SET migration_type='SQL' where script LIKE 'Sql File:%'");
         jdbcTemplate.update("UPDATE " + tableName + " SET migration_type='JAVA' where script LIKE 'Java Class:%'");
 
-        jdbcTemplate.update("UPDATE " + tableName + " SET installed_by=" + dbSupport.getCurrentUserFunction());        
+        jdbcTemplate.update("UPDATE " + tableName + " SET installed_by=" + dbSupport.getCurrentUserFunction());
 
         @SuppressWarnings({"unchecked"})
         List<Map<String, Object>> migrations =
-                jdbcTemplate.queryForList("SELECT VERSION, MIGRATION_TYPE, SCRIPT FROM " + tableName);
+                jdbcTemplate.queryForList("SELECT VERSION, MIGRATION_TYPE, SCRIPT FROM " + tableName + " ORDER BY installed_on");
 
+        boolean first = true;
         for (Map<String, Object> migration : migrations) {
             String version = (String) migration.get("VERSION");
             String migrationType = (String) migration.get("MIGRATION_TYPE");
@@ -152,10 +153,20 @@ public class MetaDataTable085Upgrader {
             Integer checksum = null;
             if (MigrationType.SQL.name().equals(migrationType)) {
                 ClassPathResource resource = new ClassPathResource(baseDir + "/" + newScript);
-                checksum = new SqlMigration(resource, null, encoding, "1").getChecksum();
+
+                if (first & !resource.exists()) {
+                    jdbcTemplate.update("UPDATE " + tableName + " SET migration_type='INIT' where version=?",
+                            new Object[]{version});
+                    if (newScript.endsWith(".sql")) {
+                        newScript = newScript.substring(0, newScript.length() - ".sql".length());
+                    }
+                } else {
+                    checksum = new SqlMigration(resource, null, encoding, "1").getChecksum();
+                }
             }
             jdbcTemplate.update("UPDATE " + tableName + " SET script=?, checksum=? where version=?",
                     new Object[]{newScript, checksum, version});
+            first = false;
         }
     }
 

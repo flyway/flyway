@@ -133,7 +133,7 @@ public class MetaDataTable {
 
         final Migration initialMigration = new Migration() {{
             schemaVersion = initialVersion;
-            scriptName = initialVersion.getDescription();
+            script = initialVersion.getDescription();
             executionTime = 0;
             migrationState = MigrationState.SUCCESS;
             migrationType = MigrationType.INIT;
@@ -173,7 +173,7 @@ public class MetaDataTable {
         final String state = migration.getState().name();
         final String migrationType = migration.getMigrationType().name();
         final Integer checksum = migration.getChecksum();
-        final String scriptName = migration.getScriptName();
+        final String scriptName = migration.getScript();
         final Integer executionTime = migration.getExecutionTime();
         jdbcTemplate.update("INSERT INTO " + tableName
                         + " (version, description, migration_type, script, checksum, installed_by, execution_time, state, current_version)"
@@ -251,7 +251,7 @@ public class MetaDataTable {
                 migrationState = MigrationState.valueOf(rs.getString("STATE"));
                 installedOn = rs.getTimestamp("INSTALLED_ON");
                 executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
-                scriptName = rs.getString("SCRIPT");
+                script = rs.getString("SCRIPT");
                 checksum = toInteger((Number) rs.getObject("CHECKSUM"));
                 migrationType = MigrationType.valueOf(rs.getString("MIGRATION_TYPE"));
             }};

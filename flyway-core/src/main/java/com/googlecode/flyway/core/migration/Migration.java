@@ -60,7 +60,7 @@ public class Migration implements Comparable<Migration> {
     /**
      * The script name for the migration history.
      */
-    protected String scriptName;
+    protected String script;
 
     /**
      * The checksum of the migration.
@@ -120,8 +120,8 @@ public class Migration implements Comparable<Migration> {
     /**
      * @return The script name for the migration history.
      */
-    public String getScriptName() {
-        return scriptName;
+    public String getScript() {
+        return script;
     }
 
     /**

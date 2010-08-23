@@ -27,7 +27,6 @@ import org.springframework.util.StopWatch;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Main workflow for validating the applied migrations with classpath migrations
@@ -96,19 +95,19 @@ public class DbValidator {
 
             if (! appliedMigration.getVersion().equals(classpathMigration.getVersion())) {
                 return String.format("Version mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScriptName(), appliedMigration.getVersion().getVersion(), classpathMigration.getVersion().getVersion());
+                        appliedMigration.getScript(), appliedMigration.getVersion().getVersion(), classpathMigration.getVersion().getVersion());
 
             }
             if (! appliedMigration.getMigrationType().equals(classpathMigration.getMigrationType())) {
                 return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScriptName(), appliedMigration.getMigrationType(), classpathMigration.getMigrationType());
+                        appliedMigration.getScript(), appliedMigration.getMigrationType(), classpathMigration.getMigrationType());
             }
 
             final Integer appliedChecksum = appliedMigration.getChecksum();
             final Integer classpathChecksum = classpathMigration.getChecksum();
             if (! ObjectUtils.nullSafeEquals(appliedChecksum, classpathChecksum)) {
                 return String.format("Checksum mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScriptName(), appliedChecksum, classpathMigration.getChecksum());
+                        appliedMigration.getScript(), appliedChecksum, classpathMigration.getChecksum());
             }
         }
 

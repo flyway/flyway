@@ -34,6 +34,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,10 +87,10 @@ public abstract class MetaDataTable085UpgraderTestCase {
 
         jdbcTemplate.update(
                 "INSERT INTO schema_version (version, script, execution_time, state, current_version) VALUES (?, ?, ?, ?, ?)",
-                new Object[]{"1.0", "Sql File: V1__Initial_version.sql", 100, MigrationState.SUCCESS.name(), false});
+                new Object[]{"1.1", "Sql File: V1_1__Initial_version.sql", 100, MigrationState.SUCCESS.name(), false});
         jdbcTemplate.update(
                 "INSERT INTO schema_version (version, script, execution_time, state, current_version) VALUES (?, ?, ?, ?, ?)",
-                new Object[]{"1.1", "Java Class: V1_1__Sample_java_migration", 1234, MigrationState.SUCCESS.name(), true});
+                new Object[]{"1.2", "Java Class: V1_2__Sample_java_migration", 1234, MigrationState.SUCCESS.name(), true});
 
         MetaDataTable085Upgrader metaDataTable085Upgrader =
                 new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, getDbSupport(), "SCHEMA_VERSION", getBaseDir(), "UTF-8");
@@ -100,17 +102,65 @@ public abstract class MetaDataTable085UpgraderTestCase {
         List<Migration> migrations = flyway.history();
         assertEquals(2, migrations.size());
 
+        Migration migration11 = migrations.get(0);
+        assertEquals(MigrationType.SQL, migration11.getMigrationType());
+        assertEquals("V1_1__Initial_version.sql", migration11.getScript());
+        assertEquals(new Integer(1996767037), migration11.getChecksum());
+        //assertNotNull(migration11.getInstalledBy());
+
+        Migration migration12 = migrations.get(1);
+        assertEquals(MigrationType.JAVA, migration12.getMigrationType());
+        assertEquals("V1_2__Sample_java_migration", migration12.getScript());
+        assertNull(migration12.getChecksum());
+        //assertNotNull(migration12.getInstalledBy());
+    }
+
+    @Test
+    public void upgradeWithInitVersion() throws Exception {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+        createMetaDataTable085(transactionTemplate, jdbcTemplate);
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        jdbcTemplate.update(
+                "INSERT INTO schema_version (version, script, installed_on, execution_time, state, current_version) VALUES (?, ?, ?, ?, ?, ?)",
+                new Object[]{"1.0", "Sql File: V1_0__Flyway_init.sql", dateFormat.parse("2010-01-01 10:10:10"), 0, MigrationState.SUCCESS.name(), false});
+        jdbcTemplate.update(
+                "INSERT INTO schema_version (version, script, installed_on, execution_time, state, current_version) VALUES (?, ?, ?, ?, ?, ?)",
+                new Object[]{"1.1", "Sql File: V1_1__Initial_version.sql", dateFormat.parse("2010-01-02 10:10:10"), 100, MigrationState.SUCCESS.name(), false});
+        jdbcTemplate.update(
+                "INSERT INTO schema_version (version, script, installed_on, execution_time, state, current_version) VALUES (?, ?, ?, ?, ?, ?)",
+                new Object[]{"1.2", "Java Class: V1_2__Sample_java_migration", dateFormat.parse("2010-01-03 10:10:10"), 1234, MigrationState.SUCCESS.name(), true});
+
+        MetaDataTable085Upgrader metaDataTable085Upgrader =
+                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, getDbSupport(), "SCHEMA_VERSION", getBaseDir(), "UTF-8");
+        metaDataTable085Upgrader.upgrade();
+
+        //Second call should have no effect
+        metaDataTable085Upgrader.upgrade();
+
+        List<Migration> migrations = flyway.history();
+        assertEquals(3, migrations.size());
+
         Migration migration1 = migrations.get(0);
-        assertEquals(MigrationType.SQL, migration1.getMigrationType());
-        assertEquals("V1__Initial_version.sql", migration1.getScriptName());
-        assertEquals(new Integer(1996767037), migration1.getChecksum());
-        //assertNotNull(migration1.getInstalledBy());
+        assertEquals(MigrationType.INIT, migration1.getMigrationType());
+        assertEquals("V1_0__Flyway_init", migration1.getScript());
+        assertNull(migration1.getChecksum());
+        //assertNotNull(migration11.getInstalledBy());
 
         Migration migration11 = migrations.get(1);
-        assertEquals(MigrationType.JAVA, migration11.getMigrationType());
-        assertEquals("V1_1__Sample_java_migration", migration11.getScriptName());
-        assertNull(migration11.getChecksum());
-        //assertNotNull(migration1.getInstalledBy());
+        assertEquals(MigrationType.SQL, migration11.getMigrationType());
+        assertEquals("V1_1__Initial_version.sql", migration11.getScript());
+        assertEquals(new Integer(1996767037), migration11.getChecksum());
+        //assertNotNull(migration11.getInstalledBy());
+
+        Migration migration12 = migrations.get(2);
+        assertEquals(MigrationType.JAVA, migration12.getMigrationType());
+        assertEquals("V1_2__Sample_java_migration", migration12.getScript());
+        assertNull(migration12.getChecksum());
+        //assertNotNull(migration12.getInstalledBy());
     }
 
     /**

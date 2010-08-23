@@ -53,8 +53,8 @@ public class SqlMigration extends BaseMigration {
         sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         checksum = calculateChecksum(sqlScriptSource);
 
-        // old scriptName = "Sql File: " + sqlScriptResource.getFilename();
-        this.scriptName = sqlScriptResource.getFilename();
+        // old script = "Sql File: " + sqlScriptResource.getFilename();
+        this.script = sqlScriptResource.getFilename();
         this.placeholderReplacer = placeholderReplacer;
         this.migrationType = MigrationType.SQL;
     }

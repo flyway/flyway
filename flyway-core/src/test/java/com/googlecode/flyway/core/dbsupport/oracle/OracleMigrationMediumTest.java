@@ -77,7 +77,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
         final List<Migration> migrationList = flyway.history();
         for (Migration migration : migrationList) {
-            Assert.assertNotNull(migration.getScriptName() + " has no checksum", migration.getChecksum());
+            Assert.assertNotNull(migration.getScript() + " has no checksum", migration.getChecksum());
         }
 
     }

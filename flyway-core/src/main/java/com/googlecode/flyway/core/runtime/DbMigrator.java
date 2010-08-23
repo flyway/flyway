@@ -125,14 +125,14 @@ public class DbMigrator {
                         return null;
                     }
 
-                    LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScriptName());
+                    LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScript());
                     migration.migrate(transactionTemplate, jdbcTemplate, dbSupport);
 
                     if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
                         throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
                     }
                     LOG.info(String.format("Finished migrating to version %s - %s (execution time %s)",
-                            migration.getVersion(), migration.getScriptName(), TimeFormat.format(migration.getExecutionTime())));
+                            migration.getVersion(), migration.getScript(), TimeFormat.format(migration.getExecutionTime())));
 
                     metaDataTable.finishMigration(migration);
 

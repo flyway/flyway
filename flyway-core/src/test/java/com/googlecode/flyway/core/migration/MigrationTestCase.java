@@ -89,10 +89,10 @@ public abstract class MigrationTestCase {
      * @param appliedMigration The migration to check.
      */
     private void assertChecksum(Migration appliedMigration) {
-        ClassPathResource resource = new ClassPathResource(getBaseDir() + "/" + appliedMigration.getScriptName());
+        ClassPathResource resource = new ClassPathResource(getBaseDir() + "/" + appliedMigration.getScript());
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "", "");
         Migration sqlMigration = new SqlMigration(resource, placeholderReplacer, "UTF-8", "1");
-        assertEquals("Wrong checksum for " + appliedMigration.getScriptName(), sqlMigration.getChecksum(), appliedMigration.getChecksum());
+        assertEquals("Wrong checksum for " + appliedMigration.getScript(), sqlMigration.getChecksum(), appliedMigration.getChecksum());
     }
 
     @Test(expected = IllegalStateException.class)

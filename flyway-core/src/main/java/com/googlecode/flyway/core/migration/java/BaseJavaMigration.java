@@ -53,9 +53,9 @@ public abstract class BaseJavaMigration extends BaseMigration {
     }
 
     private void initScriptName() {
-        this.scriptName = getClass().getName();
-        if (scriptName.length() > 200) {
-            scriptName = scriptName.substring(scriptName.length() - 200);
+        this.script = getClass().getName();
+        if (script.length() > 200) {
+            script = script.substring(script.length() - 200);
         }
     }
 

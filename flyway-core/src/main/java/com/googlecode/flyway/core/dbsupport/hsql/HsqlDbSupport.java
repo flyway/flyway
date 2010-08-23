@@ -83,7 +83,7 @@ public class HsqlDbSupport implements DbSupport {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(jdbcTemplate),
-                        table.toUpperCase(), column);
+                        table.toUpperCase(), column.toUpperCase());
                 return resultSet.next();
             }
         });
