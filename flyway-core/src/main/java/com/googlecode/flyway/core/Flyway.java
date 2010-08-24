@@ -18,6 +18,8 @@ package com.googlecode.flyway.core;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
+import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.metadatatable.MetaDataTable085Upgrader;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -27,8 +29,6 @@ import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.runtime.DbCleaner;
 import com.googlecode.flyway.core.runtime.DbMigrator;
 import com.googlecode.flyway.core.runtime.DbValidator;
-import com.googlecode.flyway.core.runtime.MetaDataTable;
-import com.googlecode.flyway.core.runtime.MetaDataTable085Upgrader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;

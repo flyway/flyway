@@ -17,6 +17,7 @@
 package com.googlecode.flyway.core.runtime;
 
 import com.googlecode.flyway.core.ValidationType;
+import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
