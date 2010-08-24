@@ -22,6 +22,7 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -160,7 +161,6 @@ public class DbMigrator {
      * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        To execute the migration statements.
      * @param dbSupport           The support for database-specific extensions.
-     *
      * @return The row that was added to the metadata table.
      */
     public final MetaDataTableRow applyMigration(final Migration migration, final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) {
@@ -177,8 +177,11 @@ public class DbMigrator {
                     migration.migrate(transactionTemplate, jdbcTemplate, dbSupport);
                     state = MigrationState.SUCCESS;
                 } catch (Exception e) {
-                    LOG.error(e.getMessage());
-                    LOG.error(e.getCause().getMessage());
+                    LOG.error(e.toString());
+                    Throwable rootCause = ExceptionUtils.getRootCause(e);
+                    if (rootCause != null) {
+                        LOG.error(rootCause.toString());
+                    }
                     state = MigrationState.FAILED;
                 }
             }
