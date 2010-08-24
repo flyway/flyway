@@ -14,5 +14,5 @@
 -- limitations under the License.
 --
 
-ALTER TABLE ${tableName} MODIFY migration_type VARCHAR(10) NOT NULL;
-ALTER TABLE ${tableName} MODIFY installed_by VARCHAR(50) NOT NULL;
+ALTER TABLE ${tableName} MODIFY type VARCHAR(10) NOT NULL;
+ALTER TABLE ${tableName} MODIFY installed_by VARCHAR(30) NOT NULL;

@@ -17,10 +17,10 @@
 CREATE TABLE ${tableName} (
     version VARCHAR2(20) NOT NULL PRIMARY KEY,
     description VARCHAR2(100),
-    migration_type VARCHAR2(10) NOT NULL,
+    type VARCHAR2(10) NOT NULL,
     script VARCHAR2(200) NOT NULL UNIQUE,
     checksum INT,
-    installed_by VARCHAR(30) NOT NULL,
+    installed_by VARCHAR2(30) NOT NULL,
     installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     execution_time INT,
     state VARCHAR2(15) NOT NULL,

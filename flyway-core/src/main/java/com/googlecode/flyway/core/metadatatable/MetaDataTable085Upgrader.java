@@ -134,19 +134,19 @@ public class MetaDataTable085Upgrader {
      * Migrates the data from the old format into the new one and fills the new mandatory columns with default values.
      */
     private void migrateData() {
-        jdbcTemplate.update("UPDATE " + tableName + " SET migration_type='SQL' where script LIKE 'Sql File:%'");
-        jdbcTemplate.update("UPDATE " + tableName + " SET migration_type='JAVA' where script LIKE 'Java Class:%'");
+        jdbcTemplate.update("UPDATE " + tableName + " SET type='SQL' where script LIKE 'Sql File:%'");
+        jdbcTemplate.update("UPDATE " + tableName + " SET type='JAVA' where script LIKE 'Java Class:%'");
 
         jdbcTemplate.update("UPDATE " + tableName + " SET installed_by=" + dbSupport.getCurrentUserFunction());
 
         @SuppressWarnings({"unchecked"})
         List<Map<String, Object>> migrations =
-                jdbcTemplate.queryForList("SELECT VERSION, MIGRATION_TYPE, SCRIPT FROM " + tableName + " ORDER BY installed_on");
+                jdbcTemplate.queryForList("SELECT VERSION, TYPE, SCRIPT FROM " + tableName + " ORDER BY installed_on");
 
         boolean first = true;
         for (Map<String, Object> migration : migrations) {
             String version = (String) migration.get("VERSION");
-            String migrationType = (String) migration.get("MIGRATION_TYPE");
+            String migrationType = (String) migration.get("TYPE");
             String oldScript = (String) migration.get("SCRIPT");
 
             String newScript = oldScript.substring(oldScript.indexOf(": ") + ": ".length());
@@ -155,7 +155,7 @@ public class MetaDataTable085Upgrader {
                 ClassPathResource resource = new ClassPathResource(baseDir + "/" + newScript);
 
                 if (first & !resource.exists()) {
-                    jdbcTemplate.update("UPDATE " + tableName + " SET migration_type='INIT' where version=?",
+                    jdbcTemplate.update("UPDATE " + tableName + " SET type='INIT' where version=?",
                             new Object[]{version});
                     if (newScript.endsWith(".sql")) {
                         newScript = newScript.substring(0, newScript.length() - ".sql".length());

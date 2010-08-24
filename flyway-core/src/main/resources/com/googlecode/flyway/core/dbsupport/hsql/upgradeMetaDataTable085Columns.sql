@@ -14,6 +14,6 @@
 -- limitations under the License.
 --
 
-ALTER TABLE ${tableName} ADD migration_type VARCHAR(10) BEFORE script;
+ALTER TABLE ${tableName} ADD type VARCHAR(10) BEFORE script;
 ALTER TABLE ${tableName} ADD checksum INT BEFORE installed_on;
-ALTER TABLE ${tableName} ADD installed_by VARCHAR(50) BEFORE installed_on;
+ALTER TABLE ${tableName} ADD installed_by VARCHAR(30) BEFORE installed_on;

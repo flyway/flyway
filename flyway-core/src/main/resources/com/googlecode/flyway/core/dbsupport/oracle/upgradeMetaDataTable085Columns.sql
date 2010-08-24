@@ -14,6 +14,6 @@
 -- limitations under the License.
 --
 
-ALTER TABLE ${tableName} ADD migration_type VARCHAR2(10);
+ALTER TABLE ${tableName} ADD type VARCHAR2(10);
 ALTER TABLE ${tableName} ADD checksum INT;
 ALTER TABLE ${tableName} ADD installed_by VARCHAR2(30);

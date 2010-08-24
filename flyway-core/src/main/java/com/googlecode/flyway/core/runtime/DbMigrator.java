@@ -166,7 +166,7 @@ public class DbMigrator {
     public final MetaDataTableRow applyMigration(final Migration migration, final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) {
         MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migration);
 
-        LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScript());
+        LOG.info("Migrating to version " + migration.getVersion());
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -196,8 +196,8 @@ public class DbMigrator {
         if (MigrationState.FAILED.equals(migrationRunnable.state) && dbSupport.supportsDdlTransactions()) {
             throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
         }
-        LOG.info(String.format("Finished migrating to version %s - %s (execution time %s)",
-                migration.getVersion(), migration.getScript(), TimeFormat.format(executionTime)));
+        LOG.info(String.format("Finished migrating to version %s (execution time %s)",
+                migration.getVersion(), TimeFormat.format(executionTime)));
 
         metaDataTableRow.update(executionTime, migrationRunnable.state);
         metaDataTable.insert(metaDataTableRow);

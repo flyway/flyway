@@ -14,5 +14,5 @@
 -- limitations under the License.
 --
 
-ALTER TABLE ${tableName} MODIFY migration_type NOT NULL;
+ALTER TABLE ${tableName} MODIFY type NOT NULL;
 ALTER TABLE ${tableName} MODIFY installed_by NOT NULL;

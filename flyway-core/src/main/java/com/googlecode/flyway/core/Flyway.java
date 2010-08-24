@@ -91,6 +91,21 @@ public class Flyway {
     private String placeholderSuffix = "}";
 
     /**
+     * prefix for sql migrations (default: V)
+     */
+    private String sqlMigrationPrefix = "V";
+
+    /**
+     * suffix for sql migrations (default: .sql)
+     */
+    private String sqlMigrationSuffix = ".sql";
+
+    /**
+     * The ValidationType for checksum validation
+     */
+    private ValidationType validationType = ValidationType.NONE;
+
+    /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
     private JdbcTemplate jdbcTemplate;
@@ -109,22 +124,6 @@ public class Flyway {
      * Supports reading and writing to the metadata table.
      */
     private MetaDataTable metaDataTable;
-
-    /**
-     * prefix for sql migrations (default: V)
-     */
-    private String sqlMigrationPrefix = "V";
-
-    /**
-     * suffix for sql migrations (default: .sql)
-     */
-    private String sqlMigrationSuffix = ".sql";
-
-    /**
-     * The ValidationType for checksum validation
-     */
-    private ValidationType validationType = ValidationType.NONE;
-
 
     /**
      * @param validationType The ValidationType for checksum validation
@@ -233,17 +232,14 @@ public class Flyway {
      * @throws Exception Thrown when the migration failed.
      */
     public int migrate() throws Exception {
-        MetaDataTable085Upgrader metaDataTable085Upgrader =
-                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
-        metaDataTable085Upgrader.upgrade();
+        new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
 
         final List<Migration> migrations = findAvailableMigrations();
         validate(migrations, validationType);
 
         metaDataTable.createIfNotExists();
 
-        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrations,
-                metaDataTable);
+        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrations, metaDataTable);
         return dbMigrator.migrate();
     }
 
@@ -292,13 +288,11 @@ public class Flyway {
         return allMigrations;
     }
 
-
     /**
      * Drops all object in the schema.
      */
     public void clean() {
-        DbCleaner dbCleaner = new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport);
-        dbCleaner.clean();
+        new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport).clean();
     }
 
     /**
@@ -306,9 +300,7 @@ public class Flyway {
      * Uses validation type ALL if NONE is set.
      */
     public void validate() {
-        MetaDataTable085Upgrader metaDataTable085Upgrader =
-                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
-        metaDataTable085Upgrader.upgrade();
+        new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
 
         final List<Migration> migrations = findAvailableMigrations();
         validate(migrations, validationType != ValidationType.NONE ? validationType : ValidationType.ALL);
@@ -320,9 +312,7 @@ public class Flyway {
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
     public MetaDataTableRow status() {
-        MetaDataTable085Upgrader metaDataTable085Upgrader =
-                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
-        metaDataTable085Upgrader.upgrade();
+        new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
 
         return metaDataTable.latestAppliedMigration();
     }
@@ -333,9 +323,7 @@ public class Flyway {
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      */
     public List<MetaDataTableRow> history() {
-        MetaDataTable085Upgrader metaDataTable085Upgrader =
-                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
-        metaDataTable085Upgrader.upgrade();
+        new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
 
         return metaDataTable.allAppliedMigrations();
     }
@@ -347,7 +335,6 @@ public class Flyway {
      *                       higher than this one will be considered for this database.
      */
     public void init(SchemaVersion initialVersion) {
-        DbInitializer dbInitializer = new DbInitializer(transactionTemplate, metaDataTable);
-        dbInitializer.init(initialVersion);
+        new DbInitializer(transactionTemplate, metaDataTable).init(initialVersion);
     }
 }

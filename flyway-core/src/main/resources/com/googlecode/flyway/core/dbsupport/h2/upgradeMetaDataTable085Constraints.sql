@@ -14,5 +14,5 @@
 -- limitations under the License.
 --
 
-ALTER TABLE ${tableName} ALTER COLUMN migration_type SET NOT NULL;
+ALTER TABLE ${tableName} ALTER COLUMN type SET NOT NULL;
 ALTER TABLE ${tableName} ALTER COLUMN installed_by SET NOT NULL;

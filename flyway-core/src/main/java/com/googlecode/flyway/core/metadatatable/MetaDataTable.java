@@ -145,7 +145,7 @@ public class MetaDataTable {
         final String scriptName = metaDataTableRow.getScript();
         final Integer executionTime = metaDataTableRow.getExecutionTime();
         jdbcTemplate.update("INSERT INTO " + tableName
-                + " (version, description, migration_type, script, checksum, installed_by, execution_time, state, current_version)"
+                + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
                 + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, 1)",
                 new Object[]{version, description, migrationType, scriptName, checksum, executionTime, state});
     }
@@ -206,7 +206,7 @@ public class MetaDataTable {
      * @return The select statement for reading the metadata table.
      */
     private String getSelectStatement() {
-        return "select VERSION, DESCRIPTION, SCRIPT, EXECUTION_TIME, STATE, INSTALLED_ON, CHECKSUM, MIGRATION_TYPE from " + tableName;
+        return "select VERSION, DESCRIPTION, TYPE, SCRIPT, CHECKSUM, INSTALLED_ON, EXECUTION_TIME, STATE from " + tableName;
     }
 
     /**
@@ -230,7 +230,7 @@ public class MetaDataTable {
         @Override
         public MetaDataTableRow mapRow(final ResultSet rs, int rowNum) throws SQLException {
             SchemaVersion schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
-            MigrationType migrationType = MigrationType.valueOf(rs.getString("MIGRATION_TYPE"));
+            MigrationType migrationType = MigrationType.valueOf(rs.getString("TYPE"));
             String script = rs.getString("SCRIPT");
             Integer checksum = toInteger((Number) rs.getObject("CHECKSUM"));
             Date installedOn = rs.getTimestamp("INSTALLED_ON");
