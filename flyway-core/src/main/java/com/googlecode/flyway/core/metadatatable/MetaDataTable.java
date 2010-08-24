@@ -17,7 +17,6 @@
 package com.googlecode.flyway.core.metadatatable;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -28,13 +27,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Supports reading and writing to the metadata table.
@@ -109,45 +111,12 @@ public class MetaDataTable {
     }
 
     /**
-     * Creates the metadata table if it doesn't already exist. 
+     * Creates the metadata table if it doesn't already exist.
      */
     public void createIfNotExists() {
         if (!exists()) {
             create();
         }
-    }
-
-    /**
-     * Creates and initializes the Flyway metadata table.
-     *
-     * @param initialVersion (optional) The initial version to put in the metadata table.
-     *                       Only migrations with a version number higher than this one
-     *                       will be considered for this database.
-     *                       {@code null} defaults the initial version to 0.
-     */
-    public void init(final SchemaVersion initialVersion) {
-        MetaDataTableRow metaDataTableRow = latestAppliedMigration();
-        if (metaDataTableRow != null) {
-            throw new IllegalStateException("Schema already initialized. Current Version: " + metaDataTableRow.getVersion());
-        }
-
-        final Migration initialMigration = new Migration() {{
-            schemaVersion = initialVersion;
-            script = initialVersion.getDescription();
-            executionTime = 0;
-            migrationState = MigrationState.SUCCESS;
-            migrationType = MigrationType.INIT;
-        }};
-
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Void doInTransaction(TransactionStatus status) {
-                finishMigration(initialMigration);
-                return null;
-            }
-        });
-
-        LOG.info("Schema initialized with version: " + initialVersion);
     }
 
     /**
@@ -161,24 +130,24 @@ public class MetaDataTable {
     }
 
     /**
-     * Persists the result of this migration.
+     * Adds this row to the metadata table and mark it as current.
      *
-     * @param migration The migration that was run.
+     * @param metaDataTableRow The metaDataTableRow to add.
      */
-    public void finishMigration(final Migration migration) {
+    public void insert(final MetaDataTableRow metaDataTableRow) {
         jdbcTemplate.update("UPDATE " + tableName + " SET current_version=0");
-        final SchemaVersion schemaVersion = migration.getVersion();
+        final SchemaVersion schemaVersion = metaDataTableRow.getVersion();
         final String version = schemaVersion.getVersion();
         final String description = schemaVersion.getDescription();
-        final String state = migration.getState().name();
-        final String migrationType = migration.getMigrationType().name();
-        final Integer checksum = migration.getChecksum();
-        final String scriptName = migration.getScript();
-        final Integer executionTime = migration.getExecutionTime();
+        final String state = metaDataTableRow.getState().name();
+        final String migrationType = metaDataTableRow.getMigrationType().name();
+        final Integer checksum = metaDataTableRow.getChecksum();
+        final String scriptName = metaDataTableRow.getScript();
+        final Integer executionTime = metaDataTableRow.getExecutionTime();
         jdbcTemplate.update("INSERT INTO " + tableName
-                        + " (version, description, migration_type, script, checksum, installed_by, execution_time, state, current_version)"
-                        + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, 1)",
-                        new Object[]{version, description, migrationType, scriptName, checksum, executionTime, state});
+                + " (version, description, migration_type, script, checksum, installed_by, execution_time, state, current_version)"
+                + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, 1)",
+                new Object[]{version, description, migrationType, scriptName, checksum, executionTime, state});
     }
 
     /**
@@ -246,15 +215,15 @@ public class MetaDataTable {
     private class MetaDataTableRowMapper implements RowMapper {
         @Override
         public MetaDataTableRow mapRow(final ResultSet rs, int rowNum) throws SQLException {
-            return new MetaDataTableRow() {{
-                schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
-                migrationType = MigrationType.valueOf(rs.getString("MIGRATION_TYPE"));
-                script = rs.getString("SCRIPT");
-                checksum = toInteger((Number) rs.getObject("CHECKSUM"));
-                installedOn = rs.getTimestamp("INSTALLED_ON");
-                executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
-                migrationState = MigrationState.valueOf(rs.getString("STATE"));
-            }};
+            SchemaVersion schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
+            MigrationType migrationType = MigrationType.valueOf(rs.getString("MIGRATION_TYPE"));
+            String script = rs.getString("SCRIPT");
+            Integer checksum = toInteger((Number) rs.getObject("CHECKSUM"));
+            Date installedOn = rs.getTimestamp("INSTALLED_ON");
+            Integer executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
+            MigrationState migrationState = MigrationState.valueOf(rs.getString("STATE"));
+
+            return new MetaDataTableRow(schemaVersion, migrationType, script, checksum, installedOn, executionTime, migrationState);
         }
     }
 }

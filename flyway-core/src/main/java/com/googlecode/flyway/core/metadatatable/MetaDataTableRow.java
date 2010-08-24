@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core.metadatatable;
 
+import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -27,45 +28,86 @@ import java.util.Date;
  */
 public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     /**
-     * The target schema version of this migration.
+     * The version of this migration.
      */
-    protected SchemaVersion schemaVersion = SchemaVersion.EMPTY;
+    private SchemaVersion schemaVersion;
 
     /**
-     * The state of this migration.
+     * The type of the migration (INIT, SQL or JAVA).
      */
-    protected MigrationState migrationState = MigrationState.UNKNOWN;
-
-    /**
-     * The timestamp when this migration was applied to the database. (Automatically set by the database)
-     */
-    protected Date installedOn;
-
-    /**
-     * The time (in ms) it took to execute.
-     */
-    protected Integer executionTime;
+    private MigrationType migrationType;
 
     /**
      * The script name for the migration history.
      */
-    protected String script;
+    private String script;
 
     /**
      * The checksum of the migration.
-     * Sql migrations use a crc-32 checksum of the sql script.
-     * Java migrations use the SUID or a custom checksum.
      */
-    protected Integer checksum;
+    private Integer checksum;
 
     /**
-     * The type of migration (INIT, SQL or JAVA)
+     * The timestamp when this migration was applied to the database. (Automatically set by the database)
      */
-    protected MigrationType migrationType;
-
+    private Date installedOn;
 
     /**
-     * @return The type of migration (INIT, SQL or JAVA)
+     * The time (in ms) it took to execute.
+     */
+    private Integer executionTime;
+
+    /**
+     * The state of this migration.
+     */
+    private MigrationState state;
+
+    /**
+     * Creates a new MetaDataTableRow. This constructor is here to support the rowmapper.
+     *
+     * @param schemaVersion The version of this migration.
+     * @param migrationType The type of the migration (INIT, SQL or JAVA).
+     * @param script        The script name for the migration history.
+     * @param checksum      The checksum of the migration.
+     * @param installedOn   The timestamp when this migration was applied to the database. (Automatically set by the database)
+     * @param executionTime The time (in ms) it took to execute.
+     * @param state         The state of this migration.
+     */
+    public MetaDataTableRow(SchemaVersion schemaVersion, MigrationType migrationType, String script, Integer checksum, Date installedOn, Integer executionTime, MigrationState state) {
+        this.schemaVersion = schemaVersion;
+        this.migrationType = migrationType;
+        this.script = script;
+        this.checksum = checksum;
+        this.installedOn = installedOn;
+        this.executionTime = executionTime;
+        this.state = state;
+    }
+
+    /**
+     * Initializes a new metadatatable row with this migration.
+     *
+     * @param migration The migration that was or is being applied.
+     */
+    public MetaDataTableRow(Migration migration) {
+        schemaVersion = migration.getVersion();
+        migrationType = migration.getMigrationType();
+        script = migration.getScript();
+        checksum = migration.getChecksum();
+    }
+
+    /**
+     * Updates this MetaDataTableRow with this execution time and this migration state.
+     *
+     * @param executionTime The time (in ms) it took to execute.
+     * @param state         The state of this migration.
+     */
+    public void update(Integer executionTime, MigrationState state) {
+        this.executionTime = executionTime;
+        this.state = state;
+    }
+
+    /**
+     * @return The type of the migration (INIT, SQL or JAVA).
      */
     public MigrationType getMigrationType() {
         return migrationType;
@@ -89,7 +131,7 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      * @return The state of this migration.
      */
     public MigrationState getState() {
-        return migrationState;
+        return state;
     }
 
     /**
@@ -119,7 +161,7 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      * @throws IllegalStateException Thrown when this migration has failed.
      */
     public void assertNotFailed() {
-        if (MigrationState.FAILED == migrationState) {
+        if (MigrationState.FAILED == state) {
             throw new IllegalStateException("Migration to version " + schemaVersion
                     + " failed! Please restore backups and roll back database and code!");
         }

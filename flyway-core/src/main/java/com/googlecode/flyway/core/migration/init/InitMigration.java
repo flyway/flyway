@@ -17,13 +17,28 @@
 package com.googlecode.flyway.core.migration.init;
 
 import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 
 /**
  * Special type of migration used to mark the initial state of the database from which Flyway can migrate to subsequent
  * versions. There can only be one init migration per database, and, if present, it must be the first one.
  */
 public class InitMigration extends Migration {
+    /**
+     * Creates a new initial migration with this version.
+     * <p/>
+     * Only migrations with a version number higher than this one
+     * will be considered for this database.
+     *
+     * @param schemaVersion The initial version to put in the metadata table.
+     */
+    public InitMigration(SchemaVersion schemaVersion) {
+        this.schemaVersion = schemaVersion;
+        script = schemaVersion.getDescription();
+    }
+
     @Override
     public MigrationType getMigrationType() {
         return MigrationType.INIT;

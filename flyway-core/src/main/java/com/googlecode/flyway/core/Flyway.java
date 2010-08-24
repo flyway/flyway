@@ -28,6 +28,7 @@ import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.runtime.DbCleaner;
+import com.googlecode.flyway.core.runtime.DbInitializer;
 import com.googlecode.flyway.core.runtime.DbMigrator;
 import com.googlecode.flyway.core.runtime.DbValidator;
 import org.apache.commons.logging.Log;
@@ -346,7 +347,7 @@ public class Flyway {
      *                       higher than this one will be considered for this database.
      */
     public void init(SchemaVersion initialVersion) {
-        metaDataTable.createIfNotExists();
-        metaDataTable.init(initialVersion);
+        DbInitializer dbInitializer = new DbInitializer(transactionTemplate, metaDataTable);
+        dbInitializer.init(initialVersion);
     }
 }

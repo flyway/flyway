@@ -127,6 +127,8 @@ public class DbMigrator {
                         return null;
                     }
 
+                    MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migration);
+
                     LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScript());
                     migration.migrate(transactionTemplate, jdbcTemplate, dbSupport);
 
@@ -136,7 +138,8 @@ public class DbMigrator {
                     LOG.info(String.format("Finished migrating to version %s - %s (execution time %s)",
                             migration.getVersion(), migration.getScript(), TimeFormat.format(migration.getExecutionTime())));
 
-                    metaDataTable.finishMigration(migration);
+                    metaDataTableRow.update(migration.getExecutionTime(), migration.getState());
+                    metaDataTable.insert(metaDataTableRow);
 
                     return migration;
                 }
