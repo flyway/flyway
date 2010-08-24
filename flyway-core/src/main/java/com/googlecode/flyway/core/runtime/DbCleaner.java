@@ -75,7 +75,7 @@ public class DbCleaner {
         final SqlScript cleanScript = dbSupport.createCleanScript(jdbcTemplate);
         cleanScript.execute(transactionTemplate, jdbcTemplate);
         stopWatch.stop();
-        LOG.info(String.format(Locale.ENGLISH, "Cleaned database schema '%s' (execution time %s)",
+        LOG.info(String.format("Cleaned database schema '%s' (execution time %s)",
                 dbSupport.getCurrentSchema(jdbcTemplate), TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 }

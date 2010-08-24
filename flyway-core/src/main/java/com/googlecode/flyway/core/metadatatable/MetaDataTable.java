@@ -151,10 +151,24 @@ public class MetaDataTable {
     }
 
     /**
+     * Checks whether the metadata table contains at least one row.
+     *
+     * @return {@code true} if the metadata table has at least on row. {@code false} if it is empty or it doesn't exist
+     *         yet.
+     */
+    public boolean hasRows() {
+        if (!exists()) {
+            return false;
+        }
+
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + tableName) > 0;
+    }
+
+    /**
      * @return The latest migration applied on the schema. {@code null} if no migration has been applied so far.
      */
     public MetaDataTableRow latestAppliedMigration() {
-        if (!exists()) {
+        if (!hasRows()) {
             return null;
         }
 

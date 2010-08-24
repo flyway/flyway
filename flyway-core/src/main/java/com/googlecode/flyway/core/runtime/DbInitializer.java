@@ -64,13 +64,12 @@ public class DbInitializer {
      * @param schemaVersion The version to initialize the metadata table with.
      */
     public void init(SchemaVersion schemaVersion) {
-        metaDataTable.createIfNotExists();
-
-        boolean hasRows = metaDataTable.latestAppliedMigration() != null;
-        if (hasRows) {
+        if (metaDataTable.hasRows()) {
             throw new IllegalStateException(
                     "Schema already initialized. Current Version: " + metaDataTable.latestAppliedMigration().getVersion());
         }
+
+        metaDataTable.createIfNotExists();
 
         final Migration initialMigration = new InitMigration(schemaVersion);
 
