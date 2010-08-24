@@ -23,11 +23,9 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
  * Maven goal that initializes the metadata table in an existing schema.
  *
  * @goal init
- * @requiresDependencyResolution compile
- * @configurator include-project-dependencies
  * @since 0.8.5
  */
-@SuppressWarnings({"UnusedDeclaration"})
+@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class InitMojo extends AbstractFlywayMojo {
     /**
      * The initial version to put in the database. (default: 0) <br>

@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.maven;
-
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-
-import java.util.List;
+package com.googlecode.flyway.core.validation;
 
 /**
- * Maven goal that shows the history (all applied migrations) of the database.
- *
- * @goal history
- * @since 0.9
+ * Mode for the validation.
  */
-@SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
-public class HistoryMojo extends AbstractFlywayMojo {
-    @Override
-    protected void doExecute(Flyway flyway) throws Exception {
-        List<MetaDataTableRow> metaDataTableRows = flyway.history();
-        MetaDataTableRowDumper.dumpMigrations(metaDataTableRows);
-    }
+public enum ValidationMode {
+    /**
+     * Do not validate anything.
+     */
+    NONE,
+
+    /**
+     * Validate all applied migrations against the migrations present on the classpath.
+     */
+    ALL
 }

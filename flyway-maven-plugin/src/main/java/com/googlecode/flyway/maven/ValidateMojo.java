@@ -17,21 +17,20 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-
-import java.util.List;
 
 /**
- * Maven goal that shows the history (all applied migrations) of the database.
+ * Maven goal to validate the applied migrations in the database against the available classpath migrations in order to
+ * detect accidental migration changes.
  *
- * @goal history
+ * @goal validate
  * @since 0.9
  */
-@SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
-public class HistoryMojo extends AbstractFlywayMojo {
+@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
+public class ValidateMojo extends AbstractMigrationLoadingMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        List<MetaDataTableRow> metaDataTableRows = flyway.history();
-        MetaDataTableRowDumper.dumpMigrations(metaDataTableRows);
+        super.doExecute(flyway);
+
+        flyway.validate();
     }
 }

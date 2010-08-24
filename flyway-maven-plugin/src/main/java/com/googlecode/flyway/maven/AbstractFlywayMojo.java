@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 import java.sql.Driver;
 
 /**
- * Description.<br>
+ * Common base class for all mojos with all common attributes.<br>
  */
 abstract class AbstractFlywayMojo extends AbstractMojo {
     /**

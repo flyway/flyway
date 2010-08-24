@@ -17,7 +17,8 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.ValidationType;
+import com.googlecode.flyway.core.validation.ValidationErrorMode;
+import com.googlecode.flyway.core.validation.ValidationMode;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
@@ -55,7 +56,7 @@ public abstract class MigrationTestCase {
     public void setUp() {
         flyway = new Flyway();
         flyway.setDataSource(migrationDataSource);
-        flyway.setValidationType(ValidationType.ALL);
+        flyway.setValidationMode(ValidationMode.ALL);
         flyway.clean();
     }
 
@@ -118,7 +119,8 @@ public abstract class MigrationTestCase {
         SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("1", schemaVersion.getVersion());
 
-        flyway.setValidationType(ValidationType.ALL_CLEAN);
+        flyway.setValidationMode(ValidationMode.ALL);
+        flyway.setValidationErrorMode(ValidationErrorMode.CLEAN);
         flyway.setSqlMigrationPrefix("CheckValidate");
         assertEquals(1, flyway.migrate());
     }

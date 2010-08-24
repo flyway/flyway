@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.runtime;
+package com.googlecode.flyway.core.validation;
 
-import com.googlecode.flyway.core.ValidationType;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,8 +31,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Main workflow for validating the applied migrations with classpath migrations
- * in order to detect accidental changes migrations.
+ * Main workflow for validating the applied migrations against the available classpath migrations in order to detect
+ * accidental migration changes.
  */
 public class DbValidator {
     /**
@@ -41,9 +41,9 @@ public class DbValidator {
     private static final Log LOG = LogFactory.getLog(DbValidator.class);
 
     /**
-     * The ValidationType for checksum validation.
+     * The ValidationMode for checksum validation.
      */
-    private final ValidationType validationType;
+    private final ValidationMode validationMode;
 
     /**
      * Supports reading and writing to the metadata table.
@@ -58,12 +58,12 @@ public class DbValidator {
     /**
      * Creates a new database validator.
      *
-     * @param validationType The ValidationType for checksum validation.
+     * @param validationMode The ValidationMode for checksum validation.
      * @param metaDataTable  Supports reading and writing to the metadata table.
      * @param migrations     All migrations available on the classpath , sorted by version, newest first.
      */
-    public DbValidator(ValidationType validationType, MetaDataTable metaDataTable, List<Migration> migrations) {
-        this.validationType = validationType;
+    public DbValidator(ValidationMode validationMode, MetaDataTable metaDataTable, List<Migration> migrations) {
+        this.validationMode = validationMode;
         this.metaDataTable = metaDataTable;
         // reverse order
         this.migrations = new ArrayList<Migration>(migrations);
@@ -71,51 +71,79 @@ public class DbValidator {
     }
 
     /**
-     * Validate the checksum of all existing sql migration in the metadata table
-     * with the checksum of the sql migrations in the classpath
+     * Validate the checksum of all existing sql migration in the metadata table with the checksum of the sql migrations
+     * in the classpath
      *
      * @return description of validation error or NULL if no validation error war found
      */
     public String validate() {
-        if (!validationType.isAll() || !metaDataTable.exists()) {
+        if (ValidationMode.NONE.equals(validationMode)) {
             return null;
         }
 
-        LOG.debug(String.format("Validating (mode %s) migrations ...", validationType));
+        LOG.debug(String.format("Validating (mode %s) migrations ...", validationMode));
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         final List<MetaDataTableRow> appliedMigrations = metaDataTable.allAppliedMigrations();
+        if (appliedMigrations.isEmpty()) {
+            LOG.info("No migrations applied yet. No validation necessary.");
+            return null;
+        }
+
         if (appliedMigrations.size() > migrations.size()) {
-            return String.format("more applied migrations than classpath migrations: applied migrations=%s, classpath migrations=%s",
-                    appliedMigrations.size(), migrations.size());
+            List<SchemaVersion> schemaVersions = new ArrayList<SchemaVersion>();
+            for (MetaDataTableRow metaDataTableRow : appliedMigrations) {
+                schemaVersions.add(metaDataTableRow.getVersion());
+            }
+            for (Migration migration : migrations) {
+                schemaVersions.remove(migration.getVersion());
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            boolean first = true;
+            for (SchemaVersion schemaVersion : schemaVersions) {
+                if (!first) {
+                    stringBuilder.append(", ");
+                }
+                stringBuilder.append(schemaVersion.getVersion());
+                first = false;
+            }
+
+            return String.format("more applied migrations than classpath migrations: DB=%s, Classpath=%s, missing migrations=(%s)",
+                    appliedMigrations.size(), migrations.size(), stringBuilder.toString());
         }
 
         for (int i = 0; i < appliedMigrations.size(); i++) {
             MetaDataTableRow appliedMigration = appliedMigrations.get(i);
             Migration classpathMigration = migrations.get(i);
 
-            if (! appliedMigration.getVersion().equals(classpathMigration.getVersion())) {
+            if (!appliedMigration.getVersion().equals(classpathMigration.getVersion())) {
                 return String.format("Version mismatch for migration %s: DB=%s, Classpath=%s",
                         appliedMigration.getScript(), appliedMigration.getVersion().getVersion(), classpathMigration.getVersion().getVersion());
 
             }
-            if (! appliedMigration.getMigrationType().equals(classpathMigration.getMigrationType())) {
+            if (!appliedMigration.getMigrationType().equals(classpathMigration.getMigrationType())) {
                 return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
                         appliedMigration.getScript(), appliedMigration.getMigrationType(), classpathMigration.getMigrationType());
             }
 
             final Integer appliedChecksum = appliedMigration.getChecksum();
             final Integer classpathChecksum = classpathMigration.getChecksum();
-            if (! ObjectUtils.nullSafeEquals(appliedChecksum, classpathChecksum)) {
+            if (!ObjectUtils.nullSafeEquals(appliedChecksum, classpathChecksum)) {
                 return String.format("Checksum mismatch for migration %s: DB=%s, Classpath=%s",
                         appliedMigration.getScript(), appliedChecksum, classpathMigration.getChecksum());
             }
         }
 
         stopWatch.stop();
-        LOG.info(String.format("Validated (mode %s) migrations (execution time %s)",
-                validationType, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+        if (appliedMigrations.size() == 1) {
+            LOG.info(String.format("Validated 1 migration (mode: %s) (execution time %s)",
+                    validationMode, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+        } else {
+            LOG.info(String.format("Validated %d migrations (mode: %s) (execution time %s)",
+                    appliedMigrations.size(), validationMode, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+        }
 
         return null;
     }

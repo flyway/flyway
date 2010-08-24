@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.clean.DbCleaner;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
@@ -27,10 +28,10 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.runtime.DbCleaner;
-import com.googlecode.flyway.core.runtime.DbInitializer;
-import com.googlecode.flyway.core.runtime.DbMigrator;
-import com.googlecode.flyway.core.runtime.DbValidator;
+import com.googlecode.flyway.core.migration.DbMigrator;
+import com.googlecode.flyway.core.validation.DbValidator;
+import com.googlecode.flyway.core.validation.ValidationErrorMode;
+import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,10 +40,17 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Central service locator.
+ * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
+ * <p/>
+ * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
  */
 public class Flyway {
     /**
@@ -91,19 +99,24 @@ public class Flyway {
     private String placeholderSuffix = "}";
 
     /**
-     * prefix for sql migrations (default: V)
+     * The file name prefix for sql migrations (default: V)
      */
     private String sqlMigrationPrefix = "V";
 
     /**
-     * suffix for sql migrations (default: .sql)
+     * The file name suffix for sql migrations (default: .sql)
      */
     private String sqlMigrationSuffix = ".sql";
 
     /**
-     * The ValidationType for checksum validation
+     * The mode for validation
      */
-    private ValidationType validationType = ValidationType.NONE;
+    private ValidationMode validationMode = ValidationMode.NONE;
+
+    /**
+     * The error mode for validation
+     */
+    private ValidationErrorMode validationErrorMode = ValidationErrorMode.FAIL;
 
     /**
      * JdbcTemplate with ddl manipulation access to the database.
@@ -126,10 +139,17 @@ public class Flyway {
     private MetaDataTable metaDataTable;
 
     /**
-     * @param validationType The ValidationType for checksum validation
+     * @param validationMode The ValidationMode for checksum validation
      */
-    public void setValidationType(ValidationType validationType) {
-        this.validationType = validationType;
+    public void setValidationMode(ValidationMode validationMode) {
+        this.validationMode = validationMode;
+    }
+
+    /**
+     * @param validationErrorMode The error mode for validation
+     */
+    public void setValidationErrorMode(ValidationErrorMode validationErrorMode) {
+        this.validationErrorMode = validationErrorMode;
     }
 
     /**
@@ -157,7 +177,7 @@ public class Flyway {
     }
 
     /**
-     * Deprecated. Use setTable(String table) instead.
+     * <b>Deprecated (will be removed in 0.9.5). Use setTable(String table) instead.</b>
      *
      * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
@@ -197,14 +217,14 @@ public class Flyway {
     }
 
     /**
-     * @param sqlMigrationPrefix prefix for sql migrations (default: V)
+     * @param sqlMigrationPrefix The file name prefix for sql migrations (default: V)
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
         this.sqlMigrationPrefix = sqlMigrationPrefix;
     }
 
     /**
-     * @param sqlMigrationSuffix suffix for sql migrations (default: .sql)
+     * @param sqlMigrationSuffix The file name suffix for sql migrations (default: .sql)
      */
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
         this.sqlMigrationSuffix = sqlMigrationSuffix;
@@ -226,7 +246,7 @@ public class Flyway {
     }
 
     /**
-     * Starts the database migration.
+     * Starts the database migration. All pending migrations will be applied in order.
      *
      * @return The number of successfully applied migrations.
      * @throws Exception Thrown when the migration failed.
@@ -235,21 +255,21 @@ public class Flyway {
         new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
 
         final List<Migration> migrations = findAvailableMigrations();
-        validate(migrations, validationType);
+        validate(migrations, validationMode);
 
         metaDataTable.createIfNotExists();
 
-        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, migrations, metaDataTable);
-        return dbMigrator.migrate();
+        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable);
+        return dbMigrator.migrate(migrations);
     }
 
-    private void validate(List<Migration> migrations, ValidationType validationType) {
-        DbValidator dbValidator = new DbValidator(validationType, metaDataTable, migrations);
+    private void validate(List<Migration> migrations, ValidationMode validationMode) {
+        DbValidator dbValidator = new DbValidator(validationMode, metaDataTable, migrations);
         final String validationError = dbValidator.validate();
 
         if (validationError != null) {
             final String msg = "Flyway validate failed. Found differences between applied migrations and classpath migrations: " + validationError;
-            if (validationType.isCleanOnError()) {
+            if (ValidationErrorMode.CLEAN.equals(validationErrorMode)) {
                 LOG.warn(msg + " running clean and migrate again.");
                 clean();
             } else {
@@ -259,8 +279,7 @@ public class Flyway {
     }
 
     /**
-     * Finds all available migrations using all migration resolvers (sql, java,
-     * ...).
+     * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
      * @return The available migrations, sorted by version, newest first. An
      *         empty list is returned when no migrations can be found.
@@ -289,7 +308,7 @@ public class Flyway {
     }
 
     /**
-     * Drops all object in the schema.
+     * Drops all objects (tables, views, procedures, triggers, ...) in the current schema.
      */
     public void clean() {
         new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport).clean();
@@ -303,7 +322,7 @@ public class Flyway {
         new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
 
         final List<Migration> migrations = findAvailableMigrations();
-        validate(migrations, validationType != ValidationType.NONE ? validationType : ValidationType.ALL);
+        validate(migrations, ValidationMode.ALL);
     }
 
     /**
@@ -335,6 +354,6 @@ public class Flyway {
      *                       higher than this one will be considered for this database.
      */
     public void init(SchemaVersion initialVersion) {
-        new DbInitializer(transactionTemplate, metaDataTable).init(initialVersion);
+        new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable).init(initialVersion);
     }
 }

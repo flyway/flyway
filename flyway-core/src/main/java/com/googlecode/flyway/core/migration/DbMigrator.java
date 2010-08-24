@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.runtime;
+package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationState;
-import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.migration.init.InitMigration;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
@@ -56,11 +54,6 @@ public class DbMigrator {
     private final DbSupport dbSupport;
 
     /**
-     * The available migrations.
-     */
-    private final List<Migration> migrations;
-
-    /**
      * The database metadata table.
      */
     private final MetaDataTable metaDataTable;
@@ -82,25 +75,54 @@ public class DbMigrator {
      * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the
      *                            database.
      * @param dbSupport           Database-specific functionality.
-     * @param migrations          The available migrations.
      * @param metaDataTable       The database metadata table.
      */
     public DbMigrator(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport,
-                      List<Migration> migrations, MetaDataTable metaDataTable) {
+                      MetaDataTable metaDataTable) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = jdbcTemplate;
         this.dbSupport = dbSupport;
-        this.migrations = migrations;
         this.metaDataTable = metaDataTable;
+    }
+
+    /**
+     * Initializes the metadata table with this version.
+     *
+     * @param schemaVersion The version to initialize the metadata table with.
+     */
+    public void init(SchemaVersion schemaVersion) {
+        if (metaDataTable.hasRows()) {
+            throw new IllegalStateException(
+                    "Schema already initialized. Current Version: " + metaDataTable.latestAppliedMigration().getVersion());
+        }
+
+        metaDataTable.createIfNotExists();
+
+        final Migration initialMigration = new InitMigration(schemaVersion);
+
+        final MetaDataTableRow metaDataTableRow = new MetaDataTableRow(initialMigration);
+        metaDataTableRow.update(0, MigrationState.SUCCESS);
+
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Void doInTransaction(TransactionStatus status) {
+                metaDataTable.insert(metaDataTableRow);
+                return null;
+            }
+        });
+
+        LOG.info("Schema initialized with version: " + schemaVersion);
     }
 
     /**
      * Starts the actual migration.
      *
+     * @param migrations          The available migrations.
+
      * @return The number of successfully applied migrations.
      * @throws Exception Thrown when a migration failed.
      */
-    public int migrate() throws Exception {
+    public int migrate(final List<Migration> migrations) throws Exception {
         if (migrations.isEmpty()) {
             LOG.info("No migrations found");
             return 0;
@@ -184,6 +206,7 @@ public class DbMigrator {
                     state = MigrationState.SUCCESS;
                 } catch (Exception e) {
                     LOG.error(e.toString());
+                    @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
                     Throwable rootCause = ExceptionUtils.getRootCause(e);
                     if (rootCause != null) {
                         LOG.error(rootCause.toString());

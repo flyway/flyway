@@ -17,7 +17,8 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.ValidationType;
+import com.googlecode.flyway.core.validation.ValidationErrorMode;
+import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.maven.project.MavenProject;
 
 import java.util.HashMap;
@@ -28,39 +29,13 @@ import java.util.Properties;
  * Maven goal that triggers the migration of the configured database to the latest version.
  *
  * @goal migrate
- * @requiresDependencyResolution compile
- * @configurator include-project-dependencies
  */
-@SuppressWarnings({"UnusedDeclaration"})
-public class MigrateMojo extends AbstractFlywayMojo {
+@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
+public class MigrateMojo extends AbstractMigrationLoadingMojo {
     /**
      * Prefix for additional placeholders that are configured through properties (System or POM).
      */
     private static final String ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
-
-    /**
-     * The base package where the Java migrations are located. (default: db.migration) <br>
-     * default property: ${flyway.basePackage}
-     *
-     * @parameter default-value="${flyway.basePackage}"
-     */
-    private String basePackage;
-
-    /**
-     * The base directory on the classpath where the Sql migrations are located. (default: sql/location)<br>
-     * default property: ${flyway.baseDir}
-     *
-     * @parameter default-value="${flyway.baseDir}"
-     */
-    private String baseDir;
-
-    /**
-     * The encoding of Sql migrations. (default: UTF-8)<br>
-     * default property: ${flyway.encoding}
-     *
-     * @parameter default-value="${flyway.encoding}"
-     */
-    private String encoding;
 
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.
@@ -71,7 +46,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
 
     /**
      * The prefix of every placeholder. (default: ${ )<br>
-     * default property: ${flyway.placeholderPrefix}
+     * Also configurable with Maven or System Property: ${flyway.placeholderPrefix}
      *
      * @parameter default-value="${flyway.placeholderPrefix}"
      */
@@ -79,39 +54,54 @@ public class MigrateMojo extends AbstractFlywayMojo {
 
     /**
      * The suffix of every placeholder. (default: } )<br>
-     * default property: ${flyway.placeholderSuffix}
+     * Also configurable with Maven or System Property: ${flyway.placeholderSuffix}
      *
      * @parameter default-value="${flyway.placeholderSuffix}"
      */
     private String placeholderSuffix;
 
     /**
-     * The prefix for sql migrations (default: V)
-     * default property: ${flyway.sqlMigrationPrefix}
-     *
-     * @parameter default-value="${flyway.sqlMigrationPrefix}"
-     */
-    private String sqlMigrationPrefix;
-
-    /**
-     * The suffix for sql migrations (default: .sql)
-     * default property: ${flyway.sqlMigrationSuffix}
-     *
-     * @parameter default-value="${flyway.sqlMigrationSuffix}"
-     */
-    private String sqlMigrationSuffix;
-
-    /**
-     * The validation type for performed before migrating.
+     * The type of validation to be performed before migrating.<br/>
+     * <br/>
+     * Possible values are:<br/>
+     * <br/>
+     * <b>NONE</b> (default)<br/>
+     * No validation is performed.<br/>
+     * <br/>
+     * <b>ALL</b><br/>
      * For each sql migration a CRC32 checksum is calculated when the sql script is executed.
      * The validate mechanism checks if the sql migrations in the classpath still has the same checksum
-     * as the sql migration already executed in the database.
-     * Possible values are: none (default) | all | all-clean (clean schema if validation fail and run database migration from scratch)
-     * default property: ${flyway.validate}
+     * as the sql migration already executed in the database.<br/>
+     * <br/>
+     * Also configurable with Maven or System Property: ${flyway.validationMode}
      *
-     * @parameter default-value="${flyway.validate}"
+     * @parameter default-value="${flyway.validationMode}"
      */
-    private String validate;
+    private String validationMode;
+
+    /**
+     * The action to take when validation fails.<br/>
+     * <br/>
+     * Possible values are:<br/>
+     * <br/>
+     * <b>FAIL</b> (default)<br/>
+     * Throw an exception and fail.<br/>
+     * <br/>
+     * <b>CLEAN (Warning ! Do not use in produktion !)</b><br/>
+     * Cleans the database.<br/>
+     * <br/>
+     * This is exclusively intended as a convenience for development. Even tough we strongly recommend not to change
+     * migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in
+     * a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you
+     * back to the state checked into SCM.<br/>
+     * <br/>
+     * This property has no effect when <i>validationMode</i> is set to <i>NONE</i>.<br/>
+     * <br/>
+     * Also configurable with Maven or System Property: ${flyway.validationErrorMode}
+     *
+     * @parameter default-value="${flyway.validationErrorMode}"
+     */
+    private String validationErrorMode;
 
     /**
      * Reference to the current project that includes the Flyway Maven plugin.
@@ -122,15 +112,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
 
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        if (basePackage != null) {
-            flyway.setBasePackage(basePackage);
-        }
-        if (baseDir != null) {
-            flyway.setBaseDir(baseDir);
-        }
-        if (encoding != null) {
-            flyway.setEncoding(encoding);
-        }
+        super.doExecute(flyway);
 
         Map<String, String> mergedPlaceholders = new HashMap<String, String>();
         addPlaceholdersFromProperties(mergedPlaceholders, mavenProject.getProperties());
@@ -146,18 +128,11 @@ public class MigrateMojo extends AbstractFlywayMojo {
         if (placeholderSuffix != null) {
             flyway.setPlaceholderSuffix(placeholderSuffix);
         }
-        if (sqlMigrationPrefix != null) {
-            flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
+        if (validationMode != null) {
+            flyway.setValidationMode(ValidationMode.valueOf(validationMode.toUpperCase()));
         }
-        if (sqlMigrationSuffix != null) {
-            flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
-        }
-        if (validate != null) {
-            final ValidationType validationType = ValidationType.fromCode(validate);
-            if (validationType == null) {
-                throw new IllegalStateException("unsupported value for validate: " + validate);
-            }
-            flyway.setValidationType(validationType);
+        if (validationErrorMode != null) {
+            flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorMode.toUpperCase()));
         }
 
         flyway.migrate();

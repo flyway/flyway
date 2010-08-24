@@ -18,7 +18,6 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import org.apache.maven.plugin.MojoExecutionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +26,12 @@ import java.util.List;
  * Maven goal that shows the status (current version) of the database.
  *
  * @goal status
- * @requiresDependencyResolution compile
- * @configurator include-project-dependencies
  * @since 0.8
  */
-@SuppressWarnings({"UnusedDeclaration"})
+@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class StatusMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecute(Flyway flyway) throws MojoExecutionException {
+    protected void doExecute(Flyway flyway) throws Exception {
         MetaDataTableRow metaDataTableRow = flyway.status();
 
         List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>();

@@ -22,10 +22,9 @@ import com.googlecode.flyway.core.Flyway;
  * Maven goal that drops all database object.
  *
  * @goal clean
- * @requiresDependencyResolution compile
- * @configurator include-project-dependencies
  * @since 0.7
  */
+@SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
 public class CleanMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
