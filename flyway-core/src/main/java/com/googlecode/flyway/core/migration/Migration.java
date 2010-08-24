@@ -17,45 +17,20 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.StopWatch;
-
-import java.util.Date;
 
 /**
  * A migration of a single version of the schema.
  *
  * @author Axel Fontaine
  */
-public class Migration implements Comparable<Migration> {
-    /**
-     * Logger.
-     */
-    private static final Log LOG = LogFactory.getLog(Migration.class);
-
+public abstract class Migration implements Comparable<Migration> {
     /**
      * The target schema version of this migration.
      */
     protected SchemaVersion schemaVersion = SchemaVersion.EMPTY;
-
-    /**
-     * The state of this migration.
-     */
-    protected MigrationState migrationState = MigrationState.UNKNOWN;
-
-    /**
-     * The timestamp when this migration was applied to the database. (Automatically set by the database)
-     */
-    protected Date installedOn;
-
-    /**
-     * The time (in ms) it took to execute.
-     */
-    protected Integer executionTime;
 
     /**
      * The script name for the migration history.
@@ -70,17 +45,9 @@ public class Migration implements Comparable<Migration> {
     protected Integer checksum;
 
     /**
-     * The type of migration (SQL or JAVA)
+     * @return The type of migration (INIT, SQL or JAVA)
      */
-    protected MigrationType migrationType;
-
-
-    /**
-     * @return The type of migration (SQL or JAVA)
-     */
-    public MigrationType getMigrationType() {
-        return migrationType;
-    }
+    public abstract MigrationType getMigrationType();
 
     /**
      * @return The checksum of the migration.
@@ -97,78 +64,10 @@ public class Migration implements Comparable<Migration> {
     }
 
     /**
-     * @return The state of this migration.
-     */
-    public MigrationState getState() {
-        return migrationState;
-    }
-
-    /**
-     * @return The timestamp when this migration was applied to the database. (Automatically set by the database)
-     */
-    public Date getInstalledOn() {
-        return installedOn;
-    }
-
-    /**
-     * @return The time (in ms) it took to execute.
-     */
-    public Integer getExecutionTime() {
-        return executionTime;
-    }
-
-    /**
      * @return The script name for the migration history.
      */
     public String getScript() {
         return script;
-    }
-
-    /**
-     * Asserts that this migration has not failed.
-     *
-     * @throws IllegalStateException Thrown when this migration has failed.
-     */
-    public void assertNotFailed() {
-        if (MigrationState.FAILED == migrationState) {
-            throw new IllegalStateException("Migration to version " + schemaVersion
-                    + " failed! Please restore backups and roll back database and code!");
-        }
-    }
-
-    /**
-     * Performs the migration. The migration state and the execution time are
-     * updated accordingly.
-     *
-     * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        To execute the migration statements.
-     * @param dbSupport           The support for database-specific extensions.
-     */
-    public final void migrate(final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    doMigrate(transactionTemplate, jdbcTemplate, dbSupport);
-                    migrationState = MigrationState.SUCCESS;
-                } catch (Exception e) {
-                    LOG.error(e.getMessage());
-                    LOG.error(e.getCause().getMessage());
-                    migrationState = MigrationState.FAILED;
-                }
-            }
-        };
-        Thread migrationThread = new Thread(runnable, "Flyway Migration");
-        migrationThread.start();
-        try {
-            migrationThread.join();
-        } catch (InterruptedException e) {
-            // Ignore
-        }
-        stopWatch.stop();
-        executionTime = (int) stopWatch.getLastTaskTimeMillis();
     }
 
     @Override
@@ -184,7 +83,5 @@ public class Migration implements Comparable<Migration> {
      * @param dbSupport           The support for database-specific extensions.
      * @throws DataAccessException Thrown when the migration failed.
      */
-    protected void doMigrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException {
-        // Do nothing by default.
-    }
+    public abstract void migrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;
 }

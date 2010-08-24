@@ -56,11 +56,10 @@ public class SqlMigration extends BaseMigration {
         // old script = "Sql File: " + sqlScriptResource.getFilename();
         this.script = sqlScriptResource.getFilename();
         this.placeholderReplacer = placeholderReplacer;
-        this.migrationType = MigrationType.SQL;
     }
 
     @Override
-    public void doMigrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+    public void migrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
         sqlScript.execute(transactionTemplate, jdbcTemplate);
     }
@@ -74,5 +73,10 @@ public class SqlMigration extends BaseMigration {
         final CRC32 crc32 = new CRC32();
         crc32.update(sql.getBytes());
         return (int) crc32.getValue();
+    }
+
+    @Override
+    public MigrationType getMigrationType() {
+        return MigrationType.SQL;
     }
 }

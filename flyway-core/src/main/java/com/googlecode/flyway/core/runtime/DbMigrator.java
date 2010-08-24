@@ -29,6 +29,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.StopWatch;
 
 import java.util.List;
 
@@ -80,7 +81,7 @@ public class DbMigrator {
      * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the
      *                            database.
      * @param dbSupport           Database-specific functionality.
-     * @param migrations  The available migrations.
+     * @param migrations          The available migrations.
      * @param metaDataTable       The database metadata table.
      */
     public DbMigrator(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport,
@@ -106,9 +107,9 @@ public class DbMigrator {
 
         int migrationSuccessCount = 0;
         while (true) {
-            Migration appliedMigration = (Migration) transactionTemplate.execute(new TransactionCallback() {
+            MetaDataTableRow metaDataTableRow = (MetaDataTableRow) transactionTemplate.execute(new TransactionCallback() {
                 @Override
-                public Migration doInTransaction(TransactionStatus status) {
+                public MetaDataTableRow doInTransaction(TransactionStatus status) {
                     metaDataTable.lock();
 
                     MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
@@ -127,29 +128,15 @@ public class DbMigrator {
                         return null;
                     }
 
-                    MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migration);
-
-                    LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScript());
-                    migration.migrate(transactionTemplate, jdbcTemplate, dbSupport);
-
-                    if (MigrationState.FAILED.equals(migration.getState()) && dbSupport.supportsDdlTransactions()) {
-                        throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
-                    }
-                    LOG.info(String.format("Finished migrating to version %s - %s (execution time %s)",
-                            migration.getVersion(), migration.getScript(), TimeFormat.format(migration.getExecutionTime())));
-
-                    metaDataTableRow.update(migration.getExecutionTime(), migration.getState());
-                    metaDataTable.insert(metaDataTableRow);
-
-                    return migration;
+                    return applyMigration(migration, transactionTemplate, jdbcTemplate, dbSupport);
                 }
             });
 
-            if (appliedMigration == null) {
+            if (metaDataTableRow == null) {
                 break;
             }
 
-            appliedMigration.assertNotFailed();
+            metaDataTableRow.assertNotFailed();
 
             migrationSuccessCount++;
         }
@@ -163,6 +150,59 @@ public class DbMigrator {
         }
 
         return migrationSuccessCount;
+    }
+
+    /**
+     * Applies this migration to the database. The migration state and the execution time are
+     * updated accordingly.
+     *
+     * @param migration           The migration to apply.
+     * @param transactionTemplate The transaction template to use.
+     * @param jdbcTemplate        To execute the migration statements.
+     * @param dbSupport           The support for database-specific extensions.
+     *
+     * @return The row that was added to the metadata table.
+     */
+    public final MetaDataTableRow applyMigration(final Migration migration, final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) {
+        MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migration);
+
+        LOG.info("Migrating to version " + migration.getVersion() + " - " + migration.getScript());
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        MigrationRunnable migrationRunnable = new MigrationRunnable() {
+            @Override
+            public void run() {
+                try {
+                    migration.migrate(transactionTemplate, jdbcTemplate, dbSupport);
+                    state = MigrationState.SUCCESS;
+                } catch (Exception e) {
+                    LOG.error(e.getMessage());
+                    LOG.error(e.getCause().getMessage());
+                    state = MigrationState.FAILED;
+                }
+            }
+        };
+        Thread migrationThread = new Thread(migrationRunnable, "Flyway Migration");
+        migrationThread.start();
+        try {
+            migrationThread.join();
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+        stopWatch.stop();
+        int executionTime = (int) stopWatch.getLastTaskTimeMillis();
+
+        if (MigrationState.FAILED.equals(migrationRunnable.state) && dbSupport.supportsDdlTransactions()) {
+            throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
+        }
+        LOG.info(String.format("Finished migrating to version %s - %s (execution time %s)",
+                migration.getVersion(), migration.getScript(), TimeFormat.format(executionTime)));
+
+        metaDataTableRow.update(executionTime, migrationRunnable.state);
+        metaDataTable.insert(metaDataTableRow);
+
+        return metaDataTableRow;
     }
 
     /**
@@ -193,4 +233,13 @@ public class DbMigrator {
         return nextMigration;
     }
 
+    /**
+     * Runnable for migrations to lets you determine determine the final state of the migration.
+     */
+    private static abstract class MigrationRunnable implements Runnable {
+        /**
+         * The final state of the migration.
+         */
+        protected MigrationState state;
+    }
 }

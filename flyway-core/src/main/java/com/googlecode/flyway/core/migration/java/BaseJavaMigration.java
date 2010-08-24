@@ -75,7 +75,7 @@ public abstract class BaseJavaMigration extends BaseMigration {
      * @throws IllegalStateException Thrown when the migration failed.
      */
     @Override
-    protected final void doMigrate(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) throws IllegalStateException {
+    public final void migrate(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) throws IllegalStateException {
         transactionTemplate.execute(new TransactionCallback() {
             @Override
             public Void doInTransaction(TransactionStatus status) {

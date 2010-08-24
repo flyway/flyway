@@ -86,6 +86,5 @@ public class DbInitializer {
         });
 
         LOG.info("Schema initialized with version: " + schemaVersion);
-
     }
 }
