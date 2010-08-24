@@ -146,7 +146,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void tableExists() throws Exception {
-        flyway.init(SchemaVersion.createInitialVersion(null, null));
+        flyway.init(null);
         assertTrue(getDbSupport().tableExists(new JdbcTemplate(migrationDataSource), "SCHEMA_VERSION"));
     }
 
@@ -154,7 +154,7 @@ public abstract class MigrationTestCase {
     public void columnExists() throws Exception {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
 
-        flyway.init(SchemaVersion.createInitialVersion(null, null));
+        flyway.init(null);
         assertTrue(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "DESCRIPTION"));
         assertFalse(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "INVALID"));
     }

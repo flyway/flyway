@@ -17,6 +17,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.pyx4j.log4j.MavenLogAppender;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,12 +31,16 @@ import java.sql.Driver;
 
 /**
  * Common base class for all mojos with all common attributes.<br>
+ *
+ * @requiresDependencyResolution compile
+ * @configurator include-project-dependencies
  */
+@SuppressWarnings({"JavaDoc"})
 abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Logger.
      */
-    protected static final Log LOG = LogFactory.getLog(AbstractFlywayMojo.class);
+    private static final Log LOG = LogFactory.getLog(AbstractFlywayMojo.class);
 
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
@@ -44,7 +49,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter default-value="${flyway.driver}"
      * @required
      */
-    protected String driver = null;
+    private String driver;
 
     /**
      * The jdbc url to use to connect to the database.<br>
@@ -53,7 +58,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter default-value="${flyway.url}"
      * @required
      */
-    protected String url;
+    private String url;
 
     /**
      * The user to use to connect to the database.<br>
@@ -62,7 +67,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter default-value="${flyway.user}"
      * @required
      */
-    protected String user;
+    private String user;
 
     /**
      * The password to use to connect to the database.<br>
@@ -70,7 +75,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter default-value="${flyway.password}"
      */
-    protected String password = "";
+    private String password = "";
 
     /**
      * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
@@ -116,8 +121,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             doExecute(flyway);
         } catch (Exception e) {
-            LOG.error(e);
-            throw new MojoExecutionException("Flyway Error: " + e.getMessage(), e);
+            LOG.error(e.toString());
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            if (rootCause != null) {
+                LOG.error(rootCause.toString());
+            }
+            throw new MojoExecutionException("Flyway Error: " + e.toString(), e);
         } finally {
             MavenLogAppender.endPluginLog(this);
         }

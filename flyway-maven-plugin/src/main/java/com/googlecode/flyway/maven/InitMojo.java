@@ -28,16 +28,15 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class InitMojo extends AbstractFlywayMojo {
     /**
-     * The initial version to put in the database. (default: 0) <br>
-     * default property: ${flyway.initialVersion}
+     * The initial version to put in the database. (default: 0) <br> default property: ${flyway.initialVersion}
      *
      * @parameter default-value="${flyway.initialVersion}"
      */
     private String initialVersion;
 
     /**
-     * The description of the initial version. (default: << Flyway Init >>)<br>
-     * default property: ${flyway.initialDescription}
+     * The description of the initial version. (default: << Flyway Init >>)<br> default property:
+     * ${flyway.initialDescription}
      *
      * @parameter default-value="${flyway.initialDescription}"
      */
@@ -45,6 +44,10 @@ public class InitMojo extends AbstractFlywayMojo {
 
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        flyway.init(SchemaVersion.createInitialVersion(initialVersion, initialDescription));
+        if ((initialVersion == null) && (initialDescription == null)) {
+            flyway.init(null);
+        } else {
+            flyway.init(new SchemaVersion(initialVersion, initialDescription));
+        }
     }
 }

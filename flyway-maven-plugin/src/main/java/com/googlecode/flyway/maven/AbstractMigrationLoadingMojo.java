@@ -21,11 +21,9 @@ import com.googlecode.flyway.core.Flyway;
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
  *
- * @requiresDependencyResolution compile
- * @configurator include-project-dependencies
  * @execute phase="compile"
  */
-public class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
+abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     /**
      * The base package where the Java migrations are located. (default: db.migration) <br>
      * Also configurable with Maven or System Property: ${flyway.basePackage}

@@ -16,7 +16,6 @@
 
 package com.googlecode.flyway.core.migration;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -54,41 +53,48 @@ public class SchemaVersionSmallTest {
         assertTrue(v201004180000.compareTo(SchemaVersion.LATEST) < 0);
         assertTrue(SchemaVersion.LATEST.compareTo(v201004180000) > 0);
     }
-    
+
     @Test
     public void testEquals() {
         final SchemaVersion a1 = new SchemaVersion("1.2.3-3", null);
         final SchemaVersion a2 = new SchemaVersion("1.2.3.3", null);
-        Assert.assertEquals(0, a1.compareTo(a2));
+        assertTrue(a1.compareTo(a2) == 0);
     }
 
     @Test
     public void testNumber() {
         final SchemaVersion a1 = new SchemaVersion("1.2.13-3", null);
         final SchemaVersion a2 = new SchemaVersion("1.2.3.3", null);
-        Assert.assertEquals(1, a1.compareTo(a2));
+        assertTrue(a1.compareTo(a2) > 0);
     }
 
     @Test
     public void testAlphaNumeric() {
         final SchemaVersion a1 = new SchemaVersion("1.2.1a-3", null);
         final SchemaVersion a2 = new SchemaVersion("1.2.1b.3", null);
-        Assert.assertEquals(-1, a1.compareTo(a2));
+        assertTrue(a1.compareTo(a2) < 0);
     }
 
     @Test
     public void testLength1() {
         final SchemaVersion a1 = new SchemaVersion("1.2.1-3", null);
         final SchemaVersion a2 = new SchemaVersion("1.2.1", null);
-        Assert.assertEquals(1, a1.compareTo(a2));
+        assertTrue(a1.compareTo(a2) > 0);
     }
 
     @Test
     public void testLength2() {
         final SchemaVersion a1 = new SchemaVersion("1.2.1", null);
         final SchemaVersion a2 = new SchemaVersion("1.2.1.1", null);
-        Assert.assertEquals(-1, a1.compareTo(a2));
+        assertTrue(a1.compareTo(a2) < 0);
     }
 
+    @Test
+    public void leadingZeroes() {
+        final SchemaVersion v1 = new SchemaVersion("1.0", null);
+        final SchemaVersion v2 = new SchemaVersion("001.0", null);
+        assertTrue(v1.compareTo(v2) == 0);
+        assertTrue(v1.equals(v2));
+    }
 }
 

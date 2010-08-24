@@ -66,29 +66,6 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     }
 
     /**
-     * Creates an initial SchemaVersion using this version string.
-     *
-     * @param rawVersion  (Optional) The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
-     * Default: 0.
-     * @param description (Optional) The description of this version. (Default: << Flyway Init >>)
-     *
-     * @return The initial schema version
-     */
-    public static SchemaVersion createInitialVersion(String rawVersion, String description) {
-        String initRawVersion = rawVersion;
-        if (initRawVersion == null) {
-            initRawVersion = "0";
-        }
-
-        String initDescription = description;
-        if (initDescription == null) {
-            initDescription = "<< Flyway Init >>";
-        }
-
-        return new SchemaVersion(initRawVersion, initDescription);
-    }
-
-    /**
      * @return The version string
      */
     public String getVersion() {
@@ -121,10 +98,7 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
         if (o == null || getClass() != o.getClass()) return false;
 
         SchemaVersion that = (SchemaVersion) o;
-
-        //noinspection SimplifiableIfStatement
-        if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        return version.equals(that.version);
+        return compareTo(that) == 0;
     }
 
     @Override
@@ -140,23 +114,19 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
             return 1;
         }
 
-        if (equals(o)) {
-            return 0;
-        }
-
-        if (equals(EMPTY)) {
+        if (this == EMPTY) {
             return Integer.MIN_VALUE;
         }
 
-        if (equals(LATEST)) {
+        if (this == LATEST) {
             return Integer.MAX_VALUE;
         }
 
-        if (o.equals(EMPTY)) {
+        if (o == EMPTY) {
             return Integer.MAX_VALUE;
         }
 
-        if (o.equals(LATEST)) {
+        if (o == LATEST) {
             return Integer.MIN_VALUE;
         }
         final String[] elements1 = getElements();
