@@ -22,7 +22,6 @@ import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Special type of migration used to mark the initial state of the database from which Flyway can migrate to subsequent
@@ -53,7 +52,7 @@ public class InitMigration extends Migration {
     }
 
     @Override
-    public void migrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException {
+    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException {
         //Nothing to do
     }
 }

@@ -19,9 +19,6 @@ package com.googlecode.flyway.core.migration.sql;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -87,19 +84,12 @@ public class SqlScript {
     /**
      * Executes this script against the database.
      *
-     * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        The jdbc template to use to execute this script.
+     * @param jdbcTemplate The jdbc template to use to execute this script.
      */
-    public void execute(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate) {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Void doInTransaction(TransactionStatus status) {
-                for (SqlStatement sqlStatement : sqlStatements) {
-                    sqlStatement.execute(jdbcTemplate);
-                }
-                return null;
-            }
-        });
+    public void execute(final JdbcTemplate jdbcTemplate) {
+        for (SqlStatement sqlStatement : sqlStatements) {
+            sqlStatement.execute(jdbcTemplate);
+        }
     }
 
     private List<SqlStatement> parse(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {

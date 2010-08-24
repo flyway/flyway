@@ -21,9 +21,6 @@ import com.googlecode.flyway.core.migration.BaseMigration;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -41,7 +38,8 @@ public abstract class BaseJavaMigration extends BaseMigration {
 
     /**
      * Initializes this Migration with this version
-     * @param version The version string for this migration, e.g. 1.2.3
+     *
+     * @param version     The version string for this migration, e.g. 1.2.3
      * @param description The description for this migration
      */
     protected BaseJavaMigration(String version, String description) {
@@ -69,25 +67,17 @@ public abstract class BaseJavaMigration extends BaseMigration {
     /**
      * Performs the migration.
      *
-     * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        To execute the migration statements.
-     * @param dbSupport           The support for database-specific extensions.
+     * @param jdbcTemplate To execute the migration statements.
+     * @param dbSupport    The support for database-specific extensions.
      * @throws IllegalStateException Thrown when the migration failed.
      */
     @Override
-    public final void migrate(TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) throws IllegalStateException {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Void doInTransaction(TransactionStatus status) {
-                try {
-                    doMigrateInTransaction(jdbcTemplate);
-                } catch (Exception e) {
-                    throw new IllegalStateException("Migration failed !", e);
-                }
-                return null;
-            }
-        });
-
+    public final void migrate(final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) throws IllegalStateException {
+        try {
+            doMigrateInTransaction(jdbcTemplate);
+        } catch (Exception e) {
+            throw new IllegalStateException("Migration failed !", e);
+        }
     }
 
     /**

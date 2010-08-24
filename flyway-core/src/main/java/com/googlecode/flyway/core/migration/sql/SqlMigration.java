@@ -22,7 +22,6 @@ import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.zip.CRC32;
 
@@ -45,7 +44,7 @@ public class SqlMigration extends BaseMigration {
      *
      * @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @param versionString The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g. 1_2__Description
+     * @param versionString       The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g. 1_2__Description
      * @param encoding            The encoding of this Sql migration.
      */
     public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, String versionString) {
@@ -59,9 +58,9 @@ public class SqlMigration extends BaseMigration {
     }
 
     @Override
-    public void migrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
-        sqlScript.execute(transactionTemplate, jdbcTemplate);
+        sqlScript.execute(jdbcTemplate);
     }
 
     /**

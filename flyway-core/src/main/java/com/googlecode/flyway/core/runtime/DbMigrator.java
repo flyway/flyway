@@ -174,7 +174,13 @@ public class DbMigrator {
             @Override
             public void run() {
                 try {
-                    migration.migrate(transactionTemplate, jdbcTemplate, dbSupport);
+                    transactionTemplate.execute(new TransactionCallback() {
+                        @Override
+                        public Void doInTransaction(TransactionStatus status) {
+                            migration.migrate(jdbcTemplate, dbSupport);
+                            return null;
+                        }
+                    });
                     state = MigrationState.SUCCESS;
                 } catch (Exception e) {
                     LOG.error(e.toString());

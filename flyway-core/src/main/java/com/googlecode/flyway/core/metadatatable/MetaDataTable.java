@@ -27,6 +27,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.sql.ResultSet;
@@ -99,14 +101,20 @@ public class MetaDataTable {
      */
     private void create() {
         String location = dbSupport.getScriptLocation() + "createMetaDataTable.sql";
-        String createMetaDataTableScriptSource = ResourceUtils.loadResourceAsString(location);
+        final String createMetaDataTableScriptSource = ResourceUtils.loadResourceAsString(location);
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("tableName", tableName);
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        final PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
-        SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholderReplacer);
-        sqlScript.execute(transactionTemplate, jdbcTemplate);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholderReplacer);
+                sqlScript.execute(jdbcTemplate);
+            }
+        });
+
         LOG.info("Metadata table created: " + tableName);
     }
 

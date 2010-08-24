@@ -84,7 +84,7 @@ public abstract class MetaDataTable085UpgraderTestCase {
         TransactionTemplate transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        createMetaDataTable085(transactionTemplate, jdbcTemplate);
+        createMetaDataTable085(jdbcTemplate);
 
         jdbcTemplate.update(
                 "INSERT INTO schema_version (version, script, execution_time, state, current_version) VALUES (?, ?, ?, ?, ?)",
@@ -121,7 +121,7 @@ public abstract class MetaDataTable085UpgraderTestCase {
         TransactionTemplate transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        createMetaDataTable085(transactionTemplate, jdbcTemplate);
+        createMetaDataTable085(jdbcTemplate);
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -167,10 +167,9 @@ public abstract class MetaDataTable085UpgraderTestCase {
     /**
      * Creates the metadata table in 0.8.5 format.
      *
-     * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        The jdbc template to use.
      */
-    private void createMetaDataTable085(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate) {
+    private void createMetaDataTable085(JdbcTemplate jdbcTemplate) {
         String location = getMetaDataTable085CreateScriptLocation();
         String scriptSource = ResourceUtils.loadResourceAsString(location);
 
@@ -179,6 +178,6 @@ public abstract class MetaDataTable085UpgraderTestCase {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
         SqlScript sqlScript = new SqlScript(scriptSource, placeholderReplacer);
-        sqlScript.execute(transactionTemplate, jdbcTemplate);
+        sqlScript.execute(jdbcTemplate);
     }
 }

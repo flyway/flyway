@@ -20,8 +20,6 @@ import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -62,7 +60,7 @@ public class DbCreator {
     public void createDatabase() {
         SqlScript sqlScript =
                 new SqlScript(ResourceUtils.loadResourceAsString(baseDir + "/createDatabase.sql"), PlaceholderReplacer.NO_PLACEHOLDERS);
-        sqlScript.execute(new TransactionTemplate(new DataSourceTransactionManager(rootDataSource)), new JdbcTemplate(rootDataSource));
+        sqlScript.execute(new JdbcTemplate(rootDataSource));
     }
 
     /**
@@ -72,6 +70,6 @@ public class DbCreator {
     public void dropDatabase() {
         SqlScript sqlScript =
                 new SqlScript(ResourceUtils.loadResourceAsString(baseDir + "/dropDatabase.sql"), PlaceholderReplacer.NO_PLACEHOLDERS);
-        sqlScript.execute(new TransactionTemplate(new DataSourceTransactionManager(rootDataSource)), new JdbcTemplate(rootDataSource));
+        sqlScript.execute(new JdbcTemplate(rootDataSource));
     }
 }

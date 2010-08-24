@@ -78,10 +78,9 @@ public abstract class Migration implements Comparable<Migration> {
     /**
      * Performs the migration.
      *
-     * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        To execute the migration statements.
      * @param dbSupport           The support for database-specific extensions.
      * @throws DataAccessException Thrown when the migration failed.
      */
-    public abstract void migrate(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;
+    public abstract void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;
 }

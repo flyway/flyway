@@ -22,10 +22,10 @@ import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StopWatch;
-
-import java.util.Locale;
 
 /**
  * Main workflow for cleaning the database.
@@ -73,7 +73,12 @@ public class DbCleaner {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         final SqlScript cleanScript = dbSupport.createCleanScript(jdbcTemplate);
-        cleanScript.execute(transactionTemplate, jdbcTemplate);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                cleanScript.execute(jdbcTemplate);
+            }
+        });
         stopWatch.stop();
         LOG.info(String.format("Cleaned database schema '%s' (execution time %s)",
                 dbSupport.getCurrentSchema(jdbcTemplate), TimeFormat.format(stopWatch.getTotalTimeMillis())));

@@ -26,6 +26,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.HashMap;
@@ -108,9 +110,14 @@ public class MetaDataTable085Upgrader {
 
         LOG.info("Upgrading MetaData table '" + tableName + "' from the old Flyway 0.8.5 format to new Flyway 0.9+ format");
 
-        addColumns();
-        migrateData();
-        addConstraints();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                addColumns();
+                migrateData();
+                addConstraints();
+            }
+        });
 
         LOG.info("MetaData table '" + tableName + "' successfully upgraded");
     }
@@ -127,7 +134,7 @@ public class MetaDataTable085Upgrader {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
         SqlScript sqlScript = new SqlScript(scriptSource, placeholderReplacer);
-        sqlScript.execute(transactionTemplate, jdbcTemplate);
+        sqlScript.execute(jdbcTemplate);
     }
 
     /**
@@ -182,6 +189,6 @@ public class MetaDataTable085Upgrader {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
         SqlScript sqlScript = new SqlScript(scriptSource, placeholderReplacer);
-        sqlScript.execute(transactionTemplate, jdbcTemplate);
+        sqlScript.execute(jdbcTemplate);
     }
 }
