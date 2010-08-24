@@ -6,7 +6,7 @@
     <packaging>pom</packaging>
     <name>${pom.artifactId}</name>
     <description>
-        Flyway is a database migration tool for Java. It is supports Sql and Java based migrations.
+        Flyway is a database migration tool for Java. It is supports Sql and Java based metaDataTableRows.
         It is based on convention over configuration and can be run from Maven or directly on application startup.
     </description>
     <url>http://code.google.com/p/flyway</url>

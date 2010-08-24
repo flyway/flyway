@@ -17,7 +17,7 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Assert;
@@ -75,9 +75,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         int countUserObjects = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
         assertEquals(0, countUserObjects);
 
-        final List<Migration> migrationList = flyway.history();
-        for (Migration migration : migrationList) {
-            Assert.assertNotNull(migration.getScript() + " has no checksum", migration.getChecksum());
+        final List<MetaDataTableRow> metaDataTableRows = flyway.history();
+        for (MetaDataTableRow metaDataTableRow : metaDataTableRows) {
+            Assert.assertNotNull(metaDataTableRow.getScript() + " has no checksum", metaDataTableRow.getChecksum());
         }
 
     }

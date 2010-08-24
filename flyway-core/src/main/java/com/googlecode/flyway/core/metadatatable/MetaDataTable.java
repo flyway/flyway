@@ -126,9 +126,9 @@ public class MetaDataTable {
      *                       {@code null} defaults the initial version to 0.
      */
     public void init(final SchemaVersion initialVersion) {
-        Migration migration = latestAppliedMigration();
-        if (migration != null) {
-            throw new IllegalStateException("Schema already initialized. Current Version: " + migration.getVersion());
+        MetaDataTableRow metaDataTableRow = latestAppliedMigration();
+        if (metaDataTableRow != null) {
+            throw new IllegalStateException("Schema already initialized. Current Version: " + metaDataTableRow.getVersion());
         }
 
         final Migration initialMigration = new Migration() {{
@@ -184,39 +184,39 @@ public class MetaDataTable {
     /**
      * @return The latest migration applied on the schema. {@code null} if no migration has been applied so far.
      */
-    public Migration latestAppliedMigration() {
+    public MetaDataTableRow latestAppliedMigration() {
         if (!exists()) {
             return null;
         }
 
         String query = getSelectStatement() + " where current_version=1";
         @SuppressWarnings({"unchecked"})
-        final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
+        final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
 
-        if (migrations.isEmpty()) {
+        if (metaDataTableRows.isEmpty()) {
             return null;
         }
 
-        return migrations.get(0);
+        return metaDataTableRows.get(0);
     }
 
     /**
      * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
      *         applied so far.
      */
-    public List<Migration> allAppliedMigrations() {
+    public List<MetaDataTableRow> allAppliedMigrations() {
         if (!exists()) {
-            return new ArrayList<Migration>();
+            return new ArrayList<MetaDataTableRow>();
         }
 
         String query = getSelectStatement();
 
         @SuppressWarnings({"unchecked"})
-        final List<Migration> migrations = jdbcTemplate.query(query, new MigrationRowMapper());
+        final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
 
-        Collections.sort(migrations);
+        Collections.sort(metaDataTableRows);
 
-        return migrations;
+        return metaDataTableRows;
     }
 
     /**
@@ -243,17 +243,17 @@ public class MetaDataTable {
     /**
      * Row mapper for Migrations.
      */
-    private class MigrationRowMapper implements RowMapper {
+    private class MetaDataTableRowMapper implements RowMapper {
         @Override
-        public Migration mapRow(final ResultSet rs, int rowNum) throws SQLException {
-            return new Migration() {{
+        public MetaDataTableRow mapRow(final ResultSet rs, int rowNum) throws SQLException {
+            return new MetaDataTableRow() {{
                 schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
-                migrationState = MigrationState.valueOf(rs.getString("STATE"));
-                installedOn = rs.getTimestamp("INSTALLED_ON");
-                executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
+                migrationType = MigrationType.valueOf(rs.getString("MIGRATION_TYPE"));
                 script = rs.getString("SCRIPT");
                 checksum = toInteger((Number) rs.getObject("CHECKSUM"));
-                migrationType = MigrationType.valueOf(rs.getString("MIGRATION_TYPE"));
+                installedOn = rs.getTimestamp("INSTALLED_ON");
+                executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
+                migrationState = MigrationState.valueOf(rs.getString("STATE"));
             }};
         }
     }

@@ -19,7 +19,7 @@ package com.googlecode.flyway.core.runtime;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable085Upgrader;
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
@@ -100,16 +100,16 @@ public abstract class MetaDataTable085UpgraderTestCase {
         //Second call should have no effect
         metaDataTable085Upgrader.upgrade();
 
-        List<Migration> migrations = flyway.history();
-        assertEquals(2, migrations.size());
+        List<MetaDataTableRow> metaDataTableRows = flyway.history();
+        assertEquals(2, metaDataTableRows.size());
 
-        Migration migration11 = migrations.get(0);
+        MetaDataTableRow migration11 = metaDataTableRows.get(0);
         assertEquals(MigrationType.SQL, migration11.getMigrationType());
         assertEquals("V1_1__Initial_version.sql", migration11.getScript());
         assertEquals(new Integer(1996767037), migration11.getChecksum());
         //assertNotNull(migration11.getInstalledBy());
 
-        Migration migration12 = migrations.get(1);
+        MetaDataTableRow migration12 = metaDataTableRows.get(1);
         assertEquals(MigrationType.JAVA, migration12.getMigrationType());
         assertEquals("V1_2__Sample_java_migration", migration12.getScript());
         assertNull(migration12.getChecksum());
@@ -142,22 +142,22 @@ public abstract class MetaDataTable085UpgraderTestCase {
         //Second call should have no effect
         metaDataTable085Upgrader.upgrade();
 
-        List<Migration> migrations = flyway.history();
-        assertEquals(3, migrations.size());
+        List<MetaDataTableRow> metaDataTableRows = flyway.history();
+        assertEquals(3, metaDataTableRows.size());
 
-        Migration migration1 = migrations.get(0);
+        MetaDataTableRow migration1 = metaDataTableRows.get(0);
         assertEquals(MigrationType.INIT, migration1.getMigrationType());
         assertEquals("V1_0__Flyway_init", migration1.getScript());
         assertNull(migration1.getChecksum());
         //assertNotNull(migration11.getInstalledBy());
 
-        Migration migration11 = migrations.get(1);
+        MetaDataTableRow migration11 = metaDataTableRows.get(1);
         assertEquals(MigrationType.SQL, migration11.getMigrationType());
         assertEquals("V1_1__Initial_version.sql", migration11.getScript());
         assertEquals(new Integer(1996767037), migration11.getChecksum());
         //assertNotNull(migration11.getInstalledBy());
 
-        Migration migration12 = migrations.get(2);
+        MetaDataTableRow migration12 = metaDataTableRows.get(2);
         assertEquals(MigrationType.JAVA, migration12.getMigrationType());
         assertEquals("V1_2__Sample_java_migration", migration12.getScript());
         assertNull(migration12.getChecksum());

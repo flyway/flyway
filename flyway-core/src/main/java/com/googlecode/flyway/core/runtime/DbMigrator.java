@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.runtime;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -110,7 +111,7 @@ public class DbMigrator {
                 public Migration doInTransaction(TransactionStatus status) {
                     metaDataTable.lock();
 
-                    Migration latestAppliedMigration = metaDataTable.latestAppliedMigration();
+                    MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
                     SchemaVersion currentSchemaVersion;
                     if (latestAppliedMigration == null) {
                         currentSchemaVersion = SchemaVersion.EMPTY;

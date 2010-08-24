@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.runtime;
 
 import com.googlecode.flyway.core.ValidationType;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
@@ -84,14 +85,14 @@ public class DbValidator {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        final List<Migration> appliedMigrations = metaDataTable.allAppliedMigrations();
+        final List<MetaDataTableRow> appliedMigrations = metaDataTable.allAppliedMigrations();
         if (appliedMigrations.size() > migrations.size()) {
             return String.format("more applied migrations than classpath migrations: applied migrations=%s, classpath migrations=%s",
                     appliedMigrations.size(), migrations.size());
         }
 
         for (int i = 0; i < appliedMigrations.size(); i++) {
-            Migration appliedMigration = appliedMigrations.get(i);
+            MetaDataTableRow appliedMigration = appliedMigrations.get(i);
             Migration classpathMigration = migrations.get(i);
 
             if (! appliedMigration.getVersion().equals(classpathMigration.getVersion())) {

@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable085Upgrader;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -317,7 +318,7 @@ public class Flyway {
      *
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
-    public Migration status() {
+    public MetaDataTableRow status() {
         MetaDataTable085Upgrader metaDataTable085Upgrader =
                 new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
         metaDataTable085Upgrader.upgrade();
@@ -330,7 +331,7 @@ public class Flyway {
      *
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      */
-    public List<Migration> history() {
+    public List<MetaDataTableRow> history() {
         MetaDataTable085Upgrader metaDataTable085Upgrader =
                 new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding);
         metaDataTable085Upgrader.upgrade();

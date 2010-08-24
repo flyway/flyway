@@ -16,28 +16,16 @@
 
 package com.googlecode.flyway.core.metadatatable;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.StopWatch;
 
 import java.util.Date;
 
 /**
  * A row in the schema metadata table containing information about a migration that has already been applied to a db.
  */
-public class MetaDataTableRow {
-    /**
-     * Logger.
-     */
-    private static final Log LOG = LogFactory.getLog(MetaDataTableRow.class);
-
+public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     /**
      * The target schema version of this migration.
      */
@@ -135,5 +123,10 @@ public class MetaDataTableRow {
             throw new IllegalStateException("Migration to version " + schemaVersion
                     + " failed! Please restore backups and roll back database and code!");
         }
+    }
+
+    @Override
+    public int compareTo(MetaDataTableRow o) {
+        return getVersion().compareTo(o.getVersion());
     }
 }

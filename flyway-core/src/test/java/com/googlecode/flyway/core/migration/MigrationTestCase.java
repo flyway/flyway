@@ -19,6 +19,7 @@ package com.googlecode.flyway.core.migration;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.ValidationType;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
 import org.junit.Before;
@@ -78,8 +79,8 @@ public abstract class MigrationTestCase {
         assertEquals(0, flyway.migrate());
         assertEquals(3, flyway.history().size());
 
-        for (Migration migration : flyway.history()) {
-            assertChecksum(migration);
+        for (MetaDataTableRow metaDataTableRow : flyway.history()) {
+            assertChecksum(metaDataTableRow);
         }
     }
 
@@ -88,7 +89,7 @@ public abstract class MigrationTestCase {
      *
      * @param appliedMigration The migration to check.
      */
-    private void assertChecksum(Migration appliedMigration) {
+    private void assertChecksum(MetaDataTableRow appliedMigration) {
         ClassPathResource resource = new ClassPathResource(getBaseDir() + "/" + appliedMigration.getScript());
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "", "");
         Migration sqlMigration = new SqlMigration(resource, placeholderReplacer, "UTF-8", "1");
@@ -133,7 +134,7 @@ public abstract class MigrationTestCase {
             //Expected
         }
 
-        Migration migration = flyway.status();
+        MetaDataTableRow migration = flyway.status();
         SchemaVersion schemaVersion = migration.getVersion();
         assertEquals("1", schemaVersion.getVersion());
         assertEquals("Should Fail", schemaVersion.getDescription());

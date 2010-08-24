@@ -16,7 +16,7 @@
 
 package com.googlecode.flyway.maven;
 
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,37 +28,37 @@ import java.util.List;
 /**
  * Dumps migrations in an ascii-art table in the logs and the Maven console.
  */
-public class MigrationDumper {
+public class MetaDataTableRowDumper {
     /**
      * Logger.
      */
-    private static final Log LOG = LogFactory.getLog(MigrationDumper.class);
+    private static final Log LOG = LogFactory.getLog(MetaDataTableRowDumper.class);
 
     /**
      * Prevent instantiation.
      */
-    private MigrationDumper() {
+    private MetaDataTableRowDumper() {
         // Do nothing
     }
 
     /**
-     * Dumps this list of migrations in the log file.
+     * Dumps this list of metaDataTableRows in the log file.
      *
-     * @param migrations The list of migrations to dump.
+     * @param metaDataTableRows The list of metaDataTableRows to dump.
      */
-    public static void dumpMigrations(List<Migration> migrations) {
+    public static void dumpMigrations(List<MetaDataTableRow> metaDataTableRows) {
         LOG.info("+-------------+------------------------+---------------------+---------+");
         LOG.info("| Version     | Description            | Installed on        | State   |");
         LOG.info("+-------------+------------------------+---------------------+---------+");
 
-        if (migrations.isEmpty()) {
+        if (metaDataTableRows.isEmpty()) {
             LOG.info("| No migrations applied yet                                            |");
         } else {
-            for (Migration migration : migrations) {
-                LOG.info("| " + StringUtils.trimOrPad(migration.getVersion().getVersion(), 11)
-                        + " | " + StringUtils.trimOrPad(migration.getVersion().getDescription(), 22)
-                        + " | " + StringUtils.trimOrPad(formatInstalledOnDate(migration.getInstalledOn()), 19)
-                        + " | " + StringUtils.trimOrPad(migration.getState().name(), 7) + " |");
+            for (MetaDataTableRow metaDataTableRow : metaDataTableRows) {
+                LOG.info("| " + StringUtils.trimOrPad(metaDataTableRow.getVersion().getVersion(), 11)
+                        + " | " + StringUtils.trimOrPad(metaDataTableRow.getVersion().getDescription(), 22)
+                        + " | " + StringUtils.trimOrPad(formatInstalledOnDate(metaDataTableRow.getInstalledOn()), 19)
+                        + " | " + StringUtils.trimOrPad(metaDataTableRow.getState().name(), 7) + " |");
             }
         }
 

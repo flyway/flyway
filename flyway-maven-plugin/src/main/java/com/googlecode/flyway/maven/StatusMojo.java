@@ -17,7 +17,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.util.ArrayList;
@@ -35,13 +35,13 @@ import java.util.List;
 public class StatusMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws MojoExecutionException {
-        Migration migration = flyway.status();
+        MetaDataTableRow metaDataTableRow = flyway.status();
 
-        List<Migration> migrations = new ArrayList<Migration>();
-        if (migration != null) {
-            migrations.add(migration);
+        List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>();
+        if (metaDataTableRow != null) {
+            metaDataTableRows.add(metaDataTableRow);
         }
 
-        MigrationDumper.dumpMigrations(migrations);
+        MetaDataTableRowDumper.dumpMigrations(metaDataTableRows);
     }
 }

@@ -17,7 +17,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.util.List;
@@ -30,11 +30,11 @@ import java.util.List;
  * @configurator include-project-dependencies
  * @since 0.9
  */
-@SuppressWarnings({"UnusedDeclaration"})
+@SuppressWarnings({"JavaDoc"})
 public class HistoryMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws MojoExecutionException {
-        List<Migration> migrations = flyway.history();
-        MigrationDumper.dumpMigrations(migrations);
+        List<MetaDataTableRow> metaDataTableRows = flyway.history();
+        MetaDataTableRowDumper.dumpMigrations(metaDataTableRows);
     }
 }
