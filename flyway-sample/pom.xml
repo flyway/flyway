@@ -3,11 +3,11 @@
     <parent>
         <groupId>com.googlecode.flyway</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>0.8.7-SNAPSHOT</version>
+        <version>0.9</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-sample</artifactId>
-    <version>0.8.7-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>jar</packaging>
     <name>${pom.artifactId}</name>
     <dependencies>
