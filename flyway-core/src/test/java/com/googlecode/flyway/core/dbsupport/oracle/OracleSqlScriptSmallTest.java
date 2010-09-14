@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class OracleSqlScriptSmallTest {
     @Test
-    public void testSqlStatements() throws Exception {
+    public void parseSqlStatements() throws Exception {
         String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/oracle/sql/placeholders/V1.sql").getInputStream(), Charset.forName("UTF-8")));
 
         OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
@@ -42,6 +42,19 @@ public class OracleSqlScriptSmallTest {
         assertEquals(18, sqlStatements.get(0).getLineNumber());
         assertEquals(27, sqlStatements.get(1).getLineNumber());
         assertEquals(32, sqlStatements.get(2).getLineNumber());
+        assertEquals("COMMIT", sqlStatements.get(2).getSql());
+    }
+
+    @Test
+    public void parseFunctionsAndProcedures() throws Exception {
+        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/oracle/sql/function/V1__Function.sql").getInputStream(), Charset.forName("UTF-8")));
+
+        OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        assertEquals(3, sqlStatements.size());
+        assertEquals(17, sqlStatements.get(0).getLineNumber());
+        assertEquals(26, sqlStatements.get(1).getLineNumber());
+        assertEquals(34, sqlStatements.get(2).getLineNumber());
         assertEquals("COMMIT", sqlStatements.get(2).getSql());
     }
 }

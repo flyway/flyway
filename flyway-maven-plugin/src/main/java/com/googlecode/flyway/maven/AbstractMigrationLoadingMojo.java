@@ -49,7 +49,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     private String encoding;
 
     /**
-     * The file name prefix for sql migrations (default: V)
+     * The file name prefix for Sql migrations (default: V)
      * Also configurable with Maven or System Property: ${flyway.sqlMigrationPrefix}
      *
      * @parameter default-value="${flyway.sqlMigrationPrefix}"
@@ -57,7 +57,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     private String sqlMigrationPrefix;
 
     /**
-     * The file name suffix for sql migrations (default: .sql)
+     * The file name suffix for Sql migrations (default: .sql)
      * Also configurable with Maven or System Property: ${flyway.sqlMigrationSuffix}
      *
      * @parameter default-value="${flyway.sqlMigrationSuffix}"
