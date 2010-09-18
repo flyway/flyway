@@ -36,7 +36,14 @@ public class OracleSqlScript extends SqlScript {
 
     @Override
     protected String checkForNewDelimiter(String line) {
-        if (line.toUpperCase().startsWith("DECLARE") || line.toUpperCase().startsWith("BEGIN")) {
+        String upperCaseLine = line.toUpperCase();
+
+        if (upperCaseLine.startsWith("DECLARE") || upperCaseLine.startsWith("BEGIN")) {
+            return "/";
+        }
+
+        if (upperCaseLine.startsWith("CREATE")
+                && (upperCaseLine.contains("FUNCTION") || upperCaseLine.contains("PROCEDURE"))) {
             return "/";
         }
 
