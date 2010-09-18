@@ -17,13 +17,13 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.PropertyConfigurator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.maven.project.MavenProject;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Maven goal that triggers the migration of the configured database to the latest version.
@@ -32,11 +32,6 @@ import java.util.Properties;
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class MigrateMojo extends AbstractMigrationLoadingMojo {
-    /**
-     * Prefix for additional placeholders that are configured through properties (System or POM).
-     */
-    private static final String ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
-
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.
      *
@@ -115,8 +110,8 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
         super.doExecute(flyway);
 
         Map<String, String> mergedPlaceholders = new HashMap<String, String>();
-        addPlaceholdersFromProperties(mergedPlaceholders, mavenProject.getProperties());
-        addPlaceholdersFromProperties(mergedPlaceholders, System.getProperties());
+        PropertyConfigurator.addPlaceholdersFromProperties(mergedPlaceholders, mavenProject.getProperties());
+        PropertyConfigurator.addPlaceholdersFromProperties(mergedPlaceholders, System.getProperties());
         if (placeholders != null) {
             mergedPlaceholders.putAll(placeholders);
         }
@@ -138,21 +133,4 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
         flyway.migrate();
     }
 
-    /**
-     * Adds the additional placeholders contained in these properties to the existing list.
-     *
-     * @param placeholders The existing list of placeholders.
-     * @param properties   The properties containing additional placeholders.
-     */
-    private void addPlaceholdersFromProperties(Map<String, String> placeholders, Properties properties) {
-        for (Object property : properties.keySet()) {
-            String propertyName = (String) property;
-            if (propertyName.startsWith(ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX)
-                    && propertyName.length() > ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX.length()) {
-                String placeholderName = propertyName.substring(ADDITIONAL_PLACEHOLDERS_PROPERTY_PREFIX.length());
-                String placeholderValue = properties.getProperty(propertyName);
-                placeholders.put(placeholderName, placeholderValue);
-            }
-        }
-    }
 }

@@ -22,13 +22,14 @@ import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable085Upgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
+import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.migration.DbMigrator;
+import com.googlecode.flyway.core.util.PropertyConfigurator;
 import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
@@ -40,12 +41,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -243,6 +239,16 @@ public class Flyway {
         LOG.debug("Schema: " + dbSupport.getCurrentSchema(jdbcTemplate));
 
         metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+    }
+
+    /**
+     * Updates Flyway configuration from properties.<br>
+     * Property names are documented in the flyway maven plugin.
+     * @param properties properties used for configuration
+     */    
+    @SuppressWarnings({"UnusedDeclaration"})
+    public void updateConfiguration(Properties properties) {
+        PropertyConfigurator.updateFromProperties(this, placeholders, properties);
     }
 
     /**
