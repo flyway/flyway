@@ -31,14 +31,12 @@
                 <groupId>${pom.groupId}</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${pom.version}</version>
-<!--
                 <configuration>
                     <driver>org.hsqldb.jdbcDriver</driver>
                     <url>jdbc:hsqldb:file:${project.build.directory}/db/flyway_sample;shutdown=true</url>
                     <user>SA</user>
                     <basePackage>com.googlecode.flyway.sample.migration</basePackage>
                 </configuration>
--->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
