@@ -30,7 +30,7 @@ public class InitMojo extends AbstractFlywayMojo {
     /**
      * The initial version to put in the database. (default: 0) <br> default property: ${flyway.initialVersion}
      *
-     * @parameter default-value="${flyway.initialVersion}"
+     * @parameter expression="${flyway.initialVersion}"
      */
     private String initialVersion;
 
@@ -38,7 +38,7 @@ public class InitMojo extends AbstractFlywayMojo {
      * The description of the initial version. (default: << Flyway Init >>)<br> default property:
      * ${flyway.initialDescription}
      *
-     * @parameter default-value="${flyway.initialDescription}"
+     * @parameter expression="${flyway.initialDescription}"
      */
     private String initialDescription;
 

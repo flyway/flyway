@@ -43,7 +43,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * The prefix of every placeholder. (default: ${ )<br>
      * Also configurable with Maven or System Property: ${flyway.placeholderPrefix}
      *
-     * @parameter default-value="${flyway.placeholderPrefix}"
+     * @parameter expression="${flyway.placeholderPrefix}"
      */
     private String placeholderPrefix;
 
@@ -51,7 +51,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * The suffix of every placeholder. (default: } )<br>
      * Also configurable with Maven or System Property: ${flyway.placeholderSuffix}
      *
-     * @parameter default-value="${flyway.placeholderSuffix}"
+     * @parameter expression="${flyway.placeholderSuffix}"
      */
     private String placeholderSuffix;
 
@@ -70,7 +70,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * <br/>
      * Also configurable with Maven or System Property: ${flyway.validationMode}
      *
-     * @parameter default-value="${flyway.validationMode}"
+     * @parameter expression="${flyway.validationMode}"
      */
     private String validationMode;
 
@@ -94,7 +94,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * <br/>
      * Also configurable with Maven or System Property: ${flyway.validationErrorMode}
      *
-     * @parameter default-value="${flyway.validationErrorMode}"
+     * @parameter expression="${flyway.validationErrorMode}"
      */
     private String validationErrorMode;
 

@@ -47,7 +47,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
      * default property: ${flyway.driver}
      *
-     * @parameter default-value="${flyway.driver}"
+     * @parameter expression="${flyway.driver}"
      * @required
      */
     private String driver;
@@ -56,7 +56,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The jdbc url to use to connect to the database.<br>
      * default property: ${flyway.url}
      *
-     * @parameter default-value="${flyway.url}"
+     * @parameter expression="${flyway.url}"
      * @required
      */
     private String url;
@@ -65,7 +65,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The user to use to connect to the database.<br>
      * default property: ${flyway.user}
      *
-     * @parameter default-value="${flyway.user}"
+     * @parameter expression="${flyway.user}"
      * @required
      */
     private String user;
@@ -74,7 +74,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The password to use to connect to the database.<br>
      * default property: ${flyway.password}
      *
-     * @parameter default-value="${flyway.password}"
+     * @parameter expression="${flyway.password}"
      */
     private String password = "";
 
@@ -82,7 +82,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
      * default property: ${flyway.schemaMetaDataTable}
      *
-     * @parameter default-value="${flyway.schemaMetaDataTable}"
+     * @parameter expression="${flyway.schemaMetaDataTable}"
      * @deprecated
      */
     private String schemaMetaDataTable;
@@ -91,7 +91,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
      * default property: ${flyway.schemaMetaDataTable}
      *
-     * @parameter default-value="${flyway.table}"
+     * @parameter expression="${flyway.table}"
      */
     private String table;
 

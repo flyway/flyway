@@ -29,7 +29,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * The base package where the Java migrations are located. (default: db.migration) <br>
      * Also configurable with Maven or System Property: ${flyway.basePackage}
      *
-     * @parameter default-value="${flyway.basePackage}"
+     * @parameter expression="${flyway.basePackage}"
      */
     private String basePackage;
 
@@ -37,7 +37,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * The base directory on the classpath where the Sql migrations are located. (default: sql/location)<br>
      * Also configurable with Maven or System Property: ${flyway.baseDir}
      *
-     * @parameter default-value="${flyway.baseDir}"
+     * @parameter expression="${flyway.baseDir}"
      */
     private String baseDir;
 
@@ -45,7 +45,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * The encoding of Sql migrations. (default: UTF-8)<br>
      * Also configurable with Maven or System Property: ${flyway.encoding}
      *
-     * @parameter default-value="${flyway.encoding}"
+     * @parameter expression="${flyway.encoding}"
      */
     private String encoding;
 
@@ -53,7 +53,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * The file name prefix for Sql migrations (default: V)
      * Also configurable with Maven or System Property: ${flyway.sqlMigrationPrefix}
      *
-     * @parameter default-value="${flyway.sqlMigrationPrefix}"
+     * @parameter expression="${flyway.sqlMigrationPrefix}"
      */
     private String sqlMigrationPrefix;
 
@@ -61,7 +61,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * The file name suffix for Sql migrations (default: .sql)
      * Also configurable with Maven or System Property: ${flyway.sqlMigrationSuffix}
      *
-     * @parameter default-value="${flyway.sqlMigrationSuffix}"
+     * @parameter expression="${flyway.sqlMigrationSuffix}"
      */
     private String sqlMigrationSuffix;
 
