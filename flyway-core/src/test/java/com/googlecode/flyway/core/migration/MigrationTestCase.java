@@ -158,4 +158,27 @@ public abstract class MigrationTestCase {
         assertTrue(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "DESCRIPTION"));
         assertFalse(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "INVALID"));
     }
+
+    /**
+     * check if meta table has no current migration (manually edited)
+     */
+    @Test
+    public void checkForInvalidMetatable() {
+        flyway.setBaseDir(getBaseDir());
+        try {
+            flyway.migrate();
+        } catch (Exception e) {
+            throw new RuntimeException("unhandled checked exception", e);
+        }
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
+        jdbcTemplate.update("UPDATE schema_version SET current_version = 0 where current_version = 1");
+        try {
+            flyway.migrate();
+            fail();
+        } catch (IllegalStateException e) {
+            // OK.
+        } catch (Exception e) {
+            throw new RuntimeException("unhandled checked exception", e);
+        }
+    }
 }

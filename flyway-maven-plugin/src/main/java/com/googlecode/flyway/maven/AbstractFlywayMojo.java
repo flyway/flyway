@@ -19,6 +19,7 @@ package com.googlecode.flyway.maven;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.pyx4j.log4j.MavenLogAppender;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
@@ -101,8 +102,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @throws Exception Thrown when the datasource could not be created.
      */
     private DataSource getDataSource() throws Exception {
-        Driver driverClazz = (Driver) Class.forName(driver).newInstance();
-        return new SimpleDriverDataSource(driverClazz, url, user, password);
+        final BasicDataSource datasource = new BasicDataSource();
+        datasource.setDriverClassName(driver);
+        datasource.setUrl(url);
+        datasource.setUsername(user);
+        datasource.setPassword(password);
+        return datasource;
     }
 
     @Override

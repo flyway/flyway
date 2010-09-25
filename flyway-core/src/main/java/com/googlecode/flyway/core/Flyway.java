@@ -310,6 +310,15 @@ public class Flyway {
         Collections.sort(allMigrations);
         Collections.reverse(allMigrations);
 
+        // check for more than one migration with same version
+        for (int i = 0; i < allMigrations.size() - 1; i++) {
+            Migration current = allMigrations.get(i);
+            Migration next = allMigrations.get(i+1);
+            if (current.compareTo(next) == 0) {
+                throw new IllegalStateException("Found more than one migration with version: " + current.getVersion().getVersion());
+            }
+        }
+
         return allMigrations;
     }
 

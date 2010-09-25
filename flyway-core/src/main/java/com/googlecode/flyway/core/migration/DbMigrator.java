@@ -138,6 +138,9 @@ public class DbMigrator {
                     MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
                     SchemaVersion currentSchemaVersion;
                     if (latestAppliedMigration == null) {
+                      if (metaDataTable.hasRows()) {
+                            throw new IllegalStateException("Cannot determine latest applied migration.");
+                        }
                         currentSchemaVersion = SchemaVersion.EMPTY;
                     } else {
                         latestAppliedMigration.assertNotFailed();
