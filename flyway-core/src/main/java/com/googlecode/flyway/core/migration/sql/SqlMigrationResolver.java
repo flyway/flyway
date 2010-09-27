@@ -97,10 +97,10 @@ public class SqlMigrationResolver implements MigrationResolver {
             return migrations;
         }
 
-        Resource[] resources = null;
+        Resource[] resources;
         try {
             final String searchPattern = sqlMigrationPrefix + "?*" + sqlMigrationSuffix;
-            resources = pathMatchingResourcePatternResolver.getResources("classpath:" + baseDir + "/" + searchPattern);
+            resources = pathMatchingResourcePatternResolver.getResources("classpath*:" + baseDir + "/" + searchPattern);
         } catch (IOException e) {
             throw new IllegalStateException("Error loading sql migration files", e);
         }
@@ -117,6 +117,8 @@ public class SqlMigrationResolver implements MigrationResolver {
      * Extracts the sql file version string from this file name.
      *
      * @param fileName The file name to parse.
+     * @param prefix The prefix to extract
+     * @param suffix The suffix to extract
      * @return The version string.
      */
     /* private -> for testing */
