@@ -36,8 +36,8 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected DbSupport getDbSupport() {
-        return new MySQLDbSupport();
+    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
+        return new MySQLDbSupport(jdbcTemplate);
     }
 
     /**

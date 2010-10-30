@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.runtime.MetaDataTable085UpgraderTestCase;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -31,8 +32,8 @@ public class H2MetaDataTable085UpgraderMediumTest extends MetaDataTable085Upgrad
     }
 
     @Override
-    protected DbSupport getDbSupport() {
-        return new H2DbSupport();
+    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
+        return new H2DbSupport(jdbcTemplate);
     }
 
     @Override

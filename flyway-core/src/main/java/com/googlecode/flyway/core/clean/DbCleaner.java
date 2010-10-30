@@ -72,7 +72,7 @@ public class DbCleaner {
         LOG.debug("Starting to drop all database objects ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        final SqlScript cleanScript = dbSupport.createCleanScript(jdbcTemplate);
+        final SqlScript cleanScript = dbSupport.createCleanScript();
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -81,6 +81,6 @@ public class DbCleaner {
         });
         stopWatch.stop();
         LOG.info(String.format("Cleaned database schema '%s' (execution time %s)",
-                dbSupport.getCurrentSchema(jdbcTemplate), TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                dbSupport.getCurrentSchema(), TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 }

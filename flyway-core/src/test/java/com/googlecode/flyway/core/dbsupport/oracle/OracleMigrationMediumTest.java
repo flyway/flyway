@@ -23,6 +23,7 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -48,8 +49,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected DbSupport getDbSupport() {
-        return new OracleDbSupport();
+    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
+        return new OracleDbSupport(jdbcTemplate);
     }
 
     /**

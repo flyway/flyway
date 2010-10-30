@@ -42,6 +42,20 @@ public class OracleDbSupport implements DbSupport {
      */
     private static final Log LOG = LogFactory.getLog(OracleDbSupport.class);
 
+    /**
+     * The jdbcTemplate to use.
+     */
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param jdbcTemplate The jdbcTemplate to use.
+     */
+    public OracleDbSupport(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/oracle/";
@@ -53,7 +67,7 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public String getCurrentSchema(JdbcTemplate jdbcTemplate) {
+    public String getCurrentSchema() {
         return (String) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
@@ -63,16 +77,11 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean supportsDatabase(String databaseProductName) {
-        return "Oracle".equals(databaseProductName);
-    }
-
-    @Override
-    public boolean tableExists(final JdbcTemplate jdbcTemplate, final String table) {
+    public boolean tableExists(final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(jdbcTemplate),
+                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(),
                         table.toUpperCase(), null);
                 return resultSet.next();
             }
@@ -80,11 +89,11 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean columnExists(final JdbcTemplate jdbcTemplate, final String table, final String column) {
+    public boolean columnExists(final String table, final String column) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
              @Override
              public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(jdbcTemplate),
+                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
                          table.toUpperCase(), column.toUpperCase());
                  return resultSet.next();
              }
@@ -107,18 +116,18 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
+    public SqlScript createCleanScript() {
         final List<String> allDropStatements = new ArrayList<String>();
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "SEQUENCE", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "FUNCTION", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "MATERIALIZED VIEW", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "PACKAGE", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "PROCEDURE", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "SYNONYM", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "VIEW", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "TABLE", "CASCADE CONSTRAINTS PURGE"));
-        allDropStatements.addAll(generateDropStatementsForObjectType(jdbcTemplate, "TYPE", ""));
-        allDropStatements.addAll(generateDropStatementsForSpatialExtensions(jdbcTemplate));
+        allDropStatements.addAll(generateDropStatementsForObjectType("SEQUENCE", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType("FUNCTION", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType("MATERIALIZED VIEW", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType("PACKAGE", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType("PROCEDURE", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType("SYNONYM", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType("TABLE", "CASCADE CONSTRAINTS PURGE"));
+        allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", ""));
+        allDropStatements.addAll(generateDropStatementsForSpatialExtensions());
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int count = 0;
@@ -133,13 +142,12 @@ public class OracleDbSupport implements DbSupport {
     /**
      * Generates the drop statements for all database objects of this type.
      *
-     * @param jdbcTemplate   The jdbc template to use to query the database.
      * @param objectType     The type of database object to drop.
      * @param extraArguments The extra arguments to add to the drop statement.
      * @return The complete drop statements, ready to execute.
      */
     @SuppressWarnings({"unchecked"})
-    private List<String> generateDropStatementsForObjectType(JdbcTemplate jdbcTemplate, String objectType, final String extraArguments) {
+    private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments) {
         return jdbcTemplate.query("SELECT object_type, object_name FROM user_objects WHERE object_type = ?",
                 new Object[]{objectType}, new RowMapper() {
                     @Override
@@ -152,14 +160,13 @@ public class OracleDbSupport implements DbSupport {
     /**
      * Generates the drop statements for Oracle Spatial Extensions-related database objects.
      *
-     * @param jdbcTemplate The jdbc template to use to query the database.
      * @return The complete drop statements, ready to execute.
      */
-    private List<String> generateDropStatementsForSpatialExtensions(JdbcTemplate jdbcTemplate) {
+    private List<String> generateDropStatementsForSpatialExtensions() {
         List<String> statements = new ArrayList<String>();
 
-        if (spatialExtensionsAvailable(jdbcTemplate)) {
-            String user = getCurrentSchema(jdbcTemplate);
+        if (spatialExtensionsAvailable()) {
+            String user = getCurrentSchema();
             statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
             statements.add("DELETE FROM mdsys.sdo_index_metadata_table WHERE sdo_index_owner = '" + user + "'");
         } else {
@@ -172,10 +179,9 @@ public class OracleDbSupport implements DbSupport {
     /**
      * Checks whether Oracle Spatial extensions are available or not.
      *
-     * @param jdbcTemplate The jdbc template to use to query the database.
      * @return {@code true} if they are available, {@code false} if not.
      */
-    private boolean spatialExtensionsAvailable(JdbcTemplate jdbcTemplate) {
+    private boolean spatialExtensionsAvailable() {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_tables WHERE owner = 'MDSYS' AND table_name = 'SDO_INDEX_METADATA_TABLE'") > 0;
     }
 }

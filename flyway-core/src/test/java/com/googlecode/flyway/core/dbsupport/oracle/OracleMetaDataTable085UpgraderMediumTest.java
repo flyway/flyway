@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.runtime.MetaDataTable085UpgraderTestCase;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -31,8 +32,8 @@ public class OracleMetaDataTable085UpgraderMediumTest extends MetaDataTable085Up
     }
 
     @Override
-    protected DbSupport getDbSupport() {
-        return new OracleDbSupport();
+    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
+        return new OracleDbSupport(jdbcTemplate);
     }
 
     @Override

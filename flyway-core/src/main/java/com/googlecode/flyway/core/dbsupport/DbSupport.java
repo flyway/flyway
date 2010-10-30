@@ -18,20 +18,19 @@ package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * Abstraction for database-specific functionality.
  */
 public interface DbSupport {
     /**
-     * Creates a new sql script from this resource with these placeholders to
-     * replace.
+     * Creates a new sql script from this resource with these placeholders to replace.
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @return A new sql script, containing the statements from this resource,
-     *         with all placeholders replaced.
+     *
+     * @return A new sql script, containing the statements from this resource, with all placeholders replaced.
+     *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer);
@@ -39,10 +38,9 @@ public interface DbSupport {
     /**
      * Creates a new sql script which clean the current schema, by dropping all objects.
      *
-     * @param jdbcTemplate The jdbc template used for querying the database.
      * @return A new sql script, containing drop statements for all objects
      */
-    SqlScript createCleanScript(JdbcTemplate jdbcTemplate);
+    SqlScript createCleanScript();
 
     /**
      * Returns the location on the classpath where the scripts for this database reside.
@@ -54,29 +52,28 @@ public interface DbSupport {
     /**
      * Checks whether this table is already present in the database.
      *
-     * @param jdbcTemplate The jdbc template used for querying the database.
-     * @param table        The table to look for.
+     * @param table The table to look for.
+     *
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
-    boolean tableExists(JdbcTemplate jdbcTemplate, String table);
+    boolean tableExists(String table);
 
     /**
      * Checks whether this column is already present in this table in the database.
      *
-     * @param jdbcTemplate The jdbc template used for querying the database.
-     * @param table        The table to look for.
-     * @param column       The column to look for.
+     * @param table  The table to look for.
+     * @param column The column to look for.
+     *
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
-    boolean columnExists(JdbcTemplate jdbcTemplate, String table, String column);
+    boolean columnExists(String table, String column);
 
     /**
      * Retrieves the current schema.
      *
-     * @param jdbcTemplate The jdbc template used for querying the database.
      * @return The current schema for this connection.
      */
-    String getCurrentSchema(JdbcTemplate jdbcTemplate);
+    String getCurrentSchema();
 
     /**
      * @return The database function that returns the current user.
@@ -84,25 +81,14 @@ public interface DbSupport {
     String getCurrentUserFunction();
 
     /**
-     * Checks whether this DbSupport class supports the database with this
-     * product name.
-     *
-     * @param databaseProductName The name of the database.
-     * @return {@code true} if the database is supported, {@code false} if not.
-     */
-    boolean supportsDatabase(String databaseProductName);
-
-    /**
      * Checks whether ddl transactions are supported for this database.
      *
-     * @return {@code true} if ddl transactions are supported, {@code false} if
-     *         not.
+     * @return {@code true} if ddl transactions are supported, {@code false} if not.
      */
     boolean supportsDdlTransactions();
 
     /**
-     * Checks whether locking using select ... for update is supported for this
-     * database.
+     * Checks whether locking using select ... for update is supported for this database.
      *
      * @return {@code true} if locking is supported, {@code false} if not.
      */

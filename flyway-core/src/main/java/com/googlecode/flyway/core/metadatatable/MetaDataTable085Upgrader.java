@@ -98,12 +98,12 @@ public class MetaDataTable085Upgrader {
      * Upgrades the metadata table to the newer format.
      */
     public void upgrade() {
-        if (!dbSupport.tableExists(jdbcTemplate, tableName)) {
+        if (!dbSupport.tableExists(tableName)) {
             // No table present, no need to upgrade
             return;
         }
 
-        if (dbSupport.columnExists(jdbcTemplate, tableName, "checksum")) {
+        if (dbSupport.columnExists(tableName, "checksum")) {
             // checksum column present, table already upgraded
             return;
         }

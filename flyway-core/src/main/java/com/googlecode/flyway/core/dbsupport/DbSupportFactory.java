@@ -49,10 +49,10 @@ public class DbSupportFactory {
     }
 
     /**
-     * Initializes the appropriate DbSupport class for the database product used
-     * by the data source.
+     * Initializes the appropriate DbSupport class for the database product used by the data source.
      *
      * @param jdbcTemplate The Jdbc Template to use to query the database.
+     *
      * @return The appropriate DbSupport class.
      */
     public static DbSupport createDbSupport(JdbcTemplate jdbcTemplate) {
@@ -60,30 +60,36 @@ public class DbSupportFactory {
 
         LOG.debug("Database: " + databaseProductName);
 
-        Collection<DbSupport> dbSupports = new ArrayList<DbSupport>();
-
-        dbSupports.add(new HsqlDbSupport());
-        dbSupports.add(new H2DbSupport());
-        dbSupports.add(new MySQLDbSupport());
-        dbSupports.add(new OracleDbSupport());
-
-        for (DbSupport dbSupport : dbSupports) {
-            if (dbSupport.supportsDatabase(databaseProductName)) {
-                if (!dbSupport.supportsLocking()) {
-                    LOG.info(databaseProductName + " does not support locking. No concurrent migration supported.");
-                }
-
-                return dbSupport;
-            }
+        DbSupport dbSupport = null;
+        if ("H2".equals(databaseProductName)) {
+            dbSupport = new H2DbSupport(jdbcTemplate);
+        }
+        if ("HSQL Database Engine".equals(databaseProductName)) {
+            dbSupport = new HsqlDbSupport(jdbcTemplate);
+        }
+        if ("MySQL".equals(databaseProductName)) {
+            dbSupport = new MySQLDbSupport(jdbcTemplate);
+        }
+        if ("Oracle".equals(databaseProductName)) {
+            dbSupport = new OracleDbSupport(jdbcTemplate);
         }
 
-        throw new IllegalArgumentException("Unsupported Database: " + databaseProductName);
+        if (dbSupport == null) {
+            throw new IllegalStateException("Unsupported Database: " + databaseProductName);
+        }
+
+        if (!dbSupport.supportsLocking()) {
+            LOG.info(databaseProductName + " does not support locking. No concurrent migration supported.");
+        }
+
+        return dbSupport;
     }
 
     /**
      * Retrieves the name of the database product.
      *
      * @param jdbcTemplate The Jdbc Template to use to query the database.
+     *
      * @return The name of the database product. Ex.: Oracle, MySQL, ...
      */
     private static String getDatabaseProductName(JdbcTemplate jdbcTemplate) {

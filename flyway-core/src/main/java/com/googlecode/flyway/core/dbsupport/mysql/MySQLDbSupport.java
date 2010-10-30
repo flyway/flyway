@@ -35,6 +35,20 @@ import java.util.Map;
  * Mysql-specific support.
  */
 public class MySQLDbSupport implements DbSupport {
+    /**
+     * The jdbcTemplate to use.
+     */
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param jdbcTemplate The jdbcTemplate to use.
+     */
+    public MySQLDbSupport(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/mysql/";
@@ -46,7 +60,7 @@ public class MySQLDbSupport implements DbSupport {
     }
 
     @Override
-    public String getCurrentSchema(JdbcTemplate jdbcTemplate) {
+    public String getCurrentSchema() {
         return (String) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
@@ -56,16 +70,11 @@ public class MySQLDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean supportsDatabase(String databaseProductName) {
-        return "MySQL".equals(databaseProductName);
-    }
-
-    @Override
-    public boolean tableExists(final JdbcTemplate jdbcTemplate, final String table) {
+    public boolean tableExists(final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(jdbcTemplate), null,
+                ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(), null,
                         table, null);
                 return resultSet.next();
             }
@@ -73,11 +82,11 @@ public class MySQLDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean columnExists(final JdbcTemplate jdbcTemplate, final String table, final String column) {
+    public boolean columnExists(final String table, final String column) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getColumns(getCurrentSchema(jdbcTemplate), null,
+                ResultSet resultSet = connection.getMetaData().getColumns(getCurrentSchema(), null,
                         table, column);
                 return resultSet.next();
             }
@@ -100,7 +109,7 @@ public class MySQLDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
+    public SqlScript createCleanScript() {
         int lineNumber = 0;
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
 
@@ -122,7 +131,7 @@ public class MySQLDbSupport implements DbSupport {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                        new Object[]{getCurrentSchema(jdbcTemplate)});
+                        new Object[]{getCurrentSchema()});
         lineNumber++;
         sqlStatements.add(new SqlStatement(lineNumber, "SET FOREIGN_KEY_CHECKS = 0"));
         for (Map<String, String> row : tableNames) {
@@ -146,7 +155,7 @@ public class MySQLDbSupport implements DbSupport {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> routineNames =
                 jdbcTemplate.queryForList(
                         "SELECT routine_name, routine_type FROM information_schema.routines WHERE routine_schema=?",
-                        new Object[]{getCurrentSchema(jdbcTemplate)});
+                        new Object[]{getCurrentSchema()});
         for (Map<String, String> row : routineNames) {
             lineNumber++;
             String routineName = row.get("routine_name");
@@ -168,7 +177,7 @@ public class MySQLDbSupport implements DbSupport {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> viewNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name FROM information_schema.views WHERE table_schema=?",
-                        new Object[]{getCurrentSchema(jdbcTemplate)});
+                        new Object[]{getCurrentSchema()});
         for (Map<String, String> row : viewNames) {
             lineNumber++;
             String viewName = row.get("table_name");

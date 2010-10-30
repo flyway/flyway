@@ -93,7 +93,7 @@ public class MetaDataTable {
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
     public boolean exists() {
-        return dbSupport.tableExists(jdbcTemplate, tableName);
+        return dbSupport.tableExists(tableName);
     }
 
     /**

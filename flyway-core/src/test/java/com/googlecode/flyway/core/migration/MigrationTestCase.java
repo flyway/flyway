@@ -66,9 +66,11 @@ public abstract class MigrationTestCase {
     protected abstract String getBaseDir();
 
     /**
+     * @param jdbcTemplate The jdbcTemplate to intialize the instance with.
+     *
      * @return The DbSupport class to test.
      */
-    protected abstract DbSupport getDbSupport();
+    protected abstract DbSupport getDbSupport(JdbcTemplate jdbcTemplate);
 
     @Test
     public void migrate() throws Exception {
@@ -147,7 +149,7 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init(null, null);
-        assertTrue(getDbSupport().tableExists(new JdbcTemplate(migrationDataSource), "SCHEMA_VERSION"));
+        assertTrue(getDbSupport(new JdbcTemplate(migrationDataSource)).tableExists("SCHEMA_VERSION"));
     }
 
     @Test
@@ -155,8 +157,8 @@ public abstract class MigrationTestCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
 
         flyway.init(null, null);
-        assertTrue(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "DESCRIPTION"));
-        assertFalse(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "INVALID"));
+        assertTrue(getDbSupport(jdbcTemplate).columnExists("SCHEMA_VERSION", "DESCRIPTION"));
+        assertFalse(getDbSupport(jdbcTemplate).columnExists("SCHEMA_VERSION", "INVALID"));
     }
 
     /**

@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -31,7 +32,7 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
 	}
 
     @Override
-    protected DbSupport getDbSupport() {
-        return new HsqlDbSupport();
+    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
+        return new HsqlDbSupport(jdbcTemplate);
     }
 }

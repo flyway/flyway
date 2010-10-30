@@ -70,9 +70,11 @@ public abstract class MetaDataTable085UpgraderTestCase {
     protected abstract String getBaseDir();
 
     /**
+     * @param jdbcTemplate The jdbcTemplate to instantiate it with.
+     *
      * @return The DbSupport class to test.
      */
-    protected abstract DbSupport getDbSupport();
+    protected abstract DbSupport getDbSupport(JdbcTemplate jdbcTemplate);
 
     /**
      * @return The location for the create script in the old format.
@@ -94,7 +96,7 @@ public abstract class MetaDataTable085UpgraderTestCase {
                 new Object[]{"1.2", "Java Class: V1_2__Sample_java_migration", 1234, MigrationState.SUCCESS.name(), true});
 
         MetaDataTable085Upgrader metaDataTable085Upgrader =
-                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, getDbSupport(), "SCHEMA_VERSION", getBaseDir(), "UTF-8");
+                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, getDbSupport(jdbcTemplate), "SCHEMA_VERSION", getBaseDir(), "UTF-8");
         metaDataTable085Upgrader.upgrade();
 
         //Second call should have no effect
@@ -136,7 +138,7 @@ public abstract class MetaDataTable085UpgraderTestCase {
                 new Object[]{"1.2", "Java Class: V1_2__Sample_java_migration", dateFormat.parse("2010-01-03 10:10:10"), 1234, MigrationState.SUCCESS.name(), true});
 
         MetaDataTable085Upgrader metaDataTable085Upgrader =
-                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, getDbSupport(), "SCHEMA_VERSION", getBaseDir(), "UTF-8");
+                new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, getDbSupport(jdbcTemplate), "SCHEMA_VERSION", getBaseDir(), "UTF-8");
         metaDataTable085Upgrader.upgrade();
 
         //Second call should have no effect

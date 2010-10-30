@@ -242,7 +242,7 @@ public class Flyway {
         jdbcTemplate = new JdbcTemplate(dataSource);
 
         dbSupport = DbSupportFactory.createDbSupport(jdbcTemplate);
-        LOG.debug("Schema: " + dbSupport.getCurrentSchema(jdbcTemplate));
+        LOG.debug("Schema: " + dbSupport.getCurrentSchema());
 
         metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
     }

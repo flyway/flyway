@@ -35,6 +35,20 @@ import java.util.Map;
  * H2 database specific support
  */
 public class H2DbSupport implements DbSupport {
+    /**
+     * The jdbcTemplate to use.
+     */
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param jdbcTemplate The jdbcTemplate to use.
+     */
+    public H2DbSupport(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/h2/";
@@ -46,7 +60,7 @@ public class H2DbSupport implements DbSupport {
     }
 
     @Override
-    public String getCurrentSchema(JdbcTemplate jdbcTemplate) {
+    public String getCurrentSchema() {
         return (String) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
@@ -62,16 +76,11 @@ public class H2DbSupport implements DbSupport {
     }
 
     @Override
-    public boolean supportsDatabase(String databaseProductName) {
-        return "H2".equals(databaseProductName);
-    }
-
-    @Override
-    public boolean tableExists(final JdbcTemplate jdbcTemplate, final String table) {
+    public boolean tableExists(final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(jdbcTemplate),
+                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(),
                         table.toUpperCase(), null);
                 return resultSet.next();
             }
@@ -79,11 +88,11 @@ public class H2DbSupport implements DbSupport {
     }
 
     @Override
-    public boolean columnExists(final JdbcTemplate jdbcTemplate, final String table, final String column) {
+    public boolean columnExists(final String table, final String column) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
              @Override
              public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(jdbcTemplate),
+                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
                          table.toUpperCase(), column.toUpperCase());
                  return resultSet.next();
              }
@@ -106,9 +115,9 @@ public class H2DbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createCleanScript(JdbcTemplate jdbcTemplate) {
+    public SqlScript createCleanScript() {
         @SuppressWarnings({"unchecked"})
-        List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + getCurrentSchema(jdbcTemplate));
+        List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + getCurrentSchema());
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int count = 0;
