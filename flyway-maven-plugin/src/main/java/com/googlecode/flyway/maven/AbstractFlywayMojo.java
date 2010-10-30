@@ -25,10 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Driver;
 
 /**
  * Common base class for all mojos with all common attributes.<br>
@@ -71,7 +69,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String user;
 
     /**
-     * The password to use to connect to the database.<br>
+     * The password to use to connect to the database. (default: <i>blank</i>)<br>
      * default property: ${flyway.password}
      *
      * @parameter expression="${flyway.password}"
@@ -101,13 +99,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @return The fully configured datasource.
      * @throws Exception Thrown when the datasource could not be created.
      */
-    private DataSource getDataSource() throws Exception {
-        final BasicDataSource datasource = new BasicDataSource();
-        datasource.setDriverClassName(driver);
-        datasource.setUrl(url);
-        datasource.setUsername(user);
-        datasource.setPassword(password);
-        return datasource;
+    private DataSource createDataSource() throws Exception {
+        final BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName(driver);
+        dataSource.setUrl(url);
+        dataSource.setUsername(user);
+        dataSource.setPassword(password);
+        return dataSource;
     }
 
     @Override
@@ -115,7 +113,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         MavenLogAppender.startPluginLog(this);
         try {
             Flyway flyway = new Flyway();
-            flyway.setDataSource(getDataSource());
+            flyway.setDataSource(createDataSource());
 
             if (schemaMetaDataTable != null) {
                 flyway.setTable(schemaMetaDataTable);

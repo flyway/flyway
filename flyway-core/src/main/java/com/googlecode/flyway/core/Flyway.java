@@ -29,7 +29,6 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.util.PropertyConfigurator;
 import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
@@ -37,10 +36,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
+import java.sql.Driver;
 import java.util.*;
 
 /**
@@ -53,6 +54,11 @@ public class Flyway {
      * Logger.
      */
     private static final Log LOG = LogFactory.getLog(Flyway.class);
+
+    /**
+     * Property name prefix for placeholders that are configured through properties.
+     */
+    private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
      * The base package where the Java migrations are located. (default:
@@ -242,16 +248,6 @@ public class Flyway {
     }
 
     /**
-     * Updates Flyway configuration from properties.<br>
-     * Property names are documented in the flyway maven plugin.
-     * @param properties properties used for configuration
-     */    
-    @SuppressWarnings({"UnusedDeclaration"})
-    public void updateConfiguration(Properties properties) {
-        PropertyConfigurator.updateFromProperties(this, placeholders, properties);
-    }
-
-    /**
      * Starts the database migration. All pending migrations will be applied in order.
      *
      * @return The number of successfully applied migrations.
@@ -370,5 +366,98 @@ public class Flyway {
      */
     public void init(SchemaVersion initialVersion) {
         new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable).init(initialVersion);
+    }
+
+    /**
+     * Configures Flyway with these properties. This overwrites any existing configuration.
+     * Property names are documented in the flyway maven plugin.
+     *
+     * @param properties Properties used for configuration.
+     */
+    public void configure(Properties properties) {
+        String driver = getRequiredProperty(properties, "flyway.driver");
+        Driver driverClazz;
+        try {
+            driverClazz = (Driver) Class.forName(driver).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Error instantiating database driver: " + driver, e);
+        }
+
+        String url = getRequiredProperty(properties, "flyway.url");
+        String user = getRequiredProperty(properties, "flyway.user");
+        String password = getRequiredProperty(properties, "flyway.password");
+
+        setDataSource(new SimpleDriverDataSource(driverClazz, url, user, password));
+
+        String baseDirProp = properties.getProperty("flyway.baseDir");
+        if (baseDirProp != null) {
+            setBaseDir(baseDirProp);
+        }
+        String placeholderPrefixProp = properties.getProperty("flyway.placeholderPrefix");
+        if (placeholderPrefixProp != null) {
+            setPlaceholderPrefix(placeholderPrefixProp);
+        }
+        String placeholderSuffixProp = properties.getProperty("flyway.placeholderSuffix");
+        if (placeholderSuffixProp != null) {
+            setPlaceholderSuffix(placeholderSuffixProp);
+        }
+        String sqlMigrationPrefixProp = properties.getProperty("flyway.sqlMigrationPrefix");
+        if (sqlMigrationPrefixProp != null) {
+            setSqlMigrationPrefix(sqlMigrationPrefixProp);
+        }
+        String sqlMigrationSuffixProp = properties.getProperty("flyway.sqlMigrationSuffix");
+        if (sqlMigrationSuffixProp != null) {
+            setSqlMigrationSuffix(sqlMigrationSuffixProp);
+        }
+        String basePackageProp = properties.getProperty("flyway.basePackage");
+        if (basePackageProp != null) {
+            setBasePackage(basePackageProp);
+        }
+        String encodingProp = properties.getProperty("flyway.encoding");
+        if (encodingProp != null) {
+            setEncoding(encodingProp);
+        }
+        String tableProp = properties.getProperty("flyway.table");
+        if (tableProp != null) {
+            setTable(tableProp);
+        }
+        String validationErrorModeProp = properties.getProperty("flyway.validationErrorMode");
+        if (validationErrorModeProp != null) {
+            setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeProp));
+        }
+        String validationModeProp = properties.getProperty("flyway.validationMode");
+        if (validationErrorModeProp != null) {
+            setValidationMode(ValidationMode.valueOf(validationModeProp));
+        }
+
+        Map<String, String> placeholdersFromProps = new HashMap<String, String>();
+        for (Object property : properties.keySet()) {
+            String propertyName = (String) property;
+            if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
+                    && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
+                String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
+                String placeholderValue = properties.getProperty(propertyName);
+                placeholdersFromProps.put(placeholderName, placeholderValue);
+            }
+        }
+        setPlaceholders(placeholdersFromProps);
+    }
+
+    /**
+     * Retrieves the property with this name from this properties object.
+     *
+     * @param properties The properties object to use.
+     * @param name The name of the property to get.
+     * @return The value of the property.
+     *
+     * @throws IllegalStateException Thrown when the required property wasn't found.
+     */
+    private String getRequiredProperty(Properties properties, String name) {
+        String value = properties.getProperty(name);
+        if (value == null) {
+            throw new IllegalStateException("Missing required property: " + name);
+        }
+
+        return value;
     }
 }

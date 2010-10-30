@@ -34,7 +34,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     private String basePackage;
 
     /**
-     * The base directory on the classpath where the Sql migrations are located. (default: sql/location)<br>
+     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br>
      * Also configurable with Maven or System Property: ${flyway.baseDir}
      *
      * @parameter expression="${flyway.baseDir}"
