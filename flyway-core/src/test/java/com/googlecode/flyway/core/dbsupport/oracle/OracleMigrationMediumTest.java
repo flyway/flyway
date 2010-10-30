@@ -64,8 +64,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1.1", schemaVersion.getVersion());
-        assertEquals("Populate table", schemaVersion.getDescription());
+        assertEquals("1.1", schemaVersion.toString());
+        assertEquals("Populate table", flyway.status().getDescription());
 
         SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
         assertEquals("Mr. T triggered", jdbcTemplate.queryForObject("select name from test_user", String.class));

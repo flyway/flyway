@@ -28,7 +28,7 @@ public class BaseJavaMigrationSmallTest {
     @Test
     public void version() {
         Migration migration = new V1_2_3__Dummy_migration();
-        assertEquals("1.2.3", migration.getVersion().getVersion());
-        assertEquals("Dummy migration", migration.getVersion().getDescription());
+        assertEquals("1.2.3", migration.getVersion().toString());
+        assertEquals("Dummy migration", migration.getDescription());
     }
 }

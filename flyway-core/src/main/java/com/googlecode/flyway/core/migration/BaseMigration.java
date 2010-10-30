@@ -26,11 +26,11 @@ public abstract class BaseMigration extends Migration {
 	 * Initializes the version of this Migration based on this standard Flyway
 	 * name.
 	 * 
-	 * @param migrationName The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g. 1_2__Description
-	 *            The migration name in standard Flyway format. Ex.:
+	 * @param migrationName The migration name in standard Flyway format <i>VERSION</i>__<i>DESCRIPTION</i>, e.g. 1_2__Description
 	 */
 	protected final void initVersion(String migrationName) {
 		schemaVersion = extractSchemaVersion(migrationName);
+        description = extractDescription(migrationName);
 	}
 
 	/**
@@ -42,19 +42,38 @@ public abstract class BaseMigration extends Migration {
 	 * @return The extracted schema version.
 	 */
 	/* private -> for testing */
-	static SchemaVersion extractSchemaVersion(String migrationName) {
+    static SchemaVersion extractSchemaVersion(String migrationName) {
         String rawVersion;
 
 		// Handle the description
-		String description = null;
 		int descriptionPos = migrationName.indexOf("__");
 		if (descriptionPos < 0) {
             rawVersion = migrationName;
         } else {
-			description = migrationName.substring(descriptionPos + 2).replaceAll("_", " ");
 			rawVersion = migrationName.substring(0, descriptionPos);
 		}
 
-		return new SchemaVersion(rawVersion.replace("_", "."), description);
+		return new SchemaVersion(rawVersion.replace("_", "."));
 	}
+
+    /**
+     * Extracts the description from a migration name formatted as
+     * 1_2__Description.
+     *
+     * @param migrationName
+     *            The string to parse.
+     * @return The extracted description.
+     */
+    /* private -> for testing */
+    static String extractDescription(String migrationName) {
+        String rawVersion;
+
+        // Handle the description
+        int descriptionPos = migrationName.indexOf("__");
+        if (descriptionPos >= 0) {
+            return migrationName.substring(descriptionPos + 2).replaceAll("_", " ");
+        }
+
+        return null;
+    }
 }

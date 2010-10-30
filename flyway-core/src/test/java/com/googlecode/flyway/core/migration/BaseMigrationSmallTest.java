@@ -30,9 +30,10 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionNoDescription() {
-        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("9_4");
-        assertEquals("9.4", schemaVersion.getVersion());
-        assertNull(schemaVersion.getDescription());
+        SchemaVersion version = BaseMigration.extractSchemaVersion("9_4");
+        String description = BaseMigration.extractDescription("9_4");
+        assertEquals("9.4", version.toString());
+        assertNull(description);
     }
 
     /**
@@ -40,9 +41,10 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionWithDescription() {
-        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("9_4__EmailAxel");
-        assertEquals("9.4", schemaVersion.getVersion());
-        assertEquals("EmailAxel", schemaVersion.getDescription());
+        SchemaVersion version = BaseMigration.extractSchemaVersion("9_4__EmailAxel");
+        String description = BaseMigration.extractDescription("9_4__EmailAxel");
+        assertEquals("9.4", version.toString());
+        assertEquals("EmailAxel", description);
     }
 
     /**
@@ -51,8 +53,9 @@ public class BaseMigrationSmallTest {
     @Test
     public void extractSchemaVersionWithDescriptionWithSpaces() {
         SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("9_4__Big_jump");
-        assertEquals("9.4", schemaVersion.getVersion());
-        assertEquals("Big jump", schemaVersion.getDescription());
+        String description = BaseMigration.extractDescription("9_4__Big_jump");
+        assertEquals("9.4", schemaVersion.toString());
+        assertEquals("Big jump", description);
     }
 
     /**
@@ -61,7 +64,8 @@ public class BaseMigrationSmallTest {
     @Test
     public void extractSchemaVersionWithLeadingZeroes() {
         SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("009_4__EmailAxel");
-        assertEquals("009.4", schemaVersion.getVersion());
-        assertEquals("EmailAxel", schemaVersion.getDescription());
+        String description = BaseMigration.extractDescription("009_4__EmailAxel");
+        assertEquals("009.4", schemaVersion.toString());
+        assertEquals("EmailAxel", description);
     }
 }

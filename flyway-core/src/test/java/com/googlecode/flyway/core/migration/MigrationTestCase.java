@@ -75,8 +75,8 @@ public abstract class MigrationTestCase {
         flyway.setBaseDir(getBaseDir());
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("2.0", schemaVersion.getVersion());
-        assertEquals("Add foreign key", schemaVersion.getDescription());
+        assertEquals("2.0", schemaVersion.toString());
+        assertEquals("Add foreign key", flyway.status().getDescription());
         assertEquals(0, flyway.migrate());
         assertEquals(3, flyway.history().size());
 
@@ -104,7 +104,7 @@ public abstract class MigrationTestCase {
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.getVersion());
+        assertEquals("1", schemaVersion.toString());
 
         flyway.setSqlMigrationPrefix("CheckValidate");
         flyway.validate();
@@ -117,7 +117,7 @@ public abstract class MigrationTestCase {
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.getVersion());
+        assertEquals("1", schemaVersion.toString());
 
         flyway.setValidationMode(ValidationMode.ALL);
         flyway.setValidationErrorMode(ValidationErrorMode.CLEAN);
@@ -137,16 +137,16 @@ public abstract class MigrationTestCase {
         }
 
         MetaDataTableRow migration = flyway.status();
-        SchemaVersion schemaVersion = migration.getVersion();
-        assertEquals("1", schemaVersion.getVersion());
-        assertEquals("Should Fail", schemaVersion.getDescription());
+        SchemaVersion version = migration.getVersion();
+        assertEquals("1", version.toString());
+        assertEquals("Should Fail", migration.getDescription());
         assertEquals(MigrationState.FAILED, migration.getState());
         assertEquals(1, flyway.history().size());
     }
 
     @Test
     public void tableExists() throws Exception {
-        flyway.init(null);
+        flyway.init(null, null);
         assertTrue(getDbSupport().tableExists(new JdbcTemplate(migrationDataSource), "SCHEMA_VERSION"));
     }
 
@@ -154,7 +154,7 @@ public abstract class MigrationTestCase {
     public void columnExists() throws Exception {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
 
-        flyway.init(null);
+        flyway.init(null, null);
         assertTrue(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "DESCRIPTION"));
         assertFalse(getDbSupport().columnExists(jdbcTemplate, "SCHEMA_VERSION", "INVALID"));
     }

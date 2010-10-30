@@ -36,13 +36,20 @@ public class InitMigration extends Migration {
      *
      * @param schemaVersion The initial version to put in the metadata table.
      */
-    public InitMigration(SchemaVersion schemaVersion) {
+    public InitMigration(SchemaVersion schemaVersion, String description) {
         if (schemaVersion == null) {
-            this.schemaVersion = new SchemaVersion("0", "<< Flyway Init >>");
+            this.schemaVersion = new SchemaVersion("0");
         } else {
             this.schemaVersion = schemaVersion;
         }
-        script = this.schemaVersion.getDescription();
+
+        if (description == null) {
+            this.description =  "<< Flyway Init >>";
+        } else {
+            this.description = description;
+        }
+
+        this.script = this.description;
     }
 
     @Override

@@ -43,7 +43,8 @@ public abstract class BaseJavaMigration extends BaseMigration {
      * @param description The description for this migration
      */
     protected BaseJavaMigration(String version, String description) {
-        this.schemaVersion = new SchemaVersion(version, description);
+        this.schemaVersion = new SchemaVersion(version);
+        this.description = description;
         initScriptName();
     }
 

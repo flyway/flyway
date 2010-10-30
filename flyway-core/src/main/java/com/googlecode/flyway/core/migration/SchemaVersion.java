@@ -27,12 +27,12 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     /**
      * Schema version for an empty schema.
      */
-    public static final SchemaVersion EMPTY = new SchemaVersion("<< empty schema >>");
+    public static final SchemaVersion EMPTY = new SchemaVersion(null);
 
     /**
      * Latest schema version.
      */
-    public static final SchemaVersion LATEST = new SchemaVersion("<< latest >>");
+    public static final SchemaVersion LATEST = new SchemaVersion(Long.toString(Long.MAX_VALUE));
 
     /**
      * The printable version.
@@ -40,56 +40,25 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
     private final String version;
 
     /**
-     * The description of this version.
-     */
-    private final String description;
-
-    /**
-     * Creates a special version. For internal use only.
-     *
-     * @param version The version to display.
-     */
-    private SchemaVersion(String version) {
-        this.version = version;
-        this.description = null;
-    }
-
-    /**
      * Creates a SchemaVersion using this version string.
      *
-     * @param version  The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
-     * @param description The description of this version.
+     * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
+     *                means that this version refers to an empty schema.
      */
-    public SchemaVersion(String version, String description) {
-        this.description = description;
+    public SchemaVersion(String version) {
         this.version = version;
-    }
-
-    /**
-     * @return The version string
-     */
-    public String getVersion() {
-        return version;
-    }
-
-    /**
-     * @return The description of this version.
-     */
-    public String getDescription() {
-        return description;
     }
 
     private String[] getElements() {
         return StringUtils.split(version, ".-");
     }
 
+    /**
+     * @return The version string
+     */
     @Override
     public String toString() {
-        if (description == null) {
-            return version;
-        }
-
-        return version + " (" + description + ")";
+        return version;
     }
 
     @Override
@@ -103,9 +72,7 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
 
     @Override
     public int hashCode() {
-        int result = version.hashCode();
-        result = 31 * result + (description != null ? description.hashCode() : 0);
-        return result;
+        return version.hashCode();
     }
 
     @Override

@@ -33,6 +33,11 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     private SchemaVersion schemaVersion;
 
     /**
+     * The description for the migration history.
+     */
+    private String description;
+
+    /**
      * The type of the migration (INIT, SQL or JAVA).
      */
     private MigrationType migrationType;
@@ -66,6 +71,7 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      * Creates a new MetaDataTableRow. This constructor is here to support the rowmapper.
      *
      * @param schemaVersion The version of this migration.
+     * @param description   The description for the migration history.
      * @param migrationType The type of the migration (INIT, SQL or JAVA).
      * @param script        The script name for the migration history.
      * @param checksum      The checksum of the migration.
@@ -73,8 +79,10 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      * @param executionTime The time (in ms) it took to execute.
      * @param state         The state of this migration.
      */
-    public MetaDataTableRow(SchemaVersion schemaVersion, MigrationType migrationType, String script, Integer checksum, Date installedOn, Integer executionTime, MigrationState state) {
+    public MetaDataTableRow(SchemaVersion schemaVersion, String description, MigrationType migrationType, String script,
+                            Integer checksum, Date installedOn, Integer executionTime, MigrationState state) {
         this.schemaVersion = schemaVersion;
+        this.description = description;
         this.migrationType = migrationType;
         this.script = script;
         this.checksum = checksum;
@@ -90,6 +98,7 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      */
     public MetaDataTableRow(Migration migration) {
         schemaVersion = migration.getVersion();
+        description = migration.getDescription();
         migrationType = migration.getMigrationType();
         script = migration.getScript();
         checksum = migration.getChecksum();
@@ -125,6 +134,13 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      */
     public SchemaVersion getVersion() {
         return schemaVersion;
+    }
+
+    /**
+     * @return The description for the migration history.
+     */
+    public String getDescription() {
+        return description;
     }
 
     /**

@@ -72,8 +72,7 @@ public class DbMigrator {
      * Creates a new database migrator.
      *
      * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the
-     *                            database.
+     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
      * @param dbSupport           Database-specific functionality.
      * @param metaDataTable       The database metadata table.
      */
@@ -86,11 +85,12 @@ public class DbMigrator {
     }
 
     /**
-     * Initializes the metadata table with this version.
+     * Initializes the metadata table with this version and this description.
      *
-     * @param schemaVersion The version to initialize the metadata table with.
+     * @param version     The version to initialize the metadata table with.
+     * @param description The description for the ionitial version.
      */
-    public void init(SchemaVersion schemaVersion) {
+    public void init(SchemaVersion version, String description) {
         if (metaDataTable.hasRows()) {
             throw new IllegalStateException(
                     "Schema already initialized. Current Version: " + metaDataTable.latestAppliedMigration().getVersion());
@@ -98,7 +98,7 @@ public class DbMigrator {
 
         metaDataTable.createIfNotExists();
 
-        final Migration initialMigration = new InitMigration(schemaVersion);
+        final Migration initialMigration = new InitMigration(version, description);
 
         final MetaDataTableRow metaDataTableRow = new MetaDataTableRow(initialMigration);
         metaDataTableRow.update(0, MigrationState.SUCCESS);
@@ -111,15 +111,16 @@ public class DbMigrator {
             }
         });
 
-        LOG.info("Schema initialized with version: " + schemaVersion);
+        LOG.info("Schema initialized with version: " + metaDataTableRow.getVersion());
     }
 
     /**
      * Starts the actual migration.
      *
-     * @param migrations          The available migrations.
-
+     * @param migrations The available migrations.
+     *
      * @return The number of successfully applied migrations.
+     *
      * @throws Exception Thrown when a migration failed.
      */
     public int migrate(final List<Migration> migrations) throws Exception {
@@ -138,7 +139,7 @@ public class DbMigrator {
                     MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
                     SchemaVersion currentSchemaVersion;
                     if (latestAppliedMigration == null) {
-                      if (metaDataTable.hasRows()) {
+                        if (metaDataTable.hasRows()) {
                             throw new IllegalStateException("Cannot determine latest applied migration.");
                         }
                         currentSchemaVersion = SchemaVersion.EMPTY;
@@ -179,13 +180,13 @@ public class DbMigrator {
     }
 
     /**
-     * Applies this migration to the database. The migration state and the execution time are
-     * updated accordingly.
+     * Applies this migration to the database. The migration state and the execution time are updated accordingly.
      *
      * @param migration           The migration to apply.
      * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        To execute the migration statements.
      * @param dbSupport           The support for database-specific extensions.
+     *
      * @return The row that was added to the metadata table.
      */
     public final MetaDataTableRow applyMigration(final Migration migration, final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) {
@@ -245,12 +246,13 @@ public class DbMigrator {
      *
      * @param currentVersion The current version of the schema.
      * @param allMigrations  All available migrations, sorted by version, newest first.
+     *
      * @return The next migration to apply.
      */
     private Migration getNextMigration(List<Migration> allMigrations, SchemaVersion currentVersion) {
         SchemaVersion newestMigrationVersion = allMigrations.get(0).getVersion();
         if (newestMigrationVersion.compareTo(currentVersion) < 0) {
-            LOG.warn("Database version (" + currentVersion.getVersion() + ") is newer than the latest migration ("
+            LOG.warn("Database version (" + currentVersion + ") is newer than the latest migration ("
                     + newestMigrationVersion + ") !");
             return null;
         }

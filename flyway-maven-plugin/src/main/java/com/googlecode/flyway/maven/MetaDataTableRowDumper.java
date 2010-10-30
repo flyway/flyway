@@ -55,8 +55,8 @@ public class MetaDataTableRowDumper {
             LOG.info("| No migrations applied yet                                            |");
         } else {
             for (MetaDataTableRow metaDataTableRow : metaDataTableRows) {
-                LOG.info("| " + StringUtils.trimOrPad(metaDataTableRow.getVersion().getVersion(), 11)
-                        + " | " + StringUtils.trimOrPad(metaDataTableRow.getVersion().getDescription(), 22)
+                LOG.info("| " + StringUtils.trimOrPad(metaDataTableRow.getVersion().toString(), 11)
+                        + " | " + StringUtils.trimOrPad(metaDataTableRow.getDescription(), 22)
                         + " | " + StringUtils.trimOrPad(formatInstalledOnDate(metaDataTableRow.getInstalledOn()), 19)
                         + " | " + StringUtils.trimOrPad(metaDataTableRow.getState().name(), 7) + " |");
             }

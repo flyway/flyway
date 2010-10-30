@@ -311,7 +311,7 @@ public class Flyway {
             Migration current = allMigrations.get(i);
             Migration next = allMigrations.get(i+1);
             if (current.compareTo(next) == 0) {
-                throw new IllegalStateException("Found more than one migration with version: " + current.getVersion().getVersion());
+                throw new IllegalStateException("Found more than one migration with version: " + current.getVersion());
             }
         }
 
@@ -363,9 +363,22 @@ public class Flyway {
      *
      * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version number
      *                       higher than this one will be considered for this database.
+     * @deprecated Use init(SchemaVersion initialVersion, String description). Will be removed before 1.0.
      */
+    @Deprecated
     public void init(SchemaVersion initialVersion) {
-        new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable).init(initialVersion);
+        init(initialVersion, null);
+    }
+
+    /**
+     * Creates and initializes the Flyway metadata table.
+     *
+     * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version number
+     *                       higher than this one will be considered for this database.
+     * @param description    (Optional) The description of the initial version.
+     */
+    public void init(SchemaVersion initialVersion, String description) {
+        new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable).init(initialVersion, description);
     }
 
     /**

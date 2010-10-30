@@ -106,7 +106,7 @@ public class DbValidator {
                 if (!first) {
                     stringBuilder.append(", ");
                 }
-                stringBuilder.append(schemaVersion.getVersion());
+                stringBuilder.append(schemaVersion);
                 first = false;
             }
 
@@ -120,7 +120,7 @@ public class DbValidator {
 
             if (!appliedMigration.getVersion().equals(classpathMigration.getVersion())) {
                 return String.format("Version mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScript(), appliedMigration.getVersion().getVersion(), classpathMigration.getVersion().getVersion());
+                        appliedMigration.getScript(), appliedMigration.getVersion(), classpathMigration.getVersion());
 
             }
             if (!appliedMigration.getMigrationType().equals(classpathMigration.getMigrationType())) {

@@ -144,9 +144,8 @@ public class MetaDataTable {
      */
     public void insert(final MetaDataTableRow metaDataTableRow) {
         jdbcTemplate.update("UPDATE " + tableName + " SET current_version=0");
-        final SchemaVersion schemaVersion = metaDataTableRow.getVersion();
-        final String version = schemaVersion.getVersion();
-        final String description = schemaVersion.getDescription();
+        final String version = metaDataTableRow.getVersion().toString();
+        final String description = metaDataTableRow.getDescription();
         final String state = metaDataTableRow.getState().name();
         final String migrationType = metaDataTableRow.getMigrationType().name();
         final Integer checksum = metaDataTableRow.getChecksum();
@@ -237,7 +236,8 @@ public class MetaDataTable {
     private class MetaDataTableRowMapper implements RowMapper {
         @Override
         public MetaDataTableRow mapRow(final ResultSet rs, int rowNum) throws SQLException {
-            SchemaVersion schemaVersion = new SchemaVersion(rs.getString("VERSION"), rs.getString("DESCRIPTION"));
+            SchemaVersion version = new SchemaVersion(rs.getString("VERSION"));
+            String description = rs.getString("DESCRIPTION");
             MigrationType migrationType = MigrationType.valueOf(rs.getString("TYPE"));
             String script = rs.getString("SCRIPT");
             Integer checksum = toInteger((Number) rs.getObject("CHECKSUM"));
@@ -245,7 +245,7 @@ public class MetaDataTable {
             Integer executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
             MigrationState migrationState = MigrationState.valueOf(rs.getString("STATE"));
 
-            return new MetaDataTableRow(schemaVersion, migrationType, script, checksum, installedOn, executionTime, migrationState);
+            return new MetaDataTableRow(version, description, migrationType, script, checksum, installedOn, executionTime, migrationState);
         }
     }
 }

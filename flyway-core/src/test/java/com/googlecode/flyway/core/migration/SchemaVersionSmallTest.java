@@ -26,14 +26,14 @@ import static org.junit.Assert.assertTrue;
 public class SchemaVersionSmallTest {
     @Test
     public void compareTo() {
-        SchemaVersion v1 = new SchemaVersion("1", null);
-        SchemaVersion v10 = new SchemaVersion("1.0", null);
-        SchemaVersion v11 = new SchemaVersion("1.1", null);
-        SchemaVersion v1100 = new SchemaVersion("1.1.0.0", null);
-        SchemaVersion v1101 = new SchemaVersion("1.1.0.1", null);
-        SchemaVersion v2 = new SchemaVersion("2", null);
-        SchemaVersion v201004171859 = new SchemaVersion("201004171859", null);
-        SchemaVersion v201004180000 = new SchemaVersion("201004180000", null);
+        SchemaVersion v1 = new SchemaVersion("1");
+        SchemaVersion v10 = new SchemaVersion("1.0");
+        SchemaVersion v11 = new SchemaVersion("1.1");
+        SchemaVersion v1100 = new SchemaVersion("1.1.0.0");
+        SchemaVersion v1101 = new SchemaVersion("1.1.0.1");
+        SchemaVersion v2 = new SchemaVersion("2");
+        SchemaVersion v201004171859 = new SchemaVersion("201004171859");
+        SchemaVersion v201004180000 = new SchemaVersion("201004180000");
 
         assertTrue(v1.compareTo(v10) == 0);
         assertTrue(v10.compareTo(v1) == 0);
@@ -56,43 +56,43 @@ public class SchemaVersionSmallTest {
 
     @Test
     public void testEquals() {
-        final SchemaVersion a1 = new SchemaVersion("1.2.3-3", null);
-        final SchemaVersion a2 = new SchemaVersion("1.2.3.3", null);
+        final SchemaVersion a1 = new SchemaVersion("1.2.3-3");
+        final SchemaVersion a2 = new SchemaVersion("1.2.3.3");
         assertTrue(a1.compareTo(a2) == 0);
     }
 
     @Test
     public void testNumber() {
-        final SchemaVersion a1 = new SchemaVersion("1.2.13-3", null);
-        final SchemaVersion a2 = new SchemaVersion("1.2.3.3", null);
+        final SchemaVersion a1 = new SchemaVersion("1.2.13-3");
+        final SchemaVersion a2 = new SchemaVersion("1.2.3.3");
         assertTrue(a1.compareTo(a2) > 0);
     }
 
     @Test
     public void testAlphaNumeric() {
-        final SchemaVersion a1 = new SchemaVersion("1.2.1a-3", null);
-        final SchemaVersion a2 = new SchemaVersion("1.2.1b.3", null);
+        final SchemaVersion a1 = new SchemaVersion("1.2.1a-3");
+        final SchemaVersion a2 = new SchemaVersion("1.2.1b.3");
         assertTrue(a1.compareTo(a2) < 0);
     }
 
     @Test
     public void testLength1() {
-        final SchemaVersion a1 = new SchemaVersion("1.2.1-3", null);
-        final SchemaVersion a2 = new SchemaVersion("1.2.1", null);
+        final SchemaVersion a1 = new SchemaVersion("1.2.1-3");
+        final SchemaVersion a2 = new SchemaVersion("1.2.1");
         assertTrue(a1.compareTo(a2) > 0);
     }
 
     @Test
     public void testLength2() {
-        final SchemaVersion a1 = new SchemaVersion("1.2.1", null);
-        final SchemaVersion a2 = new SchemaVersion("1.2.1.1", null);
+        final SchemaVersion a1 = new SchemaVersion("1.2.1");
+        final SchemaVersion a2 = new SchemaVersion("1.2.1.1");
         assertTrue(a1.compareTo(a2) < 0);
     }
 
     @Test
     public void leadingZeroes() {
-        final SchemaVersion v1 = new SchemaVersion("1.0", null);
-        final SchemaVersion v2 = new SchemaVersion("001.0", null);
+        final SchemaVersion v1 = new SchemaVersion("1.0");
+        final SchemaVersion v2 = new SchemaVersion("001.0");
         assertTrue(v1.compareTo(v2) == 0);
         assertTrue(v1.equals(v2));
     }

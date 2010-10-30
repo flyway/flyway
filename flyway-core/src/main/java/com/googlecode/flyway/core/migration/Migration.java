@@ -33,6 +33,11 @@ public abstract class Migration implements Comparable<Migration> {
     protected SchemaVersion schemaVersion = SchemaVersion.EMPTY;
 
     /**
+     * The description for the migration history.
+     */
+    protected String description;
+
+    /**
      * The script name for the migration history.
      */
     protected String script;
@@ -61,6 +66,13 @@ public abstract class Migration implements Comparable<Migration> {
      */
     public SchemaVersion getVersion() {
         return schemaVersion;
+    }
+
+    /**
+     * @return The description for the migration history.
+     */
+    public String getDescription() {
+        return description;
     }
 
     /**
