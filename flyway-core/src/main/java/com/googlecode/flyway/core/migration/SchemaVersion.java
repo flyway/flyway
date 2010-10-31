@@ -49,8 +49,11 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
         this.version = version;
     }
 
+    /**
+     * @return The individual elements this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
+     */
     private String[] getElements() {
-        return StringUtils.split(version, ".-");
+        return org.springframework.util.StringUtils.tokenizeToStringArray(version, ".-");
     }
 
     /**
@@ -98,8 +101,8 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
         }
         final String[] elements1 = getElements();
         final String[] elements2 = o.getElements();
-        int max = Math.min(elements1.length, elements2.length);
-        for (int i = 0; i < max; i++) {
+        int smallestNumberOfElements = Math.min(elements1.length, elements2.length);
+        for (int i = 0; i < smallestNumberOfElements; i++) {
             String element1 = elements1[i];
             String element2 = elements2[i];
             final int compared;
@@ -112,25 +115,31 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
                 return compared;
             }
         }
-        final int result = new Integer(elements1.length).compareTo(elements2.length);
-        if (result > 0 && justTrailingNull(elements1, max)) {
+
+        final int lengthDifference = elements1.length - elements2.length;
+        if (lengthDifference > 0 && onlyTrailingZeroes(elements1, smallestNumberOfElements)) {
             return 0;
         }
-        if (result < 0 && justTrailingNull(elements2, max)) {
+        if (lengthDifference < 0 && onlyTrailingZeroes(elements2, smallestNumberOfElements)) {
             return 0;
         }
-        return result;
+        return lengthDifference;
     }
 
-    private boolean justTrailingNull(String[] elements1, int max) {
-        for (int i = max; i < elements1.length; i++) {
-            String element = elements1[i];
+    /**
+     * Checks whether the elements at this position and beyond are only zeroes or not.
+     *
+     * @param elements The elements to check.
+     * @param position The position where to start checking.
+     * @return {@code true} if they are all zeroes, {@code false} if not.
+     */
+    private boolean onlyTrailingZeroes(String[] elements, int position) {
+        for (int i = position; i < elements.length; i++) {
+            String element = elements[i];
             if (!StringUtils.isNumeric(element) || !Long.valueOf(element).equals(0L)) {
                 return false;
             }
         }
         return true;
     }
-
-
 }
