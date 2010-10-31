@@ -30,8 +30,9 @@ public class StringUtils {
     /**
      * Trims or pads (with spaces) this string, so it has this exact length.
      *
-     * @param str The string to adjust. {@code null} is treated as an empty string.
+     * @param str    The string to adjust. {@code null} is treated as an empty string.
      * @param length The exact length to reach.
+     *
      * @return The adjusted string.
      */
     public static String trimOrPad(String str, int length) {
@@ -53,12 +54,11 @@ public class StringUtils {
     }
 
     /**
-     * <p>Checks if the String contains only unicode digits.
-     * A decimal point is not a unicode digit and returns false.</p>
-     *
-     * <p><code>null</code> will return <code>false</code>.
-     * An empty String ("") will return <code>true</code>.</p>
-     *
+     * <p>Checks if the String contains only unicode digits. A decimal point is not a unicode digit and returns
+     * false.</p>
+     * <p/>
+     * <p>{@code null} will return {@code false}. An empty String ("") will return {@code true}.</p>
+     * <p/>
      * <pre>
      * StringUtils.isNumeric(null)   = false
      * StringUtils.isNumeric("")     = true
@@ -70,19 +70,25 @@ public class StringUtils {
      * StringUtils.isNumeric("12.3") = false
      * </pre>
      *
-     * @param str  the String to check, may be null
-     * @return <code>true</code> if only contains digits, and is non-null
+     * @param str the String to check, may be null
+     *
+     * @return {@code true} if only contains digits, and is non-null
      */
     public static boolean isNumeric(String str) {
         if (str == null) {
             return false;
         }
-        int sz = str.length();
-        for (int i = 0; i < sz; i++) {
-            if (!Character.isDigit(str.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
+        return str.matches("\\d*");
+    }
+
+    /**
+     * Replaces all sequences of whitespace by a single blank. Ex.: "     " -> " "
+     *
+     * @param str The string to analyse.
+     *
+     * @return The input string, with all whitespace collapsed.
+     */
+    public static String collapseWhitespace(String str) {
+        return str.replaceAll("\\s+", " ");
     }
 }

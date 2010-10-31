@@ -19,6 +19,8 @@ package com.googlecode.flyway.core.util;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Testcase for StringUtils.
@@ -29,5 +31,29 @@ public class StringUtilsSmallTest {
         assertEquals("Hello World    ", StringUtils.trimOrPad("Hello World", 15));
         assertEquals("Hello Worl", StringUtils.trimOrPad("Hello World", 10));
         assertEquals("          ", StringUtils.trimOrPad(null, 10));
+    }
+
+    @Test
+    public void isNumeric() {
+        assertFalse(StringUtils.isNumeric(null));
+        assertTrue(StringUtils.isNumeric(""));
+        assertFalse(StringUtils.isNumeric("  "));
+        assertTrue(StringUtils.isNumeric("123"));
+        assertFalse(StringUtils.isNumeric("12 3"));
+        assertFalse(StringUtils.isNumeric("ab2c"));
+        assertFalse(StringUtils.isNumeric("12-3"));
+        assertFalse(StringUtils.isNumeric("12.3"));
+    }
+
+    @Test
+    public void collapseWhitespace() {
+        assertEquals("", StringUtils.collapseWhitespace(""));
+        assertEquals("abc", StringUtils.collapseWhitespace("abc"));
+        assertEquals("a b", StringUtils.collapseWhitespace("a b"));
+        assertEquals(" a ", StringUtils.collapseWhitespace(" a "));
+        assertEquals(" a ", StringUtils.collapseWhitespace("  a  "));
+        assertEquals("a b", StringUtils.collapseWhitespace("a          b"));
+        assertEquals("a b c", StringUtils.collapseWhitespace("a  b   c"));
+        assertEquals(" a b c ", StringUtils.collapseWhitespace("   a b   c  "));
     }
 }
