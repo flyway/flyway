@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.dbsupport.mysql;
+package com.googlecode.flyway.core.dbsupport.postgresql;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 
 /**
- * SqlScript supporting MySQL-specific delimiter changes.
+ * SqlScript supporting PostgreSQL routine definitions.
  */
-public class MySQLSqlScript extends SqlScript {
-    /**
-     * The keyword that indicates a change in delimiter.
-     */
-    private static final String DELIMITER_KEYWORD = "DELIMITER";
-
+public class PostgreSQLSqlScript extends SqlScript {
     /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
@@ -35,21 +30,24 @@ public class MySQLSqlScript extends SqlScript {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    public MySQLSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+    public PostgreSQLSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         super(sqlScriptSource, placeholderReplacer);
     }
 
     @Override
     protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
-        if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
-            return line.substring(DELIMITER_KEYWORD.length()).trim();
+        String upperCaseStatement = statement.toUpperCase();
+
+        if (upperCaseStatement.startsWith("CREATE") && upperCaseStatement.contains("FUNCTION")) {
+            if (upperCaseStatement.matches(".* AS \\$[A-Z0-9]*\\$.*")) {
+                if (upperCaseStatement.matches(".* AS \\$[A-Z0-9]*\\$.*\\$[A-Z0-9]*\\$.*")) {
+                    return ";";
+                } else {
+                    return null;
+                }
+            }
         }
 
         return delimiter;
-    }
-
-    @Override
-    protected boolean isDelimiterChangeExplicit() {
-        return true;
     }
 }

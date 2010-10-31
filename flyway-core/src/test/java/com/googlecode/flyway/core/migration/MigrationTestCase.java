@@ -17,12 +17,12 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import com.googlecode.flyway.core.validation.ValidationMode;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
+import com.googlecode.flyway.core.validation.ValidationErrorMode;
+import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,10 +34,7 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Test to demonstrate the migration functionality.
@@ -139,11 +136,15 @@ public abstract class MigrationTestCase {
         }
 
         MetaDataTableRow migration = flyway.status();
-        SchemaVersion version = migration.getVersion();
-        assertEquals("1", version.toString());
-        assertEquals("Should Fail", migration.getDescription());
-        assertEquals(MigrationState.FAILED, migration.getState());
-        assertEquals(1, flyway.history().size());
+        if (getDbSupport(new JdbcTemplate(migrationDataSource)).supportsDdlTransactions()) {
+            assertNull(migration);
+        } else {
+            SchemaVersion version = migration.getVersion();
+            assertEquals("1", version.toString());
+            assertEquals("Should Fail", migration.getDescription());
+            assertEquals(MigrationState.FAILED, migration.getState());
+            assertEquals(1, flyway.history().size());
+        }
     }
 
     @Test
@@ -173,7 +174,9 @@ public abstract class MigrationTestCase {
             throw new RuntimeException("unhandled checked exception", e);
         }
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
-        jdbcTemplate.update("UPDATE schema_version SET current_version = 0 where current_version = 1");
+        DbSupport dbSupport = getDbSupport(jdbcTemplate);
+        jdbcTemplate.update("UPDATE schema_version SET current_version = " + dbSupport.getBooleanFalse()
+                + " where current_version = " + dbSupport.getBooleanTrue());
         try {
             flyway.migrate();
             fail();

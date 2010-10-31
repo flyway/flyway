@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
+import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -72,6 +73,9 @@ public class DbSupportFactory {
         }
         if ("Oracle".equals(databaseProductName)) {
             dbSupport = new OracleDbSupport(jdbcTemplate);
+        }
+        if ("PostgreSQL".equals(databaseProductName)) {
+            dbSupport = new PostgreSQLDbSupport(jdbcTemplate);
         }
 
         if (dbSupport == null) {

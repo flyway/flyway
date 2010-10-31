@@ -143,7 +143,7 @@ public class MetaDataTable {
      * @param metaDataTableRow The metaDataTableRow to add.
      */
     public void insert(final MetaDataTableRow metaDataTableRow) {
-        jdbcTemplate.update("UPDATE " + tableName + " SET current_version=0");
+        jdbcTemplate.update("UPDATE " + tableName + " SET current_version=" + dbSupport.getBooleanFalse());
         final String version = metaDataTableRow.getVersion().toString();
         final String description = metaDataTableRow.getDescription();
         final String state = metaDataTableRow.getState().name();
@@ -153,7 +153,8 @@ public class MetaDataTable {
         final Integer executionTime = metaDataTableRow.getExecutionTime();
         jdbcTemplate.update("INSERT INTO " + tableName
                 + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
-                + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, 1)",
+                + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
+                + dbSupport.getBooleanTrue() + ")",
                 new Object[]{version, description, migrationType, scriptName, checksum, executionTime, state});
     }
 
@@ -179,7 +180,7 @@ public class MetaDataTable {
             return null;
         }
 
-        String query = getSelectStatement() + " where current_version=1";
+        String query = getSelectStatement() + " where current_version=" + dbSupport.getBooleanTrue();
         @SuppressWarnings({"unchecked"})
         final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
 

@@ -93,4 +93,14 @@ public interface DbSupport {
      * @return {@code true} if locking is supported, {@code false} if not.
      */
     boolean supportsLocking();
+
+    /**
+     * @return The representation of the value {@code true} in a boolean column.
+     */
+    String getBooleanTrue();
+
+    /**
+     * @return The representation of the value {@code false} in a boolean column.
+     */
+    String getBooleanFalse();
 }

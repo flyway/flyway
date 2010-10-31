@@ -19,6 +19,7 @@ package com.googlecode.flyway.core.migration.sql;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.ObjectUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,8 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sql script containing a series of statements terminated by semi-columns (;).
- * Single-line (--) and multi-line (/* * /) comments are stripped and ignored.
+ * Sql script containing a series of statements terminated by semi-columns (;). Single-line (--) and multi-line (/* * /)
+ * comments are stripped and ignored.
  */
 public class SqlScript {
     /**
@@ -52,6 +53,7 @@ public class SqlScript {
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     public SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
@@ -107,6 +109,7 @@ public class SqlScript {
      * Turns these lines in a series of statements.
      *
      * @param lines The lines to analyse.
+     *
      * @return The statements contained in these lines (in order).
      */
     /* private -> for testing */
@@ -132,22 +135,19 @@ public class SqlScript {
             }
             statementSql += line;
 
-            String newDelimiter = checkForNewDelimiter(line);
-            if (newDelimiter != null) {
-                delimiter = newDelimiter;
-
+            String oldDelimiter = delimiter;
+            delimiter = changeDelimiterIfNecessary(statementSql, line, delimiter);
+            if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
                 if (isDelimiterChangeExplicit()) {
                     statementSql = "";
                     continue;
                 }
             }
 
-            if (line.endsWith(delimiter)) {
+            if ((delimiter != null) && line.endsWith(delimiter)) {
                 String noDelimiterStatementSql = stripDelimiter(statementSql, delimiter);
                 statements.add(new SqlStatement(statementLineNumber, noDelimiterStatementSql));
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
-                }
+                LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
 
                 if (!isDelimiterChangeExplicit()) {
                     delimiter = DEFAULT_STATEMENT_DELIMITER;
@@ -166,19 +166,22 @@ public class SqlScript {
 
     /**
      * Checks whether this line in the sql script indicates that the statement delimiter will be different from the
-     * default one. Useful for database-specific stored procedures and block constructs.
+     * current one. Useful for database-specific stored procedures and block constructs.
      *
-     * @param line The line to analyse.
-     * @return The new delimiter to use or {@code null} if no change in delimiter is required.
+     * @param statement The statement assembled so far.
+     * @param line      The line to analyse.
+     * @param delimiter The current delimiter.
+     *
+     * @return The new delimiter to use (can be the same as the current one) or {@code null} for no delimiter.
      */
     @SuppressWarnings({"UnusedDeclaration"})
-    protected String checkForNewDelimiter(String line) {
-        return null;
+    protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
+        return delimiter;
     }
 
     /**
-     * @return {@code true} if this database uses an explicit delimiter change statement.
-     *         {@code false} if a delimiter change is implied by certain statements.
+     * @return {@code true} if this database uses an explicit delimiter change statement. {@code false} if a delimiter
+     *         change is implied by certain statements.
      */
     protected boolean isDelimiterChangeExplicit() {
         return false;
@@ -189,6 +192,7 @@ public class SqlScript {
      *
      * @param sql       The statement to parse.
      * @param delimiter The delimiter to strip.
+     *
      * @return The sql statement without delimiter.
      */
     private static String stripDelimiter(String sql, String delimiter) {
@@ -199,6 +203,7 @@ public class SqlScript {
      * Strip single line (--) and multi-line (/* * /) comments from these lines.
      *
      * @param lines The input lines.
+     *
      * @return The input lines, trimmed of leading and trailing whitespace, with the comments lines left blank.
      */
     /* private -> for testing */
@@ -236,6 +241,7 @@ public class SqlScript {
      * Trims these lines of leading and trailing whitespace.
      *
      * @param lines The input lines.
+     *
      * @return The input lines, trimmed of leading and trailing whitespace.
      */
     private List<String> trimLines(List<String> lines) {
@@ -253,7 +259,9 @@ public class SqlScript {
      * Parses the textual data provided by this reader into a list of lines.
      *
      * @param reader The reader for the textual data.
+     *
      * @return The list of lines (in order).
+     *
      * @throws IllegalStateException Thrown when the textual data parsing failed.
      */
     private List<String> readLines(Reader reader) {
@@ -278,6 +286,7 @@ public class SqlScript {
      *
      * @param lines               The input lines.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     *
      * @return The lines with placeholders replaced.
      */
     private List<String> replacePlaceholders(List<String> lines, PlaceholderReplacer placeholderReplacer) {

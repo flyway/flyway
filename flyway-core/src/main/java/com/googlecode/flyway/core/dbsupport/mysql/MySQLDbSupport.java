@@ -104,6 +104,16 @@ public class MySQLDbSupport implements DbSupport {
     }
 
     @Override
+    public String getBooleanTrue() {
+        return "1";
+    }
+
+    @Override
+    public String getBooleanFalse() {
+        return "0";
+    }
+
+    @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         return new MySQLSqlScript(sqlScriptSource, placeholderReplacer);
     }
