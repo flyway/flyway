@@ -25,6 +25,6 @@ CREATE TABLE ${tableName} (
     execution_time INT,
     state VARCHAR(15) NOT NULL,
     current_version BOOLEAN NOT NULL,
-    CONSTRAINT unique_script UNIQUE (script)
+    CONSTRAINT ${tableName}_script_unique UNIQUE (script)
 );
 CREATE INDEX ${tableName}_current_version_index ON ${tableName} (current_version);
