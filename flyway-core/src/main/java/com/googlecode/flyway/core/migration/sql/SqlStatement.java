@@ -65,7 +65,7 @@ public class SqlStatement {
      */
     public void execute(JdbcTemplate jdbcTemplate) {
         try {
-            jdbcTemplate.update(sql);
+            jdbcTemplate.execute(sql);
         } catch (DataAccessException e) {
             throw new IllegalStateException("Error executing statement at line " + lineNumber
                     + ": " + sql, e);

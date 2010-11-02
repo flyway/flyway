@@ -23,6 +23,7 @@ CREATE TABLE test4(
 );
 
 CREATE SEQUENCE test_sequence START 101;
+SELECT setval('test_sequence', 400);
 
 CREATE FUNCTION testtrigger() RETURNS trigger
 AS $$
