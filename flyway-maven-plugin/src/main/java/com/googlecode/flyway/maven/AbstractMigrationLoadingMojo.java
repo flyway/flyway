@@ -20,8 +20,6 @@ import com.googlecode.flyway.core.Flyway;
 
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
- *
- * @execute phase="compile"
  */
 @SuppressWarnings({"UnusedDeclaration"})
 abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
