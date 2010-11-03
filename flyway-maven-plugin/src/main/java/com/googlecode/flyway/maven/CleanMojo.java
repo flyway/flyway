@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.Flyway;
 /**
  * Maven goal that drops all database object.
  *
+ * @phase pre-integration-test
  * @goal clean
  * @since 0.7
  */
