@@ -58,6 +58,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void migrationsWithPlaceholders() throws Exception {
+        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+        int countUserObjects1 = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
+
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("tableName", "test_user");
         flyway.setPlaceholders(placeholders);
@@ -68,13 +71,12 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         assertEquals("1.1", schemaVersion.toString());
         assertEquals("Populate table", flyway.status().getDescription());
 
-        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
         assertEquals("Mr. T triggered", jdbcTemplate.queryForObject("select name from test_user", String.class));
 
         flyway.clean();
 
-        int countUserObjects = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
-        assertEquals(0, countUserObjects);
+        int countUserObjects2 = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
+        assertEquals(countUserObjects1, countUserObjects2);
 
         final List<MetaDataTableRow> metaDataTableRows = flyway.history();
         for (MetaDataTableRow metaDataTableRow : metaDataTableRows) {
