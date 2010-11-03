@@ -96,4 +96,20 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
     }
+
+    /**
+     * Test clean with recycle bin
+     */
+    @Test
+    public void cleanWithRecycleBin() {
+        flyway.clean();
+        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+        final int recyclebinCount1 = jdbcTemplate.queryForInt("select count(*) from recyclebin");
+        // in SYSTEM tablespace the recycle bin is deactivated
+        jdbcTemplate.update("CREATE TABLE test_user (name VARCHAR(25) NOT NULL,  PRIMARY KEY(name)) tablespace USERS");
+        jdbcTemplate.update("DROP TABLE test_user");
+        final int recyclebinCount2 = jdbcTemplate.queryForInt("select count(*) from recyclebin");
+        Assert.assertTrue(recyclebinCount1 < recyclebinCount2);
+        flyway.clean();        
+    }
 }

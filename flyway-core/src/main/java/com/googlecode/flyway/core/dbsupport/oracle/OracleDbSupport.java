@@ -158,7 +158,8 @@ public class OracleDbSupport implements DbSupport {
      */
     @SuppressWarnings({"unchecked"})
     private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments) {
-        return jdbcTemplate.query("SELECT object_type, object_name FROM user_objects WHERE object_type = ?",
+        // ignore recycle bin objects
+        return jdbcTemplate.query("SELECT object_type, object_name FROM user_objects WHERE object_type = ? and object_name not like 'BIN$%'",
                 new Object[]{objectType}, new RowMapper() {
                     @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException {
