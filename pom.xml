@@ -21,7 +21,7 @@
     <scm>
         <url>http://code.google.com/p/flyway/source/browse/</url>
         <connection>scm:hg:https://flyway.googlecode.com/hg/</connection>
-        <developerConnection>scm:hg:file:///Workspaces/flyway-googlecode-release</developerConnection>
+        <developerConnection>scm:hg:file:///Workspaces/flyway-release</developerConnection>
     </scm>
     <developers>
         <developer>
