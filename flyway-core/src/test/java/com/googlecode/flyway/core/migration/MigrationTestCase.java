@@ -47,10 +47,14 @@ public abstract class MigrationTestCase {
     @Resource
     protected DataSource migrationDataSource;
 
+    protected JdbcTemplate jdbcTemplate;
+
     protected Flyway flyway;
 
     @Before
     public void setUp() {
+        jdbcTemplate = new JdbcTemplate(migrationDataSource);
+
         flyway = new Flyway();
         flyway.setDataSource(migrationDataSource);
         flyway.setValidationMode(ValidationMode.ALL);

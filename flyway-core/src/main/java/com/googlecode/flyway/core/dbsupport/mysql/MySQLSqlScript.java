@@ -52,4 +52,9 @@ public class MySQLSqlScript extends SqlScript {
     protected boolean isDelimiterChangeExplicit() {
         return true;
     }
+
+    @Override
+    protected boolean isCommentDirective(String line) {
+        return line.startsWith("/*!") && line.endsWith("*/;");
+    }
 }

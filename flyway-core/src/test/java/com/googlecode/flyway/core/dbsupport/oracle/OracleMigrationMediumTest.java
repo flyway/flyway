@@ -22,12 +22,9 @@ import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +37,6 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings({"JavaDoc"})
 @ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
 public class OracleMigrationMediumTest extends MigrationTestCase {
-    @Autowired
-    private DataSource dataSource;
-
     @Override
     protected String getBaseDir() {
         return "migration/sql";
@@ -58,7 +52,6 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void migrationsWithPlaceholders() throws Exception {
-        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
         int countUserObjects1 = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
 
         Map<String, String> placeholders = new HashMap<String, String>();
@@ -105,13 +98,12 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Test
     public void cleanWithRecycleBin() {
         flyway.clean();
-        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
         final int recyclebinCount1 = jdbcTemplate.queryForInt("select count(*) from recyclebin");
         // in SYSTEM tablespace the recycle bin is deactivated
         jdbcTemplate.update("CREATE TABLE test_user (name VARCHAR(25) NOT NULL,  PRIMARY KEY(name)) tablespace USERS");
         jdbcTemplate.update("DROP TABLE test_user");
         final int recyclebinCount2 = jdbcTemplate.queryForInt("select count(*) from recyclebin");
         Assert.assertTrue(recyclebinCount1 < recyclebinCount2);
-        flyway.clean();        
+        flyway.clean();
     }
 }

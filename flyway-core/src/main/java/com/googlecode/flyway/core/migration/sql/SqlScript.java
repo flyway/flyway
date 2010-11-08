@@ -214,27 +214,39 @@ public class SqlScript {
         for (String line : lines) {
             String trimmedLine = line.trim();
 
-            if (trimmedLine.startsWith("--")) {
-                noCommentLines.add("");
-                continue;
-            }
-
-            if (trimmedLine.startsWith("/*")) {
-                inMultilineComment = true;
-            }
-
-            if (inMultilineComment) {
-                if (trimmedLine.endsWith("*/")) {
-                    inMultilineComment = false;
+            if (!isCommentDirective(trimmedLine)) {
+                if (trimmedLine.startsWith("--")) {
+                    noCommentLines.add("");
+                    continue;
                 }
-                noCommentLines.add("");
-                continue;
+
+                if (trimmedLine.startsWith("/*")) {
+                    inMultilineComment = true;
+                }
+
+                if (inMultilineComment) {
+                    if (trimmedLine.endsWith("*/")) {
+                        inMultilineComment = false;
+                    }
+                    noCommentLines.add("");
+                    continue;
+                }
             }
 
             noCommentLines.add(trimmedLine);
         }
 
         return noCommentLines;
+    }
+
+    /**
+     * Checks whether this line is in fact a directive disguised as a comment.
+     *
+     * @param line The line to analyse.
+     * @return {@code true} if it is a directive that should be processed by the database, {@code false} if not.
+     */
+    protected boolean isCommentDirective(String line) {
+        return false;
     }
 
     /**

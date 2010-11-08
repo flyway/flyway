@@ -48,7 +48,6 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/mysql/sql/procedure");
         flyway.migrate();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
 
         flyway.clean();
@@ -65,7 +64,6 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/mysql/sql/trigger");
         flyway.migrate();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
 
         flyway.clean();
@@ -82,8 +80,23 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/mysql/sql/view");
         flyway.migrate();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for MySQL dumps.
+     */
+    @Test
+    public void dump() throws Exception {
+        flyway.setBaseDir("migration/mysql/sql/dump");
+        flyway.migrate();
+
+        assertEquals(0, jdbcTemplate.queryForInt("SELECT count(id) FROM user_account"));
 
         flyway.clean();
 
