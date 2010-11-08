@@ -187,13 +187,13 @@ public class PostgreSQLDbSupport implements DbSupport {
     private List<String> generateDropStatementsForRoutines() {
     	@SuppressWarnings({"unchecked"}) List<Map<String, String>> rows =
             jdbcTemplate.queryForList(
-                "SELECT 'DROP FUNCTION ' || proname || '(' || oidvectortypes(proargtypes) || ')' AS drop_statement "
+                "SELECT proname, oidvectortypes(proargtypes) AS args "
                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = ?",
                 new Object[]{getCurrentSchema()});
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {
-            statements.add(row.get("drop_statement"));
+            statements.add("DROP FUNCTION " + row.get("proname") + "(" + row.get("args") + ")");
         }
         return statements;
     }
