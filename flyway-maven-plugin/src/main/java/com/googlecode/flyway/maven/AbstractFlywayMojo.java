@@ -113,7 +113,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         MavenLogAppender.startPluginLog(this);
         try {
             Flyway flyway = new Flyway();
-            flyway.setDataSource(createDataSource());
 
             if (schemaMetaDataTable != null) {
                 flyway.setTable(schemaMetaDataTable);
@@ -121,6 +120,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             if (table != null) {
                 flyway.setTable(table);
             }
+
+            flyway.setDataSource(createDataSource());
 
             doExecute(flyway);
         } catch (Exception e) {
