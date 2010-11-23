@@ -83,6 +83,6 @@ public class SqlScriptSmallTest {
 
         SqlStatement sqlStatement = sqlStatements.get(0);
         assertEquals(1, sqlStatement.getLineNumber());
-        assertEquals("select col1, col2 from mytable where col1 > 10", sqlStatement.getSql());
+        assertEquals("select col1, col2\nfrom mytable\nwhere col1 > 10", sqlStatement.getSql());
     }
 }

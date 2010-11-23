@@ -131,12 +131,13 @@ public class SqlScript {
             if (statementSql.isEmpty()) {
                 statementLineNumber = lineNumber;
             } else {
-                statementSql += " ";
+                statementSql += "\n";
             }
             statementSql += line;
 
+            String statementSqlWithoutLineBreaks = statementSql.replaceAll("\n", " ");
             String oldDelimiter = delimiter;
-            delimiter = changeDelimiterIfNecessary(statementSql, line, delimiter);
+            delimiter = changeDelimiterIfNecessary(statementSqlWithoutLineBreaks, line, delimiter);
             if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
                 if (isDelimiterChangeExplicit()) {
                     statementSql = "";
