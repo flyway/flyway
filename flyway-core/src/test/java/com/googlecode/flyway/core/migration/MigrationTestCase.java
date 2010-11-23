@@ -88,6 +88,15 @@ public abstract class MigrationTestCase {
         }
     }
 
+    @Test
+    public void customTableName() throws Exception {
+        flyway.setBaseDir(getBaseDir());
+        flyway.setTable("my_custom_table");
+        flyway.migrate();
+        int count = jdbcTemplate.queryForInt("select count(*) from my_custom_table");
+        assertEquals(3, count);
+    }
+
     /**
      * Compares the DB checksum to the classpath checksum of this migration.
      *

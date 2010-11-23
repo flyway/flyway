@@ -136,11 +136,6 @@ public class Flyway {
     private DbSupport dbSupport;
 
     /**
-     * Supports reading and writing to the metadata table.
-     */
-    private MetaDataTable metaDataTable;
-
-    /**
      * @param validationMode The ValidationMode for checksum validation
      */
     public void setValidationMode(ValidationMode validationMode) {
@@ -243,8 +238,6 @@ public class Flyway {
 
         dbSupport = DbSupportFactory.createDbSupport(jdbcTemplate);
         LOG.debug("Schema: " + dbSupport.getCurrentSchema());
-
-        metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
     }
 
     /**
@@ -259,6 +252,7 @@ public class Flyway {
         final List<Migration> migrations = findAvailableMigrations();
         validate(migrations, validationMode);
 
+        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         metaDataTable.createIfNotExists();
 
         DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable);
@@ -266,6 +260,7 @@ public class Flyway {
     }
 
     private void validate(List<Migration> migrations, ValidationMode validationMode) {
+        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         DbValidator dbValidator = new DbValidator(validationMode, metaDataTable, migrations);
         final String validationError = dbValidator.validate();
 
@@ -344,6 +339,7 @@ public class Flyway {
     public MetaDataTableRow status() {
         new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
 
+        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         return metaDataTable.latestAppliedMigration();
     }
 
@@ -355,6 +351,7 @@ public class Flyway {
     public List<MetaDataTableRow> history() {
         new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
 
+        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         return metaDataTable.allAppliedMigrations();
     }
 
@@ -378,6 +375,7 @@ public class Flyway {
      * @param description    (Optional) The description of the initial version.
      */
     public void init(SchemaVersion initialVersion, String description) {
+        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable).init(initialVersion, description);
     }
 
