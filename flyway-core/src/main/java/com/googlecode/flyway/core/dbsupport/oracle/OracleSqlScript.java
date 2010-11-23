@@ -37,8 +37,7 @@ public class OracleSqlScript extends SqlScript {
     @Override
     protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
         String upperCaseLine = line.toUpperCase();
-
-        if (upperCaseLine.startsWith("DECLARE") || upperCaseLine.startsWith("BEGIN")) {
+        if (upperCaseLine.matches("(?i)DECLARE|(?i)DECLARE\\s.*") || upperCaseLine.matches("(?i)BEGIN|(?i)BEGIN\\s.*")) {
             return "/";
         }
 

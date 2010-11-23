@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
@@ -57,4 +58,16 @@ public class OracleSqlScriptSmallTest {
         assertEquals(34, sqlStatements.get(2).getLineNumber());
         assertEquals("COMMIT", sqlStatements.get(2).getSql());
     }
+
+    @Test
+    public void changeDelimiterRegEx() {
+        final OracleSqlScript script = new OracleSqlScript("", PlaceholderReplacer.NO_PLACEHOLDERS);
+        Assert.assertNull(script.changeDelimiterIfNecessary(null, "begin_date", null));
+        Assert.assertEquals("/", script.changeDelimiterIfNecessary(null, "begin date", null));
+        Assert.assertNull(script.changeDelimiterIfNecessary(null, " begin date", null));
+        Assert.assertEquals("/", script.changeDelimiterIfNecessary(null, "begin\tdate", null));
+        Assert.assertEquals("/", script.changeDelimiterIfNecessary(null, "begin", null));
+    }
+
+
 }
