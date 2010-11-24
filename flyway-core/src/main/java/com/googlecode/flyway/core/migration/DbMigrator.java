@@ -131,6 +131,7 @@ public class DbMigrator {
 
         int migrationSuccessCount = 0;
         while (true) {
+            final boolean firstRun = migrationSuccessCount == 0;
             MetaDataTableRow metaDataTableRow = (MetaDataTableRow) transactionTemplate.execute(new TransactionCallback() {
                 @Override
                 public MetaDataTableRow doInTransaction(TransactionStatus status) {
@@ -148,7 +149,9 @@ public class DbMigrator {
                         currentSchemaVersion = latestAppliedMigration.getVersion();
                     }
 
-                    LOG.info("Current schema version: " + currentSchemaVersion);
+                    if (firstRun) {
+                        LOG.info("Current schema version: " + currentSchemaVersion);
+                    }
 
                     Migration migration = getNextMigration(migrations, currentSchemaVersion);
                     if (migration == null) {
@@ -232,7 +235,7 @@ public class DbMigrator {
         if (MigrationState.FAILED.equals(migrationRunnable.state) && dbSupport.supportsDdlTransactions()) {
             throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
         }
-        LOG.info(String.format("Finished migrating to version %s (execution time %s)",
+        LOG.debug(String.format("Finished migrating to version %s (execution time %s)",
                 migration.getVersion(), TimeFormat.format(executionTime)));
 
         metaDataTableRow.update(executionTime, migrationRunnable.state);

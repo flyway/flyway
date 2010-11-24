@@ -103,4 +103,20 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
     }
+
+    /**
+     * Tests clean and migrate for MySQL InnoDb tables with upper case names.
+     */
+    @Test
+    public void upperCase() throws Exception {
+        flyway.setBaseDir("migration/mysql/sql/uppercase");
+        flyway.migrate();
+
+        assertEquals(0, jdbcTemplate.queryForInt("SELECT count(*) FROM A1"));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
 }
