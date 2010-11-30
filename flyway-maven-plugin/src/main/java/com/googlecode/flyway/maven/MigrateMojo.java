@@ -39,7 +39,8 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
-     * The target version up to which migrations should run. (default: the latest version)
+     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
+     * applied. (default: the latest version)
      * Also configurable with Maven or System Property: ${flyway.target}
      *
      * @parameter expression="${flyway.target}"

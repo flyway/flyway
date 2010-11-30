@@ -84,7 +84,8 @@ public class Flyway {
     private String table = "schema_version";
 
     /**
-     * The target version up to which migrations should run.
+     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
+     * applied.
      * (default: the latest version)
      */
     private SchemaVersion target = SchemaVersion.LATEST;
@@ -186,7 +187,8 @@ public class Flyway {
     }
 
     /**
-     * @param target The target version up to which migrations should run. (default: the latest version)
+     * @param target  The target version up to which Flyway should run migrations. Migrations with a higher version
+     * number will not be applied. (default: the latest version)
      */
     public void setTarget(SchemaVersion target) {
         this.target = target;
