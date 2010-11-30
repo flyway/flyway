@@ -84,6 +84,12 @@ public class Flyway {
     private String table = "schema_version";
 
     /**
+     * The target version up to which migrations should run.
+     * (default: the latest version)
+     */
+    private SchemaVersion target = SchemaVersion.LATEST;
+
+    /**
      * A map of <placeholder, replacementValue> to apply to sql migration
      * scripts.
      */
@@ -180,8 +186,14 @@ public class Flyway {
     }
 
     /**
-     * @param placeholders A map of <placeholder, replacementValue> to apply to sql
-     *                     migration scripts.
+     * @param target The target version up to which migrations should run. (default: the latest version)
+     */
+    public void setTarget(SchemaVersion target) {
+        this.target = target;
+    }
+
+    /**
+     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
     public void setPlaceholders(Map<String, String> placeholders) {
         this.placeholders = placeholders;
@@ -216,8 +228,7 @@ public class Flyway {
     }
 
     /**
-     * @param dataSource The datasource to use. Must have the necessary privileges to
-     *                   execute ddl.
+     * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
      */
     public void setDataSource(DataSource dataSource) {
         PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
@@ -241,7 +252,7 @@ public class Flyway {
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         metaDataTable.createIfNotExists();
 
-        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable);
+        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target);
         return dbMigrator.migrate(migrations);
     }
 
@@ -356,7 +367,7 @@ public class Flyway {
      */
     public void init(SchemaVersion initialVersion, String description) {
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
-        new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable).init(initialVersion, description);
+        new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, initialVersion).init(initialVersion, description);
     }
 
     /**

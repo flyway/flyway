@@ -89,6 +89,26 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void target() throws Exception {
+        flyway.setBaseDir(getBaseDir());
+
+        flyway.setTarget(new SchemaVersion("1.1"));
+        flyway.migrate();
+        assertEquals("1.1", flyway.status().getVersion().toString());
+        assertEquals("Populate table", flyway.status().getDescription());
+
+        flyway.setTarget(new SchemaVersion("1.0"));
+        flyway.migrate();
+        assertEquals("1.1", flyway.status().getVersion().toString());
+        assertEquals("Populate table", flyway.status().getDescription());
+
+        flyway.setTarget(SchemaVersion.LATEST);
+        flyway.migrate();
+        assertEquals("2.0", flyway.status().getVersion().toString());
+        assertEquals("Add foreign key", flyway.status().getDescription());
+    }
+
+    @Test
     public void customTableName() throws Exception {
         flyway.setBaseDir(getBaseDir());
         flyway.setTable("my_custom_table");

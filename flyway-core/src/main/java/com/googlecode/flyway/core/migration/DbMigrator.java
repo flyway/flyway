@@ -44,9 +44,9 @@ public class DbMigrator {
     private static final Log LOG = LogFactory.getLog(DbMigrator.class);
 
     /**
-     * The target version of the migration, default is the latest version.
+     * The target version of the migration.
      */
-    private final SchemaVersion targetVersion = SchemaVersion.LATEST;
+    private final SchemaVersion target;
 
     /**
      * Database-specific functionality.
@@ -75,13 +75,15 @@ public class DbMigrator {
      * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
      * @param dbSupport           Database-specific functionality.
      * @param metaDataTable       The database metadata table.
+     * @param target              The target version of the migration.
      */
     public DbMigrator(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport,
-                      MetaDataTable metaDataTable) {
+                      MetaDataTable metaDataTable, SchemaVersion target) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = jdbcTemplate;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
+        this.target = target;
     }
 
     /**
@@ -253,6 +255,11 @@ public class DbMigrator {
      * @return The next migration to apply.
      */
     private Migration getNextMigration(List<Migration> allMigrations, SchemaVersion currentVersion) {
+        if (target.compareTo(currentVersion) < 0) {
+            LOG.warn("Database version (" + currentVersion + ") is newer than the target version ("
+                    + target + ") !");
+            return null;
+        }
         SchemaVersion newestMigrationVersion = allMigrations.get(0).getVersion();
         if (newestMigrationVersion.compareTo(currentVersion) < 0) {
             LOG.warn("Database version (" + currentVersion + ") is newer than the latest migration ("
@@ -262,14 +269,21 @@ public class DbMigrator {
 
         Migration nextMigration = null;
         for (Migration migration : allMigrations) {
-            if ((migration.getVersion().compareTo(currentVersion) > 0)
-                    && (migration.getVersion().compareTo(targetVersion) <= 0)) {
+            if ((migration.getVersion().compareTo(currentVersion) > 0)) {
                 nextMigration = migration;
             } else {
-                return nextMigration;
+                break;
             }
         }
 
+        if (nextMigration == null) {
+            return null;
+        }
+
+        if (target.compareTo(nextMigration.getVersion()) < 0) {
+             return null;
+        }
+        
         return nextMigration;
     }
 

@@ -17,6 +17,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.maven.project.MavenProject;
@@ -36,6 +37,14 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * Property name prefix for placeholders that are configured through properties.
      */
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+
+    /**
+     * The target version up to which migrations should run. (default: the latest version)
+     * Also configurable with Maven or System Property: ${flyway.target}
+     *
+     * @parameter expression="${flyway.target}"
+     */
+    private String target;
 
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.
@@ -113,6 +122,10 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
         super.doExecute(flyway);
+
+        if (target != null) {
+            flyway.setTarget(new SchemaVersion(target));
+        }
 
         Map<String, String> mergedPlaceholders = new HashMap<String, String>();
         addPlaceholdersFromProperties(mergedPlaceholders, mavenProject.getProperties());
