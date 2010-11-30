@@ -20,7 +20,6 @@ import com.googlecode.flyway.core.clean.DbCleaner;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
-import com.googlecode.flyway.core.metadatatable.MetaDataTable085Upgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.Migration;
@@ -174,17 +173,6 @@ public class Flyway {
     }
 
     /**
-     * <b>Deprecated (will be removed in 0.9.5). Use setTable(String table) instead.</b>
-     *
-     * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
-     */
-    @SuppressWarnings({"UnusedDeclaration"})
-    @Deprecated
-    public void setSchemaMetaDataTable(String table) {
-        this.table = table;
-    }
-
-    /**
      * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
     public void setTable(String table) {
@@ -247,8 +235,6 @@ public class Flyway {
      * @throws Exception Thrown when the migration failed.
      */
     public int migrate() throws Exception {
-        new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
-
         final List<Migration> migrations = findAvailableMigrations();
         validate(migrations, validationMode);
 
@@ -325,8 +311,6 @@ public class Flyway {
      * Uses validation type ALL if NONE is set.
      */
     public void validate() {
-        new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
-
         final List<Migration> migrations = findAvailableMigrations();
         validate(migrations, ValidationMode.ALL);
     }
@@ -337,8 +321,6 @@ public class Flyway {
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
     public MetaDataTableRow status() {
-        new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
-
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         return metaDataTable.latestAppliedMigration();
     }
@@ -349,8 +331,6 @@ public class Flyway {
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      */
     public List<MetaDataTableRow> history() {
-        new MetaDataTable085Upgrader(transactionTemplate, jdbcTemplate, dbSupport, table, baseDir, encoding).upgrade();
-
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         return metaDataTable.allAppliedMigrations();
     }

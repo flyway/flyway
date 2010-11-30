@@ -80,15 +80,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
      * default property: ${flyway.schemaMetaDataTable}
      *
-     * @parameter expression="${flyway.schemaMetaDataTable}"
-     * @deprecated
-     */
-    private String schemaMetaDataTable;
-
-    /**
-     * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
-     * default property: ${flyway.schemaMetaDataTable}
-     *
      * @parameter expression="${flyway.table}"
      */
     private String table;
@@ -114,9 +105,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         try {
             Flyway flyway = new Flyway();
 
-            if (schemaMetaDataTable != null) {
-                flyway.setTable(schemaMetaDataTable);
-            }
             if (table != null) {
                 flyway.setTable(table);
             }
