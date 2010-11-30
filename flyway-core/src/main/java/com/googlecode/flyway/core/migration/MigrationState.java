@@ -21,11 +21,6 @@ package com.googlecode.flyway.core.migration;
  */
 public enum MigrationState {
     /**
-     * It is not known whether this migration has been applied or not.
-     */
-    UNKNOWN,
-
-    /**
      * This migration succeeded.
      */
     SUCCESS,

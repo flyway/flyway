@@ -181,6 +181,48 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void futureFailedMigration() throws Exception {
+        flyway.setValidationMode(ValidationMode.NONE);
+        flyway.setBaseDir("migration/future_failed");
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (IllegalStateException e) {
+            //Expected
+        }
+
+        flyway.setBaseDir("migration/sql");
+        if (getDbSupport(new JdbcTemplate(migrationDataSource)).supportsDdlTransactions()) {
+            flyway.migrate();
+        } else {
+            try {
+                flyway.migrate();
+                fail();
+            } catch (IllegalStateException e) {
+                //Expected
+            }
+        }
+    }
+
+    @Test
+    public void futureFailedMigrationIgnore() throws Exception {
+        flyway.setValidationMode(ValidationMode.NONE);
+        flyway.setBaseDir("migration/future_failed");
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (IllegalStateException e) {
+            //Expected
+        }
+
+        flyway.setIgnoreFailedFutureMigration(true);
+        flyway.setBaseDir("migration/sql");
+        flyway.migrate();
+    }
+
+    @Test
     public void tableExists() throws Exception {
         flyway.init(null, null);
         assertTrue(getDbSupport(new JdbcTemplate(migrationDataSource)).tableExists("SCHEMA_VERSION"));

@@ -69,21 +69,28 @@ public class DbMigrator {
     private final JdbcTemplate jdbcTemplate;
 
     /**
+     * Flag whether to ignore failed future migrations or not.
+     */
+    private final boolean ignoreFailedFutureMigration;
+
+    /**
      * Creates a new database migrator.
      *
-     * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
-     * @param dbSupport           Database-specific functionality.
-     * @param metaDataTable       The database metadata table.
-     * @param target              The target version of the migration.
+     * @param transactionTemplate         The transaction template to use.
+     * @param jdbcTemplate                JdbcTemplate with ddl manipulation access to the database.
+     * @param dbSupport                   Database-specific functionality.
+     * @param metaDataTable               The database metadata table.
+     * @param target                      The target version of the migration.
+     * @param ignoreFailedFutureMigration Flag whether to ignore failed future migrations or not.
      */
     public DbMigrator(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport,
-                      MetaDataTable metaDataTable, SchemaVersion target) {
+                      MetaDataTable metaDataTable, SchemaVersion target, boolean ignoreFailedFutureMigration) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = jdbcTemplate;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
         this.target = target;
+        this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
     }
 
     /**
@@ -139,20 +146,30 @@ public class DbMigrator {
                 public MetaDataTableRow doInTransaction(TransactionStatus status) {
                     metaDataTable.lock();
 
-                    MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
-                    SchemaVersion currentSchemaVersion;
-                    if (latestAppliedMigration == null) {
-                        if (metaDataTable.hasRows()) {
-                            throw new IllegalStateException("Cannot determine latest applied migration.");
-                        }
-                        currentSchemaVersion = SchemaVersion.EMPTY;
-                    } else {
-                        latestAppliedMigration.assertNotFailed();
-                        currentSchemaVersion = latestAppliedMigration.getVersion();
-                    }
-
+                    SchemaVersion currentSchemaVersion = getCurrentSchemaVersion();
                     if (firstRun) {
                         LOG.info("Current schema version: " + currentSchemaVersion);
+                    }
+
+                    SchemaVersion latestAvailableMigrationVersion = migrations.get(0).getVersion();
+                    boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
+                    if (isFutureMigration) {
+                        LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
+                            + latestAvailableMigrationVersion + ") !");
+                    }
+
+                    MigrationState currentSchemaState = getCurrentSchemaState();
+                    if (currentSchemaState == MigrationState.FAILED) {
+                        if (isFutureMigration && ignoreFailedFutureMigration) {
+                            LOG.warn("Detected failed migration to version " + currentSchemaVersion + " !");
+                        } else {
+                            throw new IllegalStateException("Migration to version " + currentSchemaVersion
+                                 + " failed! Please restore backups and roll back database and code!");
+                        }
+                    }
+
+                    if (isFutureMigration) {
+                        return null;
                     }
 
                     Migration migration = getNextMigration(migrations, currentSchemaVersion);
@@ -160,7 +177,7 @@ public class DbMigrator {
                         return null;
                     }
 
-                    return applyMigration(migration, transactionTemplate, jdbcTemplate, dbSupport);
+                    return applyMigration(migration);
                 }
             });
 
@@ -169,10 +186,19 @@ public class DbMigrator {
             }
 
             metaDataTableRow.assertNotFailed();
-
             migrationSuccessCount++;
         }
 
+        logSummary(migrationSuccessCount);
+        return migrationSuccessCount;
+    }
+
+    /**
+     * Logs the summary of this migration run.
+     *
+     * @param migrationSuccessCount The number of successfully applied migrations.
+     */
+    private void logSummary(int migrationSuccessCount) {
         if (migrationSuccessCount == 0) {
             LOG.info("Schema is up to date. No migration necessary.");
         } else if (migrationSuccessCount == 1) {
@@ -180,21 +206,44 @@ public class DbMigrator {
         } else {
             LOG.info("Migration completed. Successfully applied " + migrationSuccessCount + " migrations.");
         }
+    }
 
-        return migrationSuccessCount;
+    /**
+     * @return The current state of the schema.
+     */
+    private MigrationState getCurrentSchemaState() {
+        MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
+        if (latestAppliedMigration == null) {
+            if (metaDataTable.hasRows()) {
+                throw new IllegalStateException("Cannot determine latest applied migration.");
+            }
+            return MigrationState.SUCCESS;
+        }
+        return latestAppliedMigration.getState();
+    }
+
+    /**
+     * @return The current version of the schema.
+     */
+    private SchemaVersion getCurrentSchemaVersion() {
+        MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
+        if (latestAppliedMigration == null) {
+            if (metaDataTable.hasRows()) {
+                throw new IllegalStateException("Cannot determine latest applied migration.");
+            }
+            return SchemaVersion.EMPTY;
+        }
+        return latestAppliedMigration.getVersion();
     }
 
     /**
      * Applies this migration to the database. The migration state and the execution time are updated accordingly.
      *
-     * @param migration           The migration to apply.
-     * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        To execute the migration statements.
-     * @param dbSupport           The support for database-specific extensions.
+     * @param migration The migration to apply.
      *
      * @return The row that was added to the metadata table.
      */
-    public final MetaDataTableRow applyMigration(final Migration migration, final TransactionTemplate transactionTemplate, final JdbcTemplate jdbcTemplate, final DbSupport dbSupport) {
+    public final MetaDataTableRow applyMigration(final Migration migration) {
         MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migration);
 
         LOG.info("Migrating to version " + migration.getVersion());
@@ -260,12 +309,6 @@ public class DbMigrator {
                     + target + ") !");
             return null;
         }
-        SchemaVersion newestMigrationVersion = allMigrations.get(0).getVersion();
-        if (newestMigrationVersion.compareTo(currentVersion) < 0) {
-            LOG.warn("Database version (" + currentVersion + ") is newer than the latest migration ("
-                    + newestMigrationVersion + ") !");
-            return null;
-        }
 
         Migration nextMigration = null;
         for (Migration migration : allMigrations) {
@@ -281,9 +324,9 @@ public class DbMigrator {
         }
 
         if (target.compareTo(nextMigration.getVersion()) < 0) {
-             return null;
+            return null;
         }
-        
+
         return nextMigration;
     }
 

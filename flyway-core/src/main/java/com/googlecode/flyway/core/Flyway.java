@@ -117,6 +117,17 @@ public class Flyway {
     private String sqlMigrationSuffix = ".sql";
 
     /**
+     * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
+     * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
+     * bad migration. (default: false)
+     */
+    private boolean ignoreFailedFutureMigration;
+
+    /**
      * The mode for validation
      */
     private ValidationMode validationMode = ValidationMode.NONE;
@@ -140,6 +151,23 @@ public class Flyway {
      * Database-specific functionality.
      */
     private DbSupport dbSupport;
+
+    /**
+     * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
+     * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
+     * bad migration.
+     * (default: false)
+     *
+     * @param ignoreFailedFutureMigration {@code true} to terminate normally and log a warning, {@code false} to fail
+     * fast with an exception.
+     */
+    public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
+        this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
+    }
 
     /**
      * @param validationMode The ValidationMode for checksum validation
@@ -254,7 +282,7 @@ public class Flyway {
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         metaDataTable.createIfNotExists();
 
-        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target);
+        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
         return dbMigrator.migrate(migrations);
     }
 
@@ -369,7 +397,7 @@ public class Flyway {
      */
     public void init(SchemaVersion initialVersion, String description) {
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
-        new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, initialVersion).init(initialVersion, description);
+        new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, initialVersion, ignoreFailedFutureMigration).init(initialVersion, description);
     }
 
     /**
