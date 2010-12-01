@@ -243,7 +243,11 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (IllegalStateException e) {
-            //Expected
+            if (getDbSupport(new JdbcTemplate(migrationDataSource)).supportsDdlTransactions()) {
+                assertTrue(e.getMessage().contains("Migration failed!"));
+            } else {
+                assertTrue(e.getMessage().contains("roll back"));
+            }
         }
     }
 
