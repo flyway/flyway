@@ -223,6 +223,31 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void futureFailedMigrationIgnoreAvailableMigrations() throws Exception {
+        flyway.setValidationMode(ValidationMode.NONE);
+        flyway.setBaseDir("migration/future_failed");
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (IllegalStateException e) {
+            //Expected
+        }
+
+        flyway.setIgnoreFailedFutureMigration(true);
+        if (getDbSupport(new JdbcTemplate(migrationDataSource)).supportsDdlTransactions()) {
+            flyway.migrate();
+        } else {
+            try {
+                flyway.migrate();
+                fail();
+            } catch (IllegalStateException e) {
+                //Expected
+            }
+        }
+    }
+
+    @Test
     public void tableExists() throws Exception {
         flyway.init(null, null);
         assertTrue(getDbSupport(new JdbcTemplate(migrationDataSource)).tableExists("SCHEMA_VERSION"));
