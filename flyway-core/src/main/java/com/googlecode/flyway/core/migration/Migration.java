@@ -45,7 +45,7 @@ public abstract class Migration implements Comparable<Migration> {
     /**
      * The checksum of the migration.
      * Sql migrations use a crc-32 checksum of the sql script.
-     * Java migrations use the SUID or a custom checksum.
+     * Java migrations use a custom checksum.
      */
     protected Integer checksum;
 

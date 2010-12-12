@@ -17,7 +17,8 @@
 package com.googlecode.flyway.core.migration.sql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.BaseMigration;
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.springframework.core.io.Resource;
@@ -28,7 +29,7 @@ import java.util.zip.CRC32;
 /**
  * Database migration based on a sql file.
  */
-public class SqlMigration extends BaseMigration {
+public class SqlMigration extends Migration {
     /**
      * The placeholder replacer to apply to sql migration scripts.
      */
@@ -44,11 +45,13 @@ public class SqlMigration extends BaseMigration {
      *
      * @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @param versionString       The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g. 1_2__Description
+     * @param versionString       The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g.
+     *                            1_2__Description
      * @param encoding            The encoding of this Sql migration.
      */
     public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, String versionString) {
-        initVersion(versionString);
+        schemaVersion = MigrationInfoHelper.extractSchemaVersion(versionString);
+        description = MigrationInfoHelper.extractDescription(versionString);
 
         this.sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         checksum = calculateChecksum(sqlScriptSource);

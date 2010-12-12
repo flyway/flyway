@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.Date;
 
@@ -82,9 +83,9 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     public MetaDataTableRow(SchemaVersion schemaVersion, String description, MigrationType migrationType, String script,
                             Integer checksum, Date installedOn, Integer executionTime, MigrationState state) {
         this.schemaVersion = schemaVersion;
-        this.description = description;
+        this.description = StringUtils.left(description, 100);
         this.migrationType = migrationType;
-        this.script = script;
+        this.script = StringUtils.left(script, 200);
         this.checksum = checksum;
         this.installedOn = installedOn;
         this.executionTime = executionTime;

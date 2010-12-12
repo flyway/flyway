@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.migration.java;
+package com.googlecode.flyway.core.migration.java.dummy;
 
-import org.springframework.dao.DataAccessException;
+import com.googlecode.flyway.core.migration.java.JavaMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * Dummy migration for test purposes.
+ * Test migration.
  */
-public class V1_2_3__Dummy_migration extends BaseJavaMigration {
+public class V2__InterfaceBasedMigration implements JavaMigration {
     @Override
-    protected void doMigrateInTransaction(JdbcTemplate jdbcTemplate) throws DataAccessException {
-        // Do nothing
+    public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
+        //Do nothing.
     }
 }

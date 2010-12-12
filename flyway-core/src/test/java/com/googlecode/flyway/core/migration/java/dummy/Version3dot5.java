@@ -14,18 +14,35 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.sample.migration;
+package com.googlecode.flyway.core.migration.java.dummy;
 
-import com.googlecode.flyway.core.migration.java.BaseJavaMigration;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
+import com.googlecode.flyway.core.migration.java.JavaMigrationChecksumProvider;
+import com.googlecode.flyway.core.migration.java.JavaMigrationInfoProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * Example of a Java-based migration.
+ * Test migration.
  */
-public class V1_2__Another_user implements JavaMigration {
+public class Version3dot5 implements JavaMigration, JavaMigrationInfoProvider, JavaMigrationChecksumProvider {
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-        jdbcTemplate.execute("INSERT INTO test_user (name) VALUES ('Obelix')");
+        //Do nothing
+    }
+
+    @Override
+    public Integer getChecksum() {
+        return 35;
+    }
+
+    @Override
+    public SchemaVersion getVersion() {
+        return new SchemaVersion("3.5");
+    }
+
+    @Override
+    public String getDescription() {
+        return "Three Dot Five";
     }
 }

@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package com.googlecode.flyway.core.migration.java;
+package com.googlecode.flyway.core.migration.java.dummy;
 
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.java.dummy.V1_2_3__Dummy_migration;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import com.googlecode.flyway.core.migration.java.BaseJavaMigration;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * Test for BaseJavaMigration.
+ * Dummy migration for test purposes.
  */
-public class BaseJavaMigrationSmallTest {
-    @Test
-    public void version() {
-        Migration migration = new V1_2_3__Dummy_migration();
-        assertEquals("1.2.3", migration.getVersion().toString());
-        assertEquals("Dummy migration", migration.getDescription());
+public class V1_2_3__Dummy_migration extends BaseJavaMigration {
+    @Override
+    protected void doMigrateInTransaction(JdbcTemplate jdbcTemplate) throws DataAccessException {
+        // Do nothing
     }
 }

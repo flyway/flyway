@@ -284,8 +284,8 @@ public class Flyway {
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         metaDataTable.createIfNotExists();
 
-        DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
-
+        DbMigrator dbMigrator =
+                new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
         return dbMigrator.migrate(findAvailableMigrations());
     }
 
@@ -296,11 +296,9 @@ public class Flyway {
      * @throws FlywayException thrown when the validation failed.
      */
     public void validate() throws FlywayException {
-        final List<Migration> migrations = findAvailableMigrations();
-
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
-        DbValidator dbValidator = new DbValidator(validationMode, metaDataTable, migrations);
-        final String validationError = dbValidator.validate();
+        DbValidator dbValidator = new DbValidator(validationMode, metaDataTable);
+        final String validationError = dbValidator.validate(findAvailableMigrations());
 
         if (validationError != null) {
             final String msg = "Validate failed. Found differences between applied migrations and available migrations: " + validationError;

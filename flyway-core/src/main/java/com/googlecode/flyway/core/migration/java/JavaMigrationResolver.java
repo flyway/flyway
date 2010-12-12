@@ -52,12 +52,12 @@ public class JavaMigrationResolver implements MigrationResolver {
         Collection<Migration> migrations = new ArrayList<Migration>();
 
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new AssignableTypeFilter(Migration.class));
+        provider.addIncludeFilter(new AssignableTypeFilter(JavaMigration.class));
         Set<BeanDefinition> components = provider.findCandidateComponents(basePackage);
         for (BeanDefinition beanDefinition : components) {
             Class<?> clazz = ClassUtils.resolveClassName(beanDefinition.getBeanClassName(), null);
-            Migration migration = (Migration) BeanUtils.instantiateClass(clazz);
-            migrations.add(migration);
+            JavaMigration javaMigration = (JavaMigration) BeanUtils.instantiateClass(clazz);
+            migrations.add(new JavaMigrationExecutor(javaMigration));
         }
 
         return migrations;

@@ -17,44 +17,39 @@
 package com.googlecode.flyway.core.migration;
 
 /**
- * Base migration for migrations that use the standard Flyway version +
+ * Parsing support for migrations that use the standard Flyway version +
  * description embedding in their name. These migrations have names like
  * 1_2__Description .
  */
-public abstract class BaseMigration extends Migration {
-	/**
-	 * Initializes the version of this Migration based on this standard Flyway
-	 * name.
-	 * 
-	 * @param migrationName The migration name in standard Flyway format <i>VERSION</i>__<i>DESCRIPTION</i>, e.g. 1_2__Description
-	 */
-	protected final void initVersion(String migrationName) {
-		schemaVersion = extractSchemaVersion(migrationName);
-        description = extractDescription(migrationName);
-	}
+public class MigrationInfoHelper {
+    /**
+     * Prevents instantiation.
+     */
+    private MigrationInfoHelper() {
+        //Do nothing.
+    }
 
-	/**
-	 * Extracts the schema version from a migration name formatted as
-	 * 1_2__Description.
-	 * 
-	 * @param migrationName
-	 *            The string to parse.
-	 * @return The extracted schema version.
-	 */
-	/* private -> for testing */
-    static SchemaVersion extractSchemaVersion(String migrationName) {
+    /**
+     * Extracts the schema version from a migration name formatted as
+     * 1_2__Description.
+     *
+     * @param migrationName
+     *            The string to parse.
+     * @return The extracted schema version.
+     */
+    public static SchemaVersion extractSchemaVersion(String migrationName) {
         String rawVersion;
 
-		// Handle the description
-		int descriptionPos = migrationName.indexOf("__");
-		if (descriptionPos < 0) {
+        // Handle the description
+        int descriptionPos = migrationName.indexOf("__");
+        if (descriptionPos < 0) {
             rawVersion = migrationName;
         } else {
-			rawVersion = migrationName.substring(0, descriptionPos);
-		}
+            rawVersion = migrationName.substring(0, descriptionPos);
+        }
 
-		return new SchemaVersion(rawVersion.replace("_", "."));
-	}
+        return new SchemaVersion(rawVersion.replace("_", "."));
+    }
 
     /**
      * Extracts the description from a migration name formatted as
@@ -64,10 +59,7 @@ public abstract class BaseMigration extends Migration {
      *            The string to parse.
      * @return The extracted description.
      */
-    /* private -> for testing */
-    static String extractDescription(String migrationName) {
-        String rawVersion;
-
+    public static String extractDescription(String migrationName) {
         // Handle the description
         int descriptionPos = migrationName.indexOf("__");
         if (descriptionPos >= 0) {

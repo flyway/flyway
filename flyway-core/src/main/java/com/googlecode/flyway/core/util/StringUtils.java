@@ -55,9 +55,7 @@ public class StringUtils {
 
     /**
      * <p>Checks if the String contains only unicode digits. A decimal point is not a unicode digit and returns
-     * false.</p>
-     * <p/>
-     * <p>{@code null} will return {@code false}. An empty String ("") will return {@code true}.</p>
+     * false.</p> <p/> <p>{@code null} will return {@code false}. An empty String ("") will return {@code true}.</p>
      * <p/>
      * <pre>
      * StringUtils.isNumeric(null)   = false
@@ -90,5 +88,26 @@ public class StringUtils {
      */
     public static String collapseWhitespace(String str) {
         return str.replaceAll("\\s+", " ");
+    }
+
+    /**
+     * Returns the first n characters from this string, where n = count. If the string is shorter, the entire string
+     * will be returned. If the string is longer, it will be truncated.
+     *
+     * @param str The string to parse.
+     * @param count The amount of characters to return.
+     *
+     * @return The first n characters from this string, where n = count.
+     */
+    public static String left(String str, int count) {
+        if (str == null) {
+            return null;
+        }
+
+        if (str.length() < count) {
+            return str;
+        }
+
+        return str.substring(0, count);
     }
 }

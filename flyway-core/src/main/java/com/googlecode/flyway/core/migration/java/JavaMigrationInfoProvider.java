@@ -16,20 +16,20 @@
 
 package com.googlecode.flyway.core.migration.java;
 
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.java.dummy.V1_2_3__Dummy_migration;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 
 /**
- * Test for BaseJavaMigration.
+ * JavaMigration implementors that also implement this interface will be able to specify their version and description
+ * manually, instead of having it automatically computed from the class name.
  */
-public class BaseJavaMigrationSmallTest {
-    @Test
-    public void version() {
-        Migration migration = new V1_2_3__Dummy_migration();
-        assertEquals("1.2.3", migration.getVersion().toString());
-        assertEquals("Dummy migration", migration.getDescription());
-    }
+public interface JavaMigrationInfoProvider {
+    /**
+     * @return The schema version after the migration is complete.
+     */
+    SchemaVersion getVersion();
+
+    /**
+     * @return The description for the migration history.
+     */
+    String getDescription();
 }

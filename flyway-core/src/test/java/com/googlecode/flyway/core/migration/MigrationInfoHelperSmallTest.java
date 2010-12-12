@@ -22,16 +22,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * Test for BaseMigration.
+ * Test for MigrationInfoHelper.
  */
-public class BaseMigrationSmallTest {
+public class MigrationInfoHelperSmallTest {
     /**
      * Tests a schema version that lacks a description.
      */
     @Test
     public void extractSchemaVersionNoDescription() {
-        SchemaVersion version = BaseMigration.extractSchemaVersion("9_4");
-        String description = BaseMigration.extractDescription("9_4");
+        SchemaVersion version = MigrationInfoHelper.extractSchemaVersion("9_4");
+        String description = MigrationInfoHelper.extractDescription("9_4");
         assertEquals("9.4", version.toString());
         assertNull(description);
     }
@@ -41,8 +41,8 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionWithDescription() {
-        SchemaVersion version = BaseMigration.extractSchemaVersion("9_4__EmailAxel");
-        String description = BaseMigration.extractDescription("9_4__EmailAxel");
+        SchemaVersion version = MigrationInfoHelper.extractSchemaVersion("9_4__EmailAxel");
+        String description = MigrationInfoHelper.extractDescription("9_4__EmailAxel");
         assertEquals("9.4", version.toString());
         assertEquals("EmailAxel", description);
     }
@@ -52,8 +52,8 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionWithDescriptionWithSpaces() {
-        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("9_4__Big_jump");
-        String description = BaseMigration.extractDescription("9_4__Big_jump");
+        SchemaVersion schemaVersion = MigrationInfoHelper.extractSchemaVersion("9_4__Big_jump");
+        String description = MigrationInfoHelper.extractDescription("9_4__Big_jump");
         assertEquals("9.4", schemaVersion.toString());
         assertEquals("Big jump", description);
     }
@@ -63,8 +63,8 @@ public class BaseMigrationSmallTest {
      */
     @Test
     public void extractSchemaVersionWithLeadingZeroes() {
-        SchemaVersion schemaVersion = BaseMigration.extractSchemaVersion("009_4__EmailAxel");
-        String description = BaseMigration.extractDescription("009_4__EmailAxel");
+        SchemaVersion schemaVersion = MigrationInfoHelper.extractSchemaVersion("009_4__EmailAxel");
+        String description = MigrationInfoHelper.extractDescription("009_4__EmailAxel");
         assertEquals("009.4", schemaVersion.toString());
         assertEquals("EmailAxel", description);
     }

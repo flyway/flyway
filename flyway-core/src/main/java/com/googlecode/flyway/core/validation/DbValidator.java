@@ -27,7 +27,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,32 +50,25 @@ public class DbValidator {
     private final MetaDataTable metaDataTable;
 
     /**
-     * All available classpath migrations, sorted by version, newest last.
-     */
-    private final List<Migration> migrations;
-
-    /**
      * Creates a new database validator.
      *
      * @param validationMode The ValidationMode for checksum validation.
      * @param metaDataTable  Supports reading and writing to the metadata table.
-     * @param migrations     All migrations available on the classpath , sorted by version, newest first.
      */
-    public DbValidator(ValidationMode validationMode, MetaDataTable metaDataTable, List<Migration> migrations) {
+    public DbValidator(ValidationMode validationMode, MetaDataTable metaDataTable) {
         this.validationMode = validationMode;
         this.metaDataTable = metaDataTable;
-        // reverse order
-        this.migrations = new ArrayList<Migration>(migrations);
-        Collections.reverse(this.migrations);
     }
 
     /**
      * Validate the checksum of all existing sql migration in the metadata table with the checksum of the sql migrations
      * in the classpath
      *
+     * @param migrations All migrations available on the classpath, sorted by version, newest first.
+     *
      * @return description of validation error or NULL if no validation error war found
      */
-    public String validate() {
+    public String validate(List<Migration> migrations) {
         if (ValidationMode.NONE.equals(validationMode)) {
             return null;
         }
@@ -116,7 +108,8 @@ public class DbValidator {
 
         for (int i = 0; i < appliedMigrations.size(); i++) {
             MetaDataTableRow appliedMigration = appliedMigrations.get(i);
-            Migration classpathMigration = migrations.get(i);
+            //Migrations are sorted in the opposite order: newest first.
+            Migration classpathMigration = migrations.get(migrations.size() - i - 1);
 
             if (!appliedMigration.getVersion().equals(classpathMigration.getVersion())) {
                 return String.format("Version mismatch for migration %s: DB=%s, Classpath=%s",

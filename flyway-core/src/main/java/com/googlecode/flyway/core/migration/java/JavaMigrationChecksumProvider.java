@@ -16,20 +16,13 @@
 
 package com.googlecode.flyway.core.migration.java;
 
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.java.dummy.V1_2_3__Dummy_migration;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-
 /**
- * Test for BaseJavaMigration.
+ * JavaMigration implementors that also implement this interface will be able to specify their checksum (for
+ * validation), instead of having it automatically default to {@code null}.
  */
-public class BaseJavaMigrationSmallTest {
-    @Test
-    public void version() {
-        Migration migration = new V1_2_3__Dummy_migration();
-        assertEquals("1.2.3", migration.getVersion().toString());
-        assertEquals("Dummy migration", migration.getDescription());
-    }
+public interface JavaMigrationChecksumProvider {
+    /**
+     * @return The checksum of the migration.
+     */
+     Integer getChecksum();
 }

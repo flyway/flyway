@@ -17,23 +17,28 @@
 package com.googlecode.flyway.core.migration.java;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.BaseMigration;
+import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.ClassUtils;
 
 /**
- * Base class for java migration classes whose name conforms to the Flyway
- * standard. Example: V1_2__Change_values
+ * Base class for java migration classes whose name conforms to the Flyway standard. Example: V1_2__Change_values
+ *
+ * @deprecated Implement JavaMigration directly instead. Also consider implementing JavaMigrationChecksumProvider and
+ *             JavaMigrationInfoProvider if you need more control. This class will be removed in Flyway 1.5.
  */
-public abstract class BaseJavaMigration extends BaseMigration {
+@Deprecated
+public abstract class BaseJavaMigration extends Migration implements JavaMigration, JavaMigrationInfoProvider, JavaMigrationChecksumProvider {
     /**
      * Initializes this Migration with this standard Flyway name.
      */
     protected BaseJavaMigration() {
         initVersionFromClassName();
-        initScriptName();
+        this.script = getClass().getName();
     }
 
     /**
@@ -45,19 +50,13 @@ public abstract class BaseJavaMigration extends BaseMigration {
     protected BaseJavaMigration(String version, String description) {
         this.schemaVersion = new SchemaVersion(version);
         this.description = description;
-        initScriptName();
-    }
-
-    private void initScriptName() {
         this.script = getClass().getName();
-        if (script.length() > 200) {
-            script = script.substring(script.length() - 200);
-        }
     }
 
     private void initVersionFromClassName() {
         String nameWithoutV = ClassUtils.getShortName(getClass()).substring(1);
-        initVersion(nameWithoutV);
+        schemaVersion = MigrationInfoHelper.extractSchemaVersion(nameWithoutV);
+        description = MigrationInfoHelper.extractDescription(nameWithoutV);
     }
 
     @Override
@@ -70,6 +69,7 @@ public abstract class BaseJavaMigration extends BaseMigration {
      *
      * @param jdbcTemplate To execute the migration statements.
      * @param dbSupport    The support for database-specific extensions.
+     *
      * @throws IllegalStateException Thrown when the migration failed.
      */
     @Override
@@ -77,14 +77,20 @@ public abstract class BaseJavaMigration extends BaseMigration {
         try {
             doMigrateInTransaction(jdbcTemplate);
         } catch (Exception e) {
-            throw new IllegalStateException("Migration failed !", e);
+            throw new FlywayException("Migration failed !", e);
         }
+    }
+
+    @Override
+    public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
+        doMigrateInTransaction(jdbcTemplate);
     }
 
     /**
      * Performs the migration inside a transaction.
      *
      * @param jdbcTemplate To execute the migration statements.
+     *
      * @throws org.springframework.dao.DataAccessException
      *          Thrown when the migration failed.
      */
