@@ -37,7 +37,7 @@ public class SqlMigration extends BaseMigration {
     /**
      * The source of the Sql script, loaded on demand.
      */
-    private String sqlScriptSource;
+    private final String sqlScriptSource;
 
     /**
      * Creates a new sql script migration based on this sql script.
@@ -49,10 +49,10 @@ public class SqlMigration extends BaseMigration {
      */
     public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, String versionString) {
         initVersion(versionString);
-        sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
+
+        this.sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         checksum = calculateChecksum(sqlScriptSource);
 
-        // old script = "Sql File: " + sqlScriptResource.getFilename();
         this.script = sqlScriptResource.getFilename();
         this.placeholderReplacer = placeholderReplacer;
     }

@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core.migration.sql;
 
+import com.googlecode.flyway.core.exception.FlywayException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -75,7 +76,7 @@ public class SqlStatement {
         try {
             jdbcTemplate.execute(sql);
         } catch (DataAccessException e) {
-            throw new IllegalStateException("Error executing statement at line " + lineNumber
+            throw new FlywayException("Error executing statement at line " + lineNumber
                     + ": " + sql, e);
         }
     }

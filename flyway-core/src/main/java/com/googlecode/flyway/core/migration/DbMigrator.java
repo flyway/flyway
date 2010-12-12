@@ -17,14 +17,15 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.init.InitMigration;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -94,99 +95,77 @@ public class DbMigrator {
     }
 
     /**
-     * Initializes the metadata table with this version and this description.
-     *
-     * @param version     The version to initialize the metadata table with.
-     * @param description The description for the ionitial version.
-     */
-    public void init(SchemaVersion version, String description) {
-        if (metaDataTable.hasRows()) {
-            throw new IllegalStateException(
-                    "Schema already initialized. Current Version: " + metaDataTable.latestAppliedMigration().getVersion());
-        }
-
-        metaDataTable.createIfNotExists();
-
-        final Migration initialMigration = new InitMigration(version, description);
-
-        final MetaDataTableRow metaDataTableRow = new MetaDataTableRow(initialMigration);
-        metaDataTableRow.update(0, MigrationState.SUCCESS);
-
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Void doInTransaction(TransactionStatus status) {
-                metaDataTable.insert(metaDataTableRow);
-                return null;
-            }
-        });
-
-        LOG.info("Schema initialized with version: " + metaDataTableRow.getVersion());
-    }
-
-    /**
      * Starts the actual migration.
      *
      * @param migrations The available migrations.
      *
      * @return The number of successfully applied migrations.
      *
-     * @throws Exception Thrown when a migration failed.
+     * @throws FlywayException when migration failed.
      */
-    public int migrate(final List<Migration> migrations) throws Exception {
+    public int migrate(final List<Migration> migrations) throws FlywayException {
         if (migrations.isEmpty()) {
             LOG.info("No migrations found");
             return 0;
         }
 
         int migrationSuccessCount = 0;
-        while (true) {
-            final boolean firstRun = migrationSuccessCount == 0;
-            MetaDataTableRow metaDataTableRow = (MetaDataTableRow) transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public MetaDataTableRow doInTransaction(TransactionStatus status) {
-                    metaDataTable.lock();
+        try {
+            while (true) {
+                final boolean firstRun = migrationSuccessCount == 0;
+                MetaDataTableRow metaDataTableRow = (MetaDataTableRow) transactionTemplate.execute(new TransactionCallback() {
+                    @Override
+                    public MetaDataTableRow doInTransaction(TransactionStatus status) {
+                        metaDataTable.lock();
 
-                    SchemaVersion currentSchemaVersion = getCurrentSchemaVersion();
-                    if (firstRun) {
-                        LOG.info("Current schema version: " + currentSchemaVersion);
-                    }
-
-                    SchemaVersion latestAvailableMigrationVersion = migrations.get(0).getVersion();
-                    boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
-                    if (isFutureMigration) {
-                        LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
-                            + latestAvailableMigrationVersion + ") !");
-                    }
-
-                    MigrationState currentSchemaState = getCurrentSchemaState();
-                    if (currentSchemaState == MigrationState.FAILED) {
-                        if (isFutureMigration && ignoreFailedFutureMigration) {
-                            LOG.warn("Detected failed migration to version " + currentSchemaVersion + " !");
-                        } else {
-                            throw new IllegalStateException("Migration to version " + currentSchemaVersion
-                                 + " failed! Please restore backups and roll back database and code!");
+                        SchemaVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
+                        if (firstRun) {
+                            LOG.info("Current schema version: " + currentSchemaVersion);
                         }
-                    }
 
-                    if (isFutureMigration) {
-                        return null;
-                    }
+                        SchemaVersion latestAvailableMigrationVersion = migrations.get(0).getVersion();
+                        boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
+                        if (isFutureMigration) {
+                            LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
+                                    + latestAvailableMigrationVersion + ") !");
+                        }
 
-                    Migration migration = getNextMigration(migrations, currentSchemaVersion);
-                    if (migration == null) {
-                        return null;
-                    }
+                        MigrationState currentSchemaState = metaDataTable.getCurrentSchemaState();
+                        if (currentSchemaState == MigrationState.FAILED) {
+                            if (isFutureMigration && ignoreFailedFutureMigration) {
+                                LOG.warn("Detected failed migration to version " + currentSchemaVersion + " !");
+                            } else {
+                                throw new MigrationException(currentSchemaVersion, false);
+                            }
+                        }
 
-                    return applyMigration(migration);
+                        if (isFutureMigration) {
+                            return null;
+                        }
+
+                        Migration migration = getNextMigration(migrations, currentSchemaVersion);
+                        if (migration == null) {
+                            // No further migrations available
+                            return null;
+                        }
+
+                        return applyMigration(migration);
+                    }
+                });
+
+                if (metaDataTableRow == null) {
+                    // No further migrations available
+                    break;
                 }
-            });
 
-            if (metaDataTableRow == null) {
-                break;
+                if (MigrationState.FAILED == metaDataTableRow.getState()) {
+                    throw new MigrationException(metaDataTableRow.getVersion(), false);
+                }
+
+                migrationSuccessCount++;
             }
-
-            metaDataTableRow.assertNotFailed();
-            migrationSuccessCount++;
+        } catch (TransactionException e) {
+            throw new FlywayException("Migration failed !", e);
         }
 
         logSummary(migrationSuccessCount);
@@ -209,41 +188,15 @@ public class DbMigrator {
     }
 
     /**
-     * @return The current state of the schema.
-     */
-    private MigrationState getCurrentSchemaState() {
-        MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
-        if (latestAppliedMigration == null) {
-            if (metaDataTable.hasRows()) {
-                throw new IllegalStateException("Cannot determine latest applied migration.");
-            }
-            return MigrationState.SUCCESS;
-        }
-        return latestAppliedMigration.getState();
-    }
-
-    /**
-     * @return The current version of the schema.
-     */
-    private SchemaVersion getCurrentSchemaVersion() {
-        MetaDataTableRow latestAppliedMigration = metaDataTable.latestAppliedMigration();
-        if (latestAppliedMigration == null) {
-            if (metaDataTable.hasRows()) {
-                throw new IllegalStateException("Cannot determine latest applied migration.");
-            }
-            return SchemaVersion.EMPTY;
-        }
-        return latestAppliedMigration.getVersion();
-    }
-
-    /**
      * Applies this migration to the database. The migration state and the execution time are updated accordingly.
      *
      * @param migration The migration to apply.
      *
      * @return The row that was added to the metadata table.
+     *
+     * @throws MigrationException when the migration failed.
      */
-    public final MetaDataTableRow applyMigration(final Migration migration) {
+    public final MetaDataTableRow applyMigration(final Migration migration) throws MigrationException {
         MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migration);
 
         LOG.info("Migrating to version " + migration.getVersion());
@@ -284,7 +237,7 @@ public class DbMigrator {
         int executionTime = (int) stopWatch.getLastTaskTimeMillis();
 
         if (MigrationState.FAILED.equals(migrationRunnable.state) && dbSupport.supportsDdlTransactions()) {
-            throw new IllegalStateException("Migration failed! Changes rolled back. Aborting!");
+            throw new MigrationException(migration.getVersion(), true);
         }
         LOG.debug(String.format("Finished migrating to version %s (execution time %s)",
                 migration.getVersion(), TimeFormat.format(executionTime)));

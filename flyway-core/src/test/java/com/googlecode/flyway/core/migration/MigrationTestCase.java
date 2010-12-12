@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
@@ -133,7 +134,7 @@ public abstract class MigrationTestCase {
         assertEquals("Wrong checksum for " + appliedMigration.getScript(), sqlMigration.getChecksum(), appliedMigration.getChecksum());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = FlywayException.class)
     public void validateFails() throws Exception {
         flyway.setBaseDir(getBaseDir());
         flyway.setSqlMigrationSuffix("First.sql");
@@ -168,7 +169,7 @@ public abstract class MigrationTestCase {
         try {
             flyway.migrate();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (FlywayException e) {
             //Expected
         }
 
@@ -192,7 +193,7 @@ public abstract class MigrationTestCase {
         try {
             flyway.migrate();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (FlywayException e) {
             //Expected
         }
 
@@ -203,7 +204,7 @@ public abstract class MigrationTestCase {
             try {
                 flyway.migrate();
                 fail();
-            } catch (IllegalStateException e) {
+            } catch (FlywayException e) {
                 //Expected
             }
         }
@@ -217,7 +218,7 @@ public abstract class MigrationTestCase {
         try {
             flyway.migrate();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (FlywayException e) {
             //Expected
         }
 
@@ -234,7 +235,7 @@ public abstract class MigrationTestCase {
         try {
             flyway.migrate();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (FlywayException e) {
             //Expected
         }
 
@@ -242,9 +243,9 @@ public abstract class MigrationTestCase {
         try {
             flyway.migrate();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (MigrationException e) {
             if (getDbSupport(new JdbcTemplate(migrationDataSource)).supportsDdlTransactions()) {
-                assertTrue(e.getMessage().contains("Migration failed!"));
+                assertTrue(e.getMessage().contains("rolled back"));
             } else {
                 assertTrue(e.getMessage().contains("roll back"));
             }
@@ -270,13 +271,10 @@ public abstract class MigrationTestCase {
      * check if meta table has no current migration (manually edited)
      */
     @Test
-    public void checkForInvalidMetatable() {
+    public void checkForInvalidMetatable() throws FlywayException {
         flyway.setBaseDir(getBaseDir());
-        try {
-            flyway.migrate();
-        } catch (Exception e) {
-            throw new RuntimeException("unhandled checked exception", e);
-        }
+        flyway.migrate();
+
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         DbSupport dbSupport = getDbSupport(jdbcTemplate);
         jdbcTemplate.update("UPDATE schema_version SET current_version = " + dbSupport.getBooleanFalse()
@@ -284,10 +282,8 @@ public abstract class MigrationTestCase {
         try {
             flyway.migrate();
             fail();
-        } catch (IllegalStateException e) {
+        } catch (FlywayException e) {
             // OK.
-        } catch (Exception e) {
-            throw new RuntimeException("unhandled checked exception", e);
         }
     }
 }

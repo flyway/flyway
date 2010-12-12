@@ -17,6 +17,7 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -51,7 +52,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Tests migrations containing placeholders.
      */
     @Test
-    public void migrationsWithPlaceholders() throws Exception {
+    public void migrationsWithPlaceholders() throws FlywayException {
         int countUserObjects1 = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
 
         Map<String, String> placeholders = new HashMap<String, String>();
@@ -82,7 +83,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Tests clean for Oracle Spatial Extensions.
      */
     @Test
-    public void cleanSpatialExtensions() throws Exception {
+    public void cleanSpatialExtensions() throws FlywayException {
         flyway.setBaseDir("migration/oracle/sql/spatial");
         flyway.migrate();
 

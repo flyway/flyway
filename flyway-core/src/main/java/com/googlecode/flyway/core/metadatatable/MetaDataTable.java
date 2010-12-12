@@ -17,6 +17,7 @@
 package com.googlecode.flyway.core.metadatatable;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -92,7 +93,7 @@ public class MetaDataTable {
      *
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
-    public boolean exists() {
+    private boolean exists() {
         return dbSupport.tableExists(tableName);
     }
 
@@ -164,7 +165,7 @@ public class MetaDataTable {
      * @return {@code true} if the metadata table has at least on row. {@code false} if it is empty or it doesn't exist
      *         yet.
      */
-    public boolean hasRows() {
+    private boolean hasRows() {
         if (!exists()) {
             return false;
         }
@@ -185,6 +186,9 @@ public class MetaDataTable {
         final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
 
         if (metaDataTableRows.isEmpty()) {
+            if (hasRows()) {
+                throw new FlywayException("Cannot determine latest applied migration. Was the metadata table manually modified?");
+            }
             return null;
         }
 
@@ -230,6 +234,30 @@ public class MetaDataTable {
 
         return number.intValue();
     }
+
+
+    /**
+     * @return The current state of the schema.
+     */
+    public MigrationState getCurrentSchemaState() {
+        MetaDataTableRow latestAppliedMigration = latestAppliedMigration();
+        if (latestAppliedMigration == null) {
+            return MigrationState.SUCCESS;
+        }
+        return latestAppliedMigration.getState();
+    }
+
+    /**
+     * @return The current version of the schema.
+     */
+    public SchemaVersion getCurrentSchemaVersion() {
+        MetaDataTableRow latestAppliedMigration = latestAppliedMigration();
+        if (latestAppliedMigration == null) {
+            return SchemaVersion.EMPTY;
+        }
+        return latestAppliedMigration.getVersion();
+    }
+
 
     /**
      * Row mapper for Migrations.

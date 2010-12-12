@@ -171,18 +171,6 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
         return script;
     }
 
-    /**
-     * Asserts that this migration has not failed.
-     *
-     * @throws IllegalStateException Thrown when this migration has failed.
-     */
-    public void assertNotFailed() {
-        if (MigrationState.FAILED == state) {
-            throw new IllegalStateException("Migration to version " + schemaVersion
-                    + " failed! Please restore backups and roll back database and code!");
-        }
-    }
-
     @Override
     public int compareTo(MetaDataTableRow o) {
         return getVersion().compareTo(o.getVersion());

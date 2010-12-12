@@ -16,6 +16,7 @@
 
 package com.googlecode.flyway.core.migration.sql;
 
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import org.apache.commons.logging.Log;
@@ -102,7 +103,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             final String searchPattern = sqlMigrationPrefix + "?*" + sqlMigrationSuffix;
             resources = pathMatchingResourcePatternResolver.getResources("classpath*:" + baseDir + "/" + searchPattern);
         } catch (IOException e) {
-            throw new IllegalStateException("Error loading sql migration files", e);
+            throw new FlywayException("Error loading sql migration files", e);
         }
 
         for (Resource resource : resources) {

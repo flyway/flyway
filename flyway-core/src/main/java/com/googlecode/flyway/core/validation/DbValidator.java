@@ -110,7 +110,7 @@ public class DbValidator {
                 first = false;
             }
 
-            return String.format("more applied migrations than classpath migrations: DB=%s, Classpath=%s, missing migrations=(%s)",
+            return String.format("More applied migrations than classpath migrations: DB=%s, Classpath=%s, missing migrations=(%s)",
                     appliedMigrations.size(), migrations.size(), stringBuilder.toString());
         }
 

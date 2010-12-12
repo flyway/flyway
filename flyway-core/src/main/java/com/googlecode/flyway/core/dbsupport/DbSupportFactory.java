@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -79,7 +80,7 @@ public class DbSupportFactory {
         }
 
         if (dbSupport == null) {
-            throw new IllegalStateException("Unsupported Database: " + databaseProductName);
+            throw new FlywayException("Unsupported Database: " + databaseProductName);
         }
 
         if (!dbSupport.supportsLocking()) {
@@ -102,7 +103,7 @@ public class DbSupportFactory {
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 DatabaseMetaData databaseMetaData = connection.getMetaData();
                 if (databaseMetaData == null) {
-                    throw new IllegalStateException("Unable to read database metadata while it is null!");
+                    throw new FlywayException("Unable to read database metadata while it is null!");
                 }
                 return connection.getMetaData().getDatabaseProductName();
             }

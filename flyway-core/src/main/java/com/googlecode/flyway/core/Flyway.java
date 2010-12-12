@@ -19,6 +19,8 @@ package com.googlecode.flyway.core;
 import com.googlecode.flyway.core.clean.DbCleaner;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
+import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.DbMigrator;
@@ -30,6 +32,7 @@ import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
+import com.googlecode.flyway.core.validation.ValidationException;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -273,31 +276,39 @@ public class Flyway {
      * Starts the database migration. All pending migrations will be applied in order.
      *
      * @return The number of successfully applied migrations.
-     * @throws Exception Thrown when the migration failed.
+     * @throws FlywayException Thrown when the migration failed.
      */
-    public int migrate() throws Exception {
-        final List<Migration> migrations = findAvailableMigrations();
-        validate(migrations, validationMode);
+    public int migrate() throws FlywayException {
+        validate();
 
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         metaDataTable.createIfNotExists();
 
         DbMigrator dbMigrator = new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
-        return dbMigrator.migrate(migrations);
+
+        return dbMigrator.migrate(findAvailableMigrations());
     }
 
-    private void validate(List<Migration> migrations, ValidationMode validationMode) {
+    /**
+     * Validate applied migration with classpath migrations to detect accidental changes.
+     * Uses validation type ALL if NONE is set.
+     *
+     * @throws FlywayException thrown when the validation failed.
+     */
+    public void validate() throws FlywayException {
+        final List<Migration> migrations = findAvailableMigrations();
+
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         DbValidator dbValidator = new DbValidator(validationMode, metaDataTable, migrations);
         final String validationError = dbValidator.validate();
 
         if (validationError != null) {
-            final String msg = "Flyway validate failed. Found differences between applied migrations and classpath migrations: " + validationError;
+            final String msg = "Validate failed. Found differences between applied migrations and available migrations: " + validationError;
             if (ValidationErrorMode.CLEAN.equals(validationErrorMode)) {
                 LOG.warn(msg + " running clean and migrate again.");
                 clean();
             } else {
-                throw new IllegalStateException(msg);
+                throw new ValidationException(msg);
             }
         }
     }
@@ -307,8 +318,10 @@ public class Flyway {
      *
      * @return The available migrations, sorted by version, newest first. An
      *         empty list is returned when no migrations can be found.
+     *
+     * @throws FlywayException when the available migrations have overlapping versions.
      */
-    private List<Migration> findAvailableMigrations() {
+    private List<Migration> findAvailableMigrations() throws FlywayException {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
@@ -321,7 +334,6 @@ public class Flyway {
         }
 
         if (allMigrations.isEmpty()) {
-            LOG.warn("No migrations found!");
             return allMigrations;
         }
 
@@ -333,7 +345,7 @@ public class Flyway {
             Migration current = allMigrations.get(i);
             Migration next = allMigrations.get(i+1);
             if (current.compareTo(next) == 0) {
-                throw new IllegalStateException("Found more than one migration with version: " + current.getVersion());
+                throw new ValidationException("Found more than one migration with version: " + current.getVersion());
             }
         }
 
@@ -345,15 +357,6 @@ public class Flyway {
      */
     public void clean() {
         new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport).clean();
-    }
-
-    /**
-     * Validate applied migration with classpath migrations to detect accidental changes.
-     * Uses validation type ALL if NONE is set.
-     */
-    public void validate() {
-        final List<Migration> migrations = findAvailableMigrations();
-        validate(migrations, ValidationMode.ALL);
     }
 
     /**
@@ -381,23 +384,13 @@ public class Flyway {
      *
      * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version number
      *                       higher than this one will be considered for this database.
-     * @deprecated Use init(SchemaVersion initialVersion, String description). Will be removed before 1.0.
-     */
-    @Deprecated
-    public void init(SchemaVersion initialVersion) {
-        init(initialVersion, null);
-    }
-
-    /**
-     * Creates and initializes the Flyway metadata table.
-     *
-     * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version number
-     *                       higher than this one will be considered for this database.
      * @param description    (Optional) The description of the initial version.
+     *
+     * @throws FlywayException when the schema initialization failed.
      */
-    public void init(SchemaVersion initialVersion, String description) {
+    public void init(SchemaVersion initialVersion, String description) throws FlywayException {
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
-        new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, initialVersion, ignoreFailedFutureMigration).init(initialVersion, description);
+        new DbInit(transactionTemplate, metaDataTable).init(initialVersion, description);
     }
 
     /**
