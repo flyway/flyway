@@ -128,16 +128,16 @@ public class OracleDbSupport implements DbSupport {
     @Override
     public SqlScript createCleanScript() {
         final List<String> allDropStatements = new ArrayList<String>();
+        allDropStatements.addAll(generateDropStatementsForSpatialExtensions());
         allDropStatements.addAll(generateDropStatementsForObjectType("SEQUENCE", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType("FUNCTION", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType("MATERIALIZED VIEW", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType("PACKAGE", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType("PROCEDURE", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType("SYNONYM", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", ""));
+        allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS"));
         allDropStatements.addAll(generateDropStatementsForObjectType("TABLE", "CASCADE CONSTRAINTS PURGE"));
         allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", ""));
-        allDropStatements.addAll(generateDropStatementsForSpatialExtensions());
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int count = 0;

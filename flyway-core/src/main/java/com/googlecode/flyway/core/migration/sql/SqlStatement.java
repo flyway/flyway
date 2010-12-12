@@ -16,6 +16,8 @@
 
 package com.googlecode.flyway.core.migration.sql;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -23,6 +25,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * A sql statement from a script that can be executed at once against a database.
  */
 public class SqlStatement {
+    /**
+     * Logger.
+     */
+    private static final Log LOG = LogFactory.getLog(SqlStatement.class);
+
     /**
      * The original line number where the statement was located in the script it came from.
      */
@@ -64,6 +71,7 @@ public class SqlStatement {
      * @param jdbcTemplate        The jdbc template to use to execute this statement.
      */
     public void execute(JdbcTemplate jdbcTemplate) {
+        LOG.debug("Executing SQL: " + this.sql);
         try {
             jdbcTemplate.execute(sql);
         } catch (DataAccessException e) {
