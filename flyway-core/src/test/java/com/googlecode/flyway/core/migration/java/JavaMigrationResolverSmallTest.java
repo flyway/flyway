@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNull;
  */
 public class JavaMigrationResolverSmallTest {
     @Test
-    public void test() {
+    public void resolveMigrations() {
         JavaMigrationResolver javaMigrationResolver =
                 new JavaMigrationResolver("com.googlecode.flyway.core.migration.java.dummy");
         Collection<Migration> migrations = javaMigrationResolver.resolveMigrations();

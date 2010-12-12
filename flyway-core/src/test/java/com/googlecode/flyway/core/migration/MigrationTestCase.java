@@ -44,6 +44,7 @@ import static org.junit.Assert.fail;
 /**
  * Test to demonstrate the migration functionality.
  */
+@SuppressWarnings({"JavaDoc"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public abstract class MigrationTestCase {
     /**
@@ -130,7 +131,7 @@ public abstract class MigrationTestCase {
     private void assertChecksum(MetaDataTableRow appliedMigration) {
         ClassPathResource resource = new ClassPathResource(getBaseDir() + "/" + appliedMigration.getScript());
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "", "");
-        Migration sqlMigration = new SqlMigration(resource, placeholderReplacer, "UTF-8", "1");
+        Migration sqlMigration = new SqlMigration(resource, placeholderReplacer, "UTF-8", "1", appliedMigration.getScript());
         assertEquals("Wrong checksum for " + appliedMigration.getScript(), sqlMigration.getChecksum(), appliedMigration.getChecksum());
     }
 

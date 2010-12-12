@@ -45,18 +45,21 @@ public class SqlMigration extends Migration {
      *
      * @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     * @param encoding            The encoding of this Sql migration.
      * @param versionString       The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g.
      *                            1_2__Description
-     * @param encoding            The encoding of this Sql migration.
+     * @param scriptName          The filename of this sql script, including the relative path from the root of
+     *                            baseDir.
      */
-    public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, String versionString) {
+    public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding,
+                        String versionString, String scriptName) {
         schemaVersion = MigrationInfoHelper.extractSchemaVersion(versionString);
         description = MigrationInfoHelper.extractDescription(versionString);
 
         this.sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         checksum = calculateChecksum(sqlScriptSource);
 
-        this.script = sqlScriptResource.getFilename();
+        this.script = scriptName;
         this.placeholderReplacer = placeholderReplacer;
     }
 

@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Migration resolver for sql files on the classpath.
- * The sql files must have names like V1.sql or V1_1.sql or V1__Description.sql or V1_1__Description.sql.
+ * Migration resolver for sql files on the classpath. The sql files must have names like V1.sql or V1_1.sql or
+ * V1__Description.sql or V1_1__Description.sql.
  */
 public class SqlMigrationResolver implements MigrationResolver {
     /**
@@ -100,15 +100,19 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         Resource[] resources;
         try {
-            final String searchPattern = sqlMigrationPrefix + "?*" + sqlMigrationSuffix;
-            resources = pathMatchingResourcePatternResolver.getResources("classpath*:" + baseDir + "/" + searchPattern);
+            String searchRoot = baseDir + "/";
+            final String searchPattern = "**/" + sqlMigrationPrefix + "?*" + sqlMigrationSuffix;
+            resources = pathMatchingResourcePatternResolver.getResources("classpath*:" + searchRoot + searchPattern);
+
+            for (Resource resource : resources) {
+                final String versionString =
+                        extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
+                String uri = resource.getURI().toString();
+                String scriptName = uri.substring(uri.indexOf(searchRoot) + searchRoot.length());
+                migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString, scriptName));
+            }
         } catch (IOException e) {
             throw new FlywayException("Error loading sql migration files", e);
-        }
-
-        for (Resource resource : resources) {
-            final String versionString = extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
-            migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString));
         }
 
         return migrations;
@@ -118,8 +122,9 @@ public class SqlMigrationResolver implements MigrationResolver {
      * Extracts the sql file version string from this file name.
      *
      * @param fileName The file name to parse.
-     * @param prefix The prefix to extract
-     * @param suffix The suffix to extract
+     * @param prefix   The prefix to extract
+     * @param suffix   The suffix to extract
+     *
      * @return The version string.
      */
     /* private -> for testing */
