@@ -149,7 +149,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void validateClean() throws Exception {
-        flyway.setBaseDir(getBaseDir());
+        flyway.setBaseDir("migration/validate");
         flyway.setSqlMigrationSuffix("First.sql");
         flyway.migrate();
 
