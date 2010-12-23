@@ -128,6 +128,7 @@ public class OracleDbSupport implements DbSupport {
     @Override
     public SqlScript createCleanScript() {
         final List<String> allDropStatements = new ArrayList<String>();
+        allDropStatements.add("PURGE RECYCLEBIN");
         allDropStatements.addAll(generateDropStatementsForSpatialExtensions());
         allDropStatements.addAll(generateDropStatementsForObjectType("SEQUENCE", ""));
         allDropStatements.addAll(generateDropStatementsForObjectType("FUNCTION", ""));
@@ -159,7 +160,11 @@ public class OracleDbSupport implements DbSupport {
     @SuppressWarnings({"unchecked"})
     private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments) {
         // ignore recycle bin objects
-        return jdbcTemplate.query("SELECT object_type, object_name FROM user_objects WHERE object_type = ? and object_name not like 'BIN$%'",
+        return jdbcTemplate.query("SELECT object_type, object_name FROM user_objects WHERE object_type = ?" +
+                // Recycle bin objects
+                " and object_name not like 'BIN$%'" +
+                // Spatial index tables
+                " and object_name not like 'MDRT_%$'",
                 new Object[]{objectType}, new RowMapper() {
                     @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException {
