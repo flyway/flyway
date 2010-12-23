@@ -143,7 +143,8 @@ public class Flyway {
     /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
-    private JdbcTemplate jdbcTemplate;
+    /* private -> for testing */
+    JdbcTemplate jdbcTemplate;
 
     /**
      * The transaction template to use.
@@ -398,19 +399,27 @@ public class Flyway {
      * @param properties Properties used for configuration.
      */
     public void configure(Properties properties) {
-        String driver = getRequiredProperty(properties, "flyway.driver");
-        Driver driverClazz;
-        try {
-            driverClazz = (Driver) Class.forName(driver).newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Error instantiating database driver: " + driver, e);
+        String driver = properties.getProperty("flyway.driver");
+        String url = properties.getProperty("flyway.url");
+        String user = properties.getProperty("flyway.user");
+        String password = properties.getProperty("flyway.password");
+
+        if ((driver != null) && (url != null) && (user != null) && (password != null)) {
+            // All datasource properties set
+            Driver driverClazz;
+            try {
+                driverClazz = (Driver) Class.forName(driver).newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException("Error instantiating database driver: " + driver, e);
+            }
+
+            setDataSource(new SimpleDriverDataSource(driverClazz, url, user, password));
+        } else if ((driver != null) || (url != null) || (user != null) || (password != null)) {
+            // Some, but not all datasource properties set
+            LOG.warn("Discarding INCOMPLETE dataSource configuration!" +
+                    " At least one of flyway.driver, flyway.url, flyway.user or flyway.password missing.");
         }
 
-        String url = getRequiredProperty(properties, "flyway.url");
-        String user = getRequiredProperty(properties, "flyway.user");
-        String password = getRequiredProperty(properties, "flyway.password");
-
-        setDataSource(new SimpleDriverDataSource(driverClazz, url, user, password));
 
         String baseDirProp = properties.getProperty("flyway.baseDir");
         if (baseDirProp != null) {
@@ -464,23 +473,5 @@ public class Flyway {
             }
         }
         setPlaceholders(placeholdersFromProps);
-    }
-
-    /**
-     * Retrieves the property with this name from this properties object.
-     *
-     * @param properties The properties object to use.
-     * @param name The name of the property to get.
-     * @return The value of the property.
-     *
-     * @throws IllegalStateException Thrown when the required property wasn't found.
-     */
-    private String getRequiredProperty(Properties properties, String name) {
-        String value = properties.getProperty(name);
-        if (value == null) {
-            throw new IllegalStateException("Missing required property: " + name);
-        }
-
-        return value;
     }
 }
