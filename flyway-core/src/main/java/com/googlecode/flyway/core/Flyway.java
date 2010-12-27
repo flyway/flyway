@@ -44,7 +44,13 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.sql.Driver;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -63,39 +69,33 @@ public class Flyway {
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
-     * The base package where the Java migrations are located. (default:
-     * db.migration)
+     * The base package where the Java migrations are located. (default: db.migration)
      */
     private String basePackage = "db.migration";
 
     /**
-     * The base directory on the classpath where the Sql migrations are located.
-     * (default: sql/location)
+     * The base directory on the classpath where the Sql migrations are located. (default: sql/location)
      */
     private String baseDir = "db/migration";
 
     /**
-     * The encoding of Sql migrations.
-     * (default: UTF-8)
+     * The encoding of Sql migrations. (default: UTF-8)
      */
     private String encoding = "UTF-8";
 
     /**
-     * The name of the schema metadata table that will be used by flyway.
-     * (default: schema_version)
+     * The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
     private String table = "schema_version";
 
     /**
      * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied.
-     * (default: the latest version)
+     * applied. (default: the latest version)
      */
     private SchemaVersion target = SchemaVersion.LATEST;
 
     /**
-     * A map of <placeholder, replacementValue> to apply to sql migration
-     * scripts.
+     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
     private Map<String, String> placeholders = new HashMap<String, String>();
 
@@ -163,17 +163,18 @@ public class Flyway {
      * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
      * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
-     * bad migration.
-     * (default: false)
+     * bad migration. (default: false)
      *
      * @param ignoreFailedFutureMigration {@code true} to terminate normally and log a warning, {@code false} to fail
-     * fast with an exception.
+     *                                    fast with an exception.
      */
     public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
     }
 
     /**
+     * Sets the ValidationMode for checksum validation.
+     *
      * @param validationMode The ValidationMode for checksum validation
      */
     public void setValidationMode(ValidationMode validationMode) {
@@ -181,6 +182,8 @@ public class Flyway {
     }
 
     /**
+     * Sets the error mode for validation.
+     *
      * @param validationErrorMode The error mode for validation
      */
     public void setValidationErrorMode(ValidationErrorMode validationErrorMode) {
@@ -188,30 +191,35 @@ public class Flyway {
     }
 
     /**
-     * @param basePackage The base package where the migrations are located. (default:
-     *                    db.migration)
+     * Sets the base package where the migrations are located.
+     *
+     * @param basePackage The base package where the migrations are located. (default: db.migration)
      */
     public void setBasePackage(String basePackage) {
         this.basePackage = basePackage;
     }
 
     /**
-     * @param baseDir The base directory on the classpath where the Sql migrations
-     *                are located. (default: sql/location)
+     * Sets the base directory on the classpath where the Sql migrations are located.
+     *
+     * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: sql/location)
      */
     public void setBaseDir(String baseDir) {
         this.baseDir = baseDir;
     }
 
     /**
-     * @param encoding The encoding of Sql migrations.
-     *                 (default: UTF-8)
+     * Sets the encoding of Sql migrations.
+     *
+     * @param encoding The encoding of Sql migrations. (default: UTF-8)
      */
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
 
     /**
+     * Sets the name of the schema metadata table that will be used by flyway.
+     *
      * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
     public void setTable(String table) {
@@ -219,14 +227,19 @@ public class Flyway {
     }
 
     /**
-     * @param target  The target version up to which Flyway should run migrations. Migrations with a higher version
-     * number will not be applied. (default: the latest version)
+     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
+     * not be applied.
+     *
+     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
+     *               number will not be applied. (default: the latest version)
      */
     public void setTarget(SchemaVersion target) {
         this.target = target;
     }
 
     /**
+     * Sets the placeholders to replace in sql migration scripts.
+     *
      * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
     public void setPlaceholders(Map<String, String> placeholders) {
@@ -234,6 +247,8 @@ public class Flyway {
     }
 
     /**
+     * Sets the prefix of every placeholder.
+     *
      * @param placeholderPrefix The prefix of every placeholder. (default: ${ )
      */
     public void setPlaceholderPrefix(String placeholderPrefix) {
@@ -241,6 +256,8 @@ public class Flyway {
     }
 
     /**
+     * Sets the suffix of every placeholder.
+     *
      * @param placeholderSuffix The suffix of every placeholder. (default: } )
      */
     public void setPlaceholderSuffix(String placeholderSuffix) {
@@ -248,6 +265,8 @@ public class Flyway {
     }
 
     /**
+     * Sets the file name prefix for sql migrations.
+     *
      * @param sqlMigrationPrefix The file name prefix for sql migrations (default: V)
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
@@ -255,6 +274,8 @@ public class Flyway {
     }
 
     /**
+     * Sets the file name suffix for sql migrations.
+     *
      * @param sqlMigrationSuffix The file name suffix for sql migrations (default: .sql)
      */
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
@@ -262,6 +283,8 @@ public class Flyway {
     }
 
     /**
+     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
+     *
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
      */
     public void setDataSource(DataSource dataSource) {
@@ -277,6 +300,7 @@ public class Flyway {
      * Starts the database migration. All pending migrations will be applied in order.
      *
      * @return The number of successfully applied migrations.
+     *
      * @throws FlywayException Thrown when the migration failed.
      */
     public int migrate() throws FlywayException {
@@ -291,8 +315,8 @@ public class Flyway {
     }
 
     /**
-     * Validate applied migration with classpath migrations to detect accidental changes.
-     * Uses validation type ALL if NONE is set.
+     * Validate applied migration with classpath migrations to detect accidental changes. Uses validation type ALL if
+     * NONE is set.
      *
      * @throws FlywayException thrown when the validation failed.
      */
@@ -315,8 +339,8 @@ public class Flyway {
     /**
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
-     * @return The available migrations, sorted by version, newest first. An
-     *         empty list is returned when no migrations can be found.
+     * @return The available migrations, sorted by version, newest first. An empty list is returned when no migrations
+     *         can be found.
      *
      * @throws FlywayException when the available migrations have overlapping versions.
      */
@@ -342,7 +366,7 @@ public class Flyway {
         // check for more than one migration with same version
         for (int i = 0; i < allMigrations.size() - 1; i++) {
             Migration current = allMigrations.get(i);
-            Migration next = allMigrations.get(i+1);
+            Migration next = allMigrations.get(i + 1);
             if (current.compareTo(next) == 0) {
                 throw new ValidationException("Found more than one migration with version: " + current.getVersion());
             }
@@ -381,8 +405,8 @@ public class Flyway {
     /**
      * Creates and initializes the Flyway metadata table.
      *
-     * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version number
-     *                       higher than this one will be considered for this database.
+     * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version
+     *                       number higher than this one will be considered for this database.
      * @param description    (Optional) The description of the initial version.
      *
      * @throws FlywayException when the schema initialization failed.
@@ -393,10 +417,12 @@ public class Flyway {
     }
 
     /**
-     * Configures Flyway with these properties. This overwrites any existing configuration.
-     * Property names are documented in the flyway maven plugin.
+     * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
+     * documented in the flyway maven plugin.
      *
      * @param properties Properties used for configuration.
+     *
+     * @throws FlywayException when the configuration failed.
      */
     public void configure(Properties properties) {
         String driver = properties.getProperty("flyway.driver");
@@ -410,7 +436,7 @@ public class Flyway {
             try {
                 driverClazz = (Driver) Class.forName(driver).newInstance();
             } catch (Exception e) {
-                throw new RuntimeException("Error instantiating database driver: " + driver, e);
+                throw new FlywayException("Error instantiating database driver: " + driver, e);
             }
 
             setDataSource(new SimpleDriverDataSource(driverClazz, url, user, password));
