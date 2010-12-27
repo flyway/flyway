@@ -105,7 +105,7 @@ public class DbSupportFactory {
                 if (databaseMetaData == null) {
                     throw new FlywayException("Unable to read database metadata while it is null!");
                 }
-                return connection.getMetaData().getDatabaseProductName();
+                return databaseMetaData.getDatabaseProductName();
             }
         });
     }

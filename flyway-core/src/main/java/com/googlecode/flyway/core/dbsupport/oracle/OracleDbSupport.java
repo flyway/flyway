@@ -17,6 +17,7 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
@@ -28,6 +29,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -91,13 +93,13 @@ public class OracleDbSupport implements DbSupport {
     @Override
     public boolean columnExists(final String table, final String column) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-             @Override
-             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
-                         table.toUpperCase(), column.toUpperCase());
-                 return resultSet.next();
-             }
-         });
+            @Override
+            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
+                        table.toUpperCase(), column.toUpperCase());
+                return resultSet.next();
+            }
+        });
     }
 
     @Override
@@ -155,6 +157,7 @@ public class OracleDbSupport implements DbSupport {
      *
      * @param objectType     The type of database object to drop.
      * @param extraArguments The extra arguments to add to the drop statement.
+     *
      * @return The complete drop statements, ready to execute.
      */
     @SuppressWarnings({"unchecked"})
@@ -162,9 +165,7 @@ public class OracleDbSupport implements DbSupport {
         // ignore recycle bin objects
         return jdbcTemplate.query("SELECT object_type, object_name FROM user_objects WHERE object_type = ?" +
                 // Recycle bin objects
-                " and object_name not like 'BIN$%'" +
-                // Spatial index tables
-                " and object_name not like 'MDRT_%$'",
+                " and object_name not like 'BIN$%'",
                 new Object[]{objectType}, new RowMapper() {
                     @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -182,9 +183,11 @@ public class OracleDbSupport implements DbSupport {
         List<String> statements = new ArrayList<String>();
 
         if (spatialExtensionsAvailable()) {
-            String user = getCurrentSchema();
             statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
-            statements.add("DELETE FROM mdsys.sdo_index_metadata_table WHERE sdo_index_owner = '" + user + "'");
+            if (isOracleXE()) {
+                String user = getCurrentSchema();
+                statements.add("DELETE FROM mdsys.sdo_index_metadata_table WHERE sdo_index_owner = '" + user + "'");
+            }
         } else {
             LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
         }
@@ -198,6 +201,24 @@ public class OracleDbSupport implements DbSupport {
      * @return {@code true} if they are available, {@code false} if not.
      */
     private boolean spatialExtensionsAvailable() {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_tables WHERE owner = 'MDSYS' AND table_name = 'SDO_INDEX_METADATA_TABLE'") > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE owner = 'MDSYS' AND view_name = 'USER_SDO_GEOM_METADATA'") > 0;
+    }
+
+    /**
+     * Checks whether we are connected to Oracle XE or a full-blown edition.
+     *
+     * @return {@code true} if it is XE, {@code false} if not.
+     */
+    private boolean isOracleXE() {
+        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
+            @Override
+            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+                DatabaseMetaData databaseMetaData = connection.getMetaData();
+                if (databaseMetaData == null) {
+                    throw new FlywayException("Unable to read database metadata while it is null!");
+                }
+                return databaseMetaData.getDatabaseProductVersion().contains("Express Edition");
+            }
+        });
     }
 }

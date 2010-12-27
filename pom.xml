@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-parent</artifactId>
@@ -194,13 +195,18 @@
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
-                <version>1.8.0</version>
+                <version>1.9.0</version>
                 <inherited>false</inherited>
                 <configuration>
                     <header>${basedir}/license.txt</header>
                     <aggregate>true</aggregate>
                     <failIfMissing>true</failIfMissing>
                     <encoding>UTF-8</encoding>
+                    <excludes>
+                        <exclude>.hg*</exclude>
+                        <exclude>**/*.cnf</exclude>
+                    </excludes>
+                    <strictCheck>true</strictCheck>
                 </configuration>
                 <executions>
                     <execution>
@@ -214,7 +220,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.6</version>
+                <version>2.7.1</version>
                 <configuration>
                     <includes>
                         <include>**/*SmallTest.java</include>
@@ -251,7 +257,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.6</version>
+                <version>2.7.1</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

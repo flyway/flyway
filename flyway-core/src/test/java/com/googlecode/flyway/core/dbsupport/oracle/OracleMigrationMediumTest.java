@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
@@ -84,13 +85,18 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void cleanSpatialExtensions() throws FlywayException {
+        assertEquals(0, objectsCount());
+
         flyway.setBaseDir("migration/oracle/sql/spatial");
         flyway.migrate();
+        assertTrue(objectsCount() > 0);
 
         flyway.clean();
+        assertEquals(0, objectsCount());
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
+        assertTrue(objectsCount() > 0);
     }
 
     /**
@@ -98,13 +104,28 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void cleanWithRecycleBin() {
-        flyway.clean();
-        final int recyclebinCount1 = jdbcTemplate.queryForInt("select count(*) from recyclebin");
+        assertEquals(0, recycleBinCount());
+
         // in SYSTEM tablespace the recycle bin is deactivated
         jdbcTemplate.update("CREATE TABLE test_user (name VARCHAR(25) NOT NULL,  PRIMARY KEY(name)) tablespace USERS");
         jdbcTemplate.update("DROP TABLE test_user");
-        final int recyclebinCount2 = jdbcTemplate.queryForInt("select count(*) from recyclebin");
-        Assert.assertTrue(recyclebinCount1 < recyclebinCount2);
+        assertTrue(recycleBinCount() > 0);
+
         flyway.clean();
+        assertEquals(0, recycleBinCount());
+    }
+
+    /**
+     * @return The number of objects for the current user.
+     */
+    private int objectsCount() {
+        return jdbcTemplate.queryForInt("select count(*) from user_objects");
+    }
+
+    /**
+     * @return The number of objects in the recycle bin.
+     */
+    private int recycleBinCount() {
+        return jdbcTemplate.queryForInt("select count(*) from recyclebin");
     }
 }
