@@ -89,6 +89,8 @@ public abstract class MigrationTestCase {
         assertEquals(0, flyway.migrate());
         assertEquals(3, flyway.history().size());
 
+        
+
         for (MetaDataTableRow metaDataTableRow : flyway.history()) {
             assertChecksum(metaDataTableRow);
         }
