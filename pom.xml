@@ -63,7 +63,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
                 <version>${version.spring}</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
