@@ -37,6 +37,7 @@
         <module>flyway-core</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-sample</module>
+        <module>flyway-commandline</module>
     </modules>
 
     <distributionManagement>
@@ -203,6 +204,7 @@
                     <excludes>
                         <exclude>.hg*</exclude>
                         <exclude>**/*.cnf</exclude>
+                        <exclude>**/*.releaseBackup</exclude>
                     </excludes>
                     <strictCheck>true</strictCheck>
                 </configuration>
