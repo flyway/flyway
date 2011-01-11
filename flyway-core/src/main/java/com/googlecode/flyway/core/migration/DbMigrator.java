@@ -220,7 +220,7 @@ public class DbMigrator {
                     @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
                     Throwable rootCause = ExceptionUtils.getRootCause(e);
                     if (rootCause != null) {
-                        LOG.error(rootCause.toString());
+                        LOG.error("Caused by " + rootCause.toString());
                     }
                     state = MigrationState.FAILED;
                 }

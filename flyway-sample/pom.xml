@@ -45,7 +45,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.googlecode.flyway.sample.Main</mainClass>
+                            <mainClass>com.googlecode.flyway.sample.com.googlecode.flyway.commandline.Main</mainClass>
                             <packageName>com.googlecode.flyway.sample</packageName>
                             <addClasspath>true</addClasspath>
                         </manifest>

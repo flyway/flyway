@@ -117,7 +117,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause != null) {
-                LOG.error(rootCause.toString());
+                LOG.error("Caused by " + rootCause.toString());
             }
             throw new MojoExecutionException("Flyway Error: " + e.toString(), e);
         } finally {

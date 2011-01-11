@@ -25,7 +25,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.googlecode.flyway.commandline.Main</mainClass>
+                            <mainClass>com.googlecode.flyway.commandline.com.googlecode.flyway.commandline.Main</mainClass>
                             <packageName>com.googlecode.flyway.commandline</packageName>
                             <addClasspath>true</addClasspath>
                         </manifest>
