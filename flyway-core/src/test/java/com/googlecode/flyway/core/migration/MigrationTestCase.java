@@ -15,6 +15,17 @@
  */
 package com.googlecode.flyway.core.migration;
 
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.util.HashMap;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
@@ -23,22 +34,8 @@ import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Test to demonstrate the migration functionality.
@@ -288,4 +285,24 @@ public abstract class MigrationTestCase {
             // OK.
         }
     }
+
+    /**
+     * check validation with INIT row
+     */
+    @Test
+    public void checkValidationWithInitRow() throws FlywayException {
+        flyway.setBaseDir(getBaseDir());
+        flyway.setTarget(new SchemaVersion("1.1"));
+        flyway.migrate();
+        assertEquals("1.1", flyway.status().getVersion().toString());
+
+        jdbcTemplate.update("DROP TABLE schema_version");
+        flyway.init(new SchemaVersion("1.1"), "initial version 1.1");
+
+        flyway.setTarget(SchemaVersion.LATEST);
+        flyway.migrate();
+        assertEquals("2.0", flyway.status().getVersion().toString());
+        flyway.validate();
+    }
+
 }

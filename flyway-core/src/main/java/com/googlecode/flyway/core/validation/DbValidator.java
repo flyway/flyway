@@ -15,18 +15,22 @@
  */
 package com.googlecode.flyway.core.validation;
 
-import com.googlecode.flyway.core.metadatatable.MetaDataTable;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.util.TimeFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationType;
+import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.TimeFormat;
 
 /**
  * Main workflow for validating the applied migrations against the available classpath migrations in order to detect
@@ -63,11 +67,11 @@ public class DbValidator {
      * Validate the checksum of all existing sql migration in the metadata table with the checksum of the sql migrations
      * in the classpath
      *
-     * @param migrations All migrations available on the classpath, sorted by version, newest first.
+     * @param resolvedMigrations All migrations available on the classpath, sorted by version, newest first.
      *
-     * @return description of validation error or NULL if no validation error war found
+     * @return description of validation error or NULL if no validation error was found
      */
-    public String validate(List<Migration> migrations) {
+    public String validate(List<Migration> resolvedMigrations) {
         if (ValidationMode.NONE.equals(validationMode)) {
             return null;
         }
@@ -76,10 +80,27 @@ public class DbValidator {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        final List<MetaDataTableRow> appliedMigrations = metaDataTable.allAppliedMigrations();
+        final List<MetaDataTableRow> appliedMigrations = new ArrayList<MetaDataTableRow>(metaDataTable.allAppliedMigrations());
         if (appliedMigrations.isEmpty()) {
             LOG.info("No migrations applied yet. No validation necessary.");
             return null;
+        }
+
+        List<Migration> migrations = new ArrayList<Migration>(resolvedMigrations);
+        // migrations now with newest last
+        Collections.reverse(migrations);
+        final MetaDataTableRow firstAppliedMigration = appliedMigrations.get(0);
+        if (MigrationType.INIT.equals(firstAppliedMigration.getMigrationType())) {
+            // if first migration is INIT, just check checksum of following migrations
+            final SchemaVersion initVersion = firstAppliedMigration.getVersion();
+            appliedMigrations.remove(firstAppliedMigration);
+
+            for (Iterator<Migration> iterator = migrations.iterator(); iterator.hasNext();) {
+                Migration migration = iterator.next();
+                if (migration.getVersion().compareTo(initVersion) <= 0) {
+                    iterator.remove();
+                }
+            }
         }
 
         if (appliedMigrations.size() > migrations.size()) {
@@ -108,7 +129,7 @@ public class DbValidator {
         for (int i = 0; i < appliedMigrations.size(); i++) {
             MetaDataTableRow appliedMigration = appliedMigrations.get(i);
             //Migrations are sorted in the opposite order: newest first.
-            Migration classpathMigration = migrations.get(migrations.size() - i - 1);
+            Migration classpathMigration = migrations.get(i);
 
             if (!appliedMigration.getVersion().equals(classpathMigration.getVersion())) {
                 return String.format("Version mismatch for migration %s: DB=%s, Classpath=%s",
