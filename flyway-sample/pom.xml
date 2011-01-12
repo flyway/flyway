@@ -9,12 +9,12 @@
     <artifactId>flyway-sample</artifactId>
     <version>1.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>${pom.artifactId}</name>
+    <name>${project.artifactId}</name>
     <dependencies>
         <dependency>
-            <groupId>${pom.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${pom.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -29,9 +29,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>${pom.groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>${pom.version}</version>
+                <version>${project.version}</version>
                 <configuration>
                     <driver>org.hsqldb.jdbcDriver</driver>
                     <url>jdbc:hsqldb:file:${project.build.directory}/db/flyway_sample;shutdown=true</url>

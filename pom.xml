@@ -4,7 +4,7 @@
     <artifactId>flyway-parent</artifactId>
     <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>${pom.artifactId}</name>
+    <name>${project.artifactId}</name>
     <description>
         Flyway: The agile database migration framework for Java.
     </description>
