@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2010 the original author or authors.
+ * Copyright (C) 2010-2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,15 @@ package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.ExceptionUtils;
-import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileCopyUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Driver;
 import java.util.Properties;
 
 /**
@@ -46,15 +43,22 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
-        printVersion();
-
         try {
-            Flyway flyway = new Flyway();
-
-            flyway.configure(loadConfigurationFile(args));
-            overrideConfiguration(flyway, args);
+            printVersion();
 
             String operation = determineOperation(args);
+            if (operation == null) {
+                printUsage();
+                return;
+            }
+
+            Flyway flyway = new Flyway();
+
+            Properties properties = loadConfigurationFile(args);
+            overrideConfiguration(properties, args);
+            normalizeProperties(properties);
+            flyway.configure(properties);
+
             if ("clean".equals(operation)) {
                 flyway.clean();
             } else if ("init".equals(operation)) {
@@ -85,17 +89,78 @@ public class Main {
 
     /**
      * Prints the version number on the console.
+     *
+     * @throws IOException when the version could not be read.
      */
-    private static void printVersion() {
-        //To change body of created methods use File | Settings | File Templates.
+    private static void printVersion() throws IOException {
+        String version =
+                FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("version.txt").getInputStream(), "UTF-8"));
+        LOG.info("Flyway (Command-line Tool) v." + version);
+        LOG.info("");
     }
 
     /**
      * Prints the usage instructions on the console.
      */
     private static void printUsage() {
+        String extension;
+        if (isWindows()) {
+            extension = "cmd";
+        } else {
+            extension = "sh";
+        }
 
+        LOG.info("********");
+        LOG.info("* Usage");
+        LOG.info("********");
+        LOG.info("");
+        LOG.info("flyway." + extension + " [options] command");
+        LOG.info("");
+        LOG.info("By default, the configuration will be read from conf/flyway.properties.");
+        LOG.info("Options passed from the command-line override the configuration.");
+        LOG.info("");
+        LOG.info("Commands");
+        LOG.info("========");
+        LOG.info("clean    : Drops all objects in the schema without dropping the schema itself");
+        LOG.info("init     : Creates and initializes the metadata table in the schema");
+        LOG.info("migrate  : Migrates the schema to the latest version");
+        LOG.info("validate : Validates the applied migrations against the ones available on the classpath");
+        LOG.info("status   : Prints the current version of the schema");
+        LOG.info("history  : Prints the full migration history of the schema");
+        LOG.info("");
+        LOG.info("Options (Format: -key=value)");
+        LOG.info("=======");
+        LOG.info("driver              : The fully qualified classname of the jdbc driver to use to connect to the database");
+        LOG.info("url                 : The jdbc url to use to connect to the database");
+        LOG.info("user                : The user to use to connect to the database");
+        LOG.info("password            : The password to use to connect to the database");
+        LOG.info("table               : The name of Flyway's metadata table");
+        LOG.info("basePackage         : The package to scan for Java migrations");
+        LOG.info("baseDir             : The directory on the classpath to scan for Sql migrations");
+        LOG.info("sqlMigrationPrefix  : The file name prefix for Sql migrations");
+        LOG.info("sqlMigrationSuffix  : The file name suffix for Sql migrations");
+        LOG.info("encoding            : The encoding of Sql migrations");
+        LOG.info("placeholders        : Placeholders to replace in Sql migrations");
+        LOG.info("placeholderPrefix   : The prefix of every placeholder");
+        LOG.info("placeholderSuffix   : The suffix of every placeholder");
+        LOG.info("target              : The target version up to which Flyway should run migrations");
+        LOG.info("validationMode      : The type of validation to be performed before migrating");
+        LOG.info("validationErrorMode : The action to take when validation fails");
+        LOG.info("");
+        LOG.info("Example");
+        LOG.info("=======");
+        LOG.info("flyway." + extension + " -target=1.5 -placeholder.user=my_user history");
+        LOG.info("");
+        LOG.info("More info at http://code.google.com/p/flyway/wiki/CommandLine");
+    }
 
+    /**
+     * Checks whether we are running on Windows or not.
+     *
+     * @return {@code true} if we are, {@code false} if not.
+     */
+    private static boolean isWindows() {
+        return System.getProperty("os.name").startsWith("Windows");
     }
 
     /**
@@ -131,9 +196,9 @@ public class Main {
      */
     private static String determineConfigurationFile(String[] args) {
         for (String arg : args) {
-             if (isArgumentForProperty(arg, "configFile")) {
-                 return getArgumentValue(arg);
-             }
+            if (isPropertyArgument(arg) && "configFile".equals(getArgumentProperty(arg))) {
+                return getArgumentValue(arg);
+            }
         }
 
         return getInstallationDir() + "/conf/flyway.properties";
@@ -155,9 +220,9 @@ public class Main {
      */
     private static String determineConfigurationFileEncoding(String[] args) {
         for (String arg : args) {
-             if (isArgumentForProperty(arg, "configFileEncoding")) {
-                 return getArgumentValue(arg);
-             }
+            if (isPropertyArgument(arg) && "configFileEncoding".equals(getArgumentProperty(arg))) {
+                return getArgumentValue(arg);
+            }
         }
 
         return "UTF-8";
@@ -166,76 +231,54 @@ public class Main {
     /**
      * Overrides the configuration from the config file with the properties passed in directly from the command-line.
      *
-     * @param flyway The Flyway instance to configure.
-     * @param args   The command-line arguments that were passed in.
+     * @param properties The properties to override.
+     * @param args       The command-line arguments that were passed in.
      */
-    private static void overrideConfiguration(Flyway flyway, String[] args) {
-        String driver = null;
-        String url = null;
-        String user = null;
-        String password = "";
-
+    private static void overrideConfiguration(Properties properties, String[] args) {
         for (String arg : args) {
-            if (isArgumentForProperty(arg, "baseDir")) {
-                flyway.setBaseDir(getArgumentValue(arg));
-            } else if (isArgumentForProperty(arg, "basePackage")) {
-                flyway.setBasePackage(getArgumentValue(arg));
-            } else if (isArgumentForProperty(arg, "encoding")) {
-                flyway.setEncoding(getArgumentValue(arg));
-            } else if (isArgumentForProperty(arg, "placeholderPrefix")) {
-                flyway.setPlaceholderPrefix(getArgumentValue(arg));
-            } else if (isArgumentForProperty(arg, "placeholderSuffix")) {
-                flyway.setPlaceholderSuffix(getArgumentValue(arg));
-            } else if (isArgumentForProperty(arg, "sqlMigrationPrefix")) {
-                flyway.setSqlMigrationPrefix(getArgumentValue(arg));
-            } else if (isArgumentForProperty(arg, "sqlMigrationSuffix")) {
-                flyway.setSqlMigrationSuffix(getArgumentValue(arg));
-            } else if (isArgumentForProperty(arg, "table")) {
-                flyway.setTable(getArgumentValue(arg));
-            } else if (isArgumentForProperty(arg, "target")) {
-                flyway.setTarget(new SchemaVersion(getArgumentValue(arg)));
-            } else if (isArgumentForProperty(arg, "validationErrorMode")) {
-                flyway.setValidationErrorMode(ValidationErrorMode.valueOf(getArgumentValue(arg)));
-            } else if (isArgumentForProperty(arg, "validationMode")) {
-                flyway.setValidationMode(ValidationMode.valueOf(getArgumentValue(arg)));
-            } else if (isArgumentForProperty(arg, "driver")) {
-                driver = getArgumentValue(arg);
-            } else if (isArgumentForProperty(arg, "url")) {
-                url = getArgumentValue(arg);
-            } else if (isArgumentForProperty(arg, "user")) {
-                user = getArgumentValue(arg);
-            } else if (isArgumentForProperty(arg, "password")) {
-                password = getArgumentValue(arg);
+            if (isPropertyArgument(arg)) {
+                properties.put(getArgumentProperty(arg), getArgumentValue(arg));
             }
-        }
-
-        if ((driver != null) && (url != null) && (user != null) && (password != null)) {
-            // All datasource properties set
-            Driver driverClazz;
-            try {
-                driverClazz = (Driver) Class.forName(driver).newInstance();
-            } catch (Exception e) {
-                throw new FlywayException("Error instantiating database driver: " + driver, e);
-            }
-
-            flyway.setDataSource(new SimpleDriverDataSource(driverClazz, url, user, password));
-        } else if ((driver != null) || (url != null) || (user != null) || (password != null)) {
-            // Some, but not all datasource properties set
-            LOG.warn("Discarding INCOMPLETE dataSource configuration!" +
-                    " At least one of flyway.driver, flyway.url, flyway.user or flyway.password missing.");
         }
     }
 
     /**
-     * Checks whether this command-line argument tries to set the property with this name.
+     * Normalizes these properties so that properties prefixed with flyway. can freely be intermixed with others that
+     * aren't.
      *
-     * @param arg          The command-line argument to check.
-     * @param propertyName The property name to check.
+     * @param properties The properties to normalize.
+     */
+    private static void normalizeProperties(Properties properties) {
+        for (String property : properties.stringPropertyNames()) {
+            if (!property.startsWith("flyway.")) {
+                properties.put("flyway." + property, properties.getProperty(property));
+                properties.remove(property);
+            }
+        }
+    }
+
+    /**
+     * Checks whether this command-line argument tries to set a property.
+     *
+     * @param arg The command-line argument to check.
      *
      * @return {@code true} if it does, {@code false} if not.
      */
-    private static boolean isArgumentForProperty(String arg, String propertyName) {
-        return arg.startsWith("-" + propertyName + "=");
+    private static boolean isPropertyArgument(String arg) {
+        return arg.startsWith("-") && arg.contains("=");
+    }
+
+    /**
+     * Retrieves the property this command-line argument tries to assign.
+     *
+     * @param arg The command-line argument to check, typically in the form -key=value.
+     *
+     * @return The property.
+     */
+    private static String getArgumentProperty(String arg) {
+        int index = arg.indexOf("=");
+
+        return arg.substring(0, index - 1);
     }
 
     /**
