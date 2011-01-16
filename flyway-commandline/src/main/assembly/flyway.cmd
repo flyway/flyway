@@ -14,3 +14,24 @@
 @REM limitations under the License.
 @REM
 
+@Echo off
+
+setlocal
+
+@REM Save current directory
+set OLDDIR=%CD%
+
+@REM Set the current directory to the installation directory
+chdir /d %~dp0
+
+@REM Use JAVA_HOME if it is set
+if "%JAVA_HOME%"=="" (
+ set JAVA_CMD=java
+) else (
+ set JAVA_CMD="%JAVA_HOME%\bin\java.exe"
+)
+
+%JAVA_CMD% -cp bin\*;conf;sql;jars\* com.googlecode.flyway.commandline.Main %*
+
+@REM Restore current directory
+chdir /d %OLDDIR%

@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.maven;
+package com.googlecode.flyway.core.util;
 
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Dumps migrations in an ascii-art table in the logs and the Maven console.
+ * Dumps migrations in an ascii-art table in the logs and the console.
  */
 public class MetaDataTableRowDumper {
     /**

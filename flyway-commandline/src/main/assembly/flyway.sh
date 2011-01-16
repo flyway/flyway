@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Copyright (C) 2010-2011 the original author or authors.
 #
@@ -14,3 +15,20 @@
 # limitations under the License.
 #
 
+# Save current directory
+OLDDIR=`pwd`
+
+# Set the current directory to the installation directory
+cd `dirname $0`
+
+# Use JAVA_HOME if it is set
+if [ -z $JAVA_HOME ]; then
+ JAVA_CMD=java
+else
+ JAVA_CMD=$JAVA_HOME/bin/java
+fi
+
+$JAVA_CMD -cp bin/*:conf:sql:jars/* com.googlecode.flyway.commandline.Main $@
+
+# Restore current directory
+cd $OLDDIR

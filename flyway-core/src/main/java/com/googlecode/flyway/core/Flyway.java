@@ -40,6 +40,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Driver;
@@ -119,7 +120,7 @@ public class Flyway {
     private String sqlMigrationSuffix = ".sql";
 
     /**
-     * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
+     * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
      * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
@@ -140,6 +141,16 @@ public class Flyway {
     private ValidationErrorMode validationErrorMode = ValidationErrorMode.FAIL;
 
     /**
+     * The initial version to put in the database. Only used for init. (default: 0)
+     */
+    private SchemaVersion initialVersion = new SchemaVersion("0");
+
+    /**
+     * The description of the initial version. Only used for init. (default: << Flyway Init >>)
+     */
+    private String initialDescription = "<< Flyway Init >>";
+
+    /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
     /* private -> for testing */
@@ -156,7 +167,7 @@ public class Flyway {
     private DbSupport dbSupport;
 
     /**
-     * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
+     * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
      * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
@@ -296,6 +307,35 @@ public class Flyway {
     }
 
     /**
+     * Asserts that the datasource has been configured properly.
+     *
+     * @throws FlywayException when the datasource has not been configured.
+     */
+    private void assertDataSourceConfigured() throws FlywayException {
+        if (jdbcTemplate == null) {
+            throw new FlywayException("DataSource not set! Check your configuration!");
+        }
+    }
+
+    /**
+     * The initial version to put in the database. Only used for init.
+     *
+     * @param initialVersion The initial version to put in the database. (default: 0)
+     */
+    public void setInitialVersion(SchemaVersion initialVersion) {
+        this.initialVersion = initialVersion;
+    }
+
+    /**
+     * The description of the initial version. Only used for init.
+     *
+     * @param initialDescription The description of the initial version. (default: << Flyway Init >>)
+     */
+    public void setInitialDescription(String initialDescription) {
+        this.initialDescription = initialDescription;
+    }
+
+    /**
      * Starts the database migration. All pending migrations will be applied in order.
      *
      * @return The number of successfully applied migrations.
@@ -303,6 +343,8 @@ public class Flyway {
      * @throws FlywayException Thrown when the migration failed.
      */
     public int migrate() throws FlywayException {
+        assertDataSourceConfigured();
+
         validate();
 
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
@@ -320,6 +362,8 @@ public class Flyway {
      * @throws FlywayException thrown when the validation failed.
      */
     public void validate() throws FlywayException {
+        assertDataSourceConfigured();
+
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         DbValidator dbValidator = new DbValidator(validationMode, metaDataTable);
         final String validationError = dbValidator.validate(findAvailableMigrations());
@@ -378,6 +422,8 @@ public class Flyway {
      * Drops all objects (tables, views, procedures, triggers, ...) in the current schema.
      */
     public void clean() {
+        assertDataSourceConfigured();
+
         new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport).clean();
     }
 
@@ -387,6 +433,8 @@ public class Flyway {
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
     public MetaDataTableRow status() {
+        assertDataSourceConfigured();
+
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         return metaDataTable.latestAppliedMigration();
     }
@@ -397,6 +445,8 @@ public class Flyway {
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      */
     public List<MetaDataTableRow> history() {
+        assertDataSourceConfigured();
+
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         return metaDataTable.allAppliedMigrations();
     }
@@ -404,15 +454,31 @@ public class Flyway {
     /**
      * Creates and initializes the Flyway metadata table.
      *
-     * @param initialVersion (Optional) The initial version to put in the metadata table. Only migrations with a version
-     *                       number higher than this one will be considered for this database.
-     * @param description    (Optional) The description of the initial version.
-     *
      * @throws FlywayException when the schema initialization failed.
      */
-    public void init(SchemaVersion initialVersion, String description) throws FlywayException {
+    public void init() throws FlywayException {
+        assertDataSourceConfigured();
+
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
-        new DbInit(transactionTemplate, metaDataTable).init(initialVersion, description);
+        new DbInit(transactionTemplate, metaDataTable).init(initialVersion, initialDescription);
+    }
+
+    /**
+     * Creates and initializes the Flyway metadata table.
+     *
+     * @param version     (Optional) The initial version to put in the metadata table. Only migrations with a version
+     *                    number higher than this one will be considered for this database.
+     * @param description (Optional) The description of the initial version.
+     *
+     * @throws FlywayException when the schema initialization failed.
+     * @deprecated Use init(), setInitialVersion() and setInitialDescription() instead.
+     */
+    @Deprecated
+    public void init(SchemaVersion version, String description) throws FlywayException {
+        assertDataSourceConfigured();
+
+        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+        new DbInit(transactionTemplate, metaDataTable).init(version, description);
     }
 
     /**
@@ -429,7 +495,8 @@ public class Flyway {
         String user = properties.getProperty("flyway.user");
         String password = properties.getProperty("flyway.password");
 
-        if ((driver != null) && (url != null) && (user != null) && (password != null)) {
+        if (StringUtils.hasText(driver) && StringUtils.hasText(url) && StringUtils.hasText(user)
+                && (password != null)) {
             // All datasource properties set
             Driver driverClazz;
             try {
@@ -439,7 +506,7 @@ public class Flyway {
             }
 
             setDataSource(new SimpleDriverDataSource(driverClazz, url, user, password));
-        } else if ((driver != null) || (url != null) || (user != null) || (password != null)) {
+        } else if (StringUtils.hasText(driver) || StringUtils.hasText(url) || StringUtils.hasText(user) || (password != null)) {
             // Some, but not all datasource properties set
             LOG.warn("Discarding INCOMPLETE dataSource configuration!" +
                     " At least one of flyway.driver, flyway.url, flyway.user or flyway.password missing.");

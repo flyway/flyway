@@ -26,44 +26,49 @@
     <fileSets>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory>/</outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
             </includes>
+            <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory>/</outputDirectory>
             <includes>
                 <include>flyway.sh</include>
             </includes>
             <fileMode>744</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>conf</outputDirectory>
+            <outputDirectory>/conf</outputDirectory>
             <includes>
                 <include>flyway.properties</include>
             </includes>
+            <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>migration/sql</outputDirectory>
+            <outputDirectory>/sql</outputDirectory>
             <includes>
                 <include>put-your-sql-migrations-here.txt</include>
             </includes>
+            <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>migration/java</outputDirectory>
+            <outputDirectory>/jars</outputDirectory>
             <includes>
-                <include>put-your-java-migration-jars-here.txt</include>
+                <include>put-your-jdbc-driver-and-java-migration-jars-here.txt</include>
             </includes>
+            <fileMode>644</fileMode>
         </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <outputDirectory>bin/lib</outputDirectory>
+            <outputDirectory>bin</outputDirectory>
             <scope>runtime</scope>
         </dependencySet>
     </dependencySets>

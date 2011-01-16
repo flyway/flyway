@@ -21,6 +21,11 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>        
     </dependencies>
     <build>
         <resources>
@@ -38,7 +43,7 @@
                         <manifest>
                             <mainClass>com.googlecode.flyway.commandline.Main</mainClass>
                             <packageName>com.googlecode.flyway.commandline</packageName>
-                            <addClasspath>true</addClasspath>
+                            <addClasspath>false</addClasspath>
                         </manifest>
                     </archive>
                 </configuration>

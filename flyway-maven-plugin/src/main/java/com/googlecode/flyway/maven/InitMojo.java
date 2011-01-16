@@ -43,10 +43,13 @@ public class InitMojo extends AbstractFlywayMojo {
 
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        if (initialVersion == null) {
-            flyway.init(null, initialDescription);
-        } else {
-            flyway.init(new SchemaVersion(initialVersion), initialDescription);
+        if (initialVersion != null) {
+            flyway.setInitialVersion(new SchemaVersion(initialVersion));
         }
+        if (initialDescription != null) {
+            flyway.setInitialDescription(initialDescription);
+        }
+
+        flyway.init();
     }
 }
