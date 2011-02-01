@@ -15,7 +15,6 @@
  */
 package com.googlecode.flyway.sample.migration;
 
-import com.googlecode.flyway.core.migration.java.BaseJavaMigration;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 

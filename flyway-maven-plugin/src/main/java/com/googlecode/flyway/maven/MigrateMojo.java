@@ -16,12 +16,17 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationProvider;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.maven.project.MavenProject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -33,14 +38,18 @@ import java.util.Properties;
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class MigrateMojo extends AbstractMigrationLoadingMojo {
     /**
+     * Logger.
+     */
+    private static final Log LOG = LogFactory.getLog(MigrateMojo.class);
+
+    /**
      * Property name prefix for placeholders that are configured through properties.
      */
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
      * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)
-     * Also configurable with Maven or System Property: ${flyway.target}
+     * applied. (default: the latest version) Also configurable with Maven or System Property: ${flyway.target}
      *
      * @parameter expression="${flyway.target}"
      */
@@ -53,8 +62,8 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
      * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
-     * bad migration. (default: false)
-     * Also configurable with Maven or System Property: ${flyway.ignoreFailedFutureMigration}
+     * bad migration. (default: false) Also configurable with Maven or System Property:
+     * ${flyway.ignoreFailedFutureMigration}
      *
      * @parameter expression="${flyway.ignoreFailedFutureMigration}"
      */
@@ -68,59 +77,41 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     private Map<String, String> placeholders;
 
     /**
-     * The prefix of every placeholder. (default: ${ )<br>
-     * Also configurable with Maven or System Property: ${flyway.placeholderPrefix}
+     * The prefix of every placeholder. (default: ${ )<br> Also configurable with Maven or System Property:
+     * ${flyway.placeholderPrefix}
      *
      * @parameter expression="${flyway.placeholderPrefix}"
      */
     private String placeholderPrefix;
 
     /**
-     * The suffix of every placeholder. (default: } )<br>
-     * Also configurable with Maven or System Property: ${flyway.placeholderSuffix}
+     * The suffix of every placeholder. (default: } )<br> Also configurable with Maven or System Property:
+     * ${flyway.placeholderSuffix}
      *
      * @parameter expression="${flyway.placeholderSuffix}"
      */
     private String placeholderSuffix;
 
     /**
-     * The type of validation to be performed before migrating.<br/>
-     * <br/>
-     * Possible values are:<br/>
-     * <br/>
-     * <b>NONE</b> (default)<br/>
-     * No validation is performed.<br/>
-     * <br/>
-     * <b>ALL</b><br/>
-     * For each sql migration a CRC32 checksum is calculated when the sql script is executed.
-     * The validate mechanism checks if the sql migrations in the classpath still has the same checksum
-     * as the sql migration already executed in the database.<br/>
-     * <br/>
-     * Also configurable with Maven or System Property: ${flyway.validationMode}
+     * The type of validation to be performed before migrating.<br/> <br/> Possible values are:<br/> <br/> <b>NONE</b>
+     * (default)<br/> No validation is performed.<br/> <br/> <b>ALL</b><br/> For each sql migration a CRC32 checksum is
+     * calculated when the sql script is executed. The validate mechanism checks if the sql migrations in the classpath
+     * still has the same checksum as the sql migration already executed in the database.<br/> <br/> Also configurable
+     * with Maven or System Property: ${flyway.validationMode}
      *
      * @parameter expression="${flyway.validationMode}"
      */
     private String validationMode;
 
     /**
-     * The action to take when validation fails.<br/>
-     * <br/>
-     * Possible values are:<br/>
-     * <br/>
-     * <b>FAIL</b> (default)<br/>
-     * Throw an exception and fail.<br/>
-     * <br/>
-     * <b>CLEAN (Warning ! Do not use in produktion !)</b><br/>
-     * Cleans the database.<br/>
-     * <br/>
-     * This is exclusively intended as a convenience for development. Even tough we strongly recommend not to change
-     * migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in
-     * a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you
-     * back to the state checked into SCM.<br/>
-     * <br/>
-     * This property has no effect when <i>validationMode</i> is set to <i>NONE</i>.<br/>
-     * <br/>
-     * Also configurable with Maven or System Property: ${flyway.validationErrorMode}
+     * The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
+     * Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
+     * database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
+     * recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
+     * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
+     * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
+     * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/> Also configurable with Maven or System Property:
+     * ${flyway.validationErrorMode}
      *
      * @parameter expression="${flyway.validationErrorMode}"
      */
@@ -163,6 +154,17 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
             flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorMode.toUpperCase()));
         }
 
+        MigrationProvider migrationProvider =
+                new MigrationProvider(flyway.getBasePackage(), flyway.getBaseDir(), flyway.getEncoding(),
+                        flyway.getSqlMigrationPrefix(), flyway.getSqlMigrationSuffix(),
+                        flyway.getPlaceholders(), flyway.getPlaceholderPrefix(), flyway.getPlaceholderSuffix());
+        List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
+
+        if (availableMigrations.isEmpty()) {
+            LOG.warn("Possible solution: run mvn compile first so Flyway can find the migrations");
+            return;
+        }
+
         flyway.migrate();
     }
 
@@ -172,7 +174,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * @param placeholders The existing list of placeholders.
      * @param properties   The properties containing additional placeholders.
      */
-    public static void addPlaceholdersFromProperties(Map<String, String> placeholders, Properties properties) {
+    private static void addPlaceholdersFromProperties(Map<String, String> placeholders, Properties properties) {
         for (Object property : properties.keySet()) {
             String propertyName = (String) property;
             if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)

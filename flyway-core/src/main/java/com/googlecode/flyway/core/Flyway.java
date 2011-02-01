@@ -24,6 +24,7 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationProvider;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
@@ -95,7 +96,7 @@ public class Flyway {
     private SchemaVersion target = SchemaVersion.LATEST;
 
     /**
-     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * The map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
     private Map<String, String> placeholders = new HashMap<String, String>();
 
@@ -110,12 +111,12 @@ public class Flyway {
     private String placeholderSuffix = "}";
 
     /**
-     * The file name prefix for sql migrations (default: V)
+     * The file name prefix for sql migrations. (default: V)
      */
     private String sqlMigrationPrefix = "V";
 
     /**
-     * The file name suffix for sql migrations (default: .sql)
+     * The file name suffix for sql migrations. (default: .sql)
      */
     private String sqlMigrationSuffix = ".sql";
 
@@ -131,12 +132,12 @@ public class Flyway {
     private boolean ignoreFailedFutureMigration;
 
     /**
-     * The mode for validation
+     * The mode for validation.
      */
     private ValidationMode validationMode = ValidationMode.NONE;
 
     /**
-     * The error mode for validation
+     * The error mode for validation.
      */
     private ValidationErrorMode validationErrorMode = ValidationErrorMode.FAIL;
 
@@ -165,6 +166,150 @@ public class Flyway {
      * Database-specific functionality.
      */
     private DbSupport dbSupport;
+
+    /**
+     * Retrieves the base package where the Java migrations are located.
+     *
+     * @return The base package where the Java migrations are located. (default: db.migration)
+     */
+    public String getBasePackage() {
+        return basePackage;
+    }
+
+    /**
+     * Retrieves the base directory on the classpath where the Sql migrations are located.
+     *
+     * @return The base directory on the classpath where the Sql migrations are located. (default: sql/location)
+     */
+    public String getBaseDir() {
+        return baseDir;
+    }
+
+    /**
+     * Retrieves the encoding of Sql migrations.
+     *
+     * @return The encoding of Sql migrations. (default: UTF-8)
+     */
+    public String getEncoding() {
+        return encoding;
+    }
+
+    /**
+     * Retrieves the name of the schema metadata table that will be used by flyway.
+     *
+     * @return The name of the schema metadata table that will be used by flyway. (default: schema_version)
+     */
+    public String getTable() {
+        return table;
+    }
+
+    /**
+     * Retrieves the target version up to which Flyway should run migrations. Migrations with a higher version number will not be
+     * applied.
+     *
+     * @return The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
+     * applied. (default: the latest version)
+     */
+    public SchemaVersion getTarget() {
+        return target;
+    }
+
+    /**
+     * Retrieves the map of <placeholder, replacementValue> to apply to sql migration scripts.
+     *
+     * @return The map of <placeholder, replacementValue> to apply to sql migration scripts.
+     */
+    public Map<String, String> getPlaceholders() {
+        return placeholders;
+    }
+
+    /**
+     * Retrieves the prefix of every placeholder.
+     *
+     * @return The prefix of every placeholder. (default: ${ )
+     */
+    public String getPlaceholderPrefix() {
+        return placeholderPrefix;
+    }
+
+    /**
+     * Retrieves the suffix of every placeholder.
+     *
+     * @return The suffix of every placeholder. (default: } )
+     */
+    public String getPlaceholderSuffix() {
+        return placeholderSuffix;
+    }
+
+    /**
+     * Retrieves the file name prefix for sql migrations.
+     *
+     * @return The file name prefix for sql migrations. (default: V)
+     */
+    public String getSqlMigrationPrefix() {
+        return sqlMigrationPrefix;
+    }
+
+    /**
+     * Retrieves the file name suffix for sql migrations.
+     *
+     * @return The file name suffix for sql migrations. (default: .sql)
+     */
+    public String getSqlMigrationSuffix() {
+        return sqlMigrationSuffix;
+    }
+
+    /**
+     * Retrieves whether to ignore failed future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
+     * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
+     * bad migration.
+     *
+     * @return {@code true} to terminate normally and log a warning, {@code false} to fail
+     *                                    fast with an exception. (default: false)
+     */
+    public boolean isIgnoreFailedFutureMigration() {
+        return ignoreFailedFutureMigration;
+    }
+
+    /**
+     * Retrieves the mode for validation.
+     *
+     * @return The mode for validation.
+     */
+    public ValidationMode getValidationMode() {
+        return validationMode;
+    }
+
+    /**
+     * Retrieves the error mode for validation.
+     *
+     * @return The error mode for validation.
+     */
+    public ValidationErrorMode getValidationErrorMode() {
+        return validationErrorMode;
+    }
+
+    /**
+     * Retrieves the initial version to put in the database. Only used for init.
+     *
+     * @return The initial version to put in the database. (default: 0)
+     */
+    public SchemaVersion getInitialVersion() {
+        return initialVersion;
+    }
+
+    /**
+     * Retrieves the description of the initial version. Only used for init.
+     *
+     * @return The description of the initial version. (default: << Flyway Init >>)
+     */
+    public String getInitialDescription() {
+        return initialDescription;
+    }
 
     /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
@@ -250,7 +395,7 @@ public class Flyway {
     /**
      * Sets the placeholders to replace in sql migration scripts.
      *
-     * @param placeholders A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @param placeholders The map of <placeholder, replacementValue> to apply to sql migration scripts.
      */
     public void setPlaceholders(Map<String, String> placeholders) {
         this.placeholders = placeholders;
@@ -345,6 +490,10 @@ public class Flyway {
     public int migrate() throws FlywayException {
         assertDataSourceConfigured();
 
+        MigrationProvider migrationProvider =
+                new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
+
         validate();
 
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
@@ -352,7 +501,7 @@ public class Flyway {
 
         DbMigrator dbMigrator =
                 new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
-        return dbMigrator.migrate(findAvailableMigrations());
+        return dbMigrator.migrate(availableMigrations);
     }
 
     /**
@@ -364,9 +513,13 @@ public class Flyway {
     public void validate() throws FlywayException {
         assertDataSourceConfigured();
 
+        MigrationProvider migrationProvider =
+                new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
+
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         DbValidator dbValidator = new DbValidator(validationMode, metaDataTable);
-        final String validationError = dbValidator.validate(findAvailableMigrations());
+        final String validationError = dbValidator.validate(availableMigrations);
 
         if (validationError != null) {
             final String msg = "Validate failed. Found differences between applied migrations and available migrations: " + validationError;
@@ -377,45 +530,6 @@ public class Flyway {
                 throw new ValidationException(msg);
             }
         }
-    }
-
-    /**
-     * Finds all available migrations using all migration resolvers (sql, java, ...).
-     *
-     * @return The available migrations, sorted by version, newest first. An empty list is returned when no migrations
-     *         can be found.
-     *
-     * @throws FlywayException when the available migrations have overlapping versions.
-     */
-    private List<Migration> findAvailableMigrations() throws FlywayException {
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
-
-        Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
-        migrationResolvers.add(new JavaMigrationResolver(basePackage));
-
-        List<Migration> allMigrations = new ArrayList<Migration>();
-        for (MigrationResolver migrationResolver : migrationResolvers) {
-            allMigrations.addAll(migrationResolver.resolveMigrations());
-        }
-
-        if (allMigrations.isEmpty()) {
-            return allMigrations;
-        }
-
-        Collections.sort(allMigrations);
-        Collections.reverse(allMigrations);
-
-        // check for more than one migration with same version
-        for (int i = 0; i < allMigrations.size() - 1; i++) {
-            Migration current = allMigrations.get(i);
-            Migration next = allMigrations.get(i + 1);
-            if (current.compareTo(next) == 0) {
-                throw new ValidationException("Found more than one migration with version: " + current.getVersion());
-            }
-        }
-
-        return allMigrations;
     }
 
     /**
