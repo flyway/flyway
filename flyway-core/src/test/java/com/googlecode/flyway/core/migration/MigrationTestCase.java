@@ -253,7 +253,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void tableExists() throws Exception {
-        flyway.init(null, null);
+        flyway.init();
         assertTrue(getDbSupport(new JdbcTemplate(migrationDataSource)).tableExists("SCHEMA_VERSION"));
     }
 
@@ -261,15 +261,15 @@ public abstract class MigrationTestCase {
     public void columnExists() throws Exception {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
 
-        flyway.init(null, null);
+        flyway.init();
         assertTrue(getDbSupport(jdbcTemplate).columnExists("SCHEMA_VERSION", "DESCRIPTION"));
         assertFalse(getDbSupport(jdbcTemplate).columnExists("SCHEMA_VERSION", "INVALID"));
     }
 
     /**
-     * check if meta table has no current migration (manually edited)
+     * Check if meta table has no current migration (manually edited).
      */
-    @Test
+    @Test(expected = FlywayException.class)
     public void checkForInvalidMetatable() throws FlywayException {
         flyway.setBaseDir(getBaseDir());
         flyway.migrate();
@@ -278,16 +278,11 @@ public abstract class MigrationTestCase {
         DbSupport dbSupport = getDbSupport(jdbcTemplate);
         jdbcTemplate.update("UPDATE schema_version SET current_version = " + dbSupport.getBooleanFalse()
                 + " where current_version = " + dbSupport.getBooleanTrue());
-        try {
-            flyway.migrate();
-            fail();
-        } catch (FlywayException e) {
-            // OK.
-        }
+        flyway.migrate();
     }
 
     /**
-     * check validation with INIT row
+     * Check validation with INIT row.
      */
     @Test
     public void checkValidationWithInitRow() throws FlywayException {
@@ -297,7 +292,9 @@ public abstract class MigrationTestCase {
         assertEquals("1.1", flyway.status().getVersion().toString());
 
         jdbcTemplate.update("DROP TABLE schema_version");
-        flyway.init(new SchemaVersion("1.1"), "initial version 1.1");
+        flyway.setInitialVersion(new SchemaVersion("1.1"));
+        flyway.setInitialDescription("initial version 1.1");
+        flyway.init();
 
         flyway.setTarget(SchemaVersion.LATEST);
         flyway.migrate();
@@ -305,4 +302,27 @@ public abstract class MigrationTestCase {
         flyway.validate();
     }
 
+    @Test
+    public void isSchemaEmpty() {
+        assertTrue(getDbSupport(jdbcTemplate).isSchemaEmpty());
+
+        flyway.setBaseDir(getBaseDir());
+        flyway.migrate();
+
+        assertFalse(getDbSupport(jdbcTemplate).isSchemaEmpty());
+
+        flyway.clean();
+
+        assertTrue(getDbSupport(jdbcTemplate).isSchemaEmpty());
+    }
+
+    @Test(expected = FlywayException.class)
+    public void nonEmptySchema() {
+        jdbcTemplate.execute("CREATE TABLE t1 (\n" +
+                "  name VARCHAR(25) NOT NULL,\n" +
+                "  PRIMARY KEY(name))");
+        
+        flyway.setBaseDir(getBaseDir());
+        flyway.migrate();
+    }
 }

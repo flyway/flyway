@@ -69,6 +69,22 @@ public class MySQLDbSupport implements DbSupport {
     }
 
     @Override
+    public boolean isSchemaEmpty() {
+        int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
+                "( " +
+                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLES " +
+                "Union " +
+                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.VIEWS " +
+                "Union " +
+                "Select CONSTRAINT_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLE_CONSTRAINTS " +
+                "Union " +
+                "Select ROUTINE_NAME as OBJECT_NAME, ROUTINE_SCHEMA as OBJECT_SCHEMA from information_schema.ROUTINES " +
+                ") R " +
+                "Where R.OBJECT_SCHEMA=?", new Object[] {getCurrentSchema()});
+        return objectCount == 0;
+    }
+
+    @Override
     public boolean tableExists(final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override

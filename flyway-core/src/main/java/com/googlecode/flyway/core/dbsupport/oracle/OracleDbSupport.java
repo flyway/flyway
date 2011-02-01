@@ -78,6 +78,12 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
+    public boolean isSchemaEmpty() {
+        int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
+        return objectCount == 0;
+    }
+
+    @Override
     public boolean tableExists(final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override

@@ -74,6 +74,17 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     @Override
+    public boolean isSchemaEmpty() {
+        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
+            @Override
+            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(), null, null);
+                return !resultSet.next();
+            }
+        });
+    }
+
+    @Override
     public boolean tableExists(final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
@@ -87,7 +98,7 @@ public class HsqlDbSupport implements DbSupport {
 
     @Override
     public boolean columnExists(final String table, final String column) {
-         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
+        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),

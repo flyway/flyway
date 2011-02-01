@@ -49,6 +49,13 @@ public interface DbSupport {
     String getScriptLocation();
 
     /**
+     * Checks if the current database schema is empty.
+     *
+     * @return {@code true} if it is empty, {@code false} if it is not.
+     */
+    boolean isSchemaEmpty();
+
+    /**
      * Checks whether this table is already present in the database.
      *
      * @param table The table to look for.

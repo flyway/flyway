@@ -103,11 +103,6 @@ public class DbMigrator {
      * @throws FlywayException when migration failed.
      */
     public int migrate(final List<Migration> migrations) throws FlywayException {
-        if (migrations.isEmpty()) {
-            LOG.info("No migrations found");
-            return 0;
-        }
-
         int migrationSuccessCount = 0;
         try {
             while (true) {

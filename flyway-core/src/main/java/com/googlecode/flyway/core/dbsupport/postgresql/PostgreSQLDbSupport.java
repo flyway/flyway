@@ -15,34 +15,29 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-//TODO: import org.postgresql.util.PGobject;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * PostgreSQL-specific support.
  */
 public class PostgreSQLDbSupport implements DbSupport {
-	
-	private final static String DEFAULT_SCHEMA_PATTERN = "public";
-	private final static String[] TABLE_EXISTS_TABLE_TYPES = new String[] { "TABLE" };
-	
+
+    private final static String DEFAULT_SCHEMA_PATTERN = "public";
+    private final static String[] TABLE_EXISTS_TABLE_TYPES = new String[]{"TABLE"};
+
     /**
      * The jdbcTemplate to use.
      */
@@ -73,6 +68,13 @@ public class PostgreSQLDbSupport implements DbSupport {
     }
 
     @Override
+    public boolean isSchemaEmpty() {
+        int objectCount = jdbcTemplate.queryForInt(
+                "SELECT count(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_type='BASE TABLE'");
+        return objectCount == 0;
+    }
+
+    @Override
     public boolean tableExists(final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
@@ -98,7 +100,7 @@ public class PostgreSQLDbSupport implements DbSupport {
 
     @Override
     public boolean supportsDdlTransactions() {
-    	return true;
+        return true;
     }
 
     @Override
@@ -144,11 +146,10 @@ public class PostgreSQLDbSupport implements DbSupport {
      * @return The drop statements.
      */
     private List<String> generateDropStatementsForTables() {
-    	@SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
+        @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name FROM information_schema.tables WHERE " +
-                        "table_schema=? AND table_type='BASE TABLE'",
-                        new Object[]{getCurrentSchema()});
+                                "table_schema=current_schema() AND table_type='BASE TABLE'");
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : tableNames) {
@@ -165,16 +166,15 @@ public class PostgreSQLDbSupport implements DbSupport {
      */
     private List<String> generateDropStatementsForSequences() {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> sequenceNames =
-        	jdbcTemplate.queryForList(
-                "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema=?",
-                new Object[]{getCurrentSchema()});
-        
+                jdbcTemplate.queryForList(
+                        "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema=current_schema()");
+
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : sequenceNames) {
-        	String sequenceName = row.get("sequence_name");
-        	statements.add("DROP SEQUENCE IF EXISTS " + sequenceName);
+            String sequenceName = row.get("sequence_name");
+            statements.add("DROP SEQUENCE IF EXISTS " + sequenceName);
         }
-        
+
         return statements;
     }
 
@@ -184,11 +184,10 @@ public class PostgreSQLDbSupport implements DbSupport {
      * @return The drop statements.
      */
     private List<String> generateDropStatementsForRoutines() {
-    	@SuppressWarnings({"unchecked"}) List<Map<String, String>> rows =
-            jdbcTemplate.queryForList(
-                "SELECT proname, oidvectortypes(proargtypes) AS args "
-                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = ?",
-                new Object[]{getCurrentSchema()});
+        @SuppressWarnings({"unchecked"}) List<Map<String, String>> rows =
+                jdbcTemplate.queryForList(
+                        "SELECT proname, oidvectortypes(proargtypes) AS args "
+                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = current_schema()");
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {

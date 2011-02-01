@@ -75,6 +75,13 @@ public class H2DbSupport implements DbSupport {
     }
 
     @Override
+    public boolean isSchemaEmpty() {
+        @SuppressWarnings({"unchecked"})
+        List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + getCurrentSchema());
+        return tables.isEmpty();
+    }
+
+    @Override
     public boolean tableExists(final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override

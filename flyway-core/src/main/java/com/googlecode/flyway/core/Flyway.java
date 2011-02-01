@@ -25,11 +25,7 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationProvider;
-import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationException;
@@ -45,9 +41,6 @@ import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Driver;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -204,11 +197,11 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied.
+     * Retrieves the target version up to which Flyway should run migrations. Migrations with a higher version number
+     * will not be applied.
      *
-     * @return The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)
+     * @return The target version up to which Flyway should run migrations. Migrations with a higher version number will
+     *         not be applied. (default: the latest version)
      */
     public SchemaVersion getTarget() {
         return target;
@@ -260,16 +253,16 @@ public class Flyway {
     }
 
     /**
-     * Retrieves whether to ignore failed future migrations when reading the metadata table. These are migrations that were performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
-     * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
-     * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
-     * bad migration.
+     * Retrieves whether to ignore failed future migrations when reading the metadata table. These are migrations that
+     * were performed by a newer deployment of the application that are not yet available in this version. For example:
+     * we have migrations available on the classpath up to version 3.0. The metadata table indicates that a migration to
+     * version 4.0 (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an
+     * exception, a warning is logged and Flyway terminates normally. This is useful for situations where a database
+     * rollback is not an option. An older version of the application can then be redeployed, even though a newer one
+     * failed due to a bad migration.
      *
-     * @return {@code true} to terminate normally and log a warning, {@code false} to fail
-     *                                    fast with an exception. (default: false)
+     * @return {@code true} to terminate normally and log a warning, {@code false} to fail fast with an exception.
+     *         (default: false)
      */
     public boolean isIgnoreFailedFutureMigration() {
         return ignoreFailedFutureMigration;
@@ -493,12 +486,16 @@ public class Flyway {
         MigrationProvider migrationProvider =
                 new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
         List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
+        if (availableMigrations.isEmpty()) {
+            return 0;
+        }
+
+        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
 
         validate();
 
-        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
         metaDataTable.createIfNotExists();
-
+        
         DbMigrator dbMigrator =
                 new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
         return dbMigrator.migrate(availableMigrations);
@@ -518,6 +515,10 @@ public class Flyway {
         List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
 
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+        if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !dbSupport.isSchemaEmpty()) {
+            throw new ValidationException("Found non-empty schema without metadata table! Use init() first to initialize the metadata table.");
+        }
+
         DbValidator dbValidator = new DbValidator(validationMode, metaDataTable);
         final String validationError = dbValidator.validate(availableMigrations);
 
