@@ -130,7 +130,7 @@ public class HsqlDbSupport implements DbSupport {
 
     @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        return new SqlScript(sqlScriptSource, placeholderReplacer);
+        return new HsqlSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
     @Override

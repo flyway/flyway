@@ -40,7 +40,7 @@ public class SqlScript {
     /**
      * The default Statement delimiter.
      */
-    private static final String DEFAULT_STATEMENT_DELIMITER = ";";
+    protected static final String DEFAULT_STATEMENT_DELIMITER = ";";
 
     /**
      * The sql statements contained in this script.

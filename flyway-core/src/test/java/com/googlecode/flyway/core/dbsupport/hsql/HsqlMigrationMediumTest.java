@@ -17,21 +17,38 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.migration.SchemaVersion;
+import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Hsql.
  */
-@ContextConfiguration(locations = { "classpath:migration/hsql/hsql-context.xml" })
+@ContextConfiguration(locations = {"classpath:migration/hsql/hsql-context.xml"})
 public class HsqlMigrationMediumTest extends MigrationTestCase {
-	@Override
-	protected String getBaseDir() {
-		return "migration/sql";
-	}
+    @Override
+    protected String getBaseDir() {
+        return "migration/sql";
+    }
 
     @Override
     protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
         return new HsqlDbSupport(jdbcTemplate);
+    }
+
+    @Test
+    public void semicolonWithinStringLiteral() {
+        flyway.setBaseDir("migration/hsql/sql/semicolon");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1.1", schemaVersion.toString());
+        assertEquals("Populate table", flyway.status().getDescription());
+
+        assertEquals("Mr. Semicolon+Linebreak;\nanother line",
+                jdbcTemplate.queryForObject("select name from test_user where name like '%line'", String.class));
     }
 }
