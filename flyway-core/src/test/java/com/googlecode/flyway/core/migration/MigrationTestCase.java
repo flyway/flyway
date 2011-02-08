@@ -325,4 +325,15 @@ public abstract class MigrationTestCase {
         flyway.setBaseDir(getBaseDir());
         flyway.migrate();
     }
+
+    @Test
+    public void nonEmptySchemaWithInit() {
+        jdbcTemplate.execute("CREATE TABLE t1 (\n" +
+                "  name VARCHAR(25) NOT NULL,\n" +
+                "  PRIMARY KEY(name))");
+
+        flyway.setBaseDir(getBaseDir());
+        flyway.init();
+        flyway.migrate();
+    }
 }
