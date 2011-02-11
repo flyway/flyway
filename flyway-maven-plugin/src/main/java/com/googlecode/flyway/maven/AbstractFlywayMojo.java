@@ -47,7 +47,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter expression="${flyway.driver}"
      * @required
      */
-    private String driver;
+    /* private -> for testing */ String driver;
 
     /**
      * The jdbc url to use to connect to the database.<br>
@@ -56,7 +56,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter expression="${flyway.url}"
      * @required
      */
-    private String url;
+    /* private -> for testing */ String url;
 
     /**
      * The user to use to connect to the database.<br>
@@ -65,7 +65,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter expression="${flyway.user}"
      * @required
      */
-    private String user;
+    /* private -> for testing */ String user;
 
     /**
      * The password to use to connect to the database. (default: <i>blank</i>)<br>
@@ -89,7 +89,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @return The fully configured datasource.
      * @throws Exception Thrown when the datasource could not be created.
      */
-    private DataSource createDataSource() throws Exception {
+    /* private -> for testing */ BasicDataSource createDataSource() throws Exception {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName(driver);
         dataSource.setUrl(url);
@@ -108,9 +108,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 flyway.setTable(table);
             }
 
-            flyway.setDataSource(createDataSource());
+            BasicDataSource dataSource = createDataSource();
+            flyway.setDataSource(dataSource);
 
             doExecute(flyway);
+
+            dataSource.close();
         } catch (Exception e) {
             LOG.error(e.toString());
 
