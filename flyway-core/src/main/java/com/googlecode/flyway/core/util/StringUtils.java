@@ -79,7 +79,7 @@ public class StringUtils {
     }
 
     /**
-     * Replaces all sequences of whitespace by a single blank. Ex.: "     " -> " "
+     * Replaces all sequences of whitespace by a single blank. Ex.: "&nbsp;&nbsp;&nbsp;&nbsp;" -> " "
      *
      * @param str The string to analyse.
      *

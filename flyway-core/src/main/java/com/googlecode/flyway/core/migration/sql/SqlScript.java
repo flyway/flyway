@@ -134,7 +134,7 @@ public class SqlScript {
             }
             statementSql += line;
 
-            String statementSqlWithoutLineBreaks = statementSql.replaceAll("\n", " ");
+            String statementSqlWithoutLineBreaks = statementSql.replaceAll("\n", " ").replaceAll("\r", " ");
             String oldDelimiter = delimiter;
             delimiter = changeDelimiterIfNecessary(statementSqlWithoutLineBreaks, line, delimiter);
             if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
@@ -168,7 +168,7 @@ public class SqlScript {
      * Checks whether this line in the sql script indicates that the statement delimiter will be different from the
      * current one. Useful for database-specific stored procedures and block constructs.
      *
-     * @param statement The statement assembled so far.
+     * @param statement The statement assembled so far, reduced to a single line with all linebreaks replaced by spaces.
      * @param line      The line to analyse.
      * @param delimiter The current delimiter.
      *

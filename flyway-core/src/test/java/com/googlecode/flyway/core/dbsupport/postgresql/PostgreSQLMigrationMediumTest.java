@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.dbsupport.postgresql;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -93,5 +94,9 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
     }
-    
+
+    @Ignore
+    public void semicolonWithinStringLiteral() {
+        //Ignore
+    }
 }

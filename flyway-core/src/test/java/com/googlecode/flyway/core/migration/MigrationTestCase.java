@@ -336,4 +336,17 @@ public abstract class MigrationTestCase {
         flyway.init();
         flyway.migrate();
     }
+
+    @Test
+    public void semicolonWithinStringLiteral() {
+        flyway.setBaseDir("migration/semicolon");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1.1", schemaVersion.toString());
+        assertEquals("Populate table", flyway.status().getDescription());
+
+        assertEquals("Mr. Semicolon+Linebreak;\nanother line",
+                jdbcTemplate.queryForObject("select name from test_user where name like '%line'", String.class));
+    }
 }

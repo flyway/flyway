@@ -17,8 +17,15 @@ package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.migration.SchemaVersion;
+import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using H2.
@@ -33,5 +40,23 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
         return new H2DbSupport(jdbcTemplate);
+    }
+
+    @Test
+    public void dollarQuotedString() {
+        flyway.setBaseDir("migration/h2/sql/dollar_quoted_string");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1.1", schemaVersion.toString());
+        assertEquals("Populate table", flyway.status().getDescription());
+
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList("select name from test_user");
+        for (Map<String, Object> row : rows) {
+            System.out.println("Name: " + row.get("NAME"));
+        }
+
+        assertEquals("'Mr. Semicolon+Linebreak;\nanother line'",
+                jdbcTemplate.queryForObject("select name from test_user where name like '%line'''", String.class));
     }
 }

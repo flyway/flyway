@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -126,5 +127,10 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     private int recycleBinCount() {
         return jdbcTemplate.queryForInt("select count(*) from recyclebin");
+    }
+
+    @Ignore
+    public void semicolonWithinStringLiteral() {
+        //Ignore
     }
 }

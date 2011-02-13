@@ -38,17 +38,4 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
     protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
         return new HsqlDbSupport(jdbcTemplate);
     }
-
-    @Test
-    public void semicolonWithinStringLiteral() {
-        flyway.setBaseDir("migration/hsql/sql/semicolon");
-        flyway.migrate();
-
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1.1", schemaVersion.toString());
-        assertEquals("Populate table", flyway.status().getDescription());
-
-        assertEquals("Mr. Semicolon+Linebreak;\nanother line",
-                jdbcTemplate.queryForObject("select name from test_user where name like '%line'", String.class));
-    }
 }

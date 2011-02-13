@@ -23,7 +23,7 @@
         <property name="username" value="sa" />
         <property name="password" value="" />
         <property name="driverClass" value="org.h2.Driver" />
-        <property name="url" value="jdbc:h2:mem:flyway_test" />
+        <property name="url" value="jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1" />
     </bean>
     <!-- -->
     <bean id="concurrentMigrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
