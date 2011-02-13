@@ -25,8 +25,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import javax.sql.DataSource;
-
 /**
  * Common base class for all mojos with all common attributes.<br>
  *
@@ -41,8 +39,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private static final Log LOG = LogFactory.getLog(AbstractFlywayMojo.class);
 
     /**
-     * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
-     * default property: ${flyway.driver}
+     * The fully qualified classname of the jdbc driver to use to connect to the database.<br> default property:
+     * ${flyway.driver}
      *
      * @parameter expression="${flyway.driver}"
      * @required
@@ -50,8 +48,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /* private -> for testing */ String driver;
 
     /**
-     * The jdbc url to use to connect to the database.<br>
-     * default property: ${flyway.url}
+     * The jdbc url to use to connect to the database.<br> default property: ${flyway.url}
      *
      * @parameter expression="${flyway.url}"
      * @required
@@ -59,8 +56,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /* private -> for testing */ String url;
 
     /**
-     * The user to use to connect to the database.<br>
-     * default property: ${flyway.user}
+     * The user to use to connect to the database.<br> default property: ${flyway.user}
      *
      * @parameter expression="${flyway.user}"
      * @required
@@ -68,16 +64,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /* private -> for testing */ String user;
 
     /**
-     * The password to use to connect to the database. (default: <i>blank</i>)<br>
-     * default property: ${flyway.password}
+     * The password to use to connect to the database. (default: <i>blank</i>)<br> default property: ${flyway.password}
      *
      * @parameter expression="${flyway.password}"
      */
     private String password = "";
 
     /**
-     * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br>
-     * default property: ${flyway.schemaMetaDataTable}
+     * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br> default
+     * property: ${flyway.schemaMetaDataTable}
      *
      * @parameter expression="${flyway.table}"
      */
@@ -87,6 +82,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Creates the datasource base on the provided parameters.
      *
      * @return The fully configured datasource.
+     *
      * @throws Exception Thrown when the datasource could not be created.
      */
     /* private -> for testing */ BasicDataSource createDataSource() throws Exception {
@@ -109,11 +105,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             }
 
             BasicDataSource dataSource = createDataSource();
-            flyway.setDataSource(dataSource);
-
-            doExecute(flyway);
-
-            dataSource.close();
+            try {
+                flyway.setDataSource(dataSource);
+                doExecute(flyway);
+            } finally {
+                dataSource.close();
+            }
         } catch (Exception e) {
             LOG.error(e.toString());
 

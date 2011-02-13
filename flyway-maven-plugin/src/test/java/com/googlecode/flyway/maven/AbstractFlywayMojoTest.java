@@ -17,7 +17,10 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.h2.Driver;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,15 +42,45 @@ public class AbstractFlywayMojoTest {
                 flyway.init();
             }
         };
+        assertNoConnectionLeak(mojo);
+    }
+
+    /**
+     * Tests that the datasource is properly closed and not leaking connections, even when an exception was thrown.
+     */
+    @Test
+    public void dataSourceClosedAfterException() throws Exception {
+        AbstractFlywayMojo mojo = new AbstractFlywayMojo() {
+            @Override
+            protected void doExecute(Flyway flyway) throws Exception {
+                flyway.init();
+                throw new FlywayException("Wanted failure");
+            }
+        };
+        assertNoConnectionLeak(mojo);
+    }
+
+    /**
+     * Asserts that this mojo does not leak DB connections when executed.
+     *
+     * @param mojo The mojo to check.
+     */
+    private void assertNoConnectionLeak(AbstractFlywayMojo mojo) throws Exception {
         mojo.driver = "org.h2.Driver";
         mojo.url = "jdbc:h2:mem:flyway_leak_test";
         mojo.user = "SA";
 
-        mojo.execute();
+        try {
+            mojo.execute();
+        } catch (Exception e) {
+            // Ignoring. The exception is not what we're testing.
+        }
 
         BasicDataSource dataSource = mojo.createDataSource();
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         H2DbSupport h2DbSupport = new H2DbSupport(jdbcTemplate);
-        assertFalse(h2DbSupport.tableExists("schema_version"));
+        boolean tableStillPresent = h2DbSupport.tableExists("schema_version");
+        dataSource.close();
+        assertFalse(tableStillPresent);
     }
 }
