@@ -23,10 +23,16 @@ import com.googlecode.flyway.core.migration.sql.SqlScript;
  */
 public class OracleSqlScript extends SqlScript {
     /**
+     * Delimiter of PL/SQL blocks and statements.
+     */
+    private static final String PLSQL_DELIMITER = "/";
+
+    /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     public OracleSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
@@ -37,12 +43,12 @@ public class OracleSqlScript extends SqlScript {
     protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
         String upperCaseLine = line.toUpperCase();
         if (upperCaseLine.matches("DECLARE|DECLARE\\s.*") || upperCaseLine.matches("BEGIN|BEGIN\\s.*")) {
-            return "/";
+            return PLSQL_DELIMITER;
         }
 
         if (upperCaseLine.startsWith("CREATE")
-                && (upperCaseLine.contains("FUNCTION") || upperCaseLine.contains("PROCEDURE"))) {
-            return "/";
+                && (upperCaseLine.contains("FUNCTION") || upperCaseLine.contains("PROCEDURE") || upperCaseLine.contains("PACKAGE"))) {
+            return PLSQL_DELIMITER;
         }
 
         return delimiter;

@@ -100,6 +100,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests parsing of CREATE PACKAGE.
+     */
+    @Test
+    public void createPackage() throws FlywayException {
+        flyway.setBaseDir("migration/oracle/sql/package");
+        flyway.migrate();
+    }
+
+    /**
      * Test clean with recycle bin
      */
     @Test
