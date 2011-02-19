@@ -93,7 +93,7 @@ public class StringUtils {
      * Returns the first n characters from this string, where n = count. If the string is shorter, the entire string
      * will be returned. If the string is longer, it will be truncated.
      *
-     * @param str The string to parse.
+     * @param str   The string to parse.
      * @param count The amount of characters to return.
      *
      * @return The first n characters from this string, where n = count.

@@ -34,14 +34,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A custom ComponentConfigurator which adds the project's runtime classpath elements
- * to the
+ * A custom ComponentConfigurator which adds the project's runtime classpath elements to the
  *
  * @author Brian Jackson
  * @plexus.component role="org.codehaus.plexus.component.configurator.ComponentConfigurator"
- *  role-hint="include-project-dependencies"
+ * role-hint="include-project-dependencies"
  * @plexus.requirement role="org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup"
- *  role-hint="default"
+ * role-hint="default"
  * @since Aug 1, 2008 3:04:17 PM
  */
 public class IncludeProjectDependenciesComponentConfigurator extends AbstractComponentConfigurator {

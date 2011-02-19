@@ -193,7 +193,7 @@ public class Main {
      * argument it will be used, otherwise the default config file (conf/flyway.properties) will be loaded.
      *
      * @param properties The properties object to load to configuration into.
-     * @param args The command-line arguments passed in.
+     * @param args       The command-line arguments passed in.
      *
      * @throws FlywayException when the configuration file could not be loaded.
      */

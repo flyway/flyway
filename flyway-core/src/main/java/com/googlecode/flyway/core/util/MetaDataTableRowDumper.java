@@ -67,6 +67,7 @@ public class MetaDataTableRowDumper {
      * Formats the installedOn date for displaying it in the table.
      *
      * @param installedOn The date to format.
+     *
      * @return The date in a displayable format.
      */
     private static String formatInstalledOnDate(Date installedOn) {

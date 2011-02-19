@@ -47,7 +47,7 @@ public class MainSmallTest {
     @Test
     public void overrideConfiguration() {
         Properties properties = new Properties();
-        String[] args = new String[] {"-user=SA"};
+        String[] args = new String[]{"-user=SA"};
 
         Main.overrideConfiguration(properties, args);
 

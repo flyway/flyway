@@ -80,7 +80,7 @@ public class MySQLDbSupport implements DbSupport {
                 "Union " +
                 "Select ROUTINE_NAME as OBJECT_NAME, ROUTINE_SCHEMA as OBJECT_SCHEMA from information_schema.ROUTINES " +
                 ") R " +
-                "Where R.OBJECT_SCHEMA=?", new Object[] {getCurrentSchema()});
+                "Where R.OBJECT_SCHEMA=?", new Object[]{getCurrentSchema()});
         return objectCount == 0;
     }
 
@@ -148,8 +148,8 @@ public class MySQLDbSupport implements DbSupport {
     /**
      * Cleans the tables in this schema.
      *
-     * @param jdbcTemplate The jdbcTemplate pointing to the schema to clean.
-     * @param lineNumber The initial line number of the clean script.
+     * @param jdbcTemplate  The jdbcTemplate pointing to the schema to clean.
+     * @param lineNumber    The initial line number of the clean script.
      * @param sqlStatements The statement list to add to.
      */
     private void cleanTables(JdbcTemplate jdbcTemplate, int lineNumber, List<SqlStatement> sqlStatements) {
@@ -171,9 +171,10 @@ public class MySQLDbSupport implements DbSupport {
     /**
      * Cleans the routines in this schema.
      *
-     * @param jdbcTemplate The jdbcTemplate pointing to the schema to clean.
-     * @param lineNumber The initial line number of the clean script.
+     * @param jdbcTemplate  The jdbcTemplate pointing to the schema to clean.
+     * @param lineNumber    The initial line number of the clean script.
      * @param sqlStatements The statement list to add to.
+     *
      * @return The final line number.
      */
     private int cleanRoutines(JdbcTemplate jdbcTemplate, int lineNumber, List<SqlStatement> sqlStatements) {
@@ -193,9 +194,10 @@ public class MySQLDbSupport implements DbSupport {
     /**
      * Cleans the views in this schema.
      *
-     * @param jdbcTemplate The jdbcTemplate pointing to the schema to clean.
-     * @param lineNumber The initial line number of the clean script.
+     * @param jdbcTemplate  The jdbcTemplate pointing to the schema to clean.
+     * @param lineNumber    The initial line number of the clean script.
      * @param sqlStatements The statement list to add to.
+     *
      * @return The final line number.
      */
     private int cleanViews(JdbcTemplate jdbcTemplate, int lineNumber, List<SqlStatement> sqlStatements) {

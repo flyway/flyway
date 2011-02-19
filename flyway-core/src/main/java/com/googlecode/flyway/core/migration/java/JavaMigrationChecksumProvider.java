@@ -23,5 +23,5 @@ public interface JavaMigrationChecksumProvider {
     /**
      * @return The checksum of the migration.
      */
-     Integer getChecksum();
+    Integer getChecksum();
 }

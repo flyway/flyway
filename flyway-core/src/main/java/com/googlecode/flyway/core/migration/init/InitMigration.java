@@ -30,8 +30,7 @@ public class InitMigration extends Migration {
     /**
      * Creates a new initial migration with this version.
      * <p/>
-     * Only migrations with a version number higher than this one
-     * will be considered for this database.
+     * Only migrations with a version number higher than this one will be considered for this database.
      *
      * @param schemaVersion The initial version to put in the metadata table.
      */
@@ -43,7 +42,7 @@ public class InitMigration extends Migration {
         }
 
         if (description == null) {
-            this.description =  "<< Flyway Init >>";
+            this.description = "<< Flyway Init >>";
         } else {
             this.description = description;
         }

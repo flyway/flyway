@@ -30,6 +30,7 @@ public class ExceptionUtils {
      * Returns the root cause of this throwable.
      *
      * @param throwable The throwable to inspect.
+     *
      * @return The root cause or {@code null} if the throwable is null or doesn't have a cause.
      */
     public static Throwable getRootCause(Throwable throwable) {

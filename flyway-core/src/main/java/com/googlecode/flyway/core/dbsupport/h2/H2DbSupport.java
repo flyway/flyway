@@ -96,13 +96,13 @@ public class H2DbSupport implements DbSupport {
     @Override
     public boolean columnExists(final String table, final String column) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-             @Override
-             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                 ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
-                         table.toUpperCase(), column.toUpperCase());
-                 return resultSet.next();
-             }
-         });
+            @Override
+            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
+                        table.toUpperCase(), column.toUpperCase());
+                return resultSet.next();
+            }
+        });
     }
 
     @Override

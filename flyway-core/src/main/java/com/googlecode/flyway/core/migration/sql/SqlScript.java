@@ -168,7 +168,8 @@ public class SqlScript {
      * Checks whether this line in the sql script indicates that the statement delimiter will be different from the
      * current one. Useful for database-specific stored procedures and block constructs.
      *
-     * @param statement The statement assembled so far, reduced to a single line with all linebreaks replaced by spaces.
+     * @param statement The statement assembled so far, reduced to a single line with all linebreaks replaced by
+     *                  spaces.
      * @param line      The line to analyse.
      * @param delimiter The current delimiter.
      *
@@ -243,6 +244,7 @@ public class SqlScript {
      * Checks whether this line is in fact a directive disguised as a comment.
      *
      * @param line The line to analyse.
+     *
      * @return {@code true} if it is a directive that should be processed by the database, {@code false} if not.
      */
     protected boolean isCommentDirective(String line) {

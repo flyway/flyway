@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.init;
 
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 
 /**
  * Exception indicating that migration failed.

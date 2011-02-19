@@ -19,45 +19,46 @@ import com.googlecode.flyway.core.Flyway;
 
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
+ *
  * @phase pre-integration-test
  */
 @SuppressWarnings({"UnusedDeclaration"})
 abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     /**
-     * The base package where the Java migrations are located. (default: db.migration) <br>
-     * Also configurable with Maven or System Property: ${flyway.basePackage}
+     * The base package where the Java migrations are located. (default: db.migration) <br> Also configurable with Maven
+     * or System Property: ${flyway.basePackage}
      *
      * @parameter expression="${flyway.basePackage}"
      */
     private String basePackage;
 
     /**
-     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br>
-     * Also configurable with Maven or System Property: ${flyway.baseDir}
+     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br> Also
+     * configurable with Maven or System Property: ${flyway.baseDir}
      *
      * @parameter expression="${flyway.baseDir}"
      */
     private String baseDir;
 
     /**
-     * The encoding of Sql migrations. (default: UTF-8)<br>
-     * Also configurable with Maven or System Property: ${flyway.encoding}
+     * The encoding of Sql migrations. (default: UTF-8)<br> Also configurable with Maven or System Property:
+     * ${flyway.encoding}
      *
      * @parameter expression="${flyway.encoding}"
      */
     private String encoding;
 
     /**
-     * The file name prefix for Sql migrations (default: V)
-     * Also configurable with Maven or System Property: ${flyway.sqlMigrationPrefix}
+     * The file name prefix for Sql migrations (default: V) Also configurable with Maven or System Property:
+     * ${flyway.sqlMigrationPrefix}
      *
      * @parameter expression="${flyway.sqlMigrationPrefix}"
      */
     private String sqlMigrationPrefix;
 
     /**
-     * The file name suffix for Sql migrations (default: .sql)
-     * Also configurable with Maven or System Property: ${flyway.sqlMigrationSuffix}
+     * The file name suffix for Sql migrations (default: .sql) Also configurable with Maven or System Property:
+     * ${flyway.sqlMigrationSuffix}
      *
      * @parameter expression="${flyway.sqlMigrationSuffix}"
      */

@@ -67,7 +67,7 @@ public class SqlScriptSmallTest {
         lines.add("more comment text*/");
         List<String> result = sqlScript.stripSqlComments(lines);
         assertEquals("", result.get(0));
-        assertEquals("", result.get(1));        
+        assertEquals("", result.get(1));
     }
 
     @Test

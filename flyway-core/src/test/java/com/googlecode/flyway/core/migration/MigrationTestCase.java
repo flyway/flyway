@@ -15,17 +15,6 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-import java.util.HashMap;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
@@ -34,8 +23,22 @@ import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test to demonstrate the migration functionality.
@@ -85,7 +88,6 @@ public abstract class MigrationTestCase {
         assertEquals(0, flyway.migrate());
         assertEquals(3, flyway.history().size());
 
-        
 
         for (MetaDataTableRow metaDataTableRow : flyway.history()) {
             assertChecksum(metaDataTableRow);
@@ -321,7 +323,7 @@ public abstract class MigrationTestCase {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
                 "  PRIMARY KEY(name))");
-        
+
         flyway.setBaseDir(getBaseDir());
         flyway.migrate();
     }

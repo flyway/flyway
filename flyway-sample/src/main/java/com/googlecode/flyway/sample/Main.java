@@ -15,13 +15,11 @@
  */
 package com.googlecode.flyway.sample;
 
-import javax.sql.DataSource;
-
+import com.googlecode.flyway.core.Flyway;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-import com.googlecode.flyway.core.Flyway;
-
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
@@ -43,8 +41,8 @@ public class Main {
         flyway.migrate();
 
         SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
-        List<Map<String,Object>> results = jdbcTemplate.queryForList("select name from test_user");
-        for (Map<String,Object> result : results) {
+        List<Map<String, Object>> results = jdbcTemplate.queryForList("select name from test_user");
+        for (Map<String, Object> result : results) {
             System.out.println("Name: " + result.get("NAME"));
         }
     }

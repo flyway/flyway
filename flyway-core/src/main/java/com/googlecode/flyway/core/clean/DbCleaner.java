@@ -56,8 +56,7 @@ public class DbCleaner {
      * Creates a new database cleaner.
      *
      * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the
-     *                            database.
+     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
      * @param dbSupport           Database-specific functionality.
      */
     public DbCleaner(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {

@@ -75,7 +75,8 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      * @param migrationType The type of the migration (INIT, SQL or JAVA).
      * @param script        The script name for the migration history.
      * @param checksum      The checksum of the migration.
-     * @param installedOn   The timestamp when this migration was applied to the database. (Automatically set by the database)
+     * @param installedOn   The timestamp when this migration was applied to the database. (Automatically set by the
+     *                      database)
      * @param executionTime The time (in ms) it took to execute.
      * @param state         The state of this migration.
      */

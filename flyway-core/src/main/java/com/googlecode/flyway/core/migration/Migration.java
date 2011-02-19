@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.migration;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * A migration of a single version of the schema.
@@ -42,9 +41,8 @@ public abstract class Migration implements Comparable<Migration> {
     protected String script;
 
     /**
-     * The checksum of the migration.
-     * Sql migrations use a crc-32 checksum of the sql script.
-     * Java migrations use a custom checksum.
+     * The checksum of the migration. Sql migrations use a crc-32 checksum of the sql script. Java migrations use a
+     * custom checksum.
      */
     protected Integer checksum;
 
@@ -89,8 +87,9 @@ public abstract class Migration implements Comparable<Migration> {
     /**
      * Performs the migration.
      *
-     * @param jdbcTemplate        To execute the migration statements.
-     * @param dbSupport           The support for database-specific extensions.
+     * @param jdbcTemplate To execute the migration statements.
+     * @param dbSupport    The support for database-specific extensions.
+     *
      * @throws DataAccessException Thrown when the migration failed.
      */
     public abstract void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;

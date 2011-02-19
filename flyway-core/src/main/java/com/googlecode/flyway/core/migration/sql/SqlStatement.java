@@ -44,7 +44,7 @@ public class SqlStatement {
      * Creates a new sql statement.
      *
      * @param lineNumber The original line number where the statement was located in the script it came from.
-     * @param sql The sql to send to the database.
+     * @param sql        The sql to send to the database.
      */
     public SqlStatement(int lineNumber, String sql) {
         this.lineNumber = lineNumber;
@@ -68,7 +68,7 @@ public class SqlStatement {
     /**
      * Executes this statement against the database.
      *
-     * @param jdbcTemplate        The jdbc template to use to execute this statement.
+     * @param jdbcTemplate The jdbc template to use to execute this statement.
      */
     public void execute(JdbcTemplate jdbcTemplate) {
         LOG.debug("Executing SQL: " + this.sql);

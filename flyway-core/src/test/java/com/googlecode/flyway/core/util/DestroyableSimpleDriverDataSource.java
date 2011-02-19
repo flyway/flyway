@@ -46,7 +46,7 @@ public class DestroyableSimpleDriverDataSource extends SimpleDriverDataSource {
      */
     @PreDestroy
     public void destroy() {
-        for (Connection connection:connections) {
+        for (Connection connection : connections) {
             JdbcUtils.closeConnection(connection);
         }
     }

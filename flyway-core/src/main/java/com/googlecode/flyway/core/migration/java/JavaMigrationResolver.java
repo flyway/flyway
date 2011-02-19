@@ -28,8 +28,8 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * Migration resolver for java class based migrations.
- * The classes must have a name like V1 or V1_1_3 or V1__Description or V1_1_3__Description.
+ * Migration resolver for java class based migrations. The classes must have a name like V1 or V1_1_3 or V1__Description
+ * or V1_1_3__Description.
  */
 public class JavaMigrationResolver implements MigrationResolver {
     /**

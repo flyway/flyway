@@ -17,19 +17,19 @@
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
     <!-- -->
     <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="sa" />
-        <property name="password" value="" />
-        <property name="driverClass" value="org.h2.Driver" />
-        <property name="url" value="jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1" />
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
+        <property name="driverClass" value="org.h2.Driver"/>
+        <property name="url" value="jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1"/>
     </bean>
     <!-- -->
     <bean id="concurrentMigrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="sa" />
-        <property name="password" value="" />
-        <property name="driverClass" value="org.h2.Driver" />
-        <property name="url" value="jdbc:h2:mem:flyway_test_concurrent;DB_CLOSE_DELAY=-1" />
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
+        <property name="driverClass" value="org.h2.Driver"/>
+        <property name="url" value="jdbc:h2:mem:flyway_test_concurrent;DB_CLOSE_DELAY=-1"/>
     </bean>
 </beans>

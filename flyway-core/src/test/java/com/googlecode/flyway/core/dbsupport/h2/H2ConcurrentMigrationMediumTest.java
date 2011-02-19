@@ -15,17 +15,16 @@
  */
 package com.googlecode.flyway.core.dbsupport.h2;
 
-import org.springframework.test.context.ContextConfiguration;
-
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
+import org.springframework.test.context.ContextConfiguration;
 
 /**
  * Test to demonstrate the migration functionality using H2.
  */
-@ContextConfiguration(locations = { "classpath:migration/h2/h2-context.xml" })
+@ContextConfiguration(locations = {"classpath:migration/h2/h2-context.xml"})
 public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-	@Override
-	protected String getBaseDir() {
-		return "migration/sql";
-	}
+    @Override
+    protected String getBaseDir() {
+        return "migration/sql";
+    }
 }

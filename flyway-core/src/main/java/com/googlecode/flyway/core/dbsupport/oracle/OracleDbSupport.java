@@ -176,7 +176,7 @@ public class OracleDbSupport implements DbSupport {
             // The automatic drop does not work on XE.
             query += " and object_name not like 'MDRT_%$'";
         }
-        
+
         return jdbcTemplate.query(query,
                 new Object[]{objectType}, new RowMapper() {
                     @Override

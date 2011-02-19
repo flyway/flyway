@@ -61,6 +61,7 @@ public class PlaceholderReplacer {
      * Replaces the placeholders in this input string with their corresponding values.
      *
      * @param input The input to process.
+     *
      * @return The input string with all placeholders replaced.
      */
     public String replacePlaceholders(String input) {

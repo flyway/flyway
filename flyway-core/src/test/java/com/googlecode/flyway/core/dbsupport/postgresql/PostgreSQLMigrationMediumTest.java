@@ -15,15 +15,14 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
-import static org.junit.Assert.assertEquals;
-
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.MigrationTestCase;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using PostgreSQL.
@@ -51,7 +50,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
-        
+
         flyway.clean();
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
@@ -61,12 +60,12 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     /**
      * Tests clean and migrate for PostgreSQL Triggers.
      */
-    
+
     @Test
     public void trigger() throws Exception {
         flyway.setBaseDir("migration/postgresql/sql/trigger");
         flyway.migrate();
-        
+
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
 
@@ -74,13 +73,13 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
-        
+
     }
-	
+
     /**
      * Tests clean and migrate for MySQL Views.
      */
-    
+
     @Test
     public void view() throws Exception {
         flyway.setBaseDir("migration/postgresql/sql/view");

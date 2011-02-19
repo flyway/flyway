@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
+import com.googlecode.flyway.core.dbsupport.mssql.MSSQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
@@ -30,8 +31,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Factory for obtaining the correct DbSupport instance for the current connection.
@@ -67,6 +66,9 @@ public class DbSupportFactory {
         }
         if ("HSQL Database Engine".equals(databaseProductName)) {
             dbSupport = new HsqlDbSupport(jdbcTemplate);
+        }
+        if ("Microsoft SQL Server".equals(databaseProductName)) {
+            dbSupport = new MSSQLDbSupport(jdbcTemplate);
         }
         if ("MySQL".equals(databaseProductName)) {
             dbSupport = new MySQLDbSupport(jdbcTemplate);

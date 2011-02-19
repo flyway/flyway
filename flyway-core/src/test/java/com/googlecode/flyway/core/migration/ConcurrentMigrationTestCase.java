@@ -32,74 +32,74 @@ import static org.junit.Assert.assertFalse;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public abstract class ConcurrentMigrationTestCase {
-	/**
-	 * The number of threads to use in this test.
-	 */
-	private static final int NUM_THREADS = 10;
+    /**
+     * The number of threads to use in this test.
+     */
+    private static final int NUM_THREADS = 10;
 
-	/**
-	 * Flag to indicate the concurrent test has failed.
-	 */
-	private boolean failed;
+    /**
+     * Flag to indicate the concurrent test has failed.
+     */
+    private boolean failed;
 
-	/**
-	 * The datasource to use for concurrent migration tests.
-	 */
-	@Resource
-	protected DataSource concurrentMigrationDataSource;
+    /**
+     * The datasource to use for concurrent migration tests.
+     */
+    @Resource
+    protected DataSource concurrentMigrationDataSource;
 
     /**
      * The instance under test.
      */
     protected Flyway flyway;
 
-	/**
-	 * @return The directory containing the migrations for the tests.
-	 */
-	protected abstract String getBaseDir();
+    /**
+     * @return The directory containing the migrations for the tests.
+     */
+    protected abstract String getBaseDir();
 
     @Before
     public void setUp() {
         flyway = new Flyway();
-		flyway.setDataSource(concurrentMigrationDataSource);
-		flyway.setBaseDir(getBaseDir());
+        flyway.setDataSource(concurrentMigrationDataSource);
+        flyway.setBaseDir(getBaseDir());
         flyway.clean();
         flyway.init(null, null);
     }
 
-	@Test
-	public void migrateConcurrently() throws Exception {
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				try {
+    @Test
+    public void migrateConcurrently() throws Exception {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
                     Flyway flyway2 = new Flyway();
                     flyway2.setDataSource(concurrentMigrationDataSource);
                     flyway2.setBaseDir(getBaseDir());
-					flyway2.migrate();
-				} catch (Exception e) {
-					e.printStackTrace();
-					failed = true;
-				}
-			}
-		};
+                    flyway2.migrate();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    failed = true;
+                }
+            }
+        };
 
-		Thread[] threads = new Thread[NUM_THREADS];
-		for (int i = 0; i < NUM_THREADS; i++) {
-			threads[i] = new Thread(runnable);
-		}
-		for (int i = 0; i < NUM_THREADS; i++) {
-			threads[i].start();
-		}
-		for (int i = 0; i < NUM_THREADS; i++) {
-			threads[i].join();
-		}
+        Thread[] threads = new Thread[NUM_THREADS];
+        for (int i = 0; i < NUM_THREADS; i++) {
+            threads[i] = new Thread(runnable);
+        }
+        for (int i = 0; i < NUM_THREADS; i++) {
+            threads[i].start();
+        }
+        for (int i = 0; i < NUM_THREADS; i++) {
+            threads[i].join();
+        }
 
-		assertFalse(failed);
-		assertEquals(4, flyway.history().size());
-		SchemaVersion schemaVersion = flyway.status().getVersion();
-		assertEquals("2.0", schemaVersion.toString());
-		assertEquals("Add foreign key", flyway.status().getDescription());
-		assertEquals(0, flyway.migrate());
-	}
+        assertFalse(failed);
+        assertEquals(4, flyway.history().size());
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("2.0", schemaVersion.toString());
+        assertEquals("Add foreign key", flyway.status().getDescription());
+        assertEquals(0, flyway.migrate());
+    }
 }

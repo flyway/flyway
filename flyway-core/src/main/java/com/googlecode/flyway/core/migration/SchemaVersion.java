@@ -130,6 +130,7 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
      *
      * @param elements The elements to check.
      * @param position The position where to start checking.
+     *
      * @return {@code true} if they are all zeroes, {@code false} if not.
      */
     private boolean onlyTrailingZeroes(String[] elements, int position) {

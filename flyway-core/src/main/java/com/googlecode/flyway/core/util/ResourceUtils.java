@@ -19,11 +19,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.zip.CRC32;
-import java.util.zip.CheckedInputStream;
-import java.util.zip.Checksum;
 
 /**
  * Utility class for dealing with classpath resources.
@@ -40,6 +39,7 @@ public class ResourceUtils {
      * Loads the resource at this location within the classpath in a string using UTF-8 encoding.
      *
      * @param location The location of the resource on the classpath.
+     *
      * @return The resource contents as a string.
      */
     public static String loadResourceAsString(String location) {
@@ -51,6 +51,7 @@ public class ResourceUtils {
      *
      * @param resource The resource to load.
      * @param encoding The encoding of the resource.
+     *
      * @return The resource contents as a string.
      */
     public static String loadResourceAsString(Resource resource, String encoding) {

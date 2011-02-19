@@ -16,9 +16,8 @@
 package com.googlecode.flyway.core.migration;
 
 /**
- * Parsing support for migrations that use the standard Flyway version +
- * description embedding in their name. These migrations have names like
- * 1_2__Description .
+ * Parsing support for migrations that use the standard Flyway version + description embedding in their name. These
+ * migrations have names like 1_2__Description .
  */
 public class MigrationInfoHelper {
     /**
@@ -29,11 +28,10 @@ public class MigrationInfoHelper {
     }
 
     /**
-     * Extracts the schema version from a migration name formatted as
-     * 1_2__Description.
+     * Extracts the schema version from a migration name formatted as 1_2__Description.
      *
-     * @param migrationName
-     *            The string to parse.
+     * @param migrationName The string to parse.
+     *
      * @return The extracted schema version.
      */
     public static SchemaVersion extractSchemaVersion(String migrationName) {
@@ -51,11 +49,10 @@ public class MigrationInfoHelper {
     }
 
     /**
-     * Extracts the description from a migration name formatted as
-     * 1_2__Description.
+     * Extracts the description from a migration name formatted as 1_2__Description.
      *
-     * @param migrationName
-     *            The string to parse.
+     * @param migrationName The string to parse.
+     *
      * @return The extracted description.
      */
     public static String extractDescription(String migrationName) {

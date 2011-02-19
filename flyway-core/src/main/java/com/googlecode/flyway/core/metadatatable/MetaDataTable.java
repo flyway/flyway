@@ -73,8 +73,7 @@ public class MetaDataTable {
      * Creates a new instance of the metadata table support.
      *
      * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the
-     *                            database.
+     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
      * @param dbSupport           Database-specific functionality.
      * @param tableName           The name of the schema metadata table used by flyway.
      */
@@ -87,8 +86,7 @@ public class MetaDataTable {
     }
 
     /**
-     * Checks whether Flyway's metadata table is already present in the
-     * database.
+     * Checks whether Flyway's metadata table is already present in the database.
      *
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
@@ -128,8 +126,7 @@ public class MetaDataTable {
     }
 
     /**
-     * Acquires an exclusive read-write lock on the metadata table. This lock
-     * will be released automatically on commit.
+     * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
      */
     public void lock() {
         if (dbSupport.supportsLocking()) {
@@ -224,6 +221,7 @@ public class MetaDataTable {
      * Converts this number into an Integer.
      *
      * @param number The Number to convert.
+     *
      * @return The matching Integer.
      */
     private Integer toInteger(Number number) {

@@ -17,13 +17,13 @@
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
-	<!--  -->
+       xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--  -->
     <bean id="ddlDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="username" value="test_ddl_user" />
-        <property name="password" value="ddlPassword" />
-        <property name="driverClassName" value="oracle.jdbc.OracleDriver" />
-        <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
+        <property name="username" value="test_ddl_user"/>
+        <property name="password" value="ddlPassword"/>
+        <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
         <property name="initialSize" value="30"/>
         <property name="maxActive" value="100"/>
     </bean>

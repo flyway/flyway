@@ -34,6 +34,7 @@ public class TimeFormat {
      * Formats this execution time.
      *
      * @param millis The number of millis.
+     *
      * @return The execution in a human-readable format.
      */
     public static String format(long millis) {

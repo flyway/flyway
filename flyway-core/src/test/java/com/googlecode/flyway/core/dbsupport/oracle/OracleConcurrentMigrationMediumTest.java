@@ -21,10 +21,10 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * Test to demonstrate the migration functionality using Oracle.
  */
-@ContextConfiguration(locations = { "classpath:migration/oracle/oracle-context.xml" })
+@ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
 public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-	@Override
-	protected String getBaseDir() {
-		return "migration/sql";
-	}
+    @Override
+    protected String getBaseDir() {
+        return "migration/sql";
+    }
 }

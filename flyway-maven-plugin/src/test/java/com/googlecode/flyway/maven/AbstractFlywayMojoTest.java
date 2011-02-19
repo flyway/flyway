@@ -19,9 +19,6 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.h2.Driver;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 

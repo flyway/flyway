@@ -495,7 +495,7 @@ public class Flyway {
         validate();
 
         metaDataTable.createIfNotExists();
-        
+
         DbMigrator dbMigrator =
                 new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
         return dbMigrator.migrate(availableMigrations);

@@ -34,7 +34,7 @@ public class MigrationException extends FlywayException {
     /**
      * Creates a new MigrationException for this version.
      *
-     * @param version The version of the migration that failed.
+     * @param version  The version of the migration that failed.
      * @param rollback Flag indicating whether a rollback was performed or not.
      */
     public MigrationException(SchemaVersion version, boolean rollback) {

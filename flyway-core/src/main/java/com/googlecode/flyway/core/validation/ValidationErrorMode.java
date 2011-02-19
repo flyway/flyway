@@ -25,16 +25,11 @@ public enum ValidationErrorMode {
     FAIL,
 
     /**
-     * Cleans the database.<br/>
-     * <br/>
-     * <p>
-     * This is exclusively intended as a convenience for development. Even tough we strongly recommend not to change
-     * migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in
-     * a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you
-     * back to the state checked into SCM.
-     * </p>
-     * <br/>
-     * <b>Warning ! Do not use in produktion !</b>
+     * Cleans the database.<br/> <br/> <p> This is exclusively intended as a convenience for development. Even tough we
+     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
+     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
+     * the next migration will bring you back to the state checked into SCM. </p> <br/> <b>Warning ! Do not use in
+     * produktion !</b>
      */
     CLEAN
 }
