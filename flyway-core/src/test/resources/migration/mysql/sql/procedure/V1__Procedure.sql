@@ -27,3 +27,22 @@ CREATE PROCEDURE AddData()
 DELIMITER;
 
 CALL AddData();
+
+DELIMITER $$
+
+CREATE PROCEDURE callMe()
+BEGIN
+  SELECT "CALL ME" as message,
+         "ANYTIME" as anytime;
+END
+$$
+
+CREATE PROCEDURE callMe2()
+BEGIN
+  SELECT "CALL ME" as message, -- this is a valid comment
+         "ANYTIME" as anytime;
+END
+$$
+
+DELIMITER ;
+

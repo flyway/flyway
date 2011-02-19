@@ -15,6 +15,6 @@
 --
 
 CREATE TABLE test_user (
-  name VARCHAR(25) NOT NULL,
+  name VARCHAR(25) NOT NULL,  -- this is a valid comment
   PRIMARY KEY(name)
 );
