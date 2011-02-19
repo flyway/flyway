@@ -38,6 +38,11 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
+    protected String getQuoteBaseDir() {
+        return "migration/quote";
+    }
+
+    @Override
     protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
         return new H2DbSupport(jdbcTemplate);
     }

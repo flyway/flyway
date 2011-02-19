@@ -162,7 +162,7 @@ public class MySQLDbSupport implements DbSupport {
         for (Map<String, String> row : tableNames) {
             lineNumber++;
             String tableName = row.get("table_name");
-            sqlStatements.add(new SqlStatement(lineNumber, "DROP TABLE " + tableName));
+            sqlStatements.add(new SqlStatement(lineNumber, "DROP TABLE `" + tableName + "`"));
         }
         lineNumber++;
         sqlStatements.add(new SqlStatement(lineNumber, "SET FOREIGN_KEY_CHECKS = 1"));
@@ -186,7 +186,7 @@ public class MySQLDbSupport implements DbSupport {
             lineNumber++;
             String routineName = row.get("routine_name");
             String routineType = row.get("routine_type");
-            sqlStatements.add(new SqlStatement(lineNumber, "DROP " + routineType + " " + routineName));
+            sqlStatements.add(new SqlStatement(lineNumber, "DROP " + routineType + " `" + routineName + "`"));
         }
         return lineNumber;
     }
@@ -208,7 +208,7 @@ public class MySQLDbSupport implements DbSupport {
         for (Map<String, String> row : viewNames) {
             lineNumber++;
             String viewName = row.get("table_name");
-            sqlStatements.add(new SqlStatement(lineNumber, "DROP VIEW " + viewName));
+            sqlStatements.add(new SqlStatement(lineNumber, "DROP VIEW `" + viewName + "`"));
         }
         return lineNumber;
     }

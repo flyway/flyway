@@ -154,7 +154,7 @@ public class PostgreSQLDbSupport implements DbSupport {
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : tableNames) {
             String tableName = row.get("table_name");
-            statements.add("DROP TABLE IF EXISTS " + tableName + " CASCADE");
+            statements.add("DROP TABLE IF EXISTS \"" + tableName + "\" CASCADE");
         }
         return statements;
     }
@@ -172,7 +172,7 @@ public class PostgreSQLDbSupport implements DbSupport {
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : sequenceNames) {
             String sequenceName = row.get("sequence_name");
-            statements.add("DROP SEQUENCE IF EXISTS " + sequenceName);
+            statements.add("DROP SEQUENCE IF EXISTS \"" + sequenceName + "\"");
         }
 
         return statements;
@@ -191,7 +191,7 @@ public class PostgreSQLDbSupport implements DbSupport {
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {
-            statements.add("DROP FUNCTION " + row.get("proname") + "(" + row.get("args") + ")");
+            statements.add("DROP FUNCTION \"" + row.get("proname") + "\"(" + row.get("args") + ")");
         }
         return statements;
     }

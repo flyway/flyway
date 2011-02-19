@@ -36,6 +36,11 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
+    protected String getQuoteBaseDir() {
+        return "migration/mysql/sql/quote";
+    }
+
+    @Override
     protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
         return new MySQLDbSupport(jdbcTemplate);
     }

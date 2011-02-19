@@ -181,7 +181,7 @@ public class OracleDbSupport implements DbSupport {
                 new Object[]{objectType}, new RowMapper() {
                     @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return "DROP " + rs.getString("OBJECT_TYPE") + " " + rs.getString("OBJECT_NAME") + " " + extraArguments;
+                        return "DROP " + rs.getString("OBJECT_TYPE") + " \"" + rs.getString("OBJECT_NAME") + "\" " + extraArguments;
                     }
                 });
     }

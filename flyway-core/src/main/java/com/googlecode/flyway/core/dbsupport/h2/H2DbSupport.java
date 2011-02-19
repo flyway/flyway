@@ -139,7 +139,7 @@ public class H2DbSupport implements DbSupport {
         int count = 0;
         for (Map<String, Object> table : tables) {
             count++;
-            sqlStatements.add(new SqlStatement(count, "DROP TABLE " + table.get("TABLE_NAME") + " CASCADE"));
+            sqlStatements.add(new SqlStatement(count, "DROP TABLE \"" + table.get("TABLE_NAME") + "\" CASCADE"));
         }
         return new SqlScript(sqlStatements);
     }

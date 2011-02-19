@@ -72,6 +72,11 @@ public abstract class MigrationTestCase {
     protected abstract String getBaseDir();
 
     /**
+     * @return The directory containing the migrations for the quote test.
+     */
+    protected abstract String getQuoteBaseDir();
+
+    /**
      * @param jdbcTemplate The jdbcTemplate to intialize the instance with.
      *
      * @return The DbSupport class to test.
@@ -350,5 +355,14 @@ public abstract class MigrationTestCase {
 
         assertEquals("Mr. Semicolon+Linebreak;\nanother line",
                 jdbcTemplate.queryForObject("select name from test_user where name like '%line'", String.class));
+    }
+
+    @Test
+    public void quotesAroundTableName() {
+        flyway.setBaseDir(getQuoteBaseDir());
+        flyway.migrate();
+
+        // Clean script must also be able to properly deal with these reserved keywords in table names.
+        flyway.clean();
     }
 }

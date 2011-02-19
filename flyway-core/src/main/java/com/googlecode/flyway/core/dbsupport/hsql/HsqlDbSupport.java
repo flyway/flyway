@@ -153,7 +153,7 @@ public class HsqlDbSupport implements DbSupport {
         int count = 0;
         for (String table : tables) {
             count++;
-            sqlStatements.add(new SqlStatement(count, "DROP TABLE " + table + " CASCADE"));
+            sqlStatements.add(new SqlStatement(count, "DROP TABLE \"" + table + "\" CASCADE"));
         }
         return new SqlScript(sqlStatements);
     }
