@@ -93,9 +93,4 @@ public class MSSQLMigrationMediumTest extends MigrationTestCase {
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
     }
-
-    @Ignore
-    public void semicolonWithinStringLiteral() {
-        //Ignore
-    }
 }
