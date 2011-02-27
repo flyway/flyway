@@ -16,11 +16,10 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
-import org.junit.Ignore;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Test to demonstrate the migration functionality using MSSQL.
+ * Test to demonstrate the migration functionality using SQL Server.
  */
 @ContextConfiguration(locations = { "classpath:migration/sqlserver/sqlserver-context.xml" })
 public class SQLServerConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
@@ -28,10 +27,4 @@ public class SQLServerConcurrentMigrationMediumTest extends ConcurrentMigrationT
 	protected String getBaseDir() {
 		return "migration/sql";
 	}
-
-    @Ignore
-    @Override
-    public void migrateConcurrently() throws Exception {
-        //Ignore
-    }
 }

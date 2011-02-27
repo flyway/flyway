@@ -113,8 +113,8 @@ public class SQLServerDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean supportsLocking() {
-        return false;
+    public void lockTable(String table) {
+        jdbcTemplate.execute("select * from " + table + " WITH (TABLOCKX)");
     }
 
     @Override

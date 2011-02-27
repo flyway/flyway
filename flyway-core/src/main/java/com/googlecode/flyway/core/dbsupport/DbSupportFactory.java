@@ -84,10 +84,6 @@ public class DbSupportFactory {
             throw new FlywayException("Unsupported Database: " + databaseProductName);
         }
 
-        if (!dbSupport.supportsLocking()) {
-            LOG.info(databaseProductName + " does not support locking. No concurrent migration supported.");
-        }
-
         return dbSupport;
     }
 

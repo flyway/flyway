@@ -19,6 +19,8 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,6 +36,11 @@ import java.util.List;
  */
 public class HsqlDbSupport implements DbSupport {
     /**
+     * Logger.
+     */
+    private static final Log LOG = LogFactory.getLog(HsqlDbSupport.class);
+
+    /**
      * The jdbcTemplate to use.
      */
     private final JdbcTemplate jdbcTemplate;
@@ -45,6 +52,7 @@ public class HsqlDbSupport implements DbSupport {
      */
     public HsqlDbSupport(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        LOG.info("Hsql does not support locking. No concurrent migration supported.");
     }
 
     @Override
@@ -114,8 +122,8 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean supportsLocking() {
-        return false;
+    public void lockTable(String table) {
+        //Locking is not supported by Hsql
     }
 
     @Override

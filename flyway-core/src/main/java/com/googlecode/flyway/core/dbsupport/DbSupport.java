@@ -94,11 +94,11 @@ public interface DbSupport {
     boolean supportsDdlTransactions();
 
     /**
-     * Checks whether locking using select ... for update is supported for this database.
+     * Locks this table using a read/write pessimistic lock until the end of the current transaction.
      *
-     * @return {@code true} if locking is supported, {@code false} if not.
+     * @param table The table to lock.
      */
-    boolean supportsLocking();
+    void lockTable(String table);
 
     /**
      * @return The representation of the value {@code true} in a boolean column.

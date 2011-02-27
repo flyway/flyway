@@ -129,9 +129,7 @@ public class MetaDataTable {
      * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
      */
     public void lock() {
-        if (dbSupport.supportsLocking()) {
-            jdbcTemplate.queryForList("SELECT script FROM " + tableName + " FOR UPDATE");
-        }
+        dbSupport.lockTable(tableName);
     }
 
     /**

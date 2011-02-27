@@ -111,8 +111,8 @@ public class H2DbSupport implements DbSupport {
     }
 
     @Override
-    public boolean supportsLocking() {
-        return true;
+    public void lockTable(String table) {
+        jdbcTemplate.execute("select * from " + table + " for update");
     }
 
     @Override

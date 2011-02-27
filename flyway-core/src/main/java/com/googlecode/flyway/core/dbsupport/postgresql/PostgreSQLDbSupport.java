@@ -104,8 +104,8 @@ public class PostgreSQLDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean supportsLocking() {
-        return true;
+    public void lockTable(String table) {
+        jdbcTemplate.execute("select * from " + table + " for update");
     }
 
     @Override
