@@ -145,6 +145,13 @@ public class Flyway {
     private String initialDescription = "<< Flyway Init >>";
 
     /**
+     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
+     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
+     * this! (default: false)
+     */
+    private boolean disableInitCheck;
+
+    /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
     /* private -> for testing */
@@ -302,6 +309,17 @@ public class Flyway {
      */
     public String getInitialDescription() {
         return initialDescription;
+    }
+
+    /**
+     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
+     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
+     * this!
+     *
+     * @return {@code true} if the check is disabled. {@code false} if it is active. (default: false)
+     */
+    public boolean isDisableInitCheck() {
+        return disableInitCheck;
     }
 
     /**
@@ -474,10 +492,20 @@ public class Flyway {
     }
 
     /**
+     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
+     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
+     * this!
+     *
+     * @param disableInitCheck {@code true} if the check is disabled. {@code false} if it is active. (default: false)
+     */
+    public void setDisableInitCheck(boolean disableInitCheck) {
+        this.disableInitCheck = disableInitCheck;
+    }
+
+    /**
      * Starts the database migration. All pending migrations will be applied in order.
      *
      * @return The number of successfully applied migrations.
-     *
      * @throws FlywayException Thrown when the migration failed.
      */
     public int migrate() throws FlywayException {
@@ -515,7 +543,7 @@ public class Flyway {
         List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
 
         MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
-        if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !dbSupport.isSchemaEmpty()) {
+        if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !dbSupport.isSchemaEmpty() && !disableInitCheck) {
             throw new ValidationException("Found non-empty schema without metadata table! Use init() first to initialize the metadata table.");
         }
 
@@ -584,7 +612,6 @@ public class Flyway {
      * @param version     (Optional) The initial version to put in the metadata table. Only migrations with a version
      *                    number higher than this one will be considered for this database.
      * @param description (Optional) The description of the initial version.
-     *
      * @throws FlywayException when the schema initialization failed.
      * @deprecated Use init(), setInitialVersion() and setInitialDescription() instead.
      */
@@ -601,7 +628,6 @@ public class Flyway {
      * documented in the flyway maven plugin.
      *
      * @param properties Properties used for configuration.
-     *
      * @throws FlywayException when the configuration failed.
      */
     public void configure(Properties properties) {
@@ -668,6 +694,19 @@ public class Flyway {
         if (validationErrorModeProp != null) {
             setValidationMode(ValidationMode.valueOf(validationModeProp));
         }
+        String initialVersionProp = properties.getProperty("flyway.initialVersion");
+        if (initialVersionProp != null) {
+            setInitialVersion(new SchemaVersion(initialVersionProp));
+        }
+        String initialDescriptionProp = properties.getProperty("flyway.initialDescription");
+        if (initialDescriptionProp != null) {
+            setInitialDescription(initialDescriptionProp);
+        }
+        String disableInitCheckProp = properties.getProperty("flyway.disableInitCheck");
+        if (disableInitCheckProp != null) {
+            setDisableInitCheck(Boolean.parseBoolean(disableInitCheckProp));
+        }
+
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>();
         for (Object property : properties.keySet()) {

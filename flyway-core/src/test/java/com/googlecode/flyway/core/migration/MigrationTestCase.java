@@ -345,6 +345,17 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void nonEmptySchemaWithDisableInitCheck() {
+        jdbcTemplate.execute("CREATE TABLE t1 (\n" +
+                "  name VARCHAR(25) NOT NULL,\n" +
+                "  PRIMARY KEY(name))");
+
+        flyway.setBaseDir(getBaseDir());
+        flyway.setDisableInitCheck(true);
+        flyway.migrate();
+    }
+
+    @Test
     public void semicolonWithinStringLiteral() {
         flyway.setBaseDir("migration/semicolon");
         flyway.migrate();
