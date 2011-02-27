@@ -25,7 +25,7 @@ import org.springframework.test.context.ContextConfiguration;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test to demonstrate the migration functionality using MSSQL.
+ * Test to demonstrate the migration functionality using SQL Server.
  */
 @SuppressWarnings({"JavaDoc"})
 @ContextConfiguration(locations = {"classpath:migration/sqlserver/sqlserver-context.xml"})
@@ -46,7 +46,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for MSSQL Stored Procedures.
+     * Tests clean and migrate for SQL Server Stored Procedures.
      */
     @Test
     public void storedProcedure() throws Exception {
@@ -62,15 +62,14 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for MSSQL Triggers.
+     * Tests clean and migrate for SQL Server Triggers.
      */
-    @Ignore
     @Test
     public void trigger() throws Exception {
         flyway.setBaseDir("migration/sqlserver/sql/trigger");
         flyway.migrate();
 
-        assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
+        assertEquals(3, jdbcTemplate.queryForInt("SELECT priority FROM customers where name='MS Internet Explorer Team'"));
 
         flyway.clean();
 
@@ -79,7 +78,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for MSSQL Views.
+     * Tests clean and migrate for SQL Server Views.
      */
     @Test
     public void view() throws Exception {

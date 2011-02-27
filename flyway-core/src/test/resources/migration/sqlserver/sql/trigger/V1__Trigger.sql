@@ -14,42 +14,55 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test1(a1 INT);
-CREATE TABLE test2(a2 INT);
-CREATE TABLE test3(a3 INT NOT NULL IDENTITY PRIMARY KEY);
-CREATE TABLE test4(
-  a4 INT NOT NULL IDENTITY PRIMARY KEY,
-  b4 INT DEFAULT 0
-);
+CREATE TABLE Customers (
+ CustomerId smallint identity(1,1),
+ Name nvarchar(255),
+ Priority tinyint
+)
+CREATE TABLE Sales (
+ TransactionId smallint identity(1,1),
+ CustomerId smallint,
+ [Net Amount] int,
+ Completed bit
+)
 GO
 
-CREATE TRIGGER testref BEFORE INSERT ON test1
+CREATE TRIGGER dbo.Update_Customer_Priority
+  ON dbo.Sales
+AFTER INSERT, UPDATE, DELETE
 AS
-BEGIN
-
-	DECLARE thecursor CURSOR FOR
-	SELECT inserted.a1 FROM inserted
-	DECLARE @a1 INT
-
-	OPEN thecursor
-	FETCH thecursor INTO @a1
-
-	WHILE (@@FETCH_STATUS = 0) BEGIN
-	    INSERT INTO test2 SET a2 = @a1;
-	    DELETE FROM test3 WHERE a3 = @a1;
-	    UPDATE test4 SET b4 = b4 + 1 WHERE a4 = @a1;
-
-	    FETCH thecursor INTO @a1
-	END
-
-	CLOSE thecursor
-	DEALLOCATE thecursor
-END
+WITH CTE AS (
+  select CustomerId from inserted
+  union
+  select CustomerId from deleted
+)
+UPDATE Customers
+SET
+  Priority =
+    case
+      when t.Total < 10000 then 3
+      when t.Total between 10000 and 50000 then 2
+      when t.Total > 50000 then 1
+      when t.Total IS NULL then NULL
+    end
+FROM Customers c
+INNER JOIN CTE ON CTE.CustomerId = c.CustomerId
+LEFT JOIN (
+  select
+    Sales.CustomerId,
+    SUM([Net Amount]) Total
+  from Sales
+  inner join CTE on CTE.CustomerId = Sales.CustomerId
+  where
+    Completed = 1
+  group by Sales.CustomerId
+) t ON t.CustomerId = c.CustomerId
 GO
 
-INSERT INTO test3 (a3) VALUES
-  (NULL), (NULL), (NULL), (NULL), (NULL),
-  (NULL), (NULL), (NULL), (NULL), (NULL);
-
-INSERT INTO test4 (a4) VALUES
-  (0), (0), (0), (0), (0), (0), (0), (0), (0), (0);
+insert into Customers select N'MS SQL Server Team', NULL
+insert into Customers select N'MS Windows Team', NULL
+insert into Customers select N'MS Internet Explorer Team', NULL
+insert into Sales select 1, 5000, 1
+insert into Sales select 2, 45000, 1
+insert into Sales
+  select CustomerId, 7500, 1 from Customers

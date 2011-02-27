@@ -28,3 +28,4 @@ END
 GO
 
 EXEC AddData
+GO

@@ -52,7 +52,6 @@ public class DbSupportFactory {
      * Initializes the appropriate DbSupport class for the database product used by the data source.
      *
      * @param jdbcTemplate The Jdbc Template to use to query the database.
-     *
      * @return The appropriate DbSupport class.
      */
     public static DbSupport createDbSupport(JdbcTemplate jdbcTemplate) {
@@ -60,38 +59,32 @@ public class DbSupportFactory {
 
         LOG.debug("Database: " + databaseProductName);
 
-        DbSupport dbSupport = null;
         if ("H2".equals(databaseProductName)) {
-            dbSupport = new H2DbSupport(jdbcTemplate);
+            return new H2DbSupport(jdbcTemplate);
         }
         if ("HSQL Database Engine".equals(databaseProductName)) {
-            dbSupport = new HsqlDbSupport(jdbcTemplate);
+            return new HsqlDbSupport(jdbcTemplate);
         }
         if ("Microsoft SQL Server".equals(databaseProductName)) {
-            dbSupport = new SQLServerDbSupport(jdbcTemplate);
+            return new SQLServerDbSupport(jdbcTemplate);
         }
         if ("MySQL".equals(databaseProductName)) {
-            dbSupport = new MySQLDbSupport(jdbcTemplate);
+            return new MySQLDbSupport(jdbcTemplate);
         }
         if ("Oracle".equals(databaseProductName)) {
-            dbSupport = new OracleDbSupport(jdbcTemplate);
+            return new OracleDbSupport(jdbcTemplate);
         }
         if ("PostgreSQL".equals(databaseProductName)) {
-            dbSupport = new PostgreSQLDbSupport(jdbcTemplate);
+            return new PostgreSQLDbSupport(jdbcTemplate);
         }
 
-        if (dbSupport == null) {
-            throw new FlywayException("Unsupported Database: " + databaseProductName);
-        }
-
-        return dbSupport;
+        throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
     /**
      * Retrieves the name of the database product.
      *
      * @param jdbcTemplate The Jdbc Template to use to query the database.
-     *
      * @return The name of the database product. Ex.: Oracle, MySQL, ...
      */
     private static String getDatabaseProductName(JdbcTemplate jdbcTemplate) {
