@@ -17,7 +17,7 @@ package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
-import com.googlecode.flyway.core.dbsupport.mssql.MSSQLDbSupport;
+import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
@@ -68,7 +68,7 @@ public class DbSupportFactory {
             dbSupport = new HsqlDbSupport(jdbcTemplate);
         }
         if ("Microsoft SQL Server".equals(databaseProductName)) {
-            dbSupport = new MSSQLDbSupport(jdbcTemplate);
+            dbSupport = new SQLServerDbSupport(jdbcTemplate);
         }
         if ("MySQL".equals(databaseProductName)) {
             dbSupport = new MySQLDbSupport(jdbcTemplate);

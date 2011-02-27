@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.mssql;
+package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
@@ -21,7 +21,7 @@ import com.googlecode.flyway.core.migration.sql.SqlScript;
 /**
  * SqlScript supporting MSSQL-specific delimiter changes.
  */
-public class MSSQLSqlScript extends SqlScript {
+public class SQLServerSqlScript extends SqlScript {
     private static final String DELIMITER = "GO";
 
     /**
@@ -32,7 +32,7 @@ public class MSSQLSqlScript extends SqlScript {
      *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    public MSSQLSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+    public SQLServerSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         super(sqlScriptSource, placeholderReplacer);
     }
 

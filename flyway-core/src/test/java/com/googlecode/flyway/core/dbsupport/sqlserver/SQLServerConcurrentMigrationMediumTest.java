@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.mssql;
+package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import org.junit.Ignore;
@@ -22,8 +22,8 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * Test to demonstrate the migration functionality using MSSQL.
  */
-@ContextConfiguration(locations = { "classpath:migration/mssql/mssql-context.xml" })
-public class MSSQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+@ContextConfiguration(locations = { "classpath:migration/sqlserver/sqlserver-context.xml" })
+public class SQLServerConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
 	@Override
 	protected String getBaseDir() {
 		return "migration/sql";

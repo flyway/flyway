@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.mssql;
+package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
@@ -28,8 +28,8 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using MSSQL.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/mssql/mssql-context.xml"})
-public class MSSQLMigrationMediumTest extends MigrationTestCase {
+@ContextConfiguration(locations = {"classpath:migration/sqlserver/sqlserver-context.xml"})
+public class SQLServerMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getBaseDir() {
         return "migration/sql";
@@ -42,7 +42,7 @@ public class MSSQLMigrationMediumTest extends MigrationTestCase {
 
     @Override
     protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new MSSQLDbSupport(jdbcTemplate);
+        return new SQLServerDbSupport(jdbcTemplate);
     }
 
     /**
@@ -50,7 +50,7 @@ public class MSSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void storedProcedure() throws Exception {
-        flyway.setBaseDir("migration/mssql/sql/procedure");
+        flyway.setBaseDir("migration/sqlserver/sql/procedure");
         flyway.migrate();
 
         assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
@@ -67,7 +67,7 @@ public class MSSQLMigrationMediumTest extends MigrationTestCase {
     @Ignore
     @Test
     public void trigger() throws Exception {
-        flyway.setBaseDir("migration/mssql/sql/trigger");
+        flyway.setBaseDir("migration/sqlserver/sql/trigger");
         flyway.migrate();
 
         assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
@@ -83,7 +83,7 @@ public class MSSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void view() throws Exception {
-        flyway.setBaseDir("migration/mssql/sql/view");
+        flyway.setBaseDir("migration/sqlserver/sql/view");
         flyway.migrate();
 
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));

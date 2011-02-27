@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.mssql;
+package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * MSsql-specific support.
  */
-public class MSSQLDbSupport implements DbSupport {
+public class SQLServerDbSupport implements DbSupport {
     /**
      * The jdbcTemplate to use.
      */
@@ -44,13 +44,13 @@ public class MSSQLDbSupport implements DbSupport {
      *
      * @param jdbcTemplate The jdbcTemplate to use.
      */
-    public MSSQLDbSupport(JdbcTemplate jdbcTemplate) {
+    public SQLServerDbSupport(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public String getScriptLocation() {
-        return "com/googlecode/flyway/core/dbsupport/mssql/";
+        return "com/googlecode/flyway/core/dbsupport/sqlserver/";
     }
 
     @Override
@@ -129,7 +129,7 @@ public class MSSQLDbSupport implements DbSupport {
 
     @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        return new MSSQLSqlScript(sqlScriptSource, placeholderReplacer);
+        return new SQLServerSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
     @Override

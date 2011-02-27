@@ -16,4 +16,4 @@
 /**
  * Private API. No compatibility guarantees provided.
  */
-package com.googlecode.flyway.core.dbsupport.mssql;
+package com.googlecode.flyway.core.dbsupport.sqlserver;
