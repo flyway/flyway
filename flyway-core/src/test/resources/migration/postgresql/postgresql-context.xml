@@ -23,22 +23,9 @@
 	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
     <!--  -->
     <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="test_ddl_user"/>
-        <property name="password" value="ddlPassword"/>
+        <property name="username" value="flyway"/>
+        <property name="password" value="flyway"/>
         <property name="driverClass" value="org.postgresql.Driver"/>
-        <property name="url" value="jdbc:postgresql://localhost/migration_test_db"/>
+        <property name="url" value="jdbc:postgresql://localhost/flyway_db"/>
     </bean>
-    <!--
-    <bean id="dbCreator" class="com.googlecodecode.code.flyway.core.DbCreator">
-        <property name="baseDir" value="migration/mysql"/>
-        <property name="rootDataSource">
-            <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-                <property name="username" value="root" />
-                <property name="password" value="" />
-                <property name="driverClass" value="com.mysql.jdbc.Driver" />
-                <property name="url" value="jdbc:mysql://localhost" />
-            </bean>
-        </property>
-    </bean>
-     -->
 </beans>

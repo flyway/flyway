@@ -24,21 +24,8 @@
 	<!--  -->
     <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
         <property name="username" value="sa" />
-        <property name="password" value="test1234" />
+        <property name="password" value="flyway" />
         <property name="driverClass" value="net.sourceforge.jtds.jdbc.Driver" />
-        <property name="url" value="jdbc:jtds:sqlserver://localhost:1433/migration-test" />
+        <property name="url" value="jdbc:jtds:sqlserver://localhost:1433/flyway_db" />
     </bean>
-    <!--
-    <bean id="dbCreator" class="com.googlecodecode.code.flyway.core.DbCreator">
-        <property name="baseDir" value="migration/mssql"/>
-        <property name="rootDataSource">
-            <bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-                <property name="username" value="sa" />
-                <property name="password" value="super" />
-                <property name="driverClass" value="net.sourceforge.jtds.jdbc.Driver" />
-                <property name="url" value="jdbc:jtds:sqlserver://localhost:1433/migration-test;instance=SQLEXPRESS" />
-            </bean>
-        </property>
-    </bean>
-     -->
 </beans>

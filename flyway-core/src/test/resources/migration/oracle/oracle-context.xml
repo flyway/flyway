@@ -20,11 +20,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
     <!--  -->
     <bean id="ddlDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="username" value="test_ddl_user"/>
-        <property name="password" value="ddlPassword"/>
+        <property name="username" value="flyway"/>
+        <property name="password" value="flyway"/>
         <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
         <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
-        <property name="initialSize" value="30"/>
+        <property name="initialSize" value="1"/>
         <property name="maxActive" value="100"/>
     </bean>
 </beans>

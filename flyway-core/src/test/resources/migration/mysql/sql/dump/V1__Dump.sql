@@ -29,7 +29,7 @@
 -- Table structure for table account
 --
 
-USE migration_test_db;
+USE flyway_db;
 
 DROP TABLE IF EXISTS account;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

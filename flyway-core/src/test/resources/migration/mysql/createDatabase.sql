@@ -14,9 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE DATABASE migration_test_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
-CREATE USER 'test_ddl_user'@'localhost' IDENTIFIED BY 'ddlPassword';
-CREATE USER 'test_dml_user'@'localhost' IDENTIFIED BY 'dmlPassword';
-GRANT all ON migration_test_db.* TO 'test_ddl_user'@'localhost' IDENTIFIED BY 'ddlPassword';
-GRANT select,insert,update,delete ON migration_test_db.* TO 'test_dml_user'@'localhost' IDENTIFIED BY 'dmlPassword';
+CREATE DATABASE flyway_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
+CREATE USER 'flyway'@'localhost' IDENTIFIED BY 'flyway';
+GRANT all ON flyway_db.* TO 'flyway'@'localhost' IDENTIFIED BY 'flyway';
 FLUSH PRIVILEGES;

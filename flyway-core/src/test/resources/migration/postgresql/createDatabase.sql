@@ -14,6 +14,6 @@
 -- limitations under the License.
 --
 
-CREATE ROLE test_ddl_user LOGIN UNENCRYPTED PASSWORD 'ddlPassword';
-CREATE DATABASE migration_test_db
-  WITH OWNER = test_ddl_user ENCODING = 'UTF8' TABLESPACE = pg_default;
+CREATE ROLE flyway LOGIN UNENCRYPTED PASSWORD 'flyway';
+CREATE DATABASE flyway_db
+  WITH OWNER = flyway ENCODING = 'UTF8' TABLESPACE = pg_default;

@@ -14,6 +14,5 @@
 -- limitations under the License.
 --
 
-CREATE USER flyway IDENTIFIED BY flyway;
-GRANT all privileges TO flyway;
-GRANT create session TO flyway;
+CREATE DATABASE flyway_db;
+GO
