@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
@@ -28,7 +27,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -162,20 +160,15 @@ public class OracleDbSupport implements DbSupport {
      *
      * @param objectType     The type of database object to drop.
      * @param extraArguments The extra arguments to add to the drop statement.
-     *
      * @return The complete drop statements, ready to execute.
      */
     @SuppressWarnings({"unchecked"})
     private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments) {
-        String query = "SELECT object_type, object_name FROM user_objects WHERE object_type = ?" +
+        String query = "SELECT object_type, object_name FROM user_objects WHERE object_type = ?"
                 // Ignore Recycle bin objects
-                " and object_name not like 'BIN$%'";
-
-        if (!isOracleXE()) {
-            // Ignore Spatial Index Tables as they get dropped automatically when the parent table gets dropped.
-            // The automatic drop does not work on XE.
-            query += " and object_name not like 'MDRT_%$'";
-        }
+                + " and object_name not like 'BIN$%'"
+                // Ignore Spatial Index Tables and Sequences as they get dropped automatically when the index gets dropped.
+                + " and object_name not like 'MDRT_%$' and object_name not like 'MDRS_%$'";
 
         return jdbcTemplate.query(query,
                 new Object[]{objectType}, new RowMapper() {
@@ -196,9 +189,11 @@ public class OracleDbSupport implements DbSupport {
 
         if (spatialExtensionsAvailable()) {
             statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
-            if (isOracleXE()) {
-                String user = getCurrentSchema();
-                statements.add("DELETE FROM mdsys.sdo_index_metadata_table WHERE sdo_index_owner = '" + user + "'");
+
+            @SuppressWarnings({"unchecked"})
+            List<String> indexNames = jdbcTemplate.queryForList("select INDEX_NAME from USER_SDO_INDEX_INFO", String.class);
+            for (String indexName : indexNames) {
+                statements.add("DROP INDEX " + indexName);
             }
         } else {
             LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
@@ -214,23 +209,5 @@ public class OracleDbSupport implements DbSupport {
      */
     private boolean spatialExtensionsAvailable() {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE owner = 'MDSYS' AND view_name = 'USER_SDO_GEOM_METADATA'") > 0;
-    }
-
-    /**
-     * Checks whether we are connected to Oracle XE or a full-blown edition.
-     *
-     * @return {@code true} if it is XE, {@code false} if not.
-     */
-    private boolean isOracleXE() {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                DatabaseMetaData databaseMetaData = connection.getMetaData();
-                if (databaseMetaData == null) {
-                    throw new FlywayException("Unable to read database metadata while it is null!");
-                }
-                return databaseMetaData.getDatabaseProductVersion().contains("Express Edition");
-            }
-        });
     }
 }
