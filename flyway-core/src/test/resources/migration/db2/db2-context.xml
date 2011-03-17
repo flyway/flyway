@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2010-2011 the original author or authors.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <!-- would like to use this, but ignore-resource-not-found is only present in Spring 3 -->
+    <!--  <context:property-placeholder location="classpath:db2-standard.properties,file:${user.home}/db2-custom.properties" ignore-resource-not-found="true"/> -->
+    <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:migration/db2/db2-standard.properties</value>
+				<value>file:${user.home}/flyway-db-custom.properties</value> <!-- second place, so they take precedence, if present -->
+			</list>
+		</property>
+		<!-- ignore if custom properties cannot be found, then the standard props will be taken -->
+		<property name="ignoreResourceNotFound" value="true" />
+	</bean>
+       
+    <bean id="ddlDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="username" value="${db2.username}"/>
+        <property name="password" value="${db2.password}"/>
+        <property name="driverClassName" value="com.ibm.db2.jcc.DB2Driver"/>
+        <property name="url" value="jdbc:db2://${db2.host}:${db2.port}/${db2.flywayDbName}"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxActive" value="100"/>
+    </bean>
+</beans>
