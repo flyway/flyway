@@ -22,9 +22,6 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.List;
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -56,12 +53,39 @@ public class H2MigrationMediumTest extends MigrationTestCase {
         assertEquals("1.1", schemaVersion.toString());
         assertEquals("Populate table", flyway.status().getDescription());
 
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList("select name from test_user");
-        for (Map<String, Object> row : rows) {
-            System.out.println("Name: " + row.get("NAME"));
-        }
-
         assertEquals("'Mr. Semicolon+Linebreak;\nanother line'",
                 jdbcTemplate.queryForObject("select name from test_user where name like '%line'''", String.class));
+    }
+
+    @Test
+    public void sequence() {
+        flyway.setBaseDir("migration/h2/sql/sequence");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.toString());
+        assertEquals("Sequence", flyway.status().getDescription());
+
+        assertEquals(666,
+                jdbcTemplate.queryForInt("select nextval('the_beast')"));
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
+    public void domain() {
+        flyway.setBaseDir("migration/h2/sql/domain");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.toString());
+        assertEquals("Domain", flyway.status().getDescription());
+
+        assertEquals("axel@spam.la",
+                jdbcTemplate.queryForObject("select address from test_user where name = 'Axel'", String.class));
+
+        flyway.clean();
+        flyway.migrate();
     }
 }
