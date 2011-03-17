@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.dbsupport.db2.DB2DbSupport;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
@@ -76,6 +77,11 @@ public class DbSupportFactory {
         }
         if ("PostgreSQL".equals(databaseProductName)) {
             return new PostgreSQLDbSupport(jdbcTemplate);
+        }
+        if ((databaseProductName != null) && databaseProductName.startsWith("DB2")) {
+            // DB2 returns also OS it's running on
+            // e.g. DB2/NT
+            return new DB2DbSupport(jdbcTemplate);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
