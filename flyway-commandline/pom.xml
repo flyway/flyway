@@ -66,6 +66,14 @@
             <plugin>
                 <groupId>com.googlecode.maven-gcu-plugin</groupId>
                 <artifactId>maven-gcu-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>upload</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <failsOnError>true</failsOnError>
                     <projectName>flyway</projectName>
