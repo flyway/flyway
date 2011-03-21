@@ -88,4 +88,20 @@ public class H2MigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    @Test
+    public void view() {
+        flyway.setBaseDir("migration/h2/sql/view");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.toString());
+        assertEquals("View", flyway.status().getDescription());
+
+        assertEquals("Mr. T",
+                jdbcTemplate.queryForObject("select name from first_users where id = 1", String.class));
+
+        flyway.clean();
+        flyway.migrate();
+    }
 }

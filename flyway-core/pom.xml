@@ -93,6 +93,18 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            com.googlecode.flyway.core;version=${project.version},
+                            com.googlecode.flyway.core.exception;version=${project.version},
+                            com.googlecode.flyway.core.metadatatable;version=${project.version},
+                            com.googlecode.flyway.core.migration;version=${project.version},
+                            com.googlecode.flyway.core.migration.java;version=${project.version}
+                        </Export-Package>
+                        <Import-Package>org.springframework.*;version="${version.spring},*</Import-Package>
+                    </instructions>
+                </configuration>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>

@@ -22,6 +22,7 @@ import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -132,47 +133,40 @@ public class H2DbSupport implements DbSupport {
 
     @Override
     public SqlScript createCleanScript() {
-        List<SqlStatement> sqlStatements = generateDropTableStatements();
-        sqlStatements.addAll(generateDropStatements("SEQUENCE", sqlStatements.size()));
-        sqlStatements.addAll(generateDropStatements("CONSTANT", sqlStatements.size()));
-        sqlStatements.addAll(generateDropStatements("DOMAIN", sqlStatements.size()));
-        return new SqlScript(sqlStatements);
-    }
-
-    /**
-     * Generate the statements for dropping all the tables in the current schema.
-     *
-     * @return The list of statements.
-     */
-    private List<SqlStatement> generateDropTableStatements() {
-        @SuppressWarnings({"unchecked"})
-        List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + getCurrentSchema());
-
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int count = 0;
-        for (Map<String, Object> table : tables) {
-            count++;
-            sqlStatements.add(new SqlStatement(count, "DROP TABLE \"" + table.get("TABLE_NAME") + "\" CASCADE"));
-        }
-        return sqlStatements;
+        sqlStatements.addAll(generateDropStatements("TABLE", "TABLE_TYPE = 'TABLE'", "CASCADE", sqlStatements.size()));
+        sqlStatements.addAll(generateDropStatements("SEQUENCE", "IS_GENERATED = false", "", sqlStatements.size()));
+        sqlStatements.addAll(generateDropStatements("CONSTANT", "", "", sqlStatements.size()));
+        sqlStatements.addAll(generateDropStatements("DOMAIN", "", "", sqlStatements.size()));
+        return new SqlScript(sqlStatements);
     }
 
     /**
      * Generate the statements for dropping all the objects of this type in the current schema.
      *
      * @param objectType The type of object to drop (Sequence, constant, ...)
+     * @param querySuffix Suffix to append to the query to find the objects to drop.
+     * @param dropStatementSuffix Suffix to append to the statement for dropping the objects.
      * @param initialLineNumber The initial line number of the first statement that will be added to the drop script.
      *
      * @return The list of statements.
      */
-    private List<SqlStatement> generateDropStatements(String objectType, int initialLineNumber) {
+    private List<SqlStatement> generateDropStatements(String objectType, String querySuffix, String dropStatementSuffix, int initialLineNumber) {
+        String query = "SELECT " + objectType + "_NAME FROM information_schema." + objectType + "s WHERE " + objectType + "_schema = ?";
+        if (StringUtils.hasLength(querySuffix)) {
+            query += " AND " + querySuffix;
+        }
+
         @SuppressWarnings({"unchecked"})
-        List<Map<String, Object>> objectNames = jdbcTemplate.queryForList("SELECT " + objectType + "_NAME FROM information_schema." + objectType + "s WHERE " + objectType + "_schema = ?", new Object[]{getCurrentSchema()});
+        List<Map<String, Object>> objectNames = jdbcTemplate.queryForList(query, new Object[]{getCurrentSchema()});
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int count = initialLineNumber;
         for (Map<String, Object> objectName : objectNames) {
-            sqlStatements.add(new SqlStatement(count, "DROP " + objectType + " \"" + objectName.get(objectType + "_NAME") + "\""));
+            String dropStatement =
+                    "DROP " + objectType + " \"" + objectName.get(objectType + "_NAME") + "\"" + " " + dropStatementSuffix;
+
+            sqlStatements.add(new SqlStatement(count, dropStatement));
             count++;
         }
         return sqlStatements;
