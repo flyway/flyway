@@ -19,12 +19,24 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+    <!-- -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="file:${user.home}/flyway-mediumtests.properties"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="properties">
+            <props>
+                <prop key="db2.username">db2admin</prop>
+                <prop key="db2.password">flyway</prop>
+                <prop key="db2.url">jdbc:db2://localhost:50000/flyway</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- -->
     <bean id="ddlDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="username" value="db2admin"/>
-        <property name="password" value="flyway"/>
+        <property name="username" value="${db2.username}"/>
+        <property name="password" value="${db2.password}"/>
         <property name="driverClassName" value="com.ibm.db2.jcc.DB2Driver"/>
-        <property name="url" value="jdbc:db2://localhost:50000/flyway"/>
+        <property name="url" value="${db2.url}"/>
         <property name="initialSize" value="1"/>
         <property name="maxActive" value="100"/>
     </bean>

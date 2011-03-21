@@ -18,12 +18,24 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <!--  -->
+    <!-- -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="file:${user.home}/flyway-mediumtests.properties"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="properties">
+            <props>
+                <prop key="oracle.username">flyway</prop>
+                <prop key="oracle.password">flyway</prop>
+                <prop key="oracle.url">jdbc:oracle:thin:@localhost:1521:XE</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- -->
     <bean id="ddlDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="username" value="flyway"/>
-        <property name="password" value="flyway"/>
+        <property name="username" value="${oracle.username}"/>
+        <property name="password" value="${oracle.password}"/>
         <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
-        <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
+        <property name="url" value="${oracle.url}"/>
         <property name="initialSize" value="1"/>
         <property name="maxActive" value="100"/>
     </bean>

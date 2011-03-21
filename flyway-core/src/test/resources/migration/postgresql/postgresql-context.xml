@@ -16,16 +16,26 @@
     limitations under the License.
 
 -->
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd
-	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
-    <!--  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="file:${user.home}/flyway-mediumtests.properties"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="properties">
+            <props>
+                <prop key="postgresql.username">flyway</prop>
+                <prop key="postgresql.password">flyway</prop>
+                <prop key="postgresql.url">jdbc:postgresql://localhost/flyway_db</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- -->
     <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="flyway"/>
-        <property name="password" value="flyway"/>
+        <property name="username" value="${postgresql.username}"/>
+        <property name="password" value="${postgresql.password}"/>
         <property name="driverClass" value="org.postgresql.Driver"/>
-        <property name="url" value="jdbc:postgresql://localhost/flyway_db"/>
+        <property name="url" value="${postgresql.url}"/>
     </bean>
 </beans>
