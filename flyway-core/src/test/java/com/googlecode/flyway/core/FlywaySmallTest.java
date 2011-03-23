@@ -43,6 +43,17 @@ public class FlywaySmallTest {
     }
 
     @Test
+    public void configureTarget() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.target", "666");
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+
+        assertEquals("666", flyway.getTarget().toString());
+    }
+
+    @Test
     public void configureWithExistingDataSource() {
         DataSource dataSource = new SimpleDriverDataSource(new org.h2.Driver(), "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
 

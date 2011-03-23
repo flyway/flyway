@@ -706,7 +706,10 @@ public class Flyway {
         if (disableInitCheckProp != null) {
             setDisableInitCheck(Boolean.parseBoolean(disableInitCheckProp));
         }
-
+        String targetProp = properties.getProperty("flyway.target");
+        if (targetProp != null) {
+            setTarget(new SchemaVersion(targetProp));
+        }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>();
         for (Object property : properties.keySet()) {
