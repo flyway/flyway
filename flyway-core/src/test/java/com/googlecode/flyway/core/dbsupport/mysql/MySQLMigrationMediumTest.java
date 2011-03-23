@@ -31,11 +31,6 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(locations = {"classpath:migration/mysql/mysql-context.xml"})
 public class MySQLMigrationMediumTest extends MigrationTestCase {
     @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
-
-    @Override
     protected String getQuoteBaseDir() {
         return "migration/mysql/sql/quote";
     }

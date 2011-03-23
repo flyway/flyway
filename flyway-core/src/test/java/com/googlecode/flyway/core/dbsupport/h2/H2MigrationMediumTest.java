@@ -30,11 +30,6 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(locations = {"classpath:migration/h2/h2-context.xml"})
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
-
-    @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
     }
@@ -84,22 +79,6 @@ public class H2MigrationMediumTest extends MigrationTestCase {
 
         assertEquals("axel@spam.la",
                 jdbcTemplate.queryForObject("select address from test_user where name = 'Axel'", String.class));
-
-        flyway.clean();
-        flyway.migrate();
-    }
-
-    @Test
-    public void view() {
-        flyway.setBaseDir("migration/h2/sql/view");
-        flyway.migrate();
-
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.toString());
-        assertEquals("View", flyway.status().getDescription());
-
-        assertEquals("Mr. T",
-                jdbcTemplate.queryForObject("select name from first_users where id = 1", String.class));
 
         flyway.clean();
         flyway.migrate();

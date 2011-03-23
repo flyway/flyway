@@ -27,11 +27,6 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(locations = {"classpath:migration/db2/db2-context.xml"})
 public class DB2MigrationMediumTest extends MigrationTestCase {
     @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
-
-    @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
     }

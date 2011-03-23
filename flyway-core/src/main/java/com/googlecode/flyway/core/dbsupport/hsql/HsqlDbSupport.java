@@ -149,7 +149,7 @@ public class HsqlDbSupport implements DbSupport {
             @Override
             public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(),
-                        null, null);
+                        null, new String[] {"TABLE"});
                 while (resultSet.next()) {
                     tables.add(resultSet.getString("TABLE_NAME"));
                 }

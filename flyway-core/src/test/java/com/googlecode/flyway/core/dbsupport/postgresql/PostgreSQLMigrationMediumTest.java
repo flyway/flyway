@@ -31,11 +31,6 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(locations = {"classpath:migration/postgresql/postgresql-context.xml"})
 public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
-
-    @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
     }

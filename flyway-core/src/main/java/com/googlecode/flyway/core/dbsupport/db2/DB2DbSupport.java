@@ -71,7 +71,7 @@ public class DB2DbSupport implements DbSupport {
         allDropStatements.addAll(dropViewsStatements);
 
         // tables
-        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TABSCHEMA = '" + currentSchema
+        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = '" + currentSchema
                 + "'";
         List<String> dropTableStatements = buildDropStatements("drop table", dropTablesGenQuery);
         allDropStatements.addAll(dropTableStatements);

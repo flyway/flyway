@@ -26,11 +26,6 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(locations = {"classpath:migration/hsql/hsql-context.xml"})
 public class HsqlMigrationMediumTest extends MigrationTestCase {
     @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
-
-    @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
     }

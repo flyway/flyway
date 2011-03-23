@@ -22,7 +22,7 @@
             <version>3.0.5.RELEASE</version>
         </dependency>
         <dependency>
-            <groupId>hsqldb</groupId>
+            <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
         </dependency>
     </dependencies>

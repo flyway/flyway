@@ -40,11 +40,6 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
 public class OracleMigrationMediumTest extends MigrationTestCase {
     @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
-
-    @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
     }

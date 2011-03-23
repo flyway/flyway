@@ -96,7 +96,7 @@ public abstract class ConcurrentMigrationTestCase {
         }
 
         assertFalse(failed);
-        assertEquals(4, flyway.history().size());
+        assertEquals(5, flyway.history().size());
         SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("2.0", schemaVersion.toString());
         assertEquals("Add foreign key", flyway.status().getDescription());
