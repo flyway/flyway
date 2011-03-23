@@ -78,7 +78,7 @@ public class DB2DbSupport implements DbSupport {
 
         // sequences
         String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + currentSchema
-                + "'";
+                + "' and SEQTYPE='S'";
         List<String> dropSeqStatements = buildDropStatements("drop sequence", dropSeqGenQuery);
         allDropStatements.addAll(dropSeqStatements);
 

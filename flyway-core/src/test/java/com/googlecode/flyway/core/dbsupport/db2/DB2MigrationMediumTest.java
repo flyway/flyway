@@ -17,9 +17,13 @@ package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using DB2.
@@ -34,6 +38,22 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
         return new DB2DbSupport(jdbcTemplate);
+    }
+
+    @Test
+    public void sequence() {
+        flyway.setBaseDir("migration/db2/sql/sequence");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.toString());
+        assertEquals("Sequence", flyway.status().getDescription());
+
+        assertEquals(666,
+                jdbcTemplate.queryForInt("VALUES NEXTVAL FOR BEAST_SEQ"));
+
+        flyway.clean();
+        flyway.migrate();
     }
 
     @Ignore
