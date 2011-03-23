@@ -43,7 +43,7 @@ public class ResourceUtils {
      * @return The resource contents as a string.
      */
     public static String loadResourceAsString(String location) {
-        return loadResourceAsString(new ClassPathResource(location), "UTF-8");
+        return loadResourceAsString(new ClassPathResource(location, ResourceUtils.class.getClassLoader()), "UTF-8");
     }
 
     /**
