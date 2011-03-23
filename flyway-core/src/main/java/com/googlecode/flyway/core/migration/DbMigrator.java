@@ -103,6 +103,9 @@ public class DbMigrator {
      * @throws FlywayException when migration failed.
      */
     public int migrate(final List<Migration> migrations) throws FlywayException {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
         int migrationSuccessCount = 0;
         try {
             while (true) {
@@ -162,7 +165,9 @@ public class DbMigrator {
             throw new FlywayException("Migration failed !", e);
         }
 
-        logSummary(migrationSuccessCount);
+        stopWatch.stop();
+
+        logSummary(migrationSuccessCount, stopWatch.getTotalTimeMillis());
         return migrationSuccessCount;
     }
 
@@ -170,14 +175,20 @@ public class DbMigrator {
      * Logs the summary of this migration run.
      *
      * @param migrationSuccessCount The number of successfully applied migrations.
+     * @param executionTime The total time taken to perform this migration run (in ms).
      */
-    private void logSummary(int migrationSuccessCount) {
+    private void logSummary(int migrationSuccessCount, long executionTime) {
         if (migrationSuccessCount == 0) {
             LOG.info("Schema is up to date. No migration necessary.");
-        } else if (migrationSuccessCount == 1) {
-            LOG.info("Migration completed. Successfully applied 1 migration.");
+            return;
+        }
+
+        String executionTimeStr = "(execution time " + TimeFormat.format(executionTime) + ").";
+
+        if (migrationSuccessCount == 1) {
+            LOG.info("Successfully applied 1 migration " + executionTimeStr);
         } else {
-            LOG.info("Migration completed. Successfully applied " + migrationSuccessCount + " migrations.");
+            LOG.info("Successfully applied " + migrationSuccessCount + " migrations " + executionTimeStr);
         }
     }
 
