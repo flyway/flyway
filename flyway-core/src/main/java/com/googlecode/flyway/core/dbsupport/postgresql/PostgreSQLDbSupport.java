@@ -75,11 +75,11 @@ public class PostgreSQLDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean tableExists(final String table) {
+    public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(), DEFAULT_SCHEMA_PATTERN,
+                ResultSet resultSet = connection.getMetaData().getTables(schema.toLowerCase(), DEFAULT_SCHEMA_PATTERN,
                         table.toLowerCase(), TABLE_EXISTS_TABLE_TYPES);
                 return resultSet.next();
             }

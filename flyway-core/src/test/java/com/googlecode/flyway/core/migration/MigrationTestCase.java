@@ -262,7 +262,8 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-        assertTrue(getDbSupport(new JdbcTemplate(migrationDataSource)).tableExists("SCHEMA_VERSION"));
+        DbSupport dbSupport = getDbSupport(new JdbcTemplate(migrationDataSource));
+        assertTrue(dbSupport.tableExists(dbSupport.getCurrentSchema(), "SCHEMA_VERSION"));
     }
 
     @Test

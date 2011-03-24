@@ -134,15 +134,12 @@ public class DB2DbSupport implements DbSupport {
         return objectCount == 0;
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#tableExists(java.lang.String)
-     */
     @Override
-    public boolean tableExists(final String table) {
+    public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(), table.toUpperCase(),
+                ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(), table.toUpperCase(),
                         null);
                 return resultSet.next();
             }

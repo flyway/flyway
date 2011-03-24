@@ -84,12 +84,11 @@ public class SQLServerDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean tableExists(final String table) {
+    public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(getCurrentSchema(), null,
-                        table, null);
+                ResultSet resultSet = connection.getMetaData().getTables(schema, null, table, null);
                 return resultSet.next();
             }
         });

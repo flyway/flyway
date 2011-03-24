@@ -82,11 +82,11 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean tableExists(final String table) {
+    public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(),
+                ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(),
                         table.toUpperCase(), null);
                 return resultSet.next();
             }

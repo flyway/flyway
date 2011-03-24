@@ -58,11 +58,12 @@ public interface DbSupport {
     /**
      * Checks whether this table is already present in the database.
      *
+     * @param schema The schema in which to look.
      * @param table The table to look for.
      *
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
-    boolean tableExists(String table);
+    boolean tableExists(String schema, String table);
 
     /**
      * Checks whether this column is already present in this table in the database.

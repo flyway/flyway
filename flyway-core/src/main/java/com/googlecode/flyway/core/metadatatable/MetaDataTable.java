@@ -55,9 +55,14 @@ public class MetaDataTable {
     private final DbSupport dbSupport;
 
     /**
+     * The schema in which the metadata table belongs.
+     */
+    private final String schema;
+
+    /**
      * The name of the schema metadata table used by flyway.
      */
-    private final String tableName;
+    private final String table;
 
     /**
      * JdbcTemplate with ddl manipulation access to the database.
@@ -75,14 +80,16 @@ public class MetaDataTable {
      * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
      * @param dbSupport           Database-specific functionality.
-     * @param tableName           The name of the schema metadata table used by flyway.
+     * @param schema              The schema in which the metadata table belongs.
+     * @param table           The name of the schema metadata table used by flyway.
      */
     public MetaDataTable(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport,
-                         String tableName) {
+                         String schema, String table) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = jdbcTemplate;
         this.dbSupport = dbSupport;
-        this.tableName = tableName;
+        this.schema = schema;
+        this.table = table;
     }
 
     /**
@@ -91,7 +98,7 @@ public class MetaDataTable {
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
     private boolean exists() {
-        return dbSupport.tableExists(tableName);
+        return dbSupport.tableExists(schema, table);
     }
 
     /**
@@ -102,7 +109,7 @@ public class MetaDataTable {
         final String createMetaDataTableScriptSource = ResourceUtils.loadResourceAsString(location);
 
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("tableName", tableName);
+        placeholders.put("tableName", table);
         final PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -113,7 +120,7 @@ public class MetaDataTable {
             }
         });
 
-        LOG.info("Metadata table created: " + tableName);
+        LOG.info("Metadata table created: " + table);
     }
 
     /**
@@ -129,7 +136,7 @@ public class MetaDataTable {
      * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
      */
     public void lock() {
-        dbSupport.lockTable(tableName);
+        dbSupport.lockTable(table);
     }
 
     /**
@@ -138,7 +145,7 @@ public class MetaDataTable {
      * @param metaDataTableRow The metaDataTableRow to add.
      */
     public void insert(final MetaDataTableRow metaDataTableRow) {
-        jdbcTemplate.update("UPDATE " + tableName + " SET current_version=" + dbSupport.getBooleanFalse());
+        jdbcTemplate.update("UPDATE " + table + " SET current_version=" + dbSupport.getBooleanFalse());
         final String version = metaDataTableRow.getVersion().toString();
         final String description = metaDataTableRow.getDescription();
         final String state = metaDataTableRow.getState().name();
@@ -146,7 +153,7 @@ public class MetaDataTable {
         final Integer checksum = metaDataTableRow.getChecksum();
         final String scriptName = metaDataTableRow.getScript();
         final Integer executionTime = metaDataTableRow.getExecutionTime();
-        jdbcTemplate.update("INSERT INTO " + tableName
+        jdbcTemplate.update("INSERT INTO " + table
                 + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
                 + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
                 + dbSupport.getBooleanTrue() + ")",
@@ -164,7 +171,7 @@ public class MetaDataTable {
             return false;
         }
 
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + tableName) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table) > 0;
     }
 
     /**
@@ -212,7 +219,7 @@ public class MetaDataTable {
      * @return The select statement for reading the metadata table.
      */
     private String getSelectStatement() {
-        return "select VERSION, DESCRIPTION, TYPE, SCRIPT, CHECKSUM, INSTALLED_ON, EXECUTION_TIME, STATE from " + tableName;
+        return "select VERSION, DESCRIPTION, TYPE, SCRIPT, CHECKSUM, INSTALLED_ON, EXECUTION_TIME, STATE from " + table;
     }
 
     /**

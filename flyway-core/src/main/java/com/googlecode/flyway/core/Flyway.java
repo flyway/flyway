@@ -78,6 +78,11 @@ public class Flyway {
     private String encoding = "UTF-8";
 
     /**
+     * The schemas managed by Flyway. (default: The default schema for the datasource connection)
+     */
+    private String[] schemas = new String[0];
+
+    /**
      * The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
     private String table = "schema_version";
@@ -192,6 +197,15 @@ public class Flyway {
      */
     public String getEncoding() {
         return encoding;
+    }
+
+    /**
+     * Retrieves the schemas managed by Flyway.
+     *
+     * @return The schemas managed by Flyway. (default: The default schema for the datasource connection)
+     */
+    public String[] getSchemas() {
+        return schemas;
     }
 
     /**
@@ -384,6 +398,15 @@ public class Flyway {
     }
 
     /**
+     * Sets the schemas managed by Flyway.
+     *
+     * @param schemas The schemas managed by Flyway. (default: The default schema for the datasource connection)
+     */
+    public void setSchemas(String... schemas) {
+        this.schemas = schemas;
+    }
+
+    /**
      * Sets the name of the schema metadata table that will be used by flyway.
      *
      * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
@@ -459,7 +482,15 @@ public class Flyway {
         jdbcTemplate = new JdbcTemplate(dataSource);
 
         dbSupport = DbSupportFactory.createDbSupport(jdbcTemplate);
-        LOG.debug("Schema: " + dbSupport.getCurrentSchema());
+        if (schemas.length == 0) {
+            setSchemas(dbSupport.getCurrentSchema());
+        }
+
+        if (schemas.length == 1) {
+            LOG.debug("Schema: " + schemas[0]);
+        } else {
+            LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemas));
+        }
     }
 
     /**
@@ -518,7 +549,7 @@ public class Flyway {
             return 0;
         }
 
-        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+        MetaDataTable metaDataTable = createMetaDataTable();
 
         validate();
 
@@ -542,7 +573,7 @@ public class Flyway {
                 new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
         List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
 
-        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+        MetaDataTable metaDataTable = createMetaDataTable();
         if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !dbSupport.isSchemaEmpty() && !disableInitCheck) {
             throw new ValidationException("Found non-empty schema without metadata table! Use init() first to initialize the metadata table.");
         }
@@ -578,7 +609,7 @@ public class Flyway {
     public MetaDataTableRow status() {
         assertDataSourceConfigured();
 
-        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+        MetaDataTable metaDataTable = createMetaDataTable();
         return metaDataTable.latestAppliedMigration();
     }
 
@@ -590,7 +621,7 @@ public class Flyway {
     public List<MetaDataTableRow> history() {
         assertDataSourceConfigured();
 
-        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+        MetaDataTable metaDataTable = createMetaDataTable();
         return metaDataTable.allAppliedMigrations();
     }
 
@@ -602,7 +633,7 @@ public class Flyway {
     public void init() throws FlywayException {
         assertDataSourceConfigured();
 
-        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+        MetaDataTable metaDataTable = createMetaDataTable();
         new DbInit(transactionTemplate, metaDataTable).init(initialVersion, initialDescription);
     }
 
@@ -619,8 +650,15 @@ public class Flyway {
     public void init(SchemaVersion version, String description) throws FlywayException {
         assertDataSourceConfigured();
 
-        MetaDataTable metaDataTable = new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, table);
+        MetaDataTable metaDataTable = createMetaDataTable();
         new DbInit(transactionTemplate, metaDataTable).init(version, description);
+    }
+
+    /**
+     * @return A new, fully configured, MetaDataTable instance.
+     */
+    private MetaDataTable createMetaDataTable() {
+        return new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, schemas[0], table);
     }
 
     /**

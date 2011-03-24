@@ -76,7 +76,7 @@ public class AbstractFlywayMojoTest {
         BasicDataSource dataSource = mojo.createDataSource();
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         H2DbSupport h2DbSupport = new H2DbSupport(jdbcTemplate);
-        boolean tableStillPresent = h2DbSupport.tableExists("schema_version");
+        boolean tableStillPresent = h2DbSupport.tableExists(h2DbSupport.getCurrentSchema(), "schema_version");
         dataSource.close();
         assertFalse(tableStillPresent);
     }
