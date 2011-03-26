@@ -53,28 +53,48 @@ public class DbCleaner {
     private final JdbcTemplate jdbcTemplate;
 
     /**
+     * The schemas to clean.
+     */
+    private final String[] schemas;
+
+    /**
      * Creates a new database cleaner.
      *
      * @param transactionTemplate The transaction template to use.
      * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
      * @param dbSupport           Database-specific functionality.
+     * @param schemas             The schemas to clean.
      */
-    public DbCleaner(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+    public DbCleaner(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport, String[] schemas) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = jdbcTemplate;
         this.dbSupport = dbSupport;
+        this.schemas = schemas;
     }
 
     /**
-     * Cleans the schema of all objects.
+     * Cleans the schemas of all objects.
      *
      * @throws FlywayException when clean failed.
      */
     public void clean() throws FlywayException {
-        LOG.debug("Starting to drop all database objects ...");
+        for (String schema : schemas) {
+            cleanSchema(schema);
+        }
+    }
+
+    /**
+     * Cleans this schema of all objects.
+     *
+     * @param schema The schema to clean.
+     *
+     * @throws FlywayException when clean failed.
+     */
+    private void cleanSchema(String schema) {
+        LOG.debug("Starting to drop all database objects in schema '" + schema + "' ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        final SqlScript cleanScript = dbSupport.createCleanScript();
+        final SqlScript cleanScript = dbSupport.createCleanScript(schema);
         try {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
@@ -83,10 +103,10 @@ public class DbCleaner {
                 }
             });
         } catch (TransactionException e) {
-            throw new FlywayException("Clean failed!", e);
+            throw new FlywayException("Clean failed! Schema: " + schema, e);
         }
         stopWatch.stop();
         LOG.info(String.format("Cleaned database schema '%s' (execution time %s)",
-                dbSupport.getCurrentSchema(), TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 }

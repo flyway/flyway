@@ -52,8 +52,6 @@ public class SqlScript {
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     *
-     * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     public SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         this.sqlStatements = parse(sqlScriptSource, placeholderReplacer);

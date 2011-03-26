@@ -35,11 +35,13 @@ public interface DbSupport {
     SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer);
 
     /**
-     * Creates a new sql script which clean the current schema, by dropping all objects.
+     * Creates a new sql script which clean this schema, by dropping all objects.
+     *
+     * @param schema The schema to clean.
      *
      * @return A new sql script, containing drop statements for all objects
      */
-    SqlScript createCleanScript();
+    SqlScript createCleanScript(String schema);
 
     /**
      * Returns the location on the classpath where the scripts for this database reside.

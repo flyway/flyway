@@ -131,27 +131,26 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createCleanScript() {
+    public SqlScript createCleanScript(String schema) {
         final List<String> allDropStatements = new ArrayList<String>();
         allDropStatements.add("PURGE RECYCLEBIN");
-        allDropStatements.addAll(generateDropStatementsForSpatialExtensions());
-        allDropStatements.addAll(generateDropStatementsForObjectType("SEQUENCE", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType("FUNCTION", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType("MATERIALIZED VIEW", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType("PACKAGE", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType("PROCEDURE", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType("SYNONYM", ""));
-        allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS"));
-        allDropStatements.addAll(generateDropStatementsForObjectType("TABLE", "CASCADE CONSTRAINTS PURGE"));
-        allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", ""));
+        allDropStatements.addAll(generateDropStatementsForSpatialExtensions(schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("SEQUENCE", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("FUNCTION", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("MATERIALIZED VIEW", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("PACKAGE", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("PROCEDURE", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("SYNONYM", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("TABLE", "CASCADE CONSTRAINTS PURGE", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", "", schema));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int count = 0;
+        int lineNumber = 1;
         for (String dropStatement : allDropStatements) {
-            count++;
-            sqlStatements.add(new SqlStatement(count, dropStatement));
+            sqlStatements.add(new SqlStatement(lineNumber, dropStatement));
+            lineNumber++;
         }
-
         return new SqlScript(sqlStatements);
     }
 
@@ -160,21 +159,23 @@ public class OracleDbSupport implements DbSupport {
      *
      * @param objectType     The type of database object to drop.
      * @param extraArguments The extra arguments to add to the drop statement.
+     * @param schema The schema for which to generate the statements.
      * @return The complete drop statements, ready to execute.
      */
     @SuppressWarnings({"unchecked"})
-    private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments) {
-        String query = "SELECT object_type, object_name FROM user_objects WHERE object_type = ?"
+    private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments, final String schema) {
+        String query = "SELECT object_type, object_name FROM all_objects WHERE object_type = ? AND owner = ?"
                 // Ignore Recycle bin objects
-                + " and object_name not like 'BIN$%'"
+                + " AND object_name NOT LIKE 'BIN$%'"
                 // Ignore Spatial Index Tables and Sequences as they get dropped automatically when the index gets dropped.
-                + " and object_name not like 'MDRT_%$' and object_name not like 'MDRS_%$'";
+                + " AND object_name NOT LIKE 'MDRT_%$' AND object_name NOT LIKE 'MDRS_%$'";
 
         return jdbcTemplate.query(query,
-                new Object[]{objectType}, new RowMapper() {
+                new Object[]{objectType, schema}, new RowMapper() {
                     @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return "DROP " + rs.getString("OBJECT_TYPE") + " \"" + rs.getString("OBJECT_NAME") + "\" " + extraArguments;
+                        return "DROP " + rs.getString("OBJECT_TYPE")
+                                + " \"" + schema + "\".\"" + rs.getString("OBJECT_NAME") + "\" " + extraArguments;
                     }
                 });
     }
@@ -182,9 +183,10 @@ public class OracleDbSupport implements DbSupport {
     /**
      * Generates the drop statements for Oracle Spatial Extensions-related database objects.
      *
+     * @param schema The schema for which to generate the statements.
      * @return The complete drop statements, ready to execute.
      */
-    private List<String> generateDropStatementsForSpatialExtensions() {
+    private List<String> generateDropStatementsForSpatialExtensions(String schema) {
         List<String> statements = new ArrayList<String>();
 
         if (spatialExtensionsAvailable()) {
@@ -193,7 +195,7 @@ public class OracleDbSupport implements DbSupport {
             @SuppressWarnings({"unchecked"})
             List<String> indexNames = jdbcTemplate.queryForList("select INDEX_NAME from USER_SDO_INDEX_INFO", String.class);
             for (String indexName : indexNames) {
-                statements.add("DROP INDEX " + indexName);
+                statements.add("DROP INDEX \"" + indexName + "\"");
             }
         } else {
             LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");

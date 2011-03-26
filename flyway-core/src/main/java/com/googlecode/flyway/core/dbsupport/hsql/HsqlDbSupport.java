@@ -142,26 +142,26 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createCleanScript() {
-        final List<String> tables = new ArrayList<String>();
+    public SqlScript createCleanScript(final String schema) {
+        final List<String> statements = new ArrayList<String>();
 
         jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(),
+                ResultSet resultSet = connection.getMetaData().getTables(null, schema,
                         null, new String[] {"TABLE"});
                 while (resultSet.next()) {
-                    tables.add(resultSet.getString("TABLE_NAME"));
+                    statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
                 }
                 return null;
             }
         });
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int count = 0;
-        for (String table : tables) {
-            count++;
-            sqlStatements.add(new SqlStatement(count, "DROP TABLE \"" + table + "\" CASCADE"));
+        int lineNumber = 1;
+        for (String statement : statements) {
+            sqlStatements.add(new SqlStatement(lineNumber, statement));
+            lineNumber++;
         }
         return new SqlScript(sqlStatements);
     }

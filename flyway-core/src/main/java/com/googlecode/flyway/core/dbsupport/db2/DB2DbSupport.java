@@ -54,32 +54,27 @@ public class DB2DbSupport implements DbSupport {
         return new DB2SqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#createCleanScript()
-     */
     @Override
-    public SqlScript createCleanScript() {
+    public SqlScript createCleanScript(String schema) {
         // TODO PROCEDURES and FUNCTIONS
         final List<String> allDropStatements = new ArrayList<String>();
 
-        String currentSchema = getCurrentSchema();
-
         // views
-        String dropViewsGenQuery = "select rtrim(VIEWNAME) from SYSCAT.VIEWS where VIEWSCHEMA = '" + currentSchema
+        String dropViewsGenQuery = "select rtrim(VIEWNAME) from SYSCAT.VIEWS where VIEWSCHEMA = '" + schema
                 + "'";
-        List<String> dropViewsStatements = buildDropStatements("drop view", dropViewsGenQuery);
+        List<String> dropViewsStatements = buildDropStatements("drop view", dropViewsGenQuery, schema);
         allDropStatements.addAll(dropViewsStatements);
 
         // tables
-        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = '" + currentSchema
+        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = '" + schema
                 + "'";
-        List<String> dropTableStatements = buildDropStatements("drop table", dropTablesGenQuery);
+        List<String> dropTableStatements = buildDropStatements("drop table", dropTablesGenQuery, schema);
         allDropStatements.addAll(dropTableStatements);
 
         // sequences
-        String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + currentSchema
+        String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + schema
                 + "' and SEQTYPE='S'";
-        List<String> dropSeqStatements = buildDropStatements("drop sequence", dropSeqGenQuery);
+        List<String> dropSeqStatements = buildDropStatements("drop sequence", dropSeqGenQuery, schema);
         allDropStatements.addAll(dropSeqStatements);
 
         // indices in DB2 are deleted, if the corresponding table is dropped
@@ -95,19 +90,20 @@ public class DB2DbSupport implements DbSupport {
     }
 
     /**
-     * Builds the drop statements for database objects.
+     * Builds the drop statements for database objects in this schema.
      *
      * @param dropPrefix The drop command for the database object (e.g. 'drop table').
      * @param query      The query to get all present database objects
+     * @param schema     The schema for which to build the statements.
      * @return The statements.
      */
-    private List<String> buildDropStatements(final String dropPrefix, final String query) {
+    private List<String> buildDropStatements(final String dropPrefix, final String query, String schema) {
         List<String> dropStatements = new ArrayList<String>();
         @SuppressWarnings("unchecked")
         List<String> dbObjects = jdbcTemplate.queryForList(query, String.class);
         for (String dbObject : dbObjects) {
             // DB2 needs double quotes
-            dropStatements.add(dropPrefix + " \"" + getCurrentSchema() + "\".\"" + dbObject + "\"");
+            dropStatements.add(dropPrefix + " \"" + schema + "\".\"" + dbObject + "\"");
         }
         return dropStatements;
     }

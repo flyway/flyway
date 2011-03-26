@@ -593,12 +593,12 @@ public class Flyway {
     }
 
     /**
-     * Drops all objects (tables, views, procedures, triggers, ...) in the current schema.
+     * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
      */
     public void clean() {
         assertDataSourceConfigured();
 
-        new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport).clean();
+        new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport, schemas).clean();
     }
 
     /**

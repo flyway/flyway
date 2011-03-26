@@ -124,17 +124,17 @@ public class PostgreSQLDbSupport implements DbSupport {
     }
 
     @Override
-    public SqlScript createCleanScript() {
+    public SqlScript createCleanScript(String schema) {
         final List<String> allDropStatements = new ArrayList<String>();
-        allDropStatements.addAll(generateDropStatementsForTables());
-        allDropStatements.addAll(generateDropStatementsForSequences());
-        allDropStatements.addAll(generateDropStatementsForRoutines());
+        allDropStatements.addAll(generateDropStatementsForTables(schema));
+        allDropStatements.addAll(generateDropStatementsForSequences(schema));
+        allDropStatements.addAll(generateDropStatementsForRoutines(schema));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int count = 0;
+        int lineNumber = 1;
         for (String dropStatement : allDropStatements) {
-            count++;
-            sqlStatements.add(new SqlStatement(count, dropStatement));
+            sqlStatements.add(new SqlStatement(lineNumber, dropStatement));
+            lineNumber++;
         }
 
         return new SqlScript(sqlStatements);
@@ -143,18 +143,19 @@ public class PostgreSQLDbSupport implements DbSupport {
     /**
      * Generates the statements for dropping the tables in this schema.
      *
+     * @param schema The schema for which to generate the statements.
      * @return The drop statements.
      */
-    private List<String> generateDropStatementsForTables() {
+    private List<String> generateDropStatementsForTables(String schema) {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name FROM information_schema.tables WHERE " +
-                                "table_schema=current_schema() AND table_type='BASE TABLE'");
+                                "table_schema=? AND table_type='BASE TABLE'", new String[] {schema});
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : tableNames) {
             String tableName = row.get("table_name");
-            statements.add("DROP TABLE IF EXISTS \"" + tableName + "\" CASCADE");
+            statements.add("DROP TABLE \"" + schema + "\".\"" + tableName + "\" CASCADE");
         }
         return statements;
     }
@@ -162,17 +163,18 @@ public class PostgreSQLDbSupport implements DbSupport {
     /**
      * Generates the statements for dropping the sequences in this schema.
      *
+     * @param schema The schema for which to generate the statements.
      * @return The drop statements.
      */
-    private List<String> generateDropStatementsForSequences() {
+    private List<String> generateDropStatementsForSequences(String schema) {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> sequenceNames =
                 jdbcTemplate.queryForList(
-                        "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema=current_schema()");
+                        "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema=?", new String[] {schema});
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : sequenceNames) {
             String sequenceName = row.get("sequence_name");
-            statements.add("DROP SEQUENCE IF EXISTS \"" + sequenceName + "\"");
+            statements.add("DROP SEQUENCE IF EXISTS \"" + schema + "\".\"" + sequenceName + "\"");
         }
 
         return statements;
@@ -181,17 +183,18 @@ public class PostgreSQLDbSupport implements DbSupport {
     /**
      * Generates the statements for dropping the routines in this schema.
      *
+     * @param schema The schema for which to generate the statements.
      * @return The drop statements.
      */
-    private List<String> generateDropStatementsForRoutines() {
+    private List<String> generateDropStatementsForRoutines(String schema) {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
-                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = current_schema()");
+                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = ?", new String[] {schema});
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {
-            statements.add("DROP FUNCTION \"" + row.get("proname") + "\"(" + row.get("args") + ")");
+            statements.add("DROP FUNCTION \"" + schema + "\".\"" + row.get("proname") + "\"(" + row.get("args") + ")");
         }
         return statements;
     }
