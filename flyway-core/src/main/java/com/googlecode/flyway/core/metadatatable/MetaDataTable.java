@@ -109,7 +109,8 @@ public class MetaDataTable {
         final String createMetaDataTableScriptSource = ResourceUtils.loadResourceAsString(location);
 
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("tableName", table);
+        placeholders.put("schema", schema);
+        placeholders.put("table", table);
         final PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -120,7 +121,7 @@ public class MetaDataTable {
             }
         });
 
-        LOG.info("Metadata table created: " + table);
+        LOG.info("Metadata table created: " + table + " (Schema: " + schema + ")");
     }
 
     /**
@@ -136,7 +137,7 @@ public class MetaDataTable {
      * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
      */
     public void lock() {
-        dbSupport.lockTable(table);
+        dbSupport.lockTable(schema, table);
     }
 
     /**
@@ -145,7 +146,7 @@ public class MetaDataTable {
      * @param metaDataTableRow The metaDataTableRow to add.
      */
     public void insert(final MetaDataTableRow metaDataTableRow) {
-        jdbcTemplate.update("UPDATE " + table + " SET current_version=" + dbSupport.getBooleanFalse());
+        jdbcTemplate.update("UPDATE " + schema + "." + table + " SET current_version=" + dbSupport.getBooleanFalse());
         final String version = metaDataTableRow.getVersion().toString();
         final String description = metaDataTableRow.getDescription();
         final String state = metaDataTableRow.getState().name();
@@ -153,7 +154,7 @@ public class MetaDataTable {
         final Integer checksum = metaDataTableRow.getChecksum();
         final String scriptName = metaDataTableRow.getScript();
         final Integer executionTime = metaDataTableRow.getExecutionTime();
-        jdbcTemplate.update("INSERT INTO " + table
+        jdbcTemplate.update("INSERT INTO " + schema + "." + table
                 + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
                 + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
                 + dbSupport.getBooleanTrue() + ")",
@@ -171,7 +172,7 @@ public class MetaDataTable {
             return false;
         }
 
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + schema + "." + table) > 0;
     }
 
     /**
@@ -219,7 +220,7 @@ public class MetaDataTable {
      * @return The select statement for reading the metadata table.
      */
     private String getSelectStatement() {
-        return "select VERSION, DESCRIPTION, TYPE, SCRIPT, CHECKSUM, INSTALLED_ON, EXECUTION_TIME, STATE from " + table;
+        return "select VERSION, DESCRIPTION, TYPE, SCRIPT, CHECKSUM, INSTALLED_ON, EXECUTION_TIME, STATE from " + schema + "." + table;
     }
 
     /**

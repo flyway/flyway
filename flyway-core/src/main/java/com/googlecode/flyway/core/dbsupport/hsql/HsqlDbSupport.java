@@ -82,11 +82,11 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean isSchemaEmpty() {
+    public boolean isSchemaEmpty(final String schema) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
             @Override
             public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, getCurrentSchema(), null, null);
+                ResultSet resultSet = connection.getMetaData().getTables(null, schema, null, null);
                 return !resultSet.next();
             }
         });
@@ -105,24 +105,12 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean columnExists(final String table, final String column) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
-                        table.toUpperCase(), column.toUpperCase());
-                return resultSet.next();
-            }
-        });
-    }
-
-    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
     @Override
-    public void lockTable(String table) {
+    public void lockTable(String schema, String table) {
         //Locking is not supported by Hsql
     }
 

@@ -27,9 +27,7 @@ public interface DbSupport {
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     *
      * @return A new sql script, containing the statements from this resource, with all placeholders replaced.
-     *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer);
@@ -38,7 +36,6 @@ public interface DbSupport {
      * Creates a new sql script which clean this schema, by dropping all objects.
      *
      * @param schema The schema to clean.
-     *
      * @return A new sql script, containing drop statements for all objects
      */
     SqlScript createCleanScript(String schema);
@@ -51,31 +48,21 @@ public interface DbSupport {
     String getScriptLocation();
 
     /**
-     * Checks if the current database schema is empty.
+     * Checks if this database schema is empty.
      *
+     * @param schema The schema to check.
      * @return {@code true} if it is empty, {@code false} if it is not.
      */
-    boolean isSchemaEmpty();
+    boolean isSchemaEmpty(String schema);
 
     /**
      * Checks whether this table is already present in the database.
      *
      * @param schema The schema in which to look.
-     * @param table The table to look for.
-     *
+     * @param table  The table to look for.
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
     boolean tableExists(String schema, String table);
-
-    /**
-     * Checks whether this column is already present in this table in the database.
-     *
-     * @param table  The table to look for.
-     * @param column The column to look for.
-     *
-     * @return {@code true} if the table exists, {@code false} if it doesn't.
-     */
-    boolean columnExists(String table, String column);
 
     /**
      * Retrieves the current schema.
@@ -97,11 +84,12 @@ public interface DbSupport {
     boolean supportsDdlTransactions();
 
     /**
-     * Locks this table using a read/write pessimistic lock until the end of the current transaction.
+     * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
      *
-     * @param table The table to lock.
+     * @param schema The schema of the table to lock.
+     * @param table  The table to lock.
      */
-    void lockTable(String table);
+    void lockTable(String schema, String table);
 
     /**
      * @return The representation of the value {@code true} in a boolean column.

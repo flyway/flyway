@@ -83,9 +83,9 @@ public class H2DbSupport implements DbSupport {
     }
 
     @Override
-    public boolean isSchemaEmpty() {
+    public boolean isSchemaEmpty(String schema) {
         @SuppressWarnings({"unchecked"})
-        List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + getCurrentSchema());
+        List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + schema);
         return tables.isEmpty();
     }
 
@@ -102,25 +102,13 @@ public class H2DbSupport implements DbSupport {
     }
 
     @Override
-    public boolean columnExists(final String table, final String column) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
-                        table.toUpperCase(), column.toUpperCase());
-                return resultSet.next();
-            }
-        });
-    }
-
-    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
     @Override
-    public void lockTable(String table) {
-        jdbcTemplate.execute("select * from " + table + " for update");
+    public void lockTable(String schema, String table) {
+        jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
     @Override

@@ -64,7 +64,7 @@ public class SQLServerDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean isSchemaEmpty() {
+    public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
                 "( " +
                 "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLES " +
@@ -74,7 +74,7 @@ public class SQLServerDbSupport implements DbSupport {
                 "Select CONSTRAINT_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLE_CONSTRAINTS " +
                 "Union " +
                 "Select ROUTINE_NAME as OBJECT_NAME, ROUTINE_SCHEMA as OBJECT_SCHEMA from information_schema.ROUTINES " +
-                ") R ");
+                ") R where OBJECT_SCHEMA = ?", new String[] {schema});
         return objectCount == 0;
     }
 
@@ -90,25 +90,13 @@ public class SQLServerDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean columnExists(final String table, final String column) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
-                        table, column);
-                return resultSet.next();
-            }
-        });
-    }
-
-    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
     @Override
-    public void lockTable(String table) {
-        jdbcTemplate.execute("select * from " + table + " WITH (TABLOCKX)");
+    public void lockTable(String schema, String table) {
+        jdbcTemplate.execute("select * from " + schema + "." + table + " WITH (TABLOCKX)");
     }
 
     @Override

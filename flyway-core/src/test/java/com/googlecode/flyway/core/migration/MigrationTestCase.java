@@ -266,15 +266,6 @@ public abstract class MigrationTestCase {
         assertTrue(dbSupport.tableExists(dbSupport.getCurrentSchema(), "SCHEMA_VERSION"));
     }
 
-    @Test
-    public void columnExists() throws Exception {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
-
-        flyway.init();
-        assertTrue(getDbSupport(jdbcTemplate).columnExists("SCHEMA_VERSION", "DESCRIPTION"));
-        assertFalse(getDbSupport(jdbcTemplate).columnExists("SCHEMA_VERSION", "INVALID"));
-    }
-
     /**
      * Check if meta table has no current migration (manually edited).
      */
@@ -313,16 +304,19 @@ public abstract class MigrationTestCase {
 
     @Test
     public void isSchemaEmpty() {
-        assertTrue(getDbSupport(jdbcTemplate).isSchemaEmpty());
+        DbSupport dbSupport = getDbSupport(jdbcTemplate);
+        String schema = dbSupport.getCurrentSchema();
+
+        assertTrue(dbSupport.isSchemaEmpty(schema));
 
         flyway.setBaseDir(BASEDIR);
         flyway.migrate();
 
-        assertFalse(getDbSupport(jdbcTemplate).isSchemaEmpty());
+        assertFalse(dbSupport.isSchemaEmpty(schema));
 
         flyway.clean();
 
-        assertTrue(getDbSupport(jdbcTemplate).isSchemaEmpty());
+        assertTrue(dbSupport.isSchemaEmpty(schema));
     }
 
     @Test(expected = FlywayException.class)

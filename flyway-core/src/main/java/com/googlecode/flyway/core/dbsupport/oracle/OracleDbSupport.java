@@ -76,8 +76,8 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean isSchemaEmpty() {
-        int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
+    public boolean isSchemaEmpty(String schema) {
+        int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", new Object[]{schema});
         return objectCount == 0;
     }
 
@@ -94,25 +94,13 @@ public class OracleDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean columnExists(final String table, final String column) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
-                        table.toUpperCase(), column.toUpperCase());
-                return resultSet.next();
-            }
-        });
-    }
-
-    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
     @Override
-    public void lockTable(String table) {
-        jdbcTemplate.execute("select * from " + table + " for update");
+    public void lockTable(String schema, String table) {
+        jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
     @Override
@@ -159,7 +147,7 @@ public class OracleDbSupport implements DbSupport {
      *
      * @param objectType     The type of database object to drop.
      * @param extraArguments The extra arguments to add to the drop statement.
-     * @param schema The schema for which to generate the statements.
+     * @param schema         The schema for which to generate the statements.
      * @return The complete drop statements, ready to execute.
      */
     @SuppressWarnings({"unchecked"})
@@ -189,16 +177,26 @@ public class OracleDbSupport implements DbSupport {
     private List<String> generateDropStatementsForSpatialExtensions(String schema) {
         List<String> statements = new ArrayList<String>();
 
-        if (spatialExtensionsAvailable()) {
-            statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
-
-            @SuppressWarnings({"unchecked"})
-            List<String> indexNames = jdbcTemplate.queryForList("select INDEX_NAME from USER_SDO_INDEX_INFO", String.class);
-            for (String indexName : indexNames) {
-                statements.add("DROP INDEX \"" + indexName + "\"");
-            }
-        } else {
+        if (!spatialExtensionsAvailable()) {
             LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
+            return statements;
+        }
+        if (!getCurrentSchema().equalsIgnoreCase(schema)) {
+            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", new Object[] {schema});
+            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", new Object[] {schema});
+            if (count > 0) {
+                LOG.warn("Unable to clean Oracle Spatial objects for schema '" + schema + "' as they do not belong to the default schema for this connection!");
+            }
+            return statements;
+        }
+
+
+        statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
+
+        @SuppressWarnings({"unchecked"})
+        List<String> indexNames = jdbcTemplate.queryForList("select INDEX_NAME from USER_SDO_INDEX_INFO", String.class);
+        for (String indexName : indexNames) {
+            statements.add("DROP INDEX \"" + indexName + "\"");
         }
 
         return statements;

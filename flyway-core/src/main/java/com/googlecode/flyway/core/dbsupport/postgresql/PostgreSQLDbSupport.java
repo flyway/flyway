@@ -68,9 +68,10 @@ public class PostgreSQLDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean isSchemaEmpty() {
+    public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate.queryForInt(
-                "SELECT count(*) FROM information_schema.tables WHERE table_schema=current_schema() AND table_type='BASE TABLE'");
+                "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
+                new String[] {schema});
         return objectCount == 0;
     }
 
@@ -87,25 +88,13 @@ public class PostgreSQLDbSupport implements DbSupport {
     }
 
     @Override
-    public boolean columnExists(final String table, final String column) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getColumns(getCurrentSchema(), DEFAULT_SCHEMA_PATTERN,
-                        table.toLowerCase(), column.toLowerCase());
-                return resultSet.next();
-            }
-        });
-    }
-
-    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
     @Override
-    public void lockTable(String table) {
-        jdbcTemplate.execute("select * from " + table + " for update");
+    public void lockTable(String schema, String table) {
+        jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
     @Override

@@ -116,17 +116,14 @@ public class DB2DbSupport implements DbSupport {
         return "com/googlecode/flyway/core/dbsupport/db2/";
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#isSchemaEmpty()
-     */
     @Override
-    public boolean isSchemaEmpty() {
+    public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate
-                .queryForInt("select count(*) from syscat.tables where tabschema = CURRENT_SCHEMA");
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = CURRENT_SCHEMA");
+                .queryForInt("select count(*) from syscat.tables where tabschema = ?", new String[] {schema});
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", new String[] {schema});
         objectCount += jdbcTemplate
-                .queryForInt("select count(*) from syscat.sequences where seqschema = CURRENT_SCHEMA");
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = CURRENT_SCHEMA");
+                .queryForInt("select count(*) from syscat.sequences where seqschema = ?", new String[] {schema});
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", new String[] {schema});
         return objectCount == 0;
     }
 
@@ -142,24 +139,6 @@ public class DB2DbSupport implements DbSupport {
         });
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#columnExists(java.lang.String, java.lang.String)
-     */
-    @Override
-    public boolean columnExists(final String table, final String column) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getColumns(null, getCurrentSchema(),
-                        table.toUpperCase(), column.toUpperCase());
-                return resultSet.next();
-            }
-        });
-    }
-
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#getCurrentSchema()
-     */
     @Override
     public String getCurrentSchema() {
         return ((String) jdbcTemplate.queryForObject("select current_schema from sysibm.sysdummy1", String.class))
@@ -182,12 +161,9 @@ public class DB2DbSupport implements DbSupport {
         return true;
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#lockTable(java.lang.String)
-     */
     @Override
-    public void lockTable(String table) {
-        jdbcTemplate.execute("lock table " + table + " in exclusive mode");
+    public void lockTable(String schema, String table) {
+        jdbcTemplate.execute("lock table " + schema + "." + table + " in exclusive mode");
     }
 
     /**

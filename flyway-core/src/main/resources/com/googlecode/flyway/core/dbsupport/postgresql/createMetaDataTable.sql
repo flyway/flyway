@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE TABLE ${tableName} (
+CREATE TABLE ${schema}.${table} (
     "version" VARCHAR(20) NOT NULL,
     description VARCHAR(100),
     "type" VARCHAR(10) NOT NULL,
@@ -25,9 +25,9 @@ CREATE TABLE ${tableName} (
     execution_time INTEGER,
     state VARCHAR(15) NOT NULL,
     current_version BOOLEAN NOT NULL,
-    CONSTRAINT ${tableName}_primary_key PRIMARY KEY (version),
-    CONSTRAINT ${tableName}_script_unique UNIQUE (script)
+    CONSTRAINT ${table}_primary_key PRIMARY KEY (version),
+    CONSTRAINT ${table}_script_unique UNIQUE (script)
 ) WITH (
   OIDS=FALSE
 );
-CREATE INDEX ${tableName}_current_version_index ON ${tableName} (current_version);
+CREATE INDEX ${table}_current_version_index ON ${schema}.${table} (current_version);

@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE TABLE ${tableName} (
+CREATE TABLE ${schema}.${table} (
     version VARCHAR(20) NOT NULL UNIQUE,
     description VARCHAR(100),
     type VARCHAR(10) NOT NULL,
@@ -27,4 +27,4 @@ CREATE TABLE ${tableName} (
     current_version BOOL NOT NULL,
     PRIMARY KEY(version)
 ) ENGINE=InnoDB;
-ALTER TABLE ${tableName} ADD INDEX ${tableName}_current_version_index (current_version);
+ALTER TABLE ${schema}.${table} ADD INDEX ${table}_current_version_index (current_version);

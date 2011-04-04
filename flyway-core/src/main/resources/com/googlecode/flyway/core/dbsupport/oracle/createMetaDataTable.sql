@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE TABLE ${tableName} (
+CREATE TABLE ${schema}.${table} (
     version VARCHAR2(20) NOT NULL PRIMARY KEY,
     description VARCHAR2(100),
     type VARCHAR2(10) NOT NULL,
@@ -26,4 +26,4 @@ CREATE TABLE ${tableName} (
     state VARCHAR2(15) NOT NULL,
     current_version NUMBER(1) NOT NULL
 );
-CREATE INDEX ${tableName}_cv_idx ON ${tableName} (current_version);
+CREATE INDEX ${schema}.${table}_cv_idx ON ${schema}.${table} (current_version);

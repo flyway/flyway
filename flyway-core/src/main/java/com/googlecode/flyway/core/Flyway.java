@@ -574,8 +574,13 @@ public class Flyway {
         List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
 
         MetaDataTable metaDataTable = createMetaDataTable();
-        if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !dbSupport.isSchemaEmpty() && !disableInitCheck) {
-            throw new ValidationException("Found non-empty schema without metadata table! Use init() first to initialize the metadata table.");
+        if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !disableInitCheck) {
+            for (String schema : schemas) {
+                if (!dbSupport.isSchemaEmpty(schema)) {
+                    throw new ValidationException("Found non-empty schema '" + schema
+                            + "' without metadata table! Use init() first to initialize the metadata table.");
+                }
+            }
         }
 
         DbValidator dbValidator = new DbValidator(validationMode, metaDataTable);
