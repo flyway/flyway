@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 public class OracleSqlScriptSmallTest {
     @Test
     public void parseSqlStatements() throws Exception {
-        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/oracle/sql/placeholders/V1.sql").getInputStream(), Charset.forName("UTF-8")));
+        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1.sql").getInputStream(), Charset.forName("UTF-8")));
 
         OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
@@ -47,7 +47,7 @@ public class OracleSqlScriptSmallTest {
 
     @Test
     public void parseFunctionsAndProcedures() throws Exception {
-        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/oracle/sql/function/V1__Function.sql").getInputStream(), Charset.forName("UTF-8")));
+        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql").getInputStream(), Charset.forName("UTF-8")));
 
         OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();

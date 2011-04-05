@@ -21,7 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * Test to demonstrate the migration functionality using SQL Server.
  */
-@ContextConfiguration(locations = { "classpath:migration/sqlserver/sqlserver-context.xml" })
+@ContextConfiguration(locations = { "classpath:migration/dbsupport/sqlserver/sqlserver-context.xml" })
 public class SQLServerConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
 	@Override
 	protected String getBaseDir() {

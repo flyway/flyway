@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test to demonstrate the migration functionality using H2.
  */
-@ContextConfiguration(locations = {"classpath:migration/h2/h2-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/h2/h2-context.xml"})
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
     public void setUp() {
@@ -50,7 +50,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void dollarQuotedString() {
-        flyway.setBaseDir("migration/h2/sql/dollar_quoted_string");
+        flyway.setBaseDir("migration/dbsupport/h2/sql/dollar_quoted_string");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -63,7 +63,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void sequence() {
-        flyway.setBaseDir("migration/h2/sql/sequence");
+        flyway.setBaseDir("migration/dbsupport/h2/sql/sequence");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -79,7 +79,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void domain() {
-        flyway.setBaseDir("migration/h2/sql/domain");
+        flyway.setBaseDir("migration/dbsupport/h2/sql/domain");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();

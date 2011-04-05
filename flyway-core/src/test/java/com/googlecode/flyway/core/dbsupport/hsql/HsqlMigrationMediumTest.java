@@ -24,7 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * Test to demonstrate the migration functionality using Hsql.
  */
-@ContextConfiguration(locations = {"classpath:migration/hsql/hsql-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/hsql/hsql-context.xml"})
 public class HsqlMigrationMediumTest extends MigrationTestCase {
     @Override
     public void setUp() {

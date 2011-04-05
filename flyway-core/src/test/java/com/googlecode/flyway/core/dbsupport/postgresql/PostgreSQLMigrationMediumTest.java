@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using PostgreSQL.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/postgresql/postgresql-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/postgresql/postgresql-context.xml"})
 public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
@@ -45,7 +45,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void storedProcedure() throws Exception {
-        flyway.setBaseDir("migration/postgresql/sql/procedure");
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/procedure");
         flyway.migrate();
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
@@ -63,7 +63,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void trigger() throws Exception {
-        flyway.setBaseDir("migration/postgresql/sql/trigger");
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/trigger");
         flyway.migrate();
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
@@ -82,7 +82,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void view() throws Exception {
-        flyway.setBaseDir("migration/postgresql/sql/view");
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/view");
         flyway.migrate();
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);

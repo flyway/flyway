@@ -28,11 +28,11 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using Mysql.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/mysql/mysql-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/mysql/mysql-context.xml"})
 public class MySQLMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
-        return "migration/mysql/sql/quote";
+        return "migration/dbsupport/mysql/sql/quote";
     }
 
     @Override
@@ -45,7 +45,7 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void storedProcedure() throws Exception {
-        flyway.setBaseDir("migration/mysql/sql/procedure");
+        flyway.setBaseDir("migration/dbsupport/mysql/sql/procedure");
         flyway.migrate();
 
         assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
@@ -61,7 +61,7 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void trigger() throws Exception {
-        flyway.setBaseDir("migration/mysql/sql/trigger");
+        flyway.setBaseDir("migration/dbsupport/mysql/sql/trigger");
         flyway.migrate();
 
         assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
@@ -77,7 +77,7 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void view() throws Exception {
-        flyway.setBaseDir("migration/mysql/sql/view");
+        flyway.setBaseDir("migration/dbsupport/mysql/sql/view");
         flyway.migrate();
 
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
@@ -93,7 +93,7 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void dump() throws Exception {
-        flyway.setBaseDir("migration/mysql/sql/dump");
+        flyway.setBaseDir("migration/dbsupport/mysql/sql/dump");
         flyway.migrate();
 
         assertEquals(0, jdbcTemplate.queryForInt("SELECT count(id) FROM user_account"));
@@ -109,7 +109,7 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void upperCase() throws Exception {
-        flyway.setBaseDir("migration/mysql/sql/uppercase");
+        flyway.setBaseDir("migration/dbsupport/mysql/sql/uppercase");
         flyway.migrate();
 
         assertEquals(0, jdbcTemplate.queryForInt("SELECT count(*) FROM A1"));

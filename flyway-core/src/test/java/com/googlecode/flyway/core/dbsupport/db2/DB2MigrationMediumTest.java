@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test to demonstrate the migration functionality using DB2.
  */
-@ContextConfiguration(locations = {"classpath:migration/db2/db2-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/db2/db2-context.xml"})
 public class DB2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
@@ -42,7 +42,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void sequence() {
-        flyway.setBaseDir("migration/db2/sql/sequence");
+        flyway.setBaseDir("migration/dbsupport/db2/sql/sequence");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();

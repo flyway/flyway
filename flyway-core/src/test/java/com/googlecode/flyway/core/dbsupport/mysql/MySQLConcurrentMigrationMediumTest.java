@@ -21,7 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * Test to demonstrate the migration functionality using MySQL.
  */
-@ContextConfiguration(locations = {"classpath:migration/mysql/mysql-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/mysql/mysql-context.xml"})
 public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected String getBaseDir() {

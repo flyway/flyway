@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
  * Test to demonstrate the migration functionality using Mysql.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/oracle/oracle-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/oracle/oracle-context.xml"})
 public class OracleMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
@@ -59,7 +59,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("tableName", "test_user");
         flyway.setPlaceholders(placeholders);
-        flyway.setBaseDir("migration/oracle/sql/placeholders");
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/placeholders");
 
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -87,7 +87,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     public void cleanSpatialExtensions() throws FlywayException {
         assertEquals(0, objectsCount());
 
-        flyway.setBaseDir("migration/oracle/sql/spatial");
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/spatial");
         flyway.migrate();
         assertTrue(objectsCount() > 0);
 
@@ -104,7 +104,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void createPackage() throws FlywayException {
-        flyway.setBaseDir("migration/oracle/sql/package");
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/package");
         flyway.migrate();
     }
 

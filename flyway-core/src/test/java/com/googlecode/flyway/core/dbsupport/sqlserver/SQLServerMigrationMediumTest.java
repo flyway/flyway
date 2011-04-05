@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using SQL Server.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/sqlserver/sqlserver-context.xml"})
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/sqlserver/sqlserver-context.xml"})
 public class SQLServerMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
@@ -45,7 +45,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void storedProcedure() throws Exception {
-        flyway.setBaseDir("migration/sqlserver/sql/procedure");
+        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/procedure");
         flyway.migrate();
 
         assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
@@ -61,7 +61,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void trigger() throws Exception {
-        flyway.setBaseDir("migration/sqlserver/sql/trigger");
+        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/trigger");
         flyway.migrate();
 
         assertEquals(3, jdbcTemplate.queryForInt("SELECT priority FROM customers where name='MS Internet Explorer Team'"));
@@ -77,7 +77,7 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void view() throws Exception {
-        flyway.setBaseDir("migration/sqlserver/sql/view");
+        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/view");
         flyway.migrate();
 
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
