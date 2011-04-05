@@ -25,7 +25,7 @@ CREATE TABLE Sales (
  [Net Amount] int,
  Completed bit
 )
-GO
+go
 
 CREATE TRIGGER dbo.Update_Customer_Priority
   ON dbo.Sales
@@ -57,7 +57,7 @@ LEFT JOIN (
     Completed = 1
   group by Sales.CustomerId
 ) t ON t.CustomerId = c.CustomerId
-GO
+go
 
 insert into Customers select N'MS SQL Server Team', NULL
 insert into Customers select N'MS Windows Team', NULL

@@ -142,7 +142,7 @@ public class SqlScript {
                 }
             }
 
-            if ((delimiter != null) && line.endsWith(delimiter)) {
+            if ((delimiter != null) && line.toUpperCase().endsWith(delimiter.toUpperCase())) {
                 String noDelimiterStatementSql = stripDelimiter(statementSql, delimiter);
                 statements.add(new SqlStatement(statementLineNumber, noDelimiterStatementSql));
                 LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);

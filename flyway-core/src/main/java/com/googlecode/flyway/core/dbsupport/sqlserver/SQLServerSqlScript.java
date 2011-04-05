@@ -39,16 +39,5 @@ public class SQLServerSqlScript extends SqlScript {
     @Override
     protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
         return DELIMITER;
-//        String upperCaseLine = line.toUpperCase();
-//        if (upperCaseLine.startsWith("CREATE")
-//                && (upperCaseLine.contains("FUNCTION") || upperCaseLine.contains("PROCEDURE")) || upperCaseLine.contains("TABLE") || upperCaseLine.contains("VIEW")) {
-//            return DELIMITER;
-//        }
-//
-//        if (upperCaseLine.matches("(ALTER|DROP)\\s*TABLE")) {
-//            return DELIMITER;
-//        }
-//
-//        return delimiter;
     }
 }
