@@ -14,4 +14,7 @@
 -- limitations under the License.
 --
 
-DROP USER test_ddl_user CASCADE;
+DROP USER flyway CASCADE;
+DROP USER flyway_1 CASCADE;
+DROP USER flyway_2 CASCADE;
+DROP USER flyway_3 CASCADE;

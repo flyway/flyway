@@ -14,19 +14,11 @@
 -- limitations under the License.
 --
 
-CREATE TABLE ${schema}.${table} (
-    version VARCHAR(20) NOT NULL,
-    description VARCHAR(100),
-    type VARCHAR(10) NOT NULL,
-    script VARCHAR(200) NOT NULL UNIQUE,
-    CONSTRAINT "${table}_script_unique" UNIQUE(script),
-    checksum BIGINT,
-    installed_by VARCHAR(30) NOT NULL,
-    installed_on TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,
-    execution_time INT,
-    state VARCHAR(15) NOT NULL,
-    current_version SMALLINT NOT NULL,
-    CONSTRAINT ${table}_currversion CHECK (current_version in(0,1)),
-    PRIMARY KEY (version)
-);
-CREATE INDEX ${schema}.${table}_cv_idx ON ${schema}.${table} (current_version);
+INSERT INTO flyway_1.test_user1 (name) VALUES ('Mr. T');
+INSERT INTO flyway_1.test_user1 (name) VALUES ('Mr. Semicolon;');
+
+INSERT INTO flyway_2.test_user2 (name) VALUES ('Mr. T');
+INSERT INTO flyway_2.test_user2 (name) VALUES ('Mr. Semicolon;');
+
+INSERT INTO flyway_3.test_user3 (name) VALUES ('Mr. T');
+INSERT INTO flyway_3.test_user3 (name) VALUES ('Mr. Semicolon;');

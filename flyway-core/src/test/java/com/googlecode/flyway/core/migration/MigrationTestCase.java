@@ -372,4 +372,27 @@ public abstract class MigrationTestCase {
         // Clean script must also be able to properly deal with these reserved keywords in table names.
         flyway.clean();
     }
+
+    @Test
+    public void migrateMultipleSchemas() throws Exception {
+        flyway.setSchemas("flyway_1", "flyway_2", "flyway_3");
+        flyway.clean();
+
+        flyway.setBaseDir("migration/multi");
+        flyway.migrate();
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("2.0", schemaVersion.toString());
+        assertEquals("Add foreign key", flyway.status().getDescription());
+        assertEquals(0, flyway.migrate());
+        
+        assertEquals(3, flyway.history().size());
+        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from flyway_1.schema_version"));
+
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from flyway_1.test_user1"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from flyway_2.test_user2"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from flyway_3.test_user3"));
+
+        flyway.clean();
+        flyway.migrate();
+    }
 }

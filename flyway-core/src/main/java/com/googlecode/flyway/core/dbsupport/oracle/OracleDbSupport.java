@@ -159,11 +159,11 @@ public class OracleDbSupport implements DbSupport {
                 + " AND object_name NOT LIKE 'MDRT_%$' AND object_name NOT LIKE 'MDRS_%$'";
 
         return jdbcTemplate.query(query,
-                new Object[]{objectType, schema}, new RowMapper() {
+                new Object[]{objectType, schema.toUpperCase()}, new RowMapper() {
                     @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                         return "DROP " + rs.getString("OBJECT_TYPE")
-                                + " \"" + schema + "\".\"" + rs.getString("OBJECT_NAME") + "\" " + extraArguments;
+                                + " " + schema + ".\"" + rs.getString("OBJECT_NAME") + "\" " + extraArguments;
                     }
                 });
     }
@@ -182,8 +182,8 @@ public class OracleDbSupport implements DbSupport {
             return statements;
         }
         if (!getCurrentSchema().equalsIgnoreCase(schema)) {
-            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", new Object[] {schema});
-            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", new Object[] {schema});
+            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", new Object[] {schema.toUpperCase()});
+            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", new Object[] {schema.toUpperCase()});
             if (count > 0) {
                 LOG.warn("Unable to clean Oracle Spatial objects for schema '" + schema + "' as they do not belong to the default schema for this connection!");
             }

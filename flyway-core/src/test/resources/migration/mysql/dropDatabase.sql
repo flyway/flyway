@@ -15,4 +15,7 @@
 --
 
 DROP DATABASE flyway_db;
+DROP DATABASE flyway_1;
+DROP DATABASE flyway_2;
+DROP DATABASE flyway_3;
 DROP USER 'flyway'@'localhost';

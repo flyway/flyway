@@ -14,12 +14,17 @@
 -- limitations under the License.
 --
 
-CREATE DATABASE flyway;
+CREATE TABLE flyway_1.test_user1 (
+  name VARCHAR(25) NOT NULL,  -- this is a valid comment
+  PRIMARY KEY(name)
+);
 
-CREATE SCHEMA flyway_1 AUTHORIZATION db2admin;
-CREATE SCHEMA flyway_2 AUTHORIZATION db2admin;
-CREATE SCHEMA flyway_3 AUTHORIZATION db2admin;
+CREATE TABLE flyway_2.test_user2 (
+  name VARCHAR(25) NOT NULL,  -- this is a valid comment
+  PRIMARY KEY(name)
+);
 
-grant ALTERIN,CREATEIN,DROPIN ON SCHEMA Flyway_1 To user db2admin;
-grant ALTERIN,CREATEIN,DROPIN ON SCHEMA Flyway_2 To user db2admin;
-grant ALTERIN,CREATEIN,DROPIN ON SCHEMA Flyway_3 To user db2admin;
+CREATE TABLE flyway_3.test_user3 (
+  name VARCHAR(25) NOT NULL,  -- this is a valid comment
+  PRIMARY KEY(name)
+);

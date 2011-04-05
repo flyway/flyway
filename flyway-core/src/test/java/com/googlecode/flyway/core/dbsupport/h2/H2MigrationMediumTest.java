@@ -30,6 +30,15 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(locations = {"classpath:migration/h2/h2-context.xml"})
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
+    public void setUp() {
+        super.setUp();
+
+        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS flyway_1");
+        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS flyway_2");
+        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS flyway_3");
+    }
+
+    @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
     }

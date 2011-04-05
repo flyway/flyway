@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -25,6 +26,23 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @ContextConfiguration(locations = {"classpath:migration/hsql/hsql-context.xml"})
 public class HsqlMigrationMediumTest extends MigrationTestCase {
+    @Override
+    public void setUp() {
+        super.setUp();
+
+        try {
+            jdbcTemplate.execute("DROP SCHEMA flyway_1 CASCADE");
+            jdbcTemplate.execute("DROP SCHEMA flyway_2 CASCADE");
+            jdbcTemplate.execute("DROP SCHEMA flyway_3 CASCADE");
+        } catch (DataAccessException e) {
+            //Dirty hack to compensate for the fact that DROP SCHEMA IF EXISTS is only available as of HsqlDB 2.0
+        }
+
+        jdbcTemplate.execute("CREATE SCHEMA flyway_1 AUTHORIZATION DBA");
+        jdbcTemplate.execute("CREATE SCHEMA flyway_2 AUTHORIZATION DBA");
+        jdbcTemplate.execute("CREATE SCHEMA flyway_3 AUTHORIZATION DBA");
+    }
+
     @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
