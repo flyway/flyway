@@ -78,12 +78,16 @@ public class Flyway {
     private String encoding = "UTF-8";
 
     /**
-     * The schemas managed by Flyway. (default: The default schema for the datasource connection)
+     * The schemas managed by Flyway. The first schema in the list will be the one containing the metadata table.
+     * (default: The default schema for the datasource connection)
      */
     private String[] schemas = new String[0];
 
     /**
-     * The name of the schema metadata table that will be used by flyway. (default: schema_version)
+     * <p>The name of the schema metadata table that will be used by Flyway. (default: schema_version)</p><p> By default
+     * (single-schema mode) the metadata table is placed in the default schema for the connection provided by the
+     * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is
+     * placed in the first schema of the list. </p>
      */
     private String table = "schema_version";
 
@@ -200,7 +204,8 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the schemas managed by Flyway.
+     * Retrieves the schemas managed by Flyway. The first schema in the list will be the one containing the metadata
+     * table.
      *
      * @return The schemas managed by Flyway. (default: The default schema for the datasource connection)
      */
@@ -209,7 +214,10 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the name of the schema metadata table that will be used by flyway.
+     * <p>Retrieves the name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema
+     * mode) the metadata table is placed in the default schema for the connection provided by the datasource. </p> <p>
+     * When the <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first
+     * schema of the list. </p>
      *
      * @return The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
@@ -398,16 +406,19 @@ public class Flyway {
     }
 
     /**
-     * Sets the schemas managed by Flyway.
+     * Sets the schemas managed by Flyway. The first schema in the list will be the one containing the metadata table.
      *
-     * @param schemas The schemas managed by Flyway. (default: The default schema for the datasource connection)
+     * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
      */
     public void setSchemas(String... schemas) {
         this.schemas = schemas;
     }
 
     /**
-     * Sets the name of the schema metadata table that will be used by flyway.
+     * <p>Sets the name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode)
+     * the metadata table is placed in the default schema for the connection provided by the datasource. </p> <p> When
+     * the <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first schema
+     * of the list. </p>
      *
      * @param table The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
@@ -724,6 +735,10 @@ public class Flyway {
         String encodingProp = properties.getProperty("flyway.encoding");
         if (encodingProp != null) {
             setEncoding(encodingProp);
+        }
+        String schemasProp = properties.getProperty("flyway.schemas");
+        if (schemasProp != null) {
+            setSchemas(StringUtils.tokenizeToStringArray(schemasProp, ","));
         }
         String tableProp = properties.getProperty("flyway.table");
         if (tableProp != null) {

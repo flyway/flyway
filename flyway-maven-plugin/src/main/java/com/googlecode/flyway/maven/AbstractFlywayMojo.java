@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.springframework.util.StringUtils;
 
 /**
  * Common base class for all mojos with all common attributes.<br>
@@ -71,8 +72,17 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String password = "";
 
     /**
-     * The name of the schema metadata table that will be used by flyway. (default: schema_version)<br> default
-     * property: ${flyway.schemaMetaDataTable}
+     * Comma-separated list of the schemas managed by Flyway. The first schema in the list will be the one containing
+     * the metadata table. (default: The default schema for the datasource connection)<br> default property:
+     * ${flyway.schemas}
+     */
+    private String schemas;
+
+    /**
+     * <p>The name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode) the
+     * metadata table is placed in the default schema for the connection provided by the datasource. </p> <p> When the
+     * <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first schema of
+     * the list. </p> (default: schema_version)<br> default property: ${flyway.table}
      *
      * @parameter expression="${flyway.table}"
      */
@@ -82,7 +92,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Creates the datasource base on the provided parameters.
      *
      * @return The fully configured datasource.
-     *
      * @throws Exception Thrown when the datasource could not be created.
      */
     /* private -> for testing */ BasicDataSource createDataSource() throws Exception {
@@ -100,13 +109,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         try {
             Flyway flyway = new Flyway();
 
-            if (table != null) {
-                flyway.setTable(table);
-            }
-
             BasicDataSource dataSource = createDataSource();
             try {
                 flyway.setDataSource(dataSource);
+                if (schemas != null) {
+                    flyway.setSchemas(StringUtils.tokenizeToStringArray(schemas, ","));
+                }
+                if (table != null) {
+                    flyway.setTable(table);
+                }
+
                 doExecute(flyway);
             } finally {
                 dataSource.close();
@@ -128,7 +140,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Executes this mojo.
      *
      * @param flyway The flyway instance to operate on.
-     *
      * @throws Exception any exception
      */
     protected abstract void doExecute(Flyway flyway) throws Exception;

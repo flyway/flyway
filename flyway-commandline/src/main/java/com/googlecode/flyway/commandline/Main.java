@@ -157,6 +157,7 @@ public class Main {
         LOG.info("url                 : Jdbc url to use to connect to the database");
         LOG.info("user                : User to use to connect to the database");
         LOG.info("password            : Password to use to connect to the database");
+        LOG.info("schemas             : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table               : Name of Flyway's metadata table");
         LOG.info("basePackage         : Package to scan for Java migrations");
         LOG.info("baseDir             : Directory on the classpath to scan for Sql migrations");

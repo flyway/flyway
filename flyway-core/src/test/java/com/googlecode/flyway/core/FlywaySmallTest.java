@@ -40,6 +40,7 @@ public class FlywaySmallTest {
         flyway.configure(properties);
 
         assertNotNull(flyway.jdbcTemplate.getDataSource());
+        assertEquals("PUBLIC", flyway.getSchemas()[0]);
     }
 
     @Test
@@ -51,6 +52,20 @@ public class FlywaySmallTest {
         flyway.configure(properties);
 
         assertEquals("666", flyway.getTarget().toString());
+    }
+
+    @Test
+    public void configureSchemas() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.schemas", "  schema1,schema2, schema3 ,");
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+
+        assertEquals(3, flyway.getSchemas().length);
+        assertEquals("schema1", flyway.getSchemas()[0]);
+        assertEquals("schema2", flyway.getSchemas()[1]);
+        assertEquals("schema3", flyway.getSchemas()[2]);
     }
 
     @Test
