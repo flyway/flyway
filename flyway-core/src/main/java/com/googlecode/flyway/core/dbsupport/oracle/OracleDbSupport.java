@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
@@ -120,6 +121,10 @@ public class OracleDbSupport implements DbSupport {
 
     @Override
     public SqlScript createCleanScript(String schema) {
+        if ("SYSTEM".equals(schema.toUpperCase())) {
+            throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
+        }
+
         final List<String> allDropStatements = new ArrayList<String>();
         allDropStatements.add("PURGE RECYCLEBIN");
         allDropStatements.addAll(generateDropStatementsForSpatialExtensions(schema));
