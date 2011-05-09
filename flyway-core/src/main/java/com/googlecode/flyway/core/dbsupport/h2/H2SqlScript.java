@@ -15,14 +15,15 @@
  */
 package com.googlecode.flyway.core.dbsupport.h2;
 
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
-import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.springframework.util.StringUtils;
+
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.migration.sql.SqlScript;
 
 /**
  * SqlScript supporting Hsql-specific delimiter changes.
@@ -66,7 +67,7 @@ public class H2SqlScript extends SqlScript {
      *         literal. {@code false} if not.
      */
     /* private -> for testing */ boolean endsWithOpenMultilineStringLiteral(String statement) {
-        String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|()");
+		String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|(),");
 
         List<Set<TokenType>> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 
