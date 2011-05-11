@@ -24,11 +24,14 @@ import com.googlecode.flyway.core.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Facility for retrieving the available migrations.
+ * Facility for retrieving and sorting the available migrations from the classpath through the various migration
+ * resolvers.
  */
 public class MigrationProvider {
     /**
@@ -57,7 +60,7 @@ public class MigrationProvider {
     private final String sqlMigrationSuffix;
 
     /**
-     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
     private final Map<String, String> placeholders;
 
@@ -105,7 +108,6 @@ public class MigrationProvider {
      *
      * @return The available migrations, sorted by version, newest first. An empty list is returned when no migrations
      *         can be found.
-     *
      * @throws com.googlecode.flyway.core.exception.FlywayException
      *          when the available migrations have overlapping versions.
      */
@@ -122,7 +124,6 @@ public class MigrationProvider {
      *
      * @return The available migrations, sorted by version, newest first. An empty list is returned when no migrations
      *         can be found.
-     *
      * @throws com.googlecode.flyway.core.exception.FlywayException
      *          when the available migrations have overlapping versions.
      */
@@ -133,27 +134,45 @@ public class MigrationProvider {
         migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
         migrationResolvers.add(new JavaMigrationResolver(basePackage));
 
-        List<Migration> allMigrations = new ArrayList<Migration>();
+        List<Migration> migrations = new ArrayList<Migration>(collectMigrations(migrationResolvers));
+        Collections.sort(migrations);
+        Collections.reverse(migrations);
+
+        checkForIncompatibilities(migrations);
+
+        return migrations;
+    }
+
+    /**
+     * Collects all the migrations for all migration resolvers.
+     *
+     * @param migrationResolvers The migration resolvers to check.
+     *
+     * @return All migrations.
+     */
+    /* private -> for testing */ static Collection<Migration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
+        Set<Migration> migrations = new HashSet<Migration>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
-            allMigrations.addAll(migrationResolver.resolveMigrations());
+            migrations.addAll(migrationResolver.resolveMigrations());
         }
+        return migrations;
+    }
 
-        if (allMigrations.isEmpty()) {
-            return allMigrations;
-        }
-
-        Collections.sort(allMigrations);
-        Collections.reverse(allMigrations);
-
+    /**
+     * Checks for incompatible migrations.
+     *
+     * @param migrations The migrations to check.
+     *
+     * @throws ValidationException when two different migration with the same version number are found.
+     */
+    private void checkForIncompatibilities(List<Migration> migrations) {
         // check for more than one migration with same version
-        for (int i = 0; i < allMigrations.size() - 1; i++) {
-            Migration current = allMigrations.get(i);
-            Migration next = allMigrations.get(i + 1);
+        for (int i = 0; i < migrations.size() - 1; i++) {
+            Migration current = migrations.get(i);
+            Migration next = migrations.get(i + 1);
             if (current.compareTo(next) == 0) {
                 throw new ValidationException("Found more than one migration with version: " + current.getVersion());
             }
         }
-
-        return allMigrations;
     }
 }

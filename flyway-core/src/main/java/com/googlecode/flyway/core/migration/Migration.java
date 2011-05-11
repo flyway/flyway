@@ -84,12 +84,35 @@ public abstract class Migration implements Comparable<Migration> {
         return getVersion().compareTo(o.getVersion());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Migration)) return false;
+
+        Migration migration = (Migration) o;
+
+        if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
+        if (description != null ? !description.equals(migration.description) : migration.description != null)
+            return false;
+        if (schemaVersion != null ? !schemaVersion.equals(migration.schemaVersion) : migration.schemaVersion != null)
+            return false;
+        return !(script != null ? !script.equals(migration.script) : migration.script != null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = schemaVersion != null ? schemaVersion.hashCode() : 0;
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (script != null ? script.hashCode() : 0);
+        result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
+        return result;
+    }
+
     /**
      * Performs the migration.
      *
      * @param jdbcTemplate To execute the migration statements.
      * @param dbSupport    The support for database-specific extensions.
-     *
      * @throws DataAccessException Thrown when the migration failed.
      */
     public abstract void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;
