@@ -75,6 +75,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Comma-separated list of the schemas managed by Flyway. The first schema in the list will be the one containing
      * the metadata table. (default: The default schema for the datasource connection)<br> default property:
      * ${flyway.schemas}
+     *
+     * @parameter expression="${flyway.schemas}"
      */
     private String schemas;
 
