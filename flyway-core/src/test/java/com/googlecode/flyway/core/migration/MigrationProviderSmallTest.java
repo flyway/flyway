@@ -16,14 +16,17 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.validation.ValidationException;
 import org.junit.Test;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for MigrationProvider.
@@ -50,6 +53,32 @@ public class MigrationProviderSmallTest {
 
         Collection<Migration> migrations = MigrationProvider.collectMigrations(migrationResolvers);
         assertEquals(2, migrations.size());
+    }
+
+    @Test
+    public void checkForIncompatibilities() {
+        List<Migration> migrations = new ArrayList<Migration>();
+        migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
+        migrations.add(createTestMigration(MigrationType.SQL, "1", "Description2", "Migration2", 1234));
+
+        try {
+            MigrationProvider.checkForIncompatibilities(migrations);
+        } catch (ValidationException e) {
+            assertTrue(e.getMessage().contains("Migration1"));
+            assertTrue(e.getMessage().contains("Migration2"));
+        }
+    }
+
+    /**
+     * Makes sure no validation exception is thrown.
+     */
+    @Test
+    public void checkForIncompatibilitiesNoConflict() {
+        List<Migration> migrations = new ArrayList<Migration>();
+        migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
+        migrations.add(createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234));
+
+        MigrationProvider.checkForIncompatibilities(migrations);
     }
 
     /**

@@ -147,10 +147,10 @@ public class MigrationProvider {
      * Collects all the migrations for all migration resolvers.
      *
      * @param migrationResolvers The migration resolvers to check.
-     *
      * @return All migrations.
      */
-    /* private -> for testing */ static Collection<Migration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
+    /* private -> for testing */
+    static Collection<Migration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
         Set<Migration> migrations = new HashSet<Migration>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
             migrations.addAll(migrationResolver.resolveMigrations());
@@ -162,16 +162,17 @@ public class MigrationProvider {
      * Checks for incompatible migrations.
      *
      * @param migrations The migrations to check.
-     *
      * @throws ValidationException when two different migration with the same version number are found.
      */
-    private void checkForIncompatibilities(List<Migration> migrations) {
+    /* private -> for testing */
+    static void checkForIncompatibilities(List<Migration> migrations) {
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
             Migration current = migrations.get(i);
             Migration next = migrations.get(i + 1);
             if (current.compareTo(next) == 0) {
-                throw new ValidationException("Found more than one migration with version: " + current.getVersion());
+                throw new ValidationException("Found more than one migration with version: " + current.getVersion()
+                        + " (Offenders: \"" + current.getScript() + "\" and \"" + next.getScript() + "\")");
             }
         }
     }
