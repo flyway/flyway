@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -75,7 +76,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
         final List<MetaDataTableRow> metaDataTableRows = flyway.history();
         for (MetaDataTableRow metaDataTableRow : metaDataTableRows) {
-            Assert.assertNotNull(metaDataTableRow.getScript() + " has no checksum", metaDataTableRow.getChecksum());
+            assertNotNull(metaDataTableRow.getScript() + " has no checksum", metaDataTableRow.getChecksum());
         }
 
     }
@@ -106,6 +107,16 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     public void createPackage() throws FlywayException {
         flyway.setBaseDir("migration/dbsupport/oracle/sql/package");
         flyway.migrate();
+    }
+
+    /**
+     * Tests cleaning up after CREATE MATERIALIZED VIEW.
+     */
+    @Test
+    public void createMaterializedView() throws FlywayException {
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/materialized");
+        flyway.migrate();
+        flyway.clean();
     }
 
     /**

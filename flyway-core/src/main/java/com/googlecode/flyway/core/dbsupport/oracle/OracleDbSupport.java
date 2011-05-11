@@ -130,7 +130,7 @@ public class OracleDbSupport implements DbSupport {
         allDropStatements.addAll(generateDropStatementsForSpatialExtensions(schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("SEQUENCE", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("FUNCTION", "", schema));
-        allDropStatements.addAll(generateDropStatementsForObjectType("MATERIALIZED VIEW", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("MATERIALIZED VIEW", "PRESERVE TABLE", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("PACKAGE", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("PROCEDURE", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("SYNONYM", "", schema));
@@ -161,7 +161,9 @@ public class OracleDbSupport implements DbSupport {
                 // Ignore Recycle bin objects
                 + " AND object_name NOT LIKE 'BIN$%'"
                 // Ignore Spatial Index Tables and Sequences as they get dropped automatically when the index gets dropped.
-                + " AND object_name NOT LIKE 'MDRT_%$' AND object_name NOT LIKE 'MDRS_%$'";
+                + " AND object_name NOT LIKE 'MDRT_%$' AND object_name NOT LIKE 'MDRS_%$'"
+                // Ignore Materialized View Logs
+                + " AND object_name NOT LIKE 'MLOG$%' AND object_name NOT LIKE 'RUPD$%'";
 
         return jdbcTemplate.query(query,
                 new Object[]{objectType, schema.toUpperCase()}, new RowMapper() {
