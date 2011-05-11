@@ -14,5 +14,5 @@
 -- limitations under the License.
 --
 
-INSERT INTO test_user (name) VALUES ('Mr. T');
-INSERT INTO test_user (name) VALUES ('Mr. Semicolon;');
+INSERT INTO test_user (name, id) VALUES ('Mr. T', 1);
+INSERT INTO test_user (name, id) VALUES ('Mr. Semicolon;', 2);

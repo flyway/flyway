@@ -67,6 +67,7 @@ public class H2SqlScript extends SqlScript {
      *         literal. {@code false} if not.
      */
     /* private -> for testing */ boolean endsWithOpenMultilineStringLiteral(String statement) {
+        //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
 		String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|(),");
 
         List<Set<TokenType>> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);

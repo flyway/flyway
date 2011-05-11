@@ -15,22 +15,10 @@
  */
 package com.googlecode.flyway.core.dbsupport.h2;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import java.util.HashMap;
-import java.util.List;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
-import com.googlecode.flyway.core.migration.sql.SqlStatement;
-import com.googlecode.flyway.core.util.ResourceUtils;
 
 /**
  * Test for H2SqlScript
@@ -53,6 +41,8 @@ public class H2SqlScriptSmallTest {
         assertFalse(script.endsWithOpenMultilineStringLiteral("select * from t where a='$$'||'$$';"));
         assertFalse(script.endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. T');"));
         assertFalse(script.endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. Semicolon;');"));
+        assertFalse(script.endsWithOpenMultilineStringLiteral("INSERT INTO test_user (id, name) VALUES (1, 'Mr. Semicolon;');"));
+        assertFalse(script.endsWithOpenMultilineStringLiteral("insert into TAB1 (GUID, UID, VAL) values (1, '0100', 100);"));
         assertTrue(script.endsWithOpenMultilineStringLiteral("select * from t where a='$$||''$$;"));
         assertTrue(script.endsWithOpenMultilineStringLiteral("select * from t where a='"));
         assertTrue(script.endsWithOpenMultilineStringLiteral("select * from t where a='abc"));
@@ -60,15 +50,4 @@ public class H2SqlScriptSmallTest {
         assertTrue(script.endsWithOpenMultilineStringLiteral("select * from t where a='abc'''||'"));
         assertTrue(script.endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. Semicolon+Linebreak;"));
     }
-
-	@Test
-	public void correctStatementSplitting()
-	{
-		Resource sql = new ClassPathResource("com/googlecode/flyway/core/dbsupport/h2/insert-test.sql");
-		String sqlAsString = ResourceUtils.loadResourceAsString(sql, "ISO-8859-1");
-		SqlScript script = new H2SqlScript(sqlAsString, new PlaceholderReplacer(new HashMap<String, String>(), "${",
-				"}"));
-		List<SqlStatement> statements = script.getSqlStatements();
-		Assert.assertEquals(3, statements.size());
-	}
 }
