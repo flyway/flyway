@@ -38,4 +38,6 @@
         <property name="driverClass" value="org.postgresql.Driver"/>
         <property name="url" value="${postgresql.url}"/>
     </bean>
+    <!-- -->
+    <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>
 </beans>

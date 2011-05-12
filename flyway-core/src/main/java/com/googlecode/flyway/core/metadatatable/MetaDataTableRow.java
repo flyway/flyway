@@ -172,7 +172,6 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
         return script;
     }
 
-    @Override
     public int compareTo(MetaDataTableRow o) {
         return getVersion().compareTo(o.getVersion());
     }

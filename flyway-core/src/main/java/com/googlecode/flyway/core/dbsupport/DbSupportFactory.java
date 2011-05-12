@@ -95,7 +95,6 @@ public class DbSupportFactory {
      */
     private static String getDatabaseProductName(JdbcTemplate jdbcTemplate) {
         return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 DatabaseMetaData databaseMetaData = connection.getMetaData();
                 if (databaseMetaData == null) {

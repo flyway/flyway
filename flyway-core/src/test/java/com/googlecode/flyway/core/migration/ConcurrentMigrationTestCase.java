@@ -19,9 +19,10 @@ import com.googlecode.flyway.core.Flyway;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +46,8 @@ public abstract class ConcurrentMigrationTestCase {
     /**
      * The datasource to use for concurrent migration tests.
      */
-    @Resource
+    @Autowired
+    @Qualifier("concurrentMigrationDataSource")
     protected DataSource concurrentMigrationDataSource;
 
     /**
@@ -70,7 +72,6 @@ public abstract class ConcurrentMigrationTestCase {
     @Test
     public void migrateConcurrently() throws Exception {
         Runnable runnable = new Runnable() {
-            @Override
             public void run() {
                 try {
                     Flyway flyway2 = new Flyway();

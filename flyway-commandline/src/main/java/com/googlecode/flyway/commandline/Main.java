@@ -22,13 +22,18 @@ import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -56,6 +61,9 @@ public class Main {
                 printUsage();
                 return;
             }
+
+            loadJdbcDriversAndJavaMigrations();
+            loadSqlMigrations();
 
             Flyway flyway = new Flyway();
 
@@ -191,21 +199,73 @@ public class Main {
     }
 
     /**
+     * Loads all the jars contained in the jars folder. (For Jdbc drivers and Java Migrations)
+     *
+     * @throws IOException When the jars could not be loaded.
+     */
+    private static void loadJdbcDriversAndJavaMigrations() throws IOException {
+        File dir = new File(getInstallationDir() + "/../jars");
+        File[] files = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        });
+
+        for (File file : files) {
+            addJarOrDirectoryToClasspath(file.getPath());
+        }
+    }
+
+    /**
+     * Loads all the jars contained in the jars folder. (For Jdbc drivers and Java Migrations)
+     *
+     * @throws IOException When the SQL migrations could not be loaded.
+     */
+    private static void loadSqlMigrations() throws IOException {
+        addJarOrDirectoryToClasspath(getInstallationDir() + "/../sql");
+    }
+
+    /**
+     * Adds a jar or a directory with this name to the classpath.
+     *
+     * @param name The name of the jar or directory to add.
+     * @throws IOException when the jar or directory could not be found.
+     */
+    private static void addJarOrDirectoryToClasspath(String name) throws IOException {
+        LOG.debug("Loading " + name);
+
+        // Add the jar or dir to the classpath
+        // Chain the current thread classloader
+        URLClassLoader urlClassLoader =
+                new URLClassLoader(new URL[]{new File(name).toURL()}, Thread.currentThread().getContextClassLoader());
+
+        // Replace the thread classloader - assumes
+        // you have permissions to do so
+        Thread.currentThread().setContextClassLoader(urlClassLoader);
+    }
+
+    /**
      * Loads the configuration from the configuration file. If a configuration file is specified using the -configfile
      * argument it will be used, otherwise the default config file (conf/flyway.properties) will be loaded.
      *
      * @param properties The properties object to load to configuration into.
      * @param args       The command-line arguments passed in.
-     *
      * @throws FlywayException when the configuration file could not be loaded.
      */
-    private static void loadConfigurationFile(Properties properties, String[] args) throws FlywayException {
+    /* private -> for testing */
+    static void loadConfigurationFile(Properties properties, String[] args) throws FlywayException {
         String configFile = determineConfigurationFile(args);
 
         if (configFile != null) {
             try {
-                InputStreamReader reader = new InputStreamReader(new FileInputStream(configFile), determineConfigurationFileEncoding(args));
-                properties.load(reader);
+                PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
+                propertiesFactoryBean.setFileEncoding(determineConfigurationFileEncoding(args));
+                propertiesFactoryBean.setLocation(new FileSystemResource(configFile));
+                propertiesFactoryBean.setProperties(properties);
+                propertiesFactoryBean.afterPropertiesSet();
+
+                properties.clear();
+                properties.putAll((Properties) propertiesFactoryBean.getObject());
             } catch (IOException e) {
                 throw new FlywayException("Unable to load config file: " + configFile, e);
             }
@@ -216,7 +276,6 @@ public class Main {
      * Determines the file to use for loading the configuration.
      *
      * @param args The command-line arguments passed in.
-     *
      * @return The configuration file.
      */
     private static String determineConfigurationFile(String[] args) {
@@ -241,7 +300,6 @@ public class Main {
      * Determines the encoding to use for loading the configuration.
      *
      * @param args The command-line arguments passed in.
-     *
      * @return The encoding. (default: UTF-8)
      */
     private static String determineConfigurationFileEncoding(String[] args) {
@@ -273,7 +331,6 @@ public class Main {
      * Checks whether this command-line argument tries to set a property.
      *
      * @param arg The command-line argument to check.
-     *
      * @return {@code true} if it does, {@code false} if not.
      */
     /* private -> for testing*/
@@ -285,7 +342,6 @@ public class Main {
      * Retrieves the property this command-line argument tries to assign.
      *
      * @param arg The command-line argument to check, typically in the form -key=value.
-     *
      * @return The property.
      */
     /* private -> for testing*/
@@ -299,7 +355,6 @@ public class Main {
      * Retrieves the value this command-line argument tries to assign.
      *
      * @param arg The command-line argument to check, typically in the form -key=value.
-     *
      * @return The value or an empty string if no value is assigned.
      */
     /* private -> for testing*/
@@ -317,7 +372,6 @@ public class Main {
      * Determine the operation Flyway should execute.
      *
      * @param args The command-line arguments passed in.
-     *
      * @return The operation. {@code null} if it could not be determined.
      */
     private static String determineOperation(String[] args) {

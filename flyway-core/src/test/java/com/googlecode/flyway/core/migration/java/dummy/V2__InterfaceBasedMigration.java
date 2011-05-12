@@ -22,7 +22,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * Test migration.
  */
 public class V2__InterfaceBasedMigration implements JavaMigration {
-    @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         //Do nothing.
     }

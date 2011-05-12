@@ -34,10 +34,6 @@ import java.util.Map;
  * PostgreSQL-specific support.
  */
 public class PostgreSQLDbSupport implements DbSupport {
-
-    private final static String DEFAULT_SCHEMA_PATTERN = "public";
-    private final static String[] TABLE_EXISTS_TABLE_TYPES = new String[]{"TABLE"};
-
     /**
      * The jdbcTemplate to use.
      */
@@ -52,22 +48,18 @@ public class PostgreSQLDbSupport implements DbSupport {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/postgresql/";
     }
 
-    @Override
     public String getCurrentUserFunction() {
         return "current_user";
     }
 
-    @Override
     public String getCurrentSchema() {
         return (String) jdbcTemplate.queryForObject("SELECT current_schema()", String.class);
     }
 
-    @Override
     public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate.queryForInt(
                 "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
@@ -75,44 +67,36 @@ public class PostgreSQLDbSupport implements DbSupport {
         return objectCount == 0;
     }
 
-    @Override
     public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(null, schema.toLowerCase(),
-                        table.toLowerCase(), TABLE_EXISTS_TABLE_TYPES);
+                        table.toLowerCase(), new String[]{"TABLE"});
                 return resultSet.next();
             }
         });
     }
 
-    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
-    @Override
     public void lockTable(String schema, String table) {
         jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
-    @Override
     public String getBooleanTrue() {
         return "TRUE";
     }
 
-    @Override
     public String getBooleanFalse() {
         return "FALSE";
     }
 
-    @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         return new PostgreSQLSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    @Override
     public SqlScript createCleanScript(String schema) {
         final List<String> allDropStatements = new ArrayList<String>();
         allDropStatements.addAll(generateDropStatementsForTables(schema));

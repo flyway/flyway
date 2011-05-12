@@ -105,7 +105,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         return dataSource;
     }
 
-    @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         MavenLogAppender.startPluginLog(this);
         try {

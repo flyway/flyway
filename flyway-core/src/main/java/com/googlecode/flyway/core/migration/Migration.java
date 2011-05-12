@@ -79,7 +79,6 @@ public abstract class Migration implements Comparable<Migration> {
         return script;
     }
 
-    @Override
     public int compareTo(Migration o) {
         return getVersion().compareTo(o.getVersion());
     }

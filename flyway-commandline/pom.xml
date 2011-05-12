@@ -42,7 +42,7 @@
                         <manifest>
                             <mainClass>com.googlecode.flyway.commandline.Main</mainClass>
                             <packageName>com.googlecode.flyway.commandline</packageName>
-                            <addClasspath>false</addClasspath>
+                            <addClasspath>true</addClasspath>
                         </manifest>
                     </archive>
                 </configuration>

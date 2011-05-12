@@ -38,4 +38,6 @@
         <property name="driverClass" value="com.mysql.jdbc.Driver"/>
         <property name="url" value="${mysql.url}"/>
     </bean>
+    <!-- -->
+    <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>
 </beans>

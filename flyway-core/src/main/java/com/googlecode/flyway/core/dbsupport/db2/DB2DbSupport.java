@@ -49,12 +49,10 @@ public class DB2DbSupport implements DbSupport {
      * @see com.googlecode.flyway.core.dbsupport.DbSupport#createSqlScript(java.lang.String,
      *      com.googlecode.flyway.core.migration.sql.PlaceholderReplacer)
      */
-    @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         return new DB2SqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    @Override
     public SqlScript createCleanScript(String schema) {
         // TODO PROCEDURES and FUNCTIONS
         final List<String> allDropStatements = new ArrayList<String>();
@@ -108,15 +106,10 @@ public class DB2DbSupport implements DbSupport {
         return dropStatements;
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#getScriptLocation()
-     */
-    @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/db2/";
     }
 
-    @Override
     public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate
                 .queryForInt("select count(*) from syscat.tables where tabschema = ?", new String[] {schema});
@@ -127,10 +120,8 @@ public class DB2DbSupport implements DbSupport {
         return objectCount == 0;
     }
 
-    @Override
     public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(), table.toUpperCase(),
                         null);
@@ -139,47 +130,28 @@ public class DB2DbSupport implements DbSupport {
         });
     }
 
-    @Override
     public String getCurrentSchema() {
         return ((String) jdbcTemplate.queryForObject("select current_schema from sysibm.sysdummy1", String.class))
                 .trim();
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#getCurrentUserFunction()
-     */
-    @Override
     public String getCurrentUserFunction() {
         return "CURRENT_USER";
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#supportsDdlTransactions()
-     */
-    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
-    @Override
     public void lockTable(String schema, String table) {
         jdbcTemplate.execute("lock table " + schema + "." + table + " in exclusive mode");
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#getBooleanTrue()
-     */
-    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#getBooleanFalse()
-     */
-    @Override
     public String getBooleanFalse() {
         return "0";
     }
-
 }

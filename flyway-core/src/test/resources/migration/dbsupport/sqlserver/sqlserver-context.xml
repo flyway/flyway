@@ -38,4 +38,6 @@
         <property name="driverClass" value="net.sourceforge.jtds.jdbc.Driver"/>
         <property name="url" value="${sqlserver.url}"/>
     </bean>
+    <!-- -->
+    <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>
 </beans>

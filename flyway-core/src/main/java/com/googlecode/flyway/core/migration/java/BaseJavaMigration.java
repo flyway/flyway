@@ -80,7 +80,6 @@ public abstract class BaseJavaMigration extends Migration implements JavaMigrati
         }
     }
 
-    @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         doMigrateInTransaction(jdbcTemplate);
     }

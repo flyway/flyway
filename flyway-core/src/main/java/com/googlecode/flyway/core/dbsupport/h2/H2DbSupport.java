@@ -56,20 +56,16 @@ public class H2DbSupport implements DbSupport {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/h2/";
     }
 
-    @Override
     public String getCurrentUserFunction() {
         return "USER()";
     }
 
-    @Override
     public String getCurrentSchema() {
         return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getSchemas();
                 while (resultSet.next()) {
@@ -82,17 +78,14 @@ public class H2DbSupport implements DbSupport {
         });
     }
 
-    @Override
     public boolean isSchemaEmpty(String schema) {
         @SuppressWarnings({"unchecked"})
         List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + schema);
         return tables.isEmpty();
     }
 
-    @Override
     public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(),
                         table.toUpperCase(), null);
@@ -101,32 +94,26 @@ public class H2DbSupport implements DbSupport {
         });
     }
 
-    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
-    @Override
     public void lockTable(String schema, String table) {
         jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
-    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
-    @Override
     public String getBooleanFalse() {
         return "0";
     }
 
-    @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         return new H2SqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    @Override
     public SqlScript createCleanScript(String schema) {
         List<String> tableNames = listObjectNames("TABLE", "TABLE_TYPE = 'TABLE'", schema);
         List<String> statements = generateDropStatements("TABLE", tableNames, "CASCADE", schema);

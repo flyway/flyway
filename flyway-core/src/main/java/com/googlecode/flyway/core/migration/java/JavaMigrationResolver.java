@@ -46,7 +46,6 @@ public class JavaMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    @Override
     public Collection<Migration> resolveMigrations() {
         Collection<Migration> migrations = new ArrayList<Migration>();
 
@@ -54,7 +53,8 @@ public class JavaMigrationResolver implements MigrationResolver {
         provider.addIncludeFilter(new AssignableTypeFilter(JavaMigration.class));
         Set<BeanDefinition> components = provider.findCandidateComponents(basePackage);
         for (BeanDefinition beanDefinition : components) {
-            Class<?> clazz = ClassUtils.resolveClassName(beanDefinition.getBeanClassName(), null);
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            Class<?> clazz = ClassUtils.resolveClassName(beanDefinition.getBeanClassName(), classLoader);
             JavaMigration javaMigration = (JavaMigration) BeanUtils.instantiateClass(clazz);
             migrations.add(new JavaMigrationExecutor(javaMigration));
         }

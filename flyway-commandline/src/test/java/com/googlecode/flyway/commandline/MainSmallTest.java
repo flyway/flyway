@@ -16,6 +16,7 @@
 package com.googlecode.flyway.commandline;
 
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 
 import java.util.Properties;
 
@@ -52,5 +53,22 @@ public class MainSmallTest {
         Main.overrideConfiguration(properties, args);
 
         assertEquals("SA", properties.getProperty("flyway.user"));
+    }
+
+    @Test
+    public void loadConfigurationFile() throws Exception {
+        Properties properties = new Properties();
+        properties.put("existing", "still there!");
+        properties.put("override", "loses :-(");
+
+        String filename = new ClassPathResource("test.properties").getFile().getPath();
+        String[] args = new String[]{"-configFile=" + filename, "-configFileEncoding=UTF-8"};
+
+        Main.loadConfigurationFile(properties, args);
+
+        assertEquals(4, properties.size());
+        assertEquals("still there!", properties.getProperty("existing"));
+        assertEquals("räbbit 123", properties.getProperty("roger"));
+        assertEquals("wins :-)", properties.getProperty("override"));
     }
 }

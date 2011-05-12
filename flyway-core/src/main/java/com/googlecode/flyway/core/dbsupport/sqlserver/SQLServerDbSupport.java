@@ -48,22 +48,18 @@ public class SQLServerDbSupport implements DbSupport {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/sqlserver/";
     }
 
-    @Override
     public String getCurrentUserFunction() {
         return "SUSER_NAME()";
     }
 
-    @Override
     public String getCurrentSchema() {
         return (String) jdbcTemplate.queryForObject("SELECT SCHEMA_NAME()", String.class);
     }
 
-    @Override
     public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
                 "( " +
@@ -78,10 +74,8 @@ public class SQLServerDbSupport implements DbSupport {
         return objectCount == 0;
     }
 
-    @Override
     public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(null, schema, table, null);
                 return resultSet.next();
@@ -89,32 +83,26 @@ public class SQLServerDbSupport implements DbSupport {
         });
     }
 
-    @Override
     public boolean supportsDdlTransactions() {
         return true;
     }
 
-    @Override
     public void lockTable(String schema, String table) {
         jdbcTemplate.execute("select * from " + schema + "." + table + " WITH (TABLOCKX)");
     }
 
-    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
-    @Override
     public String getBooleanFalse() {
         return "0";
     }
 
-    @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         return new SQLServerSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    @Override
     public SqlScript createCleanScript(String schema) {
         List<String> statements = cleanForeignKeys(schema);
         statements.addAll(cleanRoutines(schema));

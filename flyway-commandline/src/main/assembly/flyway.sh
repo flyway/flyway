@@ -28,7 +28,7 @@ else
  JAVA_CMD=$JAVA_HOME/bin/java
 fi
 
-$JAVA_CMD -cp bin/*:conf:sql:jars/* com.googlecode.flyway.commandline.Main $@
+$JAVA_CMD -jar bin/${project.artifactId}-${project.version}.jar $@
 
 # Restore current directory
 cd $OLDDIR

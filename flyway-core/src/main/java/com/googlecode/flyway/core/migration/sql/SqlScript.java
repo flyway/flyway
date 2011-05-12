@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -121,11 +122,11 @@ public class SqlScript {
         for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
             String line = lines.get(lineNumber - 1);
 
-            if (line.isEmpty()) {
+            if (!StringUtils.hasText(line)) {
                 continue;
             }
 
-            if (statementSql.isEmpty()) {
+            if (!StringUtils.hasText(statementSql)) {
                 statementLineNumber = lineNumber;
             } else {
                 statementSql += "\n";
@@ -155,7 +156,7 @@ public class SqlScript {
         }
 
         // Catch any statements not followed by delimiter.
-        if (!statementSql.isEmpty()) {
+        if (StringUtils.hasText(statementSql)) {
             statements.add(new SqlStatement(statementLineNumber, statementSql));
         }
 

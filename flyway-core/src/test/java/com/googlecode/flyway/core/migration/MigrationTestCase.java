@@ -26,11 +26,12 @@ import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.util.HashMap;
 
@@ -54,7 +55,8 @@ public abstract class MigrationTestCase {
     /**
      * The datasource to use for single-threaded migration tests.
      */
-    @Resource
+    @Autowired
+    @Qualifier("migrationDataSource")
     protected DataSource migrationDataSource;
 
     protected JdbcTemplate jdbcTemplate;

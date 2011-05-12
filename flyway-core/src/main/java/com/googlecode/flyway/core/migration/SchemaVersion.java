@@ -77,7 +77,6 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
         return version.hashCode();
     }
 
-    @Override
     public int compareTo(SchemaVersion o) {
         if (o == null) {
             return 1;

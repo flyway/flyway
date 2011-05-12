@@ -25,22 +25,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * Test migration.
  */
 public class Version3dot5 implements JavaMigration, JavaMigrationInfoProvider, JavaMigrationChecksumProvider {
-    @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         //Do nothing
     }
 
-    @Override
     public Integer getChecksum() {
         return 35;
     }
 
-    @Override
     public SchemaVersion getVersion() {
         return new SchemaVersion("3.5");
     }
 
-    @Override
     public String getDescription() {
         return "Three Dot Five";
     }

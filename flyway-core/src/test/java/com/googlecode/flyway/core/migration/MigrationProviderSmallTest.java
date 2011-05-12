@@ -38,7 +38,6 @@ public class MigrationProviderSmallTest {
     @Test
     public void collectMigrations() {
         MigrationResolver migrationResolver = new MigrationResolver() {
-            @Override
             public Collection<Migration> resolveMigrations() {
                 Collection<Migration> migrations = new ArrayList<Migration>();
 

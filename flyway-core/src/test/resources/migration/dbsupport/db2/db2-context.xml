@@ -32,7 +32,7 @@
         </property>
     </bean>
     <!-- -->
-    <bean id="ddlDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <bean id="migrationDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="username" value="${db2.username}"/>
         <property name="password" value="${db2.password}"/>
         <property name="driverClassName" value="com.ibm.db2.jcc.DB2Driver"/>
@@ -40,4 +40,6 @@
         <property name="initialSize" value="1"/>
         <property name="maxActive" value="100"/>
     </bean>
+    <!-- -->
+    <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>
 </beans>

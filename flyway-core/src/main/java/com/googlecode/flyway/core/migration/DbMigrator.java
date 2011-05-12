@@ -111,7 +111,6 @@ public class DbMigrator {
             while (true) {
                 final boolean firstRun = migrationSuccessCount == 0;
                 MetaDataTableRow metaDataTableRow = (MetaDataTableRow) transactionTemplate.execute(new TransactionCallback() {
-                    @Override
                     public MetaDataTableRow doInTransaction(TransactionStatus status) {
                         metaDataTable.lock();
 
@@ -209,11 +208,9 @@ public class DbMigrator {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         MigrationRunnable migrationRunnable = new MigrationRunnable() {
-            @Override
             public void run() {
                 try {
                     transactionTemplate.execute(new TransactionCallback() {
-                        @Override
                         public Void doInTransaction(TransactionStatus status) {
                             migration.migrate(jdbcTemplate, dbSupport);
                             return null;
@@ -222,7 +219,6 @@ public class DbMigrator {
                     state = MigrationState.SUCCESS;
                 } catch (Exception e) {
                     LOG.error(e.toString());
-                    @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
                     Throwable rootCause = ExceptionUtils.getRootCause(e);
                     if (rootCause != null) {
                         LOG.error("Caused by " + rootCause.toString());

@@ -87,7 +87,6 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
 
-    @Override
     public Collection<Migration> resolveMigrations() {
         Collection<Migration> migrations = new ArrayList<Migration>();
 

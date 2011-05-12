@@ -266,7 +266,6 @@ public class MetaDataTable {
      * Row mapper for Migrations.
      */
     private class MetaDataTableRowMapper implements RowMapper {
-        @Override
         public MetaDataTableRow mapRow(final ResultSet rs, int rowNum) throws SQLException {
             SchemaVersion version = new SchemaVersion(rs.getString("VERSION"));
             String description = rs.getString("DESCRIPTION");

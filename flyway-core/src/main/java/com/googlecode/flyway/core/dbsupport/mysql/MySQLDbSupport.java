@@ -48,27 +48,22 @@ public class MySQLDbSupport implements DbSupport {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/mysql/";
     }
 
-    @Override
     public String getCurrentUserFunction() {
         return "SUBSTRING_INDEX(USER(),'@',1)";
     }
 
-    @Override
     public String getCurrentSchema() {
         return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 return connection.getCatalog();
             }
         });
     }
 
-    @Override
     public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
                 "( " +
@@ -84,10 +79,8 @@ public class MySQLDbSupport implements DbSupport {
         return objectCount == 0;
     }
 
-    @Override
     public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(schema, null, table, null);
                 return resultSet.next();
@@ -95,32 +88,26 @@ public class MySQLDbSupport implements DbSupport {
         });
     }
 
-    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
-    @Override
     public void lockTable(String schema, String table) {
         jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
-    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
-    @Override
     public String getBooleanFalse() {
         return "0";
     }
 
-    @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         return new MySQLSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    @Override
     public SqlScript createCleanScript(String schema) {
         List<String> statements = cleanRoutines(schema);
         statements.addAll(cleanViews(schema));

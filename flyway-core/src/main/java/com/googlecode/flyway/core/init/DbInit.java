@@ -83,7 +83,6 @@ public class DbInit {
 
         try {
             transactionTemplate.execute(new TransactionCallback() {
-                @Override
                 public Void doInTransaction(TransactionStatus status) {
                     metaDataTable.insert(metaDataTableRow);
                     return null;

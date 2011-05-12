@@ -56,36 +56,29 @@ public class OracleDbSupport implements DbSupport {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/oracle/";
     }
 
-    @Override
     public String getCurrentUserFunction() {
         return "USER";
     }
 
-    @Override
     public String getCurrentSchema() {
         return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public String doInConnection(Connection connection) throws SQLException, DataAccessException {
                 return connection.getMetaData().getUserName();
             }
         });
     }
 
-    @Override
     public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", new Object[]{schema});
         return objectCount == 0;
     }
 
-    @Override
     public boolean tableExists(final String schema, final String table) {
         return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            @Override
             public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
                 ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(),
                         table.toUpperCase(), null);
@@ -94,32 +87,26 @@ public class OracleDbSupport implements DbSupport {
         });
     }
 
-    @Override
     public boolean supportsDdlTransactions() {
         return false;
     }
 
-    @Override
     public void lockTable(String schema, String table) {
         jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
-    @Override
     public String getBooleanTrue() {
         return "1";
     }
 
-    @Override
     public String getBooleanFalse() {
         return "0";
     }
 
-    @Override
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         return new OracleSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    @Override
     public SqlScript createCleanScript(String schema) {
         if ("SYSTEM".equals(schema.toUpperCase())) {
             throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
@@ -167,7 +154,6 @@ public class OracleDbSupport implements DbSupport {
 
         return jdbcTemplate.query(query,
                 new Object[]{objectType, schema.toUpperCase()}, new RowMapper() {
-                    @Override
                     public String mapRow(ResultSet rs, int rowNum) throws SQLException {
                         return "DROP " + rs.getString("OBJECT_TYPE")
                                 + " " + schema + ".\"" + rs.getString("OBJECT_NAME") + "\" " + extraArguments;

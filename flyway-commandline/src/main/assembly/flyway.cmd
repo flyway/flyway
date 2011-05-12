@@ -31,7 +31,7 @@ if "%JAVA_HOME%"=="" (
  set JAVA_CMD="%JAVA_HOME%\bin\java.exe"
 )
 
-%JAVA_CMD% -cp bin\*;conf;sql;jars\* com.googlecode.flyway.commandline.Main %*
+%JAVA_CMD% -jar bin\${project.artifactId}-${project.version}.jar %*
 
 @REM Restore current directory
 chdir /d %OLDDIR%

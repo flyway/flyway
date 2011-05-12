@@ -695,7 +695,8 @@ public class Flyway {
             // All datasource properties set
             Driver driverClazz;
             try {
-                driverClazz = (Driver) Class.forName(driver).newInstance();
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                driverClazz = (Driver) Class.forName(driver, true, classLoader).newInstance();
             } catch (Exception e) {
                 throw new FlywayException("Error instantiating database driver: " + driver, e);
             }

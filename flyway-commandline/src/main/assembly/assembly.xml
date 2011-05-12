@@ -31,6 +31,7 @@
                 <include>flyway.cmd</include>
             </includes>
             <fileMode>644</fileMode>
+            <filtered>true</filtered>
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
@@ -40,6 +41,7 @@
             </includes>
             <fileMode>744</fileMode>
             <lineEnding>unix</lineEnding>
+            <filtered>true</filtered>
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
