@@ -181,6 +181,8 @@ public class Main {
         LOG.info("initialVersion      : Initial version to put in the database");
         LOG.info("initialDescription  : Description of the initial version");
         LOG.info("disableInitCheck    : Don't check that a non-empty schema has been initialized");
+        LOG.info("configFile          : Config file to use (default: conf/flyway.properties)");
+        LOG.info("configFileEncoding  : Encoding of the config file (default: UTF-8)");
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
