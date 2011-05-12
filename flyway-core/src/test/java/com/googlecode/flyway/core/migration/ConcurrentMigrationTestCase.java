@@ -66,7 +66,7 @@ public abstract class ConcurrentMigrationTestCase {
         flyway.setDataSource(concurrentMigrationDataSource);
         flyway.setBaseDir(getBaseDir());
         flyway.clean();
-        flyway.init(null, null);
+        flyway.init();
     }
 
     @Test
@@ -100,7 +100,6 @@ public abstract class ConcurrentMigrationTestCase {
         assertEquals(5, flyway.history().size());
         SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("2.0", schemaVersion.toString());
-        assertEquals("Add foreign key", flyway.status().getDescription());
         assertEquals(0, flyway.migrate());
     }
 }

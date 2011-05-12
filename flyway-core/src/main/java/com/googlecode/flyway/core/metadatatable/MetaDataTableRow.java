@@ -19,7 +19,6 @@ import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.Date;
 
@@ -83,9 +82,9 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     public MetaDataTableRow(SchemaVersion schemaVersion, String description, MigrationType migrationType, String script,
                             Integer checksum, Date installedOn, Integer executionTime, MigrationState state) {
         this.schemaVersion = schemaVersion;
-        this.description = StringUtils.left(description, 100);
+        this.description = abbreviateDescription(description);
         this.migrationType = migrationType;
-        this.script = StringUtils.left(script, 200);
+        this.script = abbreviateScript(script);
         this.checksum = checksum;
         this.installedOn = installedOn;
         this.executionTime = executionTime;
@@ -99,10 +98,46 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      */
     public MetaDataTableRow(Migration migration) {
         schemaVersion = migration.getVersion();
-        description = migration.getDescription();
+        description = abbreviateDescription(migration.getDescription());
         migrationType = migration.getMigrationType();
-        script = migration.getScript();
+        script = abbreviateScript(migration.getScript());
         checksum = migration.getChecksum();
+    }
+
+    /**
+     * Abbreviates this description to a length that will fit in the database.
+     *
+     * @param description The description to process.
+     * @return The abbreviated version.
+     */
+    private String abbreviateDescription(String description) {
+        if (description == null) {
+            return null;
+        }
+
+        if (description.length() <= 100) {
+            return description;
+        }
+
+        return description.substring(0, 97) + "...";
+    }
+
+    /**
+     * Abbreviates this script to a length that will fit in the database.
+     *
+     * @param script The script to process.
+     * @return The abbreviated version.
+     */
+    private String abbreviateScript(String script) {
+        if (script == null) {
+            return null;
+        }
+
+        if (script.length() <= 200) {
+            return script;
+        }
+
+        return "..." + script.substring(3, 200);
     }
 
     /**

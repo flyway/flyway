@@ -91,7 +91,7 @@ public abstract class MigrationTestCase {
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("2.0", schemaVersion.toString());
-        assertEquals("Add foreign key", flyway.status().getDescription());
+        assertEquals("Add foreign key and super mega humongous padding to exceed the maximum column length in the metad...", flyway.status().getDescription());
         assertEquals(0, flyway.migrate());
         assertEquals(4, flyway.history().size());
 
@@ -119,7 +119,6 @@ public abstract class MigrationTestCase {
         flyway.setTarget(SchemaVersion.LATEST);
         flyway.migrate();
         assertEquals("2.0", flyway.status().getVersion().toString());
-        assertEquals("Add foreign key", flyway.status().getDescription());
     }
 
     @Test
