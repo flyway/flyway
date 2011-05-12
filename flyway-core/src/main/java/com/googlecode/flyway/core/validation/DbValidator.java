@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StopWatch;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +68,6 @@ public class DbValidator {
      * in the classpath
      *
      * @param resolvedMigrations All migrations available on the classpath, sorted by version, newest first.
-     *
      * @return description of validation error or NULL if no validation error was found
      */
     public String validate(List<Migration> resolvedMigrations) {
@@ -94,7 +94,8 @@ public class DbValidator {
             final SchemaVersion initVersion = firstAppliedMigration.getVersion();
             appliedMigrations.remove(firstAppliedMigration);
 
-            for (Iterator<Migration> iterator = migrations.iterator(); iterator.hasNext();) {
+            Iterator<Migration> iterator = migrations.iterator();
+            while (iterator.hasNext()) {
                 Migration migration = iterator.next();
                 if (migration.getVersion().compareTo(initVersion) <= 0) {
                     iterator.remove();
@@ -111,18 +112,10 @@ public class DbValidator {
                 schemaVersions.remove(migration.getVersion());
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
-            boolean first = true;
-            for (SchemaVersion schemaVersion : schemaVersions) {
-                if (!first) {
-                    stringBuilder.append(", ");
-                }
-                stringBuilder.append(schemaVersion);
-                first = false;
-            }
+            String diff = StringUtils.collectionToCommaDelimitedString(schemaVersions);
 
-            return String.format("More applied migrations than classpath migrations: DB=%s, Classpath=%s, missing migrations=(%s)",
-                    appliedMigrations.size(), migrations.size(), stringBuilder.toString());
+            return String.format("More applied migrations than classpath migrations: DB=%s, Classpath=%s, Missing migrations=(%s)",
+                    appliedMigrations.size(), migrations.size(), diff);
         }
 
         for (int i = 0; i < appliedMigrations.size(); i++) {

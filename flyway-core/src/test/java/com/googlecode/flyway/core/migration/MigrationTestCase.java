@@ -156,6 +156,18 @@ public abstract class MigrationTestCase {
         flyway.validate();
     }
 
+    @Test(expected = FlywayException.class)
+    public void validateMoreAppliedThanAvailable() throws Exception {
+        flyway.setBaseDir(BASEDIR);
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("2.0", schemaVersion.toString());
+
+        flyway.setBaseDir("migration/validate");
+        flyway.validate();
+    }
+
     @Test
     public void validateClean() throws Exception {
         flyway.setBaseDir("migration/validate");
