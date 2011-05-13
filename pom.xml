@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>1.3.2-SNAPSHOT</version>
+    <version>1.4</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>

@@ -1,14 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.googlecode.flyway</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>1.3.2-SNAPSHOT</version>
+        <version>1.4</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-core</artifactId>
-    <version>1.3.2-SNAPSHOT</version>
+    <version>1.4</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
@@ -184,10 +183,10 @@
                                 <configuration>
                                     <target>
                                         <delete includeemptydirs="true">
-                                            <fileset dir="${project.basedir}/../../../../flyway-wiki/javadoc" includes="**/*"/>
+                                            <fileset dir="${project.basedir}/../../../../flyway-wiki/javadoc" includes="**/*" />
                                         </delete>
                                         <copy todir="${basedir}/../../../../flyway-wiki/javadoc">
-                                            <fileset dir="${project.build.outputDirectory}/apidocs" excludes="**/*"/>
+                                            <fileset dir="${project.build.outputDirectory}/apidocs" excludes="**/*" />
                                         </copy>
                                     </target>
                                 </configuration>
