@@ -610,7 +610,7 @@ public class Flyway {
 
         MetaDataTable metaDataTable = createMetaDataTable();
 
-        validate();
+        doValidate();
 
         metaDataTable.createIfNotExists();
 
@@ -628,6 +628,13 @@ public class Flyway {
     public void validate() throws FlywayException {
         performSetup();
 
+        doValidate();
+    }
+
+    /**
+     * Performs the actual validation. All set up must have taken place beforehand.
+     */
+    private void doValidate() {
         MigrationProvider migrationProvider =
                 new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
         List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
