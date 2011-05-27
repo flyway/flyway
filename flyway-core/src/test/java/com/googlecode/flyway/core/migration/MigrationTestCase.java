@@ -30,7 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.support.DefaultTransactionStatus;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -407,5 +409,34 @@ public abstract class MigrationTestCase {
 
         flyway.clean();
         flyway.migrate();
+    }
+
+    @Test
+    public void altenateTransactionManager() throws Exception {
+        CommitCountingDataSourceTransactionManager transactionManager = new CommitCountingDataSourceTransactionManager();
+        transactionManager.setDataSource(migrationDataSource);
+
+        flyway.setBaseDir(BASEDIR);
+        flyway.setTransactionManager(transactionManager);
+        flyway.migrate();
+
+        assertTrue(transactionManager.getCommitCount() > 0);
+    }
+
+    /**
+     * Dummy transaction manager for use in tests that use an alternate transaction manager.
+     */
+    private static class CommitCountingDataSourceTransactionManager extends DataSourceTransactionManager {
+        private int commitCount;
+
+        public int getCommitCount() {
+            return commitCount;
+        }
+
+        @Override
+        protected void doCommit(DefaultTransactionStatus status) {
+            super.doCommit(status);
+            commitCount++;
+        }
     }
 }

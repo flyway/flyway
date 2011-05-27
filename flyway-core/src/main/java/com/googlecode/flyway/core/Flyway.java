@@ -161,10 +161,20 @@ public class Flyway {
     private boolean disableInitCheck;
 
     /**
+     * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
+     */
+    private DataSource dataSource;
+
+    /**
+     * The transaction manager to use. By default a transaction manager will be automatically created for use with the
+     * datasource.
+     */
+    private PlatformTransactionManager transactionManager;
+
+    /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
-    /* private -> for testing */
-    JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     /**
      * The transaction template to use.
@@ -345,6 +355,26 @@ public class Flyway {
     }
 
     /**
+     * Retrieves the dataSource to use to access the database. Must have the necessary privileges to execute ddl.
+     *
+     * @return The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
+     */
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    /**
+     * Retrives the transaction manager to use. By default a transaction manager will be automatically created for use with the
+     * datasource.
+     *
+     * @return The transaction manager to use. By default a transaction manager will be automatically created for use with the
+     * datasource.
+     */
+    public PlatformTransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -488,7 +518,36 @@ public class Flyway {
      * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
      */
     public void setDataSource(DataSource dataSource) {
-        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+        this.dataSource = dataSource;
+
+        if (transactionManager == null) {
+            transactionManager = new DataSourceTransactionManager(dataSource);
+        }
+    }
+
+    /**
+     * Sets the transaction manager to use. By default a transaction manager will be automatically created for use with the
+     * datasource.
+     *
+     * @param transactionManager The transaction manager to use. By default a transaction manager will be automatically created for use with the
+     * datasource.
+     */
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
+
+    /**
+     * Sets up the remaining things (DbSupport, JdbcTemplate, TransactionTemplate, ...) for Flyway to function properly.
+     * Must be run <b>after</b> the properties have been set.
+     *
+     * @throws FlywayException when the datasource has not been configured.
+     */
+    /* private -> for testing*/
+    void performSetup() throws FlywayException {
+        if (dataSource == null) {
+            throw new FlywayException("DataSource not set! Check your configuration!");
+        }
+
         transactionTemplate = new TransactionTemplate(transactionManager);
         jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -501,17 +560,6 @@ public class Flyway {
             LOG.debug("Schema: " + schemas[0]);
         } else {
             LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemas));
-        }
-    }
-
-    /**
-     * Asserts that the datasource has been configured properly.
-     *
-     * @throws FlywayException when the datasource has not been configured.
-     */
-    private void assertDataSourceConfigured() throws FlywayException {
-        if (jdbcTemplate == null) {
-            throw new FlywayException("DataSource not set! Check your configuration!");
         }
     }
 
@@ -551,7 +599,7 @@ public class Flyway {
      * @throws FlywayException Thrown when the migration failed.
      */
     public int migrate() throws FlywayException {
-        assertDataSourceConfigured();
+        performSetup();
 
         MigrationProvider migrationProvider =
                 new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
@@ -578,7 +626,7 @@ public class Flyway {
      * @throws FlywayException thrown when the validation failed.
      */
     public void validate() throws FlywayException {
-        assertDataSourceConfigured();
+        performSetup();
 
         MigrationProvider migrationProvider =
                 new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
@@ -612,7 +660,7 @@ public class Flyway {
      * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
      */
     public void clean() {
-        assertDataSourceConfigured();
+        performSetup();
 
         new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport, schemas).clean();
     }
@@ -623,7 +671,7 @@ public class Flyway {
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
     public MetaDataTableRow status() {
-        assertDataSourceConfigured();
+        performSetup();
 
         MetaDataTable metaDataTable = createMetaDataTable();
         return metaDataTable.latestAppliedMigration();
@@ -635,7 +683,7 @@ public class Flyway {
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      */
     public List<MetaDataTableRow> history() {
-        assertDataSourceConfigured();
+        performSetup();
 
         MetaDataTable metaDataTable = createMetaDataTable();
         return metaDataTable.allAppliedMigrations();
@@ -647,7 +695,7 @@ public class Flyway {
      * @throws FlywayException when the schema initialization failed.
      */
     public void init() throws FlywayException {
-        assertDataSourceConfigured();
+        performSetup();
 
         MetaDataTable metaDataTable = createMetaDataTable();
         new DbInit(transactionTemplate, metaDataTable).init(initialVersion, initialDescription);
@@ -664,7 +712,7 @@ public class Flyway {
      */
     @Deprecated
     public void init(SchemaVersion version, String description) throws FlywayException {
-        assertDataSourceConfigured();
+        performSetup();
 
         MetaDataTable metaDataTable = createMetaDataTable();
         new DbInit(transactionTemplate, metaDataTable).init(version, description);

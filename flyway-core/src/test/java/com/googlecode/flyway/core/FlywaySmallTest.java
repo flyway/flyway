@@ -39,7 +39,9 @@ public class FlywaySmallTest {
         Flyway flyway = new Flyway();
         flyway.configure(properties);
 
-        assertNotNull(flyway.jdbcTemplate.getDataSource());
+        flyway.performSetup();
+
+        assertNotNull(flyway.getDataSource());
         assertEquals("PUBLIC", flyway.getSchemas()[0]);
     }
 
@@ -78,7 +80,7 @@ public class FlywaySmallTest {
         flyway.setDataSource(dataSource);
         flyway.configure(properties);
 
-        assertEquals(dataSource, flyway.jdbcTemplate.getDataSource());
+        assertEquals(dataSource, flyway.getDataSource());
     }
 
     @Test
@@ -92,6 +94,6 @@ public class FlywaySmallTest {
         flyway.setDataSource(dataSource);
         flyway.configure(properties);
 
-        assertEquals(dataSource, flyway.jdbcTemplate.getDataSource());
+        assertEquals(dataSource, flyway.getDataSource());
     }
 }
