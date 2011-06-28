@@ -17,6 +17,7 @@
 CREATE ROLE flyway LOGIN UNENCRYPTED PASSWORD 'flyway';
 CREATE DATABASE flyway_db
   WITH OWNER = flyway ENCODING = 'UTF8' TABLESPACE = pg_default;
+\connect flyway_db;
 CREATE SCHEMA flyway_1 AUTHORIZATION flyway;
 CREATE SCHEMA flyway_2 AUTHORIZATION flyway;
 CREATE SCHEMA flyway_3 AUTHORIZATION flyway;

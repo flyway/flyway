@@ -15,7 +15,16 @@
 --
 
 CREATE DATABASE flyway_db;
+GO
+
+USE flyway_db;
+GO
+
 CREATE SCHEMA flyway_1;
+GO
+
 CREATE SCHEMA flyway_2;
+GO
+
 CREATE SCHEMA flyway_3;
 GO

@@ -14,6 +14,5 @@
 -- limitations under the License.
 --
 
-
-DROP DATABASE migration_test_db;
-DROP USER test_ddl_user;
+DROP DATABASE flyway_db;
+DROP USER flyway;
