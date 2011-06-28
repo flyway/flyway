@@ -233,13 +233,14 @@ public class Main {
      * @param name The name of the jar or directory to add.
      * @throws IOException when the jar or directory could not be found.
      */
-    private static void addJarOrDirectoryToClasspath(String name) throws IOException {
+    /* private -> for testing */
+    static void addJarOrDirectoryToClasspath(String name) throws IOException {
         LOG.debug("Loading " + name);
 
         // Add the jar or dir to the classpath
         // Chain the current thread classloader
         URLClassLoader urlClassLoader =
-                new URLClassLoader(new URL[]{new File(name).toURL()}, Thread.currentThread().getContextClassLoader());
+                new URLClassLoader(new URL[]{new File(name).toURI().toURL()}, Thread.currentThread().getContextClassLoader());
 
         // Replace the thread classloader - assumes
         // you have permissions to do so

@@ -65,4 +65,23 @@ public class CommandLineLargeTest {
         assertEquals(0, returnCode);
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
+
+    @Test
+    public void migrateWithCustomBaseDir() throws Exception {
+        String installDir = System.getProperty("installDir");
+        String configFile = new ClassPathResource("largeTest.properties").getFile().getPath();
+
+        ProcessBuilder builder = new ProcessBuilder(installDir + "/flyway.cmd", "migrate", "-configFile=" + configFile, "-baseDir=migrations", "-basePackage=dummy");
+        builder.directory(new File(installDir));
+        builder.redirectErrorStream(true);
+
+        Process process = builder.start();
+        String stdOut = FileCopyUtils.copyToString(new InputStreamReader(process.getInputStream(), "UTF-8"));
+        int returnCode = process.waitFor();
+
+        System.out.print(stdOut);
+
+        assertEquals(0, returnCode);
+        assertTrue(stdOut.contains("Successfully applied 1 migration"));
+    }
 }

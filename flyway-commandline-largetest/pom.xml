@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.googlecode.flyway</groupId>
@@ -48,7 +49,8 @@
                     </excludes>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
-                        <installDir>${project.build.directory}/dependency/flyway-commandline-${project.version}</installDir>
+                        <installDir>${project.build.directory}/dependency/flyway-commandline-${project.version}
+                        </installDir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -74,7 +76,32 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>flyway-sample,hsqldb</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/dependency/flyway-commandline-${project.version}/jars</outputDirectory>
+                            <outputDirectory>
+                                ${project.build.directory}/dependency/flyway-commandline-${project.version}/jars
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pre-largetest-3</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/test/resources/migrations</directory>
+                                </resource>
+                            </resources>
+                            <outputDirectory>
+                                ${project.build.directory}/dependency/flyway-commandline-${project.version}/sql/migrations
+                            </outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
