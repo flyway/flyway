@@ -16,8 +16,12 @@
     limitations under the License.
 
 -->
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+    <context:annotation-config />
     <!-- -->
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="location" value="file:${user.home}/flyway-mediumtests.properties"/>
@@ -41,4 +45,17 @@
     </bean>
     <!-- -->
     <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>
+    <!-- -->
+    <bean id="proxyUserDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="username" value="flyway_proxy[${oracle.username}]"/>
+        <property name="password" value="${oracle.password}"/>
+        <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+        <property name="url" value="${oracle.url}"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxActive" value="100"/>
+    </bean>
+    <!-- -->
+    <bean id="userNameBean" class="java.lang.String">
+        <constructor-arg value="${oracle.username}"/>
+    </bean>
 </beans>

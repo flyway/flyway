@@ -23,9 +23,12 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

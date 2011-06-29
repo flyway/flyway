@@ -65,11 +65,7 @@ public class OracleDbSupport implements DbSupport {
     }
 
     public String getCurrentSchema() {
-        return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-                return connection.getMetaData().getUserName();
-            }
-        });
+        return (String) jdbcTemplate.queryForObject("SELECT USER FROM dual", String.class);
     }
 
     public boolean isSchemaEmpty(String schema) {
