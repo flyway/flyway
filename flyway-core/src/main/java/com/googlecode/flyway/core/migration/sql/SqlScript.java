@@ -134,6 +134,10 @@ public class SqlScript {
             statementSql += line;
 
             String statementSqlWithoutLineBreaks = statementSql.replaceAll("\n", " ").replaceAll("\r", " ");
+            if (endsWithOpenMultilineStringLiteral(statementSqlWithoutLineBreaks)) {
+                continue;
+            }
+
             String oldDelimiter = delimiter;
             delimiter = changeDelimiterIfNecessary(statementSqlWithoutLineBreaks, line, delimiter);
             if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
@@ -310,5 +314,18 @@ public class SqlScript {
         }
 
         return noPlaceholderLines;
+    }
+
+    /**
+     * Checks whether the statement we have assembled so far ends with an open multi-line string literal (which will be
+     * continued on the next line).
+     *
+     * @param statement The current statement, assembled from the lines we have parsed so far. May not yet be complete.
+     *
+     * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
+     *         literal. {@code false} if not.
+     */
+    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
+        return false;
     }
 }

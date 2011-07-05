@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
+import com.googlecode.flyway.core.util.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -69,8 +71,7 @@ public class PlaceholderReplacer {
 
         for (String placeholder : placeholders.keySet()) {
             String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
-            noPlaceholders = noPlaceholders.replaceAll(Pattern.quote(searchTerm),
-                    Matcher.quoteReplacement(placeholders.get(placeholder)));
+            noPlaceholders = StringUtils.replaceAll(noPlaceholders, searchTerm, placeholders.get(placeholder));
         }
 
         return noPlaceholders;

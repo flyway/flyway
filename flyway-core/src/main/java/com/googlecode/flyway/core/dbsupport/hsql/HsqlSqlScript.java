@@ -28,7 +28,6 @@ public class HsqlSqlScript extends SqlScript {
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     public HsqlSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
@@ -37,18 +36,16 @@ public class HsqlSqlScript extends SqlScript {
 
     @Override
     protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
-        // Check whether we are inside a string literal or not.
+        return DEFAULT_STATEMENT_DELIMITER;
+    }
+
+    @Override
+    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
         // Hsql only supports single quotes (') as delimiters
         // A single quote inside a string literal is represented as two single quotes ('')
         // An even number of single quotes thus means the string literal is closed.
         // An uneven number means we are still waiting for the closing delimiter on a following line
         int numQuotes = StringUtils.countOccurrencesOf(statement, "'");
-        if ((numQuotes % 2) == 0) {
-            // String literal is closed.
-            return DEFAULT_STATEMENT_DELIMITER;
-        }
-
-        // Still inside the string literal
-        return null;
+        return (numQuotes % 2) != 0;
     }
 }

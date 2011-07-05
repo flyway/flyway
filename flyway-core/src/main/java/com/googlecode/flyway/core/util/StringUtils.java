@@ -15,6 +15,9 @@
  */
 package com.googlecode.flyway.core.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Various string-related utilities.
  */
@@ -31,7 +34,6 @@ public class StringUtils {
      *
      * @param str    The string to adjust. {@code null} is treated as an empty string.
      * @param length The exact length to reach.
-     *
      * @return The adjusted string.
      */
     public static String trimOrPad(String str, int length) {
@@ -68,7 +70,6 @@ public class StringUtils {
      * </pre>
      *
      * @param str the String to check, may be null
-     *
      * @return {@code true} if only contains digits, and is non-null
      */
     public static boolean isNumeric(String str) {
@@ -82,7 +83,6 @@ public class StringUtils {
      * Replaces all sequences of whitespace by a single blank. Ex.: "&nbsp;&nbsp;&nbsp;&nbsp;" -> " "
      *
      * @param str The string to analyse.
-     *
      * @return The input string, with all whitespace collapsed.
      */
     public static String collapseWhitespace(String str) {
@@ -95,7 +95,6 @@ public class StringUtils {
      *
      * @param str   The string to parse.
      * @param count The amount of characters to return.
-     *
      * @return The first n characters from this string, where n = count.
      */
     public static String left(String str, int count) {
@@ -108,5 +107,17 @@ public class StringUtils {
         }
 
         return str.substring(0, count);
+    }
+
+    /**
+     * Replaces all occurrances of this originalToken in this string with this replacementToken.
+     *
+     * @param str              The string to process.
+     * @param originalToken    The token to replace.
+     * @param replacementToken The replacement.
+     * @return The transformed str.
+     */
+    public static String replaceAll(String str, String originalToken, String replacementToken) {
+        return str.replaceAll(Pattern.quote(originalToken), Matcher.quoteReplacement(replacementToken));
     }
 }

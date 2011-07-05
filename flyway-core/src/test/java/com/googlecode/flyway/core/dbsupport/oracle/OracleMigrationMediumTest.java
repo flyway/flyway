@@ -20,15 +20,10 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +76,6 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         for (MetaDataTableRow metaDataTableRow : metaDataTableRows) {
             assertNotNull(metaDataTableRow.getScript() + " has no checksum", metaDataTableRow.getChecksum());
         }
-
     }
 
     /**
@@ -152,8 +146,12 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         return jdbcTemplate.queryForInt("select count(*) from recyclebin");
     }
 
-    @Ignore
-    public void semicolonWithinStringLiteral() {
-        //Ignore
+    /**
+     * Tests parsing support for q-Quote string literals.
+     */
+    @Test
+    public void qQuote() throws FlywayException {
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/qquote");
+        flyway.migrate();
     }
 }

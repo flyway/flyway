@@ -50,10 +50,6 @@ public class H2SqlScript extends SqlScript {
 
     @Override
     protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
-        if (endsWithOpenMultilineStringLiteral(statement)) {
-            return null;
-        }
-
         return DEFAULT_STATEMENT_DELIMITER;
     }
 
@@ -66,7 +62,8 @@ public class H2SqlScript extends SqlScript {
      * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
      *         literal. {@code false} if not.
      */
-    /* private -> for testing */ boolean endsWithOpenMultilineStringLiteral(String statement) {
+    @Override
+    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
 		String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|(),");
 

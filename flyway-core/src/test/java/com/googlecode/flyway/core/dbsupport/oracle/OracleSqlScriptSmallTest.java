@@ -27,6 +27,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for OracleSqlScript.
@@ -61,12 +64,34 @@ public class OracleSqlScriptSmallTest {
     @Test
     public void changeDelimiterRegEx() {
         final OracleSqlScript script = new OracleSqlScript("", PlaceholderReplacer.NO_PLACEHOLDERS);
-        Assert.assertNull(script.changeDelimiterIfNecessary(null, "begin_date", null));
-        Assert.assertEquals("/", script.changeDelimiterIfNecessary(null, "begin date", null));
-        Assert.assertNull(script.changeDelimiterIfNecessary(null, " begin date", null));
-        Assert.assertEquals("/", script.changeDelimiterIfNecessary(null, "begin\tdate", null));
-        Assert.assertEquals("/", script.changeDelimiterIfNecessary(null, "begin", null));
+        assertNull(script.changeDelimiterIfNecessary("begin_date", "begin_date", null));
+        assertEquals("/", script.changeDelimiterIfNecessary("begin date", "begin date", null));
+        assertNull(script.changeDelimiterIfNecessary(" begin date", " begin date", null));
+        assertEquals("/", script.changeDelimiterIfNecessary("begin\tdate", "begin\tdate", null));
+        assertEquals("/", script.changeDelimiterIfNecessary("begin", "begin", null));
     }
 
+    @Test
+    public void endsWithOpenMultilineStringLiteral() {
+        final OracleSqlScript script = new OracleSqlScript("", PlaceholderReplacer.NO_PLACEHOLDERS);
+        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']' from dual;"));
+        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')' from dual;"));
+        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}' from dual;"));
+        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>' from dual;"));
+        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$' from dual;"));
 
+        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']"));
+        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')"));
+        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}"));
+        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>"));
+        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$"));
+
+        assertFalse(script.endsWithOpenMultilineStringLiteral("INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID)\n" +
+                "VALUES ('GEO_TEST', 'GEO',\n" +
+                "MDSYS.SDO_DIM_ARRAY\n" +
+                "(MDSYS.SDO_DIM_ELEMENT('LONG', -180.0, 180.0, 0.05),\n" +
+                "MDSYS.SDO_DIM_ELEMENT('LAT', -90.0, 90.0, 0.05)\n" +
+                "),\n" +
+                "8307);"));
+    }
 }
