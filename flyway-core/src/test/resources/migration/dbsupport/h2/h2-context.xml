@@ -26,10 +26,17 @@
         <property name="url" value="jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1"/>
     </bean>
     <!-- -->
-    <bean id="concurrentMigrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+    <bean id="concurrentMigrationDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="username" value="sa"/>
         <property name="password" value=""/>
-        <property name="driverClass" value="org.h2.Driver"/>
+        <property name="driverClassName" value="org.h2.Driver"/>
         <property name="url" value="jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxActive" value="100"/>
+        <property name="connectionInitSqls">
+            <list>
+                <value>SET LOCK_TIMEOUT 100000</value>
+            </list>
+        </property>
     </bean>
 </beans>

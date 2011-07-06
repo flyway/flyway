@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.4.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>
@@ -20,7 +20,7 @@
     <scm>
         <url>http://code.google.com/p/flyway/source/browse/</url>
         <connection>scm:hg:https://flyway.googlecode.com/hg/</connection>
-        <developerConnection>scm:hg:file:///Workspaces/flyway-release</developerConnection>
+        <developerConnection>scm:hg:file:///Projekte/flyway-release</developerConnection>
     </scm>
     <developers>
         <developer>
