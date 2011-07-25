@@ -39,8 +39,8 @@ public class PostgreSQLSqlScript extends SqlScript {
         String upperCaseStatement = statement.toUpperCase();
 
         if (upperCaseStatement.startsWith("CREATE") && upperCaseStatement.contains("FUNCTION")) {
-            if (upperCaseStatement.matches(".* AS \\$[A-Z0-9]*\\$.*")) {
-                if (upperCaseStatement.matches(".* AS \\$[A-Z0-9]*\\$.*\\$[A-Z0-9]*\\$.*")) {
+            if (upperCaseStatement.matches(".* AS \\$[A-Z0-9_]*\\$.*")) {
+                if (upperCaseStatement.matches(".* AS \\$[A-Z0-9_]*\\$.*\\$[A-Z0-9_]*\\$.*")) {
                     return ";";
                 } else {
                     return null;

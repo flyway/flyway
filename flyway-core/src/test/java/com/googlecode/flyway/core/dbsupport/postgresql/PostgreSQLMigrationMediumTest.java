@@ -41,7 +41,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for MySQL Stored Procedures.
+     * Tests clean and migrate for PostgreSQL Stored Procedures.
      */
     @Test
     public void storedProcedure() throws Exception {
@@ -58,9 +58,22 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for PostgreSQL Functions.
+     */
+    @Test
+    public void function() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/function");
+        flyway.migrate();
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
      * Tests clean and migrate for PostgreSQL Triggers.
      */
-
     @Test
     public void trigger() throws Exception {
         flyway.setBaseDir("migration/dbsupport/postgresql/sql/trigger");
@@ -77,9 +90,8 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for MySQL Views.
+     * Tests clean and migrate for PostgreSQL Views.
      */
-
     @Test
     public void view() throws Exception {
         flyway.setBaseDir("migration/dbsupport/postgresql/sql/view");
