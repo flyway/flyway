@@ -101,7 +101,9 @@ public class PostgreSQLDbSupport implements DbSupport {
         final List<String> allDropStatements = new ArrayList<String>();
         allDropStatements.addAll(generateDropStatementsForTables(schema));
         allDropStatements.addAll(generateDropStatementsForSequences(schema));
+        allDropStatements.addAll(generateDropStatementsForBaseTypes(schema, true));
         allDropStatements.addAll(generateDropStatementsForRoutines(schema));
+        allDropStatements.addAll(generateDropStatementsForBaseTypes(schema, false));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int lineNumber = 1;
@@ -154,6 +156,35 @@ public class PostgreSQLDbSupport implements DbSupport {
     }
 
     /**
+     * Generates the statements for dropping the types in this schema.
+     *
+     * @param schema The schema for which to generate the statements.
+     * @param recreate Flag indicating whether the types should be recreated. Necessary for type-function chicken and egg problem.
+     * @return The drop statements.
+     */
+    private List<String> generateDropStatementsForBaseTypes(String schema, boolean recreate) {
+        @SuppressWarnings({"unchecked"}) List<Map<String, String>> typeNames =
+                jdbcTemplate.queryForList(
+                        "select typname from pg_catalog.pg_type where typcategory in ('P', 'U') and typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?)",
+                        new String[] {schema});
+
+        List<String> statements = new ArrayList<String>();
+        for (Map<String, String> row : typeNames) {
+            String typeName = row.get("typname");
+            statements.add("DROP TYPE IF EXISTS \"" + schema + "\".\"" + typeName + "\" CASCADE");
+        }
+
+        if (recreate) {
+            for (Map<String, String> row : typeNames) {
+                String typeName = row.get("typname");
+                statements.add("CREATE TYPE \"" + schema + "\".\"" + typeName + "\"");
+            }
+        }
+
+        return statements;
+    }
+
+    /**
      * Generates the statements for dropping the routines in this schema.
      *
      * @param schema The schema for which to generate the statements.
@@ -167,7 +198,7 @@ public class PostgreSQLDbSupport implements DbSupport {
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {
-            statements.add("DROP FUNCTION \"" + schema + "\".\"" + row.get("proname") + "\"(" + row.get("args") + ")");
+            statements.add("DROP FUNCTION IF EXISTS \"" + schema + "\".\"" + row.get("proname") + "\"(" + row.get("args") + ") CASCADE");
         }
         return statements;
     }
