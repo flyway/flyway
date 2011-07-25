@@ -92,14 +92,22 @@ public class SqlScript {
         }
     }
 
-    private List<SqlStatement> parse(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+    /**
+     * Parses this script source into statements.
+     *
+     * @param sqlScriptSource The script source to parse.
+     * @param placeholderReplacer The placeholder replacer to use.
+     * @return The parsed statements.
+     */
+    /* private -> for testing */
+    List<SqlStatement> parse(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         Reader reader = new StringReader(sqlScriptSource);
         List<String> rawLines = readLines(reader);
+        List<String> noPlaceholderLines = replacePlaceholders(rawLines, placeholderReplacer);
 
-        List<String> trimmedLines = trimLines(rawLines);
+        List<String> trimmedLines = trimLines(noPlaceholderLines);
         List<String> noCommentLines = stripSqlComments(trimmedLines);
-        List<String> noPlaceholderLines = replacePlaceholders(noCommentLines, placeholderReplacer);
-        return linesToStatements(noPlaceholderLines);
+        return linesToStatements(noCommentLines);
     }
 
 

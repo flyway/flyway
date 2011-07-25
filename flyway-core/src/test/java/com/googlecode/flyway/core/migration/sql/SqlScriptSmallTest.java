@@ -18,7 +18,9 @@ package com.googlecode.flyway.core.migration.sql;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -83,5 +85,22 @@ public class SqlScriptSmallTest {
         SqlStatement sqlStatement = sqlStatements.get(0);
         assertEquals(1, sqlStatement.getLineNumber());
         assertEquals("select col1, col2\nfrom mytable\nwhere col1 > 10", sqlStatement.getSql());
+    }
+
+    @Test
+    public void parsePlaceholderComments() {
+        String source = "${drop_view} \"SOME_VIEW\" IF EXISTS;\n" +"CREATE ${or_replace} VIEW \"SOME_VIEW\";\n";
+
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("drop_view", "--");
+        placeholders.put("or_replace", "OR REPLACE");
+
+        List<SqlStatement> sqlStatements = sqlScript.parse(source, new PlaceholderReplacer(placeholders, "${", "}"));
+        assertNotNull(sqlStatements);
+        assertEquals(1, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(2, sqlStatement.getLineNumber());
+        assertEquals("CREATE OR REPLACE VIEW \"SOME_VIEW\"", sqlStatement.getSql());
     }
 }
