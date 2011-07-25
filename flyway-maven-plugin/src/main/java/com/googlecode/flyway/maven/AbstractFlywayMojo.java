@@ -24,6 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
 import org.springframework.util.StringUtils;
 
 /**
@@ -60,7 +62,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The user to use to connect to the database.<br> default property: ${flyway.user}
      *
      * @parameter expression="${flyway.user}"
-     * @required
      */
     /* private -> for testing */ String user;
 
@@ -91,6 +92,36 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String table;
 
     /**
+     * The link to the settings.xml
+     *
+     * @parameter expression="${settings}"
+     */
+    private Settings settings;
+
+    /**
+     * +     * The id of the server tag in settings.xml
+     *
+     * @parameter expression="${serverId}"
+     */
+    private String serverId;
+
+    /**
+     * Load username password from settings
+     *
+     * @throws MojoExecutionException when the credentials could not be loaded.
+     */
+    private void loadCredentialsFromSettings() throws MojoExecutionException {
+        if (settings != null) {
+            Server server = settings.getServer(serverId);
+
+            if (server != null) {
+                user = server.getUsername();
+                password = server.getPassword();
+            }
+        }
+    }
+
+    /**
      * Creates the datasource base on the provided parameters.
      *
      * @return The fully configured datasource.
@@ -109,6 +140,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         MavenLogAppender.startPluginLog(this);
         try {
             Flyway flyway = new Flyway();
+
+            loadCredentialsFromSettings();
 
             BasicDataSource dataSource = createDataSource();
             try {

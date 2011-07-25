@@ -16,7 +16,6 @@
 package com.googlecode.flyway.commandline;
 
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
 
 import java.util.Properties;
 
