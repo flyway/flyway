@@ -16,6 +16,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.pyx4j.log4j.MavenLogAppender;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -24,6 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
 import org.springframework.util.StringUtils;
 
 /**
@@ -57,10 +60,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /* private -> for testing */ String url;
 
     /**
-     * The user to use to connect to the database.<br> default property: ${flyway.user}
+     * The user to use to connect to the database.<br> default property: ${flyway.user}<br>
+     * The credentials can be specified by user/password or serverId from settings.xml
      *
      * @parameter expression="${flyway.user}"
-     * @required
      */
     /* private -> for testing */ String user;
 
@@ -90,6 +93,45 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     private String table;
 
+
+    /**
+     * The link to the settings.xml
+     *
+     * @parameter expression="${settings}"
+     * @required
+     * @readonly
+     */
+    private Settings settings;
+
+    /**
+     * The id of the server tag in settings.xml<br>default: jdbc url<br>
+     * The credentials can be specified by user/password or serverId from settings.xml
+     *
+     * @parameter expression="${flyway.serverId}"
+     */
+    private String serverId;
+
+    /**
+     * Load username and password from settings.xml
+     *
+     * @throws MojoExecutionException
+     */
+    private void loadCredentialsFromSettings() {
+        if (user == null) {
+            final String id = serverId != null ? serverId : url;
+            final Server server = settings.getServer(id);
+            if (server == null) {
+                if (serverId != null) {
+                    throw new FlywayException(String.format("Cannot find serverId '%s' in settings.xml", id));
+                } else {
+                    throw new FlywayException(String.format("Trying to find serverId '%s' in settings.xml. Either user or serverId (default url) is required.", id));
+                }
+            }
+            user = server.getUsername();
+            password = server.getPassword();
+        }
+    }
+
     /**
      * Creates the datasource base on the provided parameters.
      *
@@ -110,6 +152,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         try {
             Flyway flyway = new Flyway();
 
+            loadCredentialsFromSettings();
             BasicDataSource dataSource = createDataSource();
             try {
                 flyway.setDataSource(dataSource);
