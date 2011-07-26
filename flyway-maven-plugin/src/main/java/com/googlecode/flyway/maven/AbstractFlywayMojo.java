@@ -60,7 +60,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /* private -> for testing */ String url;
 
     /**
-     * The user to use to connect to the database.<br> default property: ${flyway.user}
+     * The user to use to connect to the database.<br> default property: ${flyway.user}<br>
+     * The credentials can be specified by user/password or serverId from settings.xml
      *
      * @parameter expression="${flyway.user}"
      */
@@ -92,17 +93,21 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     private String table;
 
+
     /**
      * The link to the settings.xml
      *
      * @parameter expression="${settings}"
+     * @required
+     * @readonly
      */
     private Settings settings;
 
     /**
-     * The id of the server tag in settings.xml
+     * The id of the server tag in settings.xml<br>default: jdbc url<br>
+     * The credentials can be specified by user/password or serverId from settings.xml
      *
-     * @parameter expression="${serverId}"
+     * @parameter expression="${flyway.serverId}"
      */
     private String serverId;
 
@@ -148,7 +153,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             Flyway flyway = new Flyway();
 
             loadCredentialsFromSettings();
-
             BasicDataSource dataSource = createDataSource();
             try {
                 flyway.setDataSource(dataSource);
