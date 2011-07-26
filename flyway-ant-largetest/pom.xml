@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.googlecode.flyway</groupId>
@@ -6,30 +7,26 @@
         <version>1.4.3-SNAPSHOT</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
-    <artifactId>flyway-commandline-largetest</artifactId>
+    <artifactId>flyway-ant-largetest</artifactId>
     <version>1.4.3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>flyway-commandline</artifactId>
+            <artifactId>flyway-ant</artifactId>
             <version>${project.version}</version>
-            <classifier>dist</classifier>
+            <classifier>with-dependencies</classifier>
             <type>zip</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>flyway-sample</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-testutil</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -48,7 +45,8 @@
                     </excludes>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
-                        <installDir>${project.build.directory}/dependency/flyway-commandline-${project.version}</installDir>
+                        <installDir>${project.build.directory}/test-classes</installDir>
+                        <libDir>${project.build.directory}/dependency/flyway-ant-${project.version}</libDir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -63,7 +61,7 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>flyway-commandline</includeArtifactIds>
+                            <includeArtifactIds>flyway-ant</includeArtifactIds>
                         </configuration>
                     </execution>
                     <execution>
@@ -73,32 +71,9 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>flyway-sample,hsqldb</includeArtifactIds>
+                            <includeArtifactIds>h2</includeArtifactIds>
                             <outputDirectory>
-                                ${project.build.directory}/dependency/flyway-commandline-${project.version}/jars
-                            </outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>pre-largetest-3</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/test/resources/migrations</directory>
-                                </resource>
-                            </resources>
-                            <outputDirectory>
-                                ${project.build.directory}/dependency/flyway-commandline-${project.version}/sql/migrations
+                                ${project.build.directory}/dependency/flyway-ant-${project.version}
                             </outputDirectory>
                         </configuration>
                     </execution>

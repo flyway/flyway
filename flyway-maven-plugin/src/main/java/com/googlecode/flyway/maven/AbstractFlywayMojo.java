@@ -16,6 +16,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.pyx4j.log4j.MavenLogAppender;
 import org.apache.commons.dbcp.BasicDataSource;
@@ -99,7 +100,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Settings settings;
 
     /**
-     * +     * The id of the server tag in settings.xml
+     * The id of the server tag in settings.xml
      *
      * @parameter expression="${serverId}"
      */
@@ -111,13 +112,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @throws MojoExecutionException when the credentials could not be loaded.
      */
     private void loadCredentialsFromSettings() throws MojoExecutionException {
-        if (settings != null) {
-            Server server = settings.getServer(serverId);
-
-            if (server != null) {
-                user = server.getUsername();
-                password = server.getPassword();
+        if (user == null) {
+            final String id = serverId != null ? serverId : url;
+            final Server server = settings.getServer(id);
+            if (server == null) {
+                if (serverId != null) {
+                    throw new FlywayException(String.format("Cannot find serverId '%s' in settings.xml", id));
+                } else {
+                    throw new FlywayException(String.format("Trying to find serverId '%s' in settings.xml. Either user or serverId (default url) is required.", id));
+                }
             }
+            user = server.getUsername();
+            password = server.getPassword();
         }
     }
 
