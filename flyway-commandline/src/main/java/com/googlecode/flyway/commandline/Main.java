@@ -17,7 +17,6 @@ package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 import org.apache.commons.logging.Log;
@@ -34,8 +33,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -82,14 +79,7 @@ public class Main {
             } else if ("validate".equals(operation)) {
                 flyway.validate();
             } else if ("status".equals(operation)) {
-                MetaDataTableRow metaDataTableRow = flyway.status();
-
-                List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>();
-                if (metaDataTableRow != null) {
-                    metaDataTableRows.add(metaDataTableRow);
-                }
-
-                MetaDataTableRowDumper.dumpMigrations(metaDataTableRows);
+                MetaDataTableRowDumper.dumpMigration(flyway.status());
             } else if ("history".equals(operation)) {
                 MetaDataTableRowDumper.dumpMigrations(flyway.history());
             } else {

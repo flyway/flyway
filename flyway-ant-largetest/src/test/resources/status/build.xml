@@ -16,17 +16,19 @@
     limitations under the License.
 
 -->
-<project name="StatusLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
-<taskdef uri="antlib:com.googlecode.flyway.ant"
-            resource="com/googlecode/flyway/ant/antlib.xml"
-            classpath="path/to/ant-contrib.jar"/>
+<project name="StatusLargeTest" default="testStatus" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
 
-   <target name="iterate">
-      <antcontrib:for param="file">
-         <fileset dir="."/>
-         <sequential>
-            <echo message="- @{file}"/>
-         </sequential>
-      </antcontrib:for>
-   </target>
+    <path id="lib.path">
+        <fileset dir="${libDir}" includes="*.jar"/>
+    </path>
+
+    <taskdef uri="antlib:com.googlecode.flyway.ant"
+             resource="com/googlecode/flyway/ant/antlib.xml"
+             classpathref="lib.path"/>
+
+    <property name="flyway.driver" value="org.h2.Driver"/>
+
+    <target name="testStatus">
+        <flyway:status user="sa" url="jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1"/>
+    </target>
 </project>

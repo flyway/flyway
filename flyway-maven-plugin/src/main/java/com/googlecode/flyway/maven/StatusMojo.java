@@ -32,13 +32,6 @@ import java.util.List;
 public class StatusMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        MetaDataTableRow metaDataTableRow = flyway.status();
-
-        List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>();
-        if (metaDataTableRow != null) {
-            metaDataTableRows.add(metaDataTableRow);
-        }
-
-        MetaDataTableRowDumper.dumpMigrations(metaDataTableRows);
+        MetaDataTableRowDumper.dumpMigration(flyway.status());
     }
 }

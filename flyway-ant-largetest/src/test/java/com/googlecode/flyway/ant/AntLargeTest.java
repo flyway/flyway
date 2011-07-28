@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.maven.largetest;
+package com.googlecode.flyway.ant;
 
+import org.apache.tools.ant.BuildFileTest;
 import org.junit.Test;
+import org.junit.internal.runners.JUnit4ClassRunner;
+import org.junit.runner.RunWith;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
@@ -24,41 +27,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
- * Large Test for the Flyway Maven Plugin.
+ * Large Test for the status task.
  */
-public class MavenLargeTest {
+@RunWith(JUnit4ClassRunner.class)
+public class AntLargeTest extends BuildFileTest {
     /**
      * The installation directory for the test POMs.
      */
     private String installDir = System.getProperty("installDir");
 
     @Test
-    public void regular() throws Exception {
-        String stdOut = runMaven("regular");
-        assertTrue(stdOut.contains("<< Flyway Init >>"));
-    }
-
-    @Test
-    public void settings() throws Exception {
-        String stdOut = runMaven("settings", "-s", installDir + "/settings/settings.xml");
-        assertTrue(stdOut.contains("<< Flyway Init >>"));
+    public void status() throws Exception {
+        String stdOut = runAnt("status");
+        assertTrue(stdOut.contains("No migrations applied yet"));
     }
 
     /**
-     * Runs Maven in this directory with these extra arguments.
+     * Runs Ant in this directory with these extra arguments.
      *
      * @param dir       The directory below src/test/resources to run maven in.
      * @param extraArgs The extra arguments (if any) for Maven.
      * @return The standard output.
      * @throws Exception When the execution failed.
      */
-    private String runMaven(String dir, String... extraArgs) throws Exception {
-        String m2Home = System.getenv("M2_HOME");
-        String flywayVersion = System.getProperty("flywayVersion");
+    private String runAnt(String dir, String... extraArgs) throws Exception {
+        String antHome = System.getenv("ANT_HOME");
 
         String extension = "";
         if (System.getProperty("os.name").startsWith("Windows")) {
@@ -66,10 +60,8 @@ public class MavenLargeTest {
         }
 
         List<String> args = new ArrayList<String>();
-        args.add(m2Home + "/bin/mvn" + extension);
-        args.add("-Dflyway.version=" + flywayVersion);
-        args.add("flyway:init");
-        args.add("flyway:status");
+        args.add(antHome + "/bin/ant" + extension);
+        args.add("-DlibDir=" + System.getProperty("libDir"));
         args.addAll(Arrays.asList(extraArgs));
 
         ProcessBuilder builder = new ProcessBuilder(args);

@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -37,6 +38,19 @@ public class MetaDataTableRowDumper {
      */
     private MetaDataTableRowDumper() {
         // Do nothing
+    }
+
+    /**
+     * Dumps this metaDataTableRow in the log file.
+     *
+     * @param metaDataTableRow The metaDataTableRow to dump.
+     */
+    public static void dumpMigration(MetaDataTableRow metaDataTableRow) {
+        List<MetaDataTableRow> metaDataTableRowList = new ArrayList<MetaDataTableRow>();
+        if (metaDataTableRow != null) {
+            metaDataTableRowList.add(metaDataTableRow);
+        }
+        dumpMigrations(metaDataTableRowList);
     }
 
     /**
@@ -67,7 +81,6 @@ public class MetaDataTableRowDumper {
      * Formats the installedOn date for displaying it in the table.
      *
      * @param installedOn The date to format.
-     *
      * @return The date in a displayable format.
      */
     private static String formatInstalledOnDate(Date installedOn) {

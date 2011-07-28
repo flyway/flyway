@@ -16,16 +16,16 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
  * Flyway status task.
  */
-public class StatusTask extends Task {
+public class StatusTask extends AbstractFlywayTask {
     @Override
-    public void execute() throws BuildException {
-        Flyway flyway = new Flyway();
-        flyway.status();
+    protected void doExecute(Flyway flyway) throws Exception {
+        MetaDataTableRowDumper.dumpMigration(flyway.status());
     }
 }

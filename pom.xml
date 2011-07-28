@@ -31,6 +31,10 @@
             <id>christian</id>
             <name>Christian Dedie</name>
         </developer>
+        <developer>
+            <id>chris</id>
+            <name>Chris Wewerka</name>
+        </developer>
     </developers>
 
     <modules>
@@ -40,10 +44,8 @@
         <module>flyway-sample</module>
         <module>flyway-commandline</module>
         <module>flyway-commandline-largetest</module>
-        <!--
         <module>flyway-ant</module>
         <module>flyway-ant-largetest</module>
-        -->
     </modules>
 
     <distributionManagement>
@@ -63,6 +65,7 @@
         <version.spring>2.5.6</version.spring>
         <version.maven>2.2.1</version.maven>
         <version.ant>1.8.2</version.ant>
+        <version.slf4j>1.5.6</version.slf4j>
     </properties>
 
     <dependencyManagement>
@@ -175,23 +178,17 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.5.6</version>
+                <version>${version.slf4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${version.slf4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
                 <version>${version.ant}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ant</groupId>
-                <artifactId>ant-commons-logging</artifactId>
-                <version>${version.ant}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.ant</groupId>
