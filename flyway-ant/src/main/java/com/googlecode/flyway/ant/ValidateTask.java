@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.maven;
+package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
 
 /**
- * Maven goal that drops all database objects.
- *
- * @phase pre-integration-test
- * @goal clean
- * @since 0.7
+ * Ant task to validate the applied migrations in the database against the available classpath migrations in order to
+ * detect accidental migration changes.
  */
-@SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
-public class CleanMojo extends AbstractFlywayMojo {
+@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
+public class ValidateTask extends AbstractMigrationLoadingTask {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        flyway.clean();
+        super.doExecute(flyway);
+
+        flyway.validate();
     }
 }

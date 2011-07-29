@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.maven;
+package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 
 /**
- * Maven goal that drops all database objects.
- *
- * @phase pre-integration-test
- * @goal clean
- * @since 0.7
+ * Ant task that shows the history (all applied migrations) of the database.
  */
 @SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
-public class CleanMojo extends AbstractFlywayMojo {
+public class HistoryTask extends AbstractFlywayTask {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        flyway.clean();
+        MetaDataTableRowDumper.dumpMigrations(flyway.history());
     }
 }

@@ -120,7 +120,8 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     /**
      * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
      * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
-     * this! (default: false)
+     * this! (default: false)<br/>Also configurable with Maven or System Property:
+     * ${flyway.disableInitCheck}
      *
      * @parameter expression="${flyway.disableInitCheck}"
      */

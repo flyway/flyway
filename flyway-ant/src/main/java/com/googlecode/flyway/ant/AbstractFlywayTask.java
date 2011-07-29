@@ -34,30 +34,30 @@ abstract class AbstractFlywayTask extends Task {
     private static final Log LOG = LogFactory.getLog(AbstractFlywayTask.class);
 
     /**
-     * The fully qualified classname of the jdbc driver to use to connect to the database.<br> default property:
+     * The fully qualified classname of the jdbc driver to use to connect to the database.<br/>Also configurable with Ant Property:
      * ${flyway.driver}
      */
     private String driver;
 
     /**
-     * The jdbc url to use to connect to the database.<br> default property: ${flyway.url}
+     * The jdbc url to use to connect to the database.<br/>Also configurable with Ant Property: ${flyway.url}
      */
     private String url;
 
     /**
-     * The user to use to connect to the database.<br> default property: ${flyway.user}<br>
+     * The user to use to connect to the database.<br/>Also configurable with Ant Property: ${flyway.user}<br>
      * The credentials can be specified by user/password or serverId from settings.xml
      */
     private String user;
 
     /**
-     * The password to use to connect to the database. (default: <i>blank</i>)<br> default property: ${flyway.password}
+     * The password to use to connect to the database. (default: <i>blank</i>)<br/>Also configurable with Ant Property: ${flyway.password}
      */
     private String password;
 
     /**
      * Comma-separated list of the schemas managed by Flyway. The first schema in the list will be the one containing
-     * the metadata table. (default: The default schema for the datasource connection)<br> default property:
+     * the metadata table. (default: The default schema for the datasource connection)<br/>Also configurable with Ant Property:
      * ${flyway.schemas}
      */
     private String schemas;
@@ -66,12 +66,12 @@ abstract class AbstractFlywayTask extends Task {
      * <p>The name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode) the
      * metadata table is placed in the default schema for the connection provided by the datasource. </p> <p> When the
      * <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first schema of
-     * the list. </p> (default: schema_version)<br> default property: ${flyway.table}
+     * the list. </p> (default: schema_version)<br/>Also configurable with Ant Property: ${flyway.table}
      */
     private String table;
 
     /**
-     * @param driver The fully qualified classname of the jdbc driver to use to connect to the database.<br> default property:
+     * @param driver The fully qualified classname of the jdbc driver to use to connect to the database.<br/>Also configurable with Ant Property:
      *               ${flyway.driver}
      */
     public void setDriver(String driver) {
@@ -79,21 +79,21 @@ abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param url The jdbc url to use to connect to the database.<br> default property: ${flyway.url}
+     * @param url The jdbc url to use to connect to the database.<br/>Also configurable with Ant Property: ${flyway.url}
      */
     public void setUrl(String url) {
         this.url = url;
     }
 
     /**
-     * @param user The user to use to connect to the database.<br> default property: ${flyway.user}
+     * @param user The user to use to connect to the database.<br/>Also configurable with Ant Property: ${flyway.user}
      */
     public void setUser(String user) {
         this.user = user;
     }
 
     /**
-     * @param password The password to use to connect to the database. (default: <i>blank</i>)<br> default property: ${flyway.password}
+     * @param password The password to use to connect to the database. (default: <i>blank</i>)<br/>Also configurable with Ant Property: ${flyway.password}
      */
     public void setPassword(String password) {
         this.password = password;
@@ -101,7 +101,7 @@ abstract class AbstractFlywayTask extends Task {
 
     /**
      * @param schemas Comma-separated list of the schemas managed by Flyway. The first schema in the list will be the one containing
-     *                the metadata table. (default: The default schema for the datasource connection)<br> default property:
+     *                the metadata table. (default: The default schema for the datasource connection)<br/>Also configurable with Ant Property:
      *                ${flyway.schemas}
      */
     public void setSchemas(String schemas) {
@@ -112,7 +112,7 @@ abstract class AbstractFlywayTask extends Task {
      * @param table <p>The name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode) the
      *              metadata table is placed in the default schema for the connection provided by the datasource. </p> <p> When the
      *              <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first schema of
-     *              the list. </p> (default: schema_version)<br> default property: ${flyway.table}
+     *              the list. </p> (default: schema_version)<br/>Also configurable with Ant Property: ${flyway.table}
      */
     public void setTable(String table) {
         this.table = table;
@@ -126,10 +126,10 @@ abstract class AbstractFlywayTask extends Task {
      */
     /* private -> for testing */ BasicDataSource createDataSource() throws Exception {
         final BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(usePropertyIfNotSet(driver, "driver"));
-        dataSource.setUrl(usePropertyIfNotSet(url, "url"));
-        dataSource.setUsername(usePropertyIfNotSet(user, "user"));
-        String passwordValue = usePropertyIfNotSet(password, "password");
+        dataSource.setDriverClassName(useValueIfPropertyNotSet(driver, "driver"));
+        dataSource.setUrl(useValueIfPropertyNotSet(url, "url"));
+        dataSource.setUsername(useValueIfPropertyNotSet(user, "user"));
+        String passwordValue = useValueIfPropertyNotSet(password, "password");
         if (passwordValue == null) {
             passwordValue = "";
         }
@@ -138,17 +138,18 @@ abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * Retrieves a value either directly or if not set, from the flyway system property.
+     * Retrieves a value either from an Ant property or if not set, directly.
      * @param value The value to check.
-     * @param flywayProperty The flyway system property. Ex. 'url' for 'flyway.url'
+     * @param flywayProperty The flyway Ant property. Ex. 'url' for 'flyway.url'
      * @return The value.
      */
-    private String usePropertyIfNotSet(String value, String flywayProperty) {
-        if (value != null) {
-            return value;
+    protected String useValueIfPropertyNotSet(String value, String flywayProperty) {
+        String propertyValue = getProject().getProperty("flyway." + flywayProperty);
+        if (propertyValue != null) {
+            return propertyValue;
         }
 
-        return getProject().getProperty("flyway." + flywayProperty);
+        return value;
     }
 
     @Override
@@ -161,10 +162,10 @@ abstract class AbstractFlywayTask extends Task {
             try {
                 flyway.setDataSource(dataSource);
                 if (schemas != null) {
-                    flyway.setSchemas(StringUtils.tokenizeToStringArray(usePropertyIfNotSet(schemas, "schemas"), ","));
+                    flyway.setSchemas(StringUtils.tokenizeToStringArray(useValueIfPropertyNotSet(schemas, "schemas"), ","));
                 }
                 if (table != null) {
-                    flyway.setTable(usePropertyIfNotSet(table, "table"));
+                    flyway.setTable(useValueIfPropertyNotSet(table, "table"));
                 }
 
                 doExecute(flyway);

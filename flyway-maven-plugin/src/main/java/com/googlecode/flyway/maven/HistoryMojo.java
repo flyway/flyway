@@ -31,7 +31,6 @@ import java.util.List;
 public class HistoryMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        List<MetaDataTableRow> metaDataTableRows = flyway.history();
-        MetaDataTableRowDumper.dumpMigrations(metaDataTableRows);
+        MetaDataTableRowDumper.dumpMigrations(flyway.history());
     }
 }

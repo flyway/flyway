@@ -15,10 +15,7 @@
  */
 package com.googlecode.flyway.ant;
 
-import org.apache.tools.ant.BuildFileTest;
 import org.junit.Test;
-import org.junit.internal.runners.JUnit4ClassRunner;
-import org.junit.runner.RunWith;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
@@ -27,15 +24,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Large Test for the status task.
  */
-@RunWith(JUnit4ClassRunner.class)
-public class AntLargeTest extends BuildFileTest {
+public class AntLargeTest {
     /**
      * The installation directory for the test POMs.
      */
     private String installDir = System.getProperty("installDir");
+
+    @Test
+    public void init() throws Exception {
+        String stdOut = runAnt("init");
+        assertTrue(stdOut.contains("A new beginning!"));
+    }
 
     @Test
     public void status() throws Exception {
