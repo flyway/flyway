@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<project name="StatusLargeTest" default="testInit" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
+<project name="InitLargeTest" default="testInit" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
 
     <path id="lib.path">
         <fileset dir="${libDir}" includes="*.jar"/>

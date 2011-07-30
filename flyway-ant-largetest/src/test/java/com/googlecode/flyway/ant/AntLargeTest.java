@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.ant;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
 
@@ -40,6 +41,13 @@ public class AntLargeTest {
     public void init() throws Exception {
         String stdOut = runAnt("init");
         assertTrue(stdOut.contains("A new beginning!"));
+    }
+
+    @Ignore("Axel: Currently Broken due to Classpath issue")
+    @Test
+    public void migrate() throws Exception {
+        String stdOut = runAnt("migrate", "-Dflyway.baseDir=largetest/sql");
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 
     @Test

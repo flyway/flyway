@@ -225,7 +225,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
         List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
 
         if (availableMigrations.isEmpty()) {
-            LOG.warn("Possible solution: run the Ant javac task first so Flyway can find the migrations");
+            LOG.warn("Possible solution: run the Ant javac and copy tasks first so Flyway can find the migrations");
             return;
         }
 
