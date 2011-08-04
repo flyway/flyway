@@ -16,7 +16,7 @@
             <artifactId>flyway-commandline</artifactId>
             <version>${project.version}</version>
             <classifier>dist</classifier>
-            <type>zip</type>
+            <type>tar.gz</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

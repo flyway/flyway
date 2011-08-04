@@ -33,7 +33,7 @@ public class CommandLineLargeTest {
     public void showUsage() throws Exception {
         String installDir = System.getProperty("installDir");
 
-        ProcessBuilder builder = new ProcessBuilder(installDir + "/flyway.cmd");
+	ProcessBuilder builder = new ProcessBuilder(installDir + "/flyway." + flywayCmdLineExtensionForCurrentSystem());
         builder.directory(new File(installDir));
         builder.redirectErrorStream(true);
 
@@ -52,7 +52,8 @@ public class CommandLineLargeTest {
         String installDir = System.getProperty("installDir");
         String configFile = new ClassPathResource("largeTest.properties").getFile().getPath();
 
-        ProcessBuilder builder = new ProcessBuilder(installDir + "/flyway.cmd", "migrate", "-configFile=" + configFile);
+	ProcessBuilder builder = new ProcessBuilder(installDir + "/flyway." + flywayCmdLineExtensionForCurrentSystem(),
+		"migrate", "-configFile=" + configFile);
         builder.directory(new File(installDir));
         builder.redirectErrorStream(true);
 
@@ -71,7 +72,8 @@ public class CommandLineLargeTest {
         String installDir = System.getProperty("installDir");
         String configFile = new ClassPathResource("largeTest.properties").getFile().getPath();
 
-        ProcessBuilder builder = new ProcessBuilder(installDir + "/flyway.cmd", "migrate", "-configFile=" + configFile, "-baseDir=migrations", "-basePackage=dummy");
+	ProcessBuilder builder = new ProcessBuilder(installDir + "/flyway." + flywayCmdLineExtensionForCurrentSystem(),
+		"migrate", "-configFile=" + configFile, "-baseDir=migrations", "-basePackage=dummy");
         builder.directory(new File(installDir));
         builder.redirectErrorStream(true);
 
@@ -83,5 +85,18 @@ public class CommandLineLargeTest {
 
         assertEquals(0, returnCode);
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
+    }
+
+    /**
+     * Extension for the current systems batch file.
+     * 
+     * @return returns cmd for windows systems, sh for other systems
+     */
+    private String flywayCmdLineExtensionForCurrentSystem() {
+	String osname = System.getProperty("os.name", "generic").toLowerCase();
+	if (osname.startsWith("windows")) {
+	    return "cmd";
+	}
+	return "sh";
     }
 }
