@@ -49,6 +49,15 @@ public class MavenLargeTest {
     }
 
     /**
+     * Tests the use of settings.xml with a default server id.
+     */
+    @Test
+    public void settingsDefault() throws Exception {
+        String stdOut = runMaven("settings-default", "-s", installDir + "/settings-default/settings.xml");
+        assertTrue(stdOut.contains("<< Flyway Init >>"));
+    }
+
+    /**
      * Runs Maven in this directory with these extra arguments.
      *
      * @param dir       The directory below src/test/resources to run maven in.

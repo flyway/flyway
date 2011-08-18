@@ -86,7 +86,7 @@
                             <summary>Flyway Ant tasks (with dependencies)</summary>
                             <labels>
                                 <label>Featured</label>
-                                <label>Type-CommandLineTool</label>
+                                <label>Type-AntTasks</label>
                                 <label>OpSys-All</label>
                             </labels>
                         </upload>
@@ -95,7 +95,7 @@
                             <summary>Flyway Ant tasks (with dependencies)</summary>
                             <labels>
                                 <label>Featured</label>
-                                <label>Type-CommandLineTool</label>
+                                <label>Type-AntTasks</label>
                                 <label>OpSys-All</label>
                             </labels>
                         </upload>

@@ -104,28 +104,25 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Settings settings;
 
     /**
-     * The id of the server tag in settings.xml<br>default: jdbc url<br>
-     * The credentials can be specified by user/password or serverId from settings.xml
+     * The id of the server tag in settings.xml<br>default: flyway-db<br>
+     * The credentials can be specified by user/password or serverId from settings.xml<br> default property:
+     * ${flyway.serverId}
      *
      * @parameter expression="${flyway.serverId}"
      */
-    private String serverId;
+    private String serverId = "flyway-db";
 
     /**
      * Load username password from settings
      *
-     * @throws MojoExecutionException when the credentials could not be loaded.
+     * @throws FlywayException when the credentials could not be loaded.
      */
-    private void loadCredentialsFromSettings() throws MojoExecutionException {
+    private void loadCredentialsFromSettings() throws FlywayException {
         if (user == null) {
-            final String id = serverId != null ? serverId : url;
-            final Server server = settings.getServer(id);
+            final Server server = settings.getServer(serverId);
             if (server == null) {
-                if (serverId != null) {
-                    throw new FlywayException(String.format("Cannot find serverId '%s' in settings.xml", id));
-                } else {
-                    throw new FlywayException(String.format("Trying to find serverId '%s' in settings.xml. Either user or serverId (default url) is required.", id));
-                }
+                throw new FlywayException(String.format("Database username missing. It was not specified as a property" +
+                        " and it was not defined in settings.xml for the server with the id '%s'", serverId));
             }
             user = server.getUsername();
             password = server.getPassword();
