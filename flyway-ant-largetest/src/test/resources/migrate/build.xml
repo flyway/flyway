@@ -41,16 +41,15 @@
         </copy>
         <jar destfile="largetest.jar" basedir="build"/>
 
-        <path id="flyway.path">
-            <fileset dir="${libDir}" includes="*.jar"/>
+        <path id="flyway.classpath">
             <fileset dir="." includes="largetest.jar"/>
         </path>
 
-        <echo>${flyway.path}</echo>
+        <echo>${flyway.classpath}</echo>
 
         <taskdef uri="antlib:com.googlecode.flyway.ant"
                  resource="com/googlecode/flyway/ant/antlib.xml"
-                 classpathref="flyway.path"/>
+                 classpathref="lib.path"/>
     </target>
 
     <target name="testMigrate" depends="compile">

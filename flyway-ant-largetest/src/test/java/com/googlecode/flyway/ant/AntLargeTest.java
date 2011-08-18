@@ -43,7 +43,6 @@ public class AntLargeTest {
         assertTrue(stdOut.contains("A new beginning!"));
     }
 
-    @Ignore("Axel: Currently Broken due to Classpath issue")
     @Test
     public void migrate() throws Exception {
         String stdOut = runAnt("migrate", "-Dflyway.baseDir=largetest/sql");

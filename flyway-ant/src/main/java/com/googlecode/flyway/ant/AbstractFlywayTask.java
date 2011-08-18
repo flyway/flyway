@@ -20,8 +20,11 @@ import com.googlecode.flyway.core.util.ExceptionUtils;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Reference;
 import org.springframework.util.StringUtils;
 
 /**
@@ -32,6 +35,11 @@ abstract class AbstractFlywayTask extends Task {
      * Logger.
      */
     private static final Log LOG = LogFactory.getLog(AbstractFlywayTask.class);
+
+    /**
+     * The classpath used to load the JDBC driver and the migrations.
+     */
+    private Path classPath;
 
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br/>Also configurable with Ant Property:
@@ -69,6 +77,24 @@ abstract class AbstractFlywayTask extends Task {
      * the list. </p> (default: schema_version)<br/>Also configurable with Ant Property: ${flyway.table}
      */
     private String table;
+
+    /**
+     * @param classpath The classpath used to load the JDBC driver and the migrations.<br/>Also configurable with Ant
+     * Property: ${flyway.classpath}
+     */
+    public void setClasspath(Path classpath) {
+        this.classPath = classpath;
+    }
+
+    /**
+     * @param classpathRef The reference to the classpath used to load the JDBC driver and the migrations.<br/>Also
+     * configurable with Ant Property: ${flyway.classpathRef}
+     */
+    public void setClasspathRef(Reference classpathRef) {
+        Path classPath = new Path(getProject());
+        classPath.setRefid(classpathRef);
+        this.classPath = classPath;
+    }
 
     /**
      * @param driver The fully qualified classname of the jdbc driver to use to connect to the database.<br/>Also configurable with Ant Property:
@@ -139,7 +165,8 @@ abstract class AbstractFlywayTask extends Task {
 
     /**
      * Retrieves a value either from an Ant property or if not set, directly.
-     * @param value The value to check.
+     *
+     * @param value          The value to check.
      * @param flywayProperty The flyway Ant property. Ex. 'url' for 'flyway.url'
      * @return The value.
      */
@@ -152,9 +179,32 @@ abstract class AbstractFlywayTask extends Task {
         return value;
     }
 
+    /**
+     * Prepares the classpath this task runs in, so that it includes both the classpath for Flyway and the classpath for
+     * the JDBC drivers and migrations.
+     */
+    private void prepareClassPath() {
+        Path classpath = (Path) getProject().getReference("flyway.classpath");
+        if (classpath != null) {
+            setClasspath(classpath);
+        } else {
+            Reference classpathRef = (Reference) getProject().getReference("flyway.classpathref");
+            if (classpathRef != null) {
+                setClasspathRef(classpathRef);
+            }
+        }
+
+        ClassLoader classLoader =
+                new AntClassLoader(getClass().getClassLoader(), getProject(), classPath);
+        Thread.currentThread().setContextClassLoader(classLoader);
+    }
+
     @Override
     public void execute() throws BuildException {
         AntLogAppender.startTaskLog(getProject());
+
+        prepareClassPath();
+
         try {
             Flyway flyway = new Flyway();
 
@@ -186,7 +236,7 @@ abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * Executes this mojo.
+     * Executes this task.
      *
      * @param flyway The flyway instance to operate on.
      * @throws Exception any exception
