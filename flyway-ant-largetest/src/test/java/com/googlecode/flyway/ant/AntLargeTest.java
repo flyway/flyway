@@ -15,7 +15,6 @@
  */
 package com.googlecode.flyway.ant;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
 

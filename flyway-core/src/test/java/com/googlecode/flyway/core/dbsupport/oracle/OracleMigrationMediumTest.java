@@ -107,6 +107,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests parsing of object names that countain keywords such as MY_TABLE.
+     */
+    @Test
+    public void objectNames() throws FlywayException {
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/objectnames");
+        flyway.migrate();
+    }
+
+    /**
      * Tests cleaning up after CREATE MATERIALIZED VIEW.
      */
     @Test

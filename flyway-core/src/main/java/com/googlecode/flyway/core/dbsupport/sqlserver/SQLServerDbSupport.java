@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MSsql-specific support.
+ * SQLServer-specific support.
  */
 public class SQLServerDbSupport implements DbSupport {
     /**

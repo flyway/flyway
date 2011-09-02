@@ -50,7 +50,9 @@ public class OracleSqlScript extends SqlScript {
         }
 
         if (upperCaseLine.startsWith("CREATE")
-                && (upperCaseLine.contains("FUNCTION") || upperCaseLine.contains("PROCEDURE") || upperCaseLine.contains("PACKAGE"))) {
+                && (upperCaseLine.matches(".*\\WFUNCTION(\\W.*|$)")
+                || upperCaseLine.matches(".*\\WPROCEDURE(\\W.*|$)")
+                || upperCaseLine.matches(".*\\WPACKAGE(\\W.*|$)"))) {
             return PLSQL_DELIMITER;
         }
 

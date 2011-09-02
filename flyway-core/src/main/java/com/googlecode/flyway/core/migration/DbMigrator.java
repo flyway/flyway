@@ -216,6 +216,7 @@ public class DbMigrator {
                             return null;
                         }
                     });
+                    LOG.debug("Successfully completed and committed DB migration to version " + migration.getVersion().toString());
                     state = MigrationState.SUCCESS;
                 } catch (Exception e) {
                     LOG.error(e.toString());
@@ -245,6 +246,7 @@ public class DbMigrator {
 
         metaDataTableRow.update(executionTime, migrationRunnable.state);
         metaDataTable.insert(metaDataTableRow);
+        LOG.debug("MetaData table successfully updated to reflect changes");
 
         return metaDataTableRow;
     }

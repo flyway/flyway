@@ -16,13 +16,16 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test to demonstrate the migration functionality using SQL Server.
@@ -86,5 +89,21 @@ public class SQLServerMigrationMediumTest extends MigrationTestCase {
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
+    }
+
+    /**
+     * Tests a large migration that has been reported to hang on SqlServer 2005.
+     */
+    @Ignore("Axel: Fails due to nested transaction being opened in script, causing outer transaction not to receive COMMIT statement")
+    @Test
+    public void large() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/large");
+        flyway.setBasePackage("com.googlecode.flyway.core.dbsupport.sqlserver.large");
+        flyway.setTarget(new SchemaVersion("3.1.0"));
+        flyway.migrate();
+
+        assertEquals("3.1.0", flyway.status().getVersion().toString());
+        assertEquals(MigrationState.SUCCESS, flyway.status().getState());
+        assertTrue(jdbcTemplate.queryForInt("SELECT COUNT(*) FROM dbo.CHANGELOG") > 0);
     }
 }
