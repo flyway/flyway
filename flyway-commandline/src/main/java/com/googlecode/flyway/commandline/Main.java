@@ -87,15 +87,31 @@ public class Main {
             }
         } catch (Exception e) {
             LOG.error(ClassUtils.getShortName(e.getClass()) + ": " + e.getMessage());
+	    outputFirstStackTraceElement(e);
 
             @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause != null) {
                 LOG.error("Caused by " + rootCause.toString());
+		outputFirstStackTraceElement(rootCause);
             }
 
             System.exit(1);
         }
+    }
+
+    /**
+     * Output class, method and line number infos of first stack trace element
+     * of the given {@link Throwable} using {@link Log#error(Object)}.
+     * 
+     * @param t
+     *            {@link Throwable} to log
+     */
+    private static void outputFirstStackTraceElement(Throwable t) {
+	StackTraceElement firstStackTraceElement = t.getStackTrace()[0];
+	LOG.error("Occured in " + firstStackTraceElement.getClassName() + " in method "
+	    + firstStackTraceElement.getMethodName() + ", line number "
+	    + firstStackTraceElement.getLineNumber());
     }
 
     /**
