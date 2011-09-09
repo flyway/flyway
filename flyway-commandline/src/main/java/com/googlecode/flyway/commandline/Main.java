@@ -15,10 +15,14 @@
  */
 package com.googlecode.flyway.commandline;
 
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.util.ExceptionUtils;
-import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -27,13 +31,10 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.FileCopyUtils;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Properties;
+import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.util.ExceptionUtils;
+import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 
 /**
  * Main class and central entry point of the Flyway command-line tool.
@@ -212,12 +213,20 @@ public class Main {
      * @throws IOException When the jars could not be loaded.
      */
     private static void loadJdbcDriversAndJavaMigrations() throws IOException {
-        File dir = new File(getInstallationDir() + "/../jars");
+		final String directoryForJdbcDriversAndJavaMigrations = getInstallationDir() + "/../jars";
+		File dir = new File(directoryForJdbcDriversAndJavaMigrations);
         File[] files = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.endsWith(".jar");
             }
         });
+
+		// see javadoc of listFiles(): null if given path is not a real directory
+		if (files == null) {
+			LOG.warn("Directory for JDBC drivers and JavaMigrations not found: "
+					+ directoryForJdbcDriversAndJavaMigrations);
+			return;
+		}
 
         for (File file : files) {
             addJarOrDirectoryToClasspath(file.getPath());
