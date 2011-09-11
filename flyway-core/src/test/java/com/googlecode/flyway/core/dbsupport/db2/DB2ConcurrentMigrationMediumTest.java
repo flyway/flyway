@@ -23,8 +23,4 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @ContextConfiguration(locations = {"classpath:migration/dbsupport/db2/db2-context.xml"})
 public class DB2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-    @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
 }

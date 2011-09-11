@@ -31,8 +31,7 @@ import static org.junit.Assert.assertTrue;
  * Test to demonstrate the migration functionality using SQL Server.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/sqlserver/sqlserver-context.xml"})
-public class SQLServerMigrationMediumTest extends MigrationTestCase {
+public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";

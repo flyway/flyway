@@ -132,6 +132,11 @@
                     <scope>test</scope>
                 </dependency>
                 <dependency>
+                    <groupId>com.microsoft.sqlserver</groupId>
+                    <artifactId>sqljdbc</artifactId>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
                     <scope>test</scope>

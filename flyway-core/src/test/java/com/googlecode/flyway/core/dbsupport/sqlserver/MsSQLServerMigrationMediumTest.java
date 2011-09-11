@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.oracle;
+package com.googlecode.flyway.core.dbsupport.sqlserver;
 
-import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Test to demonstrate the migration functionality using Oracle.
+ * Test to demonstrate the migration functionality using SQL Server with the Microsoft driver.
  */
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/oracle/oracle-context.xml"})
-public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/sqlserver/sqlserver-ms-context.xml"})
+public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
 }

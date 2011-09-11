@@ -23,8 +23,4 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @ContextConfiguration(locations = {"classpath:migration/dbsupport/mysql/mysql-context.xml"})
 public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-    @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
 }
