@@ -17,27 +17,32 @@ package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
+import org.springframework.util.StringUtils;
 
 /**
  * SqlScript supporting DB2-specific delimiter changes.
- * 
+ * <p/>
  * TODO Support for Procedures.
  */
-public class DB2SqlScript extends SqlScript
-{
+public class DB2SqlScript extends SqlScript {
+    /**
+     * Creates a new sql script from this source with these placeholders to replace.
+     *
+     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
+     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     * @throws IllegalStateException Thrown when the script could not be read from this resource.
+     */
+    public DB2SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+        super(sqlScriptSource, placeholderReplacer);
+    }
 
-	/**
-	 * Creates a new sql script from this source with these placeholders to replace.
-	 * 
-	 * @param sqlScriptSource
-	 *            The sql script as a text block with all placeholders still present.
-	 * @param placeholderReplacer
-	 *            The placeholder replacer to apply to sql migration scripts.
-	 * 
-	 * @throws IllegalStateException
-	 *             Thrown when the script could not be read from this resource.
-	 */
-	public DB2SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-		super(sqlScriptSource, placeholderReplacer);
-	}
+    @Override
+    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
+        // DB2 only supports single quotes (') as delimiters
+        // A single quote inside a string literal is represented as two single quotes ('')
+        // An even number of single quotes thus means the string literal is closed.
+        // An uneven number means we are still waiting for the closing delimiter on a following line
+        int numQuotes = StringUtils.countOccurrencesOf(statement, "'");
+        return (numQuotes % 2) != 0;
+    }
 }

@@ -55,9 +55,4 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
-
-    @Ignore
-    public void semicolonWithinStringLiteral() {
-        // TODO implement for DB2
-    }
 }
