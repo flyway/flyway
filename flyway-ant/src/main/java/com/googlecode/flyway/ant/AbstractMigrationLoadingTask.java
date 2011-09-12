@@ -21,7 +21,7 @@ import com.googlecode.flyway.core.Flyway;
  * Base class for tasks that rely on loading migrations from the classpath.
  */
 @SuppressWarnings({"UnusedDeclaration"})
-abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
+public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
     /**
      * The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
      */

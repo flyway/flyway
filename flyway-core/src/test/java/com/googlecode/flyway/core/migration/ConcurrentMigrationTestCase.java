@@ -39,6 +39,11 @@ public abstract class ConcurrentMigrationTestCase {
     private static final int NUM_THREADS = 10;
 
     /**
+     * The directory containing the migrations for the tests.
+     */
+    private static final String BASE_DIR = "migration/sql";
+
+    /**
      * Flag to indicate the concurrent test has failed.
      */
     private boolean failed;
@@ -55,16 +60,11 @@ public abstract class ConcurrentMigrationTestCase {
      */
     protected Flyway flyway;
 
-    /**
-     * @return The directory containing the migrations for the tests.
-     */
-    protected abstract String getBaseDir();
-
     @Before
     public void setUp() {
         flyway = new Flyway();
         flyway.setDataSource(concurrentMigrationDataSource);
-        flyway.setBaseDir(getBaseDir());
+        flyway.setBaseDir(BASE_DIR);
         flyway.clean();
         flyway.init();
     }
@@ -76,7 +76,7 @@ public abstract class ConcurrentMigrationTestCase {
                 try {
                     Flyway flyway2 = new Flyway();
                     flyway2.setDataSource(concurrentMigrationDataSource);
-                    flyway2.setBaseDir(getBaseDir());
+                    flyway2.setBaseDir(BASE_DIR);
                     flyway2.migrate();
                 } catch (Exception e) {
                     e.printStackTrace();

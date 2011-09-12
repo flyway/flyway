@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
 /**
  * Base class for all Flyway Ant tasks.
  */
-abstract class AbstractFlywayTask extends Task {
+public abstract class AbstractFlywayTask extends Task {
     /**
      * Logger.
      */

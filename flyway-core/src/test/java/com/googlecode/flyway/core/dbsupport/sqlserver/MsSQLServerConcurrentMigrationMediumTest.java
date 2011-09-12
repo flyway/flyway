@@ -19,12 +19,8 @@ import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Test to demonstrate the migration functionality using SQL Server.
+ * Test to demonstrate the migration functionality using SQL Server with the Microsoft driver.
  */
-@ContextConfiguration(locations = { "classpath:migration/dbsupport/sqlserver/sqlserver-context.xml" })
-public class SQLServerConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-	@Override
-	protected String getBaseDir() {
-		return "migration/sql";
-	}
+@ContextConfiguration(locations = {"classpath:migration/dbsupport/sqlserver/sqlserver-ms-context.xml"})
+public class MsSQLServerConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
 }

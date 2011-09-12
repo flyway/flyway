@@ -134,6 +134,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>sqljdbc</artifactId>
+                <version>3.0.1301.101</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
                 <version>${version.maven}</version>

@@ -23,8 +23,4 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @ContextConfiguration(locations = {"classpath:migration/dbsupport/postgresql/postgresql-context.xml"})
 public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-    @Override
-    protected String getBaseDir() {
-        return "migration/sql";
-    }
 }
