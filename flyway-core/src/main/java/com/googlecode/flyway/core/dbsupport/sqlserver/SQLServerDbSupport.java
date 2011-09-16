@@ -63,13 +63,13 @@ public class SQLServerDbSupport implements DbSupport {
     public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
                 "( " +
-                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLES " +
+                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.TABLES " +
                 "Union " +
-                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.VIEWS " +
+                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.VIEWS " +
                 "Union " +
-                "Select CONSTRAINT_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLE_CONSTRAINTS " +
+                "Select CONSTRAINT_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.TABLE_CONSTRAINTS " +
                 "Union " +
-                "Select ROUTINE_NAME as OBJECT_NAME, ROUTINE_SCHEMA as OBJECT_SCHEMA from information_schema.ROUTINES " +
+                "Select ROUTINE_NAME as OBJECT_NAME, ROUTINE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.ROUTINES " +
                 ") R where OBJECT_SCHEMA = ?", new String[] {schema});
         return objectCount == 0;
     }
@@ -127,7 +127,7 @@ public class SQLServerDbSupport implements DbSupport {
     private List<String> cleanTables(String schema) {
         @SuppressWarnings({"unchecked"})
         List<String> tableNames = jdbcTemplate.queryForList(
-                "SELECT table_name FROM information_schema.tables WHERE table_type='BASE TABLE' and table_schema=?",
+                "SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE' and table_schema=?",
                 new String[]{schema}, String.class);
 
         List<String> statements = new ArrayList<String>();
@@ -146,7 +146,7 @@ public class SQLServerDbSupport implements DbSupport {
     private List<String> cleanForeignKeys(String schema) {
         @SuppressWarnings({"unchecked"})
         List<Map<String, String>> constraintNames =
-                jdbcTemplate.queryForList("SELECT table_name, constraint_name FROM information_schema.table_constraints WHERE constraint_type = 'FOREIGN KEY' and table_schema=?",
+                jdbcTemplate.queryForList("SELECT table_name, constraint_name FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE constraint_type = 'FOREIGN KEY' and table_schema=?",
                         new String[]{schema});
 
         List<String> statements = new ArrayList<String>();
@@ -167,7 +167,7 @@ public class SQLServerDbSupport implements DbSupport {
     private List<String> cleanRoutines(String schema) {
         @SuppressWarnings({"unchecked"})
         List<Map<String, String>> routineNames =
-                jdbcTemplate.queryForList("SELECT routine_name, routine_type FROM information_schema.routines WHERE routine_schema=?",
+                jdbcTemplate.queryForList("SELECT routine_name, routine_type FROM INFORMATION_SCHEMA.ROUTINES WHERE routine_schema=?",
                         new String[]{schema});
 
         List<String> statements = new ArrayList<String>();
@@ -188,7 +188,7 @@ public class SQLServerDbSupport implements DbSupport {
     private List<String> cleanViews(String schema) {
         @SuppressWarnings({"unchecked"})
         List<String> viewNames =
-                jdbcTemplate.queryForList("SELECT table_name FROM information_schema.views WHERE table_schema=?",
+                jdbcTemplate.queryForList("SELECT table_name FROM INFORMATION_SCHEMA.VIEWS WHERE table_schema=?",
                         new String[]{schema}, String.class);
 
         List<String> statements = new ArrayList<String>();

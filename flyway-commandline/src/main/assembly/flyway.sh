@@ -37,4 +37,4 @@ JAVA_EXIT_CODE=$?
 cd $OLDDIR
 
 # Exit using the same code returned from Java
-exit %JAVA_EXIT_CODE%
+exit $JAVA_EXIT_CODE
