@@ -33,5 +33,11 @@ if "%JAVA_HOME%"=="" (
 
 %JAVA_CMD% -jar bin\${project.artifactId}-${project.version}.jar %*
 
+@REM Save the exit code
+set JAVA_EXIT_CODE=%ERRORLEVEL%
+
 @REM Restore current directory
 chdir /d %OLDDIR%
+
+@REM Exit using the same code returned from Java
+EXIT /B %JAVA_EXIT_CODE%

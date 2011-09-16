@@ -30,5 +30,11 @@ fi
 
 $JAVA_CMD -jar bin/${project.artifactId}-${project.version}.jar $@
 
+# Save the exit code
+JAVA_EXIT_CODE=$?
+
 # Restore current directory
 cd $OLDDIR
+
+# Exit using the same code returned from Java
+exit %JAVA_EXIT_CODE%

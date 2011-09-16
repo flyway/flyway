@@ -94,11 +94,11 @@
                         <configuration>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/src/test/resources/migrations</directory>
+                                    <directory>${basedir}/src/test/resources</directory>
                                 </resource>
                             </resources>
                             <outputDirectory>
-                                ${project.build.directory}/dependency/flyway-commandline-${project.version}/sql/migrations
+                                ${project.build.directory}/dependency/flyway-commandline-${project.version}/sql
                             </outputDirectory>
                         </configuration>
                     </execution>
