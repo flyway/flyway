@@ -16,3 +16,6 @@
 
 DROP DATABASE flyway_db;
 GO
+
+DROP DATABASE flyway_db_case_sensitive;
+GO

@@ -52,7 +52,7 @@ public abstract class MigrationTestCase {
     /**
      * The base directory for the regular test migrations.
      */
-    private static final String BASEDIR = "migration/sql";
+    protected static final String BASEDIR = "migration/sql";
 
     /**
      * The datasource to use for single-threaded migration tests.

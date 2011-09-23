@@ -28,6 +28,7 @@
                 <prop key="sqlserver.username">sa</prop>
                 <prop key="sqlserver.password">flyway</prop>
                 <prop key="sqlserver.url">jdbc:sqlserver://localhost:1433;databaseName=flyway_db</prop>
+                <prop key="sqlserver.url_case_sensitive">jdbc:sqlserver://localhost:1433;databaseName=flyway_db_case_sensitive</prop>
             </props>
         </property>
     </bean>
@@ -37,6 +38,13 @@
         <property name="password" value="${sqlserver.password}"/>
         <property name="driverClass" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
         <property name="url" value="${sqlserver.url}"/>
+    </bean>
+    <!-- -->
+    <bean id="caseSensitiveDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+        <property name="username" value="${sqlserver.username}"/>
+        <property name="password" value="${sqlserver.password}"/>
+        <property name="driverClass" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="${sqlserver.url_case_sensitive}"/>
     </bean>
     <!-- -->
     <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>

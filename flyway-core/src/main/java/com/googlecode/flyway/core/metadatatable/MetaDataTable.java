@@ -220,7 +220,7 @@ public class MetaDataTable {
      * @return The select statement for reading the metadata table.
      */
     private String getSelectStatement() {
-        return "select VERSION, DESCRIPTION, TYPE, SCRIPT, CHECKSUM, INSTALLED_ON, EXECUTION_TIME, STATE from " + schema + "." + table;
+        return "select version as VERSION, description as DESCRIPTION, type as TYPE, script as SCRIPT, checksum as CHECKSUM, installed_on as INSTALLED_ON, execution_time as EXECUTION_TIME, state as STATE from " + schema + "." + table;
     }
 
     /**
