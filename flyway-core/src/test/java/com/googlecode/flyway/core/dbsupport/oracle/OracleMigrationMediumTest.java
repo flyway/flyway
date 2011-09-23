@@ -163,4 +163,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/dbsupport/oracle/sql/qquote");
         flyway.migrate();
     }
+
+    /**
+     * Tests support for user defined types.
+     */
+    @Test
+    public void type() throws FlywayException {
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/type");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
 }

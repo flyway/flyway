@@ -119,7 +119,7 @@ public class OracleDbSupport implements DbSupport {
         allDropStatements.addAll(generateDropStatementsForObjectType("SYNONYM", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("TABLE", "CASCADE CONSTRAINTS PURGE", schema));
-        allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", "FORCE", schema));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int lineNumber = 1;
