@@ -24,7 +24,7 @@
 
 
     <property name="flyway.driver" value="org.h2.Driver"/>
-    <property name="flyway.url" value="jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1"/>
+    <property name="flyway.url" value="jdbc:h2:mem:flyway_db;INIT=create schema IF NOT EXISTS TEST\;"/>
     <property name="flyway.user" value="sa"/>
 
     <target name="compile">

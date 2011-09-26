@@ -211,8 +211,9 @@ public abstract class AbstractFlywayTask extends Task {
             BasicDataSource dataSource = createDataSource();
             try {
                 flyway.setDataSource(dataSource);
-                if (schemas != null) {
-                    flyway.setSchemas(StringUtils.tokenizeToStringArray(useValueIfPropertyNotSet(schemas, "schemas"), ","));
+                String schemasFromPropertyOrAttribute = useValueIfPropertyNotSet(schemas, "schemas");
+                if (schemasFromPropertyOrAttribute != null) {
+                    flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasFromPropertyOrAttribute, ","));
                 }
                 if (table != null) {
                     flyway.setTable(useValueIfPropertyNotSet(table, "table"));
