@@ -16,46 +16,41 @@
     limitations under the License.
 
 -->
-<project name="MigrateLargeTest" default="testMigrate" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
+<project name="MultiLargeTest" default="testMulti" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
 
     <path id="lib.path">
         <fileset dir="${libDir}" includes="*.jar"/>
     </path>
 
+    <taskdef uri="antlib:com.googlecode.flyway.ant"
+             resource="com/googlecode/flyway/ant/antlib.xml"
+             classpathref="lib.path"/>
 
     <property name="flyway.driver" value="org.h2.Driver"/>
-    <property name="flyway.url" value="jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1"/>
+    <property name="flyway.url" value="jdbc:h2:flyway_db"/>
     <property name="flyway.user" value="sa"/>
+
+    <property name="flyway.schemas" value="flyway_1,flyway_2,flyway_3"/>
 
     <target name="compile">
         <mkdir dir="build"/>
-        
-        <javac srcdir="src"
-               destdir="build"
-               classpathref="lib.path"
-               source="1.5"
-               fork="true"
-                />
         <copy todir="build">
             <fileset dir="src" excludes="**/*.java"/>
         </copy>
         <jar destfile="largetest.jar" basedir="build"/>
 
-        <path id="flyway.classpath">
+        <path id="newClasspath">
             <fileset dir="." includes="largetest.jar"/>
         </path>
-
-        <echo>${flyway.classpath}</echo>
-
-        <taskdef uri="antlib:com.googlecode.flyway.ant"
-                 resource="com/googlecode/flyway/ant/antlib.xml"
-                 classpathref="lib.path"/>
     </target>
 
-    <target name="testMigrate" depends="compile">
-        <flyway:migrate basePackage="largetest.migrate">
-            <placeholder name="name" value="Mr. T"/>
-        </flyway:migrate>
-        <flyway:history />
+    <target name="testMulti" depends="compile">
+        <sql driver="${flyway.driver}" url="${flyway.url}" userid="${flyway.user}" password="" classpathref="lib.path">
+            CREATE SCHEMA IF NOT EXISTS flyway_1;
+            CREATE SCHEMA IF NOT EXISTS flyway_2;
+            CREATE SCHEMA IF NOT EXISTS flyway_3;
+        </sql>
+        <flyway:clean/>
+        <flyway:migrate baseDir="largetest/sql" table="MASTER_OF_THE_VERSIONS" classpathref="newClasspath" />
     </target>
 </project>

@@ -46,6 +46,20 @@ public class AntLargeTest {
     public void migrate() throws Exception {
         String stdOut = runAnt("migrate", "-Dflyway.baseDir=largetest/sql");
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+        assertTrue(stdOut.contains("Populate table"));
+    }
+
+    /**
+     * Tests the migrations with multiple schemas.
+     */
+    @Test
+    public void multi() throws Exception {
+        String stdOut = runAnt("multi");
+        assertTrue(stdOut.contains("Cleaned database schema 'flyway_1'"));
+        assertTrue(stdOut.contains("Cleaned database schema 'flyway_2'"));
+        assertTrue(stdOut.contains("Cleaned database schema 'flyway_3'"));
+        assertTrue(stdOut.contains("Metadata table created: MASTER_OF_THE_VERSIONS"));
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 
     @Test

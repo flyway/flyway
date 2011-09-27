@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 /**
  * Base class for all Flyway Ant tasks.
  */
+@SuppressWarnings({"UnusedDeclaration"})
 public abstract class AbstractFlywayTask extends Task {
     /**
      * Logger.
@@ -87,12 +88,12 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param classpathRef The reference to the classpath used to load the JDBC driver and the migrations.<br/>Also
-     * configurable with Ant Property: ${flyway.classpathRef}
+     * @param classpathref The reference to the classpath used to load the JDBC driver and the migrations.<br/>Also
+     * configurable with Ant Property: ${flyway.classpathref}
      */
-    public void setClasspathRef(Reference classpathRef) {
+    public void setClasspathref(Reference classpathref) {
         Path classPath = new Path(getProject());
-        classPath.setRefid(classpathRef);
+        classPath.setRefid(classpathref);
         this.classPath = classPath;
     }
 
@@ -190,7 +191,7 @@ public abstract class AbstractFlywayTask extends Task {
         } else {
             Reference classpathRef = (Reference) getProject().getReference("flyway.classpathref");
             if (classpathRef != null) {
-                setClasspathRef(classpathRef);
+                setClasspathref(classpathRef);
             }
         }
 
@@ -211,11 +212,13 @@ public abstract class AbstractFlywayTask extends Task {
             BasicDataSource dataSource = createDataSource();
             try {
                 flyway.setDataSource(dataSource);
-                if (schemas != null) {
-                    flyway.setSchemas(StringUtils.tokenizeToStringArray(useValueIfPropertyNotSet(schemas, "schemas"), ","));
+                String schemasValue = useValueIfPropertyNotSet(schemas, "schemas");
+                if (schemasValue != null) {
+                    flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasValue, ","));
                 }
-                if (table != null) {
-                    flyway.setTable(useValueIfPropertyNotSet(table, "table"));
+                String tableValue = useValueIfPropertyNotSet(table, "table");
+                if (tableValue != null) {
+                    flyway.setTable(tableValue);
                 }
 
                 doExecute(flyway);
@@ -225,6 +228,7 @@ public abstract class AbstractFlywayTask extends Task {
         } catch (Exception e) {
             LOG.error(e.toString());
 
+            @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause != null) {
                 LOG.error("Caused by " + rootCause.toString());

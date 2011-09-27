@@ -167,6 +167,7 @@ public class MetaDataTable {
      * @return {@code true} if the metadata table has at least on row. {@code false} if it is empty or it doesn't exist
      *         yet.
      */
+    @SuppressWarnings({"SimplifiableIfStatement"})
     private boolean hasRows() {
         if (!exists()) {
             return false;
