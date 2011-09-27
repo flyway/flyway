@@ -52,6 +52,7 @@ public class AntLargeTest {
     public void migrateWithAntPropertyForSchemas() throws Exception {
         String stdOut = runAnt("migrate", "-Dflyway.baseDir=largetest/sql", "-Dflyway.schemas=TEST");
         assertTrue(stdOut.contains("Schema: TEST"));
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 
     @Test
