@@ -27,7 +27,7 @@
              classpathref="lib.path"/>
 
     <property name="flyway.driver" value="org.h2.Driver"/>
-    <property name="flyway.url" value="jdbc:h2:flyway_db"/>
+    <property name="flyway.url" value="jdbc:h2:mem:flyway_db;INIT=CREATE SCHEMA IF NOT EXISTS flyway_1\;CREATE SCHEMA IF NOT EXISTS flyway_2\;CREATE SCHEMA IF NOT EXISTS flyway_3\;"/>
     <property name="flyway.user" value="sa"/>
 
     <property name="flyway.schemas" value="flyway_1,flyway_2,flyway_3"/>
@@ -45,11 +45,6 @@
     </target>
 
     <target name="testMulti" depends="compile">
-        <sql driver="${flyway.driver}" url="${flyway.url}" userid="${flyway.user}" password="" classpathref="lib.path">
-            CREATE SCHEMA IF NOT EXISTS flyway_1;
-            CREATE SCHEMA IF NOT EXISTS flyway_2;
-            CREATE SCHEMA IF NOT EXISTS flyway_3;
-        </sql>
         <flyway:clean/>
         <flyway:migrate baseDir="largetest/sql" table="MASTER_OF_THE_VERSIONS" classpathref="newClasspath" />
     </target>

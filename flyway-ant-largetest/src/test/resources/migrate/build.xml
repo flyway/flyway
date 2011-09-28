@@ -24,7 +24,7 @@
 
 
     <property name="flyway.driver" value="org.h2.Driver"/>
-    <property name="flyway.url" value="jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1"/>
+    <property name="flyway.url" value="jdbc:h2:flyway_db"/>
     <property name="flyway.user" value="sa"/>
 
     <target name="compile">
@@ -44,8 +44,6 @@
         <path id="flyway.classpath">
             <fileset dir="." includes="largetest.jar"/>
         </path>
-
-        <echo>${flyway.classpath}</echo>
 
         <taskdef uri="antlib:com.googlecode.flyway.ant"
                  resource="com/googlecode/flyway/ant/antlib.xml"
