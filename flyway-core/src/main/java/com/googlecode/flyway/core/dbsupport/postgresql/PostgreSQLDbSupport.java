@@ -63,7 +63,7 @@ public class PostgreSQLDbSupport implements DbSupport {
     public boolean isSchemaEmpty(String schema) {
         int objectCount = jdbcTemplate.queryForInt(
                 "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                new String[] {schema});
+                new String[]{schema});
         return objectCount == 0;
     }
 
@@ -125,14 +125,30 @@ public class PostgreSQLDbSupport implements DbSupport {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name FROM information_schema.tables WHERE " +
-                                "table_schema=? AND table_type='BASE TABLE'", new String[] {schema});
+                                "table_schema=? AND table_type='BASE TABLE'", new String[]{schema});
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : tableNames) {
             String tableName = row.get("table_name");
-            statements.add("DROP TABLE \"" + schema + "\".\"" + tableName + "\" CASCADE");
+            if (!isChildTable(schema, tableName)) {
+                statements.add("DROP TABLE \"" + schema + "\".\"" + tableName + "\" CASCADE");
+            }
         }
         return statements;
+    }
+
+    /**
+     * Checks whether this table in this schema inherits from another table.
+     *
+     * @param schema The schema of the table.
+     * @param table  The table to check.
+     * @return {@code true} if it does, {@code false} if not.
+     */
+    private boolean isChildTable(String schema, String table) {
+        String qualifiedName = schema + "." + table;
+        return jdbcTemplate.queryForInt(
+                "SELECT COUNT(inhrelid) FROM pg_catalog.pg_inherits WHERE inhrelid = ?::regclass::oid",
+                new Object[]{qualifiedName}) > 0;
     }
 
     /**
@@ -144,7 +160,7 @@ public class PostgreSQLDbSupport implements DbSupport {
     private List<String> generateDropStatementsForSequences(String schema) {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> sequenceNames =
                 jdbcTemplate.queryForList(
-                        "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema=?", new String[] {schema});
+                        "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema=?", new String[]{schema});
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : sequenceNames) {
@@ -158,7 +174,7 @@ public class PostgreSQLDbSupport implements DbSupport {
     /**
      * Generates the statements for dropping the types in this schema.
      *
-     * @param schema The schema for which to generate the statements.
+     * @param schema   The schema for which to generate the statements.
      * @param recreate Flag indicating whether the types should be recreated. Necessary for type-function chicken and egg problem.
      * @return The drop statements.
      */
@@ -166,7 +182,7 @@ public class PostgreSQLDbSupport implements DbSupport {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> typeNames =
                 jdbcTemplate.queryForList(
                         "select typname from pg_catalog.pg_type where typcategory in ('P', 'U') and typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?)",
-                        new String[] {schema});
+                        new String[]{schema});
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : typeNames) {
@@ -194,7 +210,7 @@ public class PostgreSQLDbSupport implements DbSupport {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
-                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = ?", new String[] {schema});
+                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = ?", new String[]{schema});
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {

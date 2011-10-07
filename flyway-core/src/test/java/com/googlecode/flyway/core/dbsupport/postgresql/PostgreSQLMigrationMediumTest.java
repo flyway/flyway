@@ -106,6 +106,20 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
+    /**
+     * Tests clean and migrate for PostgreSQL child tables.
+     */
+    @Test
+    public void inheritance() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/inheritance");
+        flyway.migrate();
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
     @Ignore
     public void semicolonWithinStringLiteral() {
         //Ignore
