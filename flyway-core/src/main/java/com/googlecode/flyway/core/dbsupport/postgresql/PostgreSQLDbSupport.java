@@ -124,31 +124,24 @@ public class PostgreSQLDbSupport implements DbSupport {
     private List<String> generateDropStatementsForTables(String schema) {
         @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
                 jdbcTemplate.queryForList(
-                        "SELECT table_name FROM information_schema.tables WHERE " +
-                                "table_schema=? AND table_type='BASE TABLE'", new String[]{schema});
+                        //Search for all the table names
+                        "SELECT t.table_name FROM information_schema.tables t" +
+                                //in this schema
+                                " WHERE table_schema=?" +
+                                //that are real tables (as opposed to views)
+                                " AND table_type='BASE TABLE'" +
+                                //and are not child tables (= do not inherit from another table).
+                                " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
+                                " WHERE inhrelid = (t.table_schema||'.'||t.table_name)::regclass::oid))",
+                        new String[]{schema});
+        //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : tableNames) {
             String tableName = row.get("table_name");
-            if (!isChildTable(schema, tableName)) {
-                statements.add("DROP TABLE \"" + schema + "\".\"" + tableName + "\" CASCADE");
-            }
+            statements.add("DROP TABLE \"" + schema + "\".\"" + tableName + "\" CASCADE");
         }
         return statements;
-    }
-
-    /**
-     * Checks whether this table in this schema inherits from another table.
-     *
-     * @param schema The schema of the table.
-     * @param table  The table to check.
-     * @return {@code true} if it does, {@code false} if not.
-     */
-    private boolean isChildTable(String schema, String table) {
-        String qualifiedName = schema + "." + table;
-        return jdbcTemplate.queryForInt(
-                "SELECT COUNT(inhrelid) FROM pg_catalog.pg_inherits WHERE inhrelid = ?::regclass::oid",
-                new Object[]{qualifiedName}) > 0;
     }
 
     /**
