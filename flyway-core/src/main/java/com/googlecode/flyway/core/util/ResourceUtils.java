@@ -15,14 +15,14 @@
  */
 package com.googlecode.flyway.core.util;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.util.FileCopyUtils;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * Utility class for dealing with classpath resources.
@@ -60,6 +60,23 @@ public class ResourceUtils {
             return FileCopyUtils.copyToString(reader);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to load resource: " + resource.getDescription() + " (encoding: " + encoding + ")", e);
+        }
+    }
+
+    /**
+     * retrieves the location of a resource
+     * @param resource The resource to evaluate
+     * @return location of the resource
+     */
+    public static String getResourceLocation(Resource resource) {
+        try {
+            return resource.getURL().toExternalForm();
+        } catch (IOException e) {
+            try {
+                return resource.getFile().getAbsolutePath();
+            } catch (IOException e1) {
+                return resource.getFilename();
+            }
         }
     }
 }

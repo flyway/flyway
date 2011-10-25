@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
+import java.util.zip.CRC32;
+
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
@@ -22,8 +24,6 @@ import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.zip.CRC32;
 
 /**
  * Database migration based on a sql file.
@@ -38,6 +38,11 @@ public class SqlMigration extends Migration {
      * The source of the Sql script, loaded on demand.
      */
     private final String sqlScriptSource;
+
+    /**
+     * The location of this sql migration
+     */
+    private final String location;
 
     /**
      * Creates a new sql script migration based on this sql script.
@@ -60,6 +65,12 @@ public class SqlMigration extends Migration {
 
         this.script = scriptName;
         this.placeholderReplacer = placeholderReplacer;
+        this.location = ResourceUtils.getResourceLocation(sqlScriptResource);
+    }
+
+    @Override
+    public String getLocation() {
+        return location;
     }
 
     @Override

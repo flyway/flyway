@@ -51,6 +51,11 @@ public class InitMigration extends Migration {
     }
 
     @Override
+    public String getLocation() {
+        return script;
+    }
+
+    @Override
     public MigrationType getMigrationType() {
         return MigrationType.INIT;
     }
