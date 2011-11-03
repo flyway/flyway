@@ -16,6 +16,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.validation.ValidationMode;
 
 /**
  * Maven goal to validate the applied migrations in the database against the available classpath migrations in order to
@@ -30,6 +31,7 @@ public class ValidateMojo extends AbstractMigrationLoadingMojo {
     protected void doExecute(Flyway flyway) throws Exception {
         super.doExecute(flyway);
 
+        flyway.setValidationMode(ValidationMode.ALL);
         flyway.validate();
     }
 }

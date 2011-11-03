@@ -16,6 +16,8 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.validation.ValidationErrorMode;
+import com.googlecode.flyway.core.validation.ValidationMode;
 
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
@@ -64,6 +66,20 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      */
     private String sqlMigrationSuffix;
 
+    /**
+     * The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
+     * Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
+     * database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
+     * recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
+     * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
+     * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
+     * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/> Also configurable with Maven or System Property:
+     * ${flyway.validationErrorMode}
+     *
+     * @parameter expression="${flyway.validationErrorMode}"
+     */
+    private String validationErrorMode;
+
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
         if (basePackage != null) {
@@ -80,6 +96,9 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
         }
         if (sqlMigrationSuffix != null) {
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
+        }
+        if (validationErrorMode != null) {
+            flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorMode.toUpperCase()));
         }
     }
 }

@@ -93,6 +93,16 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     private String placeholderSuffix;
 
     /**
+     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
+     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
+     * this! (default: false)<br/>Also configurable with Maven or System Property:
+     * ${flyway.disableInitCheck}
+     *
+     * @parameter expression="${flyway.disableInitCheck}"
+     */
+    private boolean disableInitCheck;
+
+    /**
      * The type of validation to be performed before migrating.<br/> <br/> Possible values are:<br/> <br/> <b>NONE</b>
      * (default)<br/> No validation is performed.<br/> <br/> <b>ALL</b><br/> For each sql migration a CRC32 checksum is
      * calculated when the sql script is executed. The validate mechanism checks if the sql migrations in the classpath
@@ -102,30 +112,6 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * @parameter expression="${flyway.validationMode}"
      */
     private String validationMode;
-
-    /**
-     * The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
-     * Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
-     * database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
-     * recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
-     * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
-     * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
-     * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/> Also configurable with Maven or System Property:
-     * ${flyway.validationErrorMode}
-     *
-     * @parameter expression="${flyway.validationErrorMode}"
-     */
-    private String validationErrorMode;
-
-    /**
-     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
-     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
-     * this! (default: false)<br/>Also configurable with Maven or System Property:
-     * ${flyway.disableInitCheck}
-     *
-     * @parameter expression="${flyway.disableInitCheck}"
-     */
-    private boolean disableInitCheck;
 
     /**
      * Reference to the current project that includes the Flyway Maven plugin.
@@ -157,13 +143,10 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
         if (placeholderSuffix != null) {
             flyway.setPlaceholderSuffix(placeholderSuffix);
         }
+        flyway.setDisableInitCheck(disableInitCheck);
         if (validationMode != null) {
             flyway.setValidationMode(ValidationMode.valueOf(validationMode.toUpperCase()));
         }
-        if (validationErrorMode != null) {
-            flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorMode.toUpperCase()));
-        }
-        flyway.setDisableInitCheck(disableInitCheck);
 
         MigrationProvider migrationProvider =
                 new MigrationProvider(flyway.getBasePackage(), flyway.getBaseDir(), flyway.getEncoding(),
