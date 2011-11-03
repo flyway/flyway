@@ -38,13 +38,19 @@ public class MavenLargeTest {
 
     @Test
     public void regular() throws Exception {
-        String stdOut = runMaven("regular");
+        String stdOut = runMaven("regular", "flyway:init", "flyway:status");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
     @Test
+    public void migrate() throws Exception {
+        String stdOut = runMaven("regular", "compile", "flyway:migrate");
+        assertTrue(stdOut.contains("Successfully applied 2 migrations"));
+    }
+
+    @Test
     public void settings() throws Exception {
-        String stdOut = runMaven("settings", "-s", installDir + "/settings/settings.xml");
+        String stdOut = runMaven("settings", "flyway:init", "flyway:status", "-s", installDir + "/settings/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
@@ -53,7 +59,7 @@ public class MavenLargeTest {
      */
     @Test
     public void settingsDefault() throws Exception {
-        String stdOut = runMaven("settings-default", "-s", installDir + "/settings-default/settings.xml");
+        String stdOut = runMaven("settings-default", "flyway:init", "flyway:status", "-s", installDir + "/settings-default/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
@@ -77,8 +83,6 @@ public class MavenLargeTest {
         List<String> args = new ArrayList<String>();
         args.add(m2Home + "/bin/mvn" + extension);
         args.add("-Dflyway.version=" + flywayVersion);
-        args.add("flyway:init");
-        args.add("flyway:status");
         args.addAll(Arrays.asList(extraArgs));
 
         ProcessBuilder builder = new ProcessBuilder(args);
