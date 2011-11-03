@@ -115,4 +115,10 @@ public abstract class Migration implements Comparable<Migration> {
      * @throws DataAccessException Thrown when the migration failed.
      */
     public abstract void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;
+
+    /**
+     * retrieves the location of the migration
+     * @return source of this migration
+     */
+    public abstract String getLocation();
 }

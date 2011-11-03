@@ -66,6 +66,11 @@ public class JavaMigrationExecutor extends Migration {
     }
 
     @Override
+    public String getLocation() {
+        return script;
+    }
+
+    @Override
     public MigrationType getMigrationType() {
         return MigrationType.JAVA;
     }

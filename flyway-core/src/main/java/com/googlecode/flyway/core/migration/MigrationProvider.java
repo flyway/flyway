@@ -15,19 +15,13 @@
  */
 package com.googlecode.flyway.core.migration;
 
+import java.util.*;
+
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.validation.ValidationException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -171,8 +165,8 @@ public class MigrationProvider {
             Migration current = migrations.get(i);
             Migration next = migrations.get(i + 1);
             if (current.compareTo(next) == 0) {
-                throw new ValidationException("Found more than one migration with version: " + current.getVersion()
-                        + " (Offenders: \"" + current.getScript() + "\" and \"" + next.getScript() + "\")");
+                throw new ValidationException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
+                        current.getVersion(), current.getMigrationType(), current.getLocation(), next.getMigrationType(), next.getLocation()));
             }
         }
     }

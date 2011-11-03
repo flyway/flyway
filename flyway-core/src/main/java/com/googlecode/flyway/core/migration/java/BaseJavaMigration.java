@@ -59,6 +59,11 @@ public abstract class BaseJavaMigration extends Migration implements JavaMigrati
     }
 
     @Override
+    public String getLocation() {
+        return script;
+    }
+
+    @Override
     public MigrationType getMigrationType() {
         return MigrationType.JAVA;
     }

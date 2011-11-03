@@ -15,15 +15,17 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.validation.ValidationException;
-import org.junit.Test;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.migration.sql.SqlMigration;
+import com.googlecode.flyway.core.validation.ValidationException;
+import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -68,6 +70,20 @@ public class MigrationProviderSmallTest {
         }
     }
 
+    @Test
+    public void checkForIncompatibilitiesMessage() {
+        List<Migration> migrations = new ArrayList<Migration>();
+        migrations.add(new SqlMigration(new ClassPathResource("migration/validate/V1__First.sql"), null, "UTF8", "1", "V1__First.sql"));
+        migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
+
+        try {
+            MigrationProvider.checkForIncompatibilities(migrations);
+        } catch (ValidationException e) {
+            assertTrue(e.getMessage().contains("target/test-classes/migration/validate/V1__First.sql"));
+            assertTrue(e.getMessage().contains("Migration1"));
+        }
+    }
+
     /**
      * Makes sure no validation exception is thrown.
      */
@@ -106,6 +122,11 @@ public class MigrationProviderSmallTest {
 
             @Override
             public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException {
+            }
+
+            @Override
+            public String getLocation() {
+                return script;
             }
         };
     }
