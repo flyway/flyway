@@ -49,10 +49,11 @@ public class OracleSqlScript extends SqlScript {
             return PLSQL_DELIMITER;
         }
 
-        if (upperCaseLine.startsWith("CREATE")
-                && (upperCaseLine.matches(".*\\WFUNCTION(\\W.*|$)")
-                || upperCaseLine.matches(".*\\WPROCEDURE(\\W.*|$)")
-                || upperCaseLine.matches(".*\\WPACKAGE(\\W.*|$)"))) {
+        String upperCaseStatement = statement.toUpperCase();
+        if (upperCaseStatement.startsWith("CREATE")
+                && (upperCaseStatement.matches(".*\\WFUNCTION(\\W.*|$)")
+                || upperCaseStatement.matches(".*\\WPROCEDURE(\\W.*|$)")
+                || upperCaseStatement.matches(".*\\WPACKAGE(\\W.*|$)"))) {
             return PLSQL_DELIMITER;
         }
 

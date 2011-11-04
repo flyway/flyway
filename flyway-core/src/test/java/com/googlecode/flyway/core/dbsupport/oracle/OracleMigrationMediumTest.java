@@ -174,4 +174,13 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    /**
+     * Tests support for create procedure.
+     */
+    @Test
+    public void procedure() throws FlywayException {
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/procedure");
+        flyway.migrate();
+    }
 }
