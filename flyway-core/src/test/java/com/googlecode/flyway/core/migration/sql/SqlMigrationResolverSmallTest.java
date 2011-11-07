@@ -57,4 +57,42 @@ public class SqlMigrationResolverSmallTest {
         assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getScript());
         assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getScript());
     }
+
+    @Test
+    public void resolveMigrationsNoLeadingSlash() {
+        SqlMigrationResolver sqlMigrationResolver =
+                new SqlMigrationResolver("migration/subdir", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
+        Collection<Migration> migrations = sqlMigrationResolver.resolveMigrations();
+
+        assertEquals(3, migrations.size());
+
+        List<Migration> migrationList = new ArrayList<Migration>(migrations);
+        Collections.sort(migrationList);
+
+        assertEquals("1", migrationList.get(0).getVersion().toString());
+        assertEquals("1.1", migrationList.get(1).getVersion().toString());
+        assertEquals("2.0", migrationList.get(2).getVersion().toString());
+
+        assertEquals("dir1/V1__First.sql", migrationList.get(0).getScript());
+        assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getScript());
+        assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getScript());
+    }
+
+    @Test
+    public void resolveMigrationsRoot() {
+        SqlMigrationResolver sqlMigrationResolver =
+                new SqlMigrationResolver("", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
+        Collection<Migration> migrations = sqlMigrationResolver.resolveMigrations();
+
+        assertEquals(1, migrations.size());
+    }
+
+    @Test
+    public void resolveMigrationsNonExisting() {
+        SqlMigrationResolver sqlMigrationResolver =
+                new SqlMigrationResolver("non/existing", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
+        Collection<Migration> migrations = sqlMigrationResolver.resolveMigrations();
+
+        assertEquals(0, migrations.size());
+    }
 }

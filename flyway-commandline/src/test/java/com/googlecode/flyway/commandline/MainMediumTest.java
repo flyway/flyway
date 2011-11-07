@@ -17,6 +17,7 @@ package com.googlecode.flyway.commandline;
 
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.ClassUtils;
 
 import java.util.Properties;
 
@@ -27,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Medium Test for Main.
  */
+@SuppressWarnings({"JavaDoc"})
 public class MainMediumTest {
     @Test
     public void loadConfigurationFile() throws Exception {
@@ -49,12 +51,29 @@ public class MainMediumTest {
      * Tests dynamically adding a directory to the classpath.
      */
     @Test
-    public void addJarOrDirectoryToClasspath() throws Exception {
+    public void addDirectoryToClasspath() throws Exception {
         assertFalse(new ClassPathResource("runtime.properties").exists());
         
         String folder = new ClassPathResource("dynamic").getFile().getPath();
         Main.addJarOrDirectoryToClasspath(folder);
 
         assertTrue(new ClassPathResource("runtime.properties").exists());
+    }
+
+    /**
+     * Tests dynamically adding a jar file to the classpath.
+     */
+    @Test
+    public void addJarToClasspath() throws Exception {
+        assertFalse(new ClassPathResource("db/migration/V1.sql").exists());
+        assertFalse(ClassUtils.isPresent("com.googlecode.flyway.sample.migration.V1_2__Another_user",
+                Thread.currentThread().getContextClassLoader()));
+
+        String jar = new ClassPathResource("flyway-sample.jar").getFile().getPath();
+        Main.addJarOrDirectoryToClasspath(jar);
+
+        assertTrue(new ClassPathResource("db/migration/V1.sql").exists());
+        assertTrue(ClassUtils.isPresent("com.googlecode.flyway.sample.migration.V1_2__Another_user",
+                Thread.currentThread().getContextClassLoader()));
     }
 }

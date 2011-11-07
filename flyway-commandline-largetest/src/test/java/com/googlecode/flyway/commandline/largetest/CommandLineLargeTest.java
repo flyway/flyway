@@ -62,6 +62,13 @@ public class CommandLineLargeTest {
         assertTrue(stdOut.contains("Validate failed. Found differences between applied migrations and available migrations"));
     }
 
+    @Test
+    public void sqlFolderRoot() throws Exception {
+        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-driver=org.hsqldb.jdbcDriver", "-sqlMigrationPrefix=Mig", "-basePackage=dummy");
+        assertTrue(stdOut.contains("777"));
+        assertTrue(stdOut.contains("Successfully applied 1 migration"));
+    }
+
     /**
      * Runs the Flyway Command Line tool.
      *

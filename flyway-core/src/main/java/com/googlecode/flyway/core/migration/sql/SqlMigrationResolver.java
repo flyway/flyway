@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,12 +38,6 @@ public class SqlMigrationResolver implements MigrationResolver {
      * Logger.
      */
     private static final Log LOG = LogFactory.getLog(SqlMigrationResolver.class);
-
-    /**
-     * Spring utility for loading resources from the classpath using wildcards.
-     */
-    private final PathMatchingResourcePatternResolver pathMatchingResourcePatternResolver =
-            new PathMatchingResourcePatternResolver();
 
     /**
      * The base directory on the classpath where to migrations are located.
@@ -88,10 +83,11 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
     public Collection<Migration> resolveMigrations() {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
         Collection<Migration> migrations = new ArrayList<Migration>();
 
-        Resource classPathBaseDir = new ClassPathResource(baseDir + "/");
-        if (!classPathBaseDir.exists()) {
+        if (StringUtils.hasText(baseDir) && !new ClassPathResource(baseDir + "/", classLoader).exists()) {
             LOG.warn("Unable to find path for sql migrations: " + baseDir);
             return migrations;
         }
@@ -99,8 +95,10 @@ public class SqlMigrationResolver implements MigrationResolver {
         Resource[] resources;
         try {
             String searchRoot = baseDir + "/";
+
             final String searchPattern = "**/" + sqlMigrationPrefix + "?*" + sqlMigrationSuffix;
-            resources = pathMatchingResourcePatternResolver.getResources("classpath*:" + searchRoot + searchPattern);
+            resources = new PathMatchingResourcePatternResolver(classLoader)
+                    .getResources("classpath:" + searchRoot + searchPattern);
 
             for (Resource resource : resources) {
                 final String versionString =
@@ -122,7 +120,6 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param fileName The file name to parse.
      * @param prefix   The prefix to extract
      * @param suffix   The suffix to extract
-     *
      * @return The version string.
      */
     /* private -> for testing */

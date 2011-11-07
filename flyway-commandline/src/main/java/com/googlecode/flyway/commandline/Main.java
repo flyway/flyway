@@ -121,7 +121,11 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.password", "");
-        properties.put("flyway.baseDir", "");
+
+        //FIXME: Axel -> This is a workaround for issue 153.
+        //  For some reason, passing an empty string causes Spring
+        //  not to be able to resolve the root directory of the classpath.
+        properties.put("flyway.baseDir", "../sql");
     }
 
     /**
