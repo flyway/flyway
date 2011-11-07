@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
@@ -54,6 +55,17 @@ public class FlywaySmallTest {
         flyway.configure(properties);
 
         assertEquals("666", flyway.getTarget().toString());
+    }
+
+    @Test
+    public void configureValidationMode() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.validationMode", "ALL");
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+
+        assertEquals(ValidationMode.ALL, flyway.getValidationMode());
     }
 
     @Test

@@ -788,7 +788,7 @@ public class Flyway {
             setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeProp));
         }
         String validationModeProp = properties.getProperty("flyway.validationMode");
-        if (validationErrorModeProp != null) {
+        if (validationModeProp != null) {
             setValidationMode(ValidationMode.valueOf(validationModeProp));
         }
         String initialVersionProp = properties.getProperty("flyway.initialVersion");
