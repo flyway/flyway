@@ -36,21 +36,18 @@ public class JavaMigrationResolverSmallTest {
                 new JavaMigrationResolver("com.googlecode.flyway.core.migration.java.dummy");
         Collection<Migration> migrations = javaMigrationResolver.resolveMigrations();
 
-        assertEquals(3, migrations.size());
+        assertEquals(2, migrations.size());
 
         List<Migration> migrationList = new ArrayList<Migration>(migrations);
         Collections.sort(migrationList);
 
-        assertEquals("1.2.3", migrationList.get(0).getVersion().toString());
-        assertEquals("2", migrationList.get(1).getVersion().toString());
-        assertEquals("3.5", migrationList.get(2).getVersion().toString());
+        assertEquals("2", migrationList.get(0).getVersion().toString());
+        assertEquals("3.5", migrationList.get(1).getVersion().toString());
 
-        assertEquals("Dummy migration", migrationList.get(0).getDescription());
-        assertEquals("InterfaceBasedMigration", migrationList.get(1).getDescription());
-        assertEquals("Three Dot Five", migrationList.get(2).getDescription());
+        assertEquals("InterfaceBasedMigration", migrationList.get(0).getDescription());
+        assertEquals("Three Dot Five", migrationList.get(1).getDescription());
 
         assertNull(migrationList.get(0).getChecksum());
-        assertNull(migrationList.get(1).getChecksum());
-        assertEquals(35, migrationList.get(2).getChecksum().intValue());
+        assertEquals(35, migrationList.get(1).getChecksum().intValue());
     }
 }
