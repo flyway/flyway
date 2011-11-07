@@ -56,6 +56,12 @@ public class CommandLineLargeTest {
         assertTrue(stdOut.contains("Migration to version 1 failed!"));
     }
 
+    @Test
+    public void validate() throws Exception {
+        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "validate", "-url=jdbc:hsqldb:file:sql/validate/flyway_sample;shutdown=true", "-baseDir=validate", "-basePackage=dummy");
+        assertTrue(stdOut.contains("Validate failed. Found differences between applied migrations and available migrations"));
+    }
+
     /**
      * Runs the Flyway Command Line tool.
      *

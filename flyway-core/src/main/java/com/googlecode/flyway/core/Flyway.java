@@ -134,7 +134,7 @@ public class Flyway {
     private boolean ignoreFailedFutureMigration;
 
     /**
-     * The mode for validation.
+     * The mode for validation. Only used for migrate. When using validate validationMode is always ALL. (default: NONE)
      */
     private ValidationMode validationMode = ValidationMode.NONE;
 
@@ -308,9 +308,9 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the mode for validation.
+     * Retrieves the mode for validation. Only used for migrate. When using validate validationMode is always ALL.
      *
-     * @return The mode for validation.
+     * @return The mode for validation. (default: NONE)
      */
     public ValidationMode getValidationMode() {
         return validationMode;
@@ -391,9 +391,9 @@ public class Flyway {
     }
 
     /**
-     * Sets the ValidationMode for checksum validation.
+     * Sets the mode for validation. Only used for migrate. When using validate validationMode is always ALL.
      *
-     * @param validationMode The ValidationMode for checksum validation
+     * @param validationMode The mode for validation. (default: NONE)
      */
     public void setValidationMode(ValidationMode validationMode) {
         this.validationMode = validationMode;
@@ -620,14 +620,14 @@ public class Flyway {
     }
 
     /**
-     * Validate applied migration with classpath migrations to detect accidental changes. Uses validation type ALL if
-     * NONE is set.
+     * Validate applied migration with classpath migrations to detect accidental changes.
      *
      * @throws FlywayException thrown when the validation failed.
      */
     public void validate() throws FlywayException {
         performSetup();
 
+        validationMode = ValidationMode.ALL;
         doValidate();
     }
 

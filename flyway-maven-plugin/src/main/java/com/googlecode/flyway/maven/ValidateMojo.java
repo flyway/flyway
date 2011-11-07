@@ -31,7 +31,6 @@ public class ValidateMojo extends AbstractMigrationLoadingMojo {
     protected void doExecute(Flyway flyway) throws Exception {
         super.doExecute(flyway);
 
-        flyway.setValidationMode(ValidationMode.ALL);
         flyway.validate();
     }
 }
