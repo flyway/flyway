@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.core.migration;
 
+import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -66,5 +68,10 @@ public class MigrationInfoHelperSmallTest {
         String description = MigrationInfoHelper.extractDescription("009_4__EmailAxel");
         assertEquals("009.4", schemaVersion.toString());
         assertEquals("EmailAxel", description);
+    }
+
+    @Test(expected = FlywayException.class)
+    public void extractSchemaVersionWithLeadingUnderscore() {
+        MigrationInfoHelper.extractSchemaVersion("_8_0");
     }
 }

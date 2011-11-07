@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.core.migration;
 
+import com.googlecode.flyway.core.exception.FlywayException;
+
 /**
  * Parsing support for migrations that use the standard Flyway version + description embedding in their name. These
  * migrations have names like 1_2__Description .
@@ -45,7 +47,14 @@ public class MigrationInfoHelper {
             rawVersion = migrationName.substring(0, descriptionPos);
         }
 
-        return new SchemaVersion(rawVersion.replace("_", "."));
+        String version = rawVersion.replace("_", ".");
+
+        if (version.startsWith(".")) {
+            throw new FlywayException(
+                    "Invalid version starting with a dot (.) instead of a digit or a letter: " + version);
+        }
+
+        return new SchemaVersion(version);
     }
 
     /**
