@@ -1,0 +1,13 @@
+<!-- Ivy configuration for build.xml Ant sample build -->
+<ivysettings>
+    <settings defaultResolver="maven-chain"/>
+    <resolvers>
+        <chain name="maven-chain" dual="true" checkmodified="true" changingPattern=".*-SNAPSHOT">
+            <filesystem name="local-maven-2" m2compatible="true" force="false" local="true">
+                <artifact pattern="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision].[ext]"/>
+                <ivy pattern="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision].pom"/>
+            </filesystem>
+            <ibiblio name="maven2" m2compatible="true"/>
+        </chain>
+    </resolvers>
+</ivysettings>
