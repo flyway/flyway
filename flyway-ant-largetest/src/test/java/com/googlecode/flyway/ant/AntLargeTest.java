@@ -28,8 +28,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Large Test for the status task.
+ * Large Test for the Ant tasks.
  */
+@SuppressWarnings({"JavaDoc"})
 public class AntLargeTest {
     /**
      * The installation directory for the test POMs.
@@ -38,13 +39,13 @@ public class AntLargeTest {
 
     @Test
     public void init() throws Exception {
-        String stdOut = runAnt("init");
+        String stdOut = runAnt(0, "init");
         assertTrue(stdOut.contains("A new beginning!"));
     }
 
     @Test
     public void migrate() throws Exception {
-        String stdOut = runAnt("migrate", "-Dflyway.baseDir=largetest/sql");
+        String stdOut = runAnt(0, "migrate", "-Dflyway.baseDir=largetest/sql");
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
         assertTrue(stdOut.contains("Populate table"));
     }
@@ -54,7 +55,7 @@ public class AntLargeTest {
      */
     @Test
     public void multi() throws Exception {
-        String stdOut = runAnt("multi");
+        String stdOut = runAnt(0, "multi");
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_1'"));
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_2'"));
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_3'"));
@@ -64,19 +65,26 @@ public class AntLargeTest {
 
     @Test
     public void status() throws Exception {
-        String stdOut = runAnt("status");
+        String stdOut = runAnt(0, "status");
         assertTrue(stdOut.contains("No migrations applied yet"));
+    }
+
+    @Test
+    public void validate() throws Exception {
+        String stdOut = runAnt(1, "validate");
+        assertTrue(stdOut.contains("Validate failed. Found differences between applied migrations and available migrations"));
     }
 
     /**
      * Runs Ant in this directory with these extra arguments.
      *
+     * @param expectedReturnCode The expected return code for this invocation.
      * @param dir       The directory below src/test/resources to run maven in.
      * @param extraArgs The extra arguments (if any) for Maven.
      * @return The standard output.
      * @throws Exception When the execution failed.
      */
-    private String runAnt(String dir, String... extraArgs) throws Exception {
+    private String runAnt(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
         String antHome = System.getenv("ANT_HOME");
 
         String extension = "";
@@ -99,7 +107,7 @@ public class AntLargeTest {
 
         System.out.print(stdOut);
 
-        assertEquals(0, returnCode);
+        assertEquals("Unexpected return code", expectedReturnCode, returnCode);
 
         return stdOut;
     }

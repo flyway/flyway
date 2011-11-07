@@ -16,6 +16,7 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.validation.ValidationErrorMode;
 
 /**
  * Base class for tasks that rely on loading migrations from the classpath.
@@ -46,6 +47,17 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      * The file name suffix for Sql migrations (default: .sql)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationSuffix}
      */
     private String sqlMigrationSuffix;
+
+    /**
+     * The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
+     * Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
+     * database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
+     * recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
+     * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
+     * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
+     * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
+     */
+    private String validationErrorMode;
 
     /**
      * @param basePackage The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
@@ -82,6 +94,19 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         this.sqlMigrationSuffix = sqlMigrationSuffix;
     }
 
+    /**
+     * @param validationErrorMode The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
+     *                            Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
+     *                            database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
+     *                            recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
+     *                            dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
+     *                            migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
+     *                            <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
+     */
+    public void setValidationErrorMode(String validationErrorMode) {
+        this.validationErrorMode = validationErrorMode;
+    }
+
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
         String basePackageValue = useValueIfPropertyNotSet(basePackage, "basePackage");
@@ -103,6 +128,10 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         String sqlMigrationSuffixValue = useValueIfPropertyNotSet(sqlMigrationSuffix, "sqlMigrationSuffix");
         if (sqlMigrationSuffixValue != null) {
             flyway.setSqlMigrationSuffix(sqlMigrationSuffixValue);
+        }
+        String validationErrorModeValue = useValueIfPropertyNotSet(validationErrorMode, "validationErrorMode");
+        if (validationErrorModeValue != null) {
+            flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeValue.toUpperCase()));
         }
     }
 }

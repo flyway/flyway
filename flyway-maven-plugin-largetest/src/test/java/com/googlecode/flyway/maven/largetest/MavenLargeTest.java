@@ -103,7 +103,7 @@ public class MavenLargeTest {
 
         System.out.print(stdOut);
 
-        assertEquals(expectedReturnCode, returnCode);
+        assertEquals("Unexpected return code", expectedReturnCode, returnCode);
 
         return stdOut;
     }

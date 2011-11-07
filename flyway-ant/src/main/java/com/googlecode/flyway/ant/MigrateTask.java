@@ -19,7 +19,6 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationProvider;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,17 +84,6 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
     private String validationMode;
 
     /**
-     * The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
-     * Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
-     * database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
-     * recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
-     * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
-     * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
-     * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
-     */
-    private String validationErrorMode;
-
-    /**
      * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
      * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
      * this! (default: false)<br/>Also configurable with Ant Property: ${flyway.disableInitCheck}
@@ -148,19 +136,6 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
     }
 
     /**
-     * @param validationErrorMode The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
-     *                            Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
-     *                            database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
-     *                            recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
-     *                            dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
-     *                            migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
-     *                            <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
-     */
-    public void setValidationErrorMode(String validationErrorMode) {
-        this.validationErrorMode = validationErrorMode;
-    }
-
-    /**
      * @param disableInitCheck Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
      *                         Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
      *                         this! (default: false)<br/>Also configurable with Ant Property: ${flyway.disableInitCheck}
@@ -207,10 +182,6 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
         String validationModeValue = useValueIfPropertyNotSet(validationMode, "validationMode");
         if (validationModeValue != null) {
             flyway.setValidationMode(ValidationMode.valueOf(validationModeValue.toUpperCase()));
-        }
-        String validationErrorModeValue = useValueIfPropertyNotSet(validationErrorMode, "validationErrorMode");
-        if (validationErrorModeValue != null) {
-            flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeValue.toUpperCase()));
         }
         boolean disableInitCheckValue =
                 Boolean.valueOf(
