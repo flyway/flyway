@@ -709,23 +709,6 @@ public class Flyway {
     }
 
     /**
-     * Creates and initializes the Flyway metadata table.
-     *
-     * @param version     (Optional) The initial version to put in the metadata table. Only migrations with a version
-     *                    number higher than this one will be considered for this database.
-     * @param description (Optional) The description of the initial version.
-     * @throws FlywayException when the schema initialization failed.
-     * @deprecated Use init(), setInitialVersion() and setInitialDescription() instead.
-     */
-    @Deprecated
-    public void init(SchemaVersion version, String description) throws FlywayException {
-        performSetup();
-
-        MetaDataTable metaDataTable = createMetaDataTable();
-        new DbInit(transactionTemplate, metaDataTable).init(version, description);
-    }
-
-    /**
      * @return A new, fully configured, MetaDataTable instance.
      */
     private MetaDataTable createMetaDataTable() {
