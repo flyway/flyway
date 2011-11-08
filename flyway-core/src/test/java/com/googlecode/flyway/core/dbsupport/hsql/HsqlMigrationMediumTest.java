@@ -59,7 +59,6 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    @Ignore("Test for issue 175. Problem not fixed yet.")
     public void sequence() {
         flyway.setBaseDir("migration/dbsupport/hsql/sql/sequence");
         flyway.migrate();

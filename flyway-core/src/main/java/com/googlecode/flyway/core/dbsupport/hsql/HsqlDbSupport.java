@@ -117,18 +117,8 @@ public class HsqlDbSupport implements DbSupport {
     }
 
     public SqlScript createCleanScript(final String schema) {
-        final List<String> statements = new ArrayList<String>();
-
-        jdbcTemplate.execute(new ConnectionCallback() {
-            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, schema,
-                        null, new String[] {"TABLE"});
-                while (resultSet.next()) {
-                    statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
-                }
-                return null;
-            }
-        });
+        final List<String> statements = generateDropStatementsForTables(schema);
+        statements.addAll(generateDropStatementsForSequences(schema));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int lineNumber = 1;
@@ -137,5 +127,46 @@ public class HsqlDbSupport implements DbSupport {
             lineNumber++;
         }
         return new SqlScript(sqlStatements);
+    }
+
+    /**
+     * Generates the statements to drop the tables in this schema.
+     *
+     * @param schema The schema to generate the statements for.
+     * @return The drop statements.
+     */
+    private List<String> generateDropStatementsForTables(final String schema) {
+        final List<String> statements = new ArrayList<String>();
+
+        jdbcTemplate.execute(new ConnectionCallback() {
+            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+                ResultSet resultSet = connection.getMetaData().getTables(null, schema,
+                        null, new String[]{"TABLE"});
+                while (resultSet.next()) {
+                    statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
+                }
+                return null;
+            }
+        });
+        return statements;
+    }
+
+    /**
+     * Generates the statements to drop the sequences in this schema.
+     *
+     * @param schema The schema to generate the statements for.
+     * @return The drop statements.
+     */
+    private List<String> generateDropStatementsForSequences(String schema) {
+        @SuppressWarnings({"unchecked"})
+        List<String> sequenceNames =  jdbcTemplate.queryForList(
+                "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES where SEQUENCE_SCHEMA  =?",
+                        new String[]{schema}, String.class);
+
+        List<String> statements = new ArrayList<String>();
+        for (String seqName : sequenceNames) {
+            statements.add("DROP SEQUENCE \"" + schema + "\".\"" + seqName + "\"");
+        }
+        return statements;
     }
 }
