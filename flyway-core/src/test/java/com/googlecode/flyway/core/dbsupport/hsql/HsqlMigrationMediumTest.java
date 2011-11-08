@@ -17,9 +17,14 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.migration.SchemaVersion;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Hsql.
@@ -51,5 +56,22 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
         return new HsqlDbSupport(jdbcTemplate);
+    }
+
+    @Test
+    @Ignore("Test for issue 175. Problem not fixed yet.")
+    public void sequence() {
+        flyway.setBaseDir("migration/dbsupport/hsql/sql/sequence");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.toString());
+        assertEquals("Sequence", flyway.status().getDescription());
+
+        assertEquals(666,
+                jdbcTemplate.queryForInt("CALL NEXT VALUE FOR the_beast"));
+
+        flyway.clean();
+        flyway.migrate();
     }
 }
