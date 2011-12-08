@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import java.util.zip.CRC32;
-
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
@@ -24,6 +22,8 @@ import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.util.ResourceUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.util.zip.CRC32;
 
 /**
  * Database migration based on a sql file.
@@ -35,14 +35,16 @@ public class SqlMigration extends Migration {
     private final PlaceholderReplacer placeholderReplacer;
 
     /**
-     * The source of the Sql script, loaded on demand.
+     * The Resource pointing to the sql script.
+     * The complete sql script is not held as a member field here because this would use the total size of all
+     * sql migrations files in heap space during db migration, see issue 184.
      */
-    private final String sqlScriptSource;
+    private final Resource sqlScriptResource;
 
     /**
-     * The location of this sql migration
+     * The encoding of the sql script.
      */
-    private final String location;
+    private final String encoding;
 
     /**
      * Creates a new sql script migration based on this sql script.
@@ -57,24 +59,27 @@ public class SqlMigration extends Migration {
      */
     public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding,
                         String versionString, String scriptName) {
+        this.sqlScriptResource = sqlScriptResource;
+        this.encoding = encoding;
+
         schemaVersion = MigrationInfoHelper.extractSchemaVersion(versionString);
         description = MigrationInfoHelper.extractDescription(versionString);
 
-        this.sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
+        String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         checksum = calculateChecksum(sqlScriptSource);
 
         this.script = scriptName;
         this.placeholderReplacer = placeholderReplacer;
-        this.location = ResourceUtils.getResourceLocation(sqlScriptResource);
     }
 
     @Override
     public String getLocation() {
-        return location;
+        return ResourceUtils.getResourceLocation(sqlScriptResource);
     }
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+        String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
         sqlScript.execute(jdbcTemplate);
     }
