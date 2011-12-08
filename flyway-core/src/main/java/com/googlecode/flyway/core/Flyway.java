@@ -68,7 +68,7 @@ public class Flyway {
     private String basePackage = "db.migration";
 
     /**
-     * The base directory on the classpath where the Sql migrations are located. (default: sql/location)
+     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)
      */
     private String baseDir = "db/migration";
 
