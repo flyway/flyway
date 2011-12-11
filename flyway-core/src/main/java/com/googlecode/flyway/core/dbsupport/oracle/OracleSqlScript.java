@@ -60,14 +60,6 @@ public class OracleSqlScript extends SqlScript {
         return delimiter;
     }
 
-    /**
-     * Checks whether the statement we have assembled so far ends with an open multi-line string literal (which will be
-     * continued on the next line).
-     *
-     * @param statement The current statement, assembled from the lines we have parsed so far. May not yet be complete.
-     * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
-     *         literal. {@code false} if not.
-     */
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String statement) {
         String filteredStatementForParensQQuotes =

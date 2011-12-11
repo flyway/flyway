@@ -16,8 +16,8 @@
 package com.googlecode.flyway.core.dbsupport.mysql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
@@ -120,8 +120,12 @@ public class MySQLMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
-    @Ignore
-    public void semicolonWithinStringLiteral() {
-        //Ignore
+    /**
+     * Tests parsing support for " string literals.
+     */
+    @Test
+    public void doubleQuote() throws FlywayException {
+        flyway.setBaseDir("migration/dbsupport/mysql/sql/doublequote");
+        flyway.migrate();
     }
 }

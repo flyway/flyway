@@ -15,14 +15,13 @@
  */
 package com.googlecode.flyway.core.util;
 
+import org.springframework.core.io.Resource;
+import org.springframework.util.FileCopyUtils;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
-
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.util.FileCopyUtils;
 
 /**
  * Utility class for dealing with classpath resources.
@@ -36,22 +35,10 @@ public class ResourceUtils {
     }
 
     /**
-     * Loads the resource at this location within the classpath in a string using UTF-8 encoding.
-     *
-     * @param location The location of the resource on the classpath.
-     *
-     * @return The resource contents as a string.
-     */
-    public static String loadResourceAsString(String location) {
-        return loadResourceAsString(new ClassPathResource(location, ResourceUtils.class.getClassLoader()), "UTF-8");
-    }
-
-    /**
      * Loads this resource in a string using this encoding.
      *
      * @param resource The resource to load.
      * @param encoding The encoding of the resource.
-     *
      * @return The resource contents as a string.
      */
     public static String loadResourceAsString(Resource resource, String encoding) {
@@ -64,9 +51,10 @@ public class ResourceUtils {
     }
 
     /**
-     * retrieves the location of a resource
-     * @param resource The resource to evaluate
-     * @return location of the resource
+     * Retrieves the location of a resource on disk.
+     *
+     * @param resource The resource to evaluate.
+     * @return The location of the resource on disk.
      */
     public static String getResourceLocation(Resource resource) {
         try {
