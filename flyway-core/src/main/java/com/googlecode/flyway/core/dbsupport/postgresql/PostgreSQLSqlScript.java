@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.dbsupport.postgresql;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
+import org.springframework.util.StringUtils;
 
 /**
  * SqlScript supporting PostgreSQL routine definitions.
@@ -49,5 +50,11 @@ public class PostgreSQLSqlScript extends SqlScript {
         }
 
         return delimiter;
+    }
+
+    @Override
+    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
+        int numQuotes = StringUtils.countOccurrencesOf(statement, "'");
+        return (numQuotes % 2) != 0;
     }
 }
