@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -117,5 +118,15 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
+    }
+
+    /**
+     * Tests parsing support for $$ string literals.
+     */
+    @Test
+    public void dollarQuote() throws FlywayException {
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/dollar");
+        flyway.migrate();
+        assertEquals(8, jdbcTemplate.queryForInt("select count(*) from dollar"));
     }
 }
