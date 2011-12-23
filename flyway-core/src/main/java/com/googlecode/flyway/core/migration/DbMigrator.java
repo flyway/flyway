@@ -97,9 +97,7 @@ public class DbMigrator {
      * Starts the actual migration.
      *
      * @param migrations The available migrations.
-     *
      * @return The number of successfully applied migrations.
-     *
      * @throws FlywayException when migration failed.
      */
     public int migrate(final List<Migration> migrations) throws FlywayException {
@@ -174,7 +172,7 @@ public class DbMigrator {
      * Logs the summary of this migration run.
      *
      * @param migrationSuccessCount The number of successfully applied migrations.
-     * @param executionTime The total time taken to perform this migration run (in ms).
+     * @param executionTime         The total time taken to perform this migration run (in ms).
      */
     private void logSummary(int migrationSuccessCount, long executionTime) {
         if (migrationSuccessCount == 0) {
@@ -195,9 +193,7 @@ public class DbMigrator {
      * Applies this migration to the database. The migration state and the execution time are updated accordingly.
      *
      * @param migration The migration to apply.
-     *
      * @return The row that was added to the metadata table.
-     *
      * @throws MigrationException when the migration failed.
      */
     public final MetaDataTableRow applyMigration(final Migration migration) throws MigrationException {
@@ -220,6 +216,8 @@ public class DbMigrator {
                     state = MigrationState.SUCCESS;
                 } catch (Exception e) {
                     LOG.error(e.toString());
+
+                    @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
                     Throwable rootCause = ExceptionUtils.getRootCause(e);
                     if (rootCause != null) {
                         LOG.error("Caused by " + rootCause.toString());
@@ -256,7 +254,6 @@ public class DbMigrator {
      *
      * @param currentVersion The current version of the schema.
      * @param allMigrations  All available migrations, sorted by version, newest first.
-     *
      * @return The next migration to apply.
      */
     private Migration getNextMigration(List<Migration> allMigrations, SchemaVersion currentVersion) {

@@ -15,117 +15,12 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.MigrationTestCase;
-import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
  */
 @SuppressWarnings({"JavaDoc"})
 @ContextConfiguration(locations = {"classpath:migration/dbsupport/mysql/mysql-context.xml"})
-public class MySQLMigrationMediumTest extends MigrationTestCase {
-    @Override
-    protected String getQuoteBaseDir() {
-        return "migration/dbsupport/mysql/sql/quote";
-    }
-
-    @Override
-    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new MySQLDbSupport(jdbcTemplate);
-    }
-
-    /**
-     * Tests clean and migrate for MySQL Stored Procedures.
-     */
-    @Test
-    public void storedProcedure() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/mysql/sql/procedure");
-        flyway.migrate();
-
-        assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for MySQL Triggers.
-     */
-    @Test
-    public void trigger() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/mysql/sql/trigger");
-        flyway.migrate();
-
-        assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for MySQL Views.
-     */
-    @Test
-    public void view() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/mysql/sql/view");
-        flyway.migrate();
-
-        assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for MySQL dumps.
-     */
-    @Test
-    public void dump() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/mysql/sql/dump");
-        flyway.migrate();
-
-        assertEquals(0, jdbcTemplate.queryForInt("SELECT count(id) FROM user_account"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for MySQL InnoDb tables with upper case names.
-     */
-    @Test
-    public void upperCase() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/mysql/sql/uppercase");
-        flyway.migrate();
-
-        assertEquals(0, jdbcTemplate.queryForInt("SELECT count(*) FROM A1"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests parsing support for " string literals.
-     */
-    @Test
-    public void doubleQuote() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/mysql/sql/doublequote");
-        flyway.migrate();
-    }
+public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
 }

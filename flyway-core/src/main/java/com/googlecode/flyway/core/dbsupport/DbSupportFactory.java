@@ -57,19 +57,24 @@ public class DbSupportFactory {
      */
     public static DbSupport createDbSupport(JdbcTemplate jdbcTemplate) {
         String databaseProductName = getDatabaseProductName(jdbcTemplate);
+        if (databaseProductName == null) {
+            throw new FlywayException("Unable to determine database. Product name is null.");
+        }
 
         LOG.debug("Database: " + databaseProductName);
 
         if ("H2".equals(databaseProductName)) {
             return new H2DbSupport(jdbcTemplate);
         }
-        if ("HSQL Database Engine".equals(databaseProductName)) {
+        if ("HSQL Database Engine".equals(databaseProductName)
+                || "Google SQL Service/HSQL Database Engine".equals(databaseProductName)) {
             return new HsqlDbSupport(jdbcTemplate);
         }
         if ("Microsoft SQL Server".equals(databaseProductName)) {
             return new SQLServerDbSupport(jdbcTemplate);
         }
-        if ("MySQL".equals(databaseProductName)) {
+        if ("MySQL".equals(databaseProductName) ||
+                "Google SQL Service/MySQL".equals(databaseProductName)) {
             return new MySQLDbSupport(jdbcTemplate);
         }
         if ("Oracle".equals(databaseProductName)) {
@@ -78,7 +83,7 @@ public class DbSupportFactory {
         if ("PostgreSQL".equals(databaseProductName)) {
             return new PostgreSQLDbSupport(jdbcTemplate);
         }
-        if ((databaseProductName != null) && databaseProductName.startsWith("DB2")) {
+        if (databaseProductName.startsWith("DB2")) {
             // DB2 returns also OS it's running on
             // e.g. DB2/NT
             return new DB2DbSupport(jdbcTemplate);
