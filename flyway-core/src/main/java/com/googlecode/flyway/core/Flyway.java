@@ -367,6 +367,7 @@ public class Flyway {
      */
     @Deprecated
     public PlatformTransactionManager getTransactionManager() {
+        LOG.warn("As of Flyway 1.6, this method is deprecated and has no effect anymore");
         return null;
     }
 
