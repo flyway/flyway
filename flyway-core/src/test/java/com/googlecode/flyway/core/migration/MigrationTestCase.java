@@ -25,19 +25,15 @@ import com.googlecode.flyway.core.migration.sql.SqlMigration;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.support.DefaultTransactionStatus;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -398,7 +394,7 @@ public abstract class MigrationTestCase {
         assertEquals("2.0", schemaVersion.toString());
         assertEquals("Add foreign key", flyway.status().getDescription());
         assertEquals(0, flyway.migrate());
-        
+
         assertEquals(3, flyway.history().size());
         assertEquals(3, jdbcTemplate.queryForInt("select count(*) from flyway_1.schema_version"));
 
@@ -408,35 +404,5 @@ public abstract class MigrationTestCase {
 
         flyway.clean();
         flyway.migrate();
-    }
-
-    @Test
-    @Ignore("Axel: JTA support should be autodetected instead")
-    public void altenateTransactionManager() throws Exception {
-        CommitCountingDataSourceTransactionManager transactionManager = new CommitCountingDataSourceTransactionManager();
-        transactionManager.setDataSource(migrationDataSource);
-
-        flyway.setBaseDir(BASEDIR);
-        flyway.setTransactionManager(transactionManager);
-        flyway.migrate();
-
-        assertTrue(transactionManager.getCommitCount() > 0);
-    }
-
-    /**
-     * Dummy transaction manager for use in tests that use an alternate transaction manager.
-     */
-    private static class CommitCountingDataSourceTransactionManager extends DataSourceTransactionManager {
-        private int commitCount;
-
-        public int getCommitCount() {
-            return commitCount;
-        }
-
-        @Override
-        protected void doCommit(DefaultTransactionStatus status) {
-            super.doCommit(status);
-            commitCount++;
-        }
     }
 }
