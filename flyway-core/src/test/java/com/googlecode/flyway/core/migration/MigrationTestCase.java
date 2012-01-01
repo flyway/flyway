@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
@@ -24,6 +25,7 @@ import com.googlecode.flyway.core.migration.sql.SqlMigration;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -61,12 +64,16 @@ public abstract class MigrationTestCase {
     @Qualifier("migrationDataSource")
     protected DataSource migrationDataSource;
 
+    protected DbSupport dbSupport;
+
     protected JdbcTemplate jdbcTemplate;
 
     protected Flyway flyway;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        dbSupport = DbSupportFactory.createDbSupport(migrationDataSource.getConnection());
+
         jdbcTemplate = new JdbcTemplate(migrationDataSource);
 
         flyway = new Flyway();
@@ -79,13 +86,6 @@ public abstract class MigrationTestCase {
      * @return The directory containing the migrations for the quote test.
      */
     protected abstract String getQuoteBaseDir();
-
-    /**
-     * @param jdbcTemplate The jdbcTemplate to intialize the instance with.
-     *
-     * @return The DbSupport class to test.
-     */
-    protected abstract DbSupport getDbSupport(JdbcTemplate jdbcTemplate);
 
     @Test
     public void migrate() throws Exception {
@@ -196,7 +196,7 @@ public abstract class MigrationTestCase {
         }
 
         MetaDataTableRow migration = flyway.status();
-        if (getDbSupport(new JdbcTemplate(migrationDataSource)).supportsDdlTransactions()) {
+        if (dbSupport.supportsDdlTransactions()) {
             assertNull(migration);
         } else {
             SchemaVersion version = migration.getVersion();
@@ -220,7 +220,7 @@ public abstract class MigrationTestCase {
         }
 
         flyway.setBaseDir(BASEDIR);
-        if (getDbSupport(new JdbcTemplate(migrationDataSource)).supportsDdlTransactions()) {
+        if (dbSupport.supportsDdlTransactions()) {
             flyway.migrate();
         } else {
             try {
@@ -266,7 +266,7 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (MigrationException e) {
-            if (getDbSupport(new JdbcTemplate(migrationDataSource)).supportsDdlTransactions()) {
+            if (dbSupport.supportsDdlTransactions()) {
                 assertTrue(e.getMessage().contains("rolled back"));
             } else {
                 assertTrue(e.getMessage().contains("roll back"));
@@ -277,7 +277,6 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-        DbSupport dbSupport = getDbSupport(new JdbcTemplate(migrationDataSource));
         assertTrue(dbSupport.tableExists(dbSupport.getCurrentSchema(), "SCHEMA_VERSION"));
     }
 
@@ -285,12 +284,11 @@ public abstract class MigrationTestCase {
      * Check if meta table has no current migration (manually edited).
      */
     @Test(expected = FlywayException.class)
-    public void checkForInvalidMetatable() throws FlywayException {
+    public void checkForInvalidMetatable() throws Exception {
         flyway.setBaseDir(BASEDIR);
         flyway.migrate();
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
-        DbSupport dbSupport = getDbSupport(jdbcTemplate);
         jdbcTemplate.update("UPDATE schema_version SET current_version = " + dbSupport.getBooleanFalse()
                 + " where current_version = " + dbSupport.getBooleanTrue());
         flyway.migrate();
@@ -300,7 +298,7 @@ public abstract class MigrationTestCase {
      * Check validation with INIT row.
      */
     @Test
-    public void checkValidationWithInitRow() throws FlywayException {
+    public void checkValidationWithInitRow() throws Exception {
         flyway.setBaseDir(BASEDIR);
         flyway.setTarget(new SchemaVersion("1.1"));
         flyway.migrate();
@@ -318,8 +316,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void isSchemaEmpty() {
-        DbSupport dbSupport = getDbSupport(jdbcTemplate);
+    public void isSchemaEmpty() throws Exception {
         String schema = dbSupport.getCurrentSchema();
 
         assertTrue(dbSupport.isSchemaEmpty(schema));
@@ -412,6 +409,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    @Ignore("Axel: JTA support should be autodetected instead")
     public void altenateTransactionManager() throws Exception {
         CommitCountingDataSourceTransactionManager transactionManager = new CommitCountingDataSourceTransactionManager();
         transactionManager.setDataSource(migrationDataSource);

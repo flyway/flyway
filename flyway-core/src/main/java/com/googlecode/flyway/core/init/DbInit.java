@@ -21,12 +21,10 @@ import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.init.InitMigration;
+import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
+import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Main workflow for migrating the database.
@@ -65,7 +63,6 @@ public class DbInit {
      *
      * @param version     The version to initialize the metadata table with.
      * @param description The description for the ionitial version.
-     *
      * @throws InitException when the initialization failed.
      */
     public void init(SchemaVersion version, String description) throws InitException {
@@ -81,16 +78,12 @@ public class DbInit {
         final MetaDataTableRow metaDataTableRow = new MetaDataTableRow(initialMigration);
         metaDataTableRow.update(0, MigrationState.SUCCESS);
 
-        try {
-            transactionTemplate.execute(new TransactionCallback() {
-                public Void doInTransaction(TransactionStatus status) {
-                    metaDataTable.insert(metaDataTableRow);
-                    return null;
-                }
-            });
-        } catch (TransactionException e) {
-            throw new InitException("Unable to initialize schema", e);
-        }
+        transactionTemplate.execute(new TransactionCallback() {
+            public Void doInTransaction() {
+                metaDataTable.insert(metaDataTableRow);
+                return null;
+            }
+        });
 
         LOG.info("Schema initialized with version: " + metaDataTableRow.getVersion());
     }

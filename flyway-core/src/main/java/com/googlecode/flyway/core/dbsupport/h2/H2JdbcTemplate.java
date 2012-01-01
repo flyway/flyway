@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.oracle;
+package com.googlecode.flyway.core.dbsupport.h2;
 
-import com.googlecode.flyway.core.exception.FlywayException;
-import org.junit.Test;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
- * Small Test for OracleDbSupport.
+ * H2-specific JdbcTemplate customizations.
  */
-@SuppressWarnings({"JavaDoc"})
-public class OracleDbSupportSmallTest {
+public class H2JdbcTemplate extends JdbcTemplate {
     /**
-     * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
+     * Creates a new H2JdbcTemplate.
+     *
+     * @param connection The DB connection to use.
      */
-    @Test(expected = FlywayException.class)
-    public void createCleanScriptWithSystem() throws Exception {
-        OracleDbSupport oracleDbSupport = new OracleDbSupport(null);
-        oracleDbSupport.createCleanScript("SYSTEM");
+    public H2JdbcTemplate(Connection connection) {
+        super(connection);
+    }
+
+    @Override
+    protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
+        preparedStatement.setString(parameterIndex, null);
     }
 }

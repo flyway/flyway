@@ -16,8 +16,9 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
-import org.apache.commons.dbcp.BasicDataSource;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.AntClassLoader;
@@ -26,6 +27,9 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.springframework.util.StringUtils;
+
+import javax.sql.DataSource;
+import java.sql.Driver;
 
 /**
  * Base class for all Flyway Ant tasks.
@@ -81,7 +85,7 @@ public abstract class AbstractFlywayTask extends Task {
 
     /**
      * @param classpath The classpath used to load the JDBC driver and the migrations.<br/>Also configurable with Ant
-     * Property: ${flyway.classpath}
+     *                  Property: ${flyway.classpath}
      */
     public void setClasspath(Path classpath) {
         this.classPath = classpath;
@@ -89,7 +93,7 @@ public abstract class AbstractFlywayTask extends Task {
 
     /**
      * @param classpathref The reference to the classpath used to load the JDBC driver and the migrations.<br/>Also
-     * configurable with Ant Property: ${flyway.classpathref}
+     *                     configurable with Ant Property: ${flyway.classpathref}
      */
     public void setClasspathref(Reference classpathref) {
         Path classPath = new Path(getProject());
@@ -151,16 +155,22 @@ public abstract class AbstractFlywayTask extends Task {
      * @return The fully configured datasource.
      * @throws Exception Thrown when the datasource could not be created.
      */
-    /* private -> for testing */ BasicDataSource createDataSource() throws Exception {
-        final BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(useValueIfPropertyNotSet(driver, "driver"));
+    /* private -> for testing */ DataSource createDataSource() throws Exception {
+        DriverDataSource dataSource = new DriverDataSource();
+
+        String driverValue = useValueIfPropertyNotSet(driver, "driver");
+        dataSource.setDriver(ClassUtils.<Driver>instantiate(driverValue));
+
         dataSource.setUrl(useValueIfPropertyNotSet(url, "url"));
-        dataSource.setUsername(useValueIfPropertyNotSet(user, "user"));
+
+        dataSource.setUser(useValueIfPropertyNotSet(user, "user"));
+
         String passwordValue = useValueIfPropertyNotSet(password, "password");
         if (passwordValue == null) {
             passwordValue = "";
         }
         dataSource.setPassword(passwordValue);
+
         return dataSource;
     }
 
@@ -209,22 +219,17 @@ public abstract class AbstractFlywayTask extends Task {
         try {
             Flyway flyway = new Flyway();
 
-            BasicDataSource dataSource = createDataSource();
-            try {
-                flyway.setDataSource(dataSource);
-                String schemasValue = useValueIfPropertyNotSet(schemas, "schemas");
-                if (schemasValue != null) {
-                    flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasValue, ","));
-                }
-                String tableValue = useValueIfPropertyNotSet(table, "table");
-                if (tableValue != null) {
-                    flyway.setTable(tableValue);
-                }
-
-                doExecute(flyway);
-            } finally {
-                dataSource.close();
+            flyway.setDataSource(createDataSource());
+            String schemasValue = useValueIfPropertyNotSet(schemas, "schemas");
+            if (schemasValue != null) {
+                flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasValue, ","));
             }
+            String tableValue = useValueIfPropertyNotSet(table, "table");
+            if (tableValue != null) {
+                flyway.setTable(tableValue);
+            }
+
+            doExecute(flyway);
         } catch (Exception e) {
             LOG.error(e.toString());
 

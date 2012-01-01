@@ -32,8 +32,8 @@
         </property>
     </bean>
     <!--  -->
-    <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="${mysql.username}"/>
+    <bean id="migrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="${mysql.username}"/>
         <property name="password" value="${mysql.password}"/>
         <property name="driverClass" value="com.mysql.jdbc.Driver"/>
         <property name="url" value="${mysql.url}"/>

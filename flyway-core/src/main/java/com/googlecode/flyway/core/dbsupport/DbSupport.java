@@ -17,11 +17,35 @@ package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+
+import java.sql.SQLException;
 
 /**
  * Abstraction for database-specific functionality.
  */
-public interface DbSupport {
+public abstract class DbSupport {
+    /**
+     * The JDBC template available for use.
+     */
+    protected final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Creates a new DbSupport instance with this JdbcTemplate.
+     *
+     * @param jdbcTemplate The JDBC template to use.
+     */
+    public DbSupport(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    /**
+     * @return The DB-specific JdbcTemplate instance.
+     */
+    public JdbcTemplate getJdbcTemplate() {
+        return jdbcTemplate;
+    }
+
     /**
      * Creates a new sql script from this resource with these placeholders to replace.
      *
@@ -30,30 +54,32 @@ public interface DbSupport {
      * @return A new sql script, containing the statements from this resource, with all placeholders replaced.
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer);
+    public abstract SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer);
 
     /**
      * Creates a new sql script which clean this schema, by dropping all objects.
      *
      * @param schema The schema to clean.
      * @return A new sql script, containing drop statements for all objects
+     * @throws SQLException when querying the database for generating the clean script failed.
      */
-    SqlScript createCleanScript(String schema);
+    public abstract SqlScript createCleanScript(String schema) throws SQLException;
 
     /**
      * Returns the location on the classpath where the scripts for this database reside.
      *
      * @return The folder on the classpath, including a trailing slash.
      */
-    String getScriptLocation();
+    public abstract String getScriptLocation();
 
     /**
      * Checks if this database schema is empty.
      *
      * @param schema The schema to check.
      * @return {@code true} if it is empty, {@code false} if it is not.
+     * @throws SQLException when there was an error checking whether the schema is empty.
      */
-    boolean isSchemaEmpty(String schema);
+    public abstract boolean isSchemaEmpty(String schema) throws SQLException;
 
     /**
      * Checks whether this table is already present in the database.
@@ -61,43 +87,46 @@ public interface DbSupport {
      * @param schema The schema in which to look.
      * @param table  The table to look for.
      * @return {@code true} if the table exists, {@code false} if it doesn't.
+     * @throws SQLException when there was an error checking whether this table exists in this schema.
      */
-    boolean tableExists(String schema, String table);
+    public abstract boolean tableExists(String schema, String table) throws SQLException;
 
     /**
      * Retrieves the current schema.
      *
      * @return The current schema for this connection.
+     * @throws SQLException when the current schema could not be retrieved.
      */
-    String getCurrentSchema();
+    public abstract String getCurrentSchema() throws SQLException;
 
     /**
      * @return The database function that returns the current user.
      */
-    String getCurrentUserFunction();
+    public abstract String getCurrentUserFunction();
 
     /**
      * Checks whether ddl transactions are supported for this database.
      *
      * @return {@code true} if ddl transactions are supported, {@code false} if not.
      */
-    boolean supportsDdlTransactions();
+    public abstract boolean supportsDdlTransactions();
 
     /**
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
      *
      * @param schema The schema of the table to lock.
      * @param table  The table to lock.
+     * @throws SQLException when this table in this schema could not be locked.
      */
-    void lockTable(String schema, String table);
+    public abstract void lockTable(String schema, String table) throws SQLException;
 
     /**
      * @return The representation of the value {@code true} in a boolean column.
      */
-    String getBooleanTrue();
+    public abstract String getBooleanTrue();
 
     /**
      * @return The representation of the value {@code false} in a boolean column.
      */
-    String getBooleanFalse();
+    public abstract String getBooleanFalse();
 }

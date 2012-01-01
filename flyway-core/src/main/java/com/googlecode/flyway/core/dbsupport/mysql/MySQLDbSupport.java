@@ -19,9 +19,6 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -33,19 +30,14 @@ import java.util.Map;
 /**
  * Mysql-specific support.
  */
-public class MySQLDbSupport implements DbSupport {
-    /**
-     * The jdbcTemplate to use.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
+public class MySQLDbSupport extends DbSupport {
     /**
      * Creates a new instance.
      *
-     * @param jdbcTemplate The jdbcTemplate to use.
+     * @param connection The connection to use.
      */
-    public MySQLDbSupport(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public MySQLDbSupport(Connection connection) {
+        super(new MySQLJdbcTemplate(connection));
     }
 
     public String getScriptLocation() {
@@ -56,15 +48,11 @@ public class MySQLDbSupport implements DbSupport {
         return "SUBSTRING_INDEX(USER(),'@',1)";
     }
 
-    public String getCurrentSchema() {
-        return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-                return connection.getCatalog();
-            }
-        });
+    public String getCurrentSchema() throws SQLException {
+        return jdbcTemplate.getConnection().getCatalog();
     }
 
-    public boolean isSchemaEmpty(String schema) {
+    public boolean isSchemaEmpty(String schema) throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
                 "( " +
                 "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLES " +
@@ -75,24 +63,20 @@ public class MySQLDbSupport implements DbSupport {
                 "Union " +
                 "Select ROUTINE_NAME as OBJECT_NAME, ROUTINE_SCHEMA as OBJECT_SCHEMA from information_schema.ROUTINES " +
                 ") R " +
-                "Where R.OBJECT_SCHEMA=?", new Object[]{schema});
+                "Where R.OBJECT_SCHEMA=?", schema);
         return objectCount == 0;
     }
 
-    public boolean tableExists(final String schema, final String table) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(schema, null, table, null);
-                return resultSet.next();
-            }
-        });
+    public boolean tableExists(final String schema, final String table) throws SQLException {
+        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(schema, null, table, null);
+        return resultSet.next();
     }
 
     public boolean supportsDdlTransactions() {
         return false;
     }
 
-    public void lockTable(String schema, String table) {
+    public void lockTable(String schema, String table) throws SQLException {
         jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
@@ -108,7 +92,7 @@ public class MySQLDbSupport implements DbSupport {
         return new MySQLSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    public SqlScript createCleanScript(String schema) {
+    public SqlScript createCleanScript(String schema) throws SQLException {
         List<String> statements = cleanRoutines(schema);
         statements.addAll(cleanViews(schema));
         statements.addAll(cleanTables(schema));
@@ -127,17 +111,17 @@ public class MySQLDbSupport implements DbSupport {
      *
      * @param schema The schema to generate the statements for.
      * @return The list of statements.
+     * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanTables(String schema) {
-        @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
-                jdbcTemplate.queryForList(
+    private List<String> cleanTables(String schema) throws SQLException {
+        List<String> tableNames =
+                jdbcTemplate.queryForStringList(
                         "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                        new Object[]{schema});
+                        schema);
 
         List<String> statements = new ArrayList<String>();
         statements.add("SET FOREIGN_KEY_CHECKS = 0");
-        for (Map<String, String> row : tableNames) {
-            String tableName = row.get("table_name");
+        for (String tableName : tableNames) {
             statements.add("DROP TABLE `" + schema + "`.`" + tableName + "`");
         }
         statements.add("SET FOREIGN_KEY_CHECKS = 1");
@@ -149,12 +133,13 @@ public class MySQLDbSupport implements DbSupport {
      *
      * @param schema The schema to generate the statements for.
      * @return The list of statements.
+     * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanRoutines(String schema) {
-        @SuppressWarnings({"unchecked"}) List<Map<String, String>> routineNames =
+    private List<String> cleanRoutines(String schema) throws SQLException {
+        List<Map<String, String>> routineNames =
                 jdbcTemplate.queryForList(
                         "SELECT routine_name, routine_type FROM information_schema.routines WHERE routine_schema=?",
-                        new Object[]{schema});
+                        schema);
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : routineNames) {
@@ -170,16 +155,15 @@ public class MySQLDbSupport implements DbSupport {
      *
      * @param schema The schema to generate the statements for.
      * @return The list of statements.
+     * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanViews(String schema) {
-        @SuppressWarnings({"unchecked"}) List<Map<String, String>> viewNames =
-                jdbcTemplate.queryForList(
-                        "SELECT table_name FROM information_schema.views WHERE table_schema=?",
-                        new Object[]{schema});
+    private List<String> cleanViews(String schema) throws SQLException {
+        List<String> viewNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT table_name FROM information_schema.views WHERE table_schema=?", schema);
 
         List<String> statements = new ArrayList<String>();
-        for (Map<String, String> row : viewNames) {
-            String viewName = row.get("table_name");
+        for (String viewName : viewNames) {
             statements.add("DROP VIEW `" + schema + "`.`" + viewName + "`");
         }
         return statements;

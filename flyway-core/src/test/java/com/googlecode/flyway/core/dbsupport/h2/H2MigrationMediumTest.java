@@ -22,6 +22,8 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.sql.SQLException;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -30,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(locations = {"classpath:migration/dbsupport/h2/h2-context.xml"})
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
 
         jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS flyway_1");
@@ -41,11 +43,6 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
-    }
-
-    @Override
-    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new H2DbSupport(jdbcTemplate);
     }
 
     @Test

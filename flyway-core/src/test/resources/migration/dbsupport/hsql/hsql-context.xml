@@ -19,8 +19,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
     <!-- -->
-    <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="SA"/>
+    <bean id="migrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="SA"/>
         <property name="password" value=""/>
         <property name="driverClass" value="org.hsqldb.jdbcDriver"/>
         <property name="url" value="jdbc:hsqldb:mem:flyway_db"/>

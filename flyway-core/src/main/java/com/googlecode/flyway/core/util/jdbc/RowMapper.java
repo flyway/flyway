@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.oracle;
+package com.googlecode.flyway.core.util.jdbc;
 
-import com.googlecode.flyway.core.exception.FlywayException;
-import org.junit.Test;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
- * Small Test for OracleDbSupport.
+ * Mapper from ResultSet row to object.
+ *
+ * @param <T> The type of object to map to.
  */
-@SuppressWarnings({"JavaDoc"})
-public class OracleDbSupportSmallTest {
+public interface RowMapper<T> {
     /**
-     * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
+     * Maps a row in this resultSet to an object.
+     * @param rs The resultset.
+     * @return The corresponding object.
+     * @throws SQLException when reading the resultset failed.
      */
-    @Test(expected = FlywayException.class)
-    public void createCleanScriptWithSystem() throws Exception {
-        OracleDbSupport oracleDbSupport = new OracleDbSupport(null);
-        oracleDbSupport.createCleanScript("SYSTEM");
-    }
+    T mapRow(final ResultSet rs) throws SQLException;
 }

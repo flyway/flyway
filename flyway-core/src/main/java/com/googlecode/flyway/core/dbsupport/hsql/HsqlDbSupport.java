@@ -21,11 +21,9 @@ import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -34,24 +32,19 @@ import java.util.List;
 /**
  * HsqlDb-specific support
  */
-public class HsqlDbSupport implements DbSupport {
+public class HsqlDbSupport extends DbSupport {
     /**
      * Logger.
      */
     private static final Log LOG = LogFactory.getLog(HsqlDbSupport.class);
 
     /**
-     * The jdbcTemplate to use.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
      * Creates a new instance.
      *
-     * @param jdbcTemplate The jdbcTemplate to use.
+     * @param connection The connection to use.
      */
-    public HsqlDbSupport(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public HsqlDbSupport(Connection connection) {
+        super(new HsqlJdbcTemplate(connection));
         LOG.info("Hsql does not support locking. No concurrent migration supported.");
     }
 
@@ -63,37 +56,25 @@ public class HsqlDbSupport implements DbSupport {
         return "USER()";
     }
 
-    public String getCurrentSchema() {
-        return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getSchemas();
-                while (resultSet.next()) {
-                    if (resultSet.getBoolean("IS_DEFAULT")) {
-                        return resultSet.getString("TABLE_SCHEM");
-                    }
-                }
-                return null;
+    public String getCurrentSchema() throws SQLException {
+        ResultSet resultSet = jdbcTemplate.getMetaData().getSchemas();
+        while (resultSet.next()) {
+            if (resultSet.getBoolean("IS_DEFAULT")) {
+                return resultSet.getString("TABLE_SCHEM");
             }
-        });
+        }
+        return null;
     }
 
-    public boolean isSchemaEmpty(final String schema) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, schema, null, null);
-                return !resultSet.next();
-            }
-        });
+    public boolean isSchemaEmpty(final String schema) throws SQLException {
+        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema, null, null);
+        return !resultSet.next();
     }
 
-    public boolean tableExists(final String schema, final String table) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(),
-                        table.toUpperCase(), null);
-                return resultSet.next();
-            }
-        });
+    public boolean tableExists(final String schema, final String table) throws SQLException {
+        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema.toUpperCase(),
+                table.toUpperCase(), null);
+        return resultSet.next();
     }
 
     public boolean supportsDdlTransactions() {
@@ -116,7 +97,7 @@ public class HsqlDbSupport implements DbSupport {
         return new HsqlSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    public SqlScript createCleanScript(final String schema) {
+    public SqlScript createCleanScript(final String schema) throws SQLException {
         final List<String> statements = generateDropStatementsForTables(schema);
         statements.addAll(generateDropStatementsForSequences(schema));
 
@@ -134,20 +115,16 @@ public class HsqlDbSupport implements DbSupport {
      *
      * @param schema The schema to generate the statements for.
      * @return The drop statements.
+     * @throws SQLException when the drop statements could not be generated.
      */
-    private List<String> generateDropStatementsForTables(final String schema) {
+    private List<String> generateDropStatementsForTables(final String schema) throws SQLException {
         final List<String> statements = new ArrayList<String>();
 
-        jdbcTemplate.execute(new ConnectionCallback() {
-            public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, schema,
-                        null, new String[]{"TABLE"});
-                while (resultSet.next()) {
-                    statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
-                }
-                return null;
-            }
-        });
+        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema, null, new String[]{"TABLE"});
+        while (resultSet.next()) {
+            statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
+        }
+
         return statements;
     }
 
@@ -156,17 +133,17 @@ public class HsqlDbSupport implements DbSupport {
      *
      * @param schema The schema to generate the statements for.
      * @return The drop statements.
+     * @throws SQLException when the drop statements could not be generated.
      */
-    private List<String> generateDropStatementsForSequences(String schema) {
-        @SuppressWarnings({"unchecked"})
-        List<String> sequenceNames =  jdbcTemplate.queryForList(
-                "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES where SEQUENCE_SCHEMA  =?",
-                        new String[]{schema}, String.class);
+    private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
+        List<String> sequenceNames = jdbcTemplate.queryForStringList(
+                "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES where SEQUENCE_SCHEMA = ?", schema);
 
         List<String> statements = new ArrayList<String>();
         for (String seqName : sequenceNames) {
             statements.add("DROP SEQUENCE \"" + schema + "\".\"" + seqName + "\"");
         }
+
         return statements;
     }
 }

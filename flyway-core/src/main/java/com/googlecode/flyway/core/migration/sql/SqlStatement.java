@@ -16,10 +16,11 @@
 package com.googlecode.flyway.core.migration.sql;
 
 import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.sql.SQLException;
 
 /**
  * A sql statement from a script that can be executed at once against a database.
@@ -74,7 +75,7 @@ public class SqlStatement {
         LOG.debug("Executing SQL: " + this.sql);
         try {
             jdbcTemplate.execute(sql);
-        } catch (DataAccessException e) {
+        } catch (SQLException e) {
             throw new FlywayException("Error executing statement at line " + lineNumber
                     + ": " + sql, e);
         }

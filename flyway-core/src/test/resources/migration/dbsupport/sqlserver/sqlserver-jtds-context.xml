@@ -34,15 +34,15 @@
         </property>
     </bean>
     <!-- -->
-    <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="${sqlserver.username}"/>
+    <bean id="migrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="${sqlserver.username}"/>
         <property name="password" value="${sqlserver.password}"/>
         <property name="driverClass" value="net.sourceforge.jtds.jdbc.Driver"/>
         <property name="url" value="${sqlserver.url}"/>
     </bean>
     <!-- -->
-    <bean id="caseSensitiveDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="${sqlserver.username}"/>
+    <bean id="caseSensitiveDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="${sqlserver.username}"/>
         <property name="password" value="${sqlserver.password}"/>
         <property name="driverClass" value="net.sourceforge.jtds.jdbc.Driver"/>
         <property name="url" value="${sqlserver.url_case_sensitive}"/>

@@ -21,11 +21,10 @@ import java.util.List;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.validation.ValidationException;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -121,7 +120,7 @@ public class MigrationProviderSmallTest {
             }
 
             @Override
-            public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException {
+            public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
             }
 
             @Override

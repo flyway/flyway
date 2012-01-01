@@ -23,18 +23,11 @@
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="location" value="file:${user.home}/flyway-mediumtests.properties"/>
         <property name="ignoreResourceNotFound" value="true"/>
-        <property name="properties">
-            <props>
-                <prop key="googlecloudsql.username">flyway0</prop>
-                <prop key="googlecloudsql.password">flyway</prop>
-                <prop key="googlecloudsql.url">jdbc:google:rdbms://localhost/flyway_cloudsql_db</prop>
-            </props>
-        </property>
     </bean>
     <!--  -->
-    <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+    <bean id="migrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
         <property name="driverClass" value="com.google.appengine.api.rdbms.AppEngineDriver"/>
-        <property name="url" value="${googlecloudsql.url}"/>
+        <property name="url" value="jdbc:google:rdbms://localhost/flyway_cloudsql_db"/>
     </bean>
     <!-- -->
     <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>

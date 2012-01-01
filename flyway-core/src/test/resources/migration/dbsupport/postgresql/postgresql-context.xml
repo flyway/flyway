@@ -32,15 +32,15 @@
         </property>
     </bean>
     <!-- -->
-    <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="${postgresql.username}"/>
+    <bean id="migrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="${postgresql.username}"/>
         <property name="password" value="${postgresql.password}"/>
         <property name="driverClass" value="org.postgresql.Driver"/>
         <property name="url" value="${postgresql.url}"/>
     </bean>
     <!-- -->
-    <bean id="migrationDataSourceSuperUser" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="postgres"/>
+    <bean id="migrationDataSourceSuperUser" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="postgres"/>
         <property name="password" value="${postgresql.password}"/>
         <property name="driverClass" value="org.postgresql.Driver"/>
         <property name="url" value="${postgresql.url}"/>

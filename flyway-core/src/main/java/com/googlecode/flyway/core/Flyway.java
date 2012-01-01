@@ -26,6 +26,8 @@ import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationProvider;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.ClassUtils;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationException;
@@ -34,13 +36,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.Driver;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,6 +168,16 @@ public class Flyway {
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     private DataSource dataSource;
+
+    /**
+     * The JDBC connection used for the metadata table.
+     */
+    private Connection connection;
+
+    /**
+     * The JDBC connection used for applying the migrations.
+     */
+    private Connection connectionMigration;
 
     /**
      * The transaction manager to use. By default a transaction manager will be automatically created for use with the
@@ -368,7 +382,7 @@ public class Flyway {
      * datasource.
      *
      * @return The transaction manager to use. By default a transaction manager will be automatically created for use with the
-     * datasource.
+     *         datasource.
      */
     public PlatformTransactionManager getTransactionManager() {
         return transactionManager;
@@ -530,37 +544,10 @@ public class Flyway {
      * datasource.
      *
      * @param transactionManager The transaction manager to use. By default a transaction manager will be automatically created for use with the
-     * datasource.
+     *                           datasource.
      */
     public void setTransactionManager(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
-    }
-
-    /**
-     * Sets up the remaining things (DbSupport, JdbcTemplate, TransactionTemplate, ...) for Flyway to function properly.
-     * Must be run <b>after</b> the properties have been set.
-     *
-     * @throws FlywayException when the datasource has not been configured.
-     */
-    /* private -> for testing*/
-    void performSetup() throws FlywayException {
-        if (dataSource == null) {
-            throw new FlywayException("DataSource not set! Check your configuration!");
-        }
-
-        transactionTemplate = new TransactionTemplate(transactionManager);
-        jdbcTemplate = new JdbcTemplate(dataSource);
-
-        dbSupport = DbSupportFactory.createDbSupport(jdbcTemplate);
-        if (schemas.length == 0) {
-            setSchemas(dbSupport.getCurrentSchema());
-        }
-
-        if (schemas.length == 1) {
-            LOG.debug("Schema: " + schemas[0]);
-        } else {
-            LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemas));
-        }
     }
 
     /**
@@ -593,30 +580,88 @@ public class Flyway {
     }
 
     /**
+     * Sets up the remaining things (DbSupport, JdbcTemplate, TransactionTemplate, ...) for Flyway to function properly.
+     * Must be run <b>after</b> the properties have been set.
+     *
+     * @throws FlywayException when the datasource has not been configured.
+     */
+    /* private -> for testing*/
+    void performSetup() throws FlywayException {
+        if (dataSource == null) {
+            throw new FlywayException("DataSource not set! Check your configuration!");
+        }
+
+        try {
+            connection = dataSource.getConnection();
+            connectionMigration = dataSource.getConnection();
+
+            jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(connection, true));
+
+            dbSupport = DbSupportFactory.createDbSupport(connection);
+            if (schemas.length == 0) {
+                try {
+                    setSchemas(dbSupport.getCurrentSchema());
+                } catch (SQLException e) {
+                    throw new FlywayException("Error retrieving current schema", e);
+                }
+            }
+
+            if (schemas.length == 1) {
+                LOG.debug("Schema: " + schemas[0]);
+            } else {
+                LOG.debug("Schemas: " + StringUtils.arrayToCommaDelimitedString(schemas));
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to obtain database connection", e);
+        }
+
+        transactionTemplate = new TransactionTemplate(transactionManager);
+    }
+
+    /**
+     * Releases the resources acquired.
+     */
+    private void performTearDown() {
+        try {
+            connectionMigration.close();
+        } catch (SQLException e) {
+            LOG.error("Failed to close database connection for migrations", e);
+        }
+
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            LOG.error("Failed to close database connection for the metadata table", e);
+        }
+    }
+
+    /**
      * Starts the database migration. All pending migrations will be applied in order.
      *
      * @return The number of successfully applied migrations.
      * @throws FlywayException Thrown when the migration failed.
      */
     public int migrate() throws FlywayException {
-        performSetup();
+        return execute(new Command<Integer>() {
+            public Integer execute() {
+                MigrationProvider migrationProvider =
+                        new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+                List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
+                if (availableMigrations.isEmpty()) {
+                    return 0;
+                }
 
-        MigrationProvider migrationProvider =
-                new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
-        List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
-        if (availableMigrations.isEmpty()) {
-            return 0;
-        }
+                MetaDataTable metaDataTable = createMetaDataTable();
 
-        MetaDataTable metaDataTable = createMetaDataTable();
+                doValidate();
 
-        doValidate();
+                metaDataTable.createIfNotExists();
 
-        metaDataTable.createIfNotExists();
-
-        DbMigrator dbMigrator =
-                new DbMigrator(transactionTemplate, jdbcTemplate, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
-        return dbMigrator.migrate(availableMigrations);
+                DbMigrator dbMigrator =
+                        new DbMigrator(connection, connectionMigration, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
+                return dbMigrator.migrate(availableMigrations);
+            }
+        });
     }
 
     /**
@@ -625,10 +670,13 @@ public class Flyway {
      * @throws FlywayException thrown when the validation failed.
      */
     public void validate() throws FlywayException {
-        performSetup();
-
-        validationMode = ValidationMode.ALL;
-        doValidate();
+        execute(new Command<Void>() {
+            public Void execute() {
+                validationMode = ValidationMode.ALL;
+                doValidate();
+                return null;
+            }
+        });
     }
 
     /**
@@ -642,9 +690,13 @@ public class Flyway {
         MetaDataTable metaDataTable = createMetaDataTable();
         if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !disableInitCheck) {
             for (String schema : schemas) {
-                if (!dbSupport.isSchemaEmpty(schema)) {
-                    throw new ValidationException("Found non-empty schema '" + schema
-                            + "' without metadata table! Use init() first to initialize the metadata table.");
+                try {
+                    if (!dbSupport.isSchemaEmpty(schema)) {
+                        throw new ValidationException("Found non-empty schema '" + schema
+                                + "' without metadata table! Use init() first to initialize the metadata table.");
+                    }
+                } catch (SQLException e) {
+                    throw new FlywayException("Error while checking whether schema '" + schema + "' is empty", e);
                 }
             }
         }
@@ -656,7 +708,7 @@ public class Flyway {
             final String msg = "Validate failed. Found differences between applied migrations and available migrations: " + validationError;
             if (ValidationErrorMode.CLEAN.equals(validationErrorMode)) {
                 LOG.warn(msg + " running clean and migrate again.");
-                clean();
+                doClean();
             } else {
                 throw new ValidationException(msg);
             }
@@ -667,9 +719,20 @@ public class Flyway {
      * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
      */
     public void clean() {
-        performSetup();
+        execute(new Command<Void>() {
+            public Void execute() {
+                doClean();
+                return null;
+            }
+        });
+    }
 
-        new DbCleaner(transactionTemplate, jdbcTemplate, dbSupport, schemas).clean();
+    /**
+     * Cleans the configured schemas.
+     */
+    private void doClean() {
+        new DbCleaner(new com.googlecode.flyway.core.util.jdbc.TransactionTemplate(connection),
+                dbSupport.getJdbcTemplate(), dbSupport, schemas).clean();
     }
 
     /**
@@ -678,10 +741,12 @@ public class Flyway {
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
      */
     public MetaDataTableRow status() {
-        performSetup();
-
-        MetaDataTable metaDataTable = createMetaDataTable();
-        return metaDataTable.latestAppliedMigration();
+        return execute(new Command<MetaDataTableRow>() {
+            public MetaDataTableRow execute() {
+                MetaDataTable metaDataTable = createMetaDataTable();
+                return metaDataTable.latestAppliedMigration();
+            }
+        });
     }
 
     /**
@@ -690,10 +755,12 @@ public class Flyway {
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      */
     public List<MetaDataTableRow> history() {
-        performSetup();
-
-        MetaDataTable metaDataTable = createMetaDataTable();
-        return metaDataTable.allAppliedMigrations();
+        return execute(new Command<List<MetaDataTableRow>>() {
+            public List<MetaDataTableRow> execute() {
+                MetaDataTable metaDataTable = createMetaDataTable();
+                return metaDataTable.allAppliedMigrations();
+            }
+        });
     }
 
     /**
@@ -702,17 +769,20 @@ public class Flyway {
      * @throws FlywayException when the schema initialization failed.
      */
     public void init() throws FlywayException {
-        performSetup();
-
-        MetaDataTable metaDataTable = createMetaDataTable();
-        new DbInit(transactionTemplate, metaDataTable).init(initialVersion, initialDescription);
+        execute(new Command<Void>() {
+            public Void execute() {
+                MetaDataTable metaDataTable = createMetaDataTable();
+                new DbInit(new com.googlecode.flyway.core.util.jdbc.TransactionTemplate(connection), metaDataTable).init(initialVersion, initialDescription);
+                return null;
+            }
+        });
     }
 
     /**
      * @return A new, fully configured, MetaDataTable instance.
      */
     private MetaDataTable createMetaDataTable() {
-        return new MetaDataTable(transactionTemplate, jdbcTemplate, dbSupport, schemas[0], table);
+        return new MetaDataTable(connection, dbSupport, schemas[0], table);
     }
 
     /**
@@ -723,24 +793,24 @@ public class Flyway {
      * @throws FlywayException when the configuration failed.
      */
     public void configure(Properties properties) {
-        String driver = properties.getProperty("flyway.driver");
-        String url = properties.getProperty("flyway.url");
-        String user = properties.getProperty("flyway.user");
-        String password = properties.getProperty("flyway.password");
+        String driverProp = properties.getProperty("flyway.driver");
+        String urlProp = properties.getProperty("flyway.url");
+        String userProp = properties.getProperty("flyway.user");
+        String passwordProp = properties.getProperty("flyway.password");
 
-        if (StringUtils.hasText(driver) && StringUtils.hasText(url) && StringUtils.hasText(user)
-                && (password != null)) {
+        if (StringUtils.hasText(driverProp) && StringUtils.hasText(urlProp) && StringUtils.hasText(userProp)
+                && (passwordProp != null)) {
             // All datasource properties set
-            Driver driverClazz;
+            Driver driver;
             try {
-                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                driverClazz = (Driver) Class.forName(driver, true, classLoader).newInstance();
+                driver = ClassUtils.instantiate(driverProp);
             } catch (Exception e) {
-                throw new FlywayException("Error instantiating database driver: " + driver, e);
+                throw new FlywayException("Error instantiating database driver: " + driverProp, e);
             }
 
-            setDataSource(new SimpleDriverDataSource(driverClazz, url, user, password));
-        } else if (StringUtils.hasText(driver) || StringUtils.hasText(url) || StringUtils.hasText(user) || (password != null)) {
+            setDataSource(new DriverDataSource(driver, urlProp, userProp, passwordProp));
+        } else if (StringUtils.hasText(driverProp) || StringUtils.hasText(urlProp) || StringUtils.hasText(userProp)
+                || (passwordProp != null)) {
             // Some, but not all datasource properties set
             LOG.warn("Discarding INCOMPLETE dataSource configuration!" +
                     " At least one of flyway.driver, flyway.url, flyway.user or flyway.password missing.");
@@ -819,5 +889,36 @@ public class Flyway {
             }
         }
         setPlaceholders(placeholdersFromProps);
+    }
+
+    /**
+     * Executes this command with proper resource handling and cleanup.
+     *
+     * @param command The command to execute.
+     * @param <T>     The type of the result.
+     * @return The result of the command.
+     */
+    private <T> T execute(Command<T> command) {
+        performSetup();
+
+        T result = command.execute();
+
+        performTearDown();
+
+        return result;
+    }
+
+    /**
+     * A Flyway command that can be executed.
+     *
+     * @param <T> The result type of the command.
+     */
+    private interface Command<T> {
+        /**
+         * Execute the operation.
+         *
+         * @return The result of the operation.
+         */
+        T execute();
     }
 }

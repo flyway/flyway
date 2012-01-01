@@ -35,24 +35,20 @@
         </property>
     </bean>
     <!-- -->
-    <bean id="migrationDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="username" value="${oracle.username}"/>
+    <bean id="migrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="${oracle.username}"/>
         <property name="password" value="${oracle.password}"/>
-        <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+        <property name="driverClass" value="oracle.jdbc.OracleDriver"/>
         <property name="url" value="${oracle.url}"/>
-        <property name="initialSize" value="1"/>
-        <property name="maxActive" value="100"/>
     </bean>
     <!-- -->
     <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>
     <!-- -->
-    <bean id="proxyUserDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="username" value="flyway_proxy[${oracle.username}]"/>
+    <bean id="proxyUserDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="flyway_proxy[${oracle.username}]"/>
         <property name="password" value="${oracle.password}"/>
-        <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+        <property name="driverClass" value="oracle.jdbc.OracleDriver"/>
         <property name="url" value="${oracle.url}"/>
-        <property name="initialSize" value="1"/>
-        <property name="maxActive" value="100"/>
     </bean>
     <!-- -->
     <bean id="userNameBean" class="java.lang.String">

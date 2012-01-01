@@ -19,8 +19,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 
 /**
  * Special type of migration used to mark the initial state of the database from which Flyway can migrate to subsequent
@@ -33,6 +32,7 @@ public class InitMigration extends Migration {
      * Only migrations with a version number higher than this one will be considered for this database.
      *
      * @param schemaVersion The initial version to put in the metadata table.
+     * @param description The initial description to put in the metadata table.
      */
     public InitMigration(SchemaVersion schemaVersion, String description) {
         if (schemaVersion == null) {
@@ -66,7 +66,7 @@ public class InitMigration extends Migration {
     }
 
     @Override
-    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException {
+    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         //Nothing to do
     }
 }

@@ -20,8 +20,8 @@ import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.util.ResourceUtils;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.zip.CRC32;
 
@@ -87,6 +87,7 @@ public class SqlMigration extends Migration {
     /**
      * Calculates the checksum of this sql script.
      *
+     * @param sql The sql to calculate the checksum for.
      * @return The crc-32 checksum of the script.
      */
     private int calculateChecksum(String sql) {

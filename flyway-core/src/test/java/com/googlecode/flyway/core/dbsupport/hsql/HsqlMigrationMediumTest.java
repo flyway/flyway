@@ -24,6 +24,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.sql.SQLException;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -32,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(locations = {"classpath:migration/dbsupport/hsql/hsql-context.xml"})
 public class HsqlMigrationMediumTest extends MigrationTestCase {
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
 
         try {
@@ -51,11 +53,6 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
-    }
-
-    @Override
-    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new HsqlDbSupport(jdbcTemplate);
     }
 
     @Test

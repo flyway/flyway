@@ -15,11 +15,9 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,15 +25,10 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using MySQL and its derivatives.
  */
 @SuppressWarnings({"JavaDoc"})
-public class MySQLMigrationTestCase extends MigrationTestCase {
+public abstract class MySQLMigrationTestCase extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
         return "migration/dbsupport/mysql/sql/quote";
-    }
-
-    @Override
-    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new MySQLDbSupport(jdbcTemplate);
     }
 
     /**

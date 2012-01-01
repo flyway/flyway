@@ -43,11 +43,6 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         return "migration/quote";
     }
 
-    @Override
-    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new OracleDbSupport(jdbcTemplate);
-    }
-
     /**
      * Tests migrations containing placeholders.
      */

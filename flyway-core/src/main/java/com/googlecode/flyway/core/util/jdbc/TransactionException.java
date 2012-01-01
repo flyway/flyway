@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.oracle;
+package com.googlecode.flyway.core.util.jdbc;
 
 import com.googlecode.flyway.core.exception.FlywayException;
-import org.junit.Test;
 
 /**
- * Small Test for OracleDbSupport.
+ * Exception thrown when a failure caused a transaction rollback.
  */
-@SuppressWarnings({"JavaDoc"})
-public class OracleDbSupportSmallTest {
+public class TransactionException extends FlywayException {
     /**
-     * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
+     * Creates a new transaction exception with this message and this cause.
+     *
+     * @param message The message.
+     * @param cause The cause.
      */
-    @Test(expected = FlywayException.class)
-    public void createCleanScriptWithSystem() throws Exception {
-        OracleDbSupport oracleDbSupport = new OracleDbSupport(null);
-        oracleDbSupport.createCleanScript("SYSTEM");
+    public TransactionException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

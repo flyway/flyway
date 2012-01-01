@@ -22,10 +22,6 @@ import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -36,25 +32,21 @@ import java.util.List;
 /**
  * Oracle-specific support.
  */
-public class OracleDbSupport implements DbSupport {
+public class OracleDbSupport extends DbSupport {
     /**
      * Logger.
      */
     private static final Log LOG = LogFactory.getLog(OracleDbSupport.class);
 
     /**
-     * The jdbcTemplate to use.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
      * Creates a new instance.
      *
-     * @param jdbcTemplate The jdbcTemplate to use.
+     * @param connection The connection to use.
      */
-    public OracleDbSupport(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public OracleDbSupport(Connection connection) {
+        super(new OracleJdbcTemplate(connection));
     }
+
 
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/oracle/";
@@ -64,31 +56,27 @@ public class OracleDbSupport implements DbSupport {
         return "USER";
     }
 
-    public String getCurrentSchema() {
-        return (String) jdbcTemplate.queryForObject("SELECT USER FROM dual", String.class);
+    public String getCurrentSchema() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT USER FROM dual");
     }
 
-    public boolean isSchemaEmpty(String schema) {
-        int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", new Object[]{schema});
+    public boolean isSchemaEmpty(String schema) throws SQLException {
+        int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", schema);
         return objectCount == 0;
     }
 
-    public boolean tableExists(final String schema, final String table) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(),
-                        table.toUpperCase(), null);
-                return resultSet.next();
-            }
-        });
+    public boolean tableExists(final String schema, final String table) throws SQLException {
+        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema.toUpperCase(),
+                table.toUpperCase(), null);
+        return resultSet.next();
     }
 
     public boolean supportsDdlTransactions() {
         return false;
     }
 
-    public void lockTable(String schema, String table) {
-        jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
+    public void lockTable(String schema, String table) throws SQLException {
+        jdbcTemplate.update("select * from " + schema + "." + table + " for update");
     }
 
     public String getBooleanTrue() {
@@ -103,7 +91,7 @@ public class OracleDbSupport implements DbSupport {
         return new OracleSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    public SqlScript createCleanScript(String schema) {
+    public SqlScript createCleanScript(String schema) throws SQLException {
         if ("SYSTEM".equals(schema.toUpperCase())) {
             throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
         }
@@ -137,10 +125,10 @@ public class OracleDbSupport implements DbSupport {
      * @param extraArguments The extra arguments to add to the drop statement.
      * @param schema         The schema for which to generate the statements.
      * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
      */
-    @SuppressWarnings({"unchecked"})
-    private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments, final String schema) {
-        String query = "SELECT object_type, object_name FROM all_objects WHERE object_type = ? AND owner = ?"
+    private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments, final String schema) throws SQLException {
+        String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?"
                 // Ignore Recycle bin objects
                 + " AND object_name NOT LIKE 'BIN$%'"
                 // Ignore Spatial Index Tables and Sequences as they get dropped automatically when the index gets dropped.
@@ -148,13 +136,12 @@ public class OracleDbSupport implements DbSupport {
                 // Ignore Materialized View Logs
                 + " AND object_name NOT LIKE 'MLOG$%' AND object_name NOT LIKE 'RUPD$%'";
 
-        return jdbcTemplate.query(query,
-                new Object[]{objectType, schema.toUpperCase()}, new RowMapper() {
-                    public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        return "DROP " + rs.getString("OBJECT_TYPE")
-                                + " " + schema + ".\"" + rs.getString("OBJECT_NAME") + "\" " + extraArguments;
-                    }
-                });
+        List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, schema.toUpperCase());
+        List<String> dropStatements = new ArrayList<String>();
+        for (String objectName : objectNames) {
+            dropStatements.add("DROP " + objectType + " " + schema + ".\"" + objectName + "\" " + extraArguments);
+        }
+        return dropStatements;
     }
 
     /**
@@ -162,8 +149,9 @@ public class OracleDbSupport implements DbSupport {
      *
      * @param schema The schema for which to generate the statements.
      * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
      */
-    private List<String> generateDropStatementsForSpatialExtensions(String schema) {
+    private List<String> generateDropStatementsForSpatialExtensions(String schema) throws SQLException {
         List<String> statements = new ArrayList<String>();
 
         if (!spatialExtensionsAvailable()) {
@@ -171,8 +159,8 @@ public class OracleDbSupport implements DbSupport {
             return statements;
         }
         if (!getCurrentSchema().equalsIgnoreCase(schema)) {
-            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", new Object[] {schema.toUpperCase()});
-            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", new Object[] {schema.toUpperCase()});
+            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", schema.toUpperCase());
+            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", schema.toUpperCase());
             if (count > 0) {
                 LOG.warn("Unable to clean Oracle Spatial objects for schema '" + schema + "' as they do not belong to the default schema for this connection!");
             }
@@ -182,8 +170,7 @@ public class OracleDbSupport implements DbSupport {
 
         statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
 
-        @SuppressWarnings({"unchecked"})
-        List<String> indexNames = jdbcTemplate.queryForList("select INDEX_NAME from USER_SDO_INDEX_INFO", String.class);
+        List<String> indexNames = jdbcTemplate.queryForStringList("select INDEX_NAME from USER_SDO_INDEX_INFO");
         for (String indexName : indexNames) {
             statements.add("DROP INDEX \"" + indexName + "\"");
         }
@@ -195,8 +182,9 @@ public class OracleDbSupport implements DbSupport {
      * Checks whether Oracle Spatial extensions are available or not.
      *
      * @return {@code true} if they are available, {@code false} if not.
+     * @throws SQLException when checking availability of the spatial extensions failed.
      */
-    private boolean spatialExtensionsAvailable() {
+    private boolean spatialExtensionsAvailable() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE owner = 'MDSYS' AND view_name = 'USER_SDO_GEOM_METADATA'") > 0;
     }
 }

@@ -25,9 +25,6 @@ import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerDbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -52,11 +49,11 @@ public class DbSupportFactory {
     /**
      * Initializes the appropriate DbSupport class for the database product used by the data source.
      *
-     * @param jdbcTemplate The Jdbc Template to use to query the database.
+     * @param connection The Jdbc connection to use to query the database.
      * @return The appropriate DbSupport class.
      */
-    public static DbSupport createDbSupport(JdbcTemplate jdbcTemplate) {
-        String databaseProductName = getDatabaseProductName(jdbcTemplate);
+    public static DbSupport createDbSupport(Connection connection) {
+        String databaseProductName = getDatabaseProductName(connection);
         if (databaseProductName == null) {
             throw new FlywayException("Unable to determine database. Product name is null.");
         }
@@ -64,29 +61,29 @@ public class DbSupportFactory {
         LOG.debug("Database: " + databaseProductName);
 
         if ("H2".equals(databaseProductName)) {
-            return new H2DbSupport(jdbcTemplate);
+            return new H2DbSupport(connection);
         }
         if ("HSQL Database Engine".equals(databaseProductName)
                 || "Google SQL Service/HSQL Database Engine".equals(databaseProductName)) {
-            return new HsqlDbSupport(jdbcTemplate);
+            return new HsqlDbSupport(connection);
         }
         if ("Microsoft SQL Server".equals(databaseProductName)) {
-            return new SQLServerDbSupport(jdbcTemplate);
+            return new SQLServerDbSupport(connection);
         }
         if ("MySQL".equals(databaseProductName) ||
                 "Google SQL Service/MySQL".equals(databaseProductName)) {
-            return new MySQLDbSupport(jdbcTemplate);
+            return new MySQLDbSupport(connection);
         }
         if ("Oracle".equals(databaseProductName)) {
-            return new OracleDbSupport(jdbcTemplate);
+            return new OracleDbSupport(connection);
         }
         if ("PostgreSQL".equals(databaseProductName)) {
-            return new PostgreSQLDbSupport(jdbcTemplate);
+            return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
             // DB2 returns also OS it's running on
             // e.g. DB2/NT
-            return new DB2DbSupport(jdbcTemplate);
+            return new DB2DbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
@@ -95,19 +92,19 @@ public class DbSupportFactory {
     /**
      * Retrieves the name of the database product.
      *
-     * @param jdbcTemplate The Jdbc Template to use to query the database.
+     * @param connection The connection to use to query the database.
      * @return The name of the database product. Ex.: Oracle, MySQL, ...
      */
-    private static String getDatabaseProductName(JdbcTemplate jdbcTemplate) {
-        return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-                DatabaseMetaData databaseMetaData = connection.getMetaData();
-                if (databaseMetaData == null) {
-                    throw new FlywayException("Unable to read database metadata while it is null!");
-                }
-                return databaseMetaData.getDatabaseProductName();
+    private static String getDatabaseProductName(Connection connection) {
+        try {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            if (databaseMetaData == null) {
+                throw new FlywayException("Unable to read database metadata while it is null!");
             }
-        });
+            return databaseMetaData.getDatabaseProductName();
+        } catch (SQLException e) {
+            throw new FlywayException("Error while determining database product name", e);
+        }
     }
 
 }

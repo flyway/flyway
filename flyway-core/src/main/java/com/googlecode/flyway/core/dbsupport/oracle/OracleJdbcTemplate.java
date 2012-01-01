@@ -13,31 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util;
+package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
- * Utility class for dealing with jdbc urls.
+ * Oracle-specific JdbcTemplate customizations.
  */
-public class JdbcUrlUtils {
+public class OracleJdbcTemplate extends JdbcTemplate {
     /**
-     * Prevents instantiation.
+     * Creates a new OracleJdbcTemplate.
+     *
+     * @param connection The DB connection to use.
      */
-    private JdbcUrlUtils() {
-        //Do nothing
+    public OracleJdbcTemplate(Connection connection) {
+        super(connection);
     }
 
-    /**
-     * Checks the validity of this jdbc url.
-     *
-     * @param jdbcUrl The url to check.
-     *
-     * @throws FlywayException when the url is invalid.
-     */
-    public static void validate(String jdbcUrl) throws FlywayException {
-        if (!jdbcUrl.toLowerCase().startsWith("jdbc:")) {
-            throw new FlywayException("Invalid jdbc url (should start with jdbc:) : " + jdbcUrl);
-        }
+    @Override
+    protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
+        preparedStatement.setString(parameterIndex, null);
     }
 }

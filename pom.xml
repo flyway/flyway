@@ -177,11 +177,6 @@
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.3</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-artifact</artifactId>
                 <version>${version.maven}</version>
@@ -278,7 +273,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>jdk5-only</id>
+                        <id>jdk5-apis-only</id>
                         <phase>test</phase>
                         <goals>
                             <goal>check</goal>
@@ -375,7 +370,7 @@
                 <version>1.0.1</version>
                 <executions>
                     <execution>
-                        <id>enforce-jdk5</id>
+                        <id>enforce-jdk6</id>
                         <goals>
                             <goal>enforce</goal>
                         </goals>

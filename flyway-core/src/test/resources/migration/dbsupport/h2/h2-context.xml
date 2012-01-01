@@ -19,24 +19,18 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
     <!-- -->
-    <bean id="migrationDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
-        <property name="username" value="sa"/>
+    <bean id="migrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="sa"/>
         <property name="password" value=""/>
         <property name="driverClass" value="org.h2.Driver"/>
         <property name="url" value="jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1"/>
     </bean>
     <!-- -->
-    <bean id="concurrentMigrationDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="username" value="sa"/>
+    <bean id="concurrentMigrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="sa"/>
         <property name="password" value=""/>
-        <property name="driverClassName" value="org.h2.Driver"/>
+        <property name="driverClass" value="org.h2.Driver"/>
         <property name="url" value="jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1"/>
-        <property name="initialSize" value="1"/>
-        <property name="maxActive" value="100"/>
-        <property name="connectionInitSqls">
-            <list>
-                <value>SET LOCK_TIMEOUT 100000</value>
-            </list>
-        </property>
+        <property name="initSql" value="SET LOCK_TIMEOUT 100000"/>
     </bean>
 </beans>

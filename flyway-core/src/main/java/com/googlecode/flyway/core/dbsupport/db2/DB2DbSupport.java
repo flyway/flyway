@@ -16,12 +16,10 @@
 package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -32,23 +30,16 @@ import java.util.List;
 /**
  * DB2 Support.
  */
-public class DB2DbSupport implements DbSupport {
+public class DB2DbSupport extends DbSupport {
     /**
-     * The jdbcTemplate to use.
+     * Creates a new instance.
+     *
+     * @param connection The connection to use.
      */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
-     * @param jdbcTemplate to use
-     */
-    public DB2DbSupport(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public DB2DbSupport(Connection connection) {
+        super(new DB2JdbcTemplate(connection));
     }
 
-    /**
-     * @see com.googlecode.flyway.core.dbsupport.DbSupport#createSqlScript(java.lang.String,
-     *      com.googlecode.flyway.core.migration.sql.PlaceholderReplacer)
-     */
     public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         return new DB2SqlScript(sqlScriptSource, placeholderReplacer);
     }
@@ -96,14 +87,17 @@ public class DB2DbSupport implements DbSupport {
      * @return The statements.
      */
     private List<String> buildDropStatements(final String dropPrefix, final String query, String schema) {
-        List<String> dropStatements = new ArrayList<String>();
-        @SuppressWarnings("unchecked")
-        List<String> dbObjects = jdbcTemplate.queryForList(query, String.class);
-        for (String dbObject : dbObjects) {
-            // DB2 needs double quotes
-            dropStatements.add(dropPrefix + " \"" + schema + "\".\"" + dbObject + "\"");
+        try {
+            List<String> dropStatements = new ArrayList<String>();
+            List<String> dbObjects = jdbcTemplate.queryForStringList(query);
+            for (String dbObject : dbObjects) {
+                // DB2 needs double quotes
+                dropStatements.add(dropPrefix + " \"" + schema + "\".\"" + dbObject + "\"");
+            }
+            return dropStatements;
+        } catch (SQLException e) {
+            throw new FlywayException("Error building drop statements for schema " + schema, e);
         }
-        return dropStatements;
     }
 
     public String getScriptLocation() {
@@ -111,28 +105,34 @@ public class DB2DbSupport implements DbSupport {
     }
 
     public boolean isSchemaEmpty(String schema) {
-        int objectCount = jdbcTemplate
-                .queryForInt("select count(*) from syscat.tables where tabschema = ?", new String[] {schema});
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", new String[] {schema});
-        objectCount += jdbcTemplate
-                .queryForInt("select count(*) from syscat.sequences where seqschema = ?", new String[] {schema});
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", new String[] {schema});
-        return objectCount == 0;
+        try {
+            int objectCount = jdbcTemplate.queryForInt("select count(*) from syscat.tables where tabschema = ?", schema);
+            objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", schema);
+            objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", schema);
+            objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", schema);
+            return objectCount == 0;
+        } catch (SQLException e) {
+            throw new FlywayException("Error checking whether schema '" + schema + "' is empty", e);
+        }
     }
 
     public boolean tableExists(final String schema, final String table) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(), table.toUpperCase(),
-                        null);
-                return resultSet.next();
-            }
-        });
+        try {
+            ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema.toUpperCase(), table.toUpperCase(),
+                    null);
+            return resultSet.next();
+        } catch (SQLException e) {
+            throw new FlywayException("Error while checking whether table exists: " + schema + "." + table, e);
+
+        }
     }
 
     public String getCurrentSchema() {
-        return ((String) jdbcTemplate.queryForObject("select current_schema from sysibm.sysdummy1", String.class))
-                .trim();
+        try {
+            return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim();
+        } catch (SQLException e) {
+            throw new FlywayException("Error retrieving current schema", e);
+        }
     }
 
     public String getCurrentUserFunction() {
@@ -143,8 +143,8 @@ public class DB2DbSupport implements DbSupport {
         return true;
     }
 
-    public void lockTable(String schema, String table) {
-        jdbcTemplate.execute("lock table " + schema + "." + table + " in exclusive mode");
+    public void lockTable(String schema, String table) throws SQLException {
+        jdbcTemplate.update("lock table " + schema + "." + table + " in exclusive mode");
     }
 
     public String getBooleanTrue() {

@@ -19,9 +19,6 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -33,20 +30,16 @@ import java.util.Map;
 /**
  * PostgreSQL-specific support.
  */
-public class PostgreSQLDbSupport implements DbSupport {
-    /**
-     * The jdbcTemplate to use.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
+public class PostgreSQLDbSupport extends DbSupport {
     /**
      * Creates a new instance.
      *
-     * @param jdbcTemplate The jdbcTemplate to use.
+     * @param connection The connection to use.
      */
-    public PostgreSQLDbSupport(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public PostgreSQLDbSupport(Connection connection) {
+        super(new PostgreSQLJdbcTemplate(connection));
     }
+
 
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/postgresql/";
@@ -56,32 +49,28 @@ public class PostgreSQLDbSupport implements DbSupport {
         return "current_user";
     }
 
-    public String getCurrentSchema() {
-        return (String) jdbcTemplate.queryForObject("SELECT current_schema()", String.class);
+    public String getCurrentSchema() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT current_schema()");
     }
 
-    public boolean isSchemaEmpty(String schema) {
+    public boolean isSchemaEmpty(String schema) throws SQLException {
         int objectCount = jdbcTemplate.queryForInt(
                 "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                new String[]{schema});
+                schema);
         return objectCount == 0;
     }
 
-    public boolean tableExists(final String schema, final String table) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, schema.toLowerCase(),
-                        table.toLowerCase(), new String[]{"TABLE"});
-                return resultSet.next();
-            }
-        });
+    public boolean tableExists(final String schema, final String table) throws SQLException {
+        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema.toLowerCase(),
+                table.toLowerCase(), new String[]{"TABLE"});
+        return resultSet.next();
     }
 
     public boolean supportsDdlTransactions() {
         return true;
     }
 
-    public void lockTable(String schema, String table) {
+    public void lockTable(String schema, String table) throws SQLException {
         jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
@@ -97,7 +86,7 @@ public class PostgreSQLDbSupport implements DbSupport {
         return new PostgreSQLSqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    public SqlScript createCleanScript(String schema) {
+    public SqlScript createCleanScript(String schema) throws SQLException {
         final List<String> allDropStatements = new ArrayList<String>();
         allDropStatements.addAll(generateDropStatementsForTables(schema));
         allDropStatements.addAll(generateDropStatementsForSequences(schema));
@@ -120,10 +109,11 @@ public class PostgreSQLDbSupport implements DbSupport {
      *
      * @param schema The schema for which to generate the statements.
      * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> generateDropStatementsForTables(String schema) {
-        @SuppressWarnings({"unchecked"}) List<Map<String, String>> tableNames =
-                jdbcTemplate.queryForList(
+    private List<String> generateDropStatementsForTables(String schema) throws SQLException {
+        List<String> tableNames =
+                jdbcTemplate.queryForStringList(
                         //Search for all the table names
                         "SELECT t.table_name FROM information_schema.tables t" +
                                 //in this schema
@@ -133,12 +123,11 @@ public class PostgreSQLDbSupport implements DbSupport {
                                 //and are not child tables (= do not inherit from another table).
                                 " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
                                 " WHERE inhrelid = (t.table_schema||'.'||t.table_name)::regclass::oid))",
-                        new String[]{schema});
+                        schema);
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
         List<String> statements = new ArrayList<String>();
-        for (Map<String, String> row : tableNames) {
-            String tableName = row.get("table_name");
+        for (String tableName : tableNames) {
             statements.add("DROP TABLE \"" + schema + "\".\"" + tableName + "\" CASCADE");
         }
         return statements;
@@ -149,15 +138,15 @@ public class PostgreSQLDbSupport implements DbSupport {
      *
      * @param schema The schema for which to generate the statements.
      * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> generateDropStatementsForSequences(String schema) {
-        @SuppressWarnings({"unchecked"}) List<Map<String, String>> sequenceNames =
-                jdbcTemplate.queryForList(
-                        "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema=?", new String[]{schema});
+    private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
+        List<String> sequenceNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema=?", schema);
 
         List<String> statements = new ArrayList<String>();
-        for (Map<String, String> row : sequenceNames) {
-            String sequenceName = row.get("sequence_name");
+        for (String sequenceName : sequenceNames) {
             statements.add("DROP SEQUENCE IF EXISTS \"" + schema + "\".\"" + sequenceName + "\"");
         }
 
@@ -170,22 +159,21 @@ public class PostgreSQLDbSupport implements DbSupport {
      * @param schema   The schema for which to generate the statements.
      * @param recreate Flag indicating whether the types should be recreated. Necessary for type-function chicken and egg problem.
      * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> generateDropStatementsForBaseTypes(String schema, boolean recreate) {
-        @SuppressWarnings({"unchecked"}) List<Map<String, String>> typeNames =
-                jdbcTemplate.queryForList(
+    private List<String> generateDropStatementsForBaseTypes(String schema, boolean recreate) throws SQLException {
+        List<String> typeNames =
+                jdbcTemplate.queryForStringList(
                         "select typname from pg_catalog.pg_type where typcategory in ('P', 'U') and typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?)",
-                        new String[]{schema});
+                        schema);
 
         List<String> statements = new ArrayList<String>();
-        for (Map<String, String> row : typeNames) {
-            String typeName = row.get("typname");
+        for (String typeName : typeNames) {
             statements.add("DROP TYPE IF EXISTS \"" + schema + "\".\"" + typeName + "\" CASCADE");
         }
 
         if (recreate) {
-            for (Map<String, String> row : typeNames) {
-                String typeName = row.get("typname");
+            for (String typeName : typeNames) {
                 statements.add("CREATE TYPE \"" + schema + "\".\"" + typeName + "\"");
             }
         }
@@ -198,12 +186,14 @@ public class PostgreSQLDbSupport implements DbSupport {
      *
      * @param schema The schema for which to generate the statements.
      * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> generateDropStatementsForRoutines(String schema) {
-        @SuppressWarnings({"unchecked"}) List<Map<String, String>> rows =
+    private List<String> generateDropStatementsForRoutines(String schema) throws SQLException {
+        List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
-                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = ?", new String[]{schema});
+                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = ?",
+                        schema);
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {

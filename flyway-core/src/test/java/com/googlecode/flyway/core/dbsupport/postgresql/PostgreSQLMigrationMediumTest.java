@@ -35,11 +35,6 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         return "migration/quote";
     }
 
-    @Override
-    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new PostgreSQLDbSupport(jdbcTemplate);
-    }
-
     /**
      * Tests clean and migrate for PostgreSQL Stored Procedures.
      */

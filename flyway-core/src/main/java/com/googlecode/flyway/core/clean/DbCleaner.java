@@ -19,14 +19,15 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.TimeFormat;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
+import com.googlecode.flyway.core.util.jdbc.TransactionException;
+import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StopWatch;
+
+import java.sql.SQLException;
 
 /**
  * Main workflow for cleaning the database.
@@ -94,16 +95,20 @@ public class DbCleaner {
         LOG.debug("Starting to drop all database objects in schema '" + schema + "' ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        final SqlScript cleanScript = dbSupport.createCleanScript(schema);
         try {
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    cleanScript.execute(jdbcTemplate);
-                }
-            });
-        } catch (TransactionException e) {
-            throw new FlywayException("Clean failed! Schema: " + schema, e);
+            final SqlScript cleanScript = dbSupport.createCleanScript(schema);
+            try {
+                transactionTemplate.execute(new TransactionCallback<Void>() {
+                    public Void doInTransaction() {
+                        cleanScript.execute(jdbcTemplate);
+                        return null;
+                    }
+                });
+            } catch (TransactionException e) {
+                throw new FlywayException("Clean failed! Schema: " + schema, e);
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Error while generating clean script", e);
         }
         stopWatch.stop();
         LOG.info(String.format("Cleaned database schema '%s' (execution time %s)",

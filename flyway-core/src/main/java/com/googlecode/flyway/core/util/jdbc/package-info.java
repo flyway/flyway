@@ -13,22 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.oracle;
-
-import com.googlecode.flyway.core.exception.FlywayException;
-import org.junit.Test;
-
 /**
- * Small Test for OracleDbSupport.
+ * Private API. No compatibility guarantees provided.
  */
-@SuppressWarnings({"JavaDoc"})
-public class OracleDbSupportSmallTest {
-    /**
-     * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
-     */
-    @Test(expected = FlywayException.class)
-    public void createCleanScriptWithSystem() throws Exception {
-        OracleDbSupport oracleDbSupport = new OracleDbSupport(null);
-        oracleDbSupport.createCleanScript("SYSTEM");
-    }
-}
+package com.googlecode.flyway.core.util.jdbc;

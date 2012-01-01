@@ -20,8 +20,8 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationType;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -76,9 +76,10 @@ public class JavaMigrationExecutor extends Migration {
     }
 
     @Override
-    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException {
+    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         try {
-            javaMigration.migrate(jdbcTemplate);
+            javaMigration.migrate(new org.springframework.jdbc.core.JdbcTemplate(
+                    new SingleConnectionDataSource(jdbcTemplate.getConnection(), true)));
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }

@@ -16,17 +16,19 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.exception.FlywayException;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 
 import static org.junit.Assert.assertFalse;
 
 /**
  * Test for the AbstractFlywayMojo.
  */
+@SuppressWarnings({"JavaDoc"})
 public class AbstractFlywayMojoTest {
     /**
      * Tests that the datasource is properly closed and not leaking connections.
@@ -73,11 +75,9 @@ public class AbstractFlywayMojoTest {
             // Ignoring. The exception is not what we're testing.
         }
 
-        BasicDataSource dataSource = mojo.createDataSource();
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        H2DbSupport h2DbSupport = new H2DbSupport(jdbcTemplate);
-        boolean tableStillPresent = h2DbSupport.tableExists(h2DbSupport.getCurrentSchema(), "schema_version");
-        dataSource.close();
+        DataSource dataSource = mojo.createDataSource();
+        DbSupport dbSupport = DbSupportFactory.createDbSupport(dataSource.getConnection());
+        boolean tableStillPresent = dbSupport.tableExists(dbSupport.getCurrentSchema(), "schema_version");
         assertFalse(tableStillPresent);
     }
 }

@@ -15,26 +15,17 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.MigrationTestCase;
-import com.googlecode.flyway.core.migration.SchemaVersion;
-import org.junit.Ignore;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
@@ -59,8 +50,8 @@ public class OracleDbSupportMediumTest {
      * Tests that the current schema for a connection is correct;
      */
     @Test
-    public void currentSchema() {
-        String currentSchema = new OracleDbSupport(new JdbcTemplate(dataSource)).getCurrentSchema();
+    public void currentSchema() throws Exception {
+        String currentSchema = new OracleDbSupport(dataSource.getConnection()).getCurrentSchema();
         assertEquals(userName.toUpperCase(), currentSchema);
     }
 
@@ -68,8 +59,8 @@ public class OracleDbSupportMediumTest {
      * Tests that the current schema for a proxy connection with conn_user[schema_user] is schema_user and not conn_user;
      */
     @Test
-    public void currentSchemaWithProxy() {
-        String currentSchema = new OracleDbSupport(new JdbcTemplate(proxyUserDataSource)).getCurrentSchema();
+    public void currentSchemaWithProxy() throws Exception {
+        String currentSchema = new OracleDbSupport(proxyUserDataSource.getConnection()).getCurrentSchema();
         assertEquals(userName.toUpperCase(), currentSchema);
     }
 }

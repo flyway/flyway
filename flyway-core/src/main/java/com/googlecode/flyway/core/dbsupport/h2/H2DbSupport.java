@@ -16,44 +16,36 @@
 package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * H2 database specific support
  */
-public class H2DbSupport implements DbSupport {
+public class H2DbSupport extends DbSupport {
     /**
      * Logger.
      */
     private static final Log LOG = LogFactory.getLog(H2DbSupport.class);
 
     /**
-     * The jdbcTemplate to use.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
      * Creates a new instance.
      *
-     * @param jdbcTemplate The jdbcTemplate to use.
+     * @param connection The connection to use.
      */
-    public H2DbSupport(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public H2DbSupport(Connection connection) {
+        super(new H2JdbcTemplate(connection));
     }
 
     public String getScriptLocation() {
@@ -64,41 +56,40 @@ public class H2DbSupport implements DbSupport {
         return "USER()";
     }
 
-    public String getCurrentSchema() {
-        return (String) jdbcTemplate.execute(new ConnectionCallback() {
-            public String doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getSchemas();
-                while (resultSet.next()) {
-                    if (resultSet.getBoolean("IS_DEFAULT")) {
-                        return resultSet.getString("TABLE_SCHEM");
-                    }
-                }
-                return null;
+    public String getCurrentSchema() throws SQLException {
+        ResultSet resultSet = jdbcTemplate.getMetaData().getSchemas();
+        while (resultSet.next()) {
+            if (resultSet.getBoolean("IS_DEFAULT")) {
+                return resultSet.getString("TABLE_SCHEM");
             }
-        });
+        }
+        return null;
     }
 
     public boolean isSchemaEmpty(String schema) {
-        @SuppressWarnings({"unchecked"})
-        List<Map<String, Object>> tables = jdbcTemplate.queryForList("SHOW TABLES FROM " + schema);
-        return tables.isEmpty();
+        try {
+            List<String> tables = jdbcTemplate.queryForStringList("SHOW TABLES FROM " + schema);
+            return tables.isEmpty();
+        } catch (SQLException e) {
+            throw new FlywayException("Error checking whether schema '" + schema + "' is empty", e);
+        }
     }
 
     public boolean tableExists(final String schema, final String table) {
-        return (Boolean) jdbcTemplate.execute(new ConnectionCallback() {
-            public Boolean doInConnection(Connection connection) throws SQLException, DataAccessException {
-                ResultSet resultSet = connection.getMetaData().getTables(null, schema.toUpperCase(),
-                        table.toUpperCase(), null);
-                return resultSet.next();
-            }
-        });
+        try {
+            ResultSet resultSet =
+                    jdbcTemplate.getMetaData().getTables(null, schema.toUpperCase(), table.toUpperCase(), null);
+            return resultSet.next();
+        } catch (SQLException e) {
+            throw new FlywayException("Error while checking whether table exists: " + schema + "." + table, e);
+        }
     }
 
     public boolean supportsDdlTransactions() {
         return false;
     }
 
-    public void lockTable(String schema, String table) {
+    public void lockTable(String schema, String table) throws SQLException {
         jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
     }
 
@@ -114,7 +105,7 @@ public class H2DbSupport implements DbSupport {
         return new H2SqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    public SqlScript createCleanScript(String schema) {
+    public SqlScript createCleanScript(String schema) throws SQLException {
         List<String> tableNames = listObjectNames("TABLE", "TABLE_TYPE = 'TABLE'", schema);
         List<String> statements = generateDropStatements("TABLE", tableNames, "CASCADE", schema);
 
@@ -189,14 +180,14 @@ public class H2DbSupport implements DbSupport {
      * @param querySuffix Suffix to append to the query to find the objects to list.
      * @param schema      The schema of objects to list.
      * @return The names of the objects.
+     * @throws SQLException when the obect names could not be listed.
      */
-    @SuppressWarnings({"unchecked"})
-    private List<String> listObjectNames(String objectType, String querySuffix, String schema) {
+    private List<String> listObjectNames(String objectType, String querySuffix, String schema) throws SQLException {
         String query = "SELECT " + objectType + "_NAME FROM information_schema." + objectType + "s WHERE " + objectType + "_schema = ?";
         if (StringUtils.hasLength(querySuffix)) {
             query += " AND " + querySuffix;
         }
 
-        return jdbcTemplate.queryForList(query, new String[]{schema}, String.class);
+        return jdbcTemplate.queryForStringList(query, schema);
     }
 }

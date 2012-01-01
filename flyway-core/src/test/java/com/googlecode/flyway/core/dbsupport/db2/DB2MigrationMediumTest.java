@@ -18,10 +18,11 @@ package com.googlecode.flyway.core.dbsupport.db2;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,11 +34,6 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
-    }
-
-    @Override
-    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new DB2DbSupport(jdbcTemplate);
     }
 
     @Test

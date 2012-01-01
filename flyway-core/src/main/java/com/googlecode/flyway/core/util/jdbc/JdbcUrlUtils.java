@@ -13,22 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.oracle;
+package com.googlecode.flyway.core.util.jdbc;
 
 import com.googlecode.flyway.core.exception.FlywayException;
-import org.junit.Test;
 
 /**
- * Small Test for OracleDbSupport.
+ * Utility class for dealing with jdbc urls.
  */
-@SuppressWarnings({"JavaDoc"})
-public class OracleDbSupportSmallTest {
+public class JdbcUrlUtils {
     /**
-     * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
+     * Prevents instantiation.
      */
-    @Test(expected = FlywayException.class)
-    public void createCleanScriptWithSystem() throws Exception {
-        OracleDbSupport oracleDbSupport = new OracleDbSupport(null);
-        oracleDbSupport.createCleanScript("SYSTEM");
+    private JdbcUrlUtils() {
+        //Do nothing
+    }
+
+    /**
+     * Checks the validity of this jdbc url.
+     *
+     * @param jdbcUrl The url to check.
+     *
+     * @throws FlywayException when the url is invalid.
+     */
+    public static void validate(String jdbcUrl) throws FlywayException {
+        if (!jdbcUrl.toLowerCase().startsWith("jdbc:")) {
+            throw new FlywayException("Invalid jdbc url (should start with jdbc:) : " + jdbcUrl);
+        }
     }
 }

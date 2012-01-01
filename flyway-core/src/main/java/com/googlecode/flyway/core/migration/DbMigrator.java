@@ -21,15 +21,17 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
+import com.googlecode.flyway.core.util.jdbc.TransactionException;
+import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StopWatch;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -59,14 +61,14 @@ public class DbMigrator {
     private final MetaDataTable metaDataTable;
 
     /**
-     * The transaction template to use.
+     * The connection to use.
      */
-    private final TransactionTemplate transactionTemplate;
+    private final Connection connection;
 
     /**
-     * JdbcTemplate with ddl manipulation access to the database.
+     * The connection to use to perform the actual database migrations.
      */
-    private final JdbcTemplate jdbcTemplate;
+    private final Connection connectionForMigrations;
 
     /**
      * Flag whether to ignore failed future migrations or not.
@@ -76,17 +78,17 @@ public class DbMigrator {
     /**
      * Creates a new database migrator.
      *
-     * @param transactionTemplate         The transaction template to use.
-     * @param jdbcTemplate                JdbcTemplate with ddl manipulation access to the database.
+     * @param connection                  The connection to use.
+     * @param connectionForMigrations     The connection to use to perform the actual database migrations.
      * @param dbSupport                   Database-specific functionality.
      * @param metaDataTable               The database metadata table.
      * @param target                      The target version of the migration.
      * @param ignoreFailedFutureMigration Flag whether to ignore failed future migrations or not.
      */
-    public DbMigrator(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport,
+    public DbMigrator(Connection connection, Connection connectionForMigrations, DbSupport dbSupport,
                       MetaDataTable metaDataTable, SchemaVersion target, boolean ignoreFailedFutureMigration) {
-        this.transactionTemplate = transactionTemplate;
-        this.jdbcTemplate = jdbcTemplate;
+        this.connection = connection;
+        this.connectionForMigrations = connectionForMigrations;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
         this.target = target;
@@ -108,44 +110,45 @@ public class DbMigrator {
         try {
             while (true) {
                 final boolean firstRun = migrationSuccessCount == 0;
-                MetaDataTableRow metaDataTableRow = (MetaDataTableRow) transactionTemplate.execute(new TransactionCallback() {
-                    public MetaDataTableRow doInTransaction(TransactionStatus status) {
-                        metaDataTable.lock();
+                MetaDataTableRow metaDataTableRow =
+                        new TransactionTemplate(connection).execute(new TransactionCallback<MetaDataTableRow>() {
+                            public MetaDataTableRow doInTransaction() {
+                                metaDataTable.lock();
 
-                        SchemaVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
-                        if (firstRun) {
-                            LOG.info("Current schema version: " + currentSchemaVersion);
-                        }
+                                SchemaVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
+                                if (firstRun) {
+                                    LOG.info("Current schema version: " + currentSchemaVersion);
+                                }
 
-                        SchemaVersion latestAvailableMigrationVersion = migrations.get(0).getVersion();
-                        boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
-                        if (isFutureMigration) {
-                            LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
-                                    + latestAvailableMigrationVersion + ") !");
-                        }
+                                SchemaVersion latestAvailableMigrationVersion = migrations.get(0).getVersion();
+                                boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
+                                if (isFutureMigration) {
+                                    LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
+                                            + latestAvailableMigrationVersion + ") !");
+                                }
 
-                        MigrationState currentSchemaState = metaDataTable.getCurrentSchemaState();
-                        if (currentSchemaState == MigrationState.FAILED) {
-                            if (isFutureMigration && ignoreFailedFutureMigration) {
-                                LOG.warn("Detected failed migration to version " + currentSchemaVersion + " !");
-                            } else {
-                                throw new MigrationException(currentSchemaVersion, false);
+                                MigrationState currentSchemaState = metaDataTable.getCurrentSchemaState();
+                                if (currentSchemaState == MigrationState.FAILED) {
+                                    if (isFutureMigration && ignoreFailedFutureMigration) {
+                                        LOG.warn("Detected failed migration to version " + currentSchemaVersion + " !");
+                                    } else {
+                                        throw new MigrationException(currentSchemaVersion, false);
+                                    }
+                                }
+
+                                if (isFutureMigration) {
+                                    return null;
+                                }
+
+                                Migration migration = getNextMigration(migrations, currentSchemaVersion);
+                                if (migration == null) {
+                                    // No further migrations available
+                                    return null;
+                                }
+
+                                return applyMigration(migration);
                             }
-                        }
-
-                        if (isFutureMigration) {
-                            return null;
-                        }
-
-                        Migration migration = getNextMigration(migrations, currentSchemaVersion);
-                        if (migration == null) {
-                            // No further migrations available
-                            return null;
-                        }
-
-                        return applyMigration(migration);
-                    }
-                });
+                        });
 
                 if (metaDataTableRow == null) {
                     // No further migrations available
@@ -196,7 +199,7 @@ public class DbMigrator {
      * @return The row that was added to the metadata table.
      * @throws MigrationException when the migration failed.
      */
-    public final MetaDataTableRow applyMigration(final Migration migration) throws MigrationException {
+    private MetaDataTableRow applyMigration(final Migration migration) throws MigrationException {
         MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migration);
 
         LOG.info("Migrating to version " + migration.getVersion());
@@ -206,9 +209,19 @@ public class DbMigrator {
         MigrationRunnable migrationRunnable = new MigrationRunnable() {
             public void run() {
                 try {
-                    transactionTemplate.execute(new TransactionCallback() {
-                        public Void doInTransaction(TransactionStatus status) {
-                            migration.migrate(jdbcTemplate, dbSupport);
+                    final JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionForMigrations) {
+                        @Override
+                        protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
+                            //No implementation needed
+                        }
+                    };
+                    new TransactionTemplate(connectionForMigrations).execute(new TransactionCallback<Void>() {
+                        public Void doInTransaction() {
+                            try {
+                                migration.migrate(jdbcTemplate, dbSupport);
+                            } catch (SQLException e) {
+                                throw new FlywayException("Migration failed!", e);
+                            }
                             return null;
                         }
                     });

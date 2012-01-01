@@ -48,11 +48,6 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         return "migration/quote";
     }
 
-    @Override
-    protected DbSupport getDbSupport(JdbcTemplate jdbcTemplate) {
-        return new SQLServerDbSupport(jdbcTemplate);
-    }
-
     /**
      * Tests clean and migrate for SQL Server Stored Procedures.
      */

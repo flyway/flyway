@@ -15,9 +15,9 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 

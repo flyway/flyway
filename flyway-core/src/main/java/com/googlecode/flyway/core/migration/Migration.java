@@ -16,8 +16,9 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+
+import java.sql.SQLException;
 
 /**
  * A migration of a single version of the schema.
@@ -83,6 +84,7 @@ public abstract class Migration implements Comparable<Migration> {
         return getVersion().compareTo(o.getVersion());
     }
 
+    @SuppressWarnings({"SimplifiableIfStatement"})
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -93,9 +95,7 @@ public abstract class Migration implements Comparable<Migration> {
         if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
         if (description != null ? !description.equals(migration.description) : migration.description != null)
             return false;
-        if (schemaVersion != null ? !schemaVersion.equals(migration.schemaVersion) : migration.schemaVersion != null)
-            return false;
-        return !(script != null ? !script.equals(migration.script) : migration.script != null);
+        return !(schemaVersion != null ? !schemaVersion.equals(migration.schemaVersion) : migration.schemaVersion != null) && !(script != null ? !script.equals(migration.script) : migration.script != null);
     }
 
     @Override
@@ -112,9 +112,9 @@ public abstract class Migration implements Comparable<Migration> {
      *
      * @param jdbcTemplate To execute the migration statements.
      * @param dbSupport    The support for database-specific extensions.
-     * @throws DataAccessException Thrown when the migration failed.
+     * @throws SQLException Thrown when the migration failed.
      */
-    public abstract void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws DataAccessException;
+    public abstract void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) throws SQLException;
 
     /**
      * retrieves the location of the migration

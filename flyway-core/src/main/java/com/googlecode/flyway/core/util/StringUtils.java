@@ -120,4 +120,17 @@ public class StringUtils {
     public static String replaceAll(String str, String originalToken, String replacementToken) {
         return str.replaceAll(Pattern.quote(originalToken), Matcher.quoteReplacement(replacementToken));
     }
+
+    /**
+     * Checks whether this string is not {@code null} and not <i>blank</i>.
+     * @param str The string to check.
+     * @return {@code true} if it has content, {@code false} if it is {@code null} or blank.
+     */
+    public static boolean hasLength(String str) {
+        if (str == null) {
+            return false;
+        }
+
+        return str.trim().length() > 0;
+    }
 }

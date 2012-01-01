@@ -23,16 +23,16 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.ResourceUtils;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.util.jdbc.RowMapper;
+import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
+import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -67,28 +67,26 @@ public class MetaDataTable {
     private final String table;
 
     /**
+     * Connection with ddl manipulation access to the database.
+     */
+    private final Connection connection;
+
+    /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * The transaction template to use.
-     */
-    private final TransactionTemplate transactionTemplate;
-
-    /**
      * Creates a new instance of the metadata table support.
      *
-     * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
-     * @param dbSupport           Database-specific functionality.
-     * @param schema              The schema in which the metadata table belongs.
-     * @param table           The name of the schema metadata table used by flyway.
+     * @param connection Connection with ddl manipulation access to the database.
+     * @param dbSupport  Database-specific functionality.
+     * @param schema     The schema in which the metadata table belongs.
+     * @param table      The name of the schema metadata table used by flyway.
      */
-    public MetaDataTable(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport,
-                         String schema, String table) {
-        this.transactionTemplate = transactionTemplate;
-        this.jdbcTemplate = jdbcTemplate;
+    public MetaDataTable(Connection connection, DbSupport dbSupport, String schema, String table) {
+        this.connection = connection;
+        this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.schema = schema;
         this.table = table;
@@ -100,7 +98,12 @@ public class MetaDataTable {
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      */
     private boolean exists() {
-        return dbSupport.tableExists(schema, table);
+        try {
+            return dbSupport.tableExists(schema, table);
+        } catch (SQLException e) {
+            throw new FlywayException("Error checking whether table '" + table + "' exists in schema '" + schema + "'",
+                    e);
+        }
     }
 
     /**
@@ -115,11 +118,11 @@ public class MetaDataTable {
         placeholders.put("table", table);
         final PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
+        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+            public Void doInTransaction() {
                 SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholderReplacer);
                 sqlScript.execute(jdbcTemplate);
+                return null;
             }
         });
 
@@ -139,7 +142,11 @@ public class MetaDataTable {
      * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
      */
     public void lock() {
-        dbSupport.lockTable(schema, table);
+        try {
+            dbSupport.lockTable(schema, table);
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to lock metadata table '" + table + "' in schema '" + schema + "'", e);
+        }
     }
 
     /**
@@ -148,34 +155,42 @@ public class MetaDataTable {
      * @param metaDataTableRow The metaDataTableRow to add.
      */
     public void insert(final MetaDataTableRow metaDataTableRow) {
-        jdbcTemplate.update("UPDATE " + schema + "." + table + " SET current_version=" + dbSupport.getBooleanFalse());
-        final String version = metaDataTableRow.getVersion().toString();
-        final String description = metaDataTableRow.getDescription();
-        final String state = metaDataTableRow.getState().name();
-        final String migrationType = metaDataTableRow.getMigrationType().name();
-        final Integer checksum = metaDataTableRow.getChecksum();
-        final String scriptName = metaDataTableRow.getScript();
-        final Integer executionTime = metaDataTableRow.getExecutionTime();
-        jdbcTemplate.update("INSERT INTO " + schema + "." + table
-                + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
-                + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
-                + dbSupport.getBooleanTrue() + ")",
-                new Object[]{version, description, migrationType, scriptName, checksum, executionTime, state});
+        try {
+            jdbcTemplate.update("UPDATE " + schema + "." + table + " SET current_version=" + dbSupport.getBooleanFalse());
+            final String version = metaDataTableRow.getVersion().toString();
+            final String description = metaDataTableRow.getDescription();
+            final String state = metaDataTableRow.getState().name();
+            final String migrationType = metaDataTableRow.getMigrationType().name();
+            final Integer checksum = metaDataTableRow.getChecksum();
+            final String scriptName = metaDataTableRow.getScript();
+            final Integer executionTime = metaDataTableRow.getExecutionTime();
+            jdbcTemplate.update("INSERT INTO " + schema + "." + table
+                    + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
+                    + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
+                    + dbSupport.getBooleanTrue() + ")",
+                    version, description, migrationType, scriptName, checksum, executionTime, state);
+        } catch (SQLException e) {
+            throw new FlywayException(
+                    "Unable to insert metadata table row for version " + metaDataTableRow.getVersion().toString(), e);
+        }
     }
 
     /**
      * Checks whether the metadata table contains at least one row.
      *
-     * @return {@code true} if the metadata table has at least on row. {@code false} if it is empty or it doesn't exist
+     * @return {@code true} if the metadata table has at least one row. {@code false} if it is empty or it doesn't exist
      *         yet.
      */
-    @SuppressWarnings({"SimplifiableIfStatement"})
     private boolean hasRows() {
         if (!exists()) {
             return false;
         }
 
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + schema + "." + table) > 0;
+        try {
+            return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + schema + "." + table) > 0;
+        } catch (SQLException e) {
+            throw new FlywayException("Error checking if the metadata table has at least one row", e);
+        }
     }
 
     /**
@@ -187,17 +202,15 @@ public class MetaDataTable {
         }
 
         String query = getSelectStatement() + " where current_version=" + dbSupport.getBooleanTrue();
-        @SuppressWarnings({"unchecked"})
-        final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
-
-        if (metaDataTableRows.isEmpty()) {
-            if (hasRows()) {
+        try {
+            final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
+            if (metaDataTableRows.isEmpty()) {
                 throw new FlywayException("Cannot determine latest applied migration. Was the metadata table manually modified?");
             }
-            return null;
+            return metaDataTableRows.get(0);
+        } catch (SQLException e) {
+            throw new FlywayException("Error determining latest applied migration", e);
         }
-
-        return metaDataTableRows.get(0);
     }
 
     /**
@@ -211,12 +224,13 @@ public class MetaDataTable {
 
         String query = getSelectStatement();
 
-        @SuppressWarnings({"unchecked"})
-        final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
-
-        Collections.sort(metaDataTableRows);
-
-        return metaDataTableRows;
+        try {
+            final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
+            Collections.sort(metaDataTableRows);
+            return metaDataTableRows;
+        } catch (SQLException e) {
+            throw new FlywayException("Error while retrieving the list of applied migrations", e);
+        }
     }
 
     /**
@@ -230,7 +244,6 @@ public class MetaDataTable {
      * Converts this number into an Integer.
      *
      * @param number The Number to convert.
-     *
      * @return The matching Integer.
      */
     private Integer toInteger(Number number) {
@@ -268,8 +281,8 @@ public class MetaDataTable {
     /**
      * Row mapper for Migrations.
      */
-    private class MetaDataTableRowMapper implements RowMapper {
-        public MetaDataTableRow mapRow(final ResultSet rs, int rowNum) throws SQLException {
+    private class MetaDataTableRowMapper implements RowMapper<MetaDataTableRow> {
+        public MetaDataTableRow mapRow(final ResultSet rs) throws SQLException {
             SchemaVersion version = new SchemaVersion(rs.getString("VERSION"));
             String description = rs.getString("DESCRIPTION");
             MigrationType migrationType = MigrationType.valueOf(rs.getString("TYPE"));

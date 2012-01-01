@@ -32,13 +32,11 @@
         </property>
     </bean>
     <!-- -->
-    <bean id="migrationDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="username" value="${db2.username}"/>
+    <bean id="migrationDataSource" class="com.googlecode.flyway.core.util.jdbc.DriverDataSource">
+        <property name="user" value="${db2.username}"/>
         <property name="password" value="${db2.password}"/>
-        <property name="driverClassName" value="com.ibm.db2.jcc.DB2Driver"/>
+        <property name="driverClass" value="com.ibm.db2.jcc.DB2Driver"/>
         <property name="url" value="${db2.url}"/>
-        <property name="initialSize" value="1"/>
-        <property name="maxActive" value="100"/>
     </bean>
     <!-- -->
     <alias name="migrationDataSource" alias="concurrentMigrationDataSource"/>

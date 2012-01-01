@@ -17,9 +17,10 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.pyx4j.log4j.MavenLogAppender;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
@@ -28,6 +29,9 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.springframework.util.StringUtils;
+
+import javax.sql.DataSource;
+import java.sql.Driver;
 
 /**
  * Common base class for all mojos with all common attributes.<br>
@@ -130,16 +134,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     }
 
     /**
-     * Creates the datasource base on the provided parameters.
+     * Creates the datasource based on the provided parameters.
      *
      * @return The fully configured datasource.
      * @throws Exception Thrown when the datasource could not be created.
      */
-    /* private -> for testing */ BasicDataSource createDataSource() throws Exception {
-        final BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName(driver);
+    /* private -> for testing */ DataSource createDataSource() throws Exception {
+        DriverDataSource dataSource = new DriverDataSource();
+        dataSource.setDriver(ClassUtils.<Driver>instantiate(driver));
         dataSource.setUrl(url);
-        dataSource.setUsername(user);
+        dataSource.setUser(user);
         dataSource.setPassword(password);
         return dataSource;
     }
@@ -147,23 +151,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         MavenLogAppender.startPluginLog(this);
         try {
-            Flyway flyway = new Flyway();
-
             loadCredentialsFromSettings();
-            BasicDataSource dataSource = createDataSource();
-            try {
-                flyway.setDataSource(dataSource);
-                if (schemas != null) {
-                    flyway.setSchemas(StringUtils.tokenizeToStringArray(schemas, ","));
-                }
-                if (table != null) {
-                    flyway.setTable(table);
-                }
 
-                doExecute(flyway);
-            } finally {
-                dataSource.close();
+            Flyway flyway = new Flyway();
+            flyway.setDataSource(createDataSource());
+            if (schemas != null) {
+                flyway.setSchemas(StringUtils.tokenizeToStringArray(schemas, ","));
             }
+            if (table != null) {
+                flyway.setTable(table);
+            }
+
+            doExecute(flyway);
         } catch (Exception e) {
             LOG.error(e.toString());
 
