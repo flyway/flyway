@@ -34,11 +34,7 @@ import com.googlecode.flyway.core.validation.ValidationException;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
@@ -178,22 +174,6 @@ public class Flyway {
      * The JDBC connection used for applying the migrations.
      */
     private Connection connectionMigration;
-
-    /**
-     * The transaction manager to use. By default a transaction manager will be automatically created for use with the
-     * datasource.
-     */
-    private PlatformTransactionManager transactionManager;
-
-    /**
-     * JdbcTemplate with ddl manipulation access to the database.
-     */
-    private JdbcTemplate jdbcTemplate;
-
-    /**
-     * The transaction template to use.
-     */
-    private TransactionTemplate transactionTemplate;
 
     /**
      * Database-specific functionality.
@@ -383,9 +363,11 @@ public class Flyway {
      *
      * @return The transaction manager to use. By default a transaction manager will be automatically created for use with the
      *         datasource.
+     * @deprecated As of Flyway 1.6, this method is deprecated and has no effect anymore. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public PlatformTransactionManager getTransactionManager() {
-        return transactionManager;
+        return null;
     }
 
     /**
@@ -533,10 +515,6 @@ public class Flyway {
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-
-        if (transactionManager == null) {
-            transactionManager = new DataSourceTransactionManager(dataSource);
-        }
     }
 
     /**
@@ -545,9 +523,11 @@ public class Flyway {
      *
      * @param transactionManager The transaction manager to use. By default a transaction manager will be automatically created for use with the
      *                           datasource.
+     * @deprecated As of Flyway 1.6, this method is deprecated and has no effect anymore. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setTransactionManager(PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
+        LOG.warn("As of Flyway 1.6, this method is deprecated and has no effect anymore");
     }
 
     /**
@@ -595,8 +575,6 @@ public class Flyway {
             connection = dataSource.getConnection();
             connectionMigration = dataSource.getConnection();
 
-            jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(connection, true));
-
             dbSupport = DbSupportFactory.createDbSupport(connection);
             if (schemas.length == 0) {
                 try {
@@ -614,8 +592,6 @@ public class Flyway {
         } catch (SQLException e) {
             throw new FlywayException("Unable to obtain database connection", e);
         }
-
-        transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
     /**
