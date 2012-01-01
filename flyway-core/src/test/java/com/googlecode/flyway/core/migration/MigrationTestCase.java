@@ -390,6 +390,8 @@ public abstract class MigrationTestCase {
         flyway.setSchemas("flyway_1", "flyway_2", "flyway_3");
         flyway.clean();
 
+        assertNull(flyway.status());
+
         flyway.setBaseDir("migration/multi");
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.status().getVersion();

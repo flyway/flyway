@@ -45,25 +45,27 @@ public class DB2DbSupport extends DbSupport {
     }
 
     public SqlScript createCleanScript(String schema) {
+        String upperCaseSchema = schema.toUpperCase();
+
         // TODO PROCEDURES and FUNCTIONS
         final List<String> allDropStatements = new ArrayList<String>();
 
         // views
-        String dropViewsGenQuery = "select rtrim(VIEWNAME) from SYSCAT.VIEWS where VIEWSCHEMA = '" + schema
+        String dropViewsGenQuery = "select rtrim(VIEWNAME) from SYSCAT.VIEWS where VIEWSCHEMA = '" + upperCaseSchema
                 + "'";
-        List<String> dropViewsStatements = buildDropStatements("drop view", dropViewsGenQuery, schema);
+        List<String> dropViewsStatements = buildDropStatements("drop view", dropViewsGenQuery, upperCaseSchema);
         allDropStatements.addAll(dropViewsStatements);
 
         // tables
-        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = '" + schema
-                + "'";
-        List<String> dropTableStatements = buildDropStatements("drop table", dropTablesGenQuery, schema);
+        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = '"
+                + upperCaseSchema + "'";
+        List<String> dropTableStatements = buildDropStatements("drop table", dropTablesGenQuery, upperCaseSchema);
         allDropStatements.addAll(dropTableStatements);
 
         // sequences
-        String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + schema
+        String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + upperCaseSchema
                 + "' and SEQTYPE='S'";
-        List<String> dropSeqStatements = buildDropStatements("drop sequence", dropSeqGenQuery, schema);
+        List<String> dropSeqStatements = buildDropStatements("drop sequence", dropSeqGenQuery, upperCaseSchema);
         allDropStatements.addAll(dropSeqStatements);
 
         // indices in DB2 are deleted, if the corresponding table is dropped
