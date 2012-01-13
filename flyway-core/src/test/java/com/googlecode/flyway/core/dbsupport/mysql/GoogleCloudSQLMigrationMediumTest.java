@@ -28,7 +28,7 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @SuppressWarnings({"JavaDoc"})
 @ContextConfiguration(locations = {"classpath:migration/dbsupport/mysql/googlecloudsql-context.xml"})
-@Ignore("Broken as long as Flyway spawns new threads")
+//@Ignore("Broken as long as Flyway spawns new threads")
 public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
     private static LocalServiceTestHelper helper;
 

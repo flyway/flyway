@@ -206,56 +206,48 @@ public class DbMigrator {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        MigrationRunnable migrationRunnable = new MigrationRunnable() {
-            public void run() {
-                try {
-                    final JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionForMigrations) {
-                        @Override
-                        protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
-                            //No implementation needed
-                        }
-                    };
-                    new TransactionTemplate(connectionForMigrations).execute(new TransactionCallback<Void>() {
-                        public Void doInTransaction() {
-                            try {
-                                migration.migrate(jdbcTemplate, dbSupport);
-                            } catch (SQLException e) {
-                                throw new FlywayException("Migration failed!", e);
-                            }
-                            return null;
-                        }
-                    });
-                    LOG.debug("Successfully completed and committed DB migration to version " + migration.getVersion().toString());
-                    state = MigrationState.SUCCESS;
-                } catch (Exception e) {
-                    LOG.error(e.toString());
 
-                    @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
-                    Throwable rootCause = ExceptionUtils.getRootCause(e);
-                    if (rootCause != null) {
-                        LOG.error("Caused by " + rootCause.toString());
-                    }
-                    state = MigrationState.FAILED;
-                }
-            }
-        };
-        Thread migrationThread = new Thread(migrationRunnable, "Flyway Migration");
-        migrationThread.start();
+        MigrationState state;
         try {
-            migrationThread.join();
-        } catch (InterruptedException e) {
-            // Ignore
+            final JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionForMigrations) {
+                @Override
+                protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
+                    //No implementation needed
+                }
+            };
+            new TransactionTemplate(connectionForMigrations).execute(new TransactionCallback<Void>() {
+                public Void doInTransaction() {
+                    try {
+                        migration.migrate(jdbcTemplate, dbSupport);
+                    } catch (SQLException e) {
+                        throw new FlywayException("Migration failed!", e);
+                    }
+                    return null;
+                }
+            });
+            LOG.debug("Successfully completed and committed DB migration to version " + migration.getVersion().toString());
+            state = MigrationState.SUCCESS;
+        } catch (Exception e) {
+            LOG.error(e.toString());
+
+            @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            if (rootCause != null) {
+                LOG.error("Caused by " + rootCause.toString());
+            }
+            state = MigrationState.FAILED;
         }
+
         stopWatch.stop();
         int executionTime = (int) stopWatch.getLastTaskTimeMillis();
 
-        if (MigrationState.FAILED.equals(migrationRunnable.state) && dbSupport.supportsDdlTransactions()) {
+        if (MigrationState.FAILED.equals(state) && dbSupport.supportsDdlTransactions()) {
             throw new MigrationException(migration.getVersion(), true);
         }
         LOG.debug(String.format("Finished migrating to version %s (execution time %s)",
                 migration.getVersion(), TimeFormat.format(executionTime)));
 
-        metaDataTableRow.update(executionTime, migrationRunnable.state);
+        metaDataTableRow.update(executionTime, state);
         metaDataTable.insert(metaDataTableRow);
         LOG.debug("MetaData table successfully updated to reflect changes");
 
@@ -294,15 +286,5 @@ public class DbMigrator {
         }
 
         return nextMigration;
-    }
-
-    /**
-     * Runnable for migrations to lets you determine determine the final state of the migration.
-     */
-    private static abstract class MigrationRunnable implements Runnable {
-        /**
-         * The final state of the migration.
-         */
-        protected MigrationState state;
     }
 }
