@@ -16,6 +16,8 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -23,9 +25,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
+
+import java.sql.Connection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -123,6 +126,12 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         assertEquals("Add foreign key and super mega humongous padding to exceed the maximum column length in the metad...", flyway.status().getDescription());
         assertEquals(0, flyway.migrate());
         assertEquals(4, flyway.history().size());
-        assertEquals(2, new JdbcTemplate(caseSensitiveDataSource).queryForInt("select count(*) from all_misters"));
+
+        Connection connection = caseSensitiveDataSource.getConnection();
+        DbSupport dbSupport = DbSupportFactory.createDbSupport(connection);
+
+        assertEquals(2, dbSupport.getJdbcTemplate().queryForInt("select count(*) from all_misters"));
+
+        connection.close();
     }
 }
