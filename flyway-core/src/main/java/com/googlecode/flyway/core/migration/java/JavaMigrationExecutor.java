@@ -22,7 +22,6 @@ import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.util.ClassUtils;
 
 /**
  * Adapter for executing migrations implementing JavaMigration.
@@ -41,24 +40,20 @@ public class JavaMigrationExecutor extends Migration {
     public JavaMigrationExecutor(JavaMigration javaMigration) {
         this.javaMigration = javaMigration;
 
-        if (ClassUtils.isAssignableValue(JavaMigrationChecksumProvider.class, javaMigration)) {
+        if (javaMigration instanceof JavaMigrationChecksumProvider) {
             JavaMigrationChecksumProvider checksumProvider = (JavaMigrationChecksumProvider) javaMigration;
             checksum = checksumProvider.getChecksum();
         }
 
-        if (ClassUtils.isAssignableValue(JavaMigrationInfoProvider.class, javaMigration)) {
+        if (javaMigration instanceof JavaMigrationInfoProvider) {
             JavaMigrationInfoProvider infoProvider = (JavaMigrationInfoProvider) javaMigration;
             schemaVersion = infoProvider.getVersion();
-        } else {
-            String nameWithoutV = ClassUtils.getShortName(javaMigration.getClass()).substring(1);
-            schemaVersion = MigrationInfoHelper.extractSchemaVersion(nameWithoutV);
-        }
-
-        if (ClassUtils.isAssignableValue(JavaMigrationInfoProvider.class, javaMigration)) {
-            JavaMigrationInfoProvider infoProvider = (JavaMigrationInfoProvider) javaMigration;
             description = infoProvider.getDescription();
         } else {
-            String nameWithoutV = ClassUtils.getShortName(javaMigration.getClass()).substring(1);
+            String className = javaMigration.getClass().getName();
+            String classShortName = className.substring(className.lastIndexOf(".") + 1);
+            String nameWithoutV = classShortName.substring(1);
+            schemaVersion = MigrationInfoHelper.extractSchemaVersion(nameWithoutV);
             description = MigrationInfoHelper.extractDescription(nameWithoutV);
         }
 
