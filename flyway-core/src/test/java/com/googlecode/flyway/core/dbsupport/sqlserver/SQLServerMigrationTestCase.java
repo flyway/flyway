@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -56,7 +55,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         flyway.setBaseDir("migration/dbsupport/sqlserver/sql/procedure");
         flyway.migrate();
 
-        assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
+        assertEquals("Hello", jdbcTemplate.queryForString("SELECT value FROM test_data"));
 
         flyway.clean();
 

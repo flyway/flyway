@@ -22,18 +22,20 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
@@ -58,24 +60,33 @@ public abstract class MigrationTestCase {
      */
     @Autowired
     @Qualifier("migrationDataSource")
-    protected DataSource migrationDataSource;
+    private DataSource migrationDataSource;
 
-    protected DbSupport dbSupport;
+    private DbSupport dbSupport;
 
     protected JdbcTemplate jdbcTemplate;
 
     protected Flyway flyway;
 
+    private Connection connection;
+
     @Before
     public void setUp() throws Exception {
-        dbSupport = DbSupportFactory.createDbSupport(migrationDataSource.getConnection());
+        connection = migrationDataSource.getConnection();
 
-        jdbcTemplate = new JdbcTemplate(migrationDataSource);
+        dbSupport = DbSupportFactory.createDbSupport(connection);
+
+        jdbcTemplate = dbSupport.getJdbcTemplate();
 
         flyway = new Flyway();
         flyway.setDataSource(migrationDataSource);
         flyway.setValidationMode(ValidationMode.ALL);
         flyway.clean();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        connection.close();
     }
 
     /**
@@ -284,7 +295,6 @@ public abstract class MigrationTestCase {
         flyway.setBaseDir(BASEDIR);
         flyway.migrate();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         jdbcTemplate.update("UPDATE schema_version SET current_version = " + dbSupport.getBooleanFalse()
                 + " where current_version = " + dbSupport.getBooleanTrue());
         flyway.migrate();
@@ -328,7 +338,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test(expected = FlywayException.class)
-    public void nonEmptySchema() {
+    public void nonEmptySchema() throws Exception {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
                 "  PRIMARY KEY(name))");
@@ -338,7 +348,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void nonEmptySchemaWithInit() {
+    public void nonEmptySchemaWithInit() throws Exception {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
                 "  PRIMARY KEY(name))");
@@ -349,7 +359,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void nonEmptySchemaWithDisableInitCheck() {
+    public void nonEmptySchemaWithDisableInitCheck() throws Exception {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
                 "  PRIMARY KEY(name))");
@@ -360,7 +370,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void semicolonWithinStringLiteral() {
+    public void semicolonWithinStringLiteral() throws Exception {
         flyway.setBaseDir("migration/semicolon");
         flyway.migrate();
 
@@ -369,7 +379,7 @@ public abstract class MigrationTestCase {
         assertEquals("Populate table", flyway.status().getDescription());
 
         assertEquals("Mr. Semicolon+Linebreak;\nanother line",
-                jdbcTemplate.queryForObject("select name from test_user where name like '%line'", String.class));
+                jdbcTemplate.queryForString("select name from test_user where name like '%line'"));
     }
 
     @Test

@@ -15,13 +15,11 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.HashMap;
@@ -47,7 +45,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Tests migrations containing placeholders.
      */
     @Test
-    public void migrationsWithPlaceholders() throws FlywayException {
+    public void migrationsWithPlaceholders() throws Exception {
         int countUserObjects1 = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
 
         Map<String, String> placeholders = new HashMap<String, String>();
@@ -60,7 +58,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         assertEquals("1.1", schemaVersion.toString());
         assertEquals("Populate table", flyway.status().getDescription());
 
-        assertEquals("Mr. T triggered", jdbcTemplate.queryForObject("select name from test_user", String.class));
+        assertEquals("Mr. T triggered", jdbcTemplate.queryForString("select name from test_user"));
 
         flyway.clean();
 
@@ -77,7 +75,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Tests clean for Oracle Spatial Extensions.
      */
     @Test
-    public void cleanSpatialExtensions() throws FlywayException {
+    public void cleanSpatialExtensions() throws Exception {
         assertEquals(0, objectsCount());
 
         flyway.setBaseDir("migration/dbsupport/oracle/sql/spatial");
@@ -124,7 +122,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Test clean with recycle bin
      */
     @Test
-    public void cleanWithRecycleBin() {
+    public void cleanWithRecycleBin() throws Exception {
         assertEquals(0, recycleBinCount());
 
         // in SYSTEM tablespace the recycle bin is deactivated
@@ -139,14 +137,14 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     /**
      * @return The number of objects for the current user.
      */
-    private int objectsCount() {
+    private int objectsCount() throws Exception {
         return jdbcTemplate.queryForInt("select count(*) from user_objects");
     }
 
     /**
      * @return The number of objects in the recycle bin.
      */
-    private int recycleBinCount() {
+    private int recycleBinCount() throws Exception {
         return jdbcTemplate.queryForInt("select count(*) from recyclebin");
     }
 

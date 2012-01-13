@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

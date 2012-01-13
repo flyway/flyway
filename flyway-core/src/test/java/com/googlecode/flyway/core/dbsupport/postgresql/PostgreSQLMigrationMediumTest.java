@@ -15,11 +15,9 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.junit.Assert.assertEquals;
@@ -43,8 +41,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/dbsupport/postgresql/sql/procedure");
         flyway.migrate();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
-        assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
+        assertEquals("Hello", jdbcTemplate.queryForString("SELECT value FROM test_data"));
 
         flyway.clean();
 
@@ -74,7 +71,6 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/dbsupport/postgresql/sql/trigger");
         flyway.migrate();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
 
         flyway.clean();
@@ -92,7 +88,6 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/dbsupport/postgresql/sql/view");
         flyway.migrate();
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
 
         flyway.clean();
@@ -119,7 +114,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      * Tests parsing support for $$ string literals.
      */
     @Test
-    public void dollarQuote() throws FlywayException {
+    public void dollarQuote() throws Exception {
         flyway.setBaseDir("migration/dbsupport/postgresql/sql/dollar");
         flyway.migrate();
         assertEquals(8, jdbcTemplate.queryForInt("select count(*) from dollar"));

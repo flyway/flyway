@@ -15,9 +15,9 @@
  */
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Test;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -84,7 +84,7 @@ public class FlywaySmallTest {
 
     @Test
     public void configureWithExistingDataSource() {
-        DataSource dataSource = new SimpleDriverDataSource(new org.h2.Driver(), "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        DataSource dataSource = new DriverDataSource(new org.h2.Driver(), "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
 
         Properties properties = new Properties();
 
@@ -97,7 +97,7 @@ public class FlywaySmallTest {
 
     @Test
     public void configureWithPartialDbConfigInProperties() {
-        DataSource dataSource = new SimpleDriverDataSource(new org.h2.Driver(), "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        DataSource dataSource = new DriverDataSource(new org.h2.Driver(), "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
 
         Properties properties = new Properties();
         properties.setProperty("flyway.url", "dummy_url");

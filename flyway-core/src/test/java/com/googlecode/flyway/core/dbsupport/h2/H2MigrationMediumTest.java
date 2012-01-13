@@ -15,14 +15,10 @@
  */
 package com.googlecode.flyway.core.dbsupport.h2;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,7 +42,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void dollarQuotedString() {
+    public void dollarQuotedString() throws Exception {
         flyway.setBaseDir("migration/dbsupport/h2/sql/dollar_quoted_string");
         flyway.migrate();
 
@@ -55,11 +51,11 @@ public class H2MigrationMediumTest extends MigrationTestCase {
         assertEquals("Populate table", flyway.status().getDescription());
 
         assertEquals("'Mr. Semicolon+Linebreak;\nanother line'",
-                jdbcTemplate.queryForObject("select name from test_user where name like '%line'''", String.class));
+                jdbcTemplate.queryForString("select name from test_user where name like '%line'''"));
     }
 
     @Test
-    public void sequence() {
+    public void sequence() throws Exception {
         flyway.setBaseDir("migration/dbsupport/h2/sql/sequence");
         flyway.migrate();
 
@@ -67,15 +63,14 @@ public class H2MigrationMediumTest extends MigrationTestCase {
         assertEquals("1", schemaVersion.toString());
         assertEquals("Sequence", flyway.status().getDescription());
 
-        assertEquals(666,
-                jdbcTemplate.queryForInt("select nextval('the_beast')"));
+        assertEquals(666, jdbcTemplate.queryForInt("select nextval('the_beast')"));
 
         flyway.clean();
         flyway.migrate();
     }
 
     @Test
-    public void domain() {
+    public void domain() throws Exception {
         flyway.setBaseDir("migration/dbsupport/h2/sql/domain");
         flyway.migrate();
 
@@ -83,8 +78,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
         assertEquals("1", schemaVersion.toString());
         assertEquals("Domain", flyway.status().getDescription());
 
-        assertEquals("axel@spam.la",
-                jdbcTemplate.queryForObject("select address from test_user where name = 'Axel'", String.class));
+        assertEquals("axel@spam.la", jdbcTemplate.queryForString("select address from test_user where name = 'Axel'"));
 
         flyway.clean();
         flyway.migrate();

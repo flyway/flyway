@@ -15,14 +15,10 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,7 +33,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void sequence() {
+    public void sequence() throws Exception {
         flyway.setBaseDir("migration/dbsupport/db2/sql/sequence");
         flyway.migrate();
 
@@ -45,8 +41,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         assertEquals("1", schemaVersion.toString());
         assertEquals("Sequence", flyway.status().getDescription());
 
-        assertEquals(666,
-                jdbcTemplate.queryForInt("VALUES NEXTVAL FOR BEAST_SEQ"));
+        assertEquals(666, jdbcTemplate.queryForInt("VALUES NEXTVAL FOR BEAST_SEQ"));
 
         flyway.clean();
         flyway.migrate();

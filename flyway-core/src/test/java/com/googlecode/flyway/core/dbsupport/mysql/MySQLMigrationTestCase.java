@@ -39,7 +39,7 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
         flyway.setBaseDir("migration/dbsupport/mysql/sql/procedure");
         flyway.migrate();
 
-        assertEquals("Hello", jdbcTemplate.queryForObject("SELECT value FROM test_data", String.class));
+        assertEquals("Hello", jdbcTemplate.queryForString("SELECT value FROM test_data"));
 
         flyway.clean();
 
