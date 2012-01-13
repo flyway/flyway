@@ -20,15 +20,13 @@ import com.google.appengine.tools.development.testing.LocalRdbmsServiceTestConfi
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
- * Test to demonstrate the migration functionality using Mysql.
+ * Test to demonstrate the migration functionality using Google Cloud SQL.
  */
 @SuppressWarnings({"JavaDoc"})
 @ContextConfiguration(locations = {"classpath:migration/dbsupport/mysql/googlecloudsql-context.xml"})
-//@Ignore("Broken as long as Flyway spawns new threads")
 public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
     private static LocalServiceTestHelper helper;
 
