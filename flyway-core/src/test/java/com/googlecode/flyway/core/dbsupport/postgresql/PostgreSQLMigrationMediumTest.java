@@ -15,7 +15,6 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Test;
@@ -108,6 +107,23 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     public void inheritance() throws Exception {
         flyway.setBaseDir("migration/dbsupport/postgresql/sql/inheritance");
         flyway.migrate();
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for PostgreSQL Domains.
+     */
+    @Test
+    public void domain() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/domain");
+        flyway.migrate();
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
+        assertEquals("foo", jdbcTemplate.queryForObject("SELECT x FROM t", String.class));
 
         flyway.clean();
 

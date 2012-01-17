@@ -92,6 +92,7 @@ public class PostgreSQLDbSupport extends DbSupport {
         allDropStatements.addAll(generateDropStatementsForSequences(schema));
         allDropStatements.addAll(generateDropStatementsForBaseTypes(schema, true));
         allDropStatements.addAll(generateDropStatementsForRoutines(schema));
+        allDropStatements.addAll(generateDropStatementsForDomains(schema));
         allDropStatements.addAll(generateDropStatementsForBaseTypes(schema, false));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
@@ -199,6 +200,26 @@ public class PostgreSQLDbSupport extends DbSupport {
         for (Map<String, String> row : rows) {
             statements.add("DROP FUNCTION IF EXISTS \"" + schema + "\".\"" + row.get("proname") + "\"(" + row.get("args") + ") CASCADE");
         }
+        return statements;
+    }
+
+    /**
+     * Generates the statements for dropping the domains in this schema.
+     *
+     * @param schema The schema for which to generate the statements.
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> generateDropStatementsForDomains(String schema) throws SQLException {
+        List<String> domainNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT domain_name FROM information_schema.domains WHERE domain_schema=?", schema);
+
+        List<String> statements = new ArrayList<String>();
+        for (String domainName : domainNames) {
+            statements.add("DROP DOMAIN IF EXISTS \"" + schema + "\".\"" + domainName + "\"");
+        }
+
         return statements;
     }
 }
