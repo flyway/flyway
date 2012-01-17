@@ -15,36 +15,50 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
+import com.google.appengine.api.rdbms.AppEngineDriver;
 import com.google.appengine.api.rdbms.dev.LocalRdbmsService;
 import com.google.appengine.tools.development.testing.LocalRdbmsServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import com.ibm.db2.jcc.DB2Driver;
+import com.mysql.jdbc.Driver;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.springframework.test.context.ContextConfiguration;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using Google Cloud SQL.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/mysql/googlecloudsql-context.xml"})
 public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
-    private static LocalServiceTestHelper helper;
+    private LocalServiceTestHelper helper;
 
-    @BeforeClass
-    public static void setUpDb() {
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        String user = customProperties.getProperty("mysql.user", "flyway");
+        String password = customProperties.getProperty("mysql.password", "flyway");
+        String url = customProperties.getProperty("mysql.cloudsql_url", "jdbc:mysql://localhost:3306/flyway_cloudsql_db");
+
         LocalRdbmsServiceTestConfig config = new LocalRdbmsServiceTestConfig();
         config.setServerType(LocalRdbmsService.ServerType.LOCAL);
-        config.setDriverClass("com.mysql.jdbc.Driver");
-        config.setDatabase("flyway_cloudsql_db");
-        config.setJdbcConnectionStringFormat("jdbc:mysql://localhost:3306/flyway_cloudsql_db");
-        config.setUser("flyway");
-        config.setPassword("flyway");
+        config.setDriverClass(Driver.class.getName());
+        //config.setDatabase("flyway_cloudsql_db");
+        config.setJdbcConnectionStringFormat(url);
+        config.setUser(user);
+        config.setPassword(password);
         helper = new LocalServiceTestHelper(config);
         helper.setUp();
+
+        return new DriverDataSource(new AppEngineDriver(), "jdbc:google:rdbms://localhost/flyway_cloudsql_db", "", "");
     }
 
-    @AfterClass
-    public static void tearDownDb() {
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
         helper.tearDown();
     }
 }

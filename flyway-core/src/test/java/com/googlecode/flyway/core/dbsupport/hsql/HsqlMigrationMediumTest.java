@@ -17,17 +17,19 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.hsqldb.jdbcDriver;
 import org.junit.Test;
-import org.springframework.test.context.ContextConfiguration;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Hsql.
  */
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/hsql/hsql-context.xml"})
 public class HsqlMigrationMediumTest extends MigrationTestCase {
     @Override
     public void setUp() throws Exception {
@@ -44,6 +46,11 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
         jdbcTemplate.execute("CREATE SCHEMA flyway_1 AUTHORIZATION DBA");
         jdbcTemplate.execute("CREATE SCHEMA flyway_2 AUTHORIZATION DBA");
         jdbcTemplate.execute("CREATE SCHEMA flyway_3 AUTHORIZATION DBA");
+    }
+
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        return new DriverDataSource(new jdbcDriver(), "jdbc:hsqldb:mem:flyway_db", "SA", "");
     }
 
     @Override

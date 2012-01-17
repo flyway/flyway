@@ -78,7 +78,7 @@ public class DbInit {
         final MetaDataTableRow metaDataTableRow = new MetaDataTableRow(initialMigration);
         metaDataTableRow.update(0, MigrationState.SUCCESS);
 
-        transactionTemplate.execute(new TransactionCallback() {
+        transactionTemplate.execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
                 metaDataTable.insert(metaDataTableRow);
                 return null;

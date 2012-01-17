@@ -17,8 +17,14 @@ package com.googlecode.flyway.core.dbsupport.postgresql;
 
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import com.ibm.db2.jcc.DB2Driver;
 import org.junit.Test;
+import org.postgresql.Driver;
 import org.springframework.test.context.ContextConfiguration;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,8 +32,16 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using PostgreSQL.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/postgresql/postgresql-context.xml"})
 public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        String user = customProperties.getProperty("postgresql.user", "flyway");
+        String password = customProperties.getProperty("postgresql.password", "flyway");
+        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
+
+        return new DriverDataSource(new Driver(), url, user, password);
+    }
+
     @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";

@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.sqlserver;
 
-import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.postgresql.Driver;
+import net.sourceforge.jtds.jdbc.Driver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * Test to demonstrate the migration functionality using PostgreSQL.
+ * Test to demonstrate the migration functionality using SQL Server with the Jtds driver.
  */
-public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+public class JtdsSQLServerCaseSensitiveMigrationMediumTest extends SQLServerCaseSensitiveMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("postgresql.user", "flyway");
-        String password = customProperties.getProperty("postgresql.password", "flyway");
-        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
+        String user = customProperties.getProperty("sqlserver.user", "sa");
+        String password = customProperties.getProperty("sqlserver.password", "flyway");
+        String url = customProperties.getProperty("sqlserver.jtds_url", "jdbc:jtds:sqlserver://localhost:1433/flyway_db");
 
         return new DriverDataSource(new Driver(), url, user, password);
     }

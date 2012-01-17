@@ -16,11 +16,24 @@
 package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
-import org.springframework.test.context.ContextConfiguration;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.h2.Driver;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using H2.
  */
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/h2/h2-context.xml"})
 public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        String user = customProperties.getProperty("h2.user", "sa");
+        String password = customProperties.getProperty("h2.password", "");
+        String url = customProperties.getProperty("h2.url", "jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1");
+
+        DriverDataSource dataSource = new DriverDataSource(new Driver(), url, user, password);
+        dataSource.setInitSql("SET LOCK_TIMEOUT 100000");
+        return dataSource;
+    }
 }

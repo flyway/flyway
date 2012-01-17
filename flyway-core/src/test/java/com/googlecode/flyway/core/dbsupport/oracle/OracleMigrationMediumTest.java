@@ -19,12 +19,15 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import oracle.jdbc.OracleDriver;
 import org.junit.Test;
-import org.springframework.test.context.ContextConfiguration;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,8 +37,16 @@ import static org.junit.Assert.assertTrue;
  * Test to demonstrate the migration functionality using Mysql.
  */
 @SuppressWarnings({"JavaDoc"})
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/oracle/oracle-context.xml"})
 public class OracleMigrationMediumTest extends MigrationTestCase {
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        String user = customProperties.getProperty("oracle.user", "flyway");
+        String password = customProperties.getProperty("orcale.password", "flyway");
+        String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
+
+        return new DriverDataSource(new OracleDriver(), url, user, password);
+    }
+
     @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";

@@ -17,23 +17,27 @@ package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.h2.Driver;
 import org.junit.Test;
-import org.springframework.test.context.ContextConfiguration;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using H2.
  */
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/h2/h2-context.xml"})
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
-        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS flyway_1");
-        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS flyway_2");
-        jdbcTemplate.execute("CREATE SCHEMA IF NOT EXISTS flyway_3");
+    protected DataSource createDataSource(Properties customProperties) {
+        DriverDataSource dataSource =
+                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
+        dataSource.setInitSql("CREATE SCHEMA IF NOT EXISTS flyway_1;"
+                + "CREATE SCHEMA IF NOT EXISTS flyway_2;"
+                + "CREATE SCHEMA IF NOT EXISTS flyway_3;");
+        return dataSource;
     }
 
     @Override

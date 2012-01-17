@@ -28,15 +28,14 @@ import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -48,34 +47,29 @@ import static org.junit.Assert.fail;
  * Test to demonstrate the migration functionality.
  */
 @SuppressWarnings({"JavaDoc"})
-@RunWith(SpringJUnit4ClassRunner.class)
 public abstract class MigrationTestCase {
     /**
      * The base directory for the regular test migrations.
      */
     protected static final String BASEDIR = "migration/sql";
 
-    /**
-     * The datasource to use for single-threaded migration tests.
-     */
-    @Autowired
-    @Qualifier("migrationDataSource")
-    private DataSource migrationDataSource;
-
+    private Connection connection;
     private DbSupport dbSupport;
 
     protected JdbcTemplate jdbcTemplate;
-
     protected Flyway flyway;
-
-    private Connection connection;
 
     @Before
     public void setUp() throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        Properties customProperties = new Properties();
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+        DataSource migrationDataSource = createDataSource(customProperties);
+
         connection = migrationDataSource.getConnection();
-
         dbSupport = DbSupportFactory.createDbSupport(connection);
-
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
         flyway = new Flyway();
@@ -83,6 +77,14 @@ public abstract class MigrationTestCase {
         flyway.setValidationMode(ValidationMode.ALL);
         flyway.clean();
     }
+
+    /**
+     * Creates the datasource for this testcase based on these optional custom properties from the user home.
+     *
+     * @param customProperties The optional custom properties.
+     * @return The new datasource.
+     */
+    protected abstract DataSource createDataSource(Properties customProperties) throws Exception;
 
     @After
     public void tearDown() throws Exception {

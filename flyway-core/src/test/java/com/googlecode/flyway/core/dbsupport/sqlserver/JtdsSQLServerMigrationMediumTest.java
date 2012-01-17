@@ -15,11 +15,22 @@
  */
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
-import org.springframework.test.context.ContextConfiguration;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import net.sourceforge.jtds.jdbc.Driver;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using SQL Server with the Jtds driver.
  */
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/sqlserver/sqlserver-jtds-context.xml"})
 public class JtdsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        String user = customProperties.getProperty("sqlserver.user", "sa");
+        String password = customProperties.getProperty("sqlserver.password", "flyway");
+        String url = customProperties.getProperty("sqlserver.jtds_url", "jdbc:jtds:sqlserver://localhost:1433/flyway_db");
+
+        return new DriverDataSource(new Driver(), url, user, password);
+    }
 }

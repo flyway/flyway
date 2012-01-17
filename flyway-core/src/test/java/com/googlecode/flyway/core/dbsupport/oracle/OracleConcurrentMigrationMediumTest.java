@@ -16,11 +16,22 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
-import org.springframework.test.context.ContextConfiguration;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import oracle.jdbc.OracleDriver;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using Oracle.
  */
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/oracle/oracle-context.xml"})
 public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        String user = customProperties.getProperty("oracle.user", "flyway");
+        String password = customProperties.getProperty("orcale.password", "flyway");
+        String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
+
+        return new DriverDataSource(new OracleDriver(), url, user, password);
+    }
 }

@@ -15,20 +15,11 @@
  */
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.sql.DataSource;
-
-import java.sql.Connection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,13 +29,6 @@ import static org.junit.Assert.assertTrue;
  */
 @SuppressWarnings({"JavaDoc"})
 public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
-    /**
-     * The datasource to use for case-sensitive collatetion tests.
-     */
-    @Autowired
-    @Qualifier("caseSensitiveDataSource")
-    protected DataSource caseSensitiveDataSource;
-
     @Override
     protected String getQuoteBaseDir() {
         return "migration/quote";
@@ -112,26 +96,5 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         assertEquals("3.1.0", flyway.status().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.status().getState());
         assertTrue(jdbcTemplate.queryForInt("SELECT COUNT(*) FROM dbo.CHANGELOG") > 0);
-    }
-
-    @Test
-    public void caseSensitiveCollation() throws Exception {
-        flyway = new Flyway();
-        flyway.setDataSource(caseSensitiveDataSource);
-        flyway.setBaseDir(BASEDIR);
-        flyway.clean();
-        flyway.migrate();
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("2.0", schemaVersion.toString());
-        assertEquals("Add foreign key and super mega humongous padding to exceed the maximum column length in the metad...", flyway.status().getDescription());
-        assertEquals(0, flyway.migrate());
-        assertEquals(4, flyway.history().size());
-
-        Connection connection = caseSensitiveDataSource.getConnection();
-        DbSupport dbSupport = DbSupportFactory.createDbSupport(connection);
-
-        assertEquals(2, dbSupport.getJdbcTemplate().queryForInt("select count(*) from all_misters"));
-
-        connection.close();
     }
 }

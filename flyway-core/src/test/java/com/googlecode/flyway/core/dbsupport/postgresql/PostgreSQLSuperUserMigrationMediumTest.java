@@ -16,36 +16,37 @@
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.postgresql.Driver;
 
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 /**
  * PostgreSQL medium tests that require SuperUser permissions.
  */
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/postgresql/postgresql-context.xml"})
-@RunWith(SpringJUnit4ClassRunner.class)
+@SuppressWarnings({"JavaDoc"})
 public class PostgreSQLSuperUserMigrationMediumTest {
-    /**
-     * The datasource to use for single-threaded migration tests.
-     */
-    @Autowired
-    @Qualifier("migrationDataSourceSuperUser")
-    protected DataSource migrationDataSource;
-
-    protected Flyway flyway;
+    private Flyway flyway;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        Properties customProperties = new Properties();
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+
+        String password = customProperties.getProperty("postgresql.password", "flyway");
+        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
+
         flyway = new Flyway();
-        flyway.setDataSource(migrationDataSource);
+        flyway.setDataSource(new DriverDataSource(new Driver(), url, "postgres", password));
         flyway.setValidationMode(ValidationMode.ALL);
         flyway.clean();
     }

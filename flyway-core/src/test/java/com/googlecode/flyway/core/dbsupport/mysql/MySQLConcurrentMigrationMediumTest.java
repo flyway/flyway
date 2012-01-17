@@ -16,11 +16,24 @@
 package com.googlecode.flyway.core.dbsupport.mysql;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import com.ibm.db2.jcc.DB2Driver;
+import com.mysql.jdbc.Driver;
 import org.springframework.test.context.ContextConfiguration;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using MySQL.
  */
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/mysql/mysql-context.xml"})
 public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+    @Override
+    protected DataSource createDataSource(Properties customProperties) throws Exception {
+        String user = customProperties.getProperty("mysql.user", "flyway");
+        String password = customProperties.getProperty("mysql.password", "flyway");
+        String url = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
+
+        return new DriverDataSource(new Driver(), url, user, password);
+    }
 }

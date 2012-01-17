@@ -15,43 +15,55 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import oracle.jdbc.OracleDriver;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test to demonstrate the migration functionality using Mysql.
+ * Test for the Oracle-specific DB support.
  */
 @SuppressWarnings({"JavaDoc"})
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:migration/dbsupport/oracle/oracle-context.xml"})
 public class OracleDbSupportMediumTest {
-    @Autowired
-    @Qualifier("migrationDataSource")
-    private DataSource dataSource;
+    /**
+     * Checks the result of the getCurrentSchema call.
+     *
+     * @param useProxy Flag indicating whether to check it using a proxy user or not.
+     */
+    private void checkCurrentSchema(boolean useProxy) throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        Properties customProperties = new Properties();
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+        String user = customProperties.getProperty("oracle.user", "flyway");
+        String password = customProperties.getProperty("orcale.password", "flyway");
+        String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
 
-    @Autowired
-    @Qualifier("proxyUserDataSource")
-    private DataSource proxyUserDataSource;
+        String dataSourceUser = useProxy ? "flyway_proxy[" + user + "]" : user;
 
-    @Autowired
-    @Qualifier("userNameBean")
-    private String userName;
+        DataSource dataSource = new DriverDataSource(new OracleDriver(), url, dataSourceUser, password);
+
+        Connection connection = dataSource.getConnection();
+        String currentSchema = new OracleDbSupport(connection).getCurrentSchema();
+        connection.close();
+
+        assertEquals(user.toUpperCase(), currentSchema);
+    }
 
     /**
      * Tests that the current schema for a connection is correct;
      */
     @Test
     public void currentSchema() throws Exception {
-        String currentSchema = new OracleDbSupport(dataSource.getConnection()).getCurrentSchema();
-        assertEquals(userName.toUpperCase(), currentSchema);
+        checkCurrentSchema(false);
     }
 
     /**
@@ -59,7 +71,6 @@ public class OracleDbSupportMediumTest {
      */
     @Test
     public void currentSchemaWithProxy() throws Exception {
-        String currentSchema = new OracleDbSupport(proxyUserDataSource.getConnection()).getCurrentSchema();
-        assertEquals(userName.toUpperCase(), currentSchema);
+        checkCurrentSchema(true);
     }
 }

@@ -18,12 +18,11 @@ package com.googlecode.flyway.core.migration;
 import com.googlecode.flyway.core.Flyway;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,7 +30,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * Test to demonstrate the migration functionality using H2.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@SuppressWarnings({"JavaDoc"})
 public abstract class ConcurrentMigrationTestCase {
     /**
      * The number of threads to use in this test.
@@ -51,23 +50,36 @@ public abstract class ConcurrentMigrationTestCase {
     /**
      * The datasource to use for concurrent migration tests.
      */
-    @Autowired
-    @Qualifier("concurrentMigrationDataSource")
-    protected DataSource concurrentMigrationDataSource;
+    private DataSource concurrentMigrationDataSource;
 
     /**
      * The instance under test.
      */
-    protected Flyway flyway;
+    private Flyway flyway;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        Properties customProperties = new Properties();
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+        concurrentMigrationDataSource = createDataSource(customProperties);
+
         flyway = new Flyway();
         flyway.setDataSource(concurrentMigrationDataSource);
         flyway.setBaseDir(BASE_DIR);
         flyway.clean();
         flyway.init();
     }
+
+    /**
+     * Creates the datasource for this testcase based on these optional custom properties from the user home.
+     *
+     * @param customProperties The optional custom properties.
+     * @return The new datasource.
+     */
+    protected abstract DataSource createDataSource(Properties customProperties) throws Exception;
 
     @Test
     public void migrateConcurrently() throws Exception {
