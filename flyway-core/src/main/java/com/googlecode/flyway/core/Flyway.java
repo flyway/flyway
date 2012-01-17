@@ -599,16 +599,20 @@ public class Flyway {
      * Releases the resources acquired.
      */
     private void performTearDown() {
-        try {
-            connectionMigration.close();
-        } catch (SQLException e) {
-            LOG.error("Failed to close database connection for migrations", e);
+        if (connectionMigration != null) {
+            try {
+                connectionMigration.close();
+            } catch (SQLException e) {
+                LOG.error("Failed to close database connection for migrations", e);
+            }
         }
 
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            LOG.error("Failed to close database connection for the metadata table", e);
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                LOG.error("Failed to close database connection for the metadata table", e);
+            }
         }
     }
 
@@ -876,12 +880,13 @@ public class Flyway {
      * @return The result of the command.
      */
     private <T> T execute(Command<T> command) {
-        performSetup();
-
-        T result = command.execute();
-
-        performTearDown();
-
+        T result;
+        try {
+            performSetup();
+            result = command.execute();
+        } finally {
+            performTearDown();
+        }
         return result;
     }
 

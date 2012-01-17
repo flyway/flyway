@@ -187,7 +187,7 @@ public class DriverDataSource implements DataSource {
      * @throws SQLException in case of failure
      * @see java.sql.Driver#connect(String, java.util.Properties)
      */
-    private Connection getConnectionFromDriver(String username, String password) throws SQLException {
+    protected Connection getConnectionFromDriver(String username, String password) throws SQLException {
         Properties props = new Properties();
         if (username != null) {
             props.setProperty("user", username);
