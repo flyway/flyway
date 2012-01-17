@@ -97,6 +97,17 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
 
     /**
      * Tests clean and migrate for MySQL InnoDb tables with upper case names.
+     *
+     * Only effective on Windows when the server is configured using:
+     *
+     * [mysqld]
+     * lower-case-table-names=0
+     *
+     * This should be added to a file called my.cnf
+     *
+     * The server can then be started with this command:
+     *
+     * mysqld --defaults-file="path/to/my.cnf"
      */
     @Test
     public void upperCase() throws Exception {
