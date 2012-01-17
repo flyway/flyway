@@ -132,6 +132,23 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for PostgreSQL Domains.
+     */
+    @Test
+    public void enumeration() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/enum");
+        flyway.migrate();
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(migrationDataSource);
+        assertEquals("positive", jdbcTemplate.queryForObject("SELECT x FROM t", String.class));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
      * Tests parsing support for $$ string literals.
      */
     @Test
