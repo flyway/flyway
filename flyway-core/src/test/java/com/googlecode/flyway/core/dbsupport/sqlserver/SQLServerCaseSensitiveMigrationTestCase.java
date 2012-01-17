@@ -18,15 +18,8 @@ package com.googlecode.flyway.core.dbsupport.sqlserver;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
-import com.googlecode.flyway.core.migration.MigrationState;
-import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.microsoft.sqlserver.jdbc.SQLServerDriver;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -35,7 +28,6 @@ import java.sql.Connection;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test to demonstrate the migration functionality using SQL Server.

@@ -15,13 +15,10 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.ibm.db2.jcc.DB2Driver;
 import org.junit.Test;
 import org.postgresql.Driver;
-import org.springframework.test.context.ContextConfiguration;
 
 import javax.sql.DataSource;
 import java.util.Properties;

@@ -17,9 +17,7 @@ package com.googlecode.flyway.core.dbsupport.mysql;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.ibm.db2.jcc.DB2Driver;
 import com.mysql.jdbc.Driver;
-import org.springframework.test.context.ContextConfiguration;
 
 import javax.sql.DataSource;
 import java.util.Properties;

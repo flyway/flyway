@@ -20,12 +20,7 @@ import com.google.appengine.api.rdbms.dev.LocalRdbmsService;
 import com.google.appengine.tools.development.testing.LocalRdbmsServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.ibm.db2.jcc.DB2Driver;
 import com.mysql.jdbc.Driver;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.springframework.test.context.ContextConfiguration;
 
 import javax.sql.DataSource;
 import java.util.Properties;
