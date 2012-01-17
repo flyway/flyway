@@ -111,7 +111,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests parsing of object names that countain keywords such as MY_TABLE.
+     * Tests parsing of object names that contain keywords such as MY_TABLE.
      */
     @Test
     public void objectNames() throws FlywayException {
