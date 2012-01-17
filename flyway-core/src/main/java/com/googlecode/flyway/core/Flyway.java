@@ -192,7 +192,7 @@ public class Flyway {
     /**
      * Retrieves the base directory on the classpath where the Sql migrations are located.
      *
-     * @return The base directory on the classpath where the Sql migrations are located. (default: sql/location)
+     * @return The base directory on the classpath where the Sql migrations are located. (default: db/migration)
      */
     public String getBaseDir() {
         return baseDir;
@@ -417,7 +417,7 @@ public class Flyway {
     /**
      * Sets the base directory on the classpath where the Sql migrations are located.
      *
-     * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: sql/location)
+     * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: db/migration)
      */
     public void setBaseDir(String baseDir) {
         this.baseDir = baseDir;
