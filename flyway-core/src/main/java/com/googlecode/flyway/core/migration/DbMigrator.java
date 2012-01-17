@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.ExceptionUtils;
+import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
@@ -27,7 +28,6 @@ import com.googlecode.flyway.core.util.jdbc.TransactionException;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.StopWatch;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -239,7 +239,7 @@ public class DbMigrator {
         }
 
         stopWatch.stop();
-        int executionTime = (int) stopWatch.getLastTaskTimeMillis();
+        int executionTime = (int) stopWatch.getTotalTimeMillis();
 
         if (MigrationState.FAILED.equals(state) && dbSupport.supportsDdlTransactions()) {
             throw new MigrationException(migration.getVersion(), true);
