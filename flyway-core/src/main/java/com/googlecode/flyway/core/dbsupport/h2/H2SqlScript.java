@@ -20,10 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.util.StringUtils;
-
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.util.StringUtils;
 
 /**
  * SqlScript supporting Hsql-specific delimiter changes.

@@ -52,7 +52,7 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
      * @return The individual elements this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
      */
     private String[] getElements() {
-        return org.springframework.util.StringUtils.tokenizeToStringArray(version, ".-");
+        return StringUtils.tokenizeToStringArray(version, ".-");
     }
 
     /**

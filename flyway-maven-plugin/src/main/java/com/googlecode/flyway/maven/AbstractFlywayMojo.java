@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
+import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.pyx4j.log4j.MavenLogAppender;
 import org.apache.commons.logging.Log;
@@ -28,7 +29,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
-import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Driver;

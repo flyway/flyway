@@ -17,7 +17,7 @@ package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
-import org.springframework.util.StringUtils;
+import com.googlecode.flyway.core.util.StringUtils;
 
 /**
  * SqlScript supporting DB2-specific delimiter changes.

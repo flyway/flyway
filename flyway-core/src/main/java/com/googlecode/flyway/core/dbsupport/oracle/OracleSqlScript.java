@@ -17,7 +17,7 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
-import org.springframework.util.StringUtils;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

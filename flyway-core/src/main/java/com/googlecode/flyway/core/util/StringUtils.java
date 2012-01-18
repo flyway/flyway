@@ -15,6 +15,11 @@
  */
 package com.googlecode.flyway.core.util;
 
+import com.googlecode.flyway.core.migration.SchemaVersion;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,6 +128,7 @@ public class StringUtils {
 
     /**
      * Checks whether this string is not {@code null} and not <i>blank</i>.
+     *
      * @param str The string to check.
      * @return {@code true} if it has content, {@code false} if it is {@code null} or blank.
      */
@@ -132,5 +138,106 @@ public class StringUtils {
         }
 
         return str.trim().length() > 0;
+    }
+
+    /**
+     * Turns this string array in one comma-delimited string.
+     *
+     * @param strings The array to process.
+     * @return The new comma-delimited string.
+     */
+    public static String arrayToCommaDelimitedString(String[] strings) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < strings.length; i++) {
+            if (i > 0) {
+                builder.append(",");
+            }
+            builder.append(strings[i]);
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Checks whether this string contains at least one non-blank character.
+     *
+     * @param s The string to check.
+     * @return {@code true} if it has text, {@code false} if not.
+     */
+    public static boolean hasText(String s) {
+        return (s != null) && (s.trim().length() > 0);
+    }
+
+    /**
+     * Splits this string into an array using these delimiters.
+     *
+     * @param str        The string to split.
+     * @param delimiters The delimiters to use.
+     * @return The resulting array.
+     */
+    public static String[] tokenizeToStringArray(String str, String delimiters) {
+        if (str == null) {
+            return null;
+        }
+        StringTokenizer st = new StringTokenizer(str, delimiters);
+        List<String> tokens = new ArrayList<String>();
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken().trim();
+            if (token.length() > 0) {
+                tokens.add(token);
+            }
+        }
+        return tokens.toArray(new String[tokens.size()]);
+    }
+
+    /**
+     * Counts the number of occurances of this token in this string.
+     *
+     * @param str   The string to analyse.
+     * @param token The token to look for.
+     * @return The number of occurances.
+     */
+    public static int countOccurrencesOf(String str, String token) {
+        if (str == null || token == null || str.length() == 0 || token.length() == 0) {
+            return 0;
+        }
+        int count = 0;
+        int pos = 0;
+        int idx;
+        while ((idx = str.indexOf(token, pos)) != -1) {
+            ++count;
+            pos = idx + token.length();
+        }
+        return count;
+    }
+
+    /**
+     * Replace all occurences of a substring within a string with
+     * another string.
+     * @param inString String to examine
+     * @param oldPattern String to replace
+     * @param newPattern String to insert
+     * @return a String with the replacements
+     */
+    public static String replace(String inString, String oldPattern, String newPattern) {
+        if (!hasLength(inString) || !hasLength(oldPattern) || newPattern == null) {
+            return inString;
+        }
+        StringBuilder sb = new StringBuilder();
+        int pos = 0; // our position in the old string
+        int index = inString.indexOf(oldPattern);
+        // the index of an occurrence we've found, or -1
+        int patLen = oldPattern.length();
+        while (index >= 0) {
+            sb.append(inString.substring(pos, index));
+            sb.append(newPattern);
+            pos = index + patLen;
+            index = inString.indexOf(oldPattern, pos);
+        }
+        sb.append(inString.substring(pos));
+        // remember to append any characters to the right of a match
+        return sb.toString();
+    }
+
+    public static String collectionToCommaDelimitedString(List<SchemaVersion> schemaVersions) {
     }
 }
