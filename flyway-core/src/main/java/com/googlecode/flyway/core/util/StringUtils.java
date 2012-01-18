@@ -15,9 +15,9 @@
  */
 package com.googlecode.flyway.core.util;
 
-import com.googlecode.flyway.core.migration.SchemaVersion;
-
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -213,7 +213,8 @@ public class StringUtils {
     /**
      * Replace all occurences of a substring within a string with
      * another string.
-     * @param inString String to examine
+     *
+     * @param inString   String to examine
      * @param oldPattern String to replace
      * @param newPattern String to insert
      * @return a String with the replacements
@@ -238,6 +239,25 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static String collectionToCommaDelimitedString(List<SchemaVersion> schemaVersions) {
+    /**
+     * Convenience method to return a Collection as a comma-delimited
+     * String. E.g. useful for <code>toString()</code> implementations.
+     *
+     * @param collection the Collection to analyse
+     * @return The comma-delimited String.
+     */
+    public static String collectionToCommaDelimitedString(Collection<?> collection) {
+        if (collection == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        Iterator it = collection.iterator();
+        while (it.hasNext()) {
+            sb.append(it.next());
+            if (it.hasNext()) {
+                sb.append(",");
+            }
+        }
+        return sb.toString();
     }
 }
