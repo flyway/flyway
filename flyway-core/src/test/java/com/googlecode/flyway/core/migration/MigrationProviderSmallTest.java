@@ -21,10 +21,10 @@ import java.util.List;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
+import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.validation.ValidationException;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

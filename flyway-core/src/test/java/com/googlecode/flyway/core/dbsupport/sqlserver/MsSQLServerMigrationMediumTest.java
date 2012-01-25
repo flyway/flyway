@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -26,11 +25,11 @@ import java.util.Properties;
  */
 public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("sqlserver.user", "sa");
         String password = customProperties.getProperty("sqlserver.password", "flyway");
         String url = customProperties.getProperty("sqlserver.ms_url", "jdbc:sqlserver://localhost:1433;databaseName=flyway_db");
 
-        return new DriverDataSource(new SQLServerDriver(), url, user, password);
+        return new DriverDataSource("com.microsoft.sqlserver.jdbc.SQLServerDriver", url, user, password);
     }
 }

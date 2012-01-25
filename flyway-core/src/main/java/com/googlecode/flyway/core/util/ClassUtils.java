@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.util;
 
-import java.sql.Driver;
-
 /**
  * Utility methods for dealing with classes.
  */
@@ -32,13 +30,48 @@ public class ClassUtils {
      * Creates a new instance of this class.
      *
      * @param className The fully qualified name of the class to instantiate.
-     * @param <T> The type of the new instance.
-     *
+     * @param <T>       The type of the new instance.
      * @return The new instance.
      * @throws Exception Thrown when the instantiation failed.
      */
+    @SuppressWarnings({"unchecked"})
     public static <T> T instantiate(String className) throws Exception {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return (T) Class.forName(className, true, classLoader).newInstance();
+        return (T) Class.forName(className, true, getClassLoader()).newInstance();
+    }
+
+    /**
+     * @return The classloader to use for loading classes.
+     */
+    private static ClassLoader getClassLoader() {
+        return Thread.currentThread().getContextClassLoader();
+    }
+
+    /**
+     * Determine whether the {@link Class} identified by the supplied name is present
+     * and can be loaded. Will return <code>false</code> if either the class or
+     * one of its dependencies is not present or cannot be loaded.
+     *
+     * @param className the name of the class to check
+     * @return whether the specified class is present
+     */
+    public static boolean isPresent(String className) {
+        try {
+            getClassLoader().loadClass(className);
+            return true;
+        } catch (Throwable ex) {
+            // Class or one of its dependencies is not present...
+            return false;
+        }
+    }
+
+    /**
+     * Computes the short name (name without package) of this class.
+     *
+     * @param aClass The class to analyse.
+     * @return The short name.
+     */
+    public static String getShortName(Class<?> aClass) {
+        String name = aClass.getName();
+        return name.substring(name.lastIndexOf(".") + 1);
     }
 }

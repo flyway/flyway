@@ -17,12 +17,9 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.util.ClassPathResource;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.FileCopyUtils;
 
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -36,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class OracleSqlScriptSmallTest {
     @Test
     public void parseSqlStatements() throws Exception {
-        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1.sql").getInputStream(), Charset.forName("UTF-8")));
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1.sql").loadAsString("UTF-8");
 
         OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
@@ -49,7 +46,7 @@ public class OracleSqlScriptSmallTest {
 
     @Test
     public void parseFunctionsAndProcedures() throws Exception {
-        String source = FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql").getInputStream(), Charset.forName("UTF-8")));
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql").loadAsString("UTF-8");
 
         OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();

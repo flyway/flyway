@@ -15,17 +15,14 @@
  */
 package com.googlecode.flyway.core.migration.java;
 
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.util.ClassUtils;
+import com.googlecode.flyway.core.util.ClassPathScanner;
+import com.googlecode.flyway.core.util.ClassUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Migration resolver for java class based migrations. The classes must have a name like V1 or V1_1_3 or V1__Description
@@ -49,14 +46,14 @@ public class JavaMigrationResolver implements MigrationResolver {
     public Collection<Migration> resolveMigrations() {
         Collection<Migration> migrations = new ArrayList<Migration>();
 
-        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new AssignableTypeFilter(JavaMigration.class));
-        Set<BeanDefinition> components = provider.findCandidateComponents(basePackage);
-        for (BeanDefinition beanDefinition : components) {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            Class<?> clazz = ClassUtils.resolveClassName(beanDefinition.getBeanClassName(), classLoader);
-            JavaMigration javaMigration = (JavaMigration) BeanUtils.instantiateClass(clazz);
-            migrations.add(new JavaMigrationExecutor(javaMigration));
+        try {
+            Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, JavaMigration.class);
+            for (Class<?> clazz : classes) {
+                JavaMigration javaMigration = (JavaMigration) ClassUtils.instantiate(clazz.getName());
+                migrations.add(new JavaMigrationExecutor(javaMigration));
+            }
+        } catch (Exception e) {
+            throw new FlywayException("Unable to resolve Java migrations in location: " + basePackage, e);
         }
 
         return migrations;

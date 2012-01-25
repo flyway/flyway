@@ -41,7 +41,6 @@ public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
         LocalRdbmsServiceTestConfig config = new LocalRdbmsServiceTestConfig();
         config.setServerType(LocalRdbmsService.ServerType.LOCAL);
         config.setDriverClass(Driver.class.getName());
-        //config.setDatabase("flyway_cloudsql_db");
         config.setJdbcConnectionStringFormat(url);
         config.setUser(user);
         config.setPassword(password);

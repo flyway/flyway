@@ -20,7 +20,6 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import oracle.jdbc.OracleDriver;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -39,12 +38,12 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings({"JavaDoc"})
 public class OracleMigrationMediumTest extends MigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("oracle.user", "flyway");
         String password = customProperties.getProperty("orcale.password", "flyway");
         String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
 
-        return new DriverDataSource(new OracleDriver(), url, user, password);
+        return new DriverDataSource("oracle.jdbc.OracleDriver", url, user, password);
     }
 
     @Override

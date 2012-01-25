@@ -22,15 +22,13 @@ import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
-import com.googlecode.flyway.core.util.ResourceUtils;
+import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -110,8 +108,8 @@ public class MetaDataTable {
      * Creates Flyway's metadata table.
      */
     private void create() {
-        Resource location = new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql");
-        final String createMetaDataTableScriptSource = ResourceUtils.loadResourceAsString(location, "UTF-8");
+        final String createMetaDataTableScriptSource =
+                new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql").loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", schema);

@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.dbsupport.db2;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.ibm.db2.jcc.DB2Driver;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -31,12 +30,12 @@ import static org.junit.Assert.assertEquals;
  */
 public class DB2MigrationMediumTest extends MigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("db2.user", "db2admin");
         String password = customProperties.getProperty("db2.password", "flyway");
         String url = customProperties.getProperty("db2.url", "jdbc:db2://localhost:50000/flyway");
 
-        return new DriverDataSource(new DB2Driver(), url, user, password);
+        return new DriverDataSource("com.ibm.db2.jcc.DB2Driver", url, user, password);
     }
 
     @Override

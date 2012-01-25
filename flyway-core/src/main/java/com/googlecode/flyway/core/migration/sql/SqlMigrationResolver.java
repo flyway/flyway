@@ -18,12 +18,11 @@ package com.googlecode.flyway.core.migration.sql;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.ClassPathScanner;
 import com.googlecode.flyway.core.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,32 +82,32 @@ public class SqlMigrationResolver implements MigrationResolver {
 
 
     public Collection<Migration> resolveMigrations() {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
         Collection<Migration> migrations = new ArrayList<Migration>();
 
-        if (StringUtils.hasText(baseDir) && !new ClassPathResource(baseDir + "/", classLoader).exists()) {
+        String normalizedBaseDir = baseDir;
+        if (normalizedBaseDir.startsWith("/")) {
+            normalizedBaseDir = normalizedBaseDir.substring(1);
+        }
+
+        if (StringUtils.hasText(normalizedBaseDir) && !new ClassPathResource(normalizedBaseDir + "/").exists()) {
             LOG.warn("Unable to find path for sql migrations: " + baseDir);
             return migrations;
         }
 
-        Resource[] resources;
         try {
-            String searchRoot = baseDir + "/";
+            ClassPathResource[] resources =
+                    new ClassPathScanner().scanForResources(normalizedBaseDir, sqlMigrationPrefix, sqlMigrationSuffix);
 
-            final String searchPattern = "**/" + sqlMigrationPrefix + "?*" + sqlMigrationSuffix;
-            resources = new PathMatchingResourcePatternResolver(classLoader)
-                    .getResources("classpath:" + searchRoot + searchPattern);
-
-            for (Resource resource : resources) {
+            String searchRoot = normalizedBaseDir + "/";
+            for (ClassPathResource resource : resources) {
                 final String versionString =
                         extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
-                String uri = resource.getURI().toString();
-                String scriptName = uri.substring(uri.indexOf(searchRoot) + searchRoot.length());
+                String location = resource.getLocation();
+                String scriptName = location.substring(location.indexOf(searchRoot) + searchRoot.length());
                 migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString, scriptName));
             }
         } catch (IOException e) {
-            throw new FlywayException("Error loading sql migration files", e);
+            throw new FlywayException("Unable to scan for SQL migrations in location: " + baseDir);
         }
 
         return migrations;

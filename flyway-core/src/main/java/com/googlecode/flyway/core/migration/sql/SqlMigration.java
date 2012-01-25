@@ -19,9 +19,8 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationType;
-import com.googlecode.flyway.core.util.ResourceUtils;
+import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
-import org.springframework.core.io.Resource;
 
 import java.util.zip.CRC32;
 
@@ -39,7 +38,7 @@ public class SqlMigration extends Migration {
      * The complete sql script is not held as a member field here because this would use the total size of all
      * sql migrations files in heap space during db migration, see issue 184.
      */
-    private final Resource sqlScriptResource;
+    private final ClassPathResource sqlScriptResource;
 
     /**
      * The encoding of the sql script.
@@ -57,7 +56,7 @@ public class SqlMigration extends Migration {
      * @param scriptName          The filename of this sql script, including the relative path from the root of
      *                            baseDir.
      */
-    public SqlMigration(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding,
+    public SqlMigration(ClassPathResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding,
                         String versionString, String scriptName) {
         this.sqlScriptResource = sqlScriptResource;
         this.encoding = encoding;
@@ -65,7 +64,7 @@ public class SqlMigration extends Migration {
         schemaVersion = MigrationInfoHelper.extractSchemaVersion(versionString);
         description = MigrationInfoHelper.extractDescription(versionString);
 
-        String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
+        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         checksum = calculateChecksum(sqlScriptSource);
 
         this.script = scriptName;
@@ -74,12 +73,12 @@ public class SqlMigration extends Migration {
 
     @Override
     public String getLocation() {
-        return ResourceUtils.getResourceLocation(sqlScriptResource);
+        return sqlScriptResource.getLocationOnDisk();
     }
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
-        String sqlScriptSource = ResourceUtils.loadResourceAsString(sqlScriptResource, encoding);
+        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
         sqlScript.execute(jdbcTemplate);
     }

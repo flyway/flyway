@@ -17,20 +17,18 @@ package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
@@ -68,6 +66,7 @@ public class Main {
             initializeDefaults(properties);
             loadConfigurationFile(properties, args);
             overrideConfiguration(properties, args);
+            adjustBaseDir(properties);
             flyway.configure(properties);
 
             if ("clean".equals(operation)) {
@@ -124,7 +123,16 @@ public class Main {
         //FIXME: Axel -> This is a workaround for issue 153.
         //  For some reason, passing an empty string causes Spring
         //  not to be able to resolve the root directory of the classpath.
-        properties.put("flyway.baseDir", "../sql");
+        properties.put("flyway.baseDir", "");
+    }
+
+    /**
+     * Adjusts the baseDir for the directory layout of the command-line tool.
+     *
+     * @param properties The properties object to adjust.
+     */
+    private static void adjustBaseDir(Properties properties) {
+        properties.put("flyway.baseDir", "sql/" + properties.get("flyway.baseDir"));
     }
 
     /**
@@ -133,8 +141,7 @@ public class Main {
      * @throws IOException when the version could not be read.
      */
     private static void printVersion() throws IOException {
-        String version =
-                FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource("version.txt").getInputStream(), "UTF-8"));
+        String version = new ClassPathResource("version.txt").loadAsString("UTF-8");
         LOG.info("Flyway (Command-line Tool) v." + version);
         LOG.info("");
     }
@@ -214,7 +221,7 @@ public class Main {
      *
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJdbcDriversAndJavaMigrations() throws IOException {
+    private static void loadJdbcDriversAndJavaMigrations() throws Exception {
         final String directoryForJdbcDriversAndJavaMigrations = getInstallationDir() + "/../jars";
         File dir = new File(directoryForJdbcDriversAndJavaMigrations);
         File[] files = dir.listFiles(new FilenameFilter() {
@@ -240,8 +247,8 @@ public class Main {
      *
      * @throws IOException When the SQL migrations could not be loaded.
      */
-    private static void loadSqlMigrations() throws IOException {
-        addJarOrDirectoryToClasspath(getInstallationDir() + "/../sql");
+    private static void loadSqlMigrations() throws Exception {
+        addJarOrDirectoryToClasspath(getInstallationDir() + "/..");
     }
 
     /**
@@ -251,13 +258,14 @@ public class Main {
      * @throws IOException when the jar or directory could not be found.
      */
     /* private -> for testing */
-    static void addJarOrDirectoryToClasspath(String name) throws IOException {
+    static void addJarOrDirectoryToClasspath(String name) throws Exception {
         LOG.debug("Loading " + name);
 
         // Add the jar or dir to the classpath
         // Chain the current thread classloader
-        URLClassLoader urlClassLoader =
-                new URLClassLoader(new URL[]{new File(name).toURI().toURL()}, Thread.currentThread().getContextClassLoader());
+        URLClassLoader urlClassLoader = new URLClassLoader(
+                new URL[]{new File(name).toURI().toURL()},
+                Thread.currentThread().getContextClassLoader());
 
         // Replace the thread classloader - assumes
         // you have permissions to do so

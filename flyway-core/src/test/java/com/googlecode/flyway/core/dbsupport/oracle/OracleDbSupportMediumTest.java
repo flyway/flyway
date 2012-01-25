@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import oracle.jdbc.OracleDriver;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -49,7 +48,7 @@ public class OracleDbSupportMediumTest {
 
         String dataSourceUser = useProxy ? "flyway_proxy[" + user + "]" : user;
 
-        DataSource dataSource = new DriverDataSource(new OracleDriver(), url, dataSourceUser, password);
+        DataSource dataSource = new DriverDataSource("oracle.jdbc.OracleDriver", url, dataSourceUser, password);
 
         Connection connection = dataSource.getConnection();
         String currentSchema = new OracleDbSupport(connection).getCurrentSchema();

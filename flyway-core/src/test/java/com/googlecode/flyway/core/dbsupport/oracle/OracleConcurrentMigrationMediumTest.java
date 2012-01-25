@@ -17,7 +17,6 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import oracle.jdbc.OracleDriver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -27,11 +26,11 @@ import java.util.Properties;
  */
 public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("oracle.user", "flyway");
         String password = customProperties.getProperty("orcale.password", "flyway");
         String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
 
-        return new DriverDataSource(new OracleDriver(), url, user, password);
+        return new DriverDataSource("oracle.jdbc.OracleDriver", url, user, password);
     }
 }

@@ -52,17 +52,27 @@
         </dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
-            <artifactId>google_sql</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.appengine</groupId>
             <artifactId>appengine-testing</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-stubs</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -152,18 +162,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>net.sourceforge.jtds</groupId>
-                    <artifactId>jtds</artifactId>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
                     <groupId>com.microsoft.sqlserver</groupId>
                     <artifactId>sqljdbc4</artifactId>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
@@ -177,8 +177,8 @@
                     <scope>test</scope>
                 </dependency>
                 <dependency>
-                    <groupId>postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
+                    <groupId>com.google.appengine</groupId>
+                    <artifactId>google_sql</artifactId>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
