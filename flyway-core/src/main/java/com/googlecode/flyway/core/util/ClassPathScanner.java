@@ -52,6 +52,7 @@ public class ClassPathScanner {
         Set<String> resourceNames = findResourceNames(location, prefix, suffix);
         for (String resourceName : resourceNames) {
             classPathResources.add(new ClassPathResource(resourceName));
+            LOG.debug("Found resource: " + resourceName);
         }
 
         return classPathResources.toArray(new ClassPathResource[classPathResources.size()]);

@@ -58,7 +58,6 @@ public class Main {
             }
 
             loadJdbcDriversAndJavaMigrations();
-            loadSqlMigrations();
 
             Flyway flyway = new Flyway();
 
@@ -119,20 +118,7 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.password", "");
-
-        //FIXME: Axel -> This is a workaround for issue 153.
-        //  For some reason, passing an empty string causes Spring
-        //  not to be able to resolve the root directory of the classpath.
         properties.put("flyway.baseDir", "");
-    }
-
-    /**
-     * Adjusts the baseDir for the directory layout of the command-line tool.
-     *
-     * @param properties The properties object to adjust.
-     */
-    private static void adjustBaseDir(Properties properties) {
-        properties.put("flyway.baseDir", "sql/" + properties.get("flyway.baseDir"));
     }
 
     /**
@@ -243,15 +229,6 @@ public class Main {
     }
 
     /**
-     * Loads all the jars contained in the jars folder. (For Jdbc drivers and Java Migrations)
-     *
-     * @throws IOException When the SQL migrations could not be loaded.
-     */
-    private static void loadSqlMigrations() throws Exception {
-        addJarOrDirectoryToClasspath(new File(getInstallationDir() + "/sql").getPath());
-    }
-
-    /**
      * Adds a jar or a directory with this name to the classpath.
      *
      * @param name The name of the jar or directory to add.
@@ -260,8 +237,6 @@ public class Main {
     /* private -> for testing */
     static void addJarOrDirectoryToClasspath(String name) throws Exception {
         LOG.debug("Adding location to classpath: " + name);
-        LOG.debug("Current ContextClassLoader: " + Thread.currentThread().getContextClassLoader());
-        LOG.debug(Thread.currentThread().getContextClassLoader().getResource(""));
 
         // Add the jar or dir to the classpath
         // Chain the current thread classloader
@@ -272,9 +247,6 @@ public class Main {
         // Replace the thread classloader - assumes
         // you have permissions to do so
         Thread.currentThread().setContextClassLoader(urlClassLoader);
-
-        LOG.debug("New ContextClassLoader: " + Thread.currentThread().getContextClassLoader());
-        LOG.debug(Thread.currentThread().getContextClassLoader().getResource(""));
     }
 
     /**

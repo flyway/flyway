@@ -17,13 +17,7 @@ package com.googlecode.flyway.core.util;
 
 import com.googlecode.flyway.core.exception.FlywayException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -143,7 +137,7 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
      * @return The filename of this resource.
      */
     public String getFilename() {
-        return location.substring(location.lastIndexOf("/"));
+        return location.substring(location.lastIndexOf("/") + 1);
     }
 
     /**
