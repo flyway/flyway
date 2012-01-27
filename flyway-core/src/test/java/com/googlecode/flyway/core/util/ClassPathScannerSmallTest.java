@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.util;
 
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.db2.DB2MigrationMediumTest;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
@@ -87,6 +88,16 @@ public class ClassPathScannerSmallTest {
     }
 
     @Test
+    public void scanForResourcesSplitDirectory() throws Exception {
+        ClassPathResource[] resources =
+                new ClassPathScanner().scanForResources("com/googlecode/flyway/core/dbsupport", "create", ".sql");
+
+        assertEquals(7, resources.length);
+
+        assertEquals("com/googlecode/flyway/core/dbsupport/db2/createMetaDataTable.sql", resources[0].getLocation());
+    }
+
+    @Test
     public void scanForResourcesJarFile() throws Exception {
         ClassPathResource[] resources = new ClassPathScanner().scanForResources("junit", "", ".gif");
 
@@ -113,6 +124,15 @@ public class ClassPathScannerSmallTest {
         assertEquals(11, classes.length);
 
         assertEquals(DB2MigrationMediumTest.class, classes[0]);
+    }
+
+    @Test
+    public void scanForClassesSplitPackage() throws Exception {
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com.googlecode.flyway.core.dbsupport", DbSupport.class);
+
+        assertEquals(8, classes.length);
+
+        assertEquals(DbSupport.class, classes[0]);
     }
 
     @Test

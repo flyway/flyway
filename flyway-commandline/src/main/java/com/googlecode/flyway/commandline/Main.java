@@ -66,7 +66,7 @@ public class Main {
             initializeDefaults(properties);
             loadConfigurationFile(properties, args);
             overrideConfiguration(properties, args);
-            adjustBaseDir(properties);
+            //adjustBaseDir(properties);
             flyway.configure(properties);
 
             if ("clean".equals(operation)) {
@@ -222,7 +222,7 @@ public class Main {
      * @throws IOException When the jars could not be loaded.
      */
     private static void loadJdbcDriversAndJavaMigrations() throws Exception {
-        final String directoryForJdbcDriversAndJavaMigrations = getInstallationDir() + "/../jars";
+        final String directoryForJdbcDriversAndJavaMigrations = getInstallationDir() + "/jars";
         File dir = new File(directoryForJdbcDriversAndJavaMigrations);
         File[] files = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -248,7 +248,7 @@ public class Main {
      * @throws IOException When the SQL migrations could not be loaded.
      */
     private static void loadSqlMigrations() throws Exception {
-        addJarOrDirectoryToClasspath(getInstallationDir() + "/..");
+        addJarOrDirectoryToClasspath(new File(getInstallationDir() + "/sql").getPath());
     }
 
     /**
@@ -259,7 +259,9 @@ public class Main {
      */
     /* private -> for testing */
     static void addJarOrDirectoryToClasspath(String name) throws Exception {
-        LOG.debug("Loading " + name);
+        LOG.debug("Adding location to classpath: " + name);
+        LOG.debug("Current ContextClassLoader: " + Thread.currentThread().getContextClassLoader());
+        LOG.debug(Thread.currentThread().getContextClassLoader().getResource(""));
 
         // Add the jar or dir to the classpath
         // Chain the current thread classloader
@@ -270,6 +272,9 @@ public class Main {
         // Replace the thread classloader - assumes
         // you have permissions to do so
         Thread.currentThread().setContextClassLoader(urlClassLoader);
+
+        LOG.debug("New ContextClassLoader: " + Thread.currentThread().getContextClassLoader());
+        LOG.debug(Thread.currentThread().getContextClassLoader().getResource(""));
     }
 
     /**
@@ -313,7 +318,7 @@ public class Main {
             }
         }
 
-        return getInstallationDir() + "/../conf/flyway.properties";
+        return getInstallationDir() + "/conf/flyway.properties";
     }
 
     /**
@@ -321,7 +326,7 @@ public class Main {
      */
     private static String getInstallationDir() {
         String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        return path.substring(0, path.lastIndexOf("/"));
+        return path.substring(0, path.lastIndexOf("/")) + "/..";
     }
 
     /**

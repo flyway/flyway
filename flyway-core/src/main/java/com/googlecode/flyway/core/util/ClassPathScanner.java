@@ -24,7 +24,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -110,25 +109,29 @@ public class ClassPathScanner {
      * @throws IOException when scanning this location failed.
      */
     private Set<String> findResourceNames(String location, String prefix, String suffix) throws IOException {
+        Set<String> resourceNames = new TreeSet<String>();
+
         String directory = location.replace(".", "/");
         if (directory.startsWith("/")) {
             directory = directory.substring(1);
         }
-        URL directoryUrl = getClassLoader().getResource(directory);
-        if (directoryUrl == null) {
-            return new HashSet<String>();
+
+        Enumeration<URL> directoryUrls = getClassLoader().getResources(directory);
+        if (!directoryUrls.hasMoreElements()) {
+            LOG.debug("Unable to determine URL for classpath location: " + directory + " (ClassLoader: " + getClassLoader() + ")");
         }
+        while (directoryUrls.hasMoreElements()) {
+            URL directoryUrl = directoryUrls.nextElement();
+            LOG.debug("Scanning directory: " + directoryUrl.toExternalForm());
 
-        LOG.warn("Scanning directory: " + directoryUrl.toExternalForm());
+            String scanRoot = URLDecoder.decode(directoryUrl.getFile(), "UTF-8");
 
-        String scanRoot = URLDecoder.decode(directoryUrl.getFile(), "UTF-8");
-
-        Set<String> resourceNames;
-        if ("jar".equals(directoryUrl.getProtocol())) {
-            String jarFileName = scanRoot.substring(("jar:".length() + 1), scanRoot.indexOf("!"));
-            resourceNames = findResourceNamesFromJarFile(jarFileName, directory);
-        } else {
-            resourceNames = findResourceNamesFromFileSystem(scanRoot, scanRoot, directory);
+            if ("jar".equals(directoryUrl.getProtocol())) {
+                String jarFileName = scanRoot.substring(("jar:".length() + 1), scanRoot.indexOf("!"));
+                resourceNames.addAll(findResourceNamesFromJarFile(jarFileName, directory));
+            } else {
+                resourceNames.addAll(findResourceNamesFromFileSystem(scanRoot, scanRoot, directory));
+            }
         }
 
         return filterResourceNames(resourceNames, prefix, suffix);
@@ -167,8 +170,8 @@ public class ClassPathScanner {
     /**
      * Finds all the resource names contained in this file system folder.
      *
-     * @param folderName The folder to look under.
-     * @param scanRoot   The root location of the scan on disk.
+     * @param folderName       The folder to look under.
+     * @param scanRoot         The root location of the scan on disk.
      * @param scanRootLocation The root location of the scan on the classpath.
      * @return The resource names;
      * @throws IOException when the folder could not be read.

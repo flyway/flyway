@@ -18,6 +18,8 @@ package com.googlecode.flyway.commandline;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassPathScanner;
 import com.googlecode.flyway.core.util.ClassUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -31,6 +33,21 @@ import static org.junit.Assert.assertTrue;
  */
 @SuppressWarnings({"JavaDoc"})
 public class MainMediumTest {
+    /**
+     * The old classloader, to be restored after a test completes.
+     */
+    private ClassLoader oldClassLoader;
+
+    @Before
+    public void setUp() {
+        oldClassLoader = Thread.currentThread().getContextClassLoader();
+    }
+
+    @After
+    public void tearDown() {
+        Thread.currentThread().setContextClassLoader(oldClassLoader);
+    }
+
     @Test
     public void loadConfigurationFile() throws Exception {
         Properties properties = new Properties();
@@ -62,6 +79,22 @@ public class MainMediumTest {
 
         ClassPathResource[] resources = new ClassPathScanner().scanForResources("pkg", "run", ".properties");
         assertEquals("pkg/runtime.properties", resources[0].getLocation());
+    }
+
+    /**
+     * Tests dynamically adding a directory to the default package of classpath.
+     */
+    @Test
+    public void addDirectoryToClasspathDefaultPackage() throws Exception {
+        assertFalse(new ClassPathResource("runtime.properties").exists());
+
+        String folder = new ClassPathResource("dynamic/pkg").getLocationOnDisk();
+        Main.addJarOrDirectoryToClasspath(folder);
+
+        assertTrue(new ClassPathResource("runtime.properties").exists());
+
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "run", ".properties");
+        assertEquals("runtime.properties", resources[1].getLocation());
     }
 
     /**

@@ -39,7 +39,6 @@ public class CommandLineLargeTest {
         assertTrue(stdOut.contains("* Usage"));
     }
 
-    @Ignore("Axel: Broken until multiple locations support is implemented.")
     @Test
     public void migrate() throws Exception {
         String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
