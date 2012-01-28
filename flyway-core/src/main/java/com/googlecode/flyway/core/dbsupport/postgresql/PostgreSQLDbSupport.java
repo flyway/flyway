@@ -92,6 +92,7 @@ public class PostgreSQLDbSupport extends DbSupport {
         allDropStatements.addAll(generateDropStatementsForSequences(schema));
         allDropStatements.addAll(generateDropStatementsForBaseTypes(schema, true));
         allDropStatements.addAll(generateDropStatementsForRoutines(schema));
+        allDropStatements.addAll(generateDropStatementsForEnums(schema));
         allDropStatements.addAll(generateDropStatementsForBaseTypes(schema, false));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
@@ -199,6 +200,30 @@ public class PostgreSQLDbSupport extends DbSupport {
         for (Map<String, String> row : rows) {
             statements.add("DROP FUNCTION IF EXISTS \"" + schema + "\".\"" + row.get("proname") + "\"(" + row.get("args") + ") CASCADE");
         }
+        return statements;
+    }
+
+    /**
+     * Generates the statements for dropping the enums in this schema.
+     *
+     * @param schema The schema for which to generate the statements.
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> generateDropStatementsForEnums(String schema) throws SQLException {
+        List<String> enumNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT t.typname FROM pg_catalog.pg_type t " +
+                                " JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace" +
+                                " WHERE (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid))" +
+                                "   AND NOT EXISTS (SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid)" +
+                                "   AND n.nspname = ?", schema);
+
+        List<String> statements = new ArrayList<String>();
+        for (String enumName : enumNames) {
+            statements.add("DROP TYPE \"" + schema + "\".\"" + enumName + "\"");
+        }
+
         return statements;
     }
 }
