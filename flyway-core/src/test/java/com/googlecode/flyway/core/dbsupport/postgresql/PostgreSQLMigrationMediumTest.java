@@ -162,4 +162,14 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         assertEquals(8, jdbcTemplate.queryForInt("select count(*) from dollar"));
     }
+
+    /**
+     * Tests parsing support for multiline string literals.
+     */
+    @Test
+    public void multiLine() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/postgresql/sql/multiline");
+        flyway.migrate();
+        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from address"));
+    }
 }
