@@ -29,8 +29,10 @@ import org.springframework.core.io.FileSystemResource;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.util.Properties;
 
 /**
@@ -297,8 +299,14 @@ public class Main {
      * @return The installation directory of the Flyway Command-line tool.
      */
     private static String getInstallationDir() {
-        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        return path.substring(0, path.lastIndexOf("/")) + "/..";
+        String url = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        try {
+            String path = URLDecoder.decode(url, "UTF-8");
+            return path.substring(0, path.lastIndexOf("/")) + "/..";
+        } catch (UnsupportedEncodingException e) {
+            //Can never happen.
+            return null;
+        }
     }
 
     /**

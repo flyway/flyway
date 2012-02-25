@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.googlecode.flyway</groupId>
@@ -10,6 +11,9 @@
     <version>1.6-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
+    <properties>
+        <unpackDir>${project.build.directory}/dependency with spaces</unpackDir>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -51,7 +55,7 @@
                     </excludes>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
-                        <installDir>${project.build.directory}/dependency/flyway-commandline-${project.version}</installDir>
+                        <installDir>${unpackDir}/flyway-commandline-${project.version}</installDir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -67,6 +71,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>flyway-commandline</includeArtifactIds>
+                            <outputDirectory>${unpackDir}</outputDirectory>
                         </configuration>
                     </execution>
                     <execution>
@@ -77,9 +82,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>flyway-sample,hsqldb</includeArtifactIds>
-                            <outputDirectory>
-                                ${project.build.directory}/dependency/flyway-commandline-${project.version}/jars
-                            </outputDirectory>
+                            <outputDirectory>${unpackDir}/flyway-commandline-${project.version}/jars</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -100,9 +103,7 @@
                                     <directory>${basedir}/src/test/resources</directory>
                                 </resource>
                             </resources>
-                            <outputDirectory>
-                                ${project.build.directory}/dependency/flyway-commandline-${project.version}/sql
-                            </outputDirectory>
+                            <outputDirectory>${unpackDir}/flyway-commandline-${project.version}/sql</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
