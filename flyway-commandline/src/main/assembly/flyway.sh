@@ -19,7 +19,8 @@
 OLDDIR=`pwd`
 
 # Set the current directory to the installation directory
-cd `dirname $0`
+INSTALLDIR=`dirname $0`
+cd "$INSTALLDIR"
 
 # Use JAVA_HOME if it is set
 if [ -z $JAVA_HOME ]; then
