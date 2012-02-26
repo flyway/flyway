@@ -34,7 +34,7 @@ $JAVA_CMD -cp bin/flyway-commandline-${project.version}.jar:bin/flyway-core-${pr
 JAVA_EXIT_CODE=$?
 
 # Restore current directory
-cd $OLDDIR
+cd "$OLDDIR"
 
 # Exit using the same code returned from Java
 exit $JAVA_EXIT_CODE
