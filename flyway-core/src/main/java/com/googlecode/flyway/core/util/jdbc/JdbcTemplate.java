@@ -15,12 +15,7 @@
  */
 package com.googlecode.flyway.core.util.jdbc;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +69,9 @@ public abstract class JdbcTemplate {
             }
             result.add(rowMap);
         }
+
+        resultSet.close();
+
         return result;
     }
 
@@ -96,6 +94,9 @@ public abstract class JdbcTemplate {
         while (resultSet.next()) {
             result.add(resultSet.getString(1));
         }
+
+        resultSet.close();
+
         return result;
     }
 
@@ -114,7 +115,10 @@ public abstract class JdbcTemplate {
         }
         ResultSet resultSet = statement.executeQuery();
         resultSet.next();
-        return resultSet.getInt(1);
+        int result = resultSet.getInt(1);
+        resultSet.close();
+
+        return result;
     }
 
     /**
@@ -131,10 +135,12 @@ public abstract class JdbcTemplate {
             statement.setString(i + 1, params[i]);
         }
         ResultSet resultSet = statement.executeQuery();
+        String result = null;
         if (resultSet.next()) {
-            return resultSet.getString(1);
+            result = resultSet.getString(1);
         }
-        return null;
+        resultSet.close();
+        return result;
     }
 
     /**
@@ -145,6 +151,29 @@ public abstract class JdbcTemplate {
      */
     public DatabaseMetaData getMetaData() throws SQLException {
         return connection.getMetaData();
+    }
+
+    /**
+     * Checks whether the database contains tables matching these criteria.
+     * 
+     * @param catalog The catalog where the table resides. (optional)
+     * @param schema The schema where the table resides. (optional)
+     * @param table The name of the table. (optional)
+     * @param tableTypes The types of table to look for (ex.: TABLE). (optional)
+     * @return {@code true} if matching tables have been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    public boolean hasTables(String catalog, String schema, String table, String... tableTypes) throws SQLException {
+        String[] types = tableTypes;
+        if (types.length == 0) {
+            types = null;
+        }
+
+        ResultSet resultSet = connection.getMetaData().getTables(catalog, schema, table, types);
+        boolean found = resultSet.next();
+        resultSet.close();
+        
+        return found;
     }
 
     /**
@@ -173,7 +202,8 @@ public abstract class JdbcTemplate {
 
     /**
      * Creates a new prepared statement for this sql with these params.
-     * @param sql The sql to execute.
+     *
+     * @param sql    The sql to execute.
      * @param params The params.
      * @return The new prepared statement.
      * @throws SQLException when the statement could not be prepared.
@@ -196,7 +226,7 @@ public abstract class JdbcTemplate {
      * Sets the value of the parameter with this index to {@code null} in this PreparedStatement.
      *
      * @param preparedStatement The prepared statement whose parameter to set.
-     * @param parameterIndex The index of the parameter to set.
+     * @param parameterIndex    The index of the parameter to set.
      * @throws SQLException when the value could not be set.
      */
     protected abstract void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException;
@@ -217,6 +247,7 @@ public abstract class JdbcTemplate {
         while (resultSet.next()) {
             results.add(rowMapper.mapRow(resultSet));
         }
+        resultSet.close();
         return results;
     }
 }

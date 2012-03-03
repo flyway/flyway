@@ -69,21 +69,11 @@ public class MetaDataTableRowDumper {
             for (MetaDataTableRow metaDataTableRow : metaDataTableRows) {
                 LOG.info("| " + StringUtils.trimOrPad(metaDataTableRow.getVersion().toString(), 11)
                         + " | " + StringUtils.trimOrPad(metaDataTableRow.getDescription(), 22)
-                        + " | " + StringUtils.trimOrPad(formatInstalledOnDate(metaDataTableRow.getInstalledOn()), 19)
+                        + " | " + StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(metaDataTableRow.getInstalledOn()), 19)
                         + " | " + StringUtils.trimOrPad(metaDataTableRow.getState().name(), 7) + " |");
             }
         }
 
         LOG.info("+-------------+------------------------+---------------------+---------+");
-    }
-
-    /**
-     * Formats the installedOn date for displaying it in the table.
-     *
-     * @param installedOn The date to format.
-     * @return The date in a displayable format.
-     */
-    private static String formatInstalledOnDate(Date installedOn) {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(installedOn);
     }
 }

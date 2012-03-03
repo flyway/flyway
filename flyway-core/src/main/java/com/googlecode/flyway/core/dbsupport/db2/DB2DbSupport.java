@@ -16,13 +16,11 @@
 package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +42,7 @@ public class DB2DbSupport extends DbSupport {
         return new DB2SqlScript(sqlScriptSource, placeholderReplacer);
     }
 
-    public SqlScript createCleanScript(String schema) {
+    public SqlScript createCleanScript(String schema) throws SQLException {
         String upperCaseSchema = schema.toUpperCase();
 
         // TODO PROCEDURES and FUNCTIONS
@@ -87,54 +85,36 @@ public class DB2DbSupport extends DbSupport {
      * @param query      The query to get all present database objects
      * @param schema     The schema for which to build the statements.
      * @return The statements.
+     * @throws SQLException when the drop statements could not be built.
      */
-    private List<String> buildDropStatements(final String dropPrefix, final String query, String schema) {
-        try {
-            List<String> dropStatements = new ArrayList<String>();
-            List<String> dbObjects = jdbcTemplate.queryForStringList(query);
-            for (String dbObject : dbObjects) {
-                // DB2 needs double quotes
-                dropStatements.add(dropPrefix + " \"" + schema + "\".\"" + dbObject + "\"");
-            }
-            return dropStatements;
-        } catch (SQLException e) {
-            throw new FlywayException("Error building drop statements for schema " + schema, e);
+    private List<String> buildDropStatements(final String dropPrefix, final String query, String schema) throws SQLException {
+        List<String> dropStatements = new ArrayList<String>();
+        List<String> dbObjects = jdbcTemplate.queryForStringList(query);
+        for (String dbObject : dbObjects) {
+            // DB2 needs double quotes
+            dropStatements.add(dropPrefix + " \"" + schema + "\".\"" + dbObject + "\"");
         }
+        return dropStatements;
     }
 
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/db2/";
     }
 
-    public boolean isSchemaEmpty(String schema) {
-        try {
-            int objectCount = jdbcTemplate.queryForInt("select count(*) from syscat.tables where tabschema = ?", schema);
-            objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", schema);
-            objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", schema);
-            objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", schema);
-            return objectCount == 0;
-        } catch (SQLException e) {
-            throw new FlywayException("Error checking whether schema '" + schema + "' is empty", e);
-        }
+    public boolean isSchemaEmpty(String schema) throws SQLException {
+        int objectCount = jdbcTemplate.queryForInt("select count(*) from syscat.tables where tabschema = ?", schema);
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", schema);
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", schema);
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", schema);
+        return objectCount == 0;
     }
 
-    public boolean tableExists(final String schema, final String table) {
-        try {
-            ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema.toUpperCase(), table.toUpperCase(),
-                    null);
-            return resultSet.next();
-        } catch (SQLException e) {
-            throw new FlywayException("Error while checking whether table exists: " + schema + "." + table, e);
-
-        }
+    public boolean tableExists(final String schema, final String table) throws SQLException {
+        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
     }
 
-    public String getCurrentSchema() {
-        try {
-            return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim();
-        } catch (SQLException e) {
-            throw new FlywayException("Error retrieving current schema", e);
-        }
+    public String getCurrentSchema() throws SQLException {
+        return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim();
     }
 
     public String getCurrentUserFunction() {

@@ -21,6 +21,7 @@ import org.junit.Test;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.Properties;
 
@@ -32,29 +33,48 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings({"JavaDoc"})
 public class OracleDbSupportMediumTest {
     /**
+     * The driver class to use.
+     */
+    private static final String DRIVER_CLASS = "oracle.jdbc.OracleDriver";
+
+    /**
      * Checks the result of the getCurrentSchema call.
      *
      * @param useProxy Flag indicating whether to check it using a proxy user or not.
      */
     private void checkCurrentSchema(boolean useProxy) throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
-        String user = customProperties.getProperty("oracle.user", "flyway");
-        String password = customProperties.getProperty("orcale.password", "flyway");
-        String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
+        Properties customProperties = getConnectionProperties();
+        String user = customProperties.getProperty("oracle.user");
+        String password = customProperties.getProperty("oracle.password");
+        String url = customProperties.getProperty("oracle.url");
 
         String dataSourceUser = useProxy ? "flyway_proxy[" + user + "]" : user;
 
-        DataSource dataSource = new DriverDataSource("oracle.jdbc.OracleDriver", url, dataSourceUser, password);
+        DataSource dataSource = new DriverDataSource(DRIVER_CLASS, url, dataSourceUser, password);
 
         Connection connection = dataSource.getConnection();
         String currentSchema = new OracleDbSupport(connection).getCurrentSchema();
         connection.close();
 
         assertEquals(user.toUpperCase(), currentSchema);
+    }
+
+    private Properties getConnectionProperties() throws IOException {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        Properties connectionProperties = new Properties();
+        if (customPropertiesFile.canRead()) {
+            connectionProperties.load(new FileInputStream(customPropertiesFile));
+        }
+        if (!connectionProperties.contains("oracle.user")) {
+            connectionProperties.setProperty("oracle.user", "flyway");
+        }
+        if (!connectionProperties.contains("oracle.password")) {
+            connectionProperties.setProperty("oracle.password", "flyway");
+        }
+        if (!connectionProperties.contains("oracle.url")) {
+            connectionProperties.setProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
+        }
+        return connectionProperties;
     }
 
     /**
@@ -71,5 +91,25 @@ public class OracleDbSupportMediumTest {
     @Test
     public void currentSchemaWithProxy() throws Exception {
         checkCurrentSchema(true);
+    }
+
+    /**
+     * Tests for leaking database cursors.
+     */
+    @Test
+    public void tableExistsCursorLeak() throws Exception {
+        Properties customProperties = getConnectionProperties();
+        String user = customProperties.getProperty("oracle.user");
+        String password = customProperties.getProperty("oracle.password");
+        String url = customProperties.getProperty("oracle.url");
+
+        DataSource dataSource = new DriverDataSource(DRIVER_CLASS, url, user, password);
+
+        Connection connection = dataSource.getConnection();
+        OracleDbSupport dbSupport = new OracleDbSupport(connection);
+        for (int i = 0; i < 200; i++) {
+            dbSupport.tableExists(dbSupport.getCurrentSchema(), "schema_version");
+        }
+        connection.close();
     }
 }

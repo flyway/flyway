@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,9 +65,7 @@ public class OracleDbSupport extends DbSupport {
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema.toUpperCase(),
-                table.toUpperCase(), null);
-        return resultSet.next();
+        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
     }
 
     public boolean supportsDdlTransactions() {

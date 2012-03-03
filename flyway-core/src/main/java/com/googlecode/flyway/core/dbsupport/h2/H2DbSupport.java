@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
@@ -58,31 +57,25 @@ public class H2DbSupport extends DbSupport {
 
     public String getCurrentSchema() throws SQLException {
         ResultSet resultSet = jdbcTemplate.getMetaData().getSchemas();
+        String schema = null;
         while (resultSet.next()) {
             if (resultSet.getBoolean("IS_DEFAULT")) {
-                return resultSet.getString("TABLE_SCHEM");
+                schema = resultSet.getString("TABLE_SCHEM");
+                break;
             }
         }
-        return null;
+        resultSet.close();
+
+        return schema;
     }
 
-    public boolean isSchemaEmpty(String schema) {
-        try {
-            List<String> tables = jdbcTemplate.queryForStringList("SHOW TABLES FROM " + schema);
-            return tables.isEmpty();
-        } catch (SQLException e) {
-            throw new FlywayException("Error checking whether schema '" + schema + "' is empty", e);
-        }
+    public boolean isSchemaEmpty(String schema) throws SQLException {
+        List<String> tables = jdbcTemplate.queryForStringList("SHOW TABLES FROM " + schema);
+        return tables.isEmpty();
     }
 
-    public boolean tableExists(final String schema, final String table) {
-        try {
-            ResultSet resultSet =
-                    jdbcTemplate.getMetaData().getTables(null, schema.toUpperCase(), table.toUpperCase(), null);
-            return resultSet.next();
-        } catch (SQLException e) {
-            throw new FlywayException("Error while checking whether table exists: " + schema + "." + table, e);
-        }
+    public boolean tableExists(final String schema, final String table) throws SQLException {
+        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
     }
 
     public boolean supportsDdlTransactions() {

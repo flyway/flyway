@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -58,23 +57,24 @@ public class HsqlDbSupport extends DbSupport {
 
     public String getCurrentSchema() throws SQLException {
         ResultSet resultSet = jdbcTemplate.getMetaData().getSchemas();
+        String schema = null;
         while (resultSet.next()) {
             if (resultSet.getBoolean("IS_DEFAULT")) {
-                return resultSet.getString("TABLE_SCHEM");
+                schema = resultSet.getString("TABLE_SCHEM");
+                break;
             }
         }
-        return null;
+        resultSet.close();
+
+        return schema;
     }
 
     public boolean isSchemaEmpty(final String schema) throws SQLException {
-        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema, null, null);
-        return !resultSet.next();
+        return !jdbcTemplate.hasTables(null, schema, null);
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema.toUpperCase(),
-                table.toUpperCase(), null);
-        return resultSet.next();
+        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
     }
 
     public boolean supportsDdlTransactions() {
@@ -124,6 +124,7 @@ public class HsqlDbSupport extends DbSupport {
         while (resultSet.next()) {
             statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
         }
+        resultSet.close();
 
         return statements;
     }

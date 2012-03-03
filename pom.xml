@@ -43,6 +43,7 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-maven-plugin-largetest</module>
         <module>flyway-sample</module>
+        <module>flyway-sample-appengine</module>
         <module>flyway-commandline</module>
         <module>flyway-commandline-largetest</module>
         <module>flyway-ant</module>

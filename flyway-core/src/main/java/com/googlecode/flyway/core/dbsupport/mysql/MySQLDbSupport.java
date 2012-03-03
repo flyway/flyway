@@ -21,7 +21,6 @@ import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,8 +67,7 @@ public class MySQLDbSupport extends DbSupport {
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(schema, null, table, null);
-        return resultSet.next();
+        return jdbcTemplate.hasTables(schema, null, table);
     }
 
     public boolean supportsDdlTransactions() {
