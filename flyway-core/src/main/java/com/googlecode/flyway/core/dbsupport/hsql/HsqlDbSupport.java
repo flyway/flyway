@@ -70,7 +70,7 @@ public class HsqlDbSupport extends DbSupport {
     }
 
     public boolean isSchemaEmpty(final String schema) throws SQLException {
-        return !jdbcTemplate.hasTables(null, schema, null);
+        return !jdbcTemplate.hasTables(null, schema.toUpperCase(), null);
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
