@@ -15,9 +15,7 @@
  */
 package com.googlecode.flyway.sample.appengine;
 
-import com.google.appengine.api.rdbms.AppEngineDriver;
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,15 +28,9 @@ import java.io.IOException;
  */
 public class MigrateServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        DriverDataSource dataSource = new DriverDataSource(
-                new AppEngineDriver(),
-                "jdbc:google:rdbms://flyway-test-project:flyway-sample/flyway_sample_appengine",
-                "",
-                "");
-
         Flyway flyway = new Flyway();
         flyway.setBasePackage("com.googlecode.flyway.sample.appengine.migration");
-        flyway.setDataSource(dataSource);
+        flyway.setDataSource(DataSourceFactory.createDataSource());
 
         int successCount = flyway.migrate();
 
