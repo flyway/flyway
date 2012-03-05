@@ -52,7 +52,10 @@ public class HistoryServlet extends HttpServlet {
             }
 
             writer.print("{\"version\":\"" + row.getVersion() + "\",");
-            writer.print("\"description\":\"" + row.getDescription() + "\",");
+            
+            String description = row.getDescription() == null ? "" : row.getDescription();
+            writer.print("\"description\":\"" + description + "\",");
+
             writer.print("\"installedOn\":\"" + DateUtils.formatDateAsIsoString(row.getInstalledOn()) + "\",");
             writer.print("\"state\":\"" + row.getState().name() + "\"}");
 

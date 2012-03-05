@@ -24,6 +24,10 @@
         <servlet-class>com.google.appengine.tools.appstats.AppstatsServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>CleanServlet</servlet-name>
+        <servlet-class>com.googlecode.flyway.sample.appengine.CleanServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>MigrateServlet</servlet-name>
         <servlet-class>com.googlecode.flyway.sample.appengine.MigrateServlet</servlet-class>
     </servlet>
@@ -44,6 +48,11 @@
     <servlet-mapping>
         <servlet-name>appstats</servlet-name>
         <url-pattern>/appstats/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>CleanServlet</servlet-name>
+        <url-pattern>/clean</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
