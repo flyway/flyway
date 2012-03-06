@@ -71,6 +71,7 @@ public abstract class JdbcTemplate {
         }
 
         resultSet.close();
+        statement.close();
 
         return result;
     }
@@ -96,6 +97,7 @@ public abstract class JdbcTemplate {
         }
 
         resultSet.close();
+        statement.close();
 
         return result;
     }
@@ -116,7 +118,9 @@ public abstract class JdbcTemplate {
         ResultSet resultSet = statement.executeQuery();
         resultSet.next();
         int result = resultSet.getInt(1);
+
         resultSet.close();
+        statement.close();
 
         return result;
     }
@@ -139,7 +143,10 @@ public abstract class JdbcTemplate {
         if (resultSet.next()) {
             result = resultSet.getString(1);
         }
+
         resultSet.close();
+        statement.close();
+
         return result;
     }
 
@@ -172,7 +179,7 @@ public abstract class JdbcTemplate {
         ResultSet resultSet = connection.getMetaData().getTables(catalog, schema, table, types);
         boolean found = resultSet.next();
         resultSet.close();
-        
+
         return found;
     }
 
@@ -186,6 +193,7 @@ public abstract class JdbcTemplate {
     public void execute(String sql, Object... params) throws SQLException {
         PreparedStatement statement = prepareStatement(sql, params);
         statement.execute();
+        statement.close();
     }
 
     /**
@@ -198,6 +206,7 @@ public abstract class JdbcTemplate {
     public void update(String sql, Object... params) throws SQLException {
         PreparedStatement statement = prepareStatement(sql, params);
         statement.executeUpdate();
+        statement.close();
     }
 
     /**
@@ -241,13 +250,17 @@ public abstract class JdbcTemplate {
      * @throws SQLException when the query failed to execute.
      */
     public <T> List<T> query(String query, RowMapper<T> rowMapper) throws SQLException {
-        ResultSet resultSet = connection.createStatement().executeQuery(query);
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
 
         List<T> results = new ArrayList<T>();
         while (resultSet.next()) {
             results.add(rowMapper.mapRow(resultSet));
         }
+
         resultSet.close();
+        statement.close();
+
         return results;
     }
 }

@@ -98,12 +98,7 @@ public class OracleDbSupportMediumTest {
      */
     @Test
     public void tableExistsCursorLeak() throws Exception {
-        Properties customProperties = getConnectionProperties();
-        String user = customProperties.getProperty("oracle.user");
-        String password = customProperties.getProperty("oracle.password");
-        String url = customProperties.getProperty("oracle.url");
-
-        DataSource dataSource = new DriverDataSource(DRIVER_CLASS, url, user, password);
+        DataSource dataSource = createDataSource();
 
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
@@ -111,5 +106,33 @@ public class OracleDbSupportMediumTest {
             dbSupport.tableExists(dbSupport.getCurrentSchema(), "schema_version");
         }
         connection.close();
+    }
+
+    /**
+     * Tests for leaking database cursors.
+     */
+    @Test
+    public void isSchemaEmptyCursorLeak() throws Exception {
+        DataSource dataSource = createDataSource();
+
+        Connection connection = dataSource.getConnection();
+        OracleDbSupport dbSupport = new OracleDbSupport(connection);
+        for (int i = 0; i < 200; i++) {
+            dbSupport.isSchemaEmpty(dbSupport.getCurrentSchema());
+        }
+        connection.close();
+    }
+
+    /**
+     * Creates a datasource for use in tests.
+     * @return The new datasource.
+     */
+    private DataSource createDataSource() throws Exception {
+        Properties customProperties = getConnectionProperties();
+        String user = customProperties.getProperty("oracle.user");
+        String password = customProperties.getProperty("oracle.password");
+        String url = customProperties.getProperty("oracle.url");
+
+        return new DriverDataSource(DRIVER_CLASS, url, user, password);
     }
 }
