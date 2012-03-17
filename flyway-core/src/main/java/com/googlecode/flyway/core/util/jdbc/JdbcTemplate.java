@@ -197,6 +197,18 @@ public abstract class JdbcTemplate {
     }
 
     /**
+     * Executes this sql statement.
+     *
+     * @param sql    The statement to execute.
+     * @throws SQLException when the execution failed.
+     */
+    public void executeStatement(String sql) throws SQLException {
+        Statement statement = connection.createStatement();
+        statement.execute(sql);
+        statement.close();
+    }
+
+    /**
      * Executes this update sql statement.
      *
      * @param sql    The statement to execute.

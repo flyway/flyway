@@ -74,7 +74,7 @@ public class SqlStatement {
     public void execute(JdbcTemplate jdbcTemplate) {
         LOG.debug("Executing SQL: " + this.sql);
         try {
-            jdbcTemplate.execute(sql);
+            jdbcTemplate.executeStatement(sql);
         } catch (SQLException e) {
             throw new FlywayException("Error executing statement at line " + lineNumber
                     + ": " + sql, e);
