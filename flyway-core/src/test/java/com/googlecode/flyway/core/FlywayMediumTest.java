@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.h2.Driver;
@@ -26,14 +27,50 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Medium tests for the main Flyway class.
  */
 @SuppressWarnings({"JavaDoc"})
 public class FlywayMediumTest {
+    @Test
+    public void multipleSetDataSourceCalls() throws Exception {
+        DriverDataSource dataSource1 = new DriverDataSource();
+        dataSource1.setDriver(new Driver());
+        dataSource1.setUrl("jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1");
+        dataSource1.setUser("sa");
+        dataSource1.setPassword("");
+
+        DriverDataSource dataSource2 = new DriverDataSource();
+        dataSource2.setDriver(new Driver());
+        dataSource2.setUrl("jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1");
+        dataSource2.setUser("sa");
+        dataSource2.setPassword("");
+
+        Connection connection1 = dataSource1.getConnection();
+        Connection connection2 = dataSource2.getConnection();
+
+        assertTrue(new H2DbSupport(connection1).isSchemaEmpty("PUBLIC"));
+        assertTrue(new H2DbSupport(connection2).isSchemaEmpty("PUBLIC"));
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource1);
+        assertNull(flyway.status());
+
+        flyway.setDataSource(dataSource2);
+        assertNull(flyway.status());
+
+        flyway.setBaseDir("migration/sql");
+        flyway.migrate();
+
+        assertTrue(new H2DbSupport(connection1).isSchemaEmpty("PUBLIC"));
+        assertFalse(new H2DbSupport(connection2).isSchemaEmpty("PUBLIC"));
+
+        connection1.close();
+        connection2.close();
+    }
+
     @Test
     public void noConnectionLeak() {
         OpenConnectionCountDriverDataSource dataSource = createDataSource();
