@@ -22,7 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * H2-specific JdbcTemplate customizations.
+ * Derby-specific JdbcTemplate customizations.
  */
 public class DerbyJdbcTemplate extends JdbcTemplate {
     /**

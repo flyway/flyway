@@ -173,7 +173,7 @@ public class H2DbSupport extends DbSupport {
      * @param querySuffix Suffix to append to the query to find the objects to list.
      * @param schema      The schema of objects to list.
      * @return The names of the objects.
-     * @throws SQLException when the obect names could not be listed.
+     * @throws SQLException when the object names could not be listed.
      */
     private List<String> listObjectNames(String objectType, String querySuffix, String schema) throws SQLException {
         String query = "SELECT " + objectType + "_NAME FROM information_schema." + objectType + "s WHERE " + objectType + "_schema = ?";
