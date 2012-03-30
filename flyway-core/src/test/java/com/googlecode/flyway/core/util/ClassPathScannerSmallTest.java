@@ -28,6 +28,7 @@ import org.hamcrest.core.DescribedAs;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for ClassPathScanner.
@@ -92,7 +93,7 @@ public class ClassPathScannerSmallTest {
         ClassPathResource[] resources =
                 new ClassPathScanner().scanForResources("com/googlecode/flyway/core/dbsupport", "create", ".sql");
 
-        assertEquals(7, resources.length);
+        assertTrue(resources.length > 7);
 
         assertEquals("com/googlecode/flyway/core/dbsupport/db2/createMetaDataTable.sql", resources[0].getLocation());
     }
@@ -121,7 +122,7 @@ public class ClassPathScannerSmallTest {
     public void scanForClassesSubPackage() throws Exception {
         Class<?>[] classes = new ClassPathScanner().scanForClasses("com.googlecode.flyway.core.dbsupport", MigrationTestCase.class);
 
-        assertEquals(11, classes.length);
+        assertTrue(classes.length > 11);
 
         assertEquals(DB2MigrationMediumTest.class, classes[0]);
     }
@@ -130,7 +131,7 @@ public class ClassPathScannerSmallTest {
     public void scanForClassesSplitPackage() throws Exception {
         Class<?>[] classes = new ClassPathScanner().scanForClasses("com.googlecode.flyway.core.dbsupport", DbSupport.class);
 
-        assertEquals(8, classes.length);
+        assertTrue(classes.length > 8);
 
         assertEquals(DbSupport.class, classes[0]);
     }

@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.h2;
+package com.googlecode.flyway.core.dbsupport.derby;
+
+import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
-import com.googlecode.flyway.core.util.StringUtils;
-
 /**
- * SqlScript supporting H2-specific delimiter changes.
+ * SqlScript supporting Derby-specific delimiter changes.
  */
-public class H2SqlScript extends SqlScript {
+public class DerbySqlScript extends SqlScript {
     /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
@@ -36,14 +36,14 @@ public class H2SqlScript extends SqlScript {
      *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
-    public H2SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+    public DerbySqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
         super(sqlScriptSource, placeholderReplacer);
     }
 
     /**
      * For testing only.
      */
-    /* private -> for testing */ H2SqlScript() {
+    /* private -> for testing */ DerbySqlScript() {
         super();
     }
 

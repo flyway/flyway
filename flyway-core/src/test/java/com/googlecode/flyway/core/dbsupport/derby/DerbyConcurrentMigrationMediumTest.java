@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.h2;
+package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.h2.Driver;
+import org.apache.derby.jdbc.EmbeddedDriver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * Test to demonstrate the migration functionality using H2.
+ * Test to demonstrate the concurrent migration functionality using Derby.
  */
-public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+public class DerbyConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+    static {
+        System.setProperty("derby.stream.error.field", "java.lang.System.err");
+    }
+
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("h2.user", "sa");
-        String password = customProperties.getProperty("h2.password", "");
-        String url = customProperties.getProperty("h2.url", "jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1");
+        String user = customProperties.getProperty("derby.user", "flyway");
+        String password = customProperties.getProperty("derby.password", "");
+        String url = customProperties.getProperty("derby.url", "jdbc:derby:memory:flyway_db_concurrent;create=true");
 
-        DriverDataSource dataSource = new DriverDataSource(new Driver(), url, user, password);
-        dataSource.setInitSqls("SET LOCK_TIMEOUT 100000");
-        return dataSource;
+        return new DriverDataSource(new EmbeddedDriver(), url, user, password);
     }
 }

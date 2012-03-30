@@ -22,9 +22,9 @@ import java.util.Arrays;
  */
 public class ObjectUtils {
     /**
-     * Determine if the given objects are equal, returning <code>true</code>
-     * if both are <code>null</code> or <code>false</code> if only one is
-     * <code>null</code>.
+     * Determine if the given objects are equal, returning {@code true}
+     * if both are {@code null} or {@code false} if only one is
+     * {@code null}.
      * @param o1 first Object to compare
      * @param o2 second Object to compare
      * @return whether the given objects are equal

@@ -13,27 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.sample.appengine;
+package com.googlecode.flyway.core.dbsupport.derby;
 
-import com.google.appengine.api.rdbms.AppEngineDriver;
+import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.apache.derby.jdbc.EmbeddedDriver;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
- * Factory for the datasource of this application.
+ * Test to demonstrate the migration functionality using Derby.
  */
-public class DataSourceFactory {
-    /**
-     * Creates a new datasource.
-     *
-     * @return The Google Cloud SQL datasource.
-     */
-    public static DataSource createDataSource() {
-        return new DriverDataSource(
-                new AppEngineDriver(),
-                "jdbc:google:rdbms://flyway-test-project:flyway-sample/flyway_cloudsql_db",
-                null,
-                null);
+public class DerbyMigrationMediumTest extends MigrationTestCase {
+    static {
+        System.setProperty("derby.stream.error.field", "java.lang.System.err");
+    }
+
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        return new DriverDataSource(new EmbeddedDriver(), "jdbc:derby:memory:flyway_db;create=true", "flyway", "");
+    }
+
+    @Override
+    protected String getQuoteBaseDir() {
+        return "migration/quote";
     }
 }

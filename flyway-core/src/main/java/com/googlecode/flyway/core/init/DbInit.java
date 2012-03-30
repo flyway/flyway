@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Main workflow for migrating the database.
+ * Workflow for initializing the database with a new metadata table and an initial marker version.
  *
  * @author Axel Fontaine
  */

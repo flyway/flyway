@@ -39,7 +39,7 @@ import java.sql.Driver;
  * @requiresDependencyResolution compile
  * @configurator include-project-dependencies
  */
-@SuppressWarnings({"JavaDoc"})
+@SuppressWarnings({"JavaDoc", "FieldCanBeLocal"})
 abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Logger.

@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.dbsupport.db2.DB2DbSupport;
+import com.googlecode.flyway.core.dbsupport.derby.DerbyDbSupport;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
@@ -60,6 +61,9 @@ public class DbSupportFactory {
 
         LOG.debug("Database: " + databaseProductName);
 
+        if ("Apache Derby".equals(databaseProductName)) {
+            return new DerbyDbSupport(connection);
+        }
         if ("H2".equals(databaseProductName)) {
             return new H2DbSupport(connection);
         }

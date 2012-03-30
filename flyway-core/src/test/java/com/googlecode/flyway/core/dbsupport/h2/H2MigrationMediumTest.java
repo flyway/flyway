@@ -34,9 +34,9 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     protected DataSource createDataSource(Properties customProperties) {
         DriverDataSource dataSource =
                 new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
-        dataSource.setInitSql("CREATE SCHEMA IF NOT EXISTS flyway_1;"
-                + "CREATE SCHEMA IF NOT EXISTS flyway_2;"
-                + "CREATE SCHEMA IF NOT EXISTS flyway_3;");
+        dataSource.setInitSqls("CREATE SCHEMA IF NOT EXISTS flyway_1",
+                "CREATE SCHEMA IF NOT EXISTS flyway_2",
+                "CREATE SCHEMA IF NOT EXISTS flyway_3");
         return dataSource;
     }
 

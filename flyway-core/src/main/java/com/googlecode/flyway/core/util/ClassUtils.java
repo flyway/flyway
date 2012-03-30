@@ -48,7 +48,7 @@ public class ClassUtils {
 
     /**
      * Determine whether the {@link Class} identified by the supplied name is present
-     * and can be loaded. Will return <code>false</code> if either the class or
+     * and can be loaded. Will return {@code false} if either the class or
      * one of its dependencies is not present or cannot be loaded.
      *
      * @param className the name of the class to check

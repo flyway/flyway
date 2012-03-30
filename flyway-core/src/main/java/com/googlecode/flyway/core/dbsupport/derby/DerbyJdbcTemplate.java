@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.sample.appengine;
+package com.googlecode.flyway.core.dbsupport.derby;
 
-import com.google.appengine.api.rdbms.AppEngineDriver;
-import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
- * Factory for the datasource of this application.
+ * H2-specific JdbcTemplate customizations.
  */
-public class DataSourceFactory {
+public class DerbyJdbcTemplate extends JdbcTemplate {
     /**
-     * Creates a new datasource.
+     * Creates a new DerbyJdbcTemplate.
      *
-     * @return The Google Cloud SQL datasource.
+     * @param connection The DB connection to use.
      */
-    public static DataSource createDataSource() {
-        return new DriverDataSource(
-                new AppEngineDriver(),
-                "jdbc:google:rdbms://flyway-test-project:flyway-sample/flyway_cloudsql_db",
-                null,
-                null);
+    public DerbyJdbcTemplate(Connection connection) {
+        super(connection);
+    }
+
+    @Override
+    protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
+        preparedStatement.setString(parameterIndex, null);
     }
 }

@@ -43,6 +43,7 @@ import java.util.List;
  * role-hint="default"
  * @since Aug 1, 2008 3:04:17 PM
  */
+@SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
 public class IncludeProjectDependenciesComponentConfigurator extends AbstractComponentConfigurator {
 
     private static final Log LOGGER = LogFactory.getLog(IncludeProjectDependenciesComponentConfigurator.class);

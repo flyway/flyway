@@ -241,7 +241,7 @@ public class StringUtils {
 
     /**
      * Convenience method to return a Collection as a comma-delimited
-     * String. E.g. useful for <code>toString()</code> implementations.
+     * String. E.g. useful for {@code toString()} implementations.
      *
      * @param collection the Collection to analyse
      * @return The comma-delimited String.

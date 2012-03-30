@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 /**
@@ -49,9 +50,9 @@ public class DriverDataSource implements DataSource {
     private String password;
 
     /**
-     * The (optional) sql statement to execute to initialize a connection immediately after obtaining it.
+     * The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
-    private String initSql;
+    private String[] initSqls = new String[0];
 
     /**
      * Creates a new DriverDataSource.
@@ -158,21 +159,21 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @return The (optional) sql statement to execute to initialize a connection immediately after obtaining it.
+     * @return The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
-    public String getInitSql() {
-        return initSql;
+    public String[] getInitSqls() {
+        return initSqls;
     }
 
     /**
-     * @param initSql The (optional) sql statement to execute to initialize a connection immediately after obtaining it.
+     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
-    public void setInitSql(String initSql) {
-        this.initSql = initSql;
+    public void setInitSqls(String... initSqls) {
+        this.initSqls = initSqls;
     }
 
     /**
-     * This implementation delegates to <code>getConnectionFromDriver</code>,
+     * This implementation delegates to {@code getConnectionFromDriver},
      * using the default user and password of this DataSource.
      *
      * @see #getConnectionFromDriver(String, String)
@@ -184,7 +185,7 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * This implementation delegates to <code>getConnectionFromDriver</code>,
+     * This implementation delegates to {@code getConnectionFromDriver},
      * using the given user and password.
      *
      * @see #getConnectionFromDriver(String, String)
@@ -214,8 +215,10 @@ public class DriverDataSource implements DataSource {
         }
         Connection connection = driver.connect(url, props);
 
-        if (initSql != null) {
-            connection.createStatement().execute(initSql);
+        for (String initSql : initSqls) {
+            Statement statement = connection.createStatement();
+            statement.execute(initSql);
+            statement.close();
         }
 
         return connection;

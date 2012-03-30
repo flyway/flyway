@@ -24,7 +24,7 @@ import com.googlecode.flyway.core.validation.ValidationMode;
  *
  * @phase pre-integration-test
  */
-@SuppressWarnings({"UnusedDeclaration"})
+@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     /**
      * The base package where the Java migrations are located. (default: db.migration) <br> Also configurable with Maven
