@@ -74,8 +74,9 @@ public class DbSupportFactory {
         if ("Microsoft SQL Server".equals(databaseProductName)) {
             return new SQLServerDbSupport(connection);
         }
-        if ("MySQL".equals(databaseProductName) ||
-                "Google SQL Service/MySQL".equals(databaseProductName)) {
+        if ("MySQL".equals(databaseProductName)
+                || "Google SQL Service/MySQL".equals(databaseProductName)
+                || "MySQL/Google Cloud SQL".equals(databaseProductName)) {
             return new MySQLDbSupport(connection);
         }
         if ("Oracle".equals(databaseProductName)) {

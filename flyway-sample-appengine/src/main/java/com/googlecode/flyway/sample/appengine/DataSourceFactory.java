@@ -32,7 +32,7 @@ public class DataSourceFactory {
     public static DataSource createDataSource() {
         return new DriverDataSource(
                 new AppEngineDriver(),
-                "jdbc:google:rdbms://flyway-test-project:flyway-sample/flyway_cloudsql_db",
+                "jdbc:google:rdbms://flyway-test-project:flywaycloudsql/flyway_cloudsql_db",
                 null,
                 null);
     }
