@@ -197,4 +197,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setBaseDir("migration/dbsupport/oracle/sql/trigger");
         flyway.migrate();
     }
+
+    /**
+     * Tests support for clean together with Oracle Text indexes.
+     */
+    @Test
+    public void text() throws FlywayException {
+        flyway.setBaseDir("migration/dbsupport/oracle/sql/text");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
 }

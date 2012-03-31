@@ -131,7 +131,9 @@ public class OracleDbSupport extends DbSupport {
                 // Ignore Spatial Index Tables and Sequences as they get dropped automatically when the index gets dropped.
                 + " AND object_name NOT LIKE 'MDRT_%$' AND object_name NOT LIKE 'MDRS_%$'"
                 // Ignore Materialized View Logs
-                + " AND object_name NOT LIKE 'MLOG$%' AND object_name NOT LIKE 'RUPD$%'";
+                + " AND object_name NOT LIKE 'MLOG$%' AND object_name NOT LIKE 'RUPD$%'"
+                // Ignore Oracle Text Index Tables
+                + " AND object_name NOT LIKE 'DR$%'";
 
         List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, schema.toUpperCase());
         List<String> dropStatements = new ArrayList<String>();
