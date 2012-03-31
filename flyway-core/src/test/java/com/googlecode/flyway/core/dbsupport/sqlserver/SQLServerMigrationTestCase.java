@@ -83,6 +83,20 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for SQL Server Types.
+     */
+    @Test
+    public void type() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/type");
+        flyway.migrate();
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
      * Tests a large migration that has been reported to hang on SqlServer 2005.
      */
     @Ignore("Axel: Fails due to nested transaction being opened in script, causing outer transaction not to receive COMMIT statement")

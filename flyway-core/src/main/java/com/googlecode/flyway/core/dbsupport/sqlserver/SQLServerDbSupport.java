@@ -94,6 +94,7 @@ public class SQLServerDbSupport extends DbSupport {
         statements.addAll(cleanRoutines(schema));
         statements.addAll(cleanViews(schema));
         statements.addAll(cleanTables(schema));
+        statements.addAll(cleanTypes(schema));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int lineNumber = 1;
@@ -185,6 +186,27 @@ public class SQLServerDbSupport extends DbSupport {
         List<String> statements = new ArrayList<String>();
         for (String viewName : viewNames) {
             statements.add("DROP VIEW [" + schema + "].[" + viewName + "]");
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the types in this schema.
+     *
+     * @param schema The schema to generate the statements for.
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanTypes(String schema) throws SQLException {
+        List<String> typeNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
+                                " WHERE t.is_user_defined = 1 AND s.name = ?",
+                        schema);
+
+        List<String> statements = new ArrayList<String>();
+        for (String typeName : typeNames) {
+            statements.add("DROP TYPE [" + schema + "].[" + typeName + "]");
         }
         return statements;
     }
