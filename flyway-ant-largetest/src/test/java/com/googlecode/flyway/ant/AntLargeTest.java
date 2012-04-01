@@ -55,7 +55,7 @@ public class AntLargeTest {
      */
     @Test
     public void jars() throws Exception {
-        String stdOut = runAnt(0, "jars", "");
+        String stdOut = runAnt(0, "jars");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
         assertTrue(stdOut.contains("Populate table"));
     }
