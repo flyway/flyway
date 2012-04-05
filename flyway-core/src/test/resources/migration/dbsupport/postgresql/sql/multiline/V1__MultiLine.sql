@@ -22,3 +22,7 @@ CREATE TABLE address (
 INSERT INTO address VALUES (1, '1. first
 2. second');
 
+COMMENT ON COLUMN address.address IS 'ATIVO = 1;
+CONCLUIDO = 2;
+CANCELADO = 0;';
+
