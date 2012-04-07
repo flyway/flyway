@@ -21,7 +21,7 @@
     <scm>
         <url>http://code.google.com/p/flyway/source/browse/</url>
         <connection>scm:hg:https://flyway.googlecode.com/hg/</connection>
-        <developerConnection>dummy-unused</developerConnection>
+        <developerConnection>scm:hg:dummy-unused</developerConnection>
     </scm>
     <developers>
         <developer>
