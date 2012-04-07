@@ -326,6 +326,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <preparationGoals>clean install</preparationGoals>
+                    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
             <plugin>
