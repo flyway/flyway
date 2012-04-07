@@ -21,7 +21,7 @@
     <scm>
         <url>http://code.google.com/p/flyway/source/browse/</url>
         <connection>scm:hg:https://flyway.googlecode.com/hg/</connection>
-        <developerConnection>scm:hg:https://flyway.googlecode.com/hg/</developerConnection>
+        <developerConnection>dummy-unused</developerConnection>
     </scm>
     <developers>
         <developer>
@@ -327,6 +327,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <preparationGoals>clean install</preparationGoals>
+                    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
             <plugin>
