@@ -325,9 +325,11 @@
                 <version>2.2.2</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <localCheckout>true</localCheckout>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <preparationGoals>clean install</preparationGoals>
                     <pushChanges>false</pushChanges>
+                    <tagNameFormat>${project.groupId}-${project.version}</tagNameFormat>
                 </configuration>
             </plugin>
             <plugin>
