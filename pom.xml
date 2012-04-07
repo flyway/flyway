@@ -329,7 +329,7 @@
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <preparationGoals>clean install</preparationGoals>
                     <pushChanges>false</pushChanges>
-                    <tagNameFormat>flyway-${project.version}</tagNameFormat>
+                    <tagNameFormat>flyway-@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
             <plugin>
