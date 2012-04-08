@@ -21,7 +21,7 @@
     <scm>
         <url>http://code.google.com/p/flyway/source/browse/</url>
         <connection>scm:hg:https://flyway.googlecode.com/hg/</connection>
-        <developerConnection>scm:hg:dummy-unused</developerConnection>
+        <developerConnection>scm:hg:file://${flyway.releaserepo}</developerConnection>
     </scm>
     <developers>
         <developer>
@@ -325,10 +325,8 @@
                 <version>2.2.2</version>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <localCheckout>true</localCheckout>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <preparationGoals>clean install</preparationGoals>
-                    <pushChanges>false</pushChanges>
                     <tagNameFormat>flyway-@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
