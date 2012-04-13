@@ -27,6 +27,9 @@ import org.hamcrest.core.AnyOf;
 import org.hamcrest.core.DescribedAs;
 import org.junit.Test;
 
+import java.net.URLDecoder;
+import java.util.Set;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -176,5 +179,29 @@ public class ClassPathScannerSmallTest {
         assertEquals(AllOf.class, classes[0]);
         assertEquals(AnyOf.class, classes[1]);
         assertEquals(DescribedAs.class, classes[2]);
+    }
+
+    @Test
+    public void findResourceNamesFromFileSystem() throws Exception {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        String url = classLoader.getResources("migration/sql").nextElement().getFile();
+        String path = URLDecoder.decode(url, "UTF-8");
+
+        Set<String> resourceNames =
+                new ClassPathScanner().findResourceNamesFromFileSystem(path, path, "migration/sql");
+
+        assertEquals(4, resourceNames.size());
+    }
+
+    @Test
+    public void findResourceNamesFromFileSystemTrailingSlash() throws Exception {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        String url = classLoader.getResources("migration/sql").nextElement().getFile();
+        String path = URLDecoder.decode(url, "UTF-8") + "/";
+
+        Set<String> resourceNames =
+                new ClassPathScanner().findResourceNamesFromFileSystem(path, path, "migration/sql");
+
+        assertEquals(4, resourceNames.size());
     }
 }

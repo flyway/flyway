@@ -22,11 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -177,11 +173,13 @@ public class ClassPathScanner {
      * @return The resource names;
      * @throws IOException when the folder could not be read.
      */
-    private Set<String> findResourceNamesFromFileSystem(String folderName, String scanRoot, String scanRootLocation) throws IOException {
+    /*private -> for testing*/
+    Set<String> findResourceNamesFromFileSystem(String folderName, String scanRoot, String scanRootLocation) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
         File folder = new File(folderName);
         File[] files = folder.listFiles();
+        //noinspection ConstantConditions
         for (File file : files) {
             if (file.canRead()) {
                 String path = file.getCanonicalPath();
