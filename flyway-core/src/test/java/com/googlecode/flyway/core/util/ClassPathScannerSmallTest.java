@@ -78,6 +78,30 @@ public class ClassPathScannerSmallTest {
     }
 
     @Test
+    public void scanForResourcesTrailingSlash() throws Exception {
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration/sql/", "V", ".sql");
+
+        assertEquals(4, resources.length);
+
+        assertEquals("migration/sql/V1_1__View.sql", resources[0].getLocation());
+        assertEquals("migration/sql/V1_2__Populate_table.sql", resources[1].getLocation());
+        assertEquals("migration/sql/V1__First.sql", resources[2].getLocation());
+        assertEquals("migration/sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", resources[3].getLocation());
+    }
+
+    @Test
+    public void scanForResourcesLeadingAndTrailingSlash() throws Exception {
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("/migration/sql/", "V", ".sql");
+
+        assertEquals(4, resources.length);
+
+        assertEquals("migration/sql/V1_1__View.sql", resources[0].getLocation());
+        assertEquals("migration/sql/V1_2__Populate_table.sql", resources[1].getLocation());
+        assertEquals("migration/sql/V1__First.sql", resources[2].getLocation());
+        assertEquals("migration/sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", resources[3].getLocation());
+    }
+
+    @Test
     public void scanForResourcesSubDirectory() throws Exception {
         ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration/subdir", "V", ".sql");
 
@@ -86,6 +110,13 @@ public class ClassPathScannerSmallTest {
         assertEquals("migration/subdir/V1_1__Populate_table.sql", resources[0].getLocation());
         assertEquals("migration/subdir/dir1/V1__First.sql", resources[1].getLocation());
         assertEquals("migration/subdir/dir2/V2_0__Add_foreign_key.sql", resources[2].getLocation());
+    }
+
+    @Test
+    public void scanForResourcesSubDirectoryWithoutFullPath() throws Exception {
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("subdir", "V", ".sql");
+
+        assertEquals(0, resources.length);
     }
 
     @Test

@@ -417,4 +417,10 @@ public abstract class MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    @Test
+    public void subDir() {
+        flyway.setBaseDir("migration/subdir");
+        assertEquals(3, flyway.migrate());
+    }
 }
