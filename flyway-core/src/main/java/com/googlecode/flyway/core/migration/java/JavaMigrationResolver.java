@@ -18,7 +18,7 @@ package com.googlecode.flyway.core.migration.java;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
-import com.googlecode.flyway.core.util.ClassPathScanner;
+import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import com.googlecode.flyway.core.util.ClassUtils;
 
 import java.util.ArrayList;

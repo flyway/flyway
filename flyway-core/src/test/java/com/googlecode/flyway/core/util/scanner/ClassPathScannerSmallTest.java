@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util;
+package com.googlecode.flyway.core.util.scanner;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.db2.DB2MigrationMediumTest;
@@ -21,12 +21,15 @@ import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
 import com.googlecode.flyway.core.migration.java.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.migration.java.dummy.Version3dot5;
+import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.AllOf;
 import org.hamcrest.core.AnyOf;
 import org.hamcrest.core.DescribedAs;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.util.Set;
 
@@ -52,6 +55,15 @@ public class ClassPathScannerSmallTest {
     @Test
     public void scanForResourcesRoot() throws Exception {
         ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "CheckValidate", ".sql");
+
+        assertEquals(1, resources.length);
+
+        assertEquals("migration/validate/CheckValidate1__First.sql", resources[0].getLocation());
+    }
+
+    @Test
+    public void scanForResourcesSomewhereInSubDir() throws Exception {
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration", "CheckValidate", ".sql");
 
         assertEquals(1, resources.length);
 
@@ -179,29 +191,5 @@ public class ClassPathScannerSmallTest {
         assertEquals(AllOf.class, classes[0]);
         assertEquals(AnyOf.class, classes[1]);
         assertEquals(DescribedAs.class, classes[2]);
-    }
-
-    @Test
-    public void findResourceNamesFromFileSystem() throws Exception {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        String url = classLoader.getResources("migration/sql").nextElement().getFile();
-        String path = URLDecoder.decode(url, "UTF-8");
-
-        Set<String> resourceNames =
-                new ClassPathScanner().findResourceNamesFromFileSystem(path, path, "migration/sql");
-
-        assertEquals(4, resourceNames.size());
-    }
-
-    @Test
-    public void findResourceNamesFromFileSystemTrailingSlash() throws Exception {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        String url = classLoader.getResources("migration/sql").nextElement().getFile();
-        String path = URLDecoder.decode(url, "UTF-8") + "/";
-
-        Set<String> resourceNames =
-                new ClassPathScanner().findResourceNamesFromFileSystem(path, path, "migration/sql");
-
-        assertEquals(4, resourceNames.size());
     }
 }

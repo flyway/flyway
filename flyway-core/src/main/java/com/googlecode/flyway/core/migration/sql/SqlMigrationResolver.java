@@ -19,7 +19,7 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.ClassPathScanner;
+import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import com.googlecode.flyway.core.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

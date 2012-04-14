@@ -94,6 +94,9 @@ public class CommandLineLargeTest {
         }
         args.addAll(Arrays.asList(extraArgs));
 
+        //Debug mode
+        args.add("-X");
+
         ProcessBuilder builder = new ProcessBuilder(args);
         builder.directory(new File(installDir));
         builder.redirectErrorStream(true);

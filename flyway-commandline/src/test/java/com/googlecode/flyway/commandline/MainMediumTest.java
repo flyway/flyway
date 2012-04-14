@@ -16,7 +16,7 @@
 package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.ClassPathScanner;
+import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import com.googlecode.flyway.core.util.ClassUtils;
 import org.junit.After;
 import org.junit.Before;

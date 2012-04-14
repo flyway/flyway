@@ -50,6 +50,8 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
+        boolean debug = isDebug(args);
+
         try {
             printVersion();
 
@@ -86,18 +88,37 @@ public class Main {
                 printUsage();
             }
         } catch (Exception e) {
-            LOG.error(ClassUtils.getShortName(e.getClass()) + ": " + e.getMessage());
-            outputFirstStackTraceElement(e);
+            if (debug) {
+                LOG.error("Unexpected error", e);
+            } else {
+                LOG.error(ClassUtils.getShortName(e.getClass()) + ": " + e.getMessage());
+                outputFirstStackTraceElement(e);
 
-            @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if (rootCause != null) {
-                LOG.error("Caused by " + rootCause.toString());
-                outputFirstStackTraceElement(rootCause);
+                @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                if (rootCause != null) {
+                    LOG.error("Caused by " + rootCause.toString());
+                    outputFirstStackTraceElement(rootCause);
+                }
             }
-
             System.exit(1);
         }
+    }
+
+    /**
+     * Checks whether we are in debug mode or not.
+     *
+     * @param args The command-line arguments.
+     * @return {@code true} if we are in debug mode, {@code false} if not.
+     */
+    private static boolean isDebug(String[] args) {
+        for (String arg : args) {
+            if ("-X".equals(arg)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
