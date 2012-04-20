@@ -33,11 +33,11 @@ public class ClassPathScanner {
     /**
      * The registered location scanners.
      */
-    private static final List<LocationScanner> locationScanners = new ArrayList<LocationScanner>();
+    private static final List<LocationScanner> LOCATION_SCANNERS = new ArrayList<LocationScanner>();
 
     static {
-        locationScanners.add(new JarLocationScanner());
-        locationScanners.add(new FileSystemLocationScanner());
+        LOCATION_SCANNERS.add(new JarFileLocationScanner());
+        LOCATION_SCANNERS.add(new FileSystemLocationScanner());
     }
 
     /**
@@ -132,7 +132,7 @@ public class ClassPathScanner {
             }
 
             boolean accepted = false;
-            for (LocationScanner locationScanner : locationScanners) {
+            for (LocationScanner locationScanner : LOCATION_SCANNERS) {
                 if (locationScanner.acceptUrlProtocol(locationUrl.getProtocol())) {
                     accepted = true;
                     resourceNames.addAll(locationScanner.findResourceNames(normalizedLocation, scanRoot));
@@ -140,7 +140,7 @@ public class ClassPathScanner {
             }
 
             if (!accepted) {
-                LOG.warn("Unable to scan location: " + scanRoot + " (protocol: " + locationUrl.getProtocol() + ")");
+                LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + locationUrl.getProtocol() + ")");
             }
         }
 

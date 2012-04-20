@@ -25,7 +25,7 @@ import java.util.jar.JarFile;
 /**
  * LocationScanner for jar files.
  */
-public class JarLocationScanner implements LocationScanner {
+public class JarFileLocationScanner implements LocationScanner {
     public boolean acceptUrlProtocol(String protocol) {
         return "jar".equals(protocol);
     }
