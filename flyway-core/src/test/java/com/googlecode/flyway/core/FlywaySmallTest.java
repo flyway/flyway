@@ -15,11 +15,13 @@
  */
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -37,13 +39,17 @@ public class FlywaySmallTest {
         properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1");
         properties.setProperty("flyway.driver", "org.h2.Driver");
 
-        Flyway flyway = new Flyway();
+        final Flyway flyway = new Flyway();
         flyway.configure(properties);
 
-        flyway.performSetup();
-
         assertNotNull(flyway.getDataSource());
-        assertEquals("PUBLIC", flyway.getSchemas()[0]);
+
+        flyway.execute(new Flyway.Command<Void>() {
+            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
+                assertEquals("PUBLIC", flyway.getSchemas()[0]);
+                return null;
+            }
+        });
     }
 
     @Test
