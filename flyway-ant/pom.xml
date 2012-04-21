@@ -57,6 +57,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <attach>false</attach>
                             <descriptorSourceDirectory>src/main/assembly</descriptorSourceDirectory>
                         </configuration>
                     </execution>
