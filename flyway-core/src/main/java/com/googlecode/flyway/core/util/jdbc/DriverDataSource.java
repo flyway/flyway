@@ -15,14 +15,12 @@
  */
 package com.googlecode.flyway.core.util.jdbc;
 
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.util.ClassUtils;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Properties;
 
 /**
@@ -68,12 +66,12 @@ public class DriverDataSource implements DataSource {
      * @param url The JDBC URL to use for connecting through the Driver.
      * @param user The JDBC user to use for connecting through the Driver.
      * @param password The JDBC password to use for connecting through the Driver.
+     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     *
+     * @throws FlywayException when the datasource could not be created.
      */
-    public DriverDataSource(Driver driver, String url, String user, String password) {
-        this.driver = driver;
-        this.url = url;
-        this.user = user;
-        this.password = password;
+    public DriverDataSource(Driver driver, String url, String user, String password, String... initSqls) throws FlywayException {
+        configure(driver, url, user, password, initSqls);
     }
 
     /**
@@ -83,30 +81,42 @@ public class DriverDataSource implements DataSource {
      * @param url The JDBC URL to use for connecting through the Driver.
      * @param user The JDBC user to use for connecting through the Driver.
      * @param password The JDBC password to use for connecting through the Driver.
+     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      *
-     * @throws Exception when the driver class can not be instantiated.
+     * @throws FlywayException when the datasource could not be created.
      */
-    public DriverDataSource(String driverClass, String url, String user, String password) throws Exception {
-        this.driver = ClassUtils.instantiate(driverClass);
+    public DriverDataSource(String driverClass, String url, String user, String password, String... initSqls) throws FlywayException {
+        Driver driver;
+        try {
+            driver = ClassUtils.instantiate(driverClass);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to instantiate jdbc driver: " +  driverClass);
+        }
+        configure(driver, url, user, password, initSqls);
+    }
+
+    /**
+     * Configures this DriverDataSource.
+     *
+     * @param driver The JDBC Driver instance to use.
+     * @param url The JDBC URL to use for connecting through the Driver.
+     * @param user The JDBC user to use for connecting through the Driver.
+     * @param password The JDBC password to use for connecting through the Driver.
+     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     *
+     * @throws FlywayException when the datasource could not be configured.
+     */
+    private void configure(Driver driver, String url, String user, String password, String... initSqls) throws FlywayException {
+        this.driver = driver;
+
+        if (!url.toLowerCase().startsWith("jdbc:")) {
+            throw new FlywayException("Invalid jdbc url (should start with jdbc:) : " + url);
+        }
         this.url = url;
+
         this.user = user;
         this.password = password;
-    }
-
-    /**
-     * @param driver The JDBC Driver instance to use.
-     */
-    public void setDriver(Driver driver) {
-        this.driver = driver;
-    }
-
-    /**
-     * @param driverClass The class of the JDBC Driver to use.
-     *
-     * @throws Exception when the driver class can not be instantiated.
-     */
-    public void setDriverClass(String driverClass) throws Exception{
-        this.driver = ClassUtils.instantiate(driverClass);
+        this.initSqls = initSqls;
     }
 
     /**
@@ -117,13 +127,6 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @param url The JDBC URL to use for connecting through the Driver.
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    /**
      * @return the JDBC URL to use for connecting through the Driver.
      */
     public String getUrl() {
@@ -131,24 +134,10 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @param user The JDBC user to use for connecting through the Driver.
-     */
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    /**
      * @return the JDBC user to use for connecting through the Driver.
      */
     public String getUser() {
         return this.user;
-    }
-
-    /**
-     * @param password the JDBC password to use for connecting through the Driver.
-     */
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     /**
@@ -166,19 +155,10 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     */
-    public void setInitSqls(String... initSqls) {
-        this.initSqls = initSqls;
-    }
-
-    /**
      * This implementation delegates to {@code getConnectionFromDriver},
      * using the default user and password of this DataSource.
      *
      * @see #getConnectionFromDriver(String, String)
-     * @see #setUser
-     * @see #setPassword
      */
     public Connection getConnection() throws SQLException {
         return getConnectionFromDriver(getUser(), getPassword());
@@ -215,10 +195,14 @@ public class DriverDataSource implements DataSource {
         }
         Connection connection = driver.connect(url, props);
 
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection) {
+            @Override
+            protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
+                //Not implemented
+            }
+        };
         for (String initSql : initSqls) {
-            Statement statement = connection.createStatement();
-            statement.execute(initSql);
-            statement.close();
+            jdbcTemplate.executeStatement(initSql);
         }
 
         return connection;

@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import com.googlecode.flyway.core.util.StringUtils;
+import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,15 +57,19 @@ public class H2DbSupport extends DbSupport {
     }
 
     public String getCurrentSchema() throws SQLException {
-        ResultSet resultSet = jdbcTemplate.getMetaData().getSchemas();
+        ResultSet resultSet = null;
         String schema = null;
-        while (resultSet.next()) {
-            if (resultSet.getBoolean("IS_DEFAULT")) {
-                schema = resultSet.getString("TABLE_SCHEM");
-                break;
+        try {
+            resultSet = jdbcTemplate.getMetaData().getSchemas();
+            while (resultSet.next()) {
+                if (resultSet.getBoolean("IS_DEFAULT")) {
+                    schema = resultSet.getString("TABLE_SCHEM");
+                    break;
+                }
             }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
         }
-        resultSet.close();
 
         return schema;
     }

@@ -21,18 +21,20 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Utility class for dealing with jdbc connections.
  */
-public class ConnectionUtils {
-    private static final Log LOG = LogFactory.getLog(ConnectionUtils.class);
+public class JdbcUtils {
+    private static final Log LOG = LogFactory.getLog(JdbcUtils.class);
 
     /**
      * Prevents instantiation.
      */
-    private ConnectionUtils() {
+    private JdbcUtils() {
         //Do nothing
     }
 
@@ -69,6 +71,40 @@ public class ConnectionUtils {
             connection.close();
         } catch (SQLException e) {
             LOG.error("Error while closing Jdbc connection", e);
+        }
+    }
+
+    /**
+     * Safely closes this statement. This method never fails.
+     *
+     * @param statement The statement to close.
+     */
+    public static void closeStatement(Statement statement) {
+        if (statement == null) {
+            return;
+        }
+
+        try {
+            statement.close();
+        } catch (SQLException e) {
+            LOG.error("Error while closing Jdbc statement", e);
+        }
+    }
+
+    /**
+     * Safely closes this resultSet. This method never fails.
+     *
+     * @param resultSet The resultSet to close.
+     */
+    public static void closeResultSet(ResultSet resultSet) {
+        if (resultSet == null) {
+            return;
+        }
+
+        try {
+            resultSet.close();
+        } catch (SQLException e) {
+            LOG.error("Error while closing Jdbc resultSet", e);
         }
     }
 }

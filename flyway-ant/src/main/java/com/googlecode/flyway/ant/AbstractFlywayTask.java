@@ -16,7 +16,6 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -29,7 +28,6 @@ import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 
 import javax.sql.DataSource;
-import java.sql.Driver;
 
 /**
  * Base class for all Flyway Ant tasks.
@@ -156,22 +154,15 @@ public abstract class AbstractFlywayTask extends Task {
      * @throws Exception Thrown when the datasource could not be created.
      */
     /* private -> for testing */ DataSource createDataSource() throws Exception {
-        DriverDataSource dataSource = new DriverDataSource();
-
         String driverValue = useValueIfPropertyNotSet(driver, "driver");
-        dataSource.setDriver(ClassUtils.<Driver>instantiate(driverValue));
-
-        dataSource.setUrl(useValueIfPropertyNotSet(url, "url"));
-
-        dataSource.setUser(useValueIfPropertyNotSet(user, "user"));
-
+        String urlValue = useValueIfPropertyNotSet(url, "url");
+        String userValue = useValueIfPropertyNotSet(user, "user");
         String passwordValue = useValueIfPropertyNotSet(password, "password");
         if (passwordValue == null) {
             passwordValue = "";
         }
-        dataSource.setPassword(passwordValue);
 
-        return dataSource;
+        return new DriverDataSource(driverValue, urlValue, userValue, passwordValue);
     }
 
     /**

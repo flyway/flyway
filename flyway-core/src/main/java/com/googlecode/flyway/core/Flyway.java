@@ -26,10 +26,9 @@ import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationProvider;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.jdbc.ConnectionUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
@@ -41,7 +40,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -592,8 +590,8 @@ public class Flyway {
      * Performs the actual validation. All set up must have taken place beforehand.
      *
      * @param connectionMetaDataTable The database connection for the metadata table changes.
-     * @param connectionUserObjects The database connection for user object changes.
-     * @param dbSupport The database-specific support for these connections.
+     * @param connectionUserObjects   The database connection for user object changes.
+     * @param dbSupport               The database-specific support for these connections.
      */
     private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
         MigrationProvider migrationProvider =
@@ -642,9 +640,9 @@ public class Flyway {
 
     /**
      * Cleans the configured schemas.
-
+     *
      * @param connectionUserObjects The database connection for user object changes.
-     * @param dbSupport The database-specific support for these connections.
+     * @param dbSupport             The database-specific support for these connections.
      */
     private void doClean(Connection connectionUserObjects, DbSupport dbSupport) {
         new DbCleaner(new TransactionTemplate(connectionUserObjects),
@@ -717,14 +715,7 @@ public class Flyway {
         if (StringUtils.hasText(driverProp) && StringUtils.hasText(urlProp) && StringUtils.hasText(userProp)
                 && (passwordProp != null)) {
             // All datasource properties set
-            Driver driver;
-            try {
-                driver = ClassUtils.instantiate(driverProp);
-            } catch (Exception e) {
-                throw new FlywayException("Error instantiating database driver: " + driverProp, e);
-            }
-
-            setDataSource(new DriverDataSource(driver, urlProp, userProp, passwordProp));
+            setDataSource(new DriverDataSource(driverProp, urlProp, userProp, passwordProp));
         } else if (StringUtils.hasText(driverProp) || StringUtils.hasText(urlProp) || StringUtils.hasText(userProp)
                 || (passwordProp != null)) {
             // Some, but not all datasource properties set
@@ -825,8 +816,8 @@ public class Flyway {
                 throw new FlywayException("DataSource not set! Check your configuration!");
             }
 
-            connectionMetaDataTable = ConnectionUtils.openConnection(dataSource);
-            connectionUserObjects = ConnectionUtils.openConnection(dataSource);
+            connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
+            connectionUserObjects = JdbcUtils.openConnection(dataSource);
 
             DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable);
             if (schemas.length == 0) {
@@ -845,8 +836,8 @@ public class Flyway {
 
             result = command.execute(connectionMetaDataTable, connectionUserObjects, dbSupport);
         } finally {
-            ConnectionUtils.closeConnection(connectionUserObjects);
-            ConnectionUtils.closeConnection(connectionMetaDataTable);
+            JdbcUtils.closeConnection(connectionUserObjects);
+            JdbcUtils.closeConnection(connectionMetaDataTable);
         }
         return result;
     }
@@ -861,9 +852,8 @@ public class Flyway {
          * Execute the operation.
          *
          * @param connectionMetaDataTable The database connection for the metadata table changes.
-         * @param connectionUserObjects The database connection for user object changes.
-         * @param dbSupport The database-specific support for these connections.
-         *
+         * @param connectionUserObjects   The database connection for user object changes.
+         * @param dbSupport               The database-specific support for these connections.
          * @return The result of the operation.
          */
         T execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport);

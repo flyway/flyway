@@ -36,17 +36,11 @@ import static org.junit.Assert.*;
 public class FlywayMediumTest {
     @Test
     public void multipleSetDataSourceCalls() throws Exception {
-        DriverDataSource dataSource1 = new DriverDataSource();
-        dataSource1.setDriver(new Driver());
-        dataSource1.setUrl("jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1");
-        dataSource1.setUser("sa");
-        dataSource1.setPassword("");
+        DriverDataSource dataSource1 =
+                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1", "sa", "");
 
-        DriverDataSource dataSource2 = new DriverDataSource();
-        dataSource2.setDriver(new Driver());
-        dataSource2.setUrl("jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1");
-        dataSource2.setUser("sa");
-        dataSource2.setPassword("");
+        DriverDataSource dataSource2 =
+                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1", "sa", "");
 
         Connection connection1 = dataSource1.getConnection();
         Connection connection2 = dataSource2.getConnection();
@@ -131,12 +125,7 @@ public class FlywayMediumTest {
      * @return A new OpenConnectionCountDriverDataSource for the tests.
      */
     private OpenConnectionCountDriverDataSource createDataSource() {
-        OpenConnectionCountDriverDataSource dataSource = new OpenConnectionCountDriverDataSource();
-        dataSource.setDriver(new Driver());
-        dataSource.setUrl("jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1");
-        dataSource.setUser("sa");
-        dataSource.setPassword("");
-        return dataSource;
+        return new OpenConnectionCountDriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
     }
 
     private static class OpenConnectionCountDriverDataSource extends DriverDataSource {
@@ -144,6 +133,10 @@ public class FlywayMediumTest {
          * The number of connections currently open.
          */
         private int openConnectionCount = 0;
+
+        public OpenConnectionCountDriverDataSource(Driver driver, String url, String user, String password) throws FlywayException {
+            super(driver, url, user, password);
+        }
 
         /**
          * @return The number of connections currently open.

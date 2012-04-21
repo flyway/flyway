@@ -55,23 +55,30 @@ public abstract class JdbcTemplate {
      * @throws SQLException when the query execution failed.
      */
     public List<Map<String, String>> queryForList(String query, String... params) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(query);
-        for (int i = 0; i < params.length; i++) {
-            statement.setString(i + 1, params[i]);
-        }
-        ResultSet resultSet = statement.executeQuery();
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
 
-        List<Map<String, String>> result = new ArrayList<Map<String, String>>();
-        while (resultSet.next()) {
-            Map<String, String> rowMap = new HashMap<String, String>();
-            for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
-                rowMap.put(resultSet.getMetaData().getColumnLabel(i), resultSet.getString(i));
+        List<Map<String, String>> result;
+        try {
+            statement = connection.prepareStatement(query);
+            for (int i = 0; i < params.length; i++) {
+                statement.setString(i + 1, params[i]);
             }
-            result.add(rowMap);
+            resultSet = statement.executeQuery();
+
+            result = new ArrayList<Map<String, String>>();
+            while (resultSet.next()) {
+                Map<String, String> rowMap = new HashMap<String, String>();
+                for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
+                    rowMap.put(resultSet.getMetaData().getColumnLabel(i), resultSet.getString(i));
+                }
+                result.add(rowMap);
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
         }
 
-        resultSet.close();
-        statement.close();
 
         return result;
     }
@@ -85,19 +92,25 @@ public abstract class JdbcTemplate {
      * @throws SQLException when the query execution failed.
      */
     public List<String> queryForStringList(String query, String... params) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(query);
-        for (int i = 0; i < params.length; i++) {
-            statement.setString(i + 1, params[i]);
-        }
-        ResultSet resultSet = statement.executeQuery();
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
 
-        List<String> result = new ArrayList<String>();
-        while (resultSet.next()) {
-            result.add(resultSet.getString(1));
-        }
+        List<String> result;
+        try {
+            statement = connection.prepareStatement(query);
+            for (int i = 0; i < params.length; i++) {
+                statement.setString(i + 1, params[i]);
+            }
+            resultSet = statement.executeQuery();
 
-        resultSet.close();
-        statement.close();
+            result = new ArrayList<String>();
+            while (resultSet.next()) {
+                result.add(resultSet.getString(1));
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
+        }
 
         return result;
     }
@@ -111,16 +124,22 @@ public abstract class JdbcTemplate {
      * @throws SQLException when the query execution failed.
      */
     public int queryForInt(String query, String... params) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(query);
-        for (int i = 0; i < params.length; i++) {
-            statement.setString(i + 1, params[i]);
-        }
-        ResultSet resultSet = statement.executeQuery();
-        resultSet.next();
-        int result = resultSet.getInt(1);
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
 
-        resultSet.close();
-        statement.close();
+        int result;
+        try {
+            statement = connection.prepareStatement(query);
+            for (int i = 0; i < params.length; i++) {
+                statement.setString(i + 1, params[i]);
+            }
+            resultSet = statement.executeQuery();
+            resultSet.next();
+            result = resultSet.getInt(1);
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
+        }
 
         return result;
     }
@@ -134,18 +153,24 @@ public abstract class JdbcTemplate {
      * @throws SQLException when the query execution failed.
      */
     public String queryForString(String query, String... params) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(query);
-        for (int i = 0; i < params.length; i++) {
-            statement.setString(i + 1, params[i]);
-        }
-        ResultSet resultSet = statement.executeQuery();
-        String result = null;
-        if (resultSet.next()) {
-            result = resultSet.getString(1);
-        }
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
 
-        resultSet.close();
-        statement.close();
+        String result;
+        try {
+            statement = connection.prepareStatement(query);
+            for (int i = 0; i < params.length; i++) {
+                statement.setString(i + 1, params[i]);
+            }
+            resultSet = statement.executeQuery();
+            result = null;
+            if (resultSet.next()) {
+                result = resultSet.getString(1);
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
+        }
 
         return result;
     }
@@ -176,36 +201,49 @@ public abstract class JdbcTemplate {
             types = null;
         }
 
-        ResultSet resultSet = connection.getMetaData().getTables(catalog, schema, table, types);
-        boolean found = resultSet.next();
-        resultSet.close();
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            resultSet = connection.getMetaData().getTables(catalog, schema, table, types);
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
 
         return found;
     }
 
     /**
-     * Executes this sql statement.
+     * Executes this sql statement using a PreparedStatement.
      *
      * @param sql    The statement to execute.
      * @param params The statement parameters.
      * @throws SQLException when the execution failed.
      */
     public void execute(String sql, Object... params) throws SQLException {
-        PreparedStatement statement = prepareStatement(sql, params);
-        statement.execute();
-        statement.close();
+        PreparedStatement statement = null;
+        try {
+            statement = prepareStatement(sql, params);
+            statement.execute();
+        } finally {
+            JdbcUtils.closeStatement(statement);
+        }
     }
 
     /**
-     * Executes this sql statement.
+     * Executes this sql statement using an ordinary Statement.
      *
      * @param sql    The statement to execute.
      * @throws SQLException when the execution failed.
      */
     public void executeStatement(String sql) throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.execute(sql);
-        statement.close();
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            statement.execute(sql);
+        } finally {
+            JdbcUtils.closeStatement(statement);
+        }
     }
 
     /**
@@ -216,9 +254,13 @@ public abstract class JdbcTemplate {
      * @throws SQLException when the execution failed.
      */
     public void update(String sql, Object... params) throws SQLException {
-        PreparedStatement statement = prepareStatement(sql, params);
-        statement.executeUpdate();
-        statement.close();
+        PreparedStatement statement = null;
+        try {
+            statement = prepareStatement(sql, params);
+            statement.executeUpdate();
+        } finally {
+            JdbcUtils.closeStatement(statement);
+        }
     }
 
     /**
@@ -262,16 +304,22 @@ public abstract class JdbcTemplate {
      * @throws SQLException when the query failed to execute.
      */
     public <T> List<T> query(String query, RowMapper<T> rowMapper) throws SQLException {
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(query);
+        Statement statement = null;
+        ResultSet resultSet = null;
 
-        List<T> results = new ArrayList<T>();
-        while (resultSet.next()) {
-            results.add(rowMapper.mapRow(resultSet));
+        List<T> results;
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(query);
+
+            results = new ArrayList<T>();
+            while (resultSet.next()) {
+                results.add(rowMapper.mapRow(resultSet));
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+            JdbcUtils.closeStatement(statement);
         }
-
-        resultSet.close();
-        statement.close();
 
         return results;
     }

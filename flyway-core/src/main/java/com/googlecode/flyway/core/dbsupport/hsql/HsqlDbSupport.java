@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,15 +57,20 @@ public class HsqlDbSupport extends DbSupport {
     }
 
     public String getCurrentSchema() throws SQLException {
-        ResultSet resultSet = jdbcTemplate.getMetaData().getSchemas();
+        ResultSet resultSet = null;
         String schema = null;
-        while (resultSet.next()) {
-            if (resultSet.getBoolean("IS_DEFAULT")) {
-                schema = resultSet.getString("TABLE_SCHEM");
-                break;
+
+        try {
+            resultSet = jdbcTemplate.getMetaData().getSchemas();
+            while (resultSet.next()) {
+                if (resultSet.getBoolean("IS_DEFAULT")) {
+                    schema = resultSet.getString("TABLE_SCHEM");
+                    break;
+                }
             }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
         }
-        resultSet.close();
 
         return schema;
     }
@@ -120,11 +126,15 @@ public class HsqlDbSupport extends DbSupport {
     private List<String> generateDropStatementsForTables(final String schema) throws SQLException {
         final List<String> statements = new ArrayList<String>();
 
-        ResultSet resultSet = jdbcTemplate.getMetaData().getTables(null, schema, null, new String[]{"TABLE"});
-        while (resultSet.next()) {
-            statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
+        ResultSet resultSet = null;
+        try {
+            resultSet = jdbcTemplate.getMetaData().getTables(null, schema, null, new String[]{"TABLE"});
+            while (resultSet.next()) {
+                statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
+            }
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
         }
-        resultSet.close();
 
         return statements;
     }

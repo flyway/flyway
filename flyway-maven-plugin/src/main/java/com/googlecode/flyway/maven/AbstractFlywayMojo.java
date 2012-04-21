@@ -17,7 +17,6 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -31,7 +30,6 @@ import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 
 import javax.sql.DataSource;
-import java.sql.Driver;
 
 /**
  * Common base class for all mojos with all common attributes.<br>
@@ -140,12 +138,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @throws Exception Thrown when the datasource could not be created.
      */
     /* private -> for testing */ DataSource createDataSource() throws Exception {
-        DriverDataSource dataSource = new DriverDataSource();
-        dataSource.setDriver(ClassUtils.<Driver>instantiate(driver));
-        dataSource.setUrl(url);
-        dataSource.setUser(user);
-        dataSource.setPassword(password);
-        return dataSource;
+        return new DriverDataSource(driver, url, user, password);
     }
 
     public final void execute() throws MojoExecutionException, MojoFailureException {

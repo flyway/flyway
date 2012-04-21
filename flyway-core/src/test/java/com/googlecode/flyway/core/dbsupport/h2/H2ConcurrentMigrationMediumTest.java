@@ -32,8 +32,6 @@ public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase
         String password = customProperties.getProperty("h2.password", "");
         String url = customProperties.getProperty("h2.url", "jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1");
 
-        DriverDataSource dataSource = new DriverDataSource(new Driver(), url, user, password);
-        dataSource.setInitSqls("SET LOCK_TIMEOUT 100000");
-        return dataSource;
+        return new DriverDataSource(new Driver(), url, user, password, "SET LOCK_TIMEOUT 100000");
     }
 }
