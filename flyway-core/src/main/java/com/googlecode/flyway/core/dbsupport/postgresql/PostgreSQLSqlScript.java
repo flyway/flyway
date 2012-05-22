@@ -19,10 +19,16 @@ import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.StringUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * SqlScript supporting PostgreSQL routine definitions.
  */
 public class PostgreSQLSqlScript extends SqlScript {
+
+    public static final Pattern DOLLAR_QUOTE_PATTERN = Pattern.compile(".*? AS (\\$[A-Z0-9_]*\\$).*");
+
     /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
@@ -40,8 +46,10 @@ public class PostgreSQLSqlScript extends SqlScript {
         String upperCaseStatement = statement.toUpperCase();
 
         if (upperCaseStatement.startsWith("CREATE") && upperCaseStatement.contains("FUNCTION")) {
-            if (upperCaseStatement.matches(".* AS \\$[A-Z0-9_]*\\$.*")) {
-                if (upperCaseStatement.matches(".* AS \\$[A-Z0-9_]*\\$.*\\$[A-Z0-9_]*\\$.*")) {
+            Matcher matcher = DOLLAR_QUOTE_PATTERN.matcher(upperCaseStatement);
+            if (matcher.matches()) {
+                String dollarTagName = Pattern.quote(matcher.group(1));
+                if (upperCaseStatement.matches(".*(" + dollarTagName + ").*\\1.*")) {
                     return ";";
                 } else {
                     return null;
