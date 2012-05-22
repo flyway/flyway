@@ -43,4 +43,28 @@ public class PostgreSQLSqlScriptSmallTest {
         assertEquals(1, script.getSqlStatements().size());
         assertEquals(sqlScriptSource, script.getSqlStatements().get(0).getSql());
     }
+
+    @Test
+    public void multilineDollarNestedQuotes() {
+        final String sqlScriptSource =
+                "CREATE OR REPLACE FUNCTION upperFunc()\n" +
+                "RETURNS void AS $$\n" +
+                "DECLARE\n" +
+                "var varchar = 'abc';\n" +
+                "BEGIN\n" +
+                "raise info 'upperFunc';\n" +
+                "CREATE OR REPLACE FUNCTION internalFunc()\n" +
+                "RETURNS void AS $BODY$\n" +
+                "DECLARE\n" +
+                "var varchar1 = 'abc';\n" +
+                "BEGIN\n" +
+                "raise info 'internalFunc'\n" +
+                "END;\n" +
+                "$BODY$ LANGUAGE plpgsql;\n" +
+                "END;\n" +
+                "$$ LANGUAGE plpgsql";
+        final PostgreSQLSqlScript script = new PostgreSQLSqlScript(sqlScriptSource, PlaceholderReplacer.NO_PLACEHOLDERS);
+        assertEquals(1, script.getSqlStatements().size());
+        assertEquals(sqlScriptSource, script.getSqlStatements().get(0).getSql());
+    }
 }
