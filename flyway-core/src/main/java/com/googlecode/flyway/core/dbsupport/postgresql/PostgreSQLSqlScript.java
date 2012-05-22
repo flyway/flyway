@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * SqlScript supporting PostgreSQL routine definitions.
+ * SqlScript supporting PostgreSQL specific syntax.
  */
 public class PostgreSQLSqlScript extends SqlScript {
     /**
