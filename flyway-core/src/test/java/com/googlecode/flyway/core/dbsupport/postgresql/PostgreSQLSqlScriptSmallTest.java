@@ -54,13 +54,13 @@ public class PostgreSQLSqlScriptSmallTest {
                 "BEGIN\n" +
                 "raise info 'upperFunc';\n" +
                 "CREATE OR REPLACE FUNCTION internalFunc()\n" +
-                "RETURNS void AS $body$\n" +
+                "RETURNS void AS $BODY$\n" +
                 "DECLARE\n" +
                 "var varchar1 = 'abc';\n" +
                 "BEGIN\n" +
                 "raise info 'internalFunc'\n" +
                 "END;\n" +
-                "$body$ LANGUAGE plpgsql;\n" +
+                "$BODY$ LANGUAGE plpgsql;\n" +
                 "END;\n" +
                 "$$ LANGUAGE plpgsql";
         final PostgreSQLSqlScript script = new PostgreSQLSqlScript(sqlScriptSource, PlaceholderReplacer.NO_PLACEHOLDERS);
