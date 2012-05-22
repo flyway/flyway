@@ -160,7 +160,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     public void dollarQuote() throws Exception {
         flyway.setBaseDir("migration/dbsupport/postgresql/sql/dollar");
         flyway.migrate();
-        assertEquals(8, jdbcTemplate.queryForInt("select count(*) from dollar"));
+        assertEquals(9, jdbcTemplate.queryForInt("select count(*) from dollar"));
     }
 
     /**

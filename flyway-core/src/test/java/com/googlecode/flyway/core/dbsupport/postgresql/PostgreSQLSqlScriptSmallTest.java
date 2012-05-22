@@ -18,9 +18,7 @@ package com.googlecode.flyway.core.dbsupport.postgresql;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test for PostgreSQLSqlScript.
@@ -45,26 +43,52 @@ public class PostgreSQLSqlScriptSmallTest {
     }
 
     @Test
-    public void multilineDollarNestedQuotes() {
+    public void multilineDollar() {
         final String sqlScriptSource =
-                "CREATE OR REPLACE FUNCTION upperFunc()\n" +
-                "RETURNS void AS $$\n" +
-                "DECLARE\n" +
-                "var varchar = 'abc';\n" +
-                "BEGIN\n" +
-                "raise info 'upperFunc';\n" +
-                "CREATE OR REPLACE FUNCTION internalFunc()\n" +
-                "RETURNS void AS $BODY$\n" +
-                "DECLARE\n" +
-                "var varchar1 = 'abc';\n" +
-                "BEGIN\n" +
-                "raise info 'internalFunc'\n" +
-                "END;\n" +
-                "$BODY$ LANGUAGE plpgsql;\n" +
-                "END;\n" +
-                "$$ LANGUAGE plpgsql";
+                "INSERT INTO dollar VALUES($$Hello\n" +
+                        "multi-line\n" +
+                        "quotes;\n" +
+                        "$$)";
         final PostgreSQLSqlScript script = new PostgreSQLSqlScript(sqlScriptSource, PlaceholderReplacer.NO_PLACEHOLDERS);
         assertEquals(1, script.getSqlStatements().size());
         assertEquals(sqlScriptSource, script.getSqlStatements().get(0).getSql());
+    }
+
+    @Test
+    public void multilineDollarNestedQuotes() {
+        final String sqlScriptSource =
+                "CREATE OR REPLACE FUNCTION upperFunc()\n" +
+                        "RETURNS void AS $$\n" +
+                        "DECLARE\n" +
+                        "var varchar = 'abc';\n" +
+                        "BEGIN\n" +
+                        "raise info 'upperFunc';\n" +
+                        "CREATE OR REPLACE FUNCTION internalFunc()\n" +
+                        "RETURNS void AS $BODY$\n" +
+                        "DECLARE\n" +
+                        "var varchar1 = 'abc';\n" +
+                        "BEGIN\n" +
+                        "raise info 'internalFunc'\n" +
+                        "END;\n" +
+                        "$BODY$ LANGUAGE plpgsql;\n" +
+                        "END;\n" +
+                        "$$ LANGUAGE plpgsql";
+        final PostgreSQLSqlScript script = new PostgreSQLSqlScript(sqlScriptSource, PlaceholderReplacer.NO_PLACEHOLDERS);
+        assertEquals(1, script.getSqlStatements().size());
+        assertEquals(sqlScriptSource, script.getSqlStatements().get(0).getSql());
+    }
+
+    @Test
+    public void dollarQuoteRegex() {
+        assertFalse("abc".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertFalse("abc$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertFalse("$abc".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertTrue("$$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abc$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertTrue("$ABC$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertTrue("$aBcDeF$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertTrue("$aBc_DeF$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abcDEF123$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abcDEF123$xxx".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
     }
 }
