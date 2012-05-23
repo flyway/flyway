@@ -23,14 +23,6 @@ import java.util.Set;
  */
 public interface LocationScanner {
     /**
-     * Checks whether this location scanner can deal with this URL protocol.
-     *
-     * @param protocol The protocol to check.
-     * @return {@code true} if it can, {@code false} if it can't.
-     */
-    boolean acceptUrlProtocol(String protocol);
-
-    /**
      * Finds the resource names below this location on the classpath under this locationUrl.
      *
      * @param location    The system-independent location on the classpath.

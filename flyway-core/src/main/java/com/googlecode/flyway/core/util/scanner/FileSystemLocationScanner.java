@@ -30,10 +30,6 @@ import java.util.TreeSet;
 public class FileSystemLocationScanner implements LocationScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemLocationScanner.class);
 
-    public boolean acceptUrlProtocol(String protocol) {
-        return "file".equals(protocol);
-    }
-
     public Set<String> findResourceNames(String location, String locationUrl) throws IOException {
         String classPathRootOnDisk = locationUrl.substring(0, locationUrl.length() - location.length());
         if (!classPathRootOnDisk.endsWith("/")) {

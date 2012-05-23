@@ -26,12 +26,21 @@ import java.util.jar.JarFile;
  * LocationScanner for jar files.
  */
 public class JarFileLocationScanner implements LocationScanner {
-    public boolean acceptUrlProtocol(String protocol) {
-        return "jar".equals(protocol);
+    /**
+     * The protocol used in the resource URL. Could be jar or zip when used from WebLogic.
+     */
+    private final String protocol;
+
+    /**
+     * Creates a new JarFileLocationScanner.
+     * @param protocol The protocol used in the resource URL. Could be jar or zip when used from WebLogic.
+     */
+    public JarFileLocationScanner(String protocol) {
+        this.protocol = protocol;
     }
 
     public Set<String> findResourceNames(String location, String locationUrl) throws IOException {
-        String jarFileName = locationUrl.substring(("jar:".length() + 1), locationUrl.indexOf("!"));
+        String jarFileName = locationUrl.substring(((protocol + ":").length() + 1), locationUrl.indexOf("!"));
         return findResourceNamesFromJarFile(jarFileName, location);
     }
 

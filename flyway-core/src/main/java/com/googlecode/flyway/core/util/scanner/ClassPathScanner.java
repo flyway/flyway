@@ -31,16 +31,6 @@ public class ClassPathScanner {
     private static final Log LOG = LogFactory.getLog(ClassPathScanner.class);
 
     /**
-     * The registered location scanners.
-     */
-    private static final List<LocationScanner> LOCATION_SCANNERS = new ArrayList<LocationScanner>();
-
-    static {
-        LOCATION_SCANNERS.add(new JarFileLocationScanner());
-        LOCATION_SCANNERS.add(new FileSystemLocationScanner());
-    }
-
-    /**
      * Scans the classpath for resources under the specified location, starting with the specified prefix and ending with
      * the specified suffix.
      *
@@ -131,20 +121,33 @@ public class ClassPathScanner {
                 scanRoot = scanRoot.substring(0, scanRoot.length() - 1);
             }
 
-            boolean accepted = false;
-            for (LocationScanner locationScanner : LOCATION_SCANNERS) {
-                if (locationScanner.acceptUrlProtocol(locationUrl.getProtocol())) {
-                    accepted = true;
-                    resourceNames.addAll(locationScanner.findResourceNames(normalizedLocation, scanRoot));
-                }
+            String protocol = locationUrl.getProtocol();
+            LocationScanner locationScanner = createLocationScanner(protocol);
+            if (locationScanner == null) {
+                LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
+            } else {
+                resourceNames.addAll(locationScanner.findResourceNames(normalizedLocation, scanRoot));
             }
 
-            if (!accepted) {
-                LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + locationUrl.getProtocol() + ")");
-            }
         }
 
         return filterResourceNames(resourceNames, prefix, suffix);
+    }
+
+    /**
+     * Creates an appropriate location scanner for this url protocol.
+     *
+     * @param protocol The protocol of the location url to scan.
+     * @return The location scanner or {@code null} if it could not be created.
+     */
+    private LocationScanner createLocationScanner(String protocol) {
+        if ("file".equals(protocol)) {
+            return new FileSystemLocationScanner();
+        }
+        if ("jar".equals(protocol) || "zip".equals(protocol)) {
+            return new JarFileLocationScanner(protocol);
+        }
+        return null;
     }
 
     /**
