@@ -77,7 +77,7 @@ public class FileSystemLocationScanner implements LocationScanner {
      * @throws IOException when the file could not be read.
      */
     private String toResourceNameOnClasspath(String classPathRootOnDisk, File file) throws IOException {
-        String fileName = URLDecoder.decode(file.getCanonicalFile().toURI().toURL().getFile(), "UTF-8");
+        String fileName = URLDecoder.decode(file.toURI().toURL().getFile(), "UTF-8");
 
         //Cut off the part on disk leading to the root of the classpath
         //This leaves a resource name starting with the scanRootLocation,

@@ -128,7 +128,6 @@ public class ClassPathScanner {
             } else {
                 resourceNames.addAll(locationScanner.findResourceNames(normalizedLocation, scanRoot));
             }
-
         }
 
         return filterResourceNames(resourceNames, prefix, suffix);
