@@ -36,7 +36,6 @@ import com.googlecode.flyway.core.validation.ValidationException;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -340,20 +339,6 @@ public class Flyway {
     }
 
     /**
-     * Retrives the transaction manager to use. By default a transaction manager will be automatically created for use with the
-     * datasource.
-     *
-     * @return The transaction manager to use. By default a transaction manager will be automatically created for use with the
-     *         datasource.
-     * @deprecated As of Flyway 1.6, this method is deprecated and has no effect anymore. Will be removed in Flyway 2.0.
-     */
-    @Deprecated
-    public PlatformTransactionManager getTransactionManager() {
-        LOG.warn("As of Flyway 1.6, this method is deprecated and has no effect anymore");
-        return null;
-    }
-
-    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -498,19 +483,6 @@ public class Flyway {
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    /**
-     * Sets the transaction manager to use. By default a transaction manager will be automatically created for use with the
-     * datasource.
-     *
-     * @param transactionManager The transaction manager to use. By default a transaction manager will be automatically created for use with the
-     *                           datasource.
-     * @deprecated As of Flyway 1.6, this method is deprecated and has no effect anymore. Will be removed in Flyway 2.0.
-     */
-    @Deprecated
-    public void setTransactionManager(PlatformTransactionManager transactionManager) {
-        LOG.warn("As of Flyway 1.6, this method is deprecated and has no effect anymore");
     }
 
     /**
