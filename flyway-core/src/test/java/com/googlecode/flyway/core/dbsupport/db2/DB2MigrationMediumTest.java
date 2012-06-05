@@ -57,4 +57,19 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    @Test
+    public void mqt() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/db2/sql/mqt");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.toString());
+        assertEquals("Mqt", flyway.status().getDescription());
+
+        assertEquals(2, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM empl_mqt"));
+
+        flyway.clean();
+        flyway.migrate();
+    }
 }

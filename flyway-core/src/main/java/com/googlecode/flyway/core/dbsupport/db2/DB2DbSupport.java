@@ -48,25 +48,18 @@ public class DB2DbSupport extends DbSupport {
         // TODO PROCEDURES and FUNCTIONS
         final List<String> allDropStatements = new ArrayList<String>();
 
+        // MQTs are dropped when the backing views or tables are dropped
+        // Indexes in DB2 are dropped when the corresponding table is dropped
+
         // views
-        String dropViewsGenQuery = "select rtrim(VIEWNAME) from SYSCAT.VIEWS where VIEWSCHEMA = '" + upperCaseSchema
-                + "'";
-        List<String> dropViewsStatements = buildDropStatements("drop view", dropViewsGenQuery, upperCaseSchema);
-        allDropStatements.addAll(dropViewsStatements);
+        allDropStatements.addAll(generateDropStatements(upperCaseSchema, "V", "VIEW"));
 
         // tables
-        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = '"
-                + upperCaseSchema + "'";
-        List<String> dropTableStatements = buildDropStatements("drop table", dropTablesGenQuery, upperCaseSchema);
-        allDropStatements.addAll(dropTableStatements);
+        allDropStatements.addAll(generateDropStatements(upperCaseSchema, "T", "TABLE"));
 
         // sequences
-        String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + upperCaseSchema
-                + "' and SEQTYPE='S'";
-        List<String> dropSeqStatements = buildDropStatements("drop sequence", dropSeqGenQuery, upperCaseSchema);
-        allDropStatements.addAll(dropSeqStatements);
+        allDropStatements.addAll(generateDropStatementsForSequences(upperCaseSchema));
 
-        // indices in DB2 are deleted, if the corresponding table is dropped
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
         int count = 0;
@@ -76,6 +69,34 @@ public class DB2DbSupport extends DbSupport {
         }
 
         return new SqlScript(sqlStatements);
+    }
+
+    /**
+     * Generates DROP statements for the sequences in this schema.
+     * @param schema The schema of the objects.
+     * @return The drop statements.
+     *
+     * @throws SQLException when the statements could not be generated.
+     */
+    private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
+        String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + schema
+                + "' and SEQTYPE='S'";
+        return buildDropStatements("drop sequence", dropSeqGenQuery, schema);
+    }
+
+    /**
+     * Generates DROP statements for this type of table, representing this type of object in this schema.
+     * @param schema The schema of the objects.
+     * @param tableType The type of table (Can be T, V, S, ...).
+     * @param objectType The type of object.
+     * @return The drop statements.
+     *
+     * @throws SQLException when the statements could not be generated.
+     */
+    private List<String> generateDropStatements(String schema, String tableType, String objectType) throws SQLException {
+        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='" + tableType + "' and TABSCHEMA = '"
+                + schema + "'";
+        return buildDropStatements("DROP " + objectType, dropTablesGenQuery, schema);
     }
 
     /**
