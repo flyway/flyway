@@ -72,4 +72,19 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    @Test
+    public void alias() throws Exception {
+        flyway.setBaseDir("migration/dbsupport/db2/sql/alias");
+        flyway.migrate();
+
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("1", schemaVersion.toString());
+        assertEquals("Alias", flyway.status().getDescription());
+
+        assertEquals(2, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM POOR_SLAVE"));
+
+        flyway.clean();
+        flyway.migrate();
+    }
 }

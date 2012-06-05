@@ -54,6 +54,9 @@ public class DB2DbSupport extends DbSupport {
         // views
         allDropStatements.addAll(generateDropStatements(upperCaseSchema, "V", "VIEW"));
 
+        // aliases
+        allDropStatements.addAll(generateDropStatements(upperCaseSchema, "A", "ALIAS"));
+
         // tables
         allDropStatements.addAll(generateDropStatements(upperCaseSchema, "T", "TABLE"));
 
