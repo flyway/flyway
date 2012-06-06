@@ -25,10 +25,6 @@
             <artifactId>appengine-api-labs</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>google_sql</artifactId>
-        </dependency>
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
@@ -64,6 +60,7 @@
                     </webResources>
                 </configuration>
             </plugin>
+            <!-- Disabled until the Google Cloud SQL free usage tier becomes available
             <plugin>
                 <groupId>net.kindleit</groupId>
                 <artifactId>maven-gae-plugin</artifactId>
@@ -84,6 +81,7 @@
                     <serverId>flyway-sample-appengine</serverId>
                 </configuration>
             </plugin>
+            -->
         </plugins>
     </build>
 </project>
