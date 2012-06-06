@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
+import com.googlecode.flyway.core.migration.jdbc.JdbcMigrationResolver;
 import com.googlecode.flyway.core.migration.spring.SpringJdbcMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
@@ -128,6 +129,7 @@ public class MigrationProvider {
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
         migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
+        migrationResolvers.add(new JdbcMigrationResolver(basePackage));
 
         if (FeatureDetector.isSpringJdbcAvailable()) {
             migrationResolvers.add(new SpringJdbcMigrationResolver(basePackage));

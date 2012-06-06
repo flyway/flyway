@@ -28,17 +28,17 @@ import static org.junit.Assert.assertNull;
 public class SpringJdbcMigrationExecutorSmallTest {
     @Test
     public void conventionOverConfiguration() {
-        SpringJdbcMigrationExecutor javaMigrationExecutor = new SpringJdbcMigrationExecutor(new V2__InterfaceBasedMigration());
-        assertEquals("2", javaMigrationExecutor.getVersion().toString());
-        assertEquals("InterfaceBasedMigration", javaMigrationExecutor.getDescription());
-        assertNull(javaMigrationExecutor.getChecksum());
+        SpringJdbcMigrationExecutor springJdbcMigrationExecutor = new SpringJdbcMigrationExecutor(new V2__InterfaceBasedMigration());
+        assertEquals("2", springJdbcMigrationExecutor.getVersion().toString());
+        assertEquals("InterfaceBasedMigration", springJdbcMigrationExecutor.getDescription());
+        assertNull(springJdbcMigrationExecutor.getChecksum());
     }
 
     @Test
     public void explicitInfo() {
-        SpringJdbcMigrationExecutor javaMigrationExecutor = new SpringJdbcMigrationExecutor(new Version3dot5());
-        assertEquals("3.5", javaMigrationExecutor.getVersion().toString());
-        assertEquals("Three Dot Five", javaMigrationExecutor.getDescription());
-        assertEquals(35, javaMigrationExecutor.getChecksum().intValue());
+        SpringJdbcMigrationExecutor springJdbcMigrationExecutor = new SpringJdbcMigrationExecutor(new Version3dot5());
+        assertEquals("3.5", springJdbcMigrationExecutor.getVersion().toString());
+        assertEquals("Three Dot Five", springJdbcMigrationExecutor.getDescription());
+        assertEquals(35, springJdbcMigrationExecutor.getChecksum().intValue());
     }
 }

@@ -13,29 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration;
-
 /**
- * Type of migration.
+ * Public API: Interfaces for Jdbc Migrations.
  */
-public enum MigrationType {
-    /**
-     * The type for the default init migration.
-     */
-    INIT,
-
-    /**
-     * The type for sql migrations.
-     */
-    SQL,
-
-    /**
-     * The type for Jdbc java-based migrations.
-     */
-    JDBC,
-
-    /**
-     * The type for Spring Jdbc java-based migrations. Will be renamed to SPRING_JDBC in Flyway 2.0.
-     */
-    JAVA
-}
+package com.googlecode.flyway.core.api.migration.jdbc;

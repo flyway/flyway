@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.spring;
+package com.googlecode.flyway.core.migration.jdbc;
 
 import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
 import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
-import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
+import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
@@ -25,43 +25,42 @@ import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 /**
- * Adapter for executing migrations implementing SpringJdbcMigration.
+ * Adapter for executing migrations implementing JdbcMigration.
  */
-public class SpringJdbcMigrationExecutor extends Migration {
+public class JdbcMigrationExecutor extends Migration {
     /**
-     * The SpringJdbcMigration to execute.
+     * The JdbcMigration to execute.
      */
-    private final SpringJdbcMigration springJdbcMigration;
+    private final JdbcMigration jdbcMigration;
 
     /**
-     * Creates a new SpringJdbcMigrationExecutor.
+     * Creates a new JdbcMigrationExecutor.
      *
-     * @param springJdbcMigration The Spring Jdbc Migration to execute.
+     * @param jdbcMigration The JdbcMigration to execute.
      */
-    public SpringJdbcMigrationExecutor(SpringJdbcMigration springJdbcMigration) {
-        this.springJdbcMigration = springJdbcMigration;
+    public JdbcMigrationExecutor(JdbcMigration jdbcMigration) {
+        this.jdbcMigration = jdbcMigration;
 
-        if (springJdbcMigration instanceof MigrationChecksumProvider) {
-            MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) springJdbcMigration;
+        if (jdbcMigration instanceof MigrationChecksumProvider) {
+            MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
             checksum = checksumProvider.getChecksum();
         }
 
-        if (springJdbcMigration instanceof MigrationInfoProvider) {
-            MigrationInfoProvider infoProvider = (MigrationInfoProvider) springJdbcMigration;
+        if (jdbcMigration instanceof MigrationInfoProvider) {
+            MigrationInfoProvider infoProvider = (MigrationInfoProvider) jdbcMigration;
             schemaVersion = new SchemaVersion(infoProvider.getVersion().toString());
             description = infoProvider.getDescription();
         } else {
-            String className = springJdbcMigration.getClass().getName();
+            String className = jdbcMigration.getClass().getName();
             String classShortName = className.substring(className.lastIndexOf(".") + 1);
             String nameWithoutV = classShortName.substring(1);
             schemaVersion = MigrationInfoHelper.extractSchemaVersion(nameWithoutV);
             description = MigrationInfoHelper.extractDescription(nameWithoutV);
         }
 
-        script = springJdbcMigration.getClass().getName();
+        script = jdbcMigration.getClass().getName();
     }
 
     @Override
@@ -71,14 +70,13 @@ public class SpringJdbcMigrationExecutor extends Migration {
 
     @Override
     public MigrationType getMigrationType() {
-        return MigrationType.JAVA;
+        return MigrationType.JDBC;
     }
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         try {
-            springJdbcMigration.migrate(new org.springframework.jdbc.core.JdbcTemplate(
-                    new SingleConnectionDataSource(jdbcTemplate.getConnection(), true)));
+            jdbcMigration.migrate(jdbcTemplate.getConnection());
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }

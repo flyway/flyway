@@ -13,29 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration;
+package com.googlecode.flyway.core.migration.jdbc.dummy;
+
+import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
+
+import java.sql.Connection;
 
 /**
- * Type of migration.
+ * Test migration.
  */
-public enum MigrationType {
-    /**
-     * The type for the default init migration.
-     */
-    INIT,
-
-    /**
-     * The type for sql migrations.
-     */
-    SQL,
-
-    /**
-     * The type for Jdbc java-based migrations.
-     */
-    JDBC,
-
-    /**
-     * The type for Spring Jdbc java-based migrations. Will be renamed to SPRING_JDBC in Flyway 2.0.
-     */
-    JAVA
+public class V2__InterfaceBasedMigration implements JdbcMigration {
+    public void migrate(Connection connection) throws Exception {
+        //Do nothing.
+    }
 }
