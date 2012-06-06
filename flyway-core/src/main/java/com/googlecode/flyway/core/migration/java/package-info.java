@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Support for Java migrations.
+ * Private API: No compatibility guarantees provided.
  */
 package com.googlecode.flyway.core.migration.java;

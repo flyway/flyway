@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.java;
+package com.googlecode.flyway.core.api.migration;
+
+import com.googlecode.flyway.core.api.Version;
 
 /**
- * JavaMigration implementors that also implement this interface will be able to specify their checksum (for
- * validation), instead of having it automatically default to {@code null}.
- *
- * @deprecated Superseeded by com.googlecode.flyway.core.api.migration.MigrationChecksumProvider
+ * Migration implementors that also implement this interface will be able to specify their version and description
+ * manually, instead of having it automatically computed.
  */
-@Deprecated
-public interface JavaMigrationChecksumProvider {
+public interface MigrationInfoProvider {
     /**
-     * @return The checksum of the migration.
+     * @return The version after the migration is complete.
      */
-    Integer getChecksum();
+    Version getVersion();
+
+    /**
+     * @return The description for the migration history.
+     */
+    String getDescription();
 }

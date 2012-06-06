@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.java;
+package com.googlecode.flyway.core.util;
 
 /**
- * JavaMigration implementors that also implement this interface will be able to specify their checksum (for
- * validation), instead of having it automatically default to {@code null}.
- *
- * @deprecated Superseeded by com.googlecode.flyway.core.api.migration.MigrationChecksumProvider
+ * Detects whether certain features are available or not.
  */
-@Deprecated
-public interface JavaMigrationChecksumProvider {
+public final class FeatureDetector {
     /**
-     * @return The checksum of the migration.
+     * Prevent instantiation.
      */
-    Integer getChecksum();
+    private FeatureDetector() {
+        // Do nothing
+    }
+
+    /**
+     * Checks whether Spring Jdbc is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public static boolean isSpringJdbcAvailable() {
+        return ClassUtils.isPresent("org.springframework.jdbc.core.JdbcTemplate");
+    }
 }

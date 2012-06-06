@@ -20,7 +20,10 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 /**
  * JavaMigration implementors that also implement this interface will be able to specify their version and description
  * manually, instead of having it automatically computed from the class name.
+ *
+ * @deprecated Superseeded by com.googlecode.flyway.core.api.migration.MigrationInfoProvider
  */
+@Deprecated
 public interface JavaMigrationInfoProvider {
     /**
      * @return The schema version after the migration is complete.

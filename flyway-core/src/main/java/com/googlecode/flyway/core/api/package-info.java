@@ -13,18 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.java;
-
 /**
- * JavaMigration implementors that also implement this interface will be able to specify their checksum (for
- * validation), instead of having it automatically default to {@code null}.
- *
- * @deprecated Superseeded by com.googlecode.flyway.core.api.migration.MigrationChecksumProvider
+ * Public API: General classes.
  */
-@Deprecated
-public interface JavaMigrationChecksumProvider {
-    /**
-     * @return The checksum of the migration.
-     */
-    Integer getChecksum();
-}
+package com.googlecode.flyway.core.api;

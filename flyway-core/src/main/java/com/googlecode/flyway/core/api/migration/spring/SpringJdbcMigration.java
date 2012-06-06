@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.java;
+package com.googlecode.flyway.core.api.migration.spring;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * Interface to be implemented by Java Migrations. By default the migration version and description will be extracted
- * from the class name. This can be overriden by also implementing the JavaMigrationInfoProvider interface, in which
+ * Interface to be implemented by Spring Jdbc Java Migrations. By default the migration version and description will be extracted
+ * from the class name. This can be overriden by also implementing the MigrationInfoProvider interface, in which
  * case it can be specified programmatically. The checksum of this migration (for validation) will also be null, unless
- * the migration also implements the JavaMigrationChecksumProvider, in which case it can be returned programmatically.
- *
- * @deprecated Superseeded by com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration
+ * the migration also implements the MigrationChecksumProvider, in which case it can be returned programmatically.
  */
-@Deprecated
-public interface JavaMigration {
+public interface SpringJdbcMigration {
     /**
      * Executes this migration. The execution will automatically take place within a transaction, when the underlying
      * database supports it.
      *
      * @param jdbcTemplate The jdbcTemplate to use to execute statements.
-     *
      * @throws Exception when the migration failed.
      */
     void migrate(JdbcTemplate jdbcTemplate) throws Exception;

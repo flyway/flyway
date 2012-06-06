@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.java;
+package com.googlecode.flyway.core.util;
+
+import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
- * JavaMigration implementors that also implement this interface will be able to specify their checksum (for
- * validation), instead of having it automatically default to {@code null}.
- *
- * @deprecated Superseeded by com.googlecode.flyway.core.api.migration.MigrationChecksumProvider
+ * Test for ClassUtils.
  */
-@Deprecated
-public interface JavaMigrationChecksumProvider {
-    /**
-     * @return The checksum of the migration.
-     */
-    Integer getChecksum();
+public class ClassUtilsSmallTest {
+    @Test
+    public void isPresent() {
+        assertTrue(ClassUtils.isPresent("com.googlecode.flyway.core.Flyway"));
+    }
+
+    @Test
+    public void isPresentNot() {
+        assertFalse(ClassUtils.isPresent("com.example.FakeClass"));
+    }
 }

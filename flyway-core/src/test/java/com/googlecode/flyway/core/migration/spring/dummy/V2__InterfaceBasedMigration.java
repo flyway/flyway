@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.java;
+package com.googlecode.flyway.core.migration.spring.dummy;
+
+import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
+import com.googlecode.flyway.core.migration.java.JavaMigration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * JavaMigration implementors that also implement this interface will be able to specify their checksum (for
- * validation), instead of having it automatically default to {@code null}.
- *
- * @deprecated Superseeded by com.googlecode.flyway.core.api.migration.MigrationChecksumProvider
+ * Test migration.
  */
-@Deprecated
-public interface JavaMigrationChecksumProvider {
-    /**
-     * @return The checksum of the migration.
-     */
-    Integer getChecksum();
+public class V2__InterfaceBasedMigration implements SpringJdbcMigration {
+    public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
+        //Do nothing.
+    }
 }

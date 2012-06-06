@@ -15,13 +15,15 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import java.util.*;
-
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.java.JavaMigrationResolver;
+import com.googlecode.flyway.core.migration.spring.SpringJdbcMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
+import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.validation.ValidationException;
+
+import java.util.*;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -126,7 +128,11 @@ public class MigrationProvider {
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
         migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
-        migrationResolvers.add(new JavaMigrationResolver(basePackage));
+
+        if (FeatureDetector.isSpringJdbcAvailable()) {
+            migrationResolvers.add(new SpringJdbcMigrationResolver(basePackage));
+            migrationResolvers.add(new JavaMigrationResolver(basePackage));
+        }
 
         List<Migration> migrations = new ArrayList<Migration>(collectMigrations(migrationResolvers));
         Collections.sort(migrations);
