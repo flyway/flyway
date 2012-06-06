@@ -41,7 +41,7 @@ public class CommandLineLargeTest {
     @Test
     public void migrate() throws Exception {
         String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
-        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
     }
 
     @Test

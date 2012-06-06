@@ -15,14 +15,21 @@
  */
 package com.googlecode.flyway.sample.migration;
 
-import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 /**
- * Example of a Spring Jdbc Java-based migration.
+ * Example of a Jdbc Java-based migration.
  */
-public class V1_2__Another_user implements SpringJdbcMigration {
-    public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-        jdbcTemplate.execute("INSERT INTO test_user (name) VALUES ('Obelix')");
+public class V1_3__And_his_brother implements JdbcMigration {
+    public void migrate(Connection connection) throws Exception {
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO test_user (name) VALUES ('Jdbcix')");
+        try {
+            statement.execute();
+        } finally {
+            statement.close();
+        }
     }
 }
