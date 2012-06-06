@@ -18,7 +18,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-commandline</artifactId>
             <version>${project.version}</version>
-            <classifier>dist</classifier>
+            <classifier>dist-with-spring</classifier>
             <type>tar.gz</type>
             <scope>test</scope>
         </dependency>

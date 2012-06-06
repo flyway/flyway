@@ -15,7 +15,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-ant</artifactId>
             <version>${project.version}</version>
-            <classifier>with-dependencies</classifier>
+            <classifier>dist-with-spring</classifier>
             <type>zip</type>
             <scope>test</scope>
         </dependency>

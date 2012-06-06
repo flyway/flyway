@@ -18,7 +18,7 @@
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
-    <id>dist</id>
+    <id>dist-with-spring</id>
     <formats>
         <format>tar.gz</format>
         <format>zip</format>
@@ -71,10 +71,6 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
-            <excludes>
-                <exclude>*:spring-jdbc</exclude>
-            </excludes>
-            <useTransitiveFiltering>true</useTransitiveFiltering>
             <scope>runtime</scope>
         </dependencySet>
     </dependencySets>

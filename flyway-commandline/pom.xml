@@ -83,6 +83,24 @@
                                 <label>OpSys-All</label>
                             </labels>
                         </upload>
+                        <upload>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}-dist-with-spring.zip</file>
+                            <summary>Flyway command-line tool (with Spring dependencies)</summary>
+                            <labels>
+                                <label>Featured</label>
+                                <label>Type-CommandLineTool</label>
+                                <label>OpSys-All</label>
+                            </labels>
+                        </upload>
+                        <upload>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}-dist-with-spring.tar.gz</file>
+                            <summary>Flyway command-line tool (with Spring dependencies)</summary>
+                            <labels>
+                                <label>Featured</label>
+                                <label>Type-CommandLineTool</label>
+                                <label>OpSys-All</label>
+                            </labels>
+                        </upload>
                     </uploads>
                 </configuration>
             </plugin>
