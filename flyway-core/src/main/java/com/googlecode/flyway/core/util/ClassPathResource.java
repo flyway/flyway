@@ -86,53 +86,9 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
                 throw new FlywayException("Unable to obtain inputstream for resource: " + location);
             }
             Reader reader = new InputStreamReader(inputStream, Charset.forName(encoding));
-            return copyToString(reader);
+            return FileCopyUtils.copyToString(reader);
         } catch (IOException e) {
             throw new FlywayException("Unable to load resource: " + location + " (encoding: " + encoding + ")", e);
-        }
-    }
-
-    /**
-     * Copy the contents of the given Reader into a String.
-     * Closes the reader when done.
-     *
-     * @param in the reader to copy from
-     * @return the String that has been copied to
-     * @throws IOException in case of I/O errors
-     */
-    private static String copyToString(Reader in) throws IOException {
-        StringWriter out = new StringWriter();
-        copy(in, out);
-        return out.toString();
-    }
-
-    /**
-     * Copy the contents of the given Reader to the given Writer.
-     * Closes both when done.
-     *
-     * @param in  the Reader to copy from
-     * @param out the Writer to copy to
-     * @throws IOException in case of I/O errors
-     */
-    private static void copy(Reader in, Writer out) throws IOException {
-        try {
-            char[] buffer = new char[4096];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-            }
-            out.flush();
-        } finally {
-            try {
-                in.close();
-            } catch (IOException ex) {
-                //Ignore
-            }
-            try {
-                out.close();
-            } catch (IOException ex) {
-                //Ignore
-            }
         }
     }
 

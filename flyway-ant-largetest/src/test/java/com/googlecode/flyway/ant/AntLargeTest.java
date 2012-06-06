@@ -15,8 +15,8 @@
  */
 package com.googlecode.flyway.ant;
 
+import com.googlecode.flyway.core.util.FileCopyUtils;
 import org.junit.Test;
-import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.InputStreamReader;

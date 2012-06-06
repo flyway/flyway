@@ -15,9 +15,9 @@
  */
 package com.googlecode.flyway.commandline.largetest;
 
+import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.FileCopyUtils;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -89,7 +89,7 @@ public class CommandLineLargeTest {
             args.add(operation);
         }
         if (configFileName != null) {
-            String configFile = new ClassPathResource(configFileName).getFile().getPath();
+            String configFile = new ClassPathResource(configFileName).getLocationOnDisk();
             args.add("-configFile=" + configFile);
         }
         args.addAll(Arrays.asList(extraArgs));

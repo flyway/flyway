@@ -17,19 +17,11 @@ package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.ClassUtils;
-import com.googlecode.flyway.core.util.ExceptionUtils;
-import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import com.googlecode.flyway.core.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.core.io.FileSystemResource;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
@@ -286,14 +278,11 @@ public class Main {
 
         if (configFile != null) {
             try {
-                PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-                propertiesFactoryBean.setFileEncoding(determineConfigurationFileEncoding(args));
-                propertiesFactoryBean.setLocation(new FileSystemResource(configFile));
-                propertiesFactoryBean.setProperties(properties);
-                propertiesFactoryBean.afterPropertiesSet();
+                String encoding = determineConfigurationFileEncoding(args);
+                Reader fileReader = new InputStreamReader(new FileInputStream(configFile), encoding);
+                String propertiesData = FileCopyUtils.copyToString(fileReader);
 
-                properties.clear();
-                properties.putAll((Properties) propertiesFactoryBean.getObject());
+                properties.putAll(PropertiesUtils.loadPropertiesFromString(propertiesData));
             } catch (IOException e) {
                 throw new FlywayException("Unable to load config file: " + configFile, e);
             }
@@ -304,7 +293,7 @@ public class Main {
      * Determines the file to use for loading the configuration.
      *
      * @param args The command-line arguments passed in.
-     * @return The configuration file.
+     * @return The path of the configuration file on disk.
      */
     private static String determineConfigurationFile(String[] args) {
         for (String arg : args) {

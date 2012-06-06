@@ -16,7 +16,7 @@
 package com.googlecode.flyway.maven.largetest;
 
 import org.junit.Test;
-import org.springframework.util.FileCopyUtils;
+import com.googlecode.flyway.core.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.InputStreamReader;

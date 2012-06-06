@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.api.migration.jdbc;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import java.sql.Connection;
 
 /**

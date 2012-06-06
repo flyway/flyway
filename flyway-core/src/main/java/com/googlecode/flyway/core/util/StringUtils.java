@@ -260,4 +260,38 @@ public class StringUtils {
         }
         return sb.toString();
     }
+
+    /**
+     * Trim leading whitespace from the given String.
+     * @param str the String to check
+     * @return the trimmed String
+     * @see java.lang.Character#isWhitespace
+     */
+    public static String trimLeadingWhitespace(String str) {
+        if (!hasLength(str)) {
+            return str;
+        }
+        StringBuffer buf = new StringBuffer(str);
+        while (buf.length() > 0 && Character.isWhitespace(buf.charAt(0))) {
+            buf.deleteCharAt(0);
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Trim trailing whitespace from the given String.
+     * @param str the String to check
+     * @return the trimmed String
+     * @see java.lang.Character#isWhitespace
+     */
+    public static String trimTrailingWhitespace(String str) {
+        if (!hasLength(str)) {
+            return str;
+        }
+        StringBuffer buf = new StringBuffer(str);
+        while (buf.length() > 0 && Character.isWhitespace(buf.charAt(buf.length() - 1))) {
+            buf.deleteCharAt(buf.length() - 1);
+        }
+        return buf.toString();
+    }
 }
