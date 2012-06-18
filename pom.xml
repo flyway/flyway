@@ -161,12 +161,6 @@
             </dependency>
             <dependency>
                 <groupId>com.google.appengine</groupId>
-                <artifactId>google_sql</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.google.appengine</groupId>
                 <artifactId>appengine-testing</artifactId>
                 <version>${version.appengine}</version>
                 <optional>true</optional>
