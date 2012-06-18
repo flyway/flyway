@@ -181,11 +181,6 @@
                     <artifactId>db2jcc</artifactId>
                     <scope>test</scope>
                 </dependency>
-                <dependency>
-                    <groupId>com.google.appengine</groupId>
-                    <artifactId>google_sql</artifactId>
-                    <scope>test</scope>
-                </dependency>
             </dependencies>
         </profile>
     </profiles>
