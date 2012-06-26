@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -121,6 +122,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     /**
      * Tests cleaning up after CREATE MATERIALIZED VIEW.
      */
+    @Ignore("Disabled due to missing functionality in Oracle XE 11g. Works fine with XE 10g.")
     @Test
     public void createMaterializedView() throws FlywayException {
         flyway.setBaseDir("migration/dbsupport/oracle/sql/materialized");
