@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.exception.FlywayException;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 
 /**
@@ -56,7 +57,11 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
         if (url == null) {
             throw new FlywayException("Unable to location resource on disk: " + location);
         }
-        return url.getPath();
+        try {
+            return URLDecoder.decode(url.getPath(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new FlywayException("Unknown encoding: UTF-8", e);
+        }
     }
 
     /**
