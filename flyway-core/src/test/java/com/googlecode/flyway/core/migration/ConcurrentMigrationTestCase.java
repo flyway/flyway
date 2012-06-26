@@ -68,7 +68,7 @@ public abstract class ConcurrentMigrationTestCase {
 
         flyway = new Flyway();
         flyway.setDataSource(concurrentMigrationDataSource);
-        flyway.setBaseDir(BASE_DIR);
+        flyway.setLocations(BASE_DIR);
         flyway.clean();
         flyway.init();
     }
@@ -88,7 +88,7 @@ public abstract class ConcurrentMigrationTestCase {
                 try {
                     Flyway flyway2 = new Flyway();
                     flyway2.setDataSource(concurrentMigrationDataSource);
-                    flyway2.setBaseDir(BASE_DIR);
+                    flyway2.setLocations(BASE_DIR);
                     flyway2.migrate();
                 } catch (Exception e) {
                     e.printStackTrace();

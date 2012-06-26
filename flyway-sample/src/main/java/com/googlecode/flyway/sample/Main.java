@@ -37,7 +37,7 @@ public class Main {
                 new SimpleDriverDataSource(new org.hsqldb.jdbcDriver(), "jdbc:hsqldb:file:db/flyway_sample;shutdown=true", "SA", "");
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.setBasePackage("com.googlecode.flyway.sample.migration");
+        flyway.setLocations("com.googlecode.flyway.sample.migration");
         flyway.migrate();
 
         SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);

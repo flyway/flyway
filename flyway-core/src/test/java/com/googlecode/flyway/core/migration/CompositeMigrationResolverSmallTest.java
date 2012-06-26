@@ -15,10 +15,6 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.sql.SqlMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
@@ -26,21 +22,37 @@ import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.validation.ValidationException;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test for MigrationProvider.
+ * Test for CompositeMigrationResolver.
  */
-public class MigrationProviderSmallTest {
+public class CompositeMigrationResolverSmallTest {
+    @Test
+    public void resolveMigrationsMultipleLocations() {
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"migration/subdir/dir2"}, "db.migration", "migration/subdir/dir1", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+
+        List<Migration> migrations = migrationResolver.resolveMigrations();
+
+        assertEquals(2, migrations.size());
+        assertEquals("Add foreign key", migrations.get(0).getDescription());
+        assertEquals("First", migrations.get(1).getDescription());
+    }
+
     /**
      * Checks that migrations are properly collected, eliminating all exact duplicates.
      */
     @Test
     public void collectMigrations() {
         MigrationResolver migrationResolver = new MigrationResolver() {
-            public Collection<Migration> resolveMigrations() {
-                Collection<Migration> migrations = new ArrayList<Migration>();
+            public List<Migration> resolveMigrations() {
+                List<Migration> migrations = new ArrayList<Migration>();
 
                 migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
                 migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
@@ -51,7 +63,7 @@ public class MigrationProviderSmallTest {
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
         migrationResolvers.add(migrationResolver);
 
-        Collection<Migration> migrations = MigrationProvider.collectMigrations(migrationResolvers);
+        Collection<Migration> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
         assertEquals(2, migrations.size());
     }
 
@@ -62,7 +74,7 @@ public class MigrationProviderSmallTest {
         migrations.add(createTestMigration(MigrationType.SQL, "1", "Description2", "Migration2", 1234));
 
         try {
-            MigrationProvider.checkForIncompatibilities(migrations);
+            CompositeMigrationResolver.checkForIncompatibilities(migrations);
         } catch (ValidationException e) {
             assertTrue(e.getMessage().contains("Migration1"));
             assertTrue(e.getMessage().contains("Migration2"));
@@ -76,7 +88,7 @@ public class MigrationProviderSmallTest {
         migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
 
         try {
-            MigrationProvider.checkForIncompatibilities(migrations);
+            CompositeMigrationResolver.checkForIncompatibilities(migrations);
         } catch (ValidationException e) {
             assertTrue(e.getMessage().contains("target/test-classes/migration/validate/V1__First.sql"));
             assertTrue(e.getMessage().contains("Migration1"));
@@ -92,7 +104,7 @@ public class MigrationProviderSmallTest {
         migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
         migrations.add(createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234));
 
-        MigrationProvider.checkForIncompatibilities(migrations);
+        CompositeMigrationResolver.checkForIncompatibilities(migrations);
     }
 
     /**

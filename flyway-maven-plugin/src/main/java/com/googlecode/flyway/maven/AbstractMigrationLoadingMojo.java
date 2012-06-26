@@ -68,7 +68,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
 
     /**
      * The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
-     * Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
+     * Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in production !)</b><br/> Cleans the
      * database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
      * recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
      * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next

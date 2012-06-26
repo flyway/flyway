@@ -45,8 +45,8 @@ public class CommandLineLargeTest {
     }
 
     @Test
-    public void migrateWithCustomBaseDir() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-baseDir=migrations", "-basePackage=dummy");
+    public void migrateWithCustomLocations() throws Exception {
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=migrations");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 

@@ -22,10 +22,7 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.DbMigrator;
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationProvider;
-import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.migration.*;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
@@ -57,6 +54,12 @@ public class Flyway {
      * Property name prefix for placeholders that are configured through properties.
      */
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+
+    /**
+     * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
+     * and java-based migrations. (default: db.migration)
+     */
+    private String[] locations = new String[]{"db.migration"};
 
     /**
      * The base package where the Java migrations are located. (default: db.migration)
@@ -94,7 +97,7 @@ public class Flyway {
     private SchemaVersion target = SchemaVersion.LATEST;
 
     /**
-     * The map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
     private Map<String, String> placeholders = new HashMap<String, String>();
 
@@ -162,11 +165,25 @@ public class Flyway {
     private DataSource dataSource;
 
     /**
+     * Retrieves locations on the classpath to scan recursively for migrations. Locations may contain both sql
+     * and java-based migrations.
+     *
+     * @return Locations on the classpath to scan recursively for migrations. Locations may contain both sql
+     *         and java-based migrations. (default: db.migration)
+     */
+    public String[] getLocations() {
+        return locations;
+    }
+
+    /**
      * Retrieves the base package where the Java migrations are located.
      *
      * @return The base package where the Java migrations are located. (default: db.migration)
+     * @deprecated Uses getLocations instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public String getBasePackage() {
+        LOG.warn("Flyway.getBasePackage is deprecated. Use Flyway.getLocations instead.");
         return basePackage;
     }
 
@@ -174,8 +191,11 @@ public class Flyway {
      * Retrieves the base directory on the classpath where the Sql migrations are located.
      *
      * @return The base directory on the classpath where the Sql migrations are located. (default: db/migration)
+     * @deprecated Uses getLocations instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public String getBaseDir() {
+        LOG.warn("Flyway.getBaseDir is deprecated. Use Flyway.getLocations instead.");
         return baseDir;
     }
 
@@ -222,9 +242,9 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * Retrieves the map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      *
-     * @return The map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @return The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
     public Map<String, String> getPlaceholders() {
         return placeholders;
@@ -373,11 +393,25 @@ public class Flyway {
     }
 
     /**
+     * Sets the locations on the classpath to scan recursively for migrations. Locations may contain both sql
+     * and java-based migrations. (default: db.migration)
+     *
+     * @param locations Locations on the classpath to scan recursively for migrations. Locations may contain both sql
+     *                  and java-based migrations. (default: db.migration)
+     */
+    public void setLocations(String... locations) {
+        this.locations = locations;
+    }
+
+    /**
      * Sets the base package where the migrations are located.
      *
      * @param basePackage The base package where the migrations are located. (default: db.migration)
+     * @deprecated Use setLocations instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setBasePackage(String basePackage) {
+        LOG.warn("Flyway.setBasePackage is deprecated. Use Flyway.setLocations instead.");
         this.basePackage = basePackage;
     }
 
@@ -385,8 +419,11 @@ public class Flyway {
      * Sets the base directory on the classpath where the Sql migrations are located.
      *
      * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: db/migration)
+     * @deprecated Use setLocations instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setBaseDir(String baseDir) {
+        LOG.warn("Flyway.setBaseDir is deprecated. Use Flyway.setLocations instead.");
         this.baseDir = baseDir;
     }
 
@@ -434,7 +471,7 @@ public class Flyway {
     /**
      * Sets the placeholders to replace in sql migration scripts.
      *
-     * @param placeholders The map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @param placeholders The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
     public void setPlaceholders(Map<String, String> placeholders) {
         this.placeholders = placeholders;
@@ -523,9 +560,9 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                MigrationProvider migrationProvider =
-                        new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
-                List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
+                MigrationResolver migrationResolver =
+                        new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+                List<Migration> availableMigrations = migrationResolver.resolveMigrations();
                 if (availableMigrations.isEmpty()) {
                     return 0;
                 }
@@ -566,9 +603,9 @@ public class Flyway {
      * @param dbSupport               The database-specific support for these connections.
      */
     private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-        MigrationProvider migrationProvider =
-                new MigrationProvider(basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
-        List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
+        MigrationResolver migrationResolver =
+                new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        List<Migration> availableMigrations = migrationResolver.resolveMigrations();
 
         MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
         if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !disableInitCheck) {
@@ -696,9 +733,17 @@ public class Flyway {
         }
 
 
+        String locationsProp = properties.getProperty("flyway.locations");
+        if (locationsProp != null) {
+            setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
+        }
         String baseDirProp = properties.getProperty("flyway.baseDir");
         if (baseDirProp != null) {
             setBaseDir(baseDirProp);
+        }
+        String basePackageProp = properties.getProperty("flyway.basePackage");
+        if (basePackageProp != null) {
+            setBasePackage(basePackageProp);
         }
         String placeholderPrefixProp = properties.getProperty("flyway.placeholderPrefix");
         if (placeholderPrefixProp != null) {
@@ -715,10 +760,6 @@ public class Flyway {
         String sqlMigrationSuffixProp = properties.getProperty("flyway.sqlMigrationSuffix");
         if (sqlMigrationSuffixProp != null) {
             setSqlMigrationSuffix(sqlMigrationSuffixProp);
-        }
-        String basePackageProp = properties.getProperty("flyway.basePackage");
-        if (basePackageProp != null) {
-            setBasePackage(basePackageProp);
         }
         String encodingProp = properties.getProperty("flyway.encoding");
         if (encodingProp != null) {

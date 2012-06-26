@@ -19,14 +19,14 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import com.googlecode.flyway.core.util.StringUtils;
+import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Migration resolver for sql files on the classpath. The sql files must have names like V1.sql or V1_1.sql or
@@ -81,8 +81,8 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
 
-    public Collection<Migration> resolveMigrations() {
-        Collection<Migration> migrations = new ArrayList<Migration>();
+    public List<Migration> resolveMigrations() {
+        List<Migration> migrations = new ArrayList<Migration>();
 
         String normalizedBaseDir = baseDir;
         if (normalizedBaseDir.startsWith("/")) {

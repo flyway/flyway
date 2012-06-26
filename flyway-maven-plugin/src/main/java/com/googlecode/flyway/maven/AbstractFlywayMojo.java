@@ -49,7 +49,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * ${flyway.driver}
      *
      * @parameter expression="${flyway.driver}"
-     * @required
      */
     /* private -> for testing */ String driver;
 
@@ -57,7 +56,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The jdbc url to use to connect to the database.<br> default property: ${flyway.url}
      *
      * @parameter expression="${flyway.url}"
-     * @required
      */
     /* private -> for testing */ String url;
 
@@ -94,7 +92,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter expression="${flyway.table}"
      */
     private String table;
-
 
     /**
      * The link to the settings.xml

@@ -30,7 +30,12 @@ import java.util.*;
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
  * resolvers.
  */
-public class MigrationProvider {
+public class CompositeMigrationResolver implements MigrationResolver {
+    /**
+     * The locations where the migrations are located.
+     */
+    private final String[] locations;
+
     /**
      * The base package where the Java migrations are located.
      */
@@ -78,8 +83,9 @@ public class MigrationProvider {
     private List<Migration> availableMigrations;
 
     /**
-     * Creates a new MigrationProvider.
+     * Creates a new CompositeMigrationResolver.
      *
+     * @param locations          The locations where migrations are located.
      * @param basePackage        The base package where the Java migrations are located.
      * @param baseDir            The base directory on the classpath where the Sql migrations are located.
      * @param encoding           The encoding of Sql migrations.
@@ -89,7 +95,8 @@ public class MigrationProvider {
      * @param placeholderPrefix  The prefix of every placeholder.
      * @param placeholderSuffix  The suffix of every placeholder.
      */
-    public MigrationProvider(String basePackage, String baseDir, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+    public CompositeMigrationResolver(String[] locations, String basePackage, String baseDir, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+        this.locations = locations;
         this.basePackage = basePackage;
         this.baseDir = baseDir;
         this.encoding = encoding;
@@ -105,10 +112,9 @@ public class MigrationProvider {
      *
      * @return The available migrations, sorted by version, newest first. An empty list is returned when no migrations
      *         can be found.
-     * @throws com.googlecode.flyway.core.exception.FlywayException
-     *          when the available migrations have overlapping versions.
+     * @throws FlywayException when the available migrations have overlapping versions.
      */
-    public List<Migration> findAvailableMigrations() throws FlywayException {
+    public List<Migration> resolveMigrations() {
         if (availableMigrations == null) {
             availableMigrations = doFindAvailableMigrations();
         }
@@ -121,19 +127,27 @@ public class MigrationProvider {
      *
      * @return The available migrations, sorted by version, newest first. An empty list is returned when no migrations
      *         can be found.
-     * @throws com.googlecode.flyway.core.exception.FlywayException
-     *          when the available migrations have overlapping versions.
+     * @throws FlywayException when the available migrations have overlapping versions.
      */
     private List<Migration> doFindAvailableMigrations() throws FlywayException {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
-        migrationResolvers.add(new JdbcMigrationResolver(basePackage));
 
+        //legacy locations
+        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
         if (FeatureDetector.isSpringJdbcAvailable()) {
-            migrationResolvers.add(new SpringJdbcMigrationResolver(basePackage));
-            migrationResolvers.add(new JavaMigrationResolver(basePackage));
+            migrationResolvers.add(new JdbcMigrationResolver(basePackage));
+        }
+
+        for (String location : locations) {
+            migrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
+            migrationResolvers.add(new JdbcMigrationResolver(location));
+
+            if (FeatureDetector.isSpringJdbcAvailable()) {
+                migrationResolvers.add(new SpringJdbcMigrationResolver(location));
+                migrationResolvers.add(new JavaMigrationResolver(location));
+            }
         }
 
         List<Migration> migrations = new ArrayList<Migration>(collectMigrations(migrationResolvers));

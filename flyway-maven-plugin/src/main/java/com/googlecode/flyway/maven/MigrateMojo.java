@@ -16,10 +16,10 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
 import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationProvider;
+import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -148,11 +148,11 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
             flyway.setValidationMode(ValidationMode.valueOf(validationMode.toUpperCase()));
         }
 
-        MigrationProvider migrationProvider =
-                new MigrationProvider(flyway.getBasePackage(), flyway.getBaseDir(), flyway.getEncoding(),
+        MigrationResolver migrationResolver =
+                new CompositeMigrationResolver(flyway.getLocations(), flyway.getBasePackage(), flyway.getBaseDir(), flyway.getEncoding(),
                         flyway.getSqlMigrationPrefix(), flyway.getSqlMigrationSuffix(),
                         flyway.getPlaceholders(), flyway.getPlaceholderPrefix(), flyway.getPlaceholderSuffix());
-        List<Migration> availableMigrations = migrationProvider.findAvailableMigrations();
+        List<Migration> availableMigrations = migrationResolver.resolveMigrations();
 
         if (availableMigrations.isEmpty()) {
             LOG.warn("Possible solution: run mvn compile first so Flyway can find the migrations");

@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Facility for resolving available migrations.
@@ -24,7 +24,7 @@ public interface MigrationResolver {
     /**
      * Resolves the available migrations.
      *
-     * @return The available migrations.
+     * @return The available migrations. Sorted by Version, newest first.
      */
-    Collection<Migration> resolveMigrations();
+    List<Migration> resolveMigrations();
 }

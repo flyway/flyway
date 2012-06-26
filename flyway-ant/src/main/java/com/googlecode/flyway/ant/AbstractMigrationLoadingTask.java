@@ -18,11 +18,20 @@ package com.googlecode.flyway.ant;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Base class for tasks that rely on loading migrations from the classpath.
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
+    /**
+     * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
+     * and java-based migrations. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.locations}
+     */
+    private List<String> locations = new ArrayList<String>();
+
     /**
      * The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
      */
@@ -61,14 +70,18 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
 
     /**
      * @param basePackage The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
+     * @deprecated Use locations instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setBasePackage(String basePackage) {
         this.basePackage = basePackage;
     }
 
     /**
      * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br/>Also configurable with Ant Property: ${flyway.baseDir}
+     * @deprecated Use locations instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setBaseDir(String baseDir) {
         this.baseDir = baseDir;
     }

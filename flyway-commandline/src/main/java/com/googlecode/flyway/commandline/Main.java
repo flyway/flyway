@@ -121,8 +121,8 @@ public class Main {
      */
     private static void outputFirstStackTraceElement(Throwable t) {
         StackTraceElement firstStackTraceElement = t.getStackTrace()[0];
-        LOG.error("Occured in " + firstStackTraceElement.getClassName() + " in method "
-                + firstStackTraceElement.getMethodName() + ", line number "
+        LOG.error("Occured in " + firstStackTraceElement.getClassName() + "."
+                + firstStackTraceElement.getMethodName() + "() at line "
                 + firstStackTraceElement.getLineNumber());
     }
 
@@ -184,8 +184,7 @@ public class Main {
         LOG.info("password            : Password to use to connect to the database");
         LOG.info("schemas             : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table               : Name of Flyway's metadata table");
-        LOG.info("basePackage         : Package to scan for Java migrations");
-        LOG.info("baseDir             : Directory on the classpath to scan for Sql migrations");
+        LOG.info("locations           : Classpath locations to scan recursively for migrations");
         LOG.info("sqlMigrationPrefix  : File name prefix for Sql migrations");
         LOG.info("sqlMigrationSuffix  : File name suffix for Sql migrations");
         LOG.info("encoding            : Encoding of Sql migrations");

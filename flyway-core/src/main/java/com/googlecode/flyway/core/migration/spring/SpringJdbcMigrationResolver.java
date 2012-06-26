@@ -23,7 +23,7 @@ import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Migration resolver for Spring Jdbc migrations. The classes must have a name like V1 or V1_1_3 or V1__Description
@@ -44,8 +44,8 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    public Collection<Migration> resolveMigrations() {
-        Collection<Migration> migrations = new ArrayList<Migration>();
+    public List<Migration> resolveMigrations() {
+        List<Migration> migrations = new ArrayList<Migration>();
 
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, SpringJdbcMigration.class);

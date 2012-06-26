@@ -55,7 +55,7 @@ public class FlywayMediumTest {
         flyway.setDataSource(dataSource2);
         assertNull(flyway.status());
 
-        flyway.setBaseDir("migration/sql");
+        flyway.setLocations("migration/sql");
         flyway.migrate();
 
         assertTrue(new H2DbSupport(connection1).isSchemaEmpty("PUBLIC"));
@@ -72,7 +72,7 @@ public class FlywayMediumTest {
         assertEquals(0, dataSource.getOpenConnectionCount());
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.setBaseDir("migration/sql");
+        flyway.setLocations("migration/sql");
         flyway.clean();
         assertEquals(0, dataSource.getOpenConnectionCount());
         assertEquals(4, flyway.migrate());
@@ -86,7 +86,7 @@ public class FlywayMediumTest {
         assertEquals(0, dataSource.getOpenConnectionCount());
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.setBaseDir("migration/failed");
+        flyway.setLocations("migration/failed");
         try {
             flyway.clean();
             assertEquals(0, dataSource.getOpenConnectionCount());
