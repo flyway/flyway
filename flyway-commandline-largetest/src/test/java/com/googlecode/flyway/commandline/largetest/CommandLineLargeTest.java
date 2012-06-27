@@ -18,11 +18,25 @@ package com.googlecode.flyway.commandline.largetest;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.FileCopyUtils;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -31,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Large Test for the Flyway Command-Line Tool.
  */
-public class CommandLineLargeTest {
+public abstract class CommandLineLargeTest {
     @Test
     public void showUsage() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null);
@@ -39,26 +53,20 @@ public class CommandLineLargeTest {
     }
 
     @Test
-    public void migrate() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
-        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
-    }
-
-    @Test
     public void migrateWithCustomLocations() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=migrations");
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-baseDir=dummy", "-basePackage=dummy", "-locations=migrations");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 
     @Test
     public void exitCodeForFailedMigration() throws Exception {
-        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-baseDir=invalid", "-basePackage=dummy");
+        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-baseDir=invalid", "-basePackage=dummy", "-locations=dummy");
         assertTrue(stdOut.contains("Migration to version 1 failed!"));
     }
 
     @Test
     public void validate() throws Exception {
-        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "validate", "-url=jdbc:hsqldb:file:sql/validate/flyway_sample;shutdown=true", "-baseDir=validate", "-basePackage=dummy");
+        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "validate", "-url=jdbc:hsqldb:file:sql/validate/flyway_sample;shutdown=true", "-baseDir=validate", "-basePackage=dummy", "-locations=dummy");
         assertTrue(stdOut.contains("Validate failed. Found differences between applied migrations and available migrations"));
     }
 
@@ -67,6 +75,28 @@ public class CommandLineLargeTest {
         String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-driver=org.hsqldb.jdbcDriver", "-sqlMigrationPrefix=Mig", "-basePackage=dummy");
         assertTrue(stdOut.contains("777"));
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
+    }
+
+    /**
+     * Retrieves the version embedded in the project pom. Useful for running these tests in IntelliJ.
+     *
+     * @return The POM version.
+     */
+    protected String getPomVersion() {
+        try {
+            File pom = new File("pom.xml");
+            if (!pom.exists()) {
+                return "unknown";
+            }
+
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(false);
+            Document document = documentBuilderFactory.newDocumentBuilder().parse(pom);
+            return xPath.evaluate("/project/version", document);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to read POM version", e);
+        }
     }
 
     /**
@@ -79,10 +109,10 @@ public class CommandLineLargeTest {
      * @return The standard output produced by the tool.
      * @throws Exception thrown when the invocation failed.
      */
-    private String runFlywayCommandLine(int expectedReturnCode, String configFileName, String operation, String... extraArgs) throws Exception {
+    protected String runFlywayCommandLine(int expectedReturnCode, String configFileName, String operation, String... extraArgs) throws Exception {
         List<String> args = new ArrayList<String>();
 
-        String installDir = System.getProperty("installDir");
+        String installDir = new File(getInstallDir()).getAbsolutePath();
         args.add(installDir + "/flyway." + flywayCmdLineExtensionForCurrentSystem());
 
         if (operation != null) {
@@ -124,4 +154,9 @@ public class CommandLineLargeTest {
         }
         return "sh";
     }
+
+    /**
+     * @return The installation directory of the Flyway Command Line instance to test.
+     */
+    protected abstract String getInstallDir();
 }

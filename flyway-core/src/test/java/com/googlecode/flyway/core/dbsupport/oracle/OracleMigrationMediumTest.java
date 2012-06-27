@@ -62,7 +62,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("tableName", "test_user");
         flyway.setPlaceholders(placeholders);
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/placeholders");
+        flyway.setLocations("migration/dbsupport/oracle/sql/placeholders");
 
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -89,7 +89,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     public void cleanSpatialExtensions() throws Exception {
         assertEquals(0, objectsCount());
 
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/spatial");
+        flyway.setLocations("migration/dbsupport/oracle/sql/spatial");
         flyway.migrate();
         assertTrue(objectsCount() > 0);
 
@@ -106,7 +106,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void createPackage() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/package");
+        flyway.setLocations("migration/dbsupport/oracle/sql/package");
         flyway.migrate();
     }
 
@@ -115,7 +115,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void objectNames() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/objectnames");
+        flyway.setLocations("migration/dbsupport/oracle/sql/objectnames");
         flyway.migrate();
     }
 
@@ -125,7 +125,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Ignore("Disabled due to missing functionality in Oracle XE 11g. Works fine with XE 10g.")
     @Test
     public void createMaterializedView() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/materialized");
+        flyway.setLocations("migration/dbsupport/oracle/sql/materialized");
         flyway.migrate();
         flyway.clean();
     }
@@ -165,7 +165,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void qQuote() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/qquote");
+        flyway.setLocations("migration/dbsupport/oracle/sql/qquote");
         flyway.migrate();
     }
 
@@ -174,7 +174,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void type() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/type");
+        flyway.setLocations("migration/dbsupport/oracle/sql/type");
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
@@ -185,7 +185,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void procedure() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/procedure");
+        flyway.setLocations("migration/dbsupport/oracle/sql/procedure");
         flyway.migrate();
     }
 
@@ -196,7 +196,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void trigger() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/trigger");
+        flyway.setLocations("migration/dbsupport/oracle/sql/trigger");
         flyway.migrate();
     }
 
@@ -205,7 +205,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void text() throws FlywayException {
-        flyway.setBaseDir("migration/dbsupport/oracle/sql/text");
+        flyway.setLocations("migration/dbsupport/oracle/sql/text");
         flyway.migrate();
         flyway.clean();
         flyway.migrate();

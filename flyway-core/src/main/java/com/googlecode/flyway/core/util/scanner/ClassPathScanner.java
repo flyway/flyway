@@ -70,10 +70,13 @@ public class ClassPathScanner {
             Class<?> clazz = getClassLoader().loadClass(className);
             if (implementedInterfaces.length == 0) {
                 classes.add(clazz);
+                LOG.debug("Found class: " + className);
             } else {
                 for (Class<?> implementedInterface : implementedInterfaces) {
                     if (implementedInterface.isAssignableFrom(clazz)) {
                         classes.add(clazz);
+                        LOG.debug("Found class: " + className);
+                        break;
                     }
                 }
             }

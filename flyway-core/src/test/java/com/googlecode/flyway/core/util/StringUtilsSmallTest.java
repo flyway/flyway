@@ -17,9 +17,7 @@ package com.googlecode.flyway.core.util;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Testcase for StringUtils.
@@ -54,5 +52,14 @@ public class StringUtilsSmallTest {
         assertEquals("a b", StringUtils.collapseWhitespace("a          b"));
         assertEquals("a b c", StringUtils.collapseWhitespace("a  b   c"));
         assertEquals(" a b c ", StringUtils.collapseWhitespace("   a b   c  "));
+    }
+
+    @Test
+    public void tokenizeToStringArray() {
+        assertArrayEquals(new String[]{"abc"}, StringUtils.tokenizeToStringArray("abc", ","));
+        assertArrayEquals(new String[]{"abc", "def"}, StringUtils.tokenizeToStringArray("abc,def", ","));
+        assertArrayEquals(new String[]{"abc", "def"}, StringUtils.tokenizeToStringArray(" abc ,def ", ","));
+        assertArrayEquals(new String[]{"", "abc"}, StringUtils.tokenizeToStringArray(",abc", ","));
+        assertArrayEquals(new String[]{"", "abc"}, StringUtils.tokenizeToStringArray(" , abc", ","));
     }
 }

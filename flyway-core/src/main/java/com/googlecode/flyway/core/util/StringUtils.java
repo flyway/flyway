@@ -15,11 +15,8 @@
  */
 package com.googlecode.flyway.core.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -178,15 +175,11 @@ public class StringUtils {
         if (str == null) {
             return null;
         }
-        StringTokenizer st = new StringTokenizer(str, delimiters);
-        List<String> tokens = new ArrayList<String>();
-        while (st.hasMoreTokens()) {
-            String token = st.nextToken().trim();
-            if (token.length() > 0) {
-                tokens.add(token);
-            }
+        String[] tokens = str.split("[" + delimiters + "]");
+        for (int i = 0; i < tokens.length; i++) {
+            tokens[i] = tokens[i].trim();
         }
-        return tokens.toArray(new String[tokens.size()]);
+        return tokens;
     }
 
     /**
@@ -263,6 +256,7 @@ public class StringUtils {
 
     /**
      * Trim leading whitespace from the given String.
+     *
      * @param str the String to check
      * @return the trimmed String
      * @see java.lang.Character#isWhitespace
@@ -271,7 +265,7 @@ public class StringUtils {
         if (!hasLength(str)) {
             return str;
         }
-        StringBuffer buf = new StringBuffer(str);
+        StringBuilder buf = new StringBuilder(str);
         while (buf.length() > 0 && Character.isWhitespace(buf.charAt(0))) {
             buf.deleteCharAt(0);
         }
@@ -280,6 +274,7 @@ public class StringUtils {
 
     /**
      * Trim trailing whitespace from the given String.
+     *
      * @param str the String to check
      * @return the trimmed String
      * @see java.lang.Character#isWhitespace
@@ -288,7 +283,7 @@ public class StringUtils {
         if (!hasLength(str)) {
             return str;
         }
-        StringBuffer buf = new StringBuffer(str);
+        StringBuilder buf = new StringBuilder(str);
         while (buf.length() > 0 && Character.isWhitespace(buf.charAt(buf.length() - 1))) {
             buf.deleteCharAt(buf.length() - 1);
         }

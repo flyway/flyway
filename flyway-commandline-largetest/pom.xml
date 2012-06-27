@@ -11,9 +11,18 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <properties>
-        <unpackDir>${project.build.directory}/dependency with spaces</unpackDir>
+        <unpackDirDist>${project.build.directory}/install/dist</unpackDirDist>
+        <unpackDirDistWithSpring>${project.build.directory}/install/dist with spring</unpackDirDistWithSpring>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-commandline</artifactId>
+            <version>${project.version}</version>
+            <classifier>dist</classifier>
+            <type>tar.gz</type>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-commandline</artifactId>
@@ -61,7 +70,8 @@
                     </excludes>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
-                        <installDir>${unpackDir}/flyway-commandline-${project.version}</installDir>
+                        <installDirDist>${unpackDirDist}/flyway-commandline-${project.version}</installDirDist>
+                        <installDirDistWithSpring>${unpackDirDistWithSpring}/flyway-commandline-${project.version}</installDirDistWithSpring>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -70,25 +80,49 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>pre-largetest-1</id>
+                        <id>pre-largetest-dist-unpack</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
                             <includeArtifactIds>flyway-commandline</includeArtifactIds>
-                            <outputDirectory>${unpackDir}</outputDirectory>
+                            <includeClassifiers>dist</includeClassifiers>
+                            <outputDirectory>${unpackDirDist}</outputDirectory>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>pre-largetest-2</id>
+                        <id>pre-largetest-dist-addJars</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
                             <includeArtifactIds>flyway-sample,hsqldb</includeArtifactIds>
-                            <outputDirectory>${unpackDir}/flyway-commandline-${project.version}/jars</outputDirectory>
+                            <outputDirectory>${unpackDirDist}/flyway-commandline-${project.version}/jars</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pre-largetest-distWithSpring-unpack</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>flyway-commandline</includeArtifactIds>
+                            <includeClassifiers>dist-with-spring</includeClassifiers>
+                            <outputDirectory>${unpackDirDistWithSpring}</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pre-largetest-distWithSpring-addJars</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>flyway-sample,hsqldb</includeArtifactIds>
+                            <outputDirectory>${unpackDirDistWithSpring}/flyway-commandline-${project.version}/jars</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -98,7 +132,7 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>pre-largetest-3</id>
+                        <id>pre-largetest-dist-addSql</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -109,7 +143,22 @@
                                     <directory>${basedir}/src/test/resources</directory>
                                 </resource>
                             </resources>
-                            <outputDirectory>${unpackDir}/flyway-commandline-${project.version}/sql</outputDirectory>
+                            <outputDirectory>${unpackDirDist}/flyway-commandline-${project.version}/sql</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pre-largetest-distWithSpring-addSql</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/test/resources</directory>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${unpackDirDistWithSpring}/flyway-commandline-${project.version}/sql</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

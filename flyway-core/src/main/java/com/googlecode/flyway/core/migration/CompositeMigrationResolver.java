@@ -136,10 +136,13 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
         //legacy locations
         migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
+        migrationResolvers.add(new JdbcMigrationResolver(basePackage));
         if (FeatureDetector.isSpringJdbcAvailable()) {
-            migrationResolvers.add(new JdbcMigrationResolver(basePackage));
+            migrationResolvers.add(new SpringJdbcMigrationResolver(basePackage));
+            migrationResolvers.add(new JavaMigrationResolver(basePackage));
         }
 
+        //new locations
         for (String location : locations) {
             migrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
             migrationResolvers.add(new JdbcMigrationResolver(location));

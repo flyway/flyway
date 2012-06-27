@@ -29,7 +29,7 @@ import java.io.IOException;
 public class MigrateServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Flyway flyway = new Flyway();
-        flyway.setBasePackage("com.googlecode.flyway.sample.appengine.migration");
+        flyway.setLocations("com.googlecode.flyway.sample.appengine.migration");
         flyway.setDataSource(DataSourceFactory.createDataSource());
 
         int successCount = flyway.migrate();

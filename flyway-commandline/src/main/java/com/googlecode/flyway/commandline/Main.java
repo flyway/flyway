@@ -61,7 +61,6 @@ public class Main {
             initializeDefaults(properties);
             loadConfigurationFile(properties, args);
             overrideConfiguration(properties, args);
-            //adjustBaseDir(properties);
             flyway.configure(properties);
 
             if ("clean".equals(operation)) {
@@ -133,7 +132,7 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.password", "");
-        properties.put("flyway.baseDir", "");
+        properties.put("flyway.locations", "/,db/migration");
     }
 
     /**

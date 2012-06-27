@@ -15,10 +15,15 @@
  */
 package com.googlecode.flyway.core.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Detects whether certain features are available or not.
  */
 public final class FeatureDetector {
+    private static final Log LOG = LogFactory.getLog(FeatureDetector.class);
+
     /**
      * Prevent instantiation.
      */
@@ -32,6 +37,8 @@ public final class FeatureDetector {
      * @return {@code true} if it is, {@code false if it is not}
      */
     public static boolean isSpringJdbcAvailable() {
-        return ClassUtils.isPresent("org.springframework.jdbc.core.JdbcTemplate");
+        boolean available = ClassUtils.isPresent("org.springframework.jdbc.core.JdbcTemplate");
+        LOG.debug("Spring Jdbc available: " + available);
+        return available;
     }
 }
