@@ -41,7 +41,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * The base directory on the classpath where to migrations are located.
      */
-    private final String baseDir;
+    private final String location;
 
     /**
      * The placeholder replacer to apply to sql migration scripts.
@@ -66,14 +66,14 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param baseDir             The base directory on the classpath where to migrations are located.
+     * @param location            The location on the classpath where to migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of Sql migrations.
      * @param sqlMigrationPrefix  The prefix for sql migrations
      * @param sqlMigrationSuffix  The suffix for sql migrations
      */
-    public SqlMigrationResolver(String baseDir, PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix) {
-        this.baseDir = baseDir;
+    public SqlMigrationResolver(String location, PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix) {
+        this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
@@ -84,13 +84,13 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<Migration> resolveMigrations() {
         List<Migration> migrations = new ArrayList<Migration>();
 
-        String normalizedBaseDir = baseDir;
+        String normalizedBaseDir = location;
         if (normalizedBaseDir.startsWith("/")) {
             normalizedBaseDir = normalizedBaseDir.substring(1);
         }
 
         if (StringUtils.hasText(normalizedBaseDir) && !new ClassPathResource(normalizedBaseDir + "/").exists()) {
-            LOG.warn("Unable to find path for sql migrations: " + baseDir);
+            LOG.warn("Unable to find path for sql migrations: " + location);
             return migrations;
         }
 
@@ -107,7 +107,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                 migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString, scriptName));
             }
         } catch (IOException e) {
-            throw new FlywayException("Unable to scan for SQL migrations in location: " + baseDir);
+            throw new FlywayException("Unable to scan for SQL migrations in location: " + location);
         }
 
         return migrations;

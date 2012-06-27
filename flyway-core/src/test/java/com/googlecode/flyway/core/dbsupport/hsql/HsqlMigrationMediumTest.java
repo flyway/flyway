@@ -54,13 +54,13 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected String getQuoteBaseDir() {
+    protected String getQuoteLocation() {
         return "migration/quote";
     }
 
     @Test
     public void sequence() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/hsql/sql/sequence");
+        flyway.setLocations("migration/dbsupport/hsql/sql/sequence");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();

@@ -56,7 +56,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
      */
     @Test
     public void type() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/type");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/type");
         flyway.migrate();
 
         flyway.clean();

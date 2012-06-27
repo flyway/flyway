@@ -39,13 +39,13 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected String getQuoteBaseDir() {
+    protected String getQuoteLocation() {
         return "migration/quote";
     }
 
     @Test
     public void dollarQuotedString() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/h2/sql/dollar_quoted_string");
+        flyway.setLocations("migration/dbsupport/h2/sql/dollar_quoted_string");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -58,7 +58,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void sequence() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/h2/sql/sequence");
+        flyway.setLocations("migration/dbsupport/h2/sql/sequence");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -73,7 +73,7 @@ public class H2MigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void domain() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/h2/sql/domain");
+        flyway.setLocations("migration/dbsupport/h2/sql/domain");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();

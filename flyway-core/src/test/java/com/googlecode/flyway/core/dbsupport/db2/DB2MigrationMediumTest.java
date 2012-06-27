@@ -39,13 +39,13 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected String getQuoteBaseDir() {
+    protected String getQuoteLocation() {
         return "migration/quote";
     }
 
     @Test
     public void sequence() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/db2/sql/sequence");
+        flyway.setLocations("migration/dbsupport/db2/sql/sequence");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -60,7 +60,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void mqt() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/db2/sql/mqt");
+        flyway.setLocations("migration/dbsupport/db2/sql/mqt");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -75,7 +75,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void alias() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/db2/sql/alias");
+        flyway.setLocations("migration/dbsupport/db2/sql/alias");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();

@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings({"JavaDoc"})
 public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     @Override
-    protected String getQuoteBaseDir() {
+    protected String getQuoteLocation() {
         return "migration/quote";
     }
 
@@ -39,7 +39,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
      */
     @Test
     public void storedProcedure() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/procedure");
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/procedure");
         flyway.migrate();
 
         assertEquals("Hello", jdbcTemplate.queryForString("SELECT value FROM test_data"));
@@ -55,7 +55,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
      */
     @Test
     public void trigger() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/trigger");
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/trigger");
         flyway.migrate();
 
         assertEquals(3, jdbcTemplate.queryForInt("SELECT priority FROM customers where name='MS Internet Explorer Team'"));
@@ -71,7 +71,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
      */
     @Test
     public void view() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/view");
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/view");
         flyway.migrate();
 
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
@@ -87,7 +87,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
      */
     @Test
     public void type() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/type");
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/type");
         flyway.migrate();
 
         flyway.clean();
@@ -102,8 +102,8 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     @Ignore("Axel: Fails due to nested transaction being opened in script, causing outer transaction not to receive COMMIT statement")
     @Test
     public void large() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/sqlserver/sql/large");
-        flyway.setBasePackage("com.googlecode.flyway.core.dbsupport.sqlserver.large");
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/large",
+                "com.googlecode.flyway.core.dbsupport.sqlserver.large");
         flyway.setTarget(new SchemaVersion("3.1.0"));
         flyway.migrate();
 

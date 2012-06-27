@@ -40,7 +40,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected String getQuoteBaseDir() {
+    protected String getQuoteLocation() {
         return "migration/quote";
     }
 
@@ -49,7 +49,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void storedProcedure() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/procedure");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/procedure");
         flyway.migrate();
 
         assertEquals("Hello", jdbcTemplate.queryForString("SELECT value FROM test_data"));
@@ -65,7 +65,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void function() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/function");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/function");
         flyway.migrate();
 
         flyway.clean();
@@ -79,7 +79,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void trigger() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/trigger");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/trigger");
         flyway.migrate();
 
         assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
@@ -96,7 +96,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void view() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/view");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/view");
         flyway.migrate();
 
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
@@ -112,7 +112,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void inheritance() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/inheritance");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/inheritance");
         flyway.migrate();
 
         flyway.clean();
@@ -126,7 +126,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void domain() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/domain");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/domain");
         flyway.migrate();
 
         assertEquals("foo", jdbcTemplate.queryForString("SELECT x FROM t"));
@@ -142,7 +142,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void enumeration() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/enum");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/enum");
         flyway.migrate();
 
         assertEquals("positive", jdbcTemplate.queryForString("SELECT x FROM t"));
@@ -158,7 +158,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void dollarQuote() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/dollar");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/dollar");
         flyway.migrate();
         assertEquals(9, jdbcTemplate.queryForInt("select count(*) from dollar"));
     }
@@ -168,7 +168,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void multiLine() throws Exception {
-        flyway.setBaseDir("migration/dbsupport/postgresql/sql/multiline");
+        flyway.setLocations("migration/dbsupport/postgresql/sql/multiline");
         flyway.migrate();
         assertEquals(1, jdbcTemplate.queryForInt("select count(*) from address"));
     }

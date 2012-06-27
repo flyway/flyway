@@ -92,9 +92,9 @@ public abstract class MigrationTestCase {
     }
 
     /**
-     * @return The directory containing the migrations for the quote test.
+     * @return The location containing the migrations for the quote test.
      */
-    protected abstract String getQuoteBaseDir();
+    protected abstract String getQuoteLocation();
 
     @Test
     public void migrate() throws Exception {
@@ -386,7 +386,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void quotesAroundTableName() {
-        flyway.setLocations(getQuoteBaseDir());
+        flyway.setLocations(getQuoteLocation());
         flyway.migrate();
 
         // Clean script must also be able to properly deal with these reserved keywords in table names.

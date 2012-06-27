@@ -48,7 +48,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    protected String getQuoteBaseDir() {
+    protected String getQuoteLocation() {
         return "migration/quote";
     }
 

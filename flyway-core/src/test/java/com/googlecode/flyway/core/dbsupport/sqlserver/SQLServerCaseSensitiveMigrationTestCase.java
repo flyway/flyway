@@ -45,7 +45,7 @@ public abstract class SQLServerCaseSensitiveMigrationTestCase {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.setBaseDir("migration/sql");
+        flyway.setLocations("migration/sql");
         flyway.clean();
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.status().getVersion();

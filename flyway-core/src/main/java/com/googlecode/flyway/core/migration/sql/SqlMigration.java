@@ -54,7 +54,7 @@ public class SqlMigration extends Migration {
      * @param versionString       The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g.
      *                            1_2__Description
      * @param scriptName          The filename of this sql script, including the relative path from the root of
-     *                            baseDir.
+     *                            the classpath location it was found.
      */
     public SqlMigration(ClassPathResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding,
                         String versionString, String scriptName) {
