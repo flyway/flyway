@@ -113,13 +113,6 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      */
     private String validationMode;
 
-    /**
-     * Reference to the current project that includes the Flyway Maven plugin.
-     *
-     * @parameter expression="${project}" required="true"
-     */
-    private MavenProject mavenProject;
-
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
         super.doExecute(flyway);

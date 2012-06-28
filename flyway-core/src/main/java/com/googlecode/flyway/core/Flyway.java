@@ -63,12 +63,16 @@ public class Flyway {
 
     /**
      * The base package where the Java migrations are located. (default: db.migration)
+     * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     private String basePackage = "db.migration";
 
     /**
      * The base directory on the classpath where the Sql migrations are located. (default: db/migration)
+     * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     private String baseDir = "db/migration";
 
     /**

@@ -16,8 +16,10 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
@@ -27,10 +29,18 @@ import com.googlecode.flyway.core.validation.ValidationMode;
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     /**
+     * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
+     * and java-based migrations. (default: db.migration)
+     * @parameter
+     */
+    private String[] locations = new String[]{"db.migration"};
+
+    /**
      * The base package where the Java migrations are located. (default: db.migration) <br> Also configurable with Maven
      * or System Property: ${flyway.basePackage}
      *
      * @parameter expression="${flyway.basePackage}"
+     * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
      */
     private String basePackage;
 
@@ -39,6 +49,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * configurable with Maven or System Property: ${flyway.baseDir}
      *
      * @parameter expression="${flyway.baseDir}"
+     * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
      */
     private String baseDir;
 
@@ -80,14 +91,28 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      */
     private String validationErrorMode;
 
+    /**
+     * Reference to the current project that includes the Flyway Maven plugin.
+     *
+     * @parameter expression="${project}" required="true"
+     */
+    protected MavenProject mavenProject;
+
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
+        String locationsProperty = mavenProject.getProperties().getProperty("flyway.locations");
+        if (locationsProperty != null) {
+            flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
+        } else if (locations != null) {
+            flyway.setLocations(locations);
+        }
         if (basePackage != null) {
             flyway.setBasePackage(basePackage);
         }
         if (baseDir != null) {
             flyway.setBaseDir(baseDir);
         }
+
         if (encoding != null) {
             flyway.setEncoding(encoding);
         }
