@@ -16,19 +16,24 @@
     limitations under the License.
 
 -->
-<project name="StatusLargeTest" default="testStatus" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
-
+<project name="StatusLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
     <path id="lib.path">
-        <fileset dir="${libDir}" includes="*.jar"/>
+        <fileset dir="${installDir}/flyway-ant-${pomVersion}" includes="*.jar"/>
+    </path>
+    <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml" classpathref="lib.path"/>
+
+    <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
+
+    <path id="flyway.classpath">
+        <fileset dir="${installDir}/jars" includes="hsqldb-*.jar"/>
     </path>
 
-    <taskdef uri="antlib:com.googlecode.flyway.ant"
-             resource="com/googlecode/flyway/ant/antlib.xml"
-             classpathref="lib.path"/>
+    <target name="clean">
+        <delete dir="target"/>
+    </target>
 
-    <property name="flyway.driver" value="org.h2.Driver"/>
-
-    <target name="testStatus">
-        <flyway:status user="sa" url="jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1"/>
+    <target name="run">
+        <mkdir dir="target/db"/>
+        <flyway:status user="sa" url="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
     </target>
 </project>

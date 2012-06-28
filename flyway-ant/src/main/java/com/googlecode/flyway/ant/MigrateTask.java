@@ -34,9 +34,6 @@ import java.util.Map;
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class MigrateTask extends AbstractMigrationLoadingTask {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(MigrateTask.class);
 
     /**
@@ -62,7 +59,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
     private boolean ignoreFailedFutureMigration;
 
     /**
-     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
     private Map<String, String> placeholders = new HashMap<String, String>();
 
@@ -149,9 +146,23 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      * Adds a placeholder from a nested &lt;placeholder&gt; element. Called by Ant.
      *
      * @param placeholder The fully configured placeholder element.
+     * @deprecated Use the &lt;placeholders&gt; element instead of adding individual &lt;placeholder&gt; elements directly. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void addConfiguredPlaceholder(PlaceholderElement placeholder) {
-        placeholders.put(placeholder.getName(), placeholder.getValue());
+        LOG.warn("The direct use of <placeholder> is deprecated." +
+                " They should be nested inside a <placeholders> element." +
+                " Support for this will be removed in Flyway 2.0.");
+        placeholders.put(placeholder.name, placeholder.value);
+    }
+
+    /**
+     * Adds placeholders from a nested &lt;placeholders&gt; element. Called by Ant.
+     *
+     * @param placeholders The fully configured placeholders element.
+     */
+    public void addConfiguredPlaceholders(PlaceholdersElement placeholders) {
+        this.placeholders = placeholders.placeholders;
     }
 
     @Override
@@ -219,6 +230,54 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
                 String placeholderValue = (String) properties.get(propertyName);
                 placeholders.put(placeholderName, placeholderValue);
             }
+        }
+    }
+
+    /**
+     * Nested &lt;placeholders&gt; element of the migrate Ant task.
+     */
+    public static class PlaceholdersElement {
+        /**
+         * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+         */
+        Map<String, String> placeholders = new HashMap<String, String>();
+
+        /**
+         * Adds a placeholder from a nested &lt;placeholder&gt; element. Called by Ant.
+         *
+         * @param placeholder The fully configured placeholder element.
+         */
+        public void addConfiguredPlaceholder(PlaceholderElement placeholder) {
+            placeholders.put(placeholder.name, placeholder.value);
+        }
+    }
+
+    /**
+     * Nested &lt;placeholder&gt; element inside the &lt;placeholders&gt; element of the migrate Ant task.
+     */
+    public static class PlaceholderElement {
+        /**
+         * The name of the placeholder.
+         */
+        private String name;
+
+        /**
+         * The value of the placeholder.
+         */
+        private String value;
+
+        /**
+         * @param name The name of the placeholder.
+         */
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        /**
+         * @param value The value of the placeholder.
+         */
+        public void setValue(String value) {
+            this.value = value;
         }
     }
 }

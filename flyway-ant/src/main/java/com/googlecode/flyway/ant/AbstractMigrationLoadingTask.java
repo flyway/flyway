@@ -16,6 +16,7 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
      * and java-based migrations. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.locations}
      */
-    private List<String> locations = new ArrayList<String>();
+    private String[] locations;
 
     /**
      * The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
@@ -67,6 +68,15 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
      */
     private String validationErrorMode;
+
+    /**
+     * Do not use. For Ant itself.
+     *
+     * @param locations The locations on the classpath.
+     */
+    public void addConfiguredLocations(Locations locations) {
+        this.locations = locations.locations.toArray(new String[locations.locations.size()]);
+    }
 
     /**
      * @param basePackage The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
@@ -122,6 +132,12 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
 
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
+        String locationsProperty = getProject().getProperty("flyway.locations");
+        if (locationsProperty != null) {
+            flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
+        } else if (locations != null) {
+            flyway.setLocations(locations);
+        }
         String basePackageValue = useValueIfPropertyNotSet(basePackage, "basePackage");
         if (basePackageValue != null) {
             flyway.setBasePackage(basePackageValue);
@@ -130,6 +146,7 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         if (baseDirValue != null) {
             flyway.setBaseDir(baseDirValue);
         }
+
         String encodingValue = useValueIfPropertyNotSet(encoding, "encoding");
         if (encodingValue != null) {
             flyway.setEncoding(encodingValue);
@@ -145,6 +162,44 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         String validationErrorModeValue = useValueIfPropertyNotSet(validationErrorMode, "validationErrorMode");
         if (validationErrorModeValue != null) {
             flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeValue.toUpperCase()));
+        }
+    }
+
+    /**
+     * The nested &lt;locations&gt; element of the task. Contains 1 or more &lt;location&gt; sub-elements.
+     */
+    public static class Locations {
+        /**
+         * The classpath locations.
+         */
+        List<String> locations = new ArrayList<String>();
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param location A location on the classpath.
+         */
+        public void addConfiguredLocation(LocationElement location) {
+            locations.add(location.path);
+        }
+    }
+
+    /**
+     * One &lt;location&gt; sub-element within the &lt;locations&gt; element.
+     */
+    public static class LocationElement {
+        /**
+         * The path of the location.
+         */
+        private String path;
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param path The path of the location.
+         */
+        public void setPath(String path) {
+            this.path = path;
         }
     }
 }

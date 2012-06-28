@@ -16,41 +16,42 @@
     limitations under the License.
 
 -->
-<project name="MigrateLargeTest" default="testMigrate" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
-
+<project name="MigrateLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
     <path id="lib.path">
-        <fileset dir="${libDir}" includes="*.jar"/>
+        <fileset dir="${installDir}/flyway-ant-${pomVersion}" includes="*.jar"/>
     </path>
+    <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml" classpathref="lib.path"/>
 
-
-    <property name="flyway.driver" value="org.h2.Driver"/>
-    <property name="flyway.url" value="jdbc:h2:flyway_db"/>
+    <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
+    <property name="flyway.url" value="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
     <property name="flyway.user" value="sa"/>
 
+    <target name="clean">
+        <delete dir="target"/>
+    </target>
+
     <target name="compile">
-        <mkdir dir="build"/>
-        
+        <mkdir dir="target/db"/>
+        <mkdir dir="target/classes"/>
+
         <javac srcdir="src"
-               destdir="build"
+               destdir="target/classes"
                classpathref="lib.path"
                source="1.5"
                fork="true"
                 />
-        <copy todir="build">
+        <copy todir="target/classes">
             <fileset dir="src" excludes="**/*.java"/>
         </copy>
-        <jar destfile="largetest.jar" basedir="build"/>
+        <jar destfile="target/largetest.jar" basedir="target/classes"/>
 
         <path id="flyway.classpath">
-            <fileset dir="." includes="largetest.jar"/>
+            <fileset dir="target" includes="largetest.jar"/>
+            <fileset dir="${installDir}/jars" includes="hsqldb-*.jar"/>
         </path>
-
-        <taskdef uri="antlib:com.googlecode.flyway.ant"
-                 resource="com/googlecode/flyway/ant/antlib.xml"
-                 classpathref="lib.path"/>
     </target>
 
-    <target name="testMigrate" depends="compile">
+    <target name="run" depends="compile">
         <flyway:migrate basePackage="largetest.migrate">
             <placeholder name="name" value="Mr. T"/>
         </flyway:migrate>

@@ -91,7 +91,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param encoding           The encoding of Sql migrations.
      * @param sqlMigrationPrefix The file name prefix for sql migrations.
      * @param sqlMigrationSuffix The file name suffix for sql migrations.
-     * @param placeholders       A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @param placeholders       A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      * @param placeholderPrefix  The prefix of every placeholder.
      * @param placeholderSuffix  The suffix of every placeholder.
      */

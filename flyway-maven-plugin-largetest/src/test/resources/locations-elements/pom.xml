@@ -17,6 +17,9 @@
             <version>1.8.0.10</version>
         </dependency>
     </dependencies>
+    <properties>
+        <flyway.placeholders.name>Mr. T</flyway.placeholders.name>
+    </properties>
     <build>
         <plugins>
             <plugin>
@@ -31,6 +34,9 @@
                         <location>migrations1</location>
                         <location>migrations2</location>
                     </locations>
+                    <placeholders>
+                        <name2>Dr. Jones</name2>
+                    </placeholders>
                 </configuration>
             </plugin>
             <plugin>

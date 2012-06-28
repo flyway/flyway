@@ -15,4 +15,3 @@
 --
 
 INSERT INTO test_user (name) VALUES ('${name}');
-INSERT INTO test_user (name) VALUES ('${name2}');

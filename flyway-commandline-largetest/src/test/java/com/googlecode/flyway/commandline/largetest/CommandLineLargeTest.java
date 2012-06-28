@@ -78,28 +78,6 @@ public abstract class CommandLineLargeTest {
     }
 
     /**
-     * Retrieves the version embedded in the project pom. Useful for running these tests in IntelliJ.
-     *
-     * @return The POM version.
-     */
-    protected String getPomVersion() {
-        try {
-            File pom = new File("pom.xml");
-            if (!pom.exists()) {
-                return "unknown";
-            }
-
-            XPath xPath = XPathFactory.newInstance().newXPath();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(false);
-            Document document = documentBuilderFactory.newDocumentBuilder().parse(pom);
-            return xPath.evaluate("/project/version", document);
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to read POM version", e);
-        }
-    }
-
-    /**
      * Runs the Flyway Command Line tool.
      *
      * @param expectedReturnCode The expected return code for this invocation.
@@ -159,4 +137,26 @@ public abstract class CommandLineLargeTest {
      * @return The installation directory of the Flyway Command Line instance to test.
      */
     protected abstract String getInstallDir();
+
+    /**
+     * Retrieves the version embedded in the project pom. Useful for running these tests in IntelliJ.
+     *
+     * @return The POM version.
+     */
+    protected String getPomVersion() {
+        try {
+            File pom = new File("pom.xml");
+            if (!pom.exists()) {
+                return "unknown";
+            }
+
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(false);
+            Document document = documentBuilderFactory.newDocumentBuilder().parse(pom);
+            return xPath.evaluate("/project/version", document);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to read POM version", e);
+        }
+    }
 }

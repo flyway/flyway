@@ -16,25 +16,34 @@
     limitations under the License.
 
 -->
-<project name="ValidateLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
+<project name="LocationsElementLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
     <path id="lib.path">
         <fileset dir="${installDir}/flyway-ant-${pomVersion}" includes="*.jar"/>
     </path>
-    <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml" classpathref="lib.path"/>
+    <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml"
+             classpathref="lib.path"/>
 
-    <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
-    <property name="flyway.url" value="jdbc:hsqldb:file:db/flyway_db;shutdown=true"/>
+    <property name="flyway.url" value="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
     <property name="flyway.user" value="sa"/>
+    <path id="flyway.classpath">
+        <pathelement path="src"/>
+        <fileset dir="${installDir}/jars" includes="hsqldb-*.jar"/>
+    </path>
 
     <target name="clean">
+        <delete dir="target"/>
     </target>
 
     <target name="run">
-        <path id="flyway.classpath">
-            <pathelement path="src"/>
-            <fileset dir="${installDir}/jars" includes="hsqldb-*.jar"/>
-        </path>
-
-        <flyway:validate baseDir="largetest/sql"/>
+        <mkdir dir="target/db"/>
+        <flyway:migrate driver="org.hsqldb.jdbcDriver">
+            <placeholders>
+                <placeholder name="name" value="Mr. T"/>
+            </placeholders>
+            <locations>
+                <location path="largetest/migrations1"/>
+                <location path="largetest/migrations2"/>
+            </locations>
+        </flyway:migrate>
     </target>
 </project>

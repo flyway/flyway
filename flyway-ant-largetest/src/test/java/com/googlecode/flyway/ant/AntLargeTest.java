@@ -17,7 +17,11 @@ package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.util.FileCopyUtils;
 import org.junit.Test;
+import org.w3c.dom.Document;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -31,23 +35,11 @@ import static org.junit.Assert.assertTrue;
  * Large Test for the Ant tasks.
  */
 @SuppressWarnings({"JavaDoc"})
-public class AntLargeTest {
-    /**
-     * The installation directory for the test POMs.
-     */
-    private String installDir = System.getProperty("installDir");
-
+public abstract class AntLargeTest {
     @Test
     public void init() throws Exception {
         String stdOut = runAnt(0, "init");
         assertTrue(stdOut.contains("A new beginning!"));
-    }
-
-    @Test
-    public void migrate() throws Exception {
-        String stdOut = runAnt(0, "migrate", "-Dflyway.baseDir=largetest/sql");
-        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
-        assertTrue(stdOut.contains("Populate table"));
     }
 
     /**
@@ -85,6 +77,18 @@ public class AntLargeTest {
         assertTrue(stdOut.contains("Validate failed. Found differences between applied migrations and available migrations"));
     }
 
+    @Test
+    public void locationsElement() throws Exception {
+        String stdOut = runAnt(0, "locations-element");
+        assertTrue(stdOut.contains("Successfully applied 2 migrations"));
+    }
+
+    @Test
+    public void locationsProperty() throws Exception {
+        String stdOut = runAnt(0, "locations-property");
+        assertTrue(stdOut.contains("Successfully applied 2 migrations"));
+    }
+
     /**
      * Runs Ant in this directory with these extra arguments.
      *
@@ -94,7 +98,7 @@ public class AntLargeTest {
      * @return The standard output.
      * @throws Exception When the execution failed.
      */
-    private String runAnt(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
+    protected String runAnt(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
         String antHome = System.getenv("ANT_HOME");
 
         String extension = "";
@@ -104,11 +108,15 @@ public class AntLargeTest {
 
         List<String> args = new ArrayList<String>();
         args.add(antHome + "/bin/ant" + extension);
-        args.add("-DlibDir=" + System.getProperty("libDir"));
+        args.add("-d");
+        args.add("clean");
+        args.add("run");
+        args.add("-DinstallDir=" + new File(getInstallDir()).getAbsolutePath());
+        args.add("-DpomVersion=" + System.getProperty("pomVersion", getPomVersion()));
         args.addAll(Arrays.asList(extraArgs));
 
         ProcessBuilder builder = new ProcessBuilder(args);
-        builder.directory(new File(installDir + "/" + dir));
+        builder.directory(new File(getInstallDir() + "/tests/" + dir).getAbsoluteFile());
         builder.redirectErrorStream(true);
 
         Process process = builder.start();
@@ -120,5 +128,32 @@ public class AntLargeTest {
         assertEquals("Unexpected return code", expectedReturnCode, returnCode);
 
         return stdOut;
+    }
+
+    /**
+     * @return The installation directory of the Flyway Command Line instance to test.
+     */
+    protected abstract String getInstallDir();
+
+    /**
+     * Retrieves the version embedded in the project pom. Useful for running these tests in IntelliJ.
+     *
+     * @return The POM version.
+     */
+    private String getPomVersion() {
+        try {
+            File pom = new File("pom.xml");
+            if (!pom.exists()) {
+                return "unknown";
+            }
+
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(false);
+            Document document = documentBuilderFactory.newDocumentBuilder().parse(pom);
+            return xPath.evaluate("/project/version", document);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to read POM version", e);
+        }
     }
 }
