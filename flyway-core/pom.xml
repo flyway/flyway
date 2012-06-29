@@ -135,6 +135,7 @@
                     <instructions>
                         <Export-Package>
                             com.googlecode.flyway.core;version=${project.version},
+                            com.googlecode.flyway.core.api.*;version=${project.version},
                             com.googlecode.flyway.core.exception;version=${project.version},
                             com.googlecode.flyway.core.metadatatable;version=${project.version},
                             com.googlecode.flyway.core.migration;version=${project.version},
