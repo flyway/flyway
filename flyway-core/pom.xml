@@ -142,8 +142,9 @@
                             com.googlecode.flyway.core.validation;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            org.springframework.*;version="${version.spring}",
-                            org.apache.commons.logging;version="[1.1,2)"
+                            org.springframework.*;version="[2.5,3.2)";resolution=optional,
+                            org.apache.commons.logging;version="[1.1,2)",
+                            javax.sql
                         </Import-Package>
                     </instructions>
                 </configuration>
