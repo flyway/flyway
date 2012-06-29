@@ -138,7 +138,8 @@
                             com.googlecode.flyway.core.exception;version=${project.version},
                             com.googlecode.flyway.core.metadatatable;version=${project.version},
                             com.googlecode.flyway.core.migration;version=${project.version},
-                            com.googlecode.flyway.core.migration.java;version=${project.version}
+                            com.googlecode.flyway.core.migration.java;version=${project.version},
+                            com.googlecode.flyway.core.validation;version=${project.version}
                         </Export-Package>
                         <Import-Package>
                             org.springframework.*;version="${version.spring}",
