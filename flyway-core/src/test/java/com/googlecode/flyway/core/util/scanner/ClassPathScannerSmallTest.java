@@ -146,12 +146,12 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesJarFile() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("junit", "", ".gif");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("org/junit", "Af", ".class");
 
         assertEquals(2, resources.length);
 
-        assertEquals("junit/runner/logo.gif", resources[0].getLocation());
-        assertEquals("junit/runner/smalllogo.gif", resources[1].getLocation());
+        assertEquals("org/junit/After.class", resources[0].getLocation());
+        assertEquals("org/junit/AfterClass.class", resources[1].getLocation());
     }
 
     @Test

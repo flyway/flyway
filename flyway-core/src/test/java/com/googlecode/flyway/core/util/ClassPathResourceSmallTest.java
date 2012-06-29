@@ -32,12 +32,12 @@ public class ClassPathResourceSmallTest {
     @Test
     public void loadAsStringUtf8WithoutBOM() {
         assertEquals("SELECT 1 FROM DUAL;",
-                new ClassPathResource("com/googlecode/flyway/core/util/utf8.sql").loadAsString("UTF-8"));
+                new ClassPathResource("com/googlecode/flyway/core/util/utf8.nofilter").loadAsString("UTF-8"));
     }
 
     @Test
     public void loadAsStringUtf8WithBOM() {
         assertEquals("SELECT 1 FROM DUAL;",
-                new ClassPathResource("com/googlecode/flyway/core/util/utf8bom.sql").loadAsString("UTF-8"));
+                new ClassPathResource("com/googlecode/flyway/core/util/utf8bom.nofilter").loadAsString("UTF-8"));
     }
 }
