@@ -23,7 +23,6 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.maven.project.MavenProject;
 
 import java.util.HashMap;
 import java.util.List;

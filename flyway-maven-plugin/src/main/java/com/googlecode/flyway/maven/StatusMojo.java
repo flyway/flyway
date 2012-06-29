@@ -16,11 +16,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Maven goal that shows the status (current version) of the database.

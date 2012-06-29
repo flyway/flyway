@@ -18,7 +18,6 @@ package com.googlecode.flyway.maven;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -31,6 +30,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
      * and java-based migrations. (default: db.migration)
+     *
      * @parameter
      */
     private String[] locations = new String[]{"db.migration"};

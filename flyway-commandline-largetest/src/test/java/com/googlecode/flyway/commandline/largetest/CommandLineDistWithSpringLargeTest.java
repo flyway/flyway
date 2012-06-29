@@ -15,26 +15,13 @@
  */
 package com.googlecode.flyway.commandline.largetest;
 
-import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.FileCopyUtils;
 import org.junit.Test;
-import org.xml.sax.InputSource;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Large Test for the Flyway Command-Line Tool Distribution With Spring.
- *
+ * <p/>
  * You must run the Maven build once before executing this in IntelliJ.
  */
 public class CommandLineDistWithSpringLargeTest extends CommandLineLargeTest {

@@ -16,7 +16,6 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.validation.ValidationMode;
 
 /**
  * Maven goal to validate the applied migrations in the database against the available classpath migrations in order to

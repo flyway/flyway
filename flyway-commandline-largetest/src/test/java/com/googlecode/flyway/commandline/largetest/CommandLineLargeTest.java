@@ -19,24 +19,14 @@ import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.FileCopyUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
