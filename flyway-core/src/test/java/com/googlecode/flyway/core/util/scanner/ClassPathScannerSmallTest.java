@@ -15,23 +15,18 @@
  */
 package com.googlecode.flyway.core.util.scanner;
 
+import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.db2.DB2MigrationMediumTest;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
-import com.googlecode.flyway.core.migration.java.JavaMigration;
-import com.googlecode.flyway.core.migration.java.dummy.V2__InterfaceBasedMigration;
-import com.googlecode.flyway.core.migration.java.dummy.Version3dot5;
+import com.googlecode.flyway.core.migration.jdbc.dummy.V2__InterfaceBasedMigration;
+import com.googlecode.flyway.core.migration.jdbc.dummy.Version3dot5;
 import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.AllOf;
 import org.hamcrest.core.AnyOf;
 import org.hamcrest.core.DescribedAs;
 import org.junit.Test;
-
-import java.io.File;
-import java.net.URLDecoder;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -156,7 +151,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClasses() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("com.googlecode.flyway.core.migration.java.dummy", JavaMigration.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com.googlecode.flyway.core.migration.jdbc.dummy", JdbcMigration.class);
 
         assertEquals(2, classes.length);
 
