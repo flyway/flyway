@@ -28,4 +28,16 @@ public class ClassPathResourceSmallTest {
         assertEquals("Mig777__Test.sql", new ClassPathResource("Mig777__Test.sql").getFilename());
         assertEquals("Mig777__Test.sql", new ClassPathResource("folder/Mig777__Test.sql").getFilename());
     }
+
+    @Test
+    public void loadAsStringUtf8WithoutBOM() {
+        assertEquals("SELECT 1 FROM DUAL;",
+                new ClassPathResource("com/googlecode/flyway/core/util/utf8.sql").loadAsString("UTF-8"));
+    }
+
+    @Test
+    public void loadAsStringUtf8WithBOM() {
+        assertEquals("SELECT 1 FROM DUAL;",
+                new ClassPathResource("com/googlecode/flyway/core/util/utf8bom.sql").loadAsString("UTF-8"));
+    }
 }

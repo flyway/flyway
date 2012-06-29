@@ -95,7 +95,14 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
                 throw new FlywayException("Unable to obtain inputstream for resource: " + location);
             }
             Reader reader = new InputStreamReader(inputStream, Charset.forName(encoding));
-            return FileCopyUtils.copyToString(reader);
+            String result = FileCopyUtils.copyToString(reader);
+
+            //Strip UTF-8 BOM if necessary
+            if (result.startsWith("\ufeff")) {
+                return result.substring(1);
+            }
+
+            return result;
         } catch (IOException e) {
             throw new FlywayException("Unable to load resource: " + location + " (encoding: " + encoding + ")", e);
         }
