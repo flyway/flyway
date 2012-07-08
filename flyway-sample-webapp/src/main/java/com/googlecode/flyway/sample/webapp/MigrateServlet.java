@@ -35,7 +35,10 @@ public class MigrateServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Flyway flyway = new Flyway();
-        flyway.setLocations("db.migration", "com.googlecode.flyway.sample.migration");
+        flyway.setLocations("db.migration",
+                "db/more/migrations",
+                "com.googlecode.flyway.sample.migration",
+                "com/googlecode/flyway/sample/webapp/migration");
         flyway.setDataSource(dataSource);
 
         int successCount = flyway.migrate();

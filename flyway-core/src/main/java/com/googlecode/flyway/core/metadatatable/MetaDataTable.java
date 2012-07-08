@@ -126,7 +126,7 @@ public class MetaDataTable {
             }
         });
 
-        LOG.info("Metadata table created: " + table + " (Schema: " + schema + ")");
+        LOG.debug("Metadata table created: " + table + " (Schema: " + schema + ")");
     }
 
     /**
