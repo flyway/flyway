@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.sample.appengine;
+package com.googlecode.flyway.sample.webapp;
 
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -34,7 +34,7 @@ public class Environment {
      * @return {@code true} if we are, {@code false} if not.
      */
     public static boolean runningOnGoogleAppEngine() {
-        return ClassUtils.isPresent(APPENGINE_JDBC_DRIVER);
+        return System.getProperty("com.google.appengine.runtime.environment") != null;
     }
 
     /**

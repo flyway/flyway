@@ -33,7 +33,7 @@ public class SpringJdbcMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         SpringJdbcMigrationResolver springJdbcMigrationResolver =
-                new SpringJdbcMigrationResolver("com.googlecode.flyway.core.migration.spring.dummy");
+                new SpringJdbcMigrationResolver("com/googlecode/flyway/core/migration/spring/dummy");
         Collection<Migration> migrations = springJdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());

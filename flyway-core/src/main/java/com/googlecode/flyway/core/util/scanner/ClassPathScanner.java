@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.util.scanner;
 
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,6 +42,8 @@ public class ClassPathScanner {
      * @throws IOException when the location could not be scanned.
      */
     public ClassPathResource[] scanForResources(String location, String prefix, String suffix) throws IOException {
+        LOG.debug("Scanning for resources at '" + location + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
+
         Set<ClassPathResource> classPathResources = new TreeSet<ClassPathResource>();
 
         Set<String> resourceNames = findResourceNames(location, prefix, suffix);
@@ -62,6 +65,13 @@ public class ClassPathScanner {
      * @throws Exception when the location could not be scanned.
      */
     public Class<?>[] scanForClasses(String location, Class<?>... implementedInterfaces) throws Exception {
+        String[] interfaceNames = new String[implementedInterfaces.length];
+        for (int i = 0; i < implementedInterfaces.length; i++) {
+            interfaceNames[i] = implementedInterfaces[i].getName();
+        }
+        LOG.debug("Scanning for classes at '" + location
+                + "' (Implementing: '" + StringUtils.arrayToCommaDelimitedString(interfaceNames) + "')");
+
         List<Class<?>> classes = new ArrayList<Class<?>>();
 
         Set<String> resourceNames = findResourceNames(location, "", ".class");
@@ -109,11 +119,9 @@ public class ClassPathScanner {
     private Set<String> findResourceNames(String location, String prefix, String suffix) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        String normalizedLocation = normalizeLocation(location);
-
-        Enumeration<URL> locationsUrls = getClassLoader().getResources(normalizedLocation);
+        Enumeration<URL> locationsUrls = getClassLoader().getResources(location);
         if (!locationsUrls.hasMoreElements()) {
-            LOG.debug("Unable to determine URL for classpath location: " + normalizedLocation + " (ClassLoader: " + getClassLoader() + ")");
+            LOG.debug("Unable to determine URL for classpath location: " + location + " (ClassLoader: " + getClassLoader() + ")");
         }
         while (locationsUrls.hasMoreElements()) {
             URL locationUrl = locationsUrls.nextElement();
@@ -129,7 +137,7 @@ public class ClassPathScanner {
             if (locationScanner == null) {
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
-                resourceNames.addAll(locationScanner.findResourceNames(normalizedLocation, scanRoot));
+                resourceNames.addAll(locationScanner.findResourceNames(location, scanRoot));
             }
         }
 
@@ -150,27 +158,6 @@ public class ClassPathScanner {
             return new JarFileLocationScanner(protocol);
         }
         return null;
-    }
-
-    /**
-     * Normalizes this classpath location by
-     * <ul>
-     * <li>eliminating all leading and trailing slashes</li>
-     * <li>turning all separators into slashes</li>
-     * </ul>
-     *
-     * @param location The location to normalize.
-     * @return The normalized location.
-     */
-    private String normalizeLocation(String location) {
-        String directory = location.replace(".", "/").replace("\\", "/");
-        if (directory.startsWith("/")) {
-            directory = directory.substring(1);
-        }
-        if (directory.endsWith("/")) {
-            directory = directory.substring(0, directory.length() - 1);
-        }
-        return directory;
     }
 
     /**

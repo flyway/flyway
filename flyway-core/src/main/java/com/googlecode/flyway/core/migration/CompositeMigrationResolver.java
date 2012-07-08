@@ -134,16 +134,15 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 
-        //legacy locations
-        migrationResolvers.add(new SqlMigrationResolver(baseDir, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
-        migrationResolvers.add(new JdbcMigrationResolver(basePackage));
-        if (FeatureDetector.isSpringJdbcAvailable()) {
-            migrationResolvers.add(new SpringJdbcMigrationResolver(basePackage));
-            migrationResolvers.add(new JavaMigrationResolver(basePackage));
-        }
+        Set<String> mergedLocations = new HashSet<String>();
+        //add legacy locations
+        mergedLocations.add(baseDir);
+        mergedLocations.add(basePackage);
 
-        //new locations
-        for (String location : locations) {
+        //add new locations
+        mergedLocations.addAll(Arrays.asList(locations));
+
+        for (String location : mergedLocations) {
             migrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
             migrationResolvers.add(new JdbcMigrationResolver(location));
 

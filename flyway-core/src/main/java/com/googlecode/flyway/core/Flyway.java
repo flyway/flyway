@@ -59,14 +59,14 @@ public class Flyway {
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
      * and java-based migrations. (default: db.migration)
      */
-    private String[] locations = new String[]{"db.migration"};
+    private String[] locations = new String[]{"db/migration"};
 
     /**
      * The base package where the Java migrations are located. (default: db.migration)
      * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
      */
     @Deprecated
-    private String basePackage = "db.migration";
+    private String basePackage = "db/migration";
 
     /**
      * The base directory on the classpath where the Sql migrations are located. (default: db/migration)
@@ -404,7 +404,10 @@ public class Flyway {
      *                  and java-based migrations. (default: db.migration)
      */
     public void setLocations(String... locations) {
-        this.locations = locations;
+        this.locations = new String[locations.length];
+        for (int i = 0; i < locations.length; i++) {
+            this.locations[i] = normalizeLocation(locations[i]);
+        }
     }
 
     /**
@@ -416,7 +419,7 @@ public class Flyway {
     @Deprecated
     public void setBasePackage(String basePackage) {
         LOG.warn("Flyway.setBasePackage is deprecated. Use Flyway.setLocations instead.");
-        this.basePackage = basePackage;
+        this.basePackage = normalizeLocation(basePackage);
     }
 
     /**
@@ -428,7 +431,30 @@ public class Flyway {
     @Deprecated
     public void setBaseDir(String baseDir) {
         LOG.warn("Flyway.setBaseDir is deprecated. Use Flyway.setLocations instead.");
-        this.baseDir = baseDir;
+        this.baseDir = normalizeLocation(baseDir);
+    }
+
+
+    /**
+     * Normalizes this classpath location by
+     * <ul>
+     * <li>eliminating all leading and trailing spaces</li>
+     * <li>eliminating all leading and trailing slashes</li>
+     * <li>turning all separators into slashes</li>
+     * </ul>
+     *
+     * @param location The location to normalize.
+     * @return The normalized location.
+     */
+    private String normalizeLocation(String location) {
+        String directory = location.trim().replace(".", "/").replace("\\", "/");
+        if (directory.startsWith("/")) {
+            directory = directory.substring(1);
+        }
+        if (directory.endsWith("/")) {
+            directory = directory.substring(0, directory.length() - 1);
+        }
+        return directory;
     }
 
     /**
@@ -573,7 +599,7 @@ public class Flyway {
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
-                doValidate(connectionMetaDataTable, connectionUserObjects, dbSupport);
+                doValidate(connectionMetaDataTable, connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
 
                 metaDataTable.createIfNotExists();
 
@@ -593,7 +619,13 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 validationMode = ValidationMode.ALL;
-                doValidate(connectionMetaDataTable, connectionUserObjects, dbSupport);
+                MigrationResolver migrationResolver =
+                        new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+                List<Migration> availableMigrations = migrationResolver.resolveMigrations();
+
+                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
+
+                doValidate(connectionMetaDataTable, connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
                 return null;
             }
         });
@@ -605,13 +637,10 @@ public class Flyway {
      * @param connectionMetaDataTable The database connection for the metadata table changes.
      * @param connectionUserObjects   The database connection for user object changes.
      * @param dbSupport               The database-specific support for these connections.
+     * @param availableMigrations     The available migrations on the classpath.
+     * @param metaDataTable           The metadata table.
      */
-    private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-        MigrationResolver migrationResolver =
-                new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
-        List<Migration> availableMigrations = migrationResolver.resolveMigrations();
-
-        MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
+    private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, List<Migration> availableMigrations, MetaDataTable metaDataTable) {
         if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !disableInitCheck) {
             for (String schema : schemas) {
                 try {
@@ -658,8 +687,7 @@ public class Flyway {
      * @param dbSupport             The database-specific support for these connections.
      */
     private void doClean(Connection connectionUserObjects, DbSupport dbSupport) {
-        new DbCleaner(new TransactionTemplate(connectionUserObjects),
-                dbSupport.getJdbcTemplate(), dbSupport, schemas).clean();
+        new DbCleaner(new TransactionTemplate(connectionUserObjects), dbSupport, schemas).clean();
     }
 
     /**

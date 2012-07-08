@@ -24,7 +24,7 @@
     <meta name="description" content="Flyway and Google Cloud SQL on Google AppEngine sample">
     <meta name="author" content="The Flyway DEV Team">
 
-    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
         h1 {
             padding-top: 10px;
@@ -71,7 +71,7 @@
         </thead>
         <tbody id="migration-table">
         <tr id="migration-none">
-            <td colspan="4">No migrations applied yet</td>
+            <td colspan="6">No migrations applied yet</td>
         </tr>
 
         </tbody>
@@ -81,17 +81,17 @@
 </div>
 <!-- /container -->
 
-<script src="/jquery/jquery-1.7.1.min.js"></script>
+<script src="jquery/jquery-1.7.1.min.js"></script>
 <script language="JavaScript">
     function loadEnvironmentInfo() {
-        $.getJSON("/env-info", function (data) {
+        $.getJSON("env-info", function (data) {
             $("#migration-gae").text(data.gae);
             $("#migration-database").text(data.database);
         });
     }
 
     function refreshMigrationHistory() {
-        $.get("/history", function (data) {
+        $.get("history", function (data) {
             $("#migration-none").show();
             $(".migration-row").remove();
 
@@ -116,13 +116,13 @@
         refreshMigrationHistory();
 
         $("#clean-button").click(function () {
-            $.ajax({type:"POST", url:"/clean", success:function (data) {
+            $.ajax({type:"POST", url:"clean", success:function (data) {
                 refreshMigrationHistory();
             }});
         });
 
         $("#migrate-button").click(function () {
-            $.ajax({type:"POST", url:"/migrate", success:function (data) {
+            $.ajax({type:"POST", url:"migrate", success:function (data) {
                 refreshMigrationHistory();
             }});
         });

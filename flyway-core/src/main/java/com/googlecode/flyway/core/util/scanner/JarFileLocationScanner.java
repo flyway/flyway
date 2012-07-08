@@ -40,8 +40,23 @@ public class JarFileLocationScanner implements LocationScanner {
     }
 
     public Set<String> findResourceNames(String location, String locationUrl) throws IOException {
-        String jarFileName = locationUrl.substring(((protocol + ":").length() + 1), locationUrl.indexOf("!"));
-        return findResourceNamesFromJarFile(jarFileName, location);
+        return findResourceNamesFromJarFile(extractJarFileName(locationUrl), location);
+    }
+
+    /**
+     * Extracts the Jar File name from this locationUrl.
+     *
+     * @param locationUrl The url returned from the classloader.
+     * @return The jar file name.
+     */
+    /* private -> testing */ String extractJarFileName(String locationUrl) {
+        int startPos = 0;
+        if (locationUrl.startsWith(protocol)) {
+            startPos = (protocol + ":").length();
+        } else if (locationUrl.startsWith("file:")) {
+            startPos = "file:".length();
+        }
+        return locationUrl.substring(startPos, locationUrl.lastIndexOf("!"));
     }
 
     /**

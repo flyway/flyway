@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.migration.jdbc;
 
 import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.spring.SpringJdbcMigrationResolver;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class JdbcMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         JdbcMigrationResolver jdbcMigrationResolver =
-                new JdbcMigrationResolver("com.googlecode.flyway.core.migration.jdbc.dummy");
+                new JdbcMigrationResolver("com/googlecode/flyway/core/migration/jdbc/dummy");
         Collection<Migration> migrations = jdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());

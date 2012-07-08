@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.sample.appengine;
+package com.googlecode.flyway.sample.webapp;
 
 import com.googlecode.flyway.core.Flyway;
 
@@ -35,7 +35,7 @@ public class MigrateServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Flyway flyway = new Flyway();
-        flyway.setLocations("db.migration", "com.googlecode.flyway.sample.appengine.migration");
+        flyway.setLocations("db.migration", "com.googlecode.flyway.sample.migration");
         flyway.setDataSource(dataSource);
 
         int successCount = flyway.migrate();

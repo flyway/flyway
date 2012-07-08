@@ -108,6 +108,8 @@ public class MetaDataTable {
      * Creates Flyway's metadata table.
      */
     private void create() {
+        LOG.info("Creating Metadata table: " + table + " (Schema: " + schema + ")");
+
         final String createMetaDataTableScriptSource =
                 new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql").loadAsString("UTF-8");
 

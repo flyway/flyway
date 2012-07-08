@@ -32,13 +32,21 @@ public final class FeatureDetector {
     }
 
     /**
+     * Flag indicating availability of Spring JDBC.
+     */
+    private static Boolean springJdbcAvailable;
+
+    /**
      * Checks whether Spring Jdbc is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
     public static boolean isSpringJdbcAvailable() {
-        boolean available = ClassUtils.isPresent("org.springframework.jdbc.core.JdbcTemplate");
-        LOG.debug("Spring Jdbc available: " + available);
-        return available;
+        if (springJdbcAvailable == null) {
+            springJdbcAvailable = ClassUtils.isPresent("org.springframework.jdbc.core.JdbcTemplate");
+            LOG.debug("Spring Jdbc available: " + springJdbcAvailable);
+        }
+
+        return springJdbcAvailable;
     }
 }

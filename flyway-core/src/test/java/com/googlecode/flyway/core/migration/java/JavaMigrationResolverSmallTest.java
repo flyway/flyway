@@ -33,7 +33,7 @@ public class JavaMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         JavaMigrationResolver javaMigrationResolver =
-                new JavaMigrationResolver("com.googlecode.flyway.core.migration.java.dummy");
+                new JavaMigrationResolver("com/googlecode/flyway/core/migration/java/dummy");
         Collection<Migration> migrations = javaMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());

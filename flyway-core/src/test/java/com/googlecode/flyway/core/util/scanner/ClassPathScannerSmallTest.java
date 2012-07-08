@@ -76,42 +76,6 @@ public class ClassPathScannerSmallTest {
     }
 
     @Test
-    public void scanForResourcesLeadingSlash() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("/migration/sql", "V", ".sql");
-
-        assertEquals(4, resources.length);
-
-        assertEquals("migration/sql/V1_1__View.sql", resources[0].getLocation());
-        assertEquals("migration/sql/V1_2__Populate_table.sql", resources[1].getLocation());
-        assertEquals("migration/sql/V1__First.sql", resources[2].getLocation());
-        assertEquals("migration/sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", resources[3].getLocation());
-    }
-
-    @Test
-    public void scanForResourcesTrailingSlash() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration/sql/", "V", ".sql");
-
-        assertEquals(4, resources.length);
-
-        assertEquals("migration/sql/V1_1__View.sql", resources[0].getLocation());
-        assertEquals("migration/sql/V1_2__Populate_table.sql", resources[1].getLocation());
-        assertEquals("migration/sql/V1__First.sql", resources[2].getLocation());
-        assertEquals("migration/sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", resources[3].getLocation());
-    }
-
-    @Test
-    public void scanForResourcesLeadingAndTrailingSlash() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("/migration/sql/", "V", ".sql");
-
-        assertEquals(4, resources.length);
-
-        assertEquals("migration/sql/V1_1__View.sql", resources[0].getLocation());
-        assertEquals("migration/sql/V1_2__Populate_table.sql", resources[1].getLocation());
-        assertEquals("migration/sql/V1__First.sql", resources[2].getLocation());
-        assertEquals("migration/sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", resources[3].getLocation());
-    }
-
-    @Test
     public void scanForResourcesSubDirectory() throws Exception {
         ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration/subdir", "V", ".sql");
 
@@ -151,7 +115,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClasses() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("com.googlecode.flyway.core.migration.jdbc.dummy", JdbcMigration.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/migration/jdbc/dummy", JdbcMigration.class);
 
         assertEquals(2, classes.length);
 
@@ -161,7 +125,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSubPackage() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("com.googlecode.flyway.core.dbsupport", MigrationTestCase.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/dbsupport", MigrationTestCase.class);
 
         assertTrue(classes.length > 11);
 
@@ -170,7 +134,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSplitPackage() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("com.googlecode.flyway.core.dbsupport", DbSupport.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/dbsupport", DbSupport.class);
 
         assertTrue(classes.length > 8);
 
@@ -179,7 +143,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesJarFile() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("org.hamcrest.core", Matcher.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("org/hamcrest/core", Matcher.class);
 
         assertEquals(10, classes.length);
 

@@ -20,7 +20,6 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
-import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionException;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
@@ -49,11 +48,6 @@ public class DbCleaner {
     private final TransactionTemplate transactionTemplate;
 
     /**
-     * JdbcTemplate with ddl manipulation access to the database.
-     */
-    private final JdbcTemplate jdbcTemplate;
-
-    /**
      * The schemas to clean.
      */
     private final String[] schemas;
@@ -62,13 +56,11 @@ public class DbCleaner {
      * Creates a new database cleaner.
      *
      * @param transactionTemplate The transaction template to use.
-     * @param jdbcTemplate        JdbcTemplate with ddl manipulation access to the database.
      * @param dbSupport           Database-specific functionality.
      * @param schemas             The schemas to clean.
      */
-    public DbCleaner(TransactionTemplate transactionTemplate, JdbcTemplate jdbcTemplate, DbSupport dbSupport, String[] schemas) {
+    public DbCleaner(TransactionTemplate transactionTemplate, DbSupport dbSupport, String[] schemas) {
         this.transactionTemplate = transactionTemplate;
-        this.jdbcTemplate = jdbcTemplate;
         this.dbSupport = dbSupport;
         this.schemas = schemas;
     }
@@ -88,7 +80,6 @@ public class DbCleaner {
      * Cleans this schema of all objects.
      *
      * @param schema The schema to clean.
-     *
      * @throws FlywayException when clean failed.
      */
     private void cleanSchema(String schema) {
@@ -100,7 +91,7 @@ public class DbCleaner {
             try {
                 transactionTemplate.execute(new TransactionCallback<Void>() {
                     public Void doInTransaction() {
-                        cleanScript.execute(jdbcTemplate);
+                        cleanScript.execute(dbSupport.getJdbcTemplate());
                         return null;
                     }
                 });

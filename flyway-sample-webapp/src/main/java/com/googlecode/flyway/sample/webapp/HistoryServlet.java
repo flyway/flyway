@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.sample.appengine;
+package com.googlecode.flyway.sample.webapp;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;

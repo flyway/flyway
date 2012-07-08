@@ -89,11 +89,6 @@ public class SqlMigrationResolver implements MigrationResolver {
             normalizedBaseDir = normalizedBaseDir.substring(1);
         }
 
-        if (StringUtils.hasText(normalizedBaseDir) && !new ClassPathResource(normalizedBaseDir + "/").exists()) {
-            LOG.warn("Unable to find path for sql migrations: " + location);
-            return migrations;
-        }
-
         try {
             ClassPathResource[] resources =
                     new ClassPathScanner().scanForResources(normalizedBaseDir, sqlMigrationPrefix, sqlMigrationSuffix);
@@ -107,7 +102,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                 migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString, scriptName));
             }
         } catch (IOException e) {
-            throw new FlywayException("Unable to scan for SQL migrations in location: " + location);
+            throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
         }
 
         return migrations;
