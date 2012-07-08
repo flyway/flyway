@@ -26,9 +26,17 @@
 
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        h1 {
+            padding-top: 10px;
+        }
+
         p {
             padding-top: 10px;
             padding-bottom: 10px;
+        }
+
+        span {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -36,7 +44,14 @@
 <body>
 <div class="container">
 
-    <h1>Flyway and Google Cloud SQL on Google AppEngine</h1>
+    <h1>Flyway Sample</h1>
+
+    <br/>
+
+    <p>
+        Running on Google AppEngine: <span id="migration-gae">UNKNOWN</span><br/>
+        Database: <span id="migration-database">UNKNOWN</span>
+    </p>
 
     <p>
         <button id="clean-button" class="btn btn-info btn-large">Clean</button>
@@ -48,6 +63,8 @@
         <tr>
             <th>Version</th>
             <th>Description</th>
+            <th>Script</th>
+            <th>Type</th>
             <th>Installed On</th>
             <th>Status</th>
         </tr>
@@ -66,6 +83,13 @@
 
 <script src="/jquery/jquery-1.7.1.min.js"></script>
 <script language="JavaScript">
+    function loadEnvironmentInfo() {
+        $.getJSON("/env-info", function (data) {
+            $("#migration-gae").text(data.gae);
+            $("#migration-database").text(data.database);
+        });
+    }
+
     function refreshMigrationHistory() {
         $.get("/history", function (data) {
             $("#migration-none").show();
@@ -77,6 +101,8 @@
                 var tr = $("<tr class='migration-row'/>");
                 tr.append("<td>" + value.version + "</td>");
                 tr.append("<td>" + value.description + "</td>");
+                tr.append("<td>" + value.script + "</td>");
+                tr.append("<td>" + value.type + "</td>");
                 tr.append("<td>" + value.installedOn + "</td>");
                 tr.append("<td>" + value.state + "</td>");
 
@@ -86,6 +112,7 @@
     }
 
     $(document).ready(function () {
+        loadEnvironmentInfo();
         refreshMigrationHistory();
 
         $("#clean-button").click(function () {

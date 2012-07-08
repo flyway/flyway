@@ -23,21 +23,27 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
 /**
- * Servlet for querying the history of the Google Cloud SQL instance.
+ * Servlet for querying the history of the DB instance.
  */
 public class HistoryServlet extends HttpServlet {
+    /**
+     * The datasource to use.
+     */
+    private final DataSource dataSource = Environment.createDataSource();
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         throw new ServletException("POST not supported");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Flyway flyway = new Flyway();
-        flyway.setDataSource(DataSourceFactory.createDataSource());
+        flyway.setDataSource(dataSource);
 
         List<MetaDataTableRow> metaDataTableRows = flyway.history();
 
@@ -55,6 +61,8 @@ public class HistoryServlet extends HttpServlet {
             
             String description = row.getDescription() == null ? "" : row.getDescription();
             writer.print("\"description\":\"" + description + "\",");
+            writer.print("\"script\":\"" + row.getScript() + "\",");
+            writer.print("\"type\":\"" + row.getMigrationType() + "\",");
 
             writer.print("\"installedOn\":\"" + DateUtils.formatDateAsIsoString(row.getInstalledOn()) + "\",");
             writer.print("\"state\":\"" + row.getState().name() + "\"}");

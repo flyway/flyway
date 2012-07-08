@@ -42,7 +42,7 @@
         <module>flyway-maven-plugin</module>
         <module>flyway-maven-plugin-largetest</module>
         <module>flyway-sample</module>
-        <module>flyway-sample-appengine</module>
+        <module>flyway-sample-webapp</module>
         <module>flyway-commandline</module>
         <module>flyway-commandline-largetest</module>
         <module>flyway-ant</module>
@@ -64,7 +64,7 @@
 
     <properties>
         <version.spring>2.5.6</version.spring>
-        <version.appengine>1.6.1</version.appengine>
+        <version.appengine>1.7.0</version.appengine>
         <version.maven>2.2.1</version.maven>
         <version.slf4j>1.5.6</version.slf4j>
     </properties>

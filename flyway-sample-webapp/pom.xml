@@ -6,7 +6,7 @@
         <version>1.6.2-SNAPSHOT</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
-    <artifactId>flyway-sample-appengine</artifactId>
+    <artifactId>flyway-sample-webapp</artifactId>
     <version>1.6.2-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>${project.artifactId}</name>
@@ -17,21 +17,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-1.0-sdk</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-labs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
     </dependencies>
     <build>

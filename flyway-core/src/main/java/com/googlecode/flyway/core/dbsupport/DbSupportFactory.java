@@ -74,9 +74,10 @@ public class DbSupportFactory {
         if ("Microsoft SQL Server".equals(databaseProductName)) {
             return new SQLServerDbSupport(connection);
         }
-        if ("MySQL".equals(databaseProductName)
-                || "Google SQL Service/MySQL".equals(databaseProductName)
-                || "MySQL/Google Cloud SQL".equals(databaseProductName)) {
+        if (databaseProductName.contains("MySQL")) {
+            // For regular MySQL and Google Cloud SQL.
+            // Google Cloud SQL returns different names depending on the environment and the SDK version.
+            //   ex.: Google SQL Service/MySQL
             return new MySQLDbSupport(connection);
         }
         if ("Oracle".equals(databaseProductName)) {
@@ -86,8 +87,8 @@ public class DbSupportFactory {
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-            // DB2 returns also OS it's running on
-            // e.g. DB2/NT
+            // DB2 also returns the OS it's running on.
+            //   ex.: DB2/NT
             return new DB2DbSupport(connection);
         }
 

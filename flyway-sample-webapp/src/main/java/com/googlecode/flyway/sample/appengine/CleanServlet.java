@@ -21,21 +21,26 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 
 /**
- * Servlet for Migrating the Google Cloud SQL instance.
+ * Servlet for Cleaning the DB instance.
  */
-public class MigrateServlet extends HttpServlet {
+public class CleanServlet extends HttpServlet {
+    /**
+     * The datasource to use.
+     */
+    private final DataSource dataSource = Environment.createDataSource();
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Flyway flyway = new Flyway();
-        flyway.setLocations("com.googlecode.flyway.sample.appengine.migration");
-        flyway.setDataSource(DataSourceFactory.createDataSource());
+        flyway.setDataSource(dataSource);
 
-        int successCount = flyway.migrate();
+        flyway.clean();
 
         response.setContentType("application/json");
-        response.getWriter().print("{\"status\":\"OK\", \"count\":" + successCount + "}");
+        response.getWriter().print("{\"status\":\"OK\"}");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

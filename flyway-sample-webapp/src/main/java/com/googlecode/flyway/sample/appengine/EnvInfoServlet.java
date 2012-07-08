@@ -15,29 +15,35 @@
  */
 package com.googlecode.flyway.sample.appengine;
 
-import com.googlecode.flyway.core.Flyway;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
- * Servlet for Cleaning the Google Cloud SQL instance.
+ * Servlet for serving the home page.
  */
-public class CleanServlet extends HttpServlet {
+public class EnvInfoServlet extends HttpServlet {
+    /**
+     * The datasource to use.
+     */
+    private final DataSource dataSource = Environment.createDataSource();
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(DataSourceFactory.createDataSource());
-
-        flyway.clean();
-
-        response.setContentType("application/json");
-        response.getWriter().print("{\"status\":\"OK\"}");
+        throw new ServletException("POST not supported");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        throw new ServletException("GET not supported");
+        boolean gae = Environment.runningOnGoogleAppEngine();
+        String database = Environment.createDataSource().getUrl();
+
+
+        PrintWriter writer = response.getWriter();
+        writer.print("{\"status\":\"OK\"," +
+                " \"gae\":\"" + gae + "\"," +
+                " \"database\":\"" + database + "\"}");
     }
 }

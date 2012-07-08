@@ -20,8 +20,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
-        <servlet-name>appstats</servlet-name>
-        <servlet-class>com.google.appengine.tools.appstats.AppstatsServlet</servlet-class>
+        <servlet-name>EnvInfoServlet</servlet-name>
+        <servlet-class>com.googlecode.flyway.sample.appengine.EnvInfoServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>CleanServlet</servlet-name>
@@ -36,18 +36,9 @@
         <servlet-class>com.googlecode.flyway.sample.appengine.HistoryServlet</servlet-class>
     </servlet>
 
-    <filter>
-        <filter-name>appstats</filter-name>
-        <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
-        <init-param>
-            <param-name>logMessage</param-name>
-            <param-value>Appstats available: /appstats/details?time={ID}</param-value>
-        </init-param>
-    </filter>
-
     <servlet-mapping>
-        <servlet-name>appstats</servlet-name>
-        <url-pattern>/appstats/*</url-pattern>
+        <servlet-name>EnvInfoServlet</servlet-name>
+        <url-pattern>/env-info</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -64,19 +55,4 @@
         <servlet-name>HistoryServlet</servlet-name>
         <url-pattern>/history</url-pattern>
     </servlet-mapping>
-
-    <filter-mapping>
-        <filter-name>appstats</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>AppStats</web-resource-name>
-            <url-pattern>/appstats/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>admin</role-name>
-        </auth-constraint>
-    </security-constraint>
 </web-app>
