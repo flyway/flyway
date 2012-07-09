@@ -43,6 +43,9 @@
         <module>flyway-maven-plugin-largetest</module>
         <module>flyway-sample</module>
         <module>flyway-sample-webapp</module>
+        <module>flyway-sample-osgi</module>
+        <module>flyway-sample-osgi-fragment</module>
+        <module>flyway-osgi-largetest</module>
         <module>flyway-commandline</module>
         <module>flyway-commandline-largetest</module>
         <module>flyway-ant</module>
@@ -66,7 +69,10 @@
         <version.spring>2.5.6</version.spring>
         <version.appengine>1.7.0</version.appengine>
         <version.maven>2.2.1</version.maven>
-        <version.slf4j>1.5.6</version.slf4j>
+        <version.slf4j>1.6.6</version.slf4j>
+        <version.h2>1.2.137</version.h2>
+        <version.equinox>3.6.0.v20100517</version.equinox>
+        <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
     </properties>
 
     <dependencyManagement>
@@ -89,6 +95,17 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>org.eclipse.equinox</groupId>
+                <artifactId>org.eclipse.equinox.common</artifactId>
+                <version>${version.equinoxcommon}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+                <version>${version.equinox}</version>
+            </dependency>
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.10</version>
@@ -108,7 +125,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.2.137</version>
+                <version>${version.h2}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -216,6 +233,11 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
+                <version>${version.slf4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
                 <version>${version.slf4j}</version>
             </dependency>
             <dependency>

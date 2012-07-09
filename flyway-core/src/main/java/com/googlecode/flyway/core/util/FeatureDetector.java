@@ -42,6 +42,11 @@ public final class FeatureDetector {
     private static Boolean jbossVfsAvailable;
 
     /**
+     * Flag indicating availability of the Equinox Common OSGi Bundle.
+     */
+    private static Boolean equinoxCommonAvailable;
+
+    /**
      * Checks whether Spring Jdbc is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
@@ -67,5 +72,19 @@ public final class FeatureDetector {
         }
 
         return jbossVfsAvailable;
+    }
+
+    /**
+     * Checks whether the Equinox Common OSGi Bundle is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public static boolean isEquinoxCommonAvailable() {
+        if (equinoxCommonAvailable == null) {
+            equinoxCommonAvailable = ClassUtils.isPresent("org.eclipse.core.runtime.FileLocator");
+            LOG.debug("Equinox Common OSGi Bundle available: " + equinoxCommonAvailable);
+        }
+
+        return equinoxCommonAvailable;
     }
 }

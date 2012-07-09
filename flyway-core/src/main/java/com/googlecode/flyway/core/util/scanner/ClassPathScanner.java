@@ -19,13 +19,18 @@ import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSLocationScanner;
+import com.googlecode.flyway.core.util.scanner.osgi.EquinoxCommonResourceUrlResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * ClassPath scanner.
@@ -129,6 +134,8 @@ public class ClassPathScanner {
             URL locationUrl = locationsUrls.nextElement();
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
+            locationUrl = resolveOSGiUrlIfNecessary(locationUrl);
+
             String scanRoot = URLDecoder.decode(locationUrl.getFile(), "UTF-8");
             if (scanRoot.endsWith("/")) {
                 scanRoot = scanRoot.substring(0, scanRoot.length() - 1);
@@ -147,6 +154,26 @@ public class ClassPathScanner {
     }
 
     /**
+     * Resolves this URL into a regular URL if it turns out to be an OSGi URL.
+     * @param url The url to maybe resolve.
+     * @return The matching Java URL.
+     * @throws IOException when resolution failed.
+     */
+    private URL resolveOSGiUrlIfNecessary(URL url) throws IOException {
+        String protocol = url.getProtocol();
+
+        if (protocol.startsWith("bundle")) {
+            if (FeatureDetector.isEquinoxCommonAvailable()) {
+                return EquinoxCommonResourceUrlResolver.osgiToJavaURL(url);
+            } else {
+                LOG.warn("Unable to resolve OSGi resource URL. Make sure the 'org.eclipse.equinox.common' bundle is loaded!");
+            }
+        }
+
+        return url;
+    }
+
+    /**
      * Creates an appropriate location scanner for this url protocol.
      *
      * @param protocol The protocol of the location url to scan.
@@ -156,7 +183,10 @@ public class ClassPathScanner {
         if ("file".equals(protocol)) {
             return new FileSystemLocationScanner();
         }
-        if ("jar".equals(protocol) || "zip".equals(protocol)) {
+        if ("jar".equals(protocol)
+                || "zip".equals(protocol) //WebLogic
+                || "wsjar".equals(protocol) //WebSphere
+                ) {
             return new JarFileLocationScanner(protocol);
         }
         if (FeatureDetector.isJBossVFSAvailable() && "vfs".equals(protocol)) {

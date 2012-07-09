@@ -1,0 +1,2 @@
+rmdir configuration\org.eclipse.osgi /S /Q
+java -jar org.eclipse.osgi-${version.equinox}.jar
