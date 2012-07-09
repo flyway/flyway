@@ -28,20 +28,23 @@ public class OsgiActivator implements BundleActivator {
     public void start(BundleContext context) throws Exception {
         System.out.println("Starting Flyway Sample OSGi");
 
-        Properties properties = new Properties();
-        properties.setProperty("flyway.driver", "org.h2.Driver");
-        properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1");
-        properties.setProperty("flyway.user", "sa");
-        properties.setProperty("flyway.password", "");
+        try {
+            Properties properties = new Properties();
+            properties.setProperty("flyway.driver", "org.h2.Driver");
+            properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1");
+            properties.setProperty("flyway.user", "sa");
+            properties.setProperty("flyway.password", "");
 
-        Flyway flyway = new Flyway();
-        flyway.configure(properties);
-        flyway.setLocations("db/migration", "com.googlecode.flyway.sample.osgi.fragment");
-        flyway.migrate();
+            Flyway flyway = new Flyway();
+            flyway.configure(properties);
+            flyway.setLocations("db/migration", "com.googlecode.flyway.sample.osgi.fragment");
+            flyway.migrate();
 
-        System.out.println("New schema version: " + flyway.status().getVersion());
+            System.out.println("New schema version: " + flyway.status().getVersion());
 
-        System.exit(0);
+        } finally {
+            System.exit(0);
+        }
     }
 
     public void stop(BundleContext context) throws Exception {
