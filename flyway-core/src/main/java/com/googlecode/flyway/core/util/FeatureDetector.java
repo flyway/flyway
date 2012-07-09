@@ -37,6 +37,11 @@ public final class FeatureDetector {
     private static Boolean springJdbcAvailable;
 
     /**
+     * Flag indicating availability of JBoss VFS.
+     */
+    private static Boolean jbossVfsAvailable;
+
+    /**
      * Checks whether Spring Jdbc is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
@@ -48,5 +53,19 @@ public final class FeatureDetector {
         }
 
         return springJdbcAvailable;
+    }
+
+    /**
+     * Checks whether JBoss VFS is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public static boolean isJBossVFSAvailable() {
+        if (jbossVfsAvailable == null) {
+            jbossVfsAvailable = ClassUtils.isPresent("org.jboss.vfs.VFS");
+            LOG.debug("JBoss VFS available: " + jbossVfsAvailable);
+        }
+
+        return jbossVfsAvailable;
     }
 }

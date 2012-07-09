@@ -16,7 +16,9 @@
 package com.googlecode.flyway.core.util.scanner;
 
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.util.StringUtils;
+import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSLocationScanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -156,6 +158,9 @@ public class ClassPathScanner {
         }
         if ("jar".equals(protocol) || "zip".equals(protocol)) {
             return new JarFileLocationScanner(protocol);
+        }
+        if (FeatureDetector.isJBossVFSAvailable() && "vfs".equals(protocol)) {
+            return new JBossVFSLocationScanner();
         }
         return null;
     }

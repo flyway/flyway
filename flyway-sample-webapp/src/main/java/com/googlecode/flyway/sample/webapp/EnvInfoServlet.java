@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.sample.webapp;
 
+import com.googlecode.flyway.core.util.FeatureDetector;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,13 +39,20 @@ public class EnvInfoServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean gae = Environment.runningOnGoogleAppEngine();
-        String database = Environment.createDataSource().getUrl();
+        String appserver;
+        if (Environment.runningOnGoogleAppEngine()) {
+            appserver = "Google AppEngine";
+        } else if (FeatureDetector.isJBossVFSAvailable()) {
+            appserver = "JBoss";
+        } else {
+            appserver = "Other";
+        }
 
+        String database = Environment.createDataSource().getUrl();
 
         PrintWriter writer = response.getWriter();
         writer.print("{\"status\":\"OK\"," +
-                " \"gae\":\"" + gae + "\"," +
+                " \"appserver\":\"" + appserver + "\"," +
                 " \"database\":\"" + database + "\"}");
     }
 }

@@ -19,9 +19,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Flyway and Google Cloud SQL on Google AppEngine</title>
+    <title>Flyway Sample</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Flyway and Google Cloud SQL on Google AppEngine sample">
+    <meta name="description" content="Flyway Sample">
     <meta name="author" content="The Flyway DEV Team">
 
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -49,7 +49,7 @@
     <br/>
 
     <p>
-        Running on Google AppEngine: <span id="migration-gae">UNKNOWN</span><br/>
+        AppServer: <span id="migration-appserver">UNKNOWN</span><br/>
         Database: <span id="migration-database">UNKNOWN</span>
     </p>
 
@@ -85,7 +85,7 @@
 <script language="JavaScript">
     function loadEnvironmentInfo() {
         $.getJSON("env-info", function (data) {
-            $("#migration-gae").text(data.gae);
+            $("#migration-appserver").text(data.appserver);
             $("#migration-database").text(data.database);
         });
     }
