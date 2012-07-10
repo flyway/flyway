@@ -29,11 +29,11 @@ import org.apache.maven.project.MavenProject;
 abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db.migration)
+     * and java-based migrations. (default: db/migration)
      *
      * @parameter
      */
-    private String[] locations = new String[]{"db.migration"};
+    private String[] locations;
 
     /**
      * The base package where the Java migrations are located. (default: db.migration) <br> Also configurable with Maven

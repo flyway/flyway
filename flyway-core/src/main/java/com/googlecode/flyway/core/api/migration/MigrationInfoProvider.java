@@ -23,11 +23,15 @@ import com.googlecode.flyway.core.api.Version;
  */
 public interface MigrationInfoProvider {
     /**
+     * Returns the version after the migration is complete.
+     *
      * @return The version after the migration is complete.
      */
     Version getVersion();
 
     /**
+     * Returns the description for the migration history.
+     *
      * @return The description for the migration history.
      */
     String getDescription();

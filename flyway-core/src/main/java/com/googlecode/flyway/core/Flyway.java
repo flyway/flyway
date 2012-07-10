@@ -57,7 +57,7 @@ public class Flyway {
 
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db.migration)
+     * and java-based migrations. (default: db/migration)
      */
     private String[] locations = new String[]{"db/migration"};
 
@@ -169,11 +169,18 @@ public class Flyway {
     private DataSource dataSource;
 
     /**
+     * Creates a new instance of Flyway. This is your starting point.
+     */
+    public Flyway() {
+        // Do nothing
+    }
+
+    /**
      * Retrieves locations on the classpath to scan recursively for migrations. Locations may contain both sql
      * and java-based migrations.
      *
      * @return Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     *         and java-based migrations. (default: db.migration)
+     *         and java-based migrations. (default: db/migration)
      */
     public String[] getLocations() {
         return locations;
@@ -401,7 +408,7 @@ public class Flyway {
      * and java-based migrations. (default: db.migration)
      *
      * @param locations Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     *                  and java-based migrations. (default: db.migration)
+     *                  and java-based migrations. (default: db/migration)
      */
     public void setLocations(String... locations) {
         this.locations = new String[locations.length];

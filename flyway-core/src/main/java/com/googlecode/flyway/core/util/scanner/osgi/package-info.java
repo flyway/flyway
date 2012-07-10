@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.api.migration;
-
 /**
- * Migration implementors that also implement this interface will be able to specify their checksum (for
- * validation), instead of having it automatically computed or default to {@code null} (for Java Migrations).
+ * Private API: No compatibility guarantees provided.
  */
-public interface MigrationChecksumProvider {
-    /**
-     * Computes the checksum of the migration.
-     *
-     * @return The checksum of the migration.
-     */
-    Integer getChecksum();
-}
+package com.googlecode.flyway.core.util.scanner.osgi;
