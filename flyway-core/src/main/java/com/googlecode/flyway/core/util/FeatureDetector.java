@@ -37,9 +37,14 @@ public final class FeatureDetector {
     private static Boolean springJdbcAvailable;
 
     /**
-     * Flag indicating availability of JBoss VFS.
+     * Flag indicating availability of JBoss VFS v2.
      */
-    private static Boolean jbossVfsAvailable;
+    private static Boolean jbossVFSv2Available;
+
+    /**
+     * Flag indicating availability of JBoss VFS v3.
+     */
+    private static Boolean jbossVFSv3Available;
 
     /**
      * Flag indicating availability of the Equinox Common OSGi Bundle.
@@ -61,17 +66,31 @@ public final class FeatureDetector {
     }
 
     /**
+     * Checks whether JBoss VFS v2 is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public static boolean isJBossVFSv2Available() {
+        if (jbossVFSv2Available == null) {
+            jbossVFSv2Available = ClassUtils.isPresent("org.jboss.virtual.VFS");
+            LOG.debug("JBoss VFS v2 available: " + jbossVFSv2Available);
+        }
+
+        return jbossVFSv2Available;
+    }
+
+    /**
      * Checks whether JBoss VFS is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
-    public static boolean isJBossVFSAvailable() {
-        if (jbossVfsAvailable == null) {
-            jbossVfsAvailable = ClassUtils.isPresent("org.jboss.vfs.VFS");
-            LOG.debug("JBoss VFS available: " + jbossVfsAvailable);
+    public static boolean isJBossVFSv3Available() {
+        if (jbossVFSv3Available == null) {
+            jbossVFSv3Available = ClassUtils.isPresent("org.jboss.vfs.VFS");
+            LOG.debug("JBoss VFS v3 available: " + jbossVFSv3Available);
         }
 
-        return jbossVfsAvailable;
+        return jbossVFSv3Available;
     }
 
     /**

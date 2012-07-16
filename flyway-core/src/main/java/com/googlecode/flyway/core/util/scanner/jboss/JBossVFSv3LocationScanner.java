@@ -30,8 +30,8 @@ import java.util.TreeSet;
 /**
  * LocationScanner for JBoss VFS v3.
  */
-public class JBossVFSLocationScanner implements LocationScanner {
-    private static final Log LOG = LogFactory.getLog(JBossVFSLocationScanner.class);
+public class JBossVFSv3LocationScanner implements LocationScanner {
+    private static final Log LOG = LogFactory.getLog(JBossVFSv3LocationScanner.class);
 
     public Set<String> findResourceNames(String location, String locationUrl) throws IOException {
         String classPathRootOnDisk = locationUrl.substring(0, locationUrl.length() - location.length());

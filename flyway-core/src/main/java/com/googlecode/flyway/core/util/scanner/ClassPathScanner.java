@@ -18,7 +18,8 @@ package com.googlecode.flyway.core.util.scanner;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSLocationScanner;
+import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
+import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv3LocationScanner;
 import com.googlecode.flyway.core.util.scanner.osgi.EquinoxCommonResourceUrlResolver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -134,14 +135,15 @@ public class ClassPathScanner {
             URL locationUrl = locationsUrls.nextElement();
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
-            locationUrl = resolveOSGiUrlIfNecessary(locationUrl);
+            UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
+            URL resolvedUrl = urlResolver.toStandardJavaUrl(locationUrl);
 
-            String scanRoot = URLDecoder.decode(locationUrl.getFile(), "UTF-8");
+            String scanRoot = URLDecoder.decode(resolvedUrl.getFile(), "UTF-8");
             if (scanRoot.endsWith("/")) {
                 scanRoot = scanRoot.substring(0, scanRoot.length() - 1);
             }
 
-            String protocol = locationUrl.getProtocol();
+            String protocol = resolvedUrl.getProtocol();
             LocationScanner locationScanner = createLocationScanner(protocol);
             if (locationScanner == null) {
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
@@ -154,23 +156,29 @@ public class ClassPathScanner {
     }
 
     /**
-     * Resolves this URL into a regular URL if it turns out to be an OSGi URL.
-     * @param url The url to maybe resolve.
-     * @return The matching Java URL.
-     * @throws IOException when resolution failed.
+     * Creates an appropriate URL resolver scanner for this url protocol.
+     *
+     * @param protocol The protocol of the location url to scan.
+     * @return The url resolver for this protocol.
      */
-    private URL resolveOSGiUrlIfNecessary(URL url) throws IOException {
-        String protocol = url.getProtocol();
-
+    private UrlResolver createUrlResolver(String protocol) {
         if (protocol.startsWith("bundle")) {
             if (FeatureDetector.isEquinoxCommonAvailable()) {
-                return EquinoxCommonResourceUrlResolver.osgiToJavaURL(url);
+                return new EquinoxCommonResourceUrlResolver();
             } else {
                 LOG.warn("Unable to resolve OSGi resource URL. Make sure the 'org.eclipse.equinox.common' bundle is loaded!");
             }
         }
 
-        return url;
+        if (FeatureDetector.isJBossVFSv2Available() && protocol.startsWith("vfs")) {
+            return new JBossVFSv2UrlResolver();
+        }
+
+        return new UrlResolver() {
+            public URL toStandardJavaUrl(URL url) throws IOException {
+                return url;
+            }
+        };
     }
 
     /**
@@ -189,8 +197,8 @@ public class ClassPathScanner {
                 ) {
             return new JarFileLocationScanner(protocol);
         }
-        if (FeatureDetector.isJBossVFSAvailable() && "vfs".equals(protocol)) {
-            return new JBossVFSLocationScanner();
+        if (FeatureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
+            return new JBossVFSv3LocationScanner();
         }
         return null;
     }
