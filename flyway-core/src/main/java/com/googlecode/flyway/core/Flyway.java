@@ -142,7 +142,7 @@ public class Flyway {
     private ValidationMode validationMode = ValidationMode.NONE;
 
     /**
-     * The error mode for validation.
+     * The error mode for validation. (default: FAIL)
      */
     private ValidationErrorMode validationErrorMode = ValidationErrorMode.FAIL;
 
@@ -323,7 +323,7 @@ public class Flyway {
     /**
      * Retrieves the error mode for validation.
      *
-     * @return The error mode for validation.
+     * @return The error mode for validation. (default: FAIL)
      */
     public ValidationErrorMode getValidationErrorMode() {
         return validationErrorMode;
@@ -395,7 +395,7 @@ public class Flyway {
     /**
      * Sets the error mode for validation.
      *
-     * @param validationErrorMode The error mode for validation
+     * @param validationErrorMode The error mode for validation. (default: FAIL)
      */
     public void setValidationErrorMode(ValidationErrorMode validationErrorMode) {
         this.validationErrorMode = validationErrorMode;
