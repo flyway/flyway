@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -53,6 +54,7 @@ public class MavenLargeTest {
     public void migrate() throws Exception {
         String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:migrate");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
+        assertFalse(stdOut.contains("deprecated"));
     }
 
     @Test

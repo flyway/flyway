@@ -194,7 +194,6 @@ public class Flyway {
      */
     @Deprecated
     public String getBasePackage() {
-        LOG.warn("Flyway.getBasePackage is deprecated. Use Flyway.getLocations instead.");
         return basePackage;
     }
 
@@ -206,7 +205,6 @@ public class Flyway {
      */
     @Deprecated
     public String getBaseDir() {
-        LOG.warn("Flyway.getBaseDir is deprecated. Use Flyway.getLocations instead.");
         return baseDir;
     }
 
