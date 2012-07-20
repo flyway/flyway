@@ -40,6 +40,21 @@ public class ClassUtils {
     }
 
     /**
+     * Checks whether this class can be instantiated or not (abstract, no default constructor, ...).
+     *
+     * @param clazz The class to check.
+     * @return {@code true} if it can, {@code false} if it can't.
+     */
+    public static boolean canInstantiate(Class<?> clazz) {
+        try {
+            clazz.newInstance();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * @return The classloader to use for loading classes.
      */
     private static ClassLoader getClassLoader() {

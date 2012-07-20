@@ -25,8 +25,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * Test migration.
  */
-public class Version3dot5 implements SpringJdbcMigration, MigrationInfoProvider, MigrationChecksumProvider {
-    public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
+public class Version3dot5 extends DummyAbstractSpringJdbcMigration implements MigrationInfoProvider, MigrationChecksumProvider {
+    public void doMigrate(JdbcTemplate jdbcTemplate) throws Exception {
         //Do nothing
     }
 

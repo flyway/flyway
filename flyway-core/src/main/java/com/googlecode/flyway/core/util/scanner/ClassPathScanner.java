@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.util.scanner;
 
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
@@ -64,12 +65,13 @@ public class ClassPathScanner {
     }
 
     /**
-     * Scans the classpath for classes under the specified package implementing any of these interfaces.
+     * Scans the classpath for concrete classes under the specified package implementing any of these interfaces.
+     * Non-instantiable abstract classes are filtered out.
      *
      * @param location              The location (package) in the classpath to start scanning.
      *                              Subpackages are also scanned.
      * @param implementedInterfaces The interfaces the matching classes should implement..
-     * @return The classes that were found.
+     * @return The non-abstract classes that were found.
      * @throws Exception when the location could not be scanned.
      */
     public Class<?>[] scanForClasses(String location, Class<?>... implementedInterfaces) throws Exception {
@@ -86,6 +88,12 @@ public class ClassPathScanner {
         for (String resourceName : resourceNames) {
             String className = toClassName(resourceName);
             Class<?> clazz = getClassLoader().loadClass(className);
+
+            if (!ClassUtils.canInstantiate(clazz)) {
+                LOG.debug("Skipping uninstantiable class: " + className);
+                continue;
+            }
+
             if (implementedInterfaces.length == 0) {
                 classes.add(clazz);
                 LOG.debug("Found class: " + className);

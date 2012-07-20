@@ -25,8 +25,8 @@ import java.sql.Connection;
 /**
  * Test migration.
  */
-public class Version3dot5 implements JdbcMigration, MigrationInfoProvider, MigrationChecksumProvider {
-    public void migrate(Connection connection) throws Exception {
+public class Version3dot5 extends DummyAbstractJdbcMigration implements MigrationInfoProvider, MigrationChecksumProvider {
+    public void doMigrate(Connection connection) throws Exception {
         //Do nothing.
     }
 
