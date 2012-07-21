@@ -22,10 +22,13 @@ import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.jdbc.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.migration.jdbc.dummy.Version3dot5;
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.AllOf;
 import org.hamcrest.core.AnyOf;
 import org.hamcrest.core.DescribedAs;
+import org.hamcrest.core.IsAnything;
+import org.hamcrest.core.IsNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -127,28 +130,27 @@ public class ClassPathScannerSmallTest {
     public void scanForClassesSubPackage() throws Exception {
         Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/dbsupport", MigrationTestCase.class);
 
-        assertTrue(classes.length > 11);
+        assertTrue(classes.length >= 10);
 
         assertEquals(DB2MigrationMediumTest.class, classes[0]);
     }
 
     @Test
     public void scanForClassesSplitPackage() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/dbsupport", DbSupport.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/util", UrlResolver.class);
 
-        assertTrue(classes.length > 8);
+        assertTrue(classes.length >= 2);
 
-        assertEquals(DbSupport.class, classes[0]);
+        assertEquals(JBossVFSv2UrlResolver.class, classes[0]);
     }
 
     @Test
     public void scanForClassesJarFile() throws Exception {
         Class<?>[] classes = new ClassPathScanner().scanForClasses("org/hamcrest/core", Matcher.class);
 
-        assertEquals(10, classes.length);
+        assertEquals(2, classes.length);
 
-        assertEquals(AllOf.class, classes[0]);
-        assertEquals(AnyOf.class, classes[1]);
-        assertEquals(DescribedAs.class, classes[2]);
+        assertEquals(IsAnything.class, classes[0]);
+        assertEquals(IsNull.class, classes[1]);
     }
 }
