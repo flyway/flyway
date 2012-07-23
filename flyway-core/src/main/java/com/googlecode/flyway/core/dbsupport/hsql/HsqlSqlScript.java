@@ -36,6 +36,12 @@ public class HsqlSqlScript extends SqlScript {
 
     @Override
     protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
+        if (statement.toUpperCase().matches(".*\\W+BEGIN\\W+ATOMIC\\W+.*")) {
+            if (statement.toUpperCase().trim().endsWith("END;")) {
+                return DEFAULT_STATEMENT_DELIMITER;
+            }
+            return null;
+        }
         return DEFAULT_STATEMENT_DELIMITER;
     }
 

@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
@@ -39,13 +40,27 @@ public class HsqlDbSupport extends DbSupport {
     private static final Log LOG = LogFactory.getLog(HsqlDbSupport.class);
 
     /**
+     * Flag indicating whether we are running against the old HsqlDb 1.8 instead of the newer 2.x.
+     */
+    private boolean version18;
+
+    /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
      */
     public HsqlDbSupport(Connection connection) {
         super(new HsqlJdbcTemplate(connection));
-        LOG.info("Hsql does not support locking. No concurrent migration supported.");
+
+        try {
+            version18 = jdbcTemplate.getMetaData().getDatabaseMajorVersion() < 2;
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to determine the HsqlDb version", e);
+        }
+
+        if (version18) {
+            LOG.info("Hsql does not support locking. No concurrent migration supported.");
+        }
     }
 
     public String getScriptLocation() {
@@ -87,8 +102,12 @@ public class HsqlDbSupport extends DbSupport {
         return false;
     }
 
-    public void lockTable(String schema, String table) {
-        //Locking is not supported by Hsql
+    public void lockTable(String schema, String table) throws SQLException {
+        if (version18) {
+            //Do nothing -> Locking is not supported by HsqlDb 1.8
+        } else {
+            jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
+        }
     }
 
     public String getBooleanTrue() {

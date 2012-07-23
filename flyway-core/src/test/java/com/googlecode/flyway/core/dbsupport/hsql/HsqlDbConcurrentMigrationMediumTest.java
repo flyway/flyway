@@ -15,27 +15,19 @@
  */
 package com.googlecode.flyway.core.dbsupport.hsql;
 
+import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.hsqldb.jdbcDriver;
-import org.junit.Test;
 
-import java.sql.Connection;
-
-import static org.junit.Assert.assertFalse;
+import javax.sql.DataSource;
+import java.util.Properties;
 
 /**
- * Test for HsqlDbSupport.
+ * Test to demonstrate the migration functionality using H2.
  */
-public class HsqlDbSupportMediumTest {
-    @Test
-    public void isSchemaEmpty() throws Exception {
-        DriverDataSource dataSource = new DriverDataSource(new jdbcDriver(), "jdbc:hsqldb:mem:flyway_db", "SA", "");
-
-        Connection connection = dataSource.getConnection();
-        HsqlDbSupport dbSupport = new HsqlDbSupport(connection);
-        dbSupport.getJdbcTemplate().execute("CREATE TABLE mytable (mycol INT)");
-        assertFalse(dbSupport.isSchemaEmpty("PUBLIC"));
-        assertFalse(dbSupport.isSchemaEmpty("public"));
-        connection.close();
+public class HsqlDbConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        return new DriverDataSource(new jdbcDriver(), "jdbc:hsqldb:mem:flyway_db_concurrent", "SA", "");
     }
 }

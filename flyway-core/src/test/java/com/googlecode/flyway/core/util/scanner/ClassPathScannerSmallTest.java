@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.util.scanner;
 
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.db2.DB2MigrationMediumTest;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.jdbc.dummy.V2__InterfaceBasedMigration;
@@ -24,9 +23,6 @@ import com.googlecode.flyway.core.migration.jdbc.dummy.Version3dot5;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.AllOf;
-import org.hamcrest.core.AnyOf;
-import org.hamcrest.core.DescribedAs;
 import org.hamcrest.core.IsAnything;
 import org.hamcrest.core.IsNull;
 import org.junit.Test;

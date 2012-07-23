@@ -13,7 +13,6 @@ import static org.junit.Assert.assertEquals;
  * Small test for HsqlSqlScript.
  */
 public class HsqlSqlScriptSmallTest {
-    @Ignore("Not implemented yet")
     @Test
     public void parseBeginAtomic() {
         HsqlSqlScript script = new HsqlSqlScript("CREATE TRIGGER uniqueidx_trigger BEFORE INSERT ON usertable \n" +

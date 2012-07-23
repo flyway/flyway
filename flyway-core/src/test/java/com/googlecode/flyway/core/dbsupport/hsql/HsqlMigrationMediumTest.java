@@ -22,7 +22,6 @@ import org.hsqldb.jdbcDriver;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -35,13 +34,9 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
 
-        try {
-            jdbcTemplate.execute("DROP SCHEMA flyway_1 CASCADE");
-            jdbcTemplate.execute("DROP SCHEMA flyway_2 CASCADE");
-            jdbcTemplate.execute("DROP SCHEMA flyway_3 CASCADE");
-        } catch (SQLException e) {
-            //Dirty hack to compensate for the fact that DROP SCHEMA IF EXISTS is only available as of HsqlDB 2.0
-        }
+        jdbcTemplate.execute("DROP SCHEMA flyway_1 IF EXISTS CASCADE");
+        jdbcTemplate.execute("DROP SCHEMA flyway_2 IF EXISTS CASCADE");
+        jdbcTemplate.execute("DROP SCHEMA flyway_3 IF EXISTS CASCADE");
 
         jdbcTemplate.execute("CREATE SCHEMA flyway_1 AUTHORIZATION DBA");
         jdbcTemplate.execute("CREATE SCHEMA flyway_2 AUTHORIZATION DBA");
@@ -68,6 +63,15 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
         assertEquals("Sequence", flyway.status().getDescription());
 
         assertEquals(666, jdbcTemplate.queryForInt("CALL NEXT VALUE FOR the_beast"));
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
+    public void trigger() throws Exception {
+        flyway.setLocations("migration/dbsupport/hsql/sql/trigger");
+        flyway.migrate();
 
         flyway.clean();
         flyway.migrate();
