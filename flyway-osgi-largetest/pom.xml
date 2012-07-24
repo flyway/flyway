@@ -38,16 +38,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
             <scope>test</scope>
@@ -100,7 +90,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <excludeArtifactIds>junit</excludeArtifactIds>
+                            <excludeArtifactIds>junit,hamcrest-core</excludeArtifactIds>
                             <outputDirectory>${installDir}</outputDirectory>
                         </configuration>
                     </execution>

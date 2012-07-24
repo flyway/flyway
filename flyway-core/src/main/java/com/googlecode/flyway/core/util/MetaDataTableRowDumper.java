@@ -16,8 +16,8 @@
 package com.googlecode.flyway.core.util;
 
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

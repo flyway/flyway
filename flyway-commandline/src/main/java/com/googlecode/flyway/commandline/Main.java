@@ -17,11 +17,22 @@ package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.util.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.ClassUtils;
+import com.googlecode.flyway.core.util.ExceptionUtils;
+import com.googlecode.flyway.core.util.FileCopyUtils;
+import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import com.googlecode.flyway.core.util.PropertiesUtils;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
@@ -31,10 +42,12 @@ import java.util.Properties;
  * Main class and central entry point of the Flyway command-line tool.
  */
 public class Main {
-    /**
-     * Logger.
-     */
-    private static final Log LOG = LogFactory.getLog(Main.class);
+    private static Log LOG;
+
+    static {
+        LogFactory.setLogCreator(new ConsoleLogCreator());
+        LOG = LogFactory.getLog(Main.class);
+    }
 
     /**
      * Main method.
@@ -120,7 +133,7 @@ public class Main {
 
     /**
      * Output class, method and line number infos of first stack trace element
-     * of the given {@link Throwable} using {@link Log#error(Object)}.
+     * of the given {@link Throwable} using {@link Log#error(String)}.
      *
      * @param t {@link Throwable} to log
      */

@@ -19,8 +19,8 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -37,7 +37,7 @@ public abstract class AbstractFlywayTask extends Task {
     /**
      * Logger.
      */
-    private static final Log LOG = LogFactory.getLog(AbstractFlywayTask.class);
+    protected Log LOG;
 
     /**
      * The classpath used to load the JDBC driver and the migrations.
@@ -203,7 +203,8 @@ public abstract class AbstractFlywayTask extends Task {
 
     @Override
     public void execute() throws BuildException {
-        AntLogAppender.startTaskLog(getProject());
+        LogFactory.setLogCreator(new AntLogCreator(getProject()));
+        LOG = LogFactory.getLog(getClass());
 
         prepareClassPath();
 
@@ -230,8 +231,6 @@ public abstract class AbstractFlywayTask extends Task {
                 LOG.error("Caused by " + rootCause.toString());
             }
             throw new BuildException("Flyway Error: " + e.toString(), e);
-        } finally {
-            AntLogAppender.endTaskLog();
         }
     }
 

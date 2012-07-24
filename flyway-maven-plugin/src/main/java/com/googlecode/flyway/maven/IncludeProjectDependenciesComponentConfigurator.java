@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.maven;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.codehaus.classworlds.ClassRealm;
 import org.codehaus.plexus.component.configurator.AbstractComponentConfigurator;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
@@ -45,8 +43,6 @@ import java.util.List;
  */
 @SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
 public class IncludeProjectDependenciesComponentConfigurator extends AbstractComponentConfigurator {
-
-    private static final Log LOGGER = LogFactory.getLog(IncludeProjectDependenciesComponentConfigurator.class);
 
     public void configureComponent(Object component, PlexusConfiguration configuration,
                                    ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm,
@@ -86,9 +82,6 @@ public class IncludeProjectDependenciesComponentConfigurator extends AbstractCom
             try {
                 final URL url = new File(element).toURI().toURL();
                 urls.add(url);
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Added to project class loader: " + url);
-                }
             } catch (MalformedURLException e) {
                 throw new ComponentConfigurationException("Unable to access project dependency: " + element, e);
             }

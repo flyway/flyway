@@ -23,8 +23,8 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.init.InitMigration;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 /**
  * Workflow for initializing the database with a new metadata table and an initial marker version.

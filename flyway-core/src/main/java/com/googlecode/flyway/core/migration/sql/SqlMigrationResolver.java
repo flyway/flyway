@@ -19,10 +19,7 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,11 +30,6 @@ import java.util.List;
  * V1__Description.sql or V1_1__Description.sql.
  */
 public class SqlMigrationResolver implements MigrationResolver {
-    /**
-     * Logger.
-     */
-    private static final Log LOG = LogFactory.getLog(SqlMigrationResolver.class);
-
     /**
      * The base directory on the classpath where to migrations are located.
      */

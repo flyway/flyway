@@ -21,8 +21,7 @@ import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.validation.ValidationMode;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.tools.ant.Project;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -34,8 +33,6 @@ import java.util.Map;
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class MigrateTask extends AbstractMigrationLoadingTask {
-    private static final Log LOG = LogFactory.getLog(MigrateTask.class);
-
     /**
      * Property name prefix for placeholders that are configured through properties.
      */
@@ -150,9 +147,9 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      */
     @Deprecated
     public void addConfiguredPlaceholder(PlaceholderElement placeholder) {
-        LOG.warn("The direct use of <placeholder> is deprecated." +
+        getProject().log(this, "The direct use of <placeholder> is deprecated." +
                 " They should be nested inside a <placeholders> element." +
-                " Support for this will be removed in Flyway 2.0.");
+                " Support for this will be removed in Flyway 2.0.", null, Project.MSG_WARN);
         placeholders.put(placeholder.name, placeholder.value);
     }
 

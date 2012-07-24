@@ -20,9 +20,8 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.pyx4j.log4j.MavenLogAppender;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -39,10 +38,7 @@ import javax.sql.DataSource;
  */
 @SuppressWarnings({"JavaDoc", "FieldCanBeLocal"})
 abstract class AbstractFlywayMojo extends AbstractMojo {
-    /**
-     * Logger.
-     */
-    private static final Log LOG = LogFactory.getLog(AbstractFlywayMojo.class);
+    protected Log LOG;
 
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br> default property:
@@ -139,7 +135,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     }
 
     public final void execute() throws MojoExecutionException, MojoFailureException {
-        MavenLogAppender.startPluginLog(this);
+        LogFactory.setLogCreator(new MavenLogCreator(this));
+        LOG = LogFactory.getLog(getClass());
         try {
             loadCredentialsFromSettings();
 
@@ -161,8 +158,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 LOG.error("Caused by " + rootCause.toString());
             }
             throw new MojoExecutionException("Flyway Error: " + e.toString(), e);
-        } finally {
-            MavenLogAppender.endPluginLog(this);
         }
     }
 

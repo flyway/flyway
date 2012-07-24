@@ -16,8 +16,8 @@
 package com.googlecode.flyway.core.util.scanner.jboss;
 
 import com.googlecode.flyway.core.util.scanner.LocationScanner;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VirtualFile;
 import org.jboss.vfs.VirtualFileFilter;

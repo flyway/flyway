@@ -21,8 +21,6 @@ import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.validation.ValidationMode;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,11 +34,6 @@ import java.util.Properties;
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class MigrateMojo extends AbstractMigrationLoadingMojo {
-    /**
-     * Logger.
-     */
-    private static final Log LOG = LogFactory.getLog(MigrateMojo.class);
-
     /**
      * Property name prefix for placeholders that are configured through properties.
      */

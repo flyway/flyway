@@ -15,8 +15,8 @@
  */
 package com.googlecode.flyway.core.util.scanner;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;

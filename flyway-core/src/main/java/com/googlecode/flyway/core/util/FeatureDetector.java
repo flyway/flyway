@@ -15,8 +15,8 @@
  */
 package com.googlecode.flyway.core.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 /**
  * Detects whether certain features are available or not.
@@ -30,6 +30,11 @@ public final class FeatureDetector {
     private FeatureDetector() {
         // Do nothing
     }
+
+    /**
+     * Flag indicating availability of the Apache Commons Logging.
+     */
+    private static Boolean apacheCommonsLoggingAvailable;
 
     /**
      * Flag indicating availability of Spring JDBC.
@@ -50,6 +55,19 @@ public final class FeatureDetector {
      * Flag indicating availability of the Equinox Common OSGi Bundle.
      */
     private static Boolean equinoxCommonAvailable;
+
+    /**
+     * Checks whether Apache Commons Logging is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public static boolean isApacheCommonsLoggingAvailable() {
+        if (apacheCommonsLoggingAvailable == null) {
+            apacheCommonsLoggingAvailable = ClassUtils.isPresent("org.apache.commons.logging.Log");
+        }
+
+        return apacheCommonsLoggingAvailable;
+    }
 
     /**
      * Checks whether Spring Jdbc is available.

@@ -22,17 +22,21 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.*;
+import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
+import com.googlecode.flyway.core.migration.DbMigrator;
+import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationException;
 import com.googlecode.flyway.core.validation.ValidationMode;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -63,6 +67,7 @@ public class Flyway {
 
     /**
      * The base package where the Java migrations are located. (default: db.migration)
+     *
      * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
      */
     @Deprecated
@@ -70,6 +75,7 @@ public class Flyway {
 
     /**
      * The base directory on the classpath where the Sql migrations are located. (default: db/migration)
+     *
      * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
      */
     @Deprecated

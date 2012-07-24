@@ -27,7 +27,6 @@
         <dependencySet>
             <outputDirectory>/</outputDirectory>
             <excludes>
-                <exclude>*:commons-logging</exclude>
                 <exclude>*:spring-jdbc</exclude>
             </excludes>
             <useTransitiveFiltering>true</useTransitiveFiltering>

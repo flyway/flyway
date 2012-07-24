@@ -22,8 +22,8 @@ import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv3LocationScanner;
 import com.googlecode.flyway.core.util.scanner.osgi.EquinoxCommonResourceUrlResolver;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.URL;

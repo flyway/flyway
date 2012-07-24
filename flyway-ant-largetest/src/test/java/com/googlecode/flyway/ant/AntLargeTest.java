@@ -61,7 +61,7 @@ public abstract class AntLargeTest {
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_1'"));
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_2'"));
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_3'"));
-        assertTrue(stdOut.contains("Metadata table created: MASTER_OF_THE_VERSIONS"));
+        assertTrue(stdOut.contains("Creating Metadata table: MASTER_OF_THE_VERSIONS"));
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 
@@ -108,7 +108,8 @@ public abstract class AntLargeTest {
 
         List<String> args = new ArrayList<String>();
         args.add(antHome + "/bin/ant" + extension);
-        args.add("-d");
+        // enable for debug
+        // args.add("-d");
         args.add("clean");
         args.add("run");
         args.add("-DinstallDir=" + new File(getInstallDir()).getAbsolutePath());

@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.jdbc.dummy;
+package com.googlecode.flyway.core.util.logging.apachecommons;
 
-import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
-import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogCreator;
+import org.apache.commons.logging.LogFactory;
 
-import java.sql.Connection;
+import java.util.logging.Logger;
 
 /**
- * Test for abstract class support.
+ * Log Creator for Apache Commons Logging.
  */
-public abstract class DummyAbstractJdbcMigration implements JdbcMigration {
-    public final void migrate(Connection connection) throws Exception {
-        doMigrate(connection);
+public class ApacheCommonsLogCreator implements LogCreator {
+    public Log createLogger(Class<?> clazz) {
+        return new ApacheCommonsLog(LogFactory.getLog(clazz));
     }
-
-    public abstract void doMigrate(Connection connection) throws Exception;
 }

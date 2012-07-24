@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration.jdbc.dummy;
+package com.googlecode.flyway.commandline;
 
-import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
-import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.sql.Connection;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogCreator;
 
 /**
- * Test for abstract class support.
+ * Log Creator for the Command-Line console.
  */
-public abstract class DummyAbstractJdbcMigration implements JdbcMigration {
-    public final void migrate(Connection connection) throws Exception {
-        doMigrate(connection);
+public class ConsoleLogCreator implements LogCreator {
+    public Log createLogger(Class<?> clazz) {
+        return new ConsoleLog();
     }
-
-    public abstract void doMigrate(Connection connection) throws Exception;
 }
