@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.util.logging;
 
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 /**
@@ -37,22 +38,54 @@ public class JavaUtilLog implements Log {
     }
 
     public void debug(String message) {
-        logger.fine(message);
+        log(Level.FINE, message, null);
     }
 
     public void info(String message) {
-        logger.info(message);
+        log(Level.INFO, message, null);
     }
 
     public void warn(String message) {
-        logger.warning(message);
+        log(Level.WARNING, message, null);
     }
 
     public void error(String message) {
-        logger.severe(message);
+        log(Level.SEVERE, message, null);
     }
 
     public void error(String message, Exception e) {
-        logger.log(Level.SEVERE, message, e);
+        log(Level.SEVERE, message, e);
+    }
+
+    /**
+     * Log the message at the specified level with the specified exception if any.
+     *
+     * @param level The level to log at.
+     * @param message The message to log.
+     * @param e The exception, if any.
+     */
+    private void log(Level level, String message, Exception e) {
+        // millis and thread are filled by the constructor
+        LogRecord record = new LogRecord(level, message);
+        record.setLoggerName(logger.getName());
+        record.setThrown(e);
+        record.setSourceClassName(logger.getName());
+        record.setSourceMethodName(getMethodName());
+        logger.log(record);
+    }
+
+    /**
+     * Computes the source method name for the log output.
+     */
+    private String getMethodName() {
+        StackTraceElement[] steArray = new Throwable().getStackTrace();
+
+        for (StackTraceElement stackTraceElement : steArray) {
+            if (logger.getName().equals(stackTraceElement.getClassName())) {
+                return stackTraceElement.getMethodName();
+            }
+        }
+
+        return null;
     }
 }

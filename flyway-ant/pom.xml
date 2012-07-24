@@ -41,6 +41,7 @@
                         </goals>
                         <configuration>
                             <descriptorSourceDirectory>src/main/assembly</descriptorSourceDirectory>
+                            <encoding>UTF-8</encoding>
                         </configuration>
                     </execution>
                 </executions>
