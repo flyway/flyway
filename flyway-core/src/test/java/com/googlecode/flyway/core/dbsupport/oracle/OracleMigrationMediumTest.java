@@ -193,10 +193,14 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * Tests support for create trigger. Ensures that a Statement is used instead of a PreparedStatement.
      *
      * Reference: http://docs.oracle.com/cd/E11882_01/java.112/e16548/oraint.htm#CHDIIDBE
+     *
+     * Also ensures that schema-level triggers are properly cleaned.
      */
     @Test
     public void trigger() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/trigger");
+        flyway.migrate();
+        flyway.clean();
         flyway.migrate();
     }
 

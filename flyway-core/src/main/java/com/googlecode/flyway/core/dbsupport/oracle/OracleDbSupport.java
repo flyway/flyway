@@ -102,6 +102,7 @@ public class OracleDbSupport extends DbSupport {
         allDropStatements.addAll(generateDropStatementsForObjectType("PACKAGE", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("PROCEDURE", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("SYNONYM", "", schema));
+        allDropStatements.addAll(generateDropStatementsForObjectType("TRIGGER", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("TABLE", "CASCADE CONSTRAINTS PURGE", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", "FORCE", schema));

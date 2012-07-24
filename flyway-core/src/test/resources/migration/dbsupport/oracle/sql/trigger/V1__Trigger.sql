@@ -33,3 +33,10 @@ BEGIN
     dbms_output.put_line('  Difference ' || sal_diff);
 END;
 /
+
+create or replace trigger nls_sort_settings
+after logon on schema
+begin
+EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_SORT=BINARY_CI';
+end nls_sort_settings;
+/
