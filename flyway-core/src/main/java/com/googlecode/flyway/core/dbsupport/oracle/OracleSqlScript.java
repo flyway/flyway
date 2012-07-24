@@ -53,9 +53,11 @@ public class OracleSqlScript extends SqlScript {
         if (upperCaseStatement.matches("CREATE\\W*FUNCTION.*")
                 || upperCaseStatement.matches("CREATE\\W+PROCEDURE.*")
                 || upperCaseStatement.matches("CREATE\\W+PACKAGE.*")
+                || upperCaseStatement.matches("CREATE\\W+TYPE.*")
                 || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+FUNCTION.*")
                 || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+PROCEDURE.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+PACKAGE.*")) {
+                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+PACKAGE.*")
+                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+TYPE.*")) {
             return PLSQL_DELIMITER;
         }
 
