@@ -19,7 +19,7 @@ procedure id_for_sub_sector (
       p_sub_sector_name in sub_sectors.name%type,
       p_sub_sector_id out sub_sectors.id%type) as
    begin
-      select id
+      select id /*+ full(dprod) parallel(dprod, 8) full(uprod) parallel(uprod, 8) */
         into p_sub_sector_id
         from sub_sectors
         where name = p_sub_sector_name;
