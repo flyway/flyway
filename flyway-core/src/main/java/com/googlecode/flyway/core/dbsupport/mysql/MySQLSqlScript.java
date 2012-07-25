@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
+import com.googlecode.flyway.core.migration.sql.Delimiter;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -36,7 +37,6 @@ public class MySQLSqlScript extends SqlScript {
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     *
      * @throws IllegalStateException Thrown when the script could not be read from this resource.
      */
     public MySQLSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
@@ -44,9 +44,9 @@ public class MySQLSqlScript extends SqlScript {
     }
 
     @Override
-    protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
         if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
-            return line.substring(DELIMITER_KEYWORD.length()).trim();
+            return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
         }
 
         return delimiter;

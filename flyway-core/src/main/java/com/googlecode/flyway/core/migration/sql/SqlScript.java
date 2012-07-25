@@ -41,7 +41,7 @@ public class SqlScript {
     /**
      * The default Statement delimiter.
      */
-    protected static final String DEFAULT_STATEMENT_DELIMITER = ";";
+    protected static final Delimiter DEFAULT_STATEMENT_DELIMITER = new Delimiter(";", false);
 
     /**
      * The sql statements contained in this script.
@@ -95,7 +95,7 @@ public class SqlScript {
     /**
      * Parses this script source into statements.
      *
-     * @param sqlScriptSource The script source to parse.
+     * @param sqlScriptSource     The script source to parse.
      * @param placeholderReplacer The placeholder replacer to use.
      * @return The parsed statements.
      */
@@ -113,7 +113,6 @@ public class SqlScript {
      * Turns these lines in a series of statements.
      *
      * @param lines The lines to analyse.
-     *
      * @return The statements contained in these lines (in order).
      */
     /* private -> for testing */
@@ -123,7 +122,7 @@ public class SqlScript {
         int statementLineNumber = 0;
         String statementSql = "";
 
-        String delimiter = DEFAULT_STATEMENT_DELIMITER;
+        Delimiter delimiter = DEFAULT_STATEMENT_DELIMITER;
 
         for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
             String line = lines.get(lineNumber - 1);
@@ -147,7 +146,7 @@ public class SqlScript {
                 continue;
             }
 
-            String oldDelimiter = delimiter;
+            Delimiter oldDelimiter = delimiter;
             delimiter = changeDelimiterIfNecessary(statementSqlWithoutLineBreaks, trimmedLine, delimiter);
             if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
                 if (isDelimiterChangeExplicit()) {
@@ -156,7 +155,7 @@ public class SqlScript {
                 }
             }
 
-            if ((delimiter != null) && trimmedLine.toUpperCase().endsWith(delimiter.toUpperCase())) {
+            if (lineTerminatesStatement(trimmedLine, delimiter)) {
                 String noDelimiterStatementSql = stripDelimiter(statementSql, delimiter);
                 statements.add(new SqlStatement(statementLineNumber, noDelimiterStatementSql));
                 LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
@@ -177,6 +176,28 @@ public class SqlScript {
     }
 
     /**
+     * Checks whether this line terminates the current statement.
+     *
+     * @param line      The line to check.
+     * @param delimiter The current delimiter.
+     * @return {@code true} if it does, {@code false} if it doesn't.
+     */
+    private boolean lineTerminatesStatement(String line, Delimiter delimiter) {
+        if (delimiter == null) {
+            return false;
+        }
+
+        String upperCaseLine = line.toUpperCase();
+        String upperCaseDelimiter = delimiter.getDelimiter().toUpperCase();
+
+        if (delimiter.isAloneOnLine() && !upperCaseLine.startsWith(upperCaseDelimiter)) {
+            return false;
+        }
+
+        return upperCaseLine.endsWith(upperCaseDelimiter);
+    }
+
+    /**
      * Checks whether this line in the sql script indicates that the statement delimiter will be different from the
      * current one. Useful for database-specific stored procedures and block constructs.
      *
@@ -184,11 +205,10 @@ public class SqlScript {
      *                  spaces.
      * @param line      The line to analyse.
      * @param delimiter The current delimiter.
-     *
      * @return The new delimiter to use (can be the same as the current one) or {@code null} for no delimiter.
      */
     @SuppressWarnings({"UnusedDeclaration"})
-    protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
         return delimiter;
     }
 
@@ -205,18 +225,16 @@ public class SqlScript {
      *
      * @param sql       The statement to parse.
      * @param delimiter The delimiter to strip.
-     *
      * @return The sql statement without delimiter.
      */
-    private static String stripDelimiter(String sql, String delimiter) {
-        return sql.substring(0, sql.length() - delimiter.length());
+    private static String stripDelimiter(String sql, Delimiter delimiter) {
+        return sql.substring(0, sql.toUpperCase().lastIndexOf(delimiter.getDelimiter().toUpperCase()));
     }
 
     /**
      * Strip single line (--) and multi-line (/* * /) comments from these lines.
      *
      * @param lines The input lines.
-     *
      * @return The input lines, trimmed of leading and trailing whitespace, with the comments lines left blank.
      */
     /* private -> for testing */
@@ -256,7 +274,6 @@ public class SqlScript {
      * Checks whether this line is in fact a directive disguised as a comment.
      *
      * @param line The line to analyse.
-     *
      * @return {@code true} if it is a directive that should be processed by the database, {@code false} if not.
      */
     protected boolean isCommentDirective(String line) {
@@ -264,30 +281,10 @@ public class SqlScript {
     }
 
     /**
-     * Trims these lines of leading and trailing whitespace.
-     *
-     * @param lines The input lines.
-     *
-     * @return The input lines, trimmed of leading and trailing whitespace.
-     */
-    private List<String> trimLines(List<String> lines) {
-        List<String> trimmedLines = new ArrayList<String>(lines.size());
-
-        for (String line : lines) {
-            String trimmedLine = line.trim();
-            trimmedLines.add(trimmedLine);
-        }
-
-        return trimmedLines;
-    }
-
-    /**
      * Parses the textual data provided by this reader into a list of lines.
      *
      * @param reader The reader for the textual data.
-     *
      * @return The list of lines (in order).
-     *
      * @throws IllegalStateException Thrown when the textual data parsing failed.
      */
     private List<String> readLines(Reader reader) {
@@ -312,7 +309,6 @@ public class SqlScript {
      *
      * @param lines               The input lines.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     *
      * @return The lines with placeholders replaced.
      */
     private List<String> replacePlaceholders(List<String> lines, PlaceholderReplacer placeholderReplacer) {
@@ -330,7 +326,6 @@ public class SqlScript {
      * continued on the next line).
      *
      * @param statement The current statement, assembled from the lines we have parsed so far. May not yet be complete.
-     *
      * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
      *         literal. {@code false} if not.
      */

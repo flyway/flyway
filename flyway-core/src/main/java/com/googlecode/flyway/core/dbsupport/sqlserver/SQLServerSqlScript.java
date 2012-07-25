@@ -15,15 +15,14 @@
  */
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
+import com.googlecode.flyway.core.migration.sql.Delimiter;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 
 /**
- * SqlScript supporting MSSQL-specific delimiter changes.
+ * SqlScript supporting SQL Server-specific delimiter changes.
  */
 public class SQLServerSqlScript extends SqlScript {
-    private static final String DELIMITER = "GO";
-
     /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
@@ -37,7 +36,7 @@ public class SQLServerSqlScript extends SqlScript {
     }
 
     @Override
-    protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
-        return DELIMITER;
+    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
+        return new Delimiter("GO", true);
     }
 }

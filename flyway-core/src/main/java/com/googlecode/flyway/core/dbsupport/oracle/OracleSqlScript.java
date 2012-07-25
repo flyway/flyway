@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
+import com.googlecode.flyway.core.migration.sql.Delimiter;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -29,7 +30,7 @@ public class OracleSqlScript extends SqlScript {
     /**
      * Delimiter of PL/SQL blocks and statements.
      */
-    private static final String PLSQL_DELIMITER = "/";
+    private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
 
     /**
      * Creates a new sql script from this source with these placeholders to replace.
@@ -43,7 +44,7 @@ public class OracleSqlScript extends SqlScript {
     }
 
     @Override
-    protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
         String upperCaseLine = line.toUpperCase();
         if (upperCaseLine.matches("DECLARE|DECLARE\\s.*") || upperCaseLine.matches("BEGIN|BEGIN\\s.*")) {
             return PLSQL_DELIMITER;

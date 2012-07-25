@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.derby;
 
+import com.googlecode.flyway.core.migration.sql.Delimiter;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -48,7 +49,7 @@ public class DerbySqlScript extends SqlScript {
     }
 
     @Override
-    protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
         return DEFAULT_STATEMENT_DELIMITER;
     }
 

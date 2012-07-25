@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
+import com.googlecode.flyway.core.migration.sql.Delimiter;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -46,7 +47,7 @@ public class PostgreSQLSqlScript extends SqlScript {
     }
 
     @Override
-    protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiterRegex) {
         return DEFAULT_STATEMENT_DELIMITER;
     }
 

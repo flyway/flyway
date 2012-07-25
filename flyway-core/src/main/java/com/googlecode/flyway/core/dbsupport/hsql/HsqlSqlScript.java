@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.hsql;
 
+import com.googlecode.flyway.core.migration.sql.Delimiter;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -35,7 +36,7 @@ public class HsqlSqlScript extends SqlScript {
     }
 
     @Override
-    protected String changeDelimiterIfNecessary(String statement, String line, String delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
         if (statement.toUpperCase().matches(".*\\W+BEGIN\\W+ATOMIC\\W+.*")) {
             if (statement.toUpperCase().trim().endsWith("END;")) {
                 return DEFAULT_STATEMENT_DELIMITER;

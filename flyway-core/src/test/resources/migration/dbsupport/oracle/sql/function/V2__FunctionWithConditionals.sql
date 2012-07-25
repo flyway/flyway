@@ -14,8 +14,30 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test_user (
-  id INT NOT NULL,
-  name VARCHAR(25) NOT NULL,  -- this is a valid comment
-  PRIMARY KEY(name)  /* and so is this ! */
-);
+
+CREATE OR REPLACE Function IncomeLevel
+     ( monthly_value IN number(6) )
+     RETURN varchar2
+IS
+     ILevel varchar2(20);
+
+BEGIN
+
+  IF monthly_value <= 4000 THEN  /* for the poor */
+     ILevel := 'Low Income';
+
+  ELSIF monthly_value > 4000 and monthly_value <= 7000 THEN /* for the middle class */
+     ILevel := 'Avg Income';
+
+  ELSIF monthly_value > 7000 and monthly_value <= 15000 THEN /* for the well-off */
+     ILevel := 'Moderate Income';
+
+  ELSE /* for the rich */
+     ILevel := 'High Income';
+
+  END IF;
+
+  RETURN ILevel;
+
+END;
+/

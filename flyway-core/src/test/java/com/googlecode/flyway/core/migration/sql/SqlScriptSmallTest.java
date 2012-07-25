@@ -167,4 +167,19 @@ public class SqlScriptSmallTest {
         assertEquals(1, sqlStatement.getLineNumber());
         assertEquals(source, sqlStatement.getSql());
     }
+
+    @Test
+    public void parsePreserveTrailingCommentsInsideStatement() {
+        String source = "update emailtemplate /* yes, it's true */\n" +
+                        "    set   body='Thanks !' /* my pleasure */\n" +
+                        "  and  subject = 'To our favorite customer!'";
+
+        List<SqlStatement> sqlStatements = sqlScript.parse(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        assertNotNull(sqlStatements);
+        assertEquals(1, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(1, sqlStatement.getLineNumber());
+        assertEquals(source, sqlStatement.getSql());
+    }
 }

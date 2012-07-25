@@ -45,6 +45,17 @@ public class OracleSqlScriptSmallTest {
     }
 
     @Test
+    public void parseSqlStatementsWithInlineCommentsInsidePlSqlBlocks() throws Exception {
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V2__FunctionWithConditionals.sql").loadAsString("UTF-8");
+
+        OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        assertEquals(1, sqlStatements.size());
+        assertEquals(18, sqlStatements.get(0).getLineNumber());
+        assertTrue(sqlStatements.get(0).getSql().contains("/* for the rich */"));
+    }
+
+    @Test
     public void parseFunctionsAndProcedures() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql").loadAsString("UTF-8");
 
@@ -61,10 +72,10 @@ public class OracleSqlScriptSmallTest {
     public void changeDelimiterRegEx() {
         final OracleSqlScript script = new OracleSqlScript("", PlaceholderReplacer.NO_PLACEHOLDERS);
         assertNull(script.changeDelimiterIfNecessary("begin_date", "begin_date", null));
-        assertEquals("/", script.changeDelimiterIfNecessary("begin date", "begin date", null));
+        assertEquals("/", script.changeDelimiterIfNecessary("begin date", "begin date", null).getDelimiter());
         assertNull(script.changeDelimiterIfNecessary(" begin date", " begin date", null));
-        assertEquals("/", script.changeDelimiterIfNecessary("begin\tdate", "begin\tdate", null));
-        assertEquals("/", script.changeDelimiterIfNecessary("begin", "begin", null));
+        assertEquals("/", script.changeDelimiterIfNecessary("begin\tdate", "begin\tdate", null).getDelimiter());
+        assertEquals("/", script.changeDelimiterIfNecessary("begin", "begin", null).getDelimiter());
     }
 
     @Test

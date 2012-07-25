@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test to demonstrate the migration functionality using Mysql.
+ * Test to demonstrate the migration functionality using Oracle.
  */
 @SuppressWarnings({"JavaDoc"})
 public class OracleMigrationMediumTest extends MigrationTestCase {
@@ -186,6 +186,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Test
     public void procedure() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/procedure");
+        flyway.migrate();
+    }
+
+    /**
+     * Tests support for create function.
+     */
+    @Test
+    public void function() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/function");
         flyway.migrate();
     }
 
