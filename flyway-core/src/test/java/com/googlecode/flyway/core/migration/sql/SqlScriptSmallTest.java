@@ -149,4 +149,22 @@ public class SqlScriptSmallTest {
         assertEquals(2, sqlStatement.getLineNumber());
         assertEquals("CREATE OR REPLACE VIEW \"SOME_VIEW\"", sqlStatement.getSql());
     }
+
+    @Test
+    public void parseNoTrim() {
+        String source = "update emailtemplate set body = 'Hi $order.billingContactDisplayName,\n" +
+                        "\n" +
+                        "    Thanks for your interest in our products!\n" +
+                        "\n" +
+                        "    Please find your quote attached in PDF format.'\n" +
+                        "where templatename = 'quote_template'";
+
+        List<SqlStatement> sqlStatements = sqlScript.parse(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        assertNotNull(sqlStatements);
+        assertEquals(1, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(1, sqlStatement.getLineNumber());
+        assertEquals(source, sqlStatement.getSql());
+    }
 }

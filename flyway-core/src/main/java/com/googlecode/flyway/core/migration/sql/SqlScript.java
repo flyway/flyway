@@ -104,9 +104,7 @@ public class SqlScript {
         Reader reader = new StringReader(sqlScriptSource);
         List<String> rawLines = readLines(reader);
         List<String> noPlaceholderLines = replacePlaceholders(rawLines, placeholderReplacer);
-
-        List<String> trimmedLines = trimLines(noPlaceholderLines);
-        List<String> noCommentLines = stripSqlComments(trimmedLines);
+        List<String> noCommentLines = stripSqlComments(noPlaceholderLines);
         return linesToStatements(noCommentLines);
     }
 
@@ -129,6 +127,7 @@ public class SqlScript {
 
         for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
             String line = lines.get(lineNumber - 1);
+            String trimmedLine = line.trim();
 
             if (!StringUtils.hasText(statementSql) && !StringUtils.hasText(line)) {
                 // Skip empty line between statements.
@@ -143,13 +142,13 @@ public class SqlScript {
             }
             statementSql += line;
 
-            String statementSqlWithoutLineBreaks = statementSql.replaceAll("\n", " ").replaceAll("\r", " ");
+            String statementSqlWithoutLineBreaks = statementSql.replaceAll("\n", " ").replaceAll("\r", " ").trim();
             if (endsWithOpenMultilineStringLiteral(statementSqlWithoutLineBreaks)) {
                 continue;
             }
 
             String oldDelimiter = delimiter;
-            delimiter = changeDelimiterIfNecessary(statementSqlWithoutLineBreaks, line, delimiter);
+            delimiter = changeDelimiterIfNecessary(statementSqlWithoutLineBreaks, trimmedLine, delimiter);
             if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
                 if (isDelimiterChangeExplicit()) {
                     statementSql = "";
@@ -157,7 +156,7 @@ public class SqlScript {
                 }
             }
 
-            if ((delimiter != null) && line.toUpperCase().endsWith(delimiter.toUpperCase())) {
+            if ((delimiter != null) && trimmedLine.toUpperCase().endsWith(delimiter.toUpperCase())) {
                 String noDelimiterStatementSql = stripDelimiter(statementSql, delimiter);
                 statements.add(new SqlStatement(statementLineNumber, noDelimiterStatementSql));
                 LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
@@ -247,7 +246,7 @@ public class SqlScript {
                 }
             }
 
-            noCommentLines.add(trimmedLine);
+            noCommentLines.add(line);
         }
 
         return noCommentLines;
