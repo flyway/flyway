@@ -88,6 +88,52 @@ public class SqlScriptSmallTest {
     }
 
     @Test
+    public void linesToStatementsPreserveEmptyLinesInsideStatement() {
+        lines.add("update emailtemplate set body = 'Hi $order.billingContactDisplayName,");
+        lines.add("");
+        lines.add("Thanks for your interest in our products!");
+        lines.add("");
+        lines.add("Please find your quote attached in PDF format.'");
+        lines.add("where templatename = 'quote_template';");
+
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertNotNull(sqlStatements);
+        assertEquals(1, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(1, sqlStatement.getLineNumber());
+        assertEquals("update emailtemplate set body = 'Hi $order.billingContactDisplayName,\n" +
+                "\n" +
+                "Thanks for your interest in our products!\n" +
+                "\n" +
+                "Please find your quote attached in PDF format.'\n" +
+                "where templatename = 'quote_template'", sqlStatement.getSql());
+    }
+
+    @Test
+    public void linesToStatementsSkipEmptyLinesBetweenStatements() {
+        lines.add("update emailtemplate set body = 'Hi';");
+        lines.add("");
+        lines.add("update emailtemplate set body = 'Hello';");
+        lines.add("");
+        lines.add("");
+        lines.add("update emailtemplate set body = 'Howdy';");
+
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertNotNull(sqlStatements);
+        assertEquals(3, sqlStatements.size());
+
+        assertEquals(1, sqlStatements.get(0).getLineNumber());
+        assertEquals("update emailtemplate set body = 'Hi'", sqlStatements.get(0).getSql());
+
+        assertEquals(3, sqlStatements.get(1).getLineNumber());
+        assertEquals("update emailtemplate set body = 'Hello'", sqlStatements.get(1).getSql());
+
+        assertEquals(6, sqlStatements.get(2).getLineNumber());
+        assertEquals("update emailtemplate set body = 'Howdy'", sqlStatements.get(2).getSql());
+    }
+
+    @Test
     public void parsePlaceholderComments() {
         String source = "${drop_view} \"SOME_VIEW\" IF EXISTS;\n" +"CREATE ${or_replace} VIEW \"SOME_VIEW\";\n";
 

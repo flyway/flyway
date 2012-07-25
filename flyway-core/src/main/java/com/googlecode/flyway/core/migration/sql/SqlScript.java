@@ -130,11 +130,13 @@ public class SqlScript {
         for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
             String line = lines.get(lineNumber - 1);
 
-            if (!StringUtils.hasText(line)) {
+            if (!StringUtils.hasText(statementSql) && !StringUtils.hasText(line)) {
+                // Skip empty line between statements.
                 continue;
             }
 
             if (!StringUtils.hasText(statementSql)) {
+                // Start a new statement, marking it with this line number.
                 statementLineNumber = lineNumber;
             } else {
                 statementSql += "\n";
