@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.metadatatable;
 
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -92,16 +92,16 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     }
 
     /**
-     * Initializes a new metadatatable row with this migration.
+     * Initializes a new metadatatable row with this migration info.
      *
-     * @param migration The migration that was or is being applied.
+     * @param migrationInfo The migration that was or is being applied.
      */
-    public MetaDataTableRow(Migration migration) {
-        schemaVersion = migration.getVersion();
-        description = abbreviateDescription(migration.getDescription());
-        migrationType = migration.getMigrationType();
-        script = abbreviateScript(migration.getScript());
-        checksum = migration.getChecksum();
+    public MetaDataTableRow(MigrationInfo migrationInfo) {
+        schemaVersion = new SchemaVersion(migrationInfo.getVersion().toString());
+        description = abbreviateDescription(migrationInfo.getDescription());
+        migrationType = MigrationType.valueOf(migrationInfo.getMigrationType().name());
+        script = abbreviateScript(migrationInfo.getScript());
+        checksum = migrationInfo.getChecksum();
     }
 
     /**

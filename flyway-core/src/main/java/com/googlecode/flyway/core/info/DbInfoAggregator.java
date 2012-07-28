@@ -13,7 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.googlecode.flyway.core.info;
+
+import com.googlecode.flyway.core.api.MigrationInfos;
+
 /**
- * Private API: No compatibility guarantees provided.
+ * Aggregates info about all known migrations from both the classpath and the DB.
  */
-package com.googlecode.flyway.core.migration.init;
+public class DbInfoAggregator {
+    /**
+     * Aggregates info about all known migrations from both the classpath and the DB.
+     *
+     * @return The info about the migrations.
+     */
+    public MigrationInfos aggregateMigrationInfo() {
+        return new MigrationInfos();
+    }
+}

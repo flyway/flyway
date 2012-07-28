@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Public API: Interfaces for Migration implementors.
+ * Interfaces for Migration implementors.
  */
 package com.googlecode.flyway.core.api.migration;

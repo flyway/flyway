@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Collection of utility methods for querying the DB. Inspired by Spring's JdbcTemplate.
  */
-public abstract class JdbcTemplate {
+public class JdbcTemplate {
     /**
      * The DB connection to use.
      */
@@ -292,7 +292,9 @@ public abstract class JdbcTemplate {
      * @param parameterIndex    The index of the parameter to set.
      * @throws SQLException when the value could not be set.
      */
-    protected abstract void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException;
+    protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
+        // Do nothing by default.
+    }
 
     /**
      * Executes this query and map the results using this row mapper.

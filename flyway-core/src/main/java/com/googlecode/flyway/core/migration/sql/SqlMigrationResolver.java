@@ -15,8 +15,13 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
+import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.ExecutableMigration;
+import com.googlecode.flyway.core.migration.MigrationExecutor;
+import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
@@ -24,6 +29,7 @@ import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.CRC32;
 
 /**
  * Migration resolver for sql files on the classpath. The sql files must have names like V1.sql or V1_1.sql or
@@ -73,31 +79,48 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
 
-    public List<Migration> resolveMigrations() {
-        List<Migration> migrations = new ArrayList<Migration>();
-
-        String normalizedBaseDir = location;
-        if (normalizedBaseDir.startsWith("/")) {
-            normalizedBaseDir = normalizedBaseDir.substring(1);
-        }
+    public List<ExecutableMigration> resolveMigrations() {
+        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
 
         try {
             ClassPathResource[] resources =
-                    new ClassPathScanner().scanForResources(normalizedBaseDir, sqlMigrationPrefix, sqlMigrationSuffix);
+                    new ClassPathScanner().scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
 
-            String searchRoot = normalizedBaseDir + "/";
             for (ClassPathResource resource : resources) {
-                final String versionString =
-                        extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
-                String location = resource.getLocation();
-                String scriptName = location.substring(location.indexOf(searchRoot) + searchRoot.length());
-                migrations.add(new SqlMigration(resource, placeholderReplacer, encoding, versionString, scriptName));
+                MigrationInfo migrationInfo = extractMigrationInfo(resource);
+                String physicalLocation = resource.getLocationOnDisk();
+                MigrationExecutor migrationExecutor = new SqlMigrationExecutor(resource, placeholderReplacer, encoding);
+
+                migrations.add(new ExecutableMigration(migrationInfo, physicalLocation, migrationExecutor));
             }
         } catch (IOException e) {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
         }
 
         return migrations;
+    }
+
+    /**
+     * Extracts the migration info for this resource.
+     *
+     * @param resource The resource to analyse.
+     * @return The migration info.
+     */
+    private MigrationInfo extractMigrationInfo(ClassPathResource resource) {
+        final String versionString =
+                extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
+        String scriptName = resource.getLocation().substring(resource.getLocation().indexOf(location) + location.length() + "/".length());
+
+        String sqlScriptSource = resource.loadAsString(encoding);
+        int checksum = calculateChecksum(sqlScriptSource);
+
+        return new MigrationInfo(
+                MigrationInfoHelper.extractVersion(versionString),
+                MigrationInfoHelper.extractDescription(versionString),
+                scriptName,
+                checksum,
+                MigrationType.SQL,
+                MigrationState.PENDING);
     }
 
     /**
@@ -117,5 +140,17 @@ public class SqlMigrationResolver implements MigrationResolver {
             return withoutPathAndSuffix.substring(prefix.length());
         }
         return withoutPathAndSuffix;
+    }
+
+    /**
+     * Calculates the checksum of this sql script.
+     *
+     * @param sql The sql to calculate the checksum for.
+     * @return The crc-32 checksum of the script.
+     */
+    private int calculateChecksum(String sql) {
+        final CRC32 crc32 = new CRC32();
+        crc32.update(sql.getBytes());
+        return (int) crc32.getValue();
     }
 }

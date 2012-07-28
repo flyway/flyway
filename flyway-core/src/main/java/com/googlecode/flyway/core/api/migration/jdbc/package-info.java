@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Public API: Interfaces for Jdbc Migrations.
+ * Interfaces for Jdbc Migrations.
  */
 package com.googlecode.flyway.core.api.migration.jdbc;

@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.metadatatable;
 
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationState;
@@ -269,12 +270,12 @@ public class MetaDataTable {
     /**
      * @return The current version of the schema.
      */
-    public SchemaVersion getCurrentSchemaVersion() {
+    public MigrationVersion getCurrentSchemaVersion() {
         MetaDataTableRow latestAppliedMigration = latestAppliedMigration();
         if (latestAppliedMigration == null) {
-            return SchemaVersion.EMPTY;
+            return MigrationVersion.EMPTY;
         }
-        return latestAppliedMigration.getVersion();
+        return new MigrationVersion(latestAppliedMigration.getVersion().toString());
     }
 
 

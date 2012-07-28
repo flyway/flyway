@@ -13,26 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.api.migration;
+package com.googlecode.flyway.core.migration;
 
-import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 
 /**
- * Migration implementors that also implement this interface will be able to specify their version and description
- * manually, instead of having it automatically computed.
+ * Executes a migration.
  */
-public interface MigrationInfoProvider {
+public interface MigrationExecutor {
     /**
-     * Returns the version after the migration is complete.
+     * Executes the migration this executor is associated with.
      *
-     * @return The version after the migration is complete.
+     * @param jdbcTemplate The jdbcTemplate to use to execute the migration against the DB.
+     * @param dbSupport    The database-specific support.
      */
-    MigrationVersion getVersion();
-
-    /**
-     * Returns the description for the migration history.
-     *
-     * @return The description for the migration history.
-     */
-    String getDescription();
+    void execute(JdbcTemplate jdbcTemplate, DbSupport dbSupport);
 }

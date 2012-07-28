@@ -15,7 +15,10 @@
  */
 package com.googlecode.flyway.core.migration.java;
 
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.ExecutableMigration;
+import com.googlecode.flyway.core.migration.java.dummy.V2__InterfaceBasedMigration;
+import com.googlecode.flyway.core.migration.java.dummy.Version3dot5;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,20 +37,39 @@ public class JavaMigrationResolverSmallTest {
     public void resolveMigrations() {
         JavaMigrationResolver javaMigrationResolver =
                 new JavaMigrationResolver("com/googlecode/flyway/core/migration/java/dummy");
-        Collection<Migration> migrations = javaMigrationResolver.resolveMigrations();
+        Collection<ExecutableMigration> migrations = javaMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
 
-        List<Migration> migrationList = new ArrayList<Migration>(migrations);
+        List<ExecutableMigration> migrationList = new ArrayList<ExecutableMigration>(migrations);
         Collections.sort(migrationList);
 
-        assertEquals("2", migrationList.get(0).getVersion().toString());
-        assertEquals("3.5", migrationList.get(1).getVersion().toString());
+        MigrationInfo migrationInfo = migrationList.get(0).getMigrationInfo();
+        assertEquals("2", migrationInfo.getVersion().toString());
+        assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
+        assertNull(migrationInfo.getChecksum());
 
-        assertEquals("InterfaceBasedMigration", migrationList.get(0).getDescription());
-        assertEquals("Three Dot Five", migrationList.get(1).getDescription());
+        MigrationInfo migrationInfo1 = migrationList.get(1).getMigrationInfo();
+        assertEquals("3.5", migrationInfo1.getVersion().toString());
+        assertEquals("Three Dot Five", migrationInfo1.getDescription());
+        assertEquals(35, migrationInfo1.getChecksum().intValue());
+    }
 
-        assertNull(migrationList.get(0).getChecksum());
-        assertEquals(35, migrationList.get(1).getChecksum().intValue());
+    @Test
+    public void conventionOverConfiguration() {
+        JavaMigrationResolver javaMigrationResolver = new JavaMigrationResolver(null);
+        MigrationInfo migrationInfo = javaMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
+        assertEquals("2", migrationInfo.getVersion().toString());
+        assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
+        assertNull(migrationInfo.getChecksum());
+    }
+
+    @Test
+    public void explicitInfo() {
+        JavaMigrationResolver javaMigrationResolver = new JavaMigrationResolver(null);
+        MigrationInfo migrationInfo = javaMigrationResolver.extractMigrationInfo(new Version3dot5());
+        assertEquals("3.5", migrationInfo.getVersion().toString());
+        assertEquals("Three Dot Five", migrationInfo.getDescription());
+        assertEquals(35, migrationInfo.getChecksum().intValue());
     }
 }

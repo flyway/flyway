@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.ExecutableMigration;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Testcase for SqlMigration.
@@ -41,58 +42,36 @@ public class SqlMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver("/migration/subdir", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
-        Collection<Migration> migrations = sqlMigrationResolver.resolveMigrations();
-
-        assertEquals(3, migrations.size());
-
-        List<Migration> migrationList = new ArrayList<Migration>(migrations);
-        Collections.sort(migrationList);
-
-        assertEquals("1", migrationList.get(0).getVersion().toString());
-        assertEquals("1.1", migrationList.get(1).getVersion().toString());
-        assertEquals("2.0", migrationList.get(2).getVersion().toString());
-
-        assertEquals("dir1/V1__First.sql", migrationList.get(0).getScript());
-        assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getScript());
-        assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getScript());
-    }
-
-    @Test
-    public void resolveMigrationsNoLeadingSlash() {
-        SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver("migration/subdir", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
-        Collection<Migration> migrations = sqlMigrationResolver.resolveMigrations();
+        Collection<ExecutableMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
 
-        List<Migration> migrationList = new ArrayList<Migration>(migrations);
+        List<ExecutableMigration> migrationList = new ArrayList<ExecutableMigration>(migrations);
         Collections.sort(migrationList);
 
-        assertEquals("1", migrationList.get(0).getVersion().toString());
-        assertEquals("1.1", migrationList.get(1).getVersion().toString());
-        assertEquals("2.0", migrationList.get(2).getVersion().toString());
+        assertEquals("1", migrationList.get(0).getMigrationInfo().getVersion().toString());
+        assertEquals("1.1", migrationList.get(1).getMigrationInfo().getVersion().toString());
+        assertEquals("2.0", migrationList.get(2).getMigrationInfo().getVersion().toString());
 
-        assertEquals("dir1/V1__First.sql", migrationList.get(0).getScript());
-        assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getScript());
-        assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getScript());
+        assertEquals("dir1/V1__First.sql", migrationList.get(0).getMigrationInfo().getScript());
+        assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getMigrationInfo().getScript());
+        assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getMigrationInfo().getScript());
     }
 
     @Test
     public void resolveMigrationsRoot() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver("", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
-        Collection<Migration> migrations = sqlMigrationResolver.resolveMigrations();
 
-        assertEquals(1, migrations.size());
+        assertEquals(1, sqlMigrationResolver.resolveMigrations().size());
     }
 
     @Test
     public void resolveMigrationsNonExisting() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver("non/existing", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
-        Collection<Migration> migrations = sqlMigrationResolver.resolveMigrations();
 
-        assertEquals(0, migrations.size());
+        assertTrue(sqlMigrationResolver.resolveMigrations().isEmpty());
     }
 }

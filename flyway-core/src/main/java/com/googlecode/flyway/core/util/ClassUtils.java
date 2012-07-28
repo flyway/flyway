@@ -15,6 +15,9 @@
  */
 package com.googlecode.flyway.core.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
  * Utility methods for dealing with classes.
  */
@@ -88,5 +91,21 @@ public class ClassUtils {
     public static String getShortName(Class<?> aClass) {
         String name = aClass.getName();
         return name.substring(name.lastIndexOf(".") + 1);
+    }
+
+    /**
+     * Retrieves the physical location on disk of this class.
+     *
+     * @param aClass The class to get the location for.
+     * @return The absolute path of the .class file.
+     */
+    public static String getLocationOnDisk(Class<?> aClass) {
+        try {
+            String url = aClass.getProtectionDomain().getCodeSource().getLocation().getPath();
+            return URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            //Can never happen.
+            return null;
+        }
     }
 }

@@ -15,10 +15,9 @@
  */
 package com.googlecode.flyway.core.migration.jdbc.dummy;
 
-import com.googlecode.flyway.core.api.Version;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
 import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
-import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 
 import java.sql.Connection;
 
@@ -34,8 +33,8 @@ public class Version3dot5 extends DummyAbstractJdbcMigration implements Migratio
         return 35;
     }
 
-    public Version getVersion() {
-        return new Version("3.5");
+    public MigrationVersion getVersion() {
+        return new MigrationVersion("3.5");
     }
 
     public String getDescription() {

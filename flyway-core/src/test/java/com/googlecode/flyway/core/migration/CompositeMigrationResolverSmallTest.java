@@ -15,10 +15,9 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.sql.SqlMigration;
-import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.validation.ValidationException;
 import org.junit.Test;
 
@@ -38,11 +37,11 @@ public class CompositeMigrationResolverSmallTest {
     public void resolveMigrationsMultipleLocations() {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"migration/subdir/dir2"}, "db.migration", "migration/subdir/dir1", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
-        List<Migration> migrations = migrationResolver.resolveMigrations();
+        List<ExecutableMigration> migrations = migrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
-        assertEquals("Add foreign key", migrations.get(0).getDescription());
-        assertEquals("First", migrations.get(1).getDescription());
+        assertEquals("Add foreign key", migrations.get(0).getMigrationInfo().getDescription());
+        assertEquals("First", migrations.get(1).getMigrationInfo().getDescription());
     }
 
     /**
@@ -51,27 +50,27 @@ public class CompositeMigrationResolverSmallTest {
     @Test
     public void collectMigrations() {
         MigrationResolver migrationResolver = new MigrationResolver() {
-            public List<Migration> resolveMigrations() {
-                List<Migration> migrations = new ArrayList<Migration>();
+            public List<ExecutableMigration> resolveMigrations() {
+                List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
 
-                migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
-                migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
-                migrations.add(createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234));
+                migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
+                migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
+                migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.SQL, "2", "Description2", "Migration2", 1234));
                 return migrations;
             }
         };
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
         migrationResolvers.add(migrationResolver);
 
-        Collection<Migration> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
+        Collection<ExecutableMigration> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
         assertEquals(2, migrations.size());
     }
 
     @Test
     public void checkForIncompatibilities() {
-        List<Migration> migrations = new ArrayList<Migration>();
-        migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
-        migrations.add(createTestMigration(MigrationType.SQL, "1", "Description2", "Migration2", 1234));
+        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+        migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
+        migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.SQL, "1", "Description2", "Migration2", 1234));
 
         try {
             CompositeMigrationResolver.checkForIncompatibilities(migrations);
@@ -83,9 +82,11 @@ public class CompositeMigrationResolverSmallTest {
 
     @Test
     public void checkForIncompatibilitiesMessage() {
-        List<Migration> migrations = new ArrayList<Migration>();
-        migrations.add(new SqlMigration(new ClassPathResource("migration/validate/V1__First.sql"), null, "UTF8", "1", "V1__First.sql"));
-        migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
+        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+        migrations.add(new ExecutableMigration(
+                new MigrationInfo(new MigrationVersion("1"), "First", "V1__First.sql", 123, com.googlecode.flyway.core.api.MigrationType.SQL, MigrationState.PENDING),
+                "target/test-classes/migration/validate/V1__First.sql", null));
+        migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
 
         try {
             CompositeMigrationResolver.checkForIncompatibilities(migrations);
@@ -100,9 +101,9 @@ public class CompositeMigrationResolverSmallTest {
      */
     @Test
     public void checkForIncompatibilitiesNoConflict() {
-        List<Migration> migrations = new ArrayList<Migration>();
-        migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
-        migrations.add(createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234));
+        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+        migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
+        migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.SQL, "2", "Description2", "Migration2", 1234));
 
         CompositeMigrationResolver.checkForIncompatibilities(migrations);
     }
@@ -117,28 +118,8 @@ public class CompositeMigrationResolverSmallTest {
      * @param aChecksum      The checksum.
      * @return The new test migration.
      */
-    private Migration createTestMigration(final MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
-        return new Migration() {
-            {
-                schemaVersion = new SchemaVersion(aVersion);
-                description = aDescription;
-                script = aScript;
-                checksum = aChecksum;
-            }
-
-            @Override
-            public MigrationType getMigrationType() {
-                return aMigrationType;
-            }
-
-            @Override
-            public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
-            }
-
-            @Override
-            public String getLocation() {
-                return script;
-            }
-        };
+    private ExecutableMigration createTestMigration(final com.googlecode.flyway.core.api.MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
+        return new ExecutableMigration(
+                new MigrationInfo(new MigrationVersion(aVersion), aDescription, aScript, aChecksum, aMigrationType, MigrationState.PENDING), aScript, null);
     }
 }

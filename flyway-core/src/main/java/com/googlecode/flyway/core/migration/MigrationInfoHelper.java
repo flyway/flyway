@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.migration;
 
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
 
 /**
@@ -36,7 +37,7 @@ public class MigrationInfoHelper {
      *
      * @return The extracted schema version.
      */
-    public static SchemaVersion extractSchemaVersion(String migrationName) {
+    public static MigrationVersion extractVersion(String migrationName) {
         String rawVersion;
 
         // Handle the description
@@ -54,7 +55,7 @@ public class MigrationInfoHelper {
                     "Invalid version starting with a dot (.) instead of a digit or a letter: " + version);
         }
 
-        return new SchemaVersion(version);
+        return new MigrationVersion(version);
     }
 
     /**

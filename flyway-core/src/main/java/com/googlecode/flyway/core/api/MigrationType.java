@@ -13,26 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.api.migration;
-
-import com.googlecode.flyway.core.api.MigrationVersion;
+package com.googlecode.flyway.core.api;
 
 /**
- * Migration implementors that also implement this interface will be able to specify their version and description
- * manually, instead of having it automatically computed.
+ * Type of migration.
  */
-public interface MigrationInfoProvider {
+public enum MigrationType {
     /**
-     * Returns the version after the migration is complete.
-     *
-     * @return The version after the migration is complete.
+     * The type for the default init migration.
      */
-    MigrationVersion getVersion();
+    INIT,
 
     /**
-     * Returns the description for the migration history.
-     *
-     * @return The description for the migration history.
+     * The type for sql migrations.
      */
-    String getDescription();
+    SQL,
+
+    /**
+     * The type for Jdbc java-based migrations.
+     */
+    JDBC,
+
+    /**
+     * The type for Spring Jdbc java-based migrations. Will be renamed to SPRING_JDBC in Flyway 2.0.
+     */
+    JAVA
 }

@@ -15,15 +15,19 @@
  */
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.api.MigrationInfos;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.clean.DbCleaner;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.info.DbInfoAggregator;
 import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
 import com.googlecode.flyway.core.migration.DbMigrator;
+import com.googlecode.flyway.core.migration.ExecutableMigration;
 import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -104,7 +108,7 @@ public class Flyway {
      * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
      * applied. (default: the latest version)
      */
-    private SchemaVersion target = SchemaVersion.LATEST;
+    private MigrationVersion target = MigrationVersion.LATEST;
 
     /**
      * The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -155,7 +159,7 @@ public class Flyway {
     /**
      * The initial version to put in the database. Only used for init. (default: 0)
      */
-    private SchemaVersion initialVersion = new SchemaVersion("0");
+    private MigrationVersion initialVersion = new MigrationVersion("0");
 
     /**
      * The description of the initial version. Only used for init. (default: << Flyway Init >>)
@@ -253,7 +257,7 @@ public class Flyway {
      *         not be applied. (default: the latest version)
      */
     public SchemaVersion getTarget() {
-        return target;
+        return new SchemaVersion(target.toString());
     }
 
     /**
@@ -341,7 +345,7 @@ public class Flyway {
      * @return The initial version to put in the database. (default: 0)
      */
     public SchemaVersion getInitialVersion() {
-        return initialVersion;
+        return new SchemaVersion(initialVersion.toString());
     }
 
     /**
@@ -506,7 +510,7 @@ public class Flyway {
      *               number will not be applied. (default: the latest version)
      */
     public void setTarget(SchemaVersion target) {
-        this.target = target;
+        this.target = new MigrationVersion(target.toString());
     }
 
     /**
@@ -569,7 +573,7 @@ public class Flyway {
      * @param initialVersion The initial version to put in the database. (default: 0)
      */
     public void setInitialVersion(SchemaVersion initialVersion) {
-        this.initialVersion = initialVersion;
+        this.initialVersion = new MigrationVersion(initialVersion.toString());
     }
 
     /**
@@ -603,7 +607,7 @@ public class Flyway {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MigrationResolver migrationResolver =
                         new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
-                List<Migration> availableMigrations = migrationResolver.resolveMigrations();
+                List<ExecutableMigration> availableMigrations = migrationResolver.resolveMigrations();
                 if (availableMigrations.isEmpty()) {
                     return 0;
                 }
@@ -632,7 +636,7 @@ public class Flyway {
                 validationMode = ValidationMode.ALL;
                 MigrationResolver migrationResolver =
                         new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
-                List<Migration> availableMigrations = migrationResolver.resolveMigrations();
+                List<ExecutableMigration> availableMigrations = migrationResolver.resolveMigrations();
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
@@ -651,8 +655,8 @@ public class Flyway {
      * @param availableMigrations     The available migrations on the classpath.
      * @param metaDataTable           The metadata table.
      */
-    private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, List<Migration> availableMigrations, MetaDataTable metaDataTable) {
-        if (SchemaVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !disableInitCheck) {
+    private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, List<ExecutableMigration> availableMigrations, MetaDataTable metaDataTable) {
+        if (MigrationVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !disableInitCheck) {
             for (String schema : schemas) {
                 try {
                     if (!dbSupport.isSchemaEmpty(schema)) {
@@ -705,7 +709,9 @@ public class Flyway {
      * Returns the status (current version) of the database.
      *
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
+     * @deprecated Use flyway.info() instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public MetaDataTableRow status() {
         return execute(new Command<MetaDataTableRow>() {
             public MetaDataTableRow execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
@@ -719,12 +725,27 @@ public class Flyway {
      * Returns the history (all applied migrations) of the database.
      *
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
+     * @deprecated Use flyway.info() instead. Will be removed in Flyway 2.0.
      */
     public List<MetaDataTableRow> history() {
         return execute(new Command<List<MetaDataTableRow>>() {
             public List<MetaDataTableRow> execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 return metaDataTable.allAppliedMigrations();
+            }
+        });
+    }
+
+    /**
+     * Retrieves the complete information about the migrations including applied, pending and current migrations with
+     * details and status.
+     *
+     * @return All migrations sorted by version, oldest first.
+     */
+    public MigrationInfos info() {
+        return execute(new Command<MigrationInfos>() {
+            public MigrationInfos execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
+                return new DbInfoAggregator().aggregateMigrationInfo();
             }
         });
     }

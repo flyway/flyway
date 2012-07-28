@@ -17,16 +17,14 @@ package com.googlecode.flyway.core.migration.java;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationInfoHelper;
-import com.googlecode.flyway.core.migration.MigrationType;
+import com.googlecode.flyway.core.migration.MigrationExecutor;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 /**
  * Adapter for executing migrations implementing JavaMigration.
  */
-public class JavaMigrationExecutor extends Migration {
+public class JavaMigrationExecutor implements MigrationExecutor {
     /**
      * The JavaMigration to execute.
      */
@@ -39,39 +37,9 @@ public class JavaMigrationExecutor extends Migration {
      */
     public JavaMigrationExecutor(JavaMigration javaMigration) {
         this.javaMigration = javaMigration;
-
-        if (javaMigration instanceof JavaMigrationChecksumProvider) {
-            JavaMigrationChecksumProvider checksumProvider = (JavaMigrationChecksumProvider) javaMigration;
-            checksum = checksumProvider.getChecksum();
-        }
-
-        if (javaMigration instanceof JavaMigrationInfoProvider) {
-            JavaMigrationInfoProvider infoProvider = (JavaMigrationInfoProvider) javaMigration;
-            schemaVersion = infoProvider.getVersion();
-            description = infoProvider.getDescription();
-        } else {
-            String className = javaMigration.getClass().getName();
-            String classShortName = className.substring(className.lastIndexOf(".") + 1);
-            String nameWithoutV = classShortName.substring(1);
-            schemaVersion = MigrationInfoHelper.extractSchemaVersion(nameWithoutV);
-            description = MigrationInfoHelper.extractDescription(nameWithoutV);
-        }
-
-        script = javaMigration.getClass().getName();
     }
 
-    @Override
-    public String getLocation() {
-        return script;
-    }
-
-    @Override
-    public MigrationType getMigrationType() {
-        return MigrationType.JAVA;
-    }
-
-    @Override
-    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+    public void execute(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         try {
             javaMigration.migrate(new org.springframework.jdbc.core.JdbcTemplate(
                     new SingleConnectionDataSource(jdbcTemplate.getConnection(), true)));

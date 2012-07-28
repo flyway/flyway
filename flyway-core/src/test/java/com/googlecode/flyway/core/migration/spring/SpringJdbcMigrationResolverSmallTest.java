@@ -15,7 +15,11 @@
  */
 package com.googlecode.flyway.core.migration.spring;
 
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.ExecutableMigration;
 import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.spring.dummy.V2__InterfaceBasedMigration;
+import com.googlecode.flyway.core.migration.spring.dummy.Version3dot5;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,20 +38,38 @@ public class SpringJdbcMigrationResolverSmallTest {
     public void resolveMigrations() {
         SpringJdbcMigrationResolver springJdbcMigrationResolver =
                 new SpringJdbcMigrationResolver("com/googlecode/flyway/core/migration/spring/dummy");
-        Collection<Migration> migrations = springJdbcMigrationResolver.resolveMigrations();
+        Collection<ExecutableMigration> migrations = springJdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
 
-        List<Migration> migrationList = new ArrayList<Migration>(migrations);
+        List<ExecutableMigration> migrationList = new ArrayList<ExecutableMigration>(migrations);
         Collections.sort(migrationList);
 
-        assertEquals("2", migrationList.get(0).getVersion().toString());
-        assertEquals("3.5", migrationList.get(1).getVersion().toString());
+        assertEquals("2", migrationList.get(0).getMigrationInfo().getVersion().toString());
+        assertEquals("3.5", migrationList.get(1).getMigrationInfo().getVersion().toString());
 
-        assertEquals("InterfaceBasedMigration", migrationList.get(0).getDescription());
-        assertEquals("Three Dot Five", migrationList.get(1).getDescription());
+        assertEquals("InterfaceBasedMigration", migrationList.get(0).getMigrationInfo().getDescription());
+        assertEquals("Three Dot Five", migrationList.get(1).getMigrationInfo().getDescription());
 
-        assertNull(migrationList.get(0).getChecksum());
-        assertEquals(35, migrationList.get(1).getChecksum().intValue());
+        assertNull(migrationList.get(0).getMigrationInfo().getChecksum());
+        assertEquals(35, migrationList.get(1).getMigrationInfo().getChecksum().intValue());
+    }
+
+    @Test
+    public void conventionOverConfiguration() {
+        SpringJdbcMigrationResolver springJdbcMigrationResolver = new SpringJdbcMigrationResolver(null);
+        MigrationInfo migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
+        assertEquals("2", migrationInfo.getVersion().toString());
+        assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
+        assertNull(migrationInfo.getChecksum());
+    }
+
+    @Test
+    public void explicitInfo() {
+        SpringJdbcMigrationResolver springJdbcMigrationResolver = new SpringJdbcMigrationResolver(null);
+        MigrationInfo migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
+        assertEquals("3.5", migrationInfo.getVersion().toString());
+        assertEquals("Three Dot Five", migrationInfo.getDescription());
+        assertEquals(35, migrationInfo.getChecksum().intValue());
     }
 }

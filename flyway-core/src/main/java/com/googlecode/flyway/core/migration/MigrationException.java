@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.migration;
 
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
 
 /**
@@ -24,7 +25,7 @@ public class MigrationException extends FlywayException {
     /**
      * The version of the migration that failed.
      */
-    private final SchemaVersion version;
+    private final MigrationVersion version;
 
     /**
      * Flag indicating whether a rollback was performed or not.
@@ -37,7 +38,7 @@ public class MigrationException extends FlywayException {
      * @param version  The version of the migration that failed.
      * @param rollback Flag indicating whether a rollback was performed or not.
      */
-    public MigrationException(SchemaVersion version, boolean rollback) {
+    public MigrationException(MigrationVersion version, boolean rollback) {
         super();
         this.version = version;
         this.rollback = rollback;

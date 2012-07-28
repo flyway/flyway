@@ -15,21 +15,16 @@
  */
 package com.googlecode.flyway.core.migration.jdbc;
 
-import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
-import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationInfoHelper;
-import com.googlecode.flyway.core.migration.MigrationType;
-import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.migration.MigrationExecutor;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 
 /**
  * Adapter for executing migrations implementing JdbcMigration.
  */
-public class JdbcMigrationExecutor extends Migration {
+public class JdbcMigrationExecutor implements MigrationExecutor {
     /**
      * The JdbcMigration to execute.
      */
@@ -42,39 +37,9 @@ public class JdbcMigrationExecutor extends Migration {
      */
     public JdbcMigrationExecutor(JdbcMigration jdbcMigration) {
         this.jdbcMigration = jdbcMigration;
-
-        if (jdbcMigration instanceof MigrationChecksumProvider) {
-            MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
-            checksum = checksumProvider.getChecksum();
-        }
-
-        if (jdbcMigration instanceof MigrationInfoProvider) {
-            MigrationInfoProvider infoProvider = (MigrationInfoProvider) jdbcMigration;
-            schemaVersion = new SchemaVersion(infoProvider.getVersion().toString());
-            description = infoProvider.getDescription();
-        } else {
-            String className = jdbcMigration.getClass().getName();
-            String classShortName = className.substring(className.lastIndexOf(".") + 1);
-            String nameWithoutV = classShortName.substring(1);
-            schemaVersion = MigrationInfoHelper.extractSchemaVersion(nameWithoutV);
-            description = MigrationInfoHelper.extractDescription(nameWithoutV);
-        }
-
-        script = jdbcMigration.getClass().getName();
     }
 
-    @Override
-    public String getLocation() {
-        return script;
-    }
-
-    @Override
-    public MigrationType getMigrationType() {
-        return MigrationType.JDBC;
-    }
-
-    @Override
-    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+    public void execute(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         try {
             jdbcMigration.migrate(jdbcTemplate.getConnection());
         } catch (Exception e) {

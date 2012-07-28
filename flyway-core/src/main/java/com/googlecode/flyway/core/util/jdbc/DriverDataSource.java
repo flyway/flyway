@@ -195,12 +195,7 @@ public class DriverDataSource implements DataSource {
         }
         Connection connection = driver.connect(url, props);
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection) {
-            @Override
-            protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
-                //Not implemented
-            }
-        };
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
         for (String initSql : initSqls) {
             jdbcTemplate.executeStatement(initSql);
         }

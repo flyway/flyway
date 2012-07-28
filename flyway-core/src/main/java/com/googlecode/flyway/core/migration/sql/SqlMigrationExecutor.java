@@ -16,18 +16,14 @@
 package com.googlecode.flyway.core.migration.sql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.Migration;
-import com.googlecode.flyway.core.migration.MigrationInfoHelper;
-import com.googlecode.flyway.core.migration.MigrationType;
+import com.googlecode.flyway.core.migration.MigrationExecutor;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
-
-import java.util.zip.CRC32;
 
 /**
  * Database migration based on a sql file.
  */
-public class SqlMigration extends Migration {
+public class SqlMigrationExecutor implements MigrationExecutor {
     /**
      * The placeholder replacer to apply to sql migration scripts.
      */
@@ -51,52 +47,16 @@ public class SqlMigration extends Migration {
      * @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of this Sql migration.
-     * @param versionString       The migration name in standard Flyway format '<VERSION>__<DESCRIPTION>, e.g.
-     *                            1_2__Description
-     * @param scriptName          The filename of this sql script, including the relative path from the root of
-     *                            the classpath location it was found.
      */
-    public SqlMigration(ClassPathResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding,
-                        String versionString, String scriptName) {
+    public SqlMigrationExecutor(ClassPathResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
         this.sqlScriptResource = sqlScriptResource;
         this.encoding = encoding;
-
-        schemaVersion = MigrationInfoHelper.extractSchemaVersion(versionString);
-        description = MigrationInfoHelper.extractDescription(versionString);
-
-        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
-        checksum = calculateChecksum(sqlScriptSource);
-
-        this.script = scriptName;
         this.placeholderReplacer = placeholderReplacer;
     }
 
-    @Override
-    public String getLocation() {
-        return sqlScriptResource.getLocationOnDisk();
-    }
-
-    @Override
-    public void migrate(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+    public void execute(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
         sqlScript.execute(jdbcTemplate);
-    }
-
-    /**
-     * Calculates the checksum of this sql script.
-     *
-     * @param sql The sql to calculate the checksum for.
-     * @return The crc-32 checksum of the script.
-     */
-    private int calculateChecksum(String sql) {
-        final CRC32 crc32 = new CRC32();
-        crc32.update(sql.getBytes());
-        return (int) crc32.getValue();
-    }
-
-    @Override
-    public MigrationType getMigrationType() {
-        return MigrationType.SQL;
     }
 }

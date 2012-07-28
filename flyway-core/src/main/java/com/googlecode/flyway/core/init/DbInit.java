@@ -15,12 +15,13 @@
  */
 package com.googlecode.flyway.core.init;
 
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationType;
+import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationState;
-import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.migration.init.InitMigration;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -61,21 +62,22 @@ public class DbInit {
     /**
      * Initializes the metadata table with this version and this description.
      *
-     * @param version     The version to initialize the metadata table with.
-     * @param description The description for the ionitial version.
-     * @throws InitException when the initialization failed.
+     * @param initialVersion     The version to initialize the metadata table with.
+     * @param initialDescription The description for the ionitial version.
+     * @throws FlywayException when the initialization failed.
      */
-    public void init(SchemaVersion version, String description) throws InitException {
-        if (metaDataTable.getCurrentSchemaVersion() != SchemaVersion.EMPTY) {
-            throw new InitException(
+    public void init(MigrationVersion initialVersion, String initialDescription) {
+        if (metaDataTable.getCurrentSchemaVersion() != MigrationVersion.EMPTY) {
+            throw new FlywayException(
                     "Schema already initialized. Current Version: " + metaDataTable.getCurrentSchemaVersion());
         }
 
         metaDataTable.createIfNotExists();
 
-        final Migration initialMigration = new InitMigration(version, description);
+        MigrationInfo migrationInfo =
+                new MigrationInfo(initialVersion, initialDescription, initialDescription, null, MigrationType.INIT, com.googlecode.flyway.core.api.MigrationState.PENDING);
 
-        final MetaDataTableRow metaDataTableRow = new MetaDataTableRow(initialMigration);
+        final MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migrationInfo);
         metaDataTableRow.update(0, MigrationState.SUCCESS);
 
         transactionTemplate.execute(new TransactionCallback<Void>() {

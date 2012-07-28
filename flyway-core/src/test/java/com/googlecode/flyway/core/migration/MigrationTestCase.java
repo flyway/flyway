@@ -21,7 +21,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlMigration;
+import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
@@ -35,13 +35,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Test to demonstrate the migration functionality.
@@ -147,10 +145,18 @@ public abstract class MigrationTestCase {
      * @param appliedMigration The migration to check.
      */
     private void assertChecksum(MetaDataTableRow appliedMigration) {
-        ClassPathResource resource = new ClassPathResource(BASEDIR + "/" + appliedMigration.getScript());
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "", "");
-        Migration sqlMigration = new SqlMigration(resource, placeholderReplacer, "UTF-8", "1", appliedMigration.getScript());
-        assertEquals("Wrong checksum for " + appliedMigration.getScript(), sqlMigration.getChecksum(), appliedMigration.getChecksum());
+        SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
+                BASEDIR,
+                PlaceholderReplacer.NO_PLACEHOLDERS,
+                "UTF-8",
+                "V",
+                ".sql");
+        List<ExecutableMigration> migrations = sqlMigrationResolver.resolveMigrations();
+        for (ExecutableMigration migration : migrations) {
+            if (migration.getMigrationInfo().getVersion().toString().equals(appliedMigration.getVersion().toString())) {
+                assertEquals("Wrong checksum for " + appliedMigration.getScript(), migration.getMigrationInfo().getChecksum(), appliedMigration.getChecksum());
+            }
+        }
     }
 
     @Test(expected = FlywayException.class)

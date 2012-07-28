@@ -202,9 +202,8 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
                 new CompositeMigrationResolver(flyway.getLocations(), flyway.getBasePackage(), flyway.getBaseDir(), flyway.getEncoding(),
                         flyway.getSqlMigrationPrefix(), flyway.getSqlMigrationSuffix(),
                         flyway.getPlaceholders(), flyway.getPlaceholderPrefix(), flyway.getPlaceholderSuffix());
-        List<Migration> availableMigrations = migrationResolver.resolveMigrations();
 
-        if (availableMigrations.isEmpty()) {
+        if (migrationResolver.resolveMigrations().isEmpty()) {
             LOG.warn("Possible solution: run the Ant javac and copy tasks first so Flyway can find the migrations");
             return;
         }

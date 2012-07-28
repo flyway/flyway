@@ -24,7 +24,14 @@ import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.validation.ValidationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -80,7 +87,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
      * found.
      */
-    private List<Migration> availableMigrations;
+    private List<ExecutableMigration> availableMigrations;
 
     /**
      * Creates a new CompositeMigrationResolver.
@@ -114,7 +121,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      *         can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    public List<Migration> resolveMigrations() {
+    public List<ExecutableMigration> resolveMigrations() {
         if (availableMigrations == null) {
             availableMigrations = doFindAvailableMigrations();
         }
@@ -129,7 +136,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      *         can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    private List<Migration> doFindAvailableMigrations() throws FlywayException {
+    private List<ExecutableMigration> doFindAvailableMigrations() throws FlywayException {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
@@ -152,7 +159,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
             }
         }
 
-        List<Migration> migrations = new ArrayList<Migration>(collectMigrations(migrationResolvers));
+        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>(collectMigrations(migrationResolvers));
         Collections.sort(migrations);
         Collections.reverse(migrations);
 
@@ -168,8 +175,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @return All migrations.
      */
     /* private -> for testing */
-    static Collection<Migration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
-        Set<Migration> migrations = new HashSet<Migration>();
+    static Collection<ExecutableMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
+        Set<ExecutableMigration> migrations = new HashSet<ExecutableMigration>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
             migrations.addAll(migrationResolver.resolveMigrations());
         }
@@ -183,14 +190,18 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @throws ValidationException when two different migration with the same version number are found.
      */
     /* private -> for testing */
-    static void checkForIncompatibilities(List<Migration> migrations) {
+    static void checkForIncompatibilities(List<ExecutableMigration> migrations) {
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
-            Migration current = migrations.get(i);
-            Migration next = migrations.get(i + 1);
+            ExecutableMigration current = migrations.get(i);
+            ExecutableMigration next = migrations.get(i + 1);
             if (current.compareTo(next) == 0) {
                 throw new ValidationException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
-                        current.getVersion(), current.getMigrationType(), current.getLocation(), next.getMigrationType(), next.getLocation()));
+                        current.getMigrationInfo().getVersion(),
+                        current.getMigrationInfo().getMigrationType(),
+                        current.getPhysicalLocation(),
+                        next.getMigrationInfo().getMigrationType(),
+                        next.getPhysicalLocation()));
             }
         }
     }

@@ -13,30 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.init;
-
-import com.googlecode.flyway.core.exception.FlywayException;
+package com.googlecode.flyway.core.api;
 
 /**
- * Exception indicating that migration failed.
+ * The state of a migration.
  */
-public class InitException extends FlywayException {
+public enum MigrationState {
     /**
-     * Creates a new InitException with this error message and this cause.
-     *
-     * @param message The error message.
-     * @param cause   The exception that caused this.
+     * This migration has not been applied yet.
      */
-    public InitException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    PENDING,
 
     /**
-     * Creates a new InitException with this error message.
-     *
-     * @param message The error message.
+     * This migration succeeded.
      */
-    public InitException(String message) {
-        super(message);
-    }
+    SUCCESS,
+
+    /**
+     * This migration failed.
+     */
+    FAILED
 }

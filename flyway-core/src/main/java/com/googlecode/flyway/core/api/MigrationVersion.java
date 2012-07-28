@@ -18,20 +18,20 @@ package com.googlecode.flyway.core.api;
 import com.googlecode.flyway.core.util.StringUtils;
 
 /**
- * A version of a database schema.
+ * A version of a migration.
  *
  * @author Axel Fontaine
  */
-public final class Version implements Comparable<Version> {
+public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Version for an empty schema.
      */
-    public static final Version EMPTY = new Version(null);
+    public static final MigrationVersion EMPTY = new MigrationVersion(null);
 
     /**
      * Latest version.
      */
-    public static final Version LATEST = new Version(Long.toString(Long.MAX_VALUE));
+    public static final MigrationVersion LATEST = new MigrationVersion(Long.toString(Long.MAX_VALUE));
 
     /**
      * The printable version.
@@ -44,7 +44,7 @@ public final class Version implements Comparable<Version> {
      * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
      *                means that this version refers to an empty schema.
      */
-    public Version(String version) {
+    public MigrationVersion(String version) {
         this.version = version;
     }
 
@@ -68,7 +68,7 @@ public final class Version implements Comparable<Version> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Version that = (Version) o;
+        MigrationVersion that = (MigrationVersion) o;
         return compareTo(that) == 0;
     }
 
@@ -77,7 +77,7 @@ public final class Version implements Comparable<Version> {
         return version.hashCode();
     }
 
-    public int compareTo(Version o) {
+    public int compareTo(MigrationVersion o) {
         if (o == null) {
             return 1;
         }

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Public API: Interfaces for Spring Jdbc Migrations (require Spring Jdbc + dependencies on the classpath).
+ * Interfaces for Spring Jdbc Migrations (require Spring Jdbc + dependencies on the classpath).
  */
 package com.googlecode.flyway.core.api.migration.spring;

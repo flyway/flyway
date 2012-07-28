@@ -15,9 +15,10 @@
  */
 package com.googlecode.flyway.core.validation;
 
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.ExecutableMigration;
 import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.ObjectUtils;
@@ -70,7 +71,7 @@ public class DbValidator {
      * @param resolvedMigrations All migrations available on the classpath, sorted by version, newest first.
      * @return description of validation error or NULL if no validation error was found
      */
-    public String validate(List<Migration> resolvedMigrations) {
+    public String validate(List<ExecutableMigration> resolvedMigrations) {
         if (ValidationMode.NONE.equals(validationMode)) {
             return null;
         }
@@ -85,7 +86,7 @@ public class DbValidator {
             return null;
         }
 
-        List<Migration> migrations = new ArrayList<Migration>(resolvedMigrations);
+        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>(resolvedMigrations);
         // migrations now with newest last
         Collections.reverse(migrations);
         final MetaDataTableRow firstAppliedMigration = appliedMigrations.get(0);
@@ -94,22 +95,23 @@ public class DbValidator {
             final SchemaVersion initVersion = firstAppliedMigration.getVersion();
             appliedMigrations.remove(firstAppliedMigration);
 
-            Iterator<Migration> iterator = migrations.iterator();
+            Iterator<ExecutableMigration> iterator = migrations.iterator();
             while (iterator.hasNext()) {
-                Migration migration = iterator.next();
-                if (migration.getVersion().compareTo(initVersion) <= 0) {
+                ExecutableMigration migration = iterator.next();
+                SchemaVersion schemaVersion = new SchemaVersion(migration.getMigrationInfo().getVersion().toString());
+                if (schemaVersion.compareTo(initVersion) <= 0) {
                     iterator.remove();
                 }
             }
         }
 
         if (appliedMigrations.size() > migrations.size()) {
-            List<SchemaVersion> schemaVersions = new ArrayList<SchemaVersion>();
+            List<MigrationVersion> schemaVersions = new ArrayList<MigrationVersion>();
             for (MetaDataTableRow metaDataTableRow : appliedMigrations) {
-                schemaVersions.add(metaDataTableRow.getVersion());
+                schemaVersions.add(new MigrationVersion(metaDataTableRow.getVersion().toString()));
             }
-            for (Migration migration : migrations) {
-                schemaVersions.remove(migration.getVersion());
+            for (ExecutableMigration migration : migrations) {
+                schemaVersions.remove(migration.getMigrationInfo().getVersion());
             }
 
             String diff = StringUtils.collectionToCommaDelimitedString(schemaVersions);
@@ -121,23 +123,24 @@ public class DbValidator {
         for (int i = 0; i < appliedMigrations.size(); i++) {
             MetaDataTableRow appliedMigration = appliedMigrations.get(i);
             //Migrations are sorted in the opposite order: newest first.
-            Migration classpathMigration = migrations.get(i);
+            ExecutableMigration classpathMigration = migrations.get(i);
 
-            if (!appliedMigration.getVersion().equals(classpathMigration.getVersion())) {
+            if (!new MigrationVersion(appliedMigration.getVersion().toString())
+                    .equals(classpathMigration.getMigrationInfo().getVersion())) {
                 return String.format("Version mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScript(), appliedMigration.getVersion(), classpathMigration.getVersion());
+                        appliedMigration.getScript(), appliedMigration.getVersion(), classpathMigration.getMigrationInfo().getVersion());
 
             }
-            if (!appliedMigration.getMigrationType().equals(classpathMigration.getMigrationType())) {
+            if (!appliedMigration.getMigrationType().name().equals(classpathMigration.getMigrationInfo().getMigrationType().name())) {
                 return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScript(), appliedMigration.getMigrationType(), classpathMigration.getMigrationType());
+                        appliedMigration.getScript(), appliedMigration.getMigrationType(), classpathMigration.getMigrationInfo().getMigrationType());
             }
 
             final Integer appliedChecksum = appliedMigration.getChecksum();
-            final Integer classpathChecksum = classpathMigration.getChecksum();
+            final Integer classpathChecksum = classpathMigration.getMigrationInfo().getChecksum();
             if (!ObjectUtils.nullSafeEquals(appliedChecksum, classpathChecksum)) {
                 return String.format("Checksum mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScript(), appliedChecksum, classpathMigration.getChecksum());
+                        appliedMigration.getScript(), appliedChecksum, classpathChecksum);
             }
         }
 

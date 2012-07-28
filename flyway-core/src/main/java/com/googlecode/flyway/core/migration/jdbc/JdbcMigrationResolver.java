@@ -15,9 +15,17 @@
  */
 package com.googlecode.flyway.core.migration.jdbc;
 
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
+import com.googlecode.flyway.core.api.MigrationType;
+import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
+import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.Migration;
+import com.googlecode.flyway.core.migration.ExecutableMigration;
+import com.googlecode.flyway.core.migration.MigrationExecutor;
+import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
@@ -44,19 +52,56 @@ public class JdbcMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    public List<Migration> resolveMigrations() {
-        List<Migration> migrations = new ArrayList<Migration>();
+    public List<ExecutableMigration> resolveMigrations() {
+        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
 
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, JdbcMigration.class);
             for (Class<?> clazz : classes) {
                 JdbcMigration jdbcMigration = (JdbcMigration) ClassUtils.instantiate(clazz.getName());
-                migrations.add(new JdbcMigrationExecutor(jdbcMigration));
+
+                MigrationInfo migrationInfo = extractMigrationInfo(jdbcMigration);
+                String physicalLocation = ClassUtils.getLocationOnDisk(clazz);
+                MigrationExecutor migrationExecutor = new JdbcMigrationExecutor(jdbcMigration);
+
+                migrations.add(new ExecutableMigration(migrationInfo, physicalLocation, migrationExecutor));
             }
         } catch (Exception e) {
             throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + basePackage, e);
         }
 
         return migrations;
+    }
+
+    /**
+     * Extracts the migration info from this migration.
+     *
+     * @param jdbcMigration The migration to analyse.
+     * @return The migration info.
+     */
+    /* private -> testing */ MigrationInfo extractMigrationInfo(JdbcMigration jdbcMigration) {
+        Integer checksum = null;
+        if (jdbcMigration instanceof MigrationChecksumProvider) {
+            MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
+            checksum = checksumProvider.getChecksum();
+        }
+
+        MigrationVersion version;
+        String description;
+        if (jdbcMigration instanceof MigrationInfoProvider) {
+            MigrationInfoProvider infoProvider = (MigrationInfoProvider) jdbcMigration;
+            version = new MigrationVersion(infoProvider.getVersion().toString());
+            description = infoProvider.getDescription();
+        } else {
+            String className = jdbcMigration.getClass().getName();
+            String classShortName = className.substring(className.lastIndexOf(".") + 1);
+            String nameWithoutV = classShortName.substring(1);
+            version = MigrationInfoHelper.extractVersion(nameWithoutV);
+            description = MigrationInfoHelper.extractDescription(nameWithoutV);
+        }
+
+        String script = jdbcMigration.getClass().getName();
+        return new MigrationInfo(version, description, script, checksum,
+                MigrationType.JDBC, MigrationState.PENDING);
     }
 }

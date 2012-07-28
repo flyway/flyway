@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Migration info and related classes.
- */
 package com.googlecode.flyway.core.api;
+
+/**
+ * Info about all migrations, including applied, current and pending with details and status.
+ */
+public class MigrationInfos {
+}
