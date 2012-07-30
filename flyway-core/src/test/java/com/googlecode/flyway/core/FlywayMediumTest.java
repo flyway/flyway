@@ -15,8 +15,10 @@
  */
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.h2.Driver;
 import org.junit.Test;
@@ -63,6 +65,42 @@ public class FlywayMediumTest {
 
         connection1.close();
         connection2.close();
+    }
+
+    @Test
+    public void info() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        assertNull(flyway.info().current());
+        assertEquals(0, flyway.info().all().length);
+        assertEquals(0, flyway.info().pending().length);
+
+        flyway.setLocations("migration/sql");
+        assertEquals(4, flyway.info().all().length);
+        assertEquals(4, flyway.info().pending().length);
+
+        flyway.setTarget(new SchemaVersion("1.1"));
+        assertEquals(2, flyway.info().all().length);
+        assertEquals(2, flyway.info().pending().length);
+
+        flyway.migrate();
+        assertEquals("1.1", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+        assertEquals(2, flyway.info().all().length);
+        assertEquals(0, flyway.info().pending().length);
+
+        flyway.setTarget(SchemaVersion.LATEST);
+        assertEquals(4, flyway.info().all().length);
+        assertEquals(2, flyway.info().pending().length);
+
+        flyway.migrate();
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+        assertEquals(4, flyway.info().all().length);
+        assertEquals(0, flyway.info().pending().length);
     }
 
     @Test

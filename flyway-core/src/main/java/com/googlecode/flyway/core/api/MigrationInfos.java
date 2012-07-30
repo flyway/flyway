@@ -15,8 +15,67 @@
  */
 package com.googlecode.flyway.core.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Info about all migrations, including applied, current and pending with details and status.
  */
 public class MigrationInfos {
+    /**
+     * The migration infos.
+     */
+    private final List<MigrationInfo> migrationInfos;
+
+    /**
+     * Creates a new migrationInfos based on these migration infos.
+     *
+     * @param migrationInfos The migration infos.
+     */
+    public MigrationInfos(List<MigrationInfo> migrationInfos) {
+        this.migrationInfos = migrationInfos;
+    }
+
+    /**
+     * Retrieves the full set of infos about applied, current and future migrations.
+     *
+     * @return The full set of infos. An empty array if none.
+     */
+    public MigrationInfo[] all() {
+        return migrationInfos.toArray(new MigrationInfo[migrationInfos.size()]);
+    }
+
+    /**
+     * Retrieves the information of the current migration.
+     *
+     * @return The info. {@code null} if no migrations have been applied yet.
+     */
+    public MigrationInfo current() {
+        // Look for the first applied & available migration.
+        for (int i = migrationInfos.size() - 1; i >= 0; i--) {
+            MigrationInfo migrationInfo = migrationInfos.get(i);
+            if (MigrationState.SUCCESS.equals(migrationInfo.getState())
+                    || MigrationState.FAILED.equals(migrationInfo.getState())) {
+                return migrationInfo;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves the full set of infos about pending migrations, available locally, but not yet applied to the DB.
+     *
+     * @return The pending migrations. An empty array if none.
+     */
+    public MigrationInfo[] pending() {
+        List<MigrationInfo> pendingMigrations = new ArrayList<MigrationInfo>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (MigrationState.PENDING == migrationInfo.getState()) {
+                pendingMigrations.add(migrationInfo);
+            }
+        }
+
+        return pendingMigrations.toArray(new MigrationInfo[pendingMigrations.size()]);
+    }
 }

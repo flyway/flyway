@@ -25,6 +25,40 @@ public enum MigrationState {
     PENDING,
 
     /**
+     * This migration was not applied against this DB, because the metadata table was initialized with a higher version.
+     */
+    PREINIT,
+
+    /**
+     * <p>This usually indicates a problem.</p>
+     * <p>
+     * This migration was not applied against this DB, because a migration with a higher version has already been
+     * applied. This probably means some checkins happened out of order.
+     * </p>
+     * <p>Fix by increasing the version number or clean and migrate again.</p>
+     */
+    IGNORED,
+
+    /**
+     * <p>This migration succeeded.</p>
+     * <p>
+     * This migration was applied against this DB, but it is not available locally.
+     * This usually results from multiple older migration files being consolidated into a single one.
+     * </p>
+     */
+    MISSING_SUCCESS,
+
+    /**
+     * <p>This migration failed.</p>
+     * <p>
+     * This migration was applied against this DB, but it is not available locally.
+     * This usually results from multiple older migration files being consolidated into a single one.
+     * </p>
+     * <p>This should rarely, if ever, occur in practice.</p>
+     */
+    MISSING_FAILED,
+
+    /**
      * This migration succeeded.
      */
     SUCCESS,
@@ -32,5 +66,25 @@ public enum MigrationState {
     /**
      * This migration failed.
      */
-    FAILED
+    FAILED,
+
+    /**
+     * <p>This migration succeeded.</p>
+     * <p>
+     * This migration has been applied against the DB, but it is not available locally.
+     * Its version is higher than the highest version available locally.
+     * It was most likely successfully installed by a future version of this deployable.
+     * </p>
+     */
+    FUTURE_SUCCESS,
+
+    /**
+     * <p>This migration failed.</p>
+     * <p>
+     * This migration has been applied against the DB, but it is not available locally.
+     * Its version is higher than the highest version available locally.
+     * It most likely failed during the installation of a future version of this deployable.
+     * </p>
+     */
+    FUTURE_FAILED
 }

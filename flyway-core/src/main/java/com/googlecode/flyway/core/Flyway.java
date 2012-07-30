@@ -835,7 +835,8 @@ public class Flyway {
     public MigrationInfos info() {
         return execute(new Command<MigrationInfos>() {
             public MigrationInfos execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                return new DbInfoAggregator(createMigrationResolver(), createMetaDataTable(connectionMetaDataTable, dbSupport)).aggregateMigrationInfo();
+                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
+                return new DbInfoAggregator(createMigrationResolver(), metaDataTable, target).aggregateMigrationInfo();
             }
         });
     }
