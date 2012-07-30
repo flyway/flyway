@@ -16,6 +16,8 @@
 package com.googlecode.flyway.core.api;
 
 
+import java.util.Date;
+
 /**
  * Info about a migration.
  */
@@ -48,31 +50,52 @@ public class MigrationInfo implements Comparable<MigrationInfo> {
     /**
      * The state of the migration (PENDING, SUCCESS, ...)
      */
-    private final MigrationState migrationState;
+    private MigrationState migrationState = MigrationState.PENDING;
 
     /**
-     * Creates a new MigrationInfo.
+     * The timestamp when this migration was installed. (Only for applied migrations)
+     */
+    private Date installedOn;
+
+    /**
+     * The execution time (in millis) of this migration. (Only for applied migrations)
+     */
+    private Integer executionTime;
+
+    /**
+     * Creates a new MigrationInfo. It will be initialized in state PENDING.
      *
      * @param version        The target version of this migration.
      * @param description    The description of the migration.
      * @param script         The name of the script to execute for this migration, relative to its classpath location.
      * @param checksum       The checksum of the migration.
      * @param migrationType  The type of migration (INIT, SQL, ...)
-     * @param migrationState The state of the migration (PENDING, SUCCESS, ...)
      */
-    public MigrationInfo(MigrationVersion version, String description, String script, Integer checksum, MigrationType migrationType, MigrationState migrationState) {
+    public MigrationInfo(MigrationVersion version, String description, String script, Integer checksum, MigrationType migrationType) {
         this.version = version;
         this.description = description;
         this.script = script;
         this.checksum = checksum;
         this.migrationType = migrationType;
+    }
+
+    /**
+     * Adds details about the execution of this migration.
+     *
+     * @param installedOn The timestamp when this migration was installed.
+     * @param executionTime The execution time (in millis) of this migration.
+     * @param migrationState The state of the migration (FAILED, SUCCESS, ...)
+     */
+    public void addExecutionDetails(Date installedOn, Integer executionTime, MigrationState migrationState) {
+        this.installedOn = installedOn;
+        this.executionTime = executionTime;
         this.migrationState = migrationState;
     }
 
     /**
      * @return The type of migration (INIT, SQL or JAVA)
      */
-    public MigrationType getMigrationType() {
+    public MigrationType getType() {
         return migrationType;
     }
 
@@ -104,6 +127,27 @@ public class MigrationInfo implements Comparable<MigrationInfo> {
         return script;
     }
 
+    /**
+     * @return The state of the migration (PENDING, SUCCESS, ...)
+     */
+    public MigrationState getState() {
+        return migrationState;
+    }
+
+    /**
+     * @return The timestamp when this migration was installed. (Only for applied migrations)
+     */
+    public Date getInstalledOn() {
+        return installedOn;
+    }
+
+    /**
+     * @return The execution time (in millis) of this migration. (Only for applied migrations)
+     */
+    public Integer getExecutionTime() {
+        return executionTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,6 +157,9 @@ public class MigrationInfo implements Comparable<MigrationInfo> {
 
         if (checksum != null ? !checksum.equals(that.checksum) : that.checksum != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (executionTime != null ? !executionTime.equals(that.executionTime) : that.executionTime != null)
+            return false;
+        if (installedOn != null ? !installedOn.equals(that.installedOn) : that.installedOn != null) return false;
         if (migrationState != that.migrationState) return false;
         if (migrationType != that.migrationType) return false;
         if (script != null ? !script.equals(that.script) : that.script != null) return false;
@@ -127,6 +174,8 @@ public class MigrationInfo implements Comparable<MigrationInfo> {
         result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
         result = 31 * result + migrationType.hashCode();
         result = 31 * result + migrationState.hashCode();
+        result = 31 * result + (installedOn != null ? installedOn.hashCode() : 0);
+        result = 31 * result + (executionTime != null ? executionTime.hashCode() : 0);
         return result;
     }
 

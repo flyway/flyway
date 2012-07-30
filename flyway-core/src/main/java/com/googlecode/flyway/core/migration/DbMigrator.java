@@ -15,11 +15,11 @@
  */
 package com.googlecode.flyway.core.migration;
 
+import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
@@ -31,6 +31,7 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -109,9 +110,9 @@ public class DbMigrator {
         try {
             while (true) {
                 final boolean firstRun = migrationSuccessCount == 0;
-                MetaDataTableRow metaDataTableRow =
-                        new TransactionTemplate(connection).execute(new TransactionCallback<MetaDataTableRow>() {
-                            public MetaDataTableRow doInTransaction() {
+                MigrationInfo migrationInfo =
+                        new TransactionTemplate(connection).execute(new TransactionCallback<MigrationInfo>() {
+                            public MigrationInfo doInTransaction() {
                                 metaDataTable.lock();
 
                                 MigrationVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
@@ -119,15 +120,15 @@ public class DbMigrator {
                                     LOG.info("Current schema version: " + currentSchemaVersion);
                                 }
 
-                                MigrationVersion latestAvailableMigrationVersion = migrations.get(0).getMigrationInfo().getVersion();
+                                MigrationVersion latestAvailableMigrationVersion = migrations.get(0).getInfo().getVersion();
                                 boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
                                 if (isFutureMigration) {
                                     LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
                                             + latestAvailableMigrationVersion + ") !");
                                 }
 
-                                MigrationState currentSchemaState = metaDataTable.getCurrentSchemaState();
-                                if (currentSchemaState == MigrationState.FAILED) {
+                                com.googlecode.flyway.core.api.MigrationState currentSchemaState = metaDataTable.getCurrentSchemaState();
+                                if (currentSchemaState == com.googlecode.flyway.core.api.MigrationState.FAILED) {
                                     if (isFutureMigration && ignoreFailedFutureMigration) {
                                         LOG.warn("Detected failed migration to version " + currentSchemaVersion + " !");
                                     } else {
@@ -149,13 +150,13 @@ public class DbMigrator {
                             }
                         });
 
-                if (metaDataTableRow == null) {
+                if (migrationInfo == null) {
                     // No further migrations available
                     break;
                 }
 
-                if (MigrationState.FAILED == metaDataTableRow.getState()) {
-                    throw new MigrationException(new MigrationVersion(metaDataTableRow.getVersion().toString()), false);
+                if (com.googlecode.flyway.core.api.MigrationState.FAILED == migrationInfo.getState()) {
+                    throw new MigrationException(migrationInfo.getVersion(), false);
                 }
 
                 migrationSuccessCount++;
@@ -198,24 +199,24 @@ public class DbMigrator {
      * @return The row that was added to the metadata table.
      * @throws MigrationException when the migration failed.
      */
-    private MetaDataTableRow applyMigration(final ExecutableMigration migration) throws MigrationException {
-        MigrationVersion version = migration.getMigrationInfo().getVersion();
+    private MigrationInfo applyMigration(final ExecutableMigration migration) throws MigrationException {
+        MigrationVersion version = migration.getInfo().getVersion();
         LOG.info("Migrating to version " + version);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        MigrationState state;
+        com.googlecode.flyway.core.api.MigrationState state;
         try {
             final JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionForMigrations);
             new TransactionTemplate(connectionForMigrations).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
-                    migration.getMigrationExecutor().execute(jdbcTemplate, dbSupport);
+                    migration.getExecutor().execute(jdbcTemplate, dbSupport);
                     return null;
                 }
             });
             LOG.debug("Successfully completed and committed DB migration to version " + version);
-            state = MigrationState.SUCCESS;
+            state = com.googlecode.flyway.core.api.MigrationState.SUCCESS;
         } catch (Exception e) {
             LOG.error(e.toString());
 
@@ -224,24 +225,24 @@ public class DbMigrator {
             if (rootCause != null) {
                 LOG.error("Caused by " + rootCause.toString());
             }
-            state = MigrationState.FAILED;
+            state = com.googlecode.flyway.core.api.MigrationState.FAILED;
         }
 
         stopWatch.stop();
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-        if (MigrationState.FAILED.equals(state) && dbSupport.supportsDdlTransactions()) {
+        if (com.googlecode.flyway.core.api.MigrationState.FAILED.equals(state) && dbSupport.supportsDdlTransactions()) {
             throw new MigrationException(version, true);
         }
         LOG.debug(String.format("Finished migrating to version %s (execution time %s)",
                 version, TimeFormat.format(executionTime)));
 
-        MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migration.getMigrationInfo());
-        metaDataTableRow.update(executionTime, state);
-        metaDataTable.insert(metaDataTableRow);
+        MigrationInfo migrationInfo = migration.getInfo();
+        migrationInfo.addExecutionDetails(new Date(), executionTime, state);
+        metaDataTable.insert(migrationInfo);
         LOG.debug("MetaData table successfully updated to reflect changes");
 
-        return metaDataTableRow;
+        return migrationInfo;
     }
 
     /**
@@ -260,7 +261,7 @@ public class DbMigrator {
 
         ExecutableMigration nextMigration = null;
         for (ExecutableMigration migration : allMigrations) {
-            if ((migration.getMigrationInfo().getVersion().compareTo(currentVersion) > 0)) {
+            if ((migration.getInfo().getVersion().compareTo(currentVersion) > 0)) {
                 nextMigration = migration;
             } else {
                 break;
@@ -271,7 +272,7 @@ public class DbMigrator {
             return null;
         }
 
-        if (target.compareTo(nextMigration.getMigrationInfo().getVersion()) < 0) {
+        if (target.compareTo(nextMigration.getInfo().getVersion()) < 0) {
             return null;
         }
 

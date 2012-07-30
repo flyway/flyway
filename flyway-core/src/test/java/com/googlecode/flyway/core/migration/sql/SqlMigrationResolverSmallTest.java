@@ -50,13 +50,13 @@ public class SqlMigrationResolverSmallTest {
         List<ExecutableMigration> migrationList = new ArrayList<ExecutableMigration>(migrations);
         Collections.sort(migrationList);
 
-        assertEquals("1", migrationList.get(0).getMigrationInfo().getVersion().toString());
-        assertEquals("1.1", migrationList.get(1).getMigrationInfo().getVersion().toString());
-        assertEquals("2.0", migrationList.get(2).getMigrationInfo().getVersion().toString());
+        assertEquals("1", migrationList.get(0).getInfo().getVersion().toString());
+        assertEquals("1.1", migrationList.get(1).getInfo().getVersion().toString());
+        assertEquals("2.0", migrationList.get(2).getInfo().getVersion().toString());
 
-        assertEquals("dir1/V1__First.sql", migrationList.get(0).getMigrationInfo().getScript());
-        assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getMigrationInfo().getScript());
-        assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getMigrationInfo().getScript());
+        assertEquals("dir1/V1__First.sql", migrationList.get(0).getInfo().getScript());
+        assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getInfo().getScript());
+        assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getInfo().getScript());
     }
 
     @Test

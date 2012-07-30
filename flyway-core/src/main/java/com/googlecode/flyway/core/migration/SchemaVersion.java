@@ -21,7 +21,9 @@ import com.googlecode.flyway.core.util.StringUtils;
  * A version of a database schema.
  *
  * @author Axel Fontaine
+ * @deprecated Superseeded by MigrationVersion. Will be removed in Flyway 2.0.
  */
+@Deprecated
 public final class SchemaVersion implements Comparable<SchemaVersion> {
     /**
      * Schema version for an empty schema.
@@ -129,7 +131,6 @@ public final class SchemaVersion implements Comparable<SchemaVersion> {
      *
      * @param elements The elements to check.
      * @param position The position where to start checking.
-     *
      * @return {@code true} if they are all zeroes, {@code false} if not.
      */
     private boolean onlyTrailingZeroes(String[] elements, int position) {

@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.migration.spring;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
@@ -101,7 +100,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         }
 
         String script = springJdbcMigration.getClass().getName();
-        return new MigrationInfo(version, description, script, checksum,
-                MigrationType.JDBC, MigrationState.PENDING);
+
+        return new MigrationInfo(version, description, script, checksum, MigrationType.JAVA);
     }
 }

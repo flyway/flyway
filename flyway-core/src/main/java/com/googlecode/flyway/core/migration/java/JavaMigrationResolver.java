@@ -16,11 +16,8 @@
 package com.googlecode.flyway.core.migration.java;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
-import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.ExecutableMigration;
 import com.googlecode.flyway.core.migration.MigrationExecutor;
@@ -100,7 +97,6 @@ public class JavaMigrationResolver implements MigrationResolver {
         }
 
         String script = javaMigration.getClass().getName();
-        return new MigrationInfo(version, description, script, checksum,
-                MigrationType.JDBC, MigrationState.PENDING);
+        return new MigrationInfo(version, description, script, checksum, MigrationType.JAVA);
     }
 }

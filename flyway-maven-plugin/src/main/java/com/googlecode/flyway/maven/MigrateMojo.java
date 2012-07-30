@@ -17,13 +17,11 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
-import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.validation.ValidationMode;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 

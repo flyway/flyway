@@ -16,16 +16,17 @@
 package com.googlecode.flyway.core.init;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
+
+import java.util.Date;
 
 /**
  * Workflow for initializing the database with a new metadata table and an initial marker version.
@@ -74,19 +75,17 @@ public class DbInit {
 
         metaDataTable.createIfNotExists();
 
-        MigrationInfo migrationInfo =
-                new MigrationInfo(initialVersion, initialDescription, initialDescription, null, MigrationType.INIT, com.googlecode.flyway.core.api.MigrationState.PENDING);
-
-        final MetaDataTableRow metaDataTableRow = new MetaDataTableRow(migrationInfo);
-        metaDataTableRow.update(0, MigrationState.SUCCESS);
+        final MigrationInfo migrationInfo =
+                new MigrationInfo(initialVersion, initialDescription, initialDescription, null, MigrationType.INIT);
+        migrationInfo.addExecutionDetails(new Date(), 0, MigrationState.SUCCESS);
 
         transactionTemplate.execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-                metaDataTable.insert(metaDataTableRow);
+                metaDataTable.insert(migrationInfo);
                 return null;
             }
         });
 
-        LOG.info("Schema initialized with version: " + metaDataTableRow.getVersion());
+        LOG.info("Schema initialized with version: " + migrationInfo.getVersion());
     }
 }

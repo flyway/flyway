@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationInfos;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.clean.DbCleaner;
@@ -28,8 +29,9 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
 import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.ExecutableMigration;
-import com.googlecode.flyway.core.migration.Migration;
 import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.migration.MigrationState;
+import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -45,6 +47,7 @@ import com.googlecode.flyway.core.validation.ValidationMode;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -605,9 +608,7 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                MigrationResolver migrationResolver =
-                        new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
-                List<ExecutableMigration> availableMigrations = migrationResolver.resolveMigrations();
+                List<ExecutableMigration> availableMigrations = createMigrationResolver().resolveMigrations();
                 if (availableMigrations.isEmpty()) {
                     return 0;
                 }
@@ -634,9 +635,7 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 validationMode = ValidationMode.ALL;
-                MigrationResolver migrationResolver =
-                        new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
-                List<ExecutableMigration> availableMigrations = migrationResolver.resolveMigrations();
+                List<ExecutableMigration> availableMigrations = createMigrationResolver().resolveMigrations();
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
@@ -716,7 +715,7 @@ public class Flyway {
         return execute(new Command<MetaDataTableRow>() {
             public MetaDataTableRow execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                return metaDataTable.latestAppliedMigration();
+                return toMetaDataTableRow(metaDataTable.latestAppliedMigration());
             }
         });
     }
@@ -727,13 +726,39 @@ public class Flyway {
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
      * @deprecated Use flyway.info() instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public List<MetaDataTableRow> history() {
         return execute(new Command<List<MetaDataTableRow>>() {
             public List<MetaDataTableRow> execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                return metaDataTable.allAppliedMigrations();
+                List<MigrationInfo> migrationInfos = metaDataTable.allAppliedMigrations();
+
+                List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>(migrationInfos.size());
+                for (MigrationInfo migrationInfo : migrationInfos) {
+                    metaDataTableRows.add(toMetaDataTableRow(migrationInfo));
+                }
+                return metaDataTableRows;
             }
         });
+    }
+
+    /**
+     * Converts this migrationInfo into a metaDataTableRow.
+     *
+     * @param migrationInfo The migration info to convert.
+     * @return The matching metaDataTableRow.
+     */
+    private MetaDataTableRow toMetaDataTableRow(MigrationInfo migrationInfo) {
+        if (migrationInfo == null) {
+            return null;
+        }
+
+        SchemaVersion version = new SchemaVersion(migrationInfo.getVersion().toString());
+        MigrationType type = MigrationType.valueOf(migrationInfo.getType().name());
+        MigrationState state = MigrationState.valueOf(migrationInfo.getState().name());
+
+        return new MetaDataTableRow(version, migrationInfo.getDescription(), type, migrationInfo.getScript(),
+                migrationInfo.getChecksum(), migrationInfo.getInstalledOn(), migrationInfo.getExecutionTime(), state);
     }
 
     /**
@@ -745,7 +770,7 @@ public class Flyway {
     public MigrationInfos info() {
         return execute(new Command<MigrationInfos>() {
             public MigrationInfos execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                return new DbInfoAggregator().aggregateMigrationInfo();
+                return new DbInfoAggregator(createMigrationResolver(), createMetaDataTable(connectionMetaDataTable, dbSupport)).aggregateMigrationInfo();
             }
         });
     }
@@ -770,6 +795,13 @@ public class Flyway {
      */
     private MetaDataTable createMetaDataTable(Connection connectionMetaDataTable, DbSupport dbSupport) {
         return new MetaDataTable(connectionMetaDataTable, dbSupport, schemas[0], table);
+    }
+
+    /**
+     * @return A new, fully configured, MigrationResolver instance.
+     */
+    private MigrationResolver createMigrationResolver() {
+        return new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
     }
 
     /**

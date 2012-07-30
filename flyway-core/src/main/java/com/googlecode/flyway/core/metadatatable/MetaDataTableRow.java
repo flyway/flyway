@@ -24,7 +24,9 @@ import java.util.Date;
 
 /**
  * A row in the schema metadata table containing information about a migration that has already been applied to a db.
+ * @deprecated Superseeded by MigrationInfo. Will be removed in Flyway 2.0.
  */
+@Deprecated
 public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     /**
      * The version of this migration.
@@ -99,7 +101,7 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     public MetaDataTableRow(MigrationInfo migrationInfo) {
         schemaVersion = new SchemaVersion(migrationInfo.getVersion().toString());
         description = abbreviateDescription(migrationInfo.getDescription());
-        migrationType = MigrationType.valueOf(migrationInfo.getMigrationType().name());
+        migrationType = MigrationType.valueOf(migrationInfo.getType().name());
         script = abbreviateScript(migrationInfo.getScript());
         checksum = migrationInfo.getChecksum();
     }

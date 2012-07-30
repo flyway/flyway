@@ -197,10 +197,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
             ExecutableMigration next = migrations.get(i + 1);
             if (current.compareTo(next) == 0) {
                 throw new ValidationException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
-                        current.getMigrationInfo().getVersion(),
-                        current.getMigrationInfo().getMigrationType(),
+                        current.getInfo().getVersion(),
+                        current.getInfo().getType(),
                         current.getPhysicalLocation(),
-                        next.getMigrationInfo().getMigrationType(),
+                        next.getInfo().getType(),
                         next.getPhysicalLocation()));
             }
         }

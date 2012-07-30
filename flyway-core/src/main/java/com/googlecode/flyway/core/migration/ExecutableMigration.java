@@ -24,7 +24,7 @@ public class ExecutableMigration implements Comparable<ExecutableMigration> {
     /**
      * The info about the migration.
      */
-    private final MigrationInfo migrationInfo;
+    private final MigrationInfo info;
 
     /**
      * The physical location of the migration on disk.
@@ -34,26 +34,26 @@ public class ExecutableMigration implements Comparable<ExecutableMigration> {
     /**
      * The executor to run this migration.
      */
-    private final MigrationExecutor migrationExecutor;
+    private final MigrationExecutor executor;
 
     /**
      * Creazes a new executable migration.
      *
-     * @param migrationInfo     The info about the migration.
-     * @param physicalLocation  The physical location of the migration on disk.
-     * @param migrationExecutor The executor to run this migration.
+     * @param info             The info about the migration.
+     * @param physicalLocation The physical location of the migration on disk.
+     * @param executor         The executor to run this migration.
      */
-    public ExecutableMigration(MigrationInfo migrationInfo, String physicalLocation, MigrationExecutor migrationExecutor) {
-        this.migrationInfo = migrationInfo;
+    public ExecutableMigration(MigrationInfo info, String physicalLocation, MigrationExecutor executor) {
+        this.info = info;
         this.physicalLocation = physicalLocation;
-        this.migrationExecutor = migrationExecutor;
+        this.executor = executor;
     }
 
     /**
      * @return The info about the migration.
      */
-    public MigrationInfo getMigrationInfo() {
-        return migrationInfo;
+    public MigrationInfo getInfo() {
+        return info;
     }
 
     /**
@@ -66,12 +66,12 @@ public class ExecutableMigration implements Comparable<ExecutableMigration> {
     /**
      * @return The executor to run this migration.
      */
-    public MigrationExecutor getMigrationExecutor() {
-        return migrationExecutor;
+    public MigrationExecutor getExecutor() {
+        return executor;
     }
 
     public int compareTo(ExecutableMigration o) {
-        return migrationInfo.compareTo(o.migrationInfo);
+        return info.compareTo(o.info);
     }
 
     @Override
@@ -81,11 +81,11 @@ public class ExecutableMigration implements Comparable<ExecutableMigration> {
 
         ExecutableMigration migration = (ExecutableMigration) o;
 
-        return migrationInfo.equals(migration.migrationInfo);
+        return info.equals(migration.info);
     }
 
     @Override
     public int hashCode() {
-        return migrationInfo.hashCode();
+        return info.hashCode();
     }
 }

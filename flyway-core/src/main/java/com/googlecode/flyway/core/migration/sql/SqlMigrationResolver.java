@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.migration.sql;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.ExecutableMigration;
@@ -119,8 +118,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                 MigrationInfoHelper.extractDescription(versionString),
                 scriptName,
                 checksum,
-                MigrationType.SQL,
-                MigrationState.PENDING);
+                MigrationType.SQL);
     }
 
     /**

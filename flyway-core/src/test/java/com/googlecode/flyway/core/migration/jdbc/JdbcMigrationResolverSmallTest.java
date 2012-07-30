@@ -44,12 +44,12 @@ public class JdbcMigrationResolverSmallTest {
         List<ExecutableMigration> migrationList = new ArrayList<ExecutableMigration>(migrations);
         Collections.sort(migrationList);
 
-        MigrationInfo migrationInfo = migrationList.get(0).getMigrationInfo();
+        MigrationInfo migrationInfo = migrationList.get(0).getInfo();
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
         assertNull(migrationInfo.getChecksum());
 
-        MigrationInfo migrationInfo1 = migrationList.get(1).getMigrationInfo();
+        MigrationInfo migrationInfo1 = migrationList.get(1).getInfo();
         assertEquals("3.5", migrationInfo1.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo1.getDescription());
         assertEquals(35, migrationInfo1.getChecksum().intValue());

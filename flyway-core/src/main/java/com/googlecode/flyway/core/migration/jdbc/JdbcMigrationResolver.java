@@ -101,7 +101,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
         }
 
         String script = jdbcMigration.getClass().getName();
-        return new MigrationInfo(version, description, script, checksum,
-                MigrationType.JDBC, MigrationState.PENDING);
+
+        return new MigrationInfo(version, description, script, checksum, MigrationType.JDBC);
     }
 }

@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.validation.ValidationException;
 import org.junit.Test;
@@ -40,8 +39,8 @@ public class CompositeMigrationResolverSmallTest {
         List<ExecutableMigration> migrations = migrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
-        assertEquals("Add foreign key", migrations.get(0).getMigrationInfo().getDescription());
-        assertEquals("First", migrations.get(1).getMigrationInfo().getDescription());
+        assertEquals("Add foreign key", migrations.get(0).getInfo().getDescription());
+        assertEquals("First", migrations.get(1).getInfo().getDescription());
     }
 
     /**
@@ -84,7 +83,7 @@ public class CompositeMigrationResolverSmallTest {
     public void checkForIncompatibilitiesMessage() {
         List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
         migrations.add(new ExecutableMigration(
-                new MigrationInfo(new MigrationVersion("1"), "First", "V1__First.sql", 123, com.googlecode.flyway.core.api.MigrationType.SQL, MigrationState.PENDING),
+                new MigrationInfo(new MigrationVersion("1"), "First", "V1__First.sql", 123, com.googlecode.flyway.core.api.MigrationType.SQL),
                 "target/test-classes/migration/validate/V1__First.sql", null));
         migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
 
@@ -120,6 +119,6 @@ public class CompositeMigrationResolverSmallTest {
      */
     private ExecutableMigration createTestMigration(final com.googlecode.flyway.core.api.MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
         return new ExecutableMigration(
-                new MigrationInfo(new MigrationVersion(aVersion), aDescription, aScript, aChecksum, aMigrationType, MigrationState.PENDING), aScript, null);
+                new MigrationInfo(new MigrationVersion(aVersion), aDescription, aScript, aChecksum, aMigrationType), aScript, null);
     }
 }

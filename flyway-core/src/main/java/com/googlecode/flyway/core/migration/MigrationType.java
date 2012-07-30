@@ -17,7 +17,9 @@ package com.googlecode.flyway.core.migration;
 
 /**
  * Type of migration.
+ * @deprecated Superseeded by equivalent in the API package. Will be removed in Flyway 2.0.
  */
+@Deprecated
 public enum MigrationType {
     /**
      * The type for the default init migration.

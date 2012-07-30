@@ -22,7 +22,6 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
@@ -34,12 +33,10 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality.
@@ -153,8 +150,8 @@ public abstract class MigrationTestCase {
                 ".sql");
         List<ExecutableMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ExecutableMigration migration : migrations) {
-            if (migration.getMigrationInfo().getVersion().toString().equals(appliedMigration.getVersion().toString())) {
-                assertEquals("Wrong checksum for " + appliedMigration.getScript(), migration.getMigrationInfo().getChecksum(), appliedMigration.getChecksum());
+            if (migration.getInfo().getVersion().toString().equals(appliedMigration.getVersion().toString())) {
+                assertEquals("Wrong checksum for " + appliedMigration.getScript(), migration.getInfo().getChecksum(), appliedMigration.getChecksum());
             }
         }
     }

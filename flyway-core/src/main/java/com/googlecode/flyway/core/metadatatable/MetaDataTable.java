@@ -15,12 +15,12 @@
  */
 package com.googlecode.flyway.core.metadatatable;
 
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
+import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.MigrationState;
-import com.googlecode.flyway.core.migration.MigrationType;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
@@ -153,27 +153,63 @@ public class MetaDataTable {
     /**
      * Adds this row to the metadata table and mark it as current.
      *
-     * @param metaDataTableRow The metaDataTableRow to add.
+     * @param migrationInfo The migrationInfo to add.
      */
-    public void insert(final MetaDataTableRow metaDataTableRow) {
+    public void insert(MigrationInfo migrationInfo) {
         try {
             jdbcTemplate.update("UPDATE " + schema + "." + table + " SET current_version=" + dbSupport.getBooleanFalse());
-            final String version = metaDataTableRow.getVersion().toString();
-            final String description = metaDataTableRow.getDescription();
-            final String state = metaDataTableRow.getState().name();
-            final String migrationType = metaDataTableRow.getMigrationType().name();
-            final Integer checksum = metaDataTableRow.getChecksum();
-            final String scriptName = metaDataTableRow.getScript();
-            final Integer executionTime = metaDataTableRow.getExecutionTime();
+            final String version = migrationInfo.getVersion().toString();
+            final String description = abbreviateDescription(migrationInfo.getDescription());
+            final String state = migrationInfo.getState().name();
+            final String migrationType = migrationInfo.getType().name();
+            final Integer checksum = migrationInfo.getChecksum();
+            final String script = abbreviateScript(migrationInfo.getScript());
+            final Integer executionTime = migrationInfo.getExecutionTime();
             jdbcTemplate.update("INSERT INTO " + schema + "." + table
                     + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
                     + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
                     + dbSupport.getBooleanTrue() + ")",
-                    version, description, migrationType, scriptName, checksum, executionTime, state);
+                    version, description, migrationType, script, checksum, executionTime, state);
         } catch (SQLException e) {
             throw new FlywayException(
-                    "Unable to insert metadata table row for version " + metaDataTableRow.getVersion().toString(), e);
+                    "Unable to insert metadata table row for version " + migrationInfo.getVersion().toString(), e);
         }
+    }
+
+    /**
+     * Abbreviates this description to a length that will fit in the database.
+     *
+     * @param description The description to process.
+     * @return The abbreviated version.
+     */
+    private String abbreviateDescription(String description) {
+        if (description == null) {
+            return null;
+        }
+
+        if (description.length() <= 100) {
+            return description;
+        }
+
+        return description.substring(0, 97) + "...";
+    }
+
+    /**
+     * Abbreviates this script to a length that will fit in the database.
+     *
+     * @param script The script to process.
+     * @return The abbreviated version.
+     */
+    private String abbreviateScript(String script) {
+        if (script == null) {
+            return null;
+        }
+
+        if (script.length() <= 200) {
+            return script;
+        }
+
+        return "..." + script.substring(3, 200);
     }
 
     /**
@@ -197,18 +233,18 @@ public class MetaDataTable {
     /**
      * @return The latest migration applied on the schema. {@code null} if no migration has been applied so far.
      */
-    public MetaDataTableRow latestAppliedMigration() {
+    public MigrationInfo latestAppliedMigration() {
         if (!hasRows()) {
             return null;
         }
 
         String query = getSelectStatement() + " where current_version=" + dbSupport.getBooleanTrue();
         try {
-            final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
-            if (metaDataTableRows.isEmpty()) {
+            final List<MigrationInfo> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
+            if (migrationInfos.isEmpty()) {
                 throw new FlywayException("Cannot determine latest applied migration. Was the metadata table manually modified?");
             }
-            return metaDataTableRows.get(0);
+            return migrationInfos.get(0);
         } catch (SQLException e) {
             throw new FlywayException("Error determining latest applied migration", e);
         }
@@ -218,17 +254,17 @@ public class MetaDataTable {
      * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
      *         applied so far.
      */
-    public List<MetaDataTableRow> allAppliedMigrations() {
+    public List<MigrationInfo> allAppliedMigrations() {
         if (!exists()) {
-            return new ArrayList<MetaDataTableRow>();
+            return new ArrayList<MigrationInfo>();
         }
 
         String query = getSelectStatement();
 
         try {
-            final List<MetaDataTableRow> metaDataTableRows = jdbcTemplate.query(query, new MetaDataTableRowMapper());
-            Collections.sort(metaDataTableRows);
-            return metaDataTableRows;
+            final List<MigrationInfo> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
+            Collections.sort(migrationInfos);
+            return migrationInfos;
         } catch (SQLException e) {
             throw new FlywayException("Error while retrieving the list of applied migrations", e);
         }
@@ -260,7 +296,7 @@ public class MetaDataTable {
      * @return The current state of the schema.
      */
     public MigrationState getCurrentSchemaState() {
-        MetaDataTableRow latestAppliedMigration = latestAppliedMigration();
+        MigrationInfo latestAppliedMigration = latestAppliedMigration();
         if (latestAppliedMigration == null) {
             return MigrationState.SUCCESS;
         }
@@ -271,7 +307,7 @@ public class MetaDataTable {
      * @return The current version of the schema.
      */
     public MigrationVersion getCurrentSchemaVersion() {
-        MetaDataTableRow latestAppliedMigration = latestAppliedMigration();
+        MigrationInfo latestAppliedMigration = latestAppliedMigration();
         if (latestAppliedMigration == null) {
             return MigrationVersion.EMPTY;
         }
@@ -282,18 +318,23 @@ public class MetaDataTable {
     /**
      * Row mapper for Migrations.
      */
-    private class MetaDataTableRowMapper implements RowMapper<MetaDataTableRow> {
-        public MetaDataTableRow mapRow(final ResultSet rs) throws SQLException {
-            SchemaVersion version = new SchemaVersion(rs.getString("VERSION"));
+    private class MigrationInfoRowMapper implements RowMapper<MigrationInfo> {
+        public MigrationInfo mapRow(final ResultSet rs) throws SQLException {
+            MigrationVersion version = new MigrationVersion(rs.getString("VERSION"));
             String description = rs.getString("DESCRIPTION");
             MigrationType migrationType = MigrationType.valueOf(rs.getString("TYPE"));
             String script = rs.getString("SCRIPT");
             Integer checksum = toInteger((Number) rs.getObject("CHECKSUM"));
+
+            MigrationInfo migrationInfo = new MigrationInfo(version, description, script, checksum, migrationType);
+
             Date installedOn = rs.getTimestamp("INSTALLED_ON");
             Integer executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
             MigrationState migrationState = MigrationState.valueOf(rs.getString("STATE"));
 
-            return new MetaDataTableRow(version, description, migrationType, script, checksum, installedOn, executionTime, migrationState);
+            migrationInfo.addExecutionDetails(installedOn, executionTime, migrationState);
+
+            return migrationInfo;
         }
     }
 }
