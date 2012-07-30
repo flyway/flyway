@@ -575,9 +575,22 @@ public class Flyway {
      *
      * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
      *               number will not be applied. (default: the latest version)
+     * @deprecated Use setTarget(MigrationVersion) instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setTarget(SchemaVersion target) {
         this.target = new MigrationVersion(target.toString());
+    }
+
+    /**
+     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
+     * not be applied.
+     *
+     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
+     *               number will not be applied. (default: the latest version)
+     */
+    public void setTarget(MigrationVersion target) {
+        this.target = target;
     }
 
     /**
@@ -638,9 +651,20 @@ public class Flyway {
      * The initial version to put in the database. Only used for init.
      *
      * @param initialVersion The initial version to put in the database. (default: 0)
+     * @deprecated Use setInitialVersion(MigrationVersion) instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setInitialVersion(SchemaVersion initialVersion) {
         this.initialVersion = new MigrationVersion(initialVersion.toString());
+    }
+
+    /**
+     * The initial version to put in the database. Only used for init.
+     *
+     * @param initialVersion The initial version to put in the database. (default: 0)
+     */
+    public void setInitialVersion(MigrationVersion initialVersion) {
+        this.initialVersion = initialVersion;
     }
 
     /**
@@ -747,6 +771,7 @@ public class Flyway {
 
     /**
      * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
+     *
      * @throws FlywayException when the clean fails.
      */
     public void clean() {
@@ -945,7 +970,7 @@ public class Flyway {
         }
         String initialVersionProp = properties.getProperty("flyway.initialVersion");
         if (initialVersionProp != null) {
-            setInitialVersion(new SchemaVersion(initialVersionProp));
+            setInitialVersion(new MigrationVersion(initialVersionProp));
         }
         String initialDescriptionProp = properties.getProperty("flyway.initialDescription");
         if (initialDescriptionProp != null) {
@@ -957,7 +982,7 @@ public class Flyway {
         }
         String targetProp = properties.getProperty("flyway.target");
         if (targetProp != null) {
-            setTarget(new SchemaVersion(targetProp));
+            setTarget(new MigrationVersion(targetProp));
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>();
