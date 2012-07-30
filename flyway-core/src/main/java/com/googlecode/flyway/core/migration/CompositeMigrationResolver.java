@@ -22,7 +22,6 @@ import com.googlecode.flyway.core.migration.spring.SpringJdbcMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.FeatureDetector;
-import com.googlecode.flyway.core.validation.ValidationException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,7 +116,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
-     * @return The available migrations, sorted by version, newest first. An empty list is returned when no migrations
+     * @return The available migrations, sorted by version, oldest first. An empty list is returned when no migrations
      *         can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
@@ -132,7 +131,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
-     * @return The available migrations, sorted by version, newest first. An empty list is returned when no migrations
+     * @return The available migrations, sorted by version, oldest first. An empty list is returned when no migrations
      *         can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
@@ -161,7 +160,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
         List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>(collectMigrations(migrationResolvers));
         Collections.sort(migrations);
-        Collections.reverse(migrations);
 
         checkForIncompatibilities(migrations);
 
@@ -187,7 +185,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * Checks for incompatible migrations.
      *
      * @param migrations The migrations to check.
-     * @throws ValidationException when two different migration with the same version number are found.
+     * @throws FlywayException when two different migration with the same version number are found.
      */
     /* private -> for testing */
     static void checkForIncompatibilities(List<ExecutableMigration> migrations) {
@@ -196,7 +194,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
             ExecutableMigration current = migrations.get(i);
             ExecutableMigration next = migrations.get(i + 1);
             if (current.compareTo(next) == 0) {
-                throw new ValidationException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
+                throw new FlywayException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
                         current.getInfo().getVersion(),
                         current.getInfo().getType(),
                         current.getPhysicalLocation(),

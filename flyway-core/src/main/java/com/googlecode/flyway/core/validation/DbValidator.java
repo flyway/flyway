@@ -27,7 +27,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -36,15 +35,7 @@ import java.util.List;
  * accidental migration changes.
  */
 public class DbValidator {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(DbValidator.class);
-
-    /**
-     * The ValidationMode for checksum validation.
-     */
-    private final ValidationMode validationMode;
 
     /**
      * Supports reading and writing to the metadata table.
@@ -54,11 +45,9 @@ public class DbValidator {
     /**
      * Creates a new database validator.
      *
-     * @param validationMode The ValidationMode for checksum validation.
-     * @param metaDataTable  Supports reading and writing to the metadata table.
+     * @param metaDataTable Supports reading and writing to the metadata table.
      */
-    public DbValidator(ValidationMode validationMode, MetaDataTable metaDataTable) {
-        this.validationMode = validationMode;
+    public DbValidator(MetaDataTable metaDataTable) {
         this.metaDataTable = metaDataTable;
     }
 
@@ -66,15 +55,11 @@ public class DbValidator {
      * Validate the checksum of all existing sql migration in the metadata table with the checksum of the sql migrations
      * in the classpath
      *
-     * @param resolvedMigrations All migrations available on the classpath, sorted by version, newest first.
+     * @param migrations All migrations available on the classpath, sorted by version, newest first.
      * @return description of validation error or NULL if no validation error was found
      */
-    public String validate(List<ExecutableMigration> resolvedMigrations) {
-        if (ValidationMode.NONE.equals(validationMode)) {
-            return null;
-        }
-
-        LOG.debug(String.format("Validating (mode %s) migrations ...", validationMode));
+    public String validate(List<ExecutableMigration> migrations) {
+        LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -84,9 +69,6 @@ public class DbValidator {
             return null;
         }
 
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>(resolvedMigrations);
-        // migrations now with newest last
-        Collections.reverse(migrations);
         final MigrationInfo firstAppliedMigration = appliedMigrations.get(0);
         if (com.googlecode.flyway.core.api.MigrationType.INIT.equals(firstAppliedMigration.getType())) {
             // if first migration is INIT, just check checksum of following migrations
@@ -143,11 +125,11 @@ public class DbValidator {
 
         stopWatch.stop();
         if (appliedMigrations.size() == 1) {
-            LOG.info(String.format("Validated 1 migration (mode: %s) (execution time %s)",
-                    validationMode, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+            LOG.info(String.format("Validated 1 migration (execution time %s)",
+                    TimeFormat.format(stopWatch.getTotalTimeMillis())));
         } else {
-            LOG.info(String.format("Validated %d migrations (mode: %s) (execution time %s)",
-                    appliedMigrations.size(), validationMode, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+            LOG.info(String.format("Validated %d migrations (execution time %s)",
+                    appliedMigrations.size(), TimeFormat.format(stopWatch.getTotalTimeMillis())));
         }
 
         return null;

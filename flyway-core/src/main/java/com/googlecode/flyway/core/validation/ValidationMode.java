@@ -17,7 +17,10 @@ package com.googlecode.flyway.core.validation;
 
 /**
  * Mode for the validation.
+ *
+ * @deprecated Use Flyway.validateOnMigrate instead. Will be removed in Flyway 2.0.
  */
+@Deprecated
 public enum ValidationMode {
     /**
      * Do not validate anything.

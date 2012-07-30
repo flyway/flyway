@@ -17,7 +17,7 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.validation.ValidationException;
+import com.googlecode.flyway.core.exception.FlywayException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -39,8 +39,8 @@ public class CompositeMigrationResolverSmallTest {
         List<ExecutableMigration> migrations = migrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
-        assertEquals("Add foreign key", migrations.get(0).getInfo().getDescription());
-        assertEquals("First", migrations.get(1).getInfo().getDescription());
+        assertEquals("First", migrations.get(0).getInfo().getDescription());
+        assertEquals("Add foreign key", migrations.get(1).getInfo().getDescription());
     }
 
     /**
@@ -73,7 +73,7 @@ public class CompositeMigrationResolverSmallTest {
 
         try {
             CompositeMigrationResolver.checkForIncompatibilities(migrations);
-        } catch (ValidationException e) {
+        } catch (FlywayException e) {
             assertTrue(e.getMessage().contains("Migration1"));
             assertTrue(e.getMessage().contains("Migration2"));
         }
@@ -89,7 +89,7 @@ public class CompositeMigrationResolverSmallTest {
 
         try {
             CompositeMigrationResolver.checkForIncompatibilities(migrations);
-        } catch (ValidationException e) {
+        } catch (FlywayException e) {
             assertTrue(e.getMessage().contains("target/test-classes/migration/validate/V1__First.sql"));
             assertTrue(e.getMessage().contains("Migration1"));
         }

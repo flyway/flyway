@@ -41,7 +41,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import com.googlecode.flyway.core.validation.ValidationException;
 import com.googlecode.flyway.core.validation.ValidationMode;
 
 import javax.sql.DataSource;
@@ -145,19 +144,24 @@ public class Flyway {
      * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
      * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
-     * bad migration. (default: false)
+     * bad migration. (default: {@code false})
      */
     private boolean ignoreFailedFutureMigration;
 
     /**
-     * The mode for validation. Only used for migrate. When using validate validationMode is always ALL. (default: NONE)
+     * Whether to automatically call validate or not when running migrate. (default: {@code false})
      */
-    private ValidationMode validationMode = ValidationMode.NONE;
+    private boolean validateOnMigrate;
 
     /**
-     * The error mode for validation. (default: FAIL)
+     * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
+     * <p> This is exclusively intended as a convenience for development. Even tough we
+     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
+     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
+     * the next migration will bring you back to the state checked into SCM.</p>
+     * <p><b>Warning ! Do not enable in production !</b></p>
      */
-    private ValidationErrorMode validationErrorMode = ValidationErrorMode.FAIL;
+    private boolean cleanOnValidationError;
 
     /**
      * The initial version to put in the database. Only used for init. (default: 0)
@@ -172,7 +176,7 @@ public class Flyway {
     /**
      * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
      * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
-     * this! (default: false)
+     * this! (default: {@code false})
      */
     private boolean disableInitCheck;
 
@@ -309,7 +313,7 @@ public class Flyway {
     }
 
     /**
-     * Retrieves whether to ignore failed future migrations when reading the metadata table. These are migrations that
+     * Whether to ignore failed future migrations when reading the metadata table. These are migrations that
      * were performed by a newer deployment of the application that are not yet available in this version. For example:
      * we have migrations available on the classpath up to version 3.0. The metadata table indicates that a migration to
      * version 4.0 (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an
@@ -318,7 +322,7 @@ public class Flyway {
      * failed due to a bad migration.
      *
      * @return {@code true} to terminate normally and log a warning, {@code false} to fail fast with an exception.
-     *         (default: false)
+     *         (default: {@code false})
      */
     public boolean isIgnoreFailedFutureMigration() {
         return ignoreFailedFutureMigration;
@@ -328,18 +332,51 @@ public class Flyway {
      * Retrieves the mode for validation. Only used for migrate. When using validate validationMode is always ALL.
      *
      * @return The mode for validation. (default: NONE)
+     * @deprecated Use isValidateOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public ValidationMode getValidationMode() {
-        return validationMode;
+        if (validateOnMigrate) {
+            return ValidationMode.ALL;
+        }
+        return ValidationMode.NONE;
     }
 
     /**
      * Retrieves the error mode for validation.
      *
      * @return The error mode for validation. (default: FAIL)
+     * @deprecated Use isCleanOnValidationError instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public ValidationErrorMode getValidationErrorMode() {
-        return validationErrorMode;
+        if (cleanOnValidationError) {
+            return ValidationErrorMode.CLEAN;
+        }
+        return ValidationErrorMode.FAIL;
+    }
+
+    /**
+     * Whether to automatically call validate or not when running migrate.
+     *
+     * @return {@code true} if validate should be called. {@code false} if not. (default: {@code false})
+     */
+    public boolean isValidateOnMigrate() {
+        return validateOnMigrate;
+    }
+
+    /**
+     * Whether to automatically call clean or not when a validation error occurs.<br/>
+     * <p> This is exclusively intended as a convenience for development. Even tough we
+     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
+     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
+     * the next migration will bring you back to the state checked into SCM.</p>
+     * <p><b>Warning ! Do not enable in production !</b></p>
+     *
+     * @return {@code true} if clean should be called. {@code false} if not. (default: {@code false})
+     */
+    public boolean isCleanOnValidationError() {
+        return cleanOnValidationError;
     }
 
     /**
@@ -365,7 +402,7 @@ public class Flyway {
      * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
      * this!
      *
-     * @return {@code true} if the check is disabled. {@code false} if it is active. (default: false)
+     * @return {@code true} if the check is disabled. {@code false} if it is active. (default: {@code false})
      */
     public boolean isDisableInitCheck() {
         return disableInitCheck;
@@ -387,10 +424,10 @@ public class Flyway {
      * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
      * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
-     * bad migration. (default: false)
+     * bad migration.
      *
      * @param ignoreFailedFutureMigration {@code true} to terminate normally and log a warning, {@code false} to fail
-     *                                    fast with an exception.
+     *                                    fast with an exception. (default: {@code false})
      */
     public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
@@ -400,18 +437,45 @@ public class Flyway {
      * Sets the mode for validation. Only used for migrate. When using validate validationMode is always ALL.
      *
      * @param validationMode The mode for validation. (default: NONE)
+     * @deprecated Use setValidateOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setValidationMode(ValidationMode validationMode) {
-        this.validationMode = validationMode;
+        validateOnMigrate = ValidationMode.ALL == validationMode;
     }
 
     /**
      * Sets the error mode for validation.
      *
      * @param validationErrorMode The error mode for validation. (default: FAIL)
+     * @deprecated Use setCleanOnValidationError instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setValidationErrorMode(ValidationErrorMode validationErrorMode) {
-        this.validationErrorMode = validationErrorMode;
+        cleanOnValidationError = ValidationErrorMode.CLEAN == validationErrorMode;
+    }
+
+    /**
+     * Whether to automatically call validate or not when running migrate.
+     *
+     * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code false})
+     */
+    public void setValidateOnMigrate(boolean validateOnMigrate) {
+        this.validateOnMigrate = validateOnMigrate;
+    }
+
+    /**
+     * Whether to automatically call clean or not when a validation error occurs.<br/>
+     * <p> This is exclusively intended as a convenience for development. Even tough we
+     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
+     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
+     * the next migration will bring you back to the state checked into SCM.</p>
+     * <p><b>Warning ! Do not enable in production !</b></p>
+     *
+     * @param cleanOnValidationError {@code true} if clean should be called. {@code false} if not. (default: {@code false})
+     */
+    public void setCleanOnValidationError(boolean cleanOnValidationError) {
+        this.cleanOnValidationError = cleanOnValidationError;
     }
 
     /**
@@ -593,7 +657,7 @@ public class Flyway {
      * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
      * this!
      *
-     * @param disableInitCheck {@code true} if the check is disabled. {@code false} if it is active. (default: false)
+     * @param disableInitCheck {@code true} if the check is disabled. {@code false} if it is active. (default: {@code false})
      */
     public void setDisableInitCheck(boolean disableInitCheck) {
         this.disableInitCheck = disableInitCheck;
@@ -603,7 +667,7 @@ public class Flyway {
      * Starts the database migration. All pending migrations will be applied in order.
      *
      * @return The number of successfully applied migrations.
-     * @throws FlywayException Thrown when the migration failed.
+     * @throws FlywayException when the migration failed.
      */
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
@@ -615,7 +679,9 @@ public class Flyway {
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
-                doValidate(connectionMetaDataTable, connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
+                if (validateOnMigrate) {
+                    doValidate(connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
+                }
 
                 metaDataTable.createIfNotExists();
 
@@ -629,17 +695,16 @@ public class Flyway {
     /**
      * Validate applied migration with classpath migrations to detect accidental changes.
      *
-     * @throws FlywayException thrown when the validation failed.
+     * @throws FlywayException when the validation failed.
      */
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                validationMode = ValidationMode.ALL;
                 List<ExecutableMigration> availableMigrations = createMigrationResolver().resolveMigrations();
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
-                doValidate(connectionMetaDataTable, connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
+                doValidate(connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
                 return null;
             }
         });
@@ -648,18 +713,17 @@ public class Flyway {
     /**
      * Performs the actual validation. All set up must have taken place beforehand.
      *
-     * @param connectionMetaDataTable The database connection for the metadata table changes.
-     * @param connectionUserObjects   The database connection for user object changes.
-     * @param dbSupport               The database-specific support for these connections.
-     * @param availableMigrations     The available migrations on the classpath.
-     * @param metaDataTable           The metadata table.
+     * @param connectionUserObjects The database connection for user object changes.
+     * @param dbSupport             The database-specific support for these connections.
+     * @param availableMigrations   The available migrations on the classpath.
+     * @param metaDataTable         The metadata table.
      */
-    private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, List<ExecutableMigration> availableMigrations, MetaDataTable metaDataTable) {
+    private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, List<ExecutableMigration> availableMigrations, MetaDataTable metaDataTable) {
         if (MigrationVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !disableInitCheck) {
             for (String schema : schemas) {
                 try {
                     if (!dbSupport.isSchemaEmpty(schema)) {
-                        throw new ValidationException("Found non-empty schema '" + schema
+                        throw new FlywayException("Found non-empty schema '" + schema
                                 + "' without metadata table! Use init() first to initialize the metadata table.");
                     }
                 } catch (SQLException e) {
@@ -668,22 +732,22 @@ public class Flyway {
             }
         }
 
-        DbValidator dbValidator = new DbValidator(validationMode, metaDataTable);
+        DbValidator dbValidator = new DbValidator(metaDataTable);
         final String validationError = dbValidator.validate(availableMigrations);
 
         if (validationError != null) {
             final String msg = "Validate failed. Found differences between applied migrations and available migrations: " + validationError;
-            if (ValidationErrorMode.CLEAN.equals(validationErrorMode)) {
-                LOG.warn(msg + " running clean and migrate again.");
+            if (cleanOnValidationError) {
                 doClean(connectionUserObjects, dbSupport);
             } else {
-                throw new ValidationException(msg);
+                throw new FlywayException(msg);
             }
         }
     }
 
     /**
      * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
+     * @throws FlywayException when the clean fails.
      */
     public void clean() {
         execute(new Command<Void>() {
@@ -766,6 +830,7 @@ public class Flyway {
      * details and status.
      *
      * @return All migrations sorted by version, oldest first.
+     * @throws FlywayException when the info retrieval failed.
      */
     public MigrationInfos info() {
         return execute(new Command<MigrationInfos>() {

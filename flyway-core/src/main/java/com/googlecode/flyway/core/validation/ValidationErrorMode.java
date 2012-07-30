@@ -17,7 +17,10 @@ package com.googlecode.flyway.core.validation;
 
 /**
  * Mode for handling validation errors.
+ *
+ * @deprecated Use Flyway.cleanOnValidationError instead. Will be removed in Flyway 2.0.
  */
+@Deprecated
 public enum ValidationErrorMode {
     /**
      * Throw an exception and fail.
@@ -29,7 +32,7 @@ public enum ValidationErrorMode {
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
      * the next migration will bring you back to the state checked into SCM. </p> <br/> <b>Warning ! Do not use in
-     * produktion !</b>
+     * production !</b>
      */
     CLEAN
 }

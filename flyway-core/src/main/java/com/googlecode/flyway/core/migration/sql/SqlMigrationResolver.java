@@ -27,6 +27,7 @@ import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.CRC32;
 
@@ -96,6 +97,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
         }
 
+        Collections.sort(migrations);
         return migrations;
     }
 

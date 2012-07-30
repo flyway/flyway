@@ -55,10 +55,8 @@ public class DbInfoAggregator {
      * @return The info about the migrations.
      */
     public MigrationInfos aggregateMigrationInfo() {
-        List<ExecutableMigration> executableMigrations = migrationResolver.resolveMigrations();
-        List<MigrationInfo> migrationInfos = extractMigrationInfos(executableMigrations);
-
-        metaDataTable.allAppliedMigrations();
+        List<MigrationInfo> availableMigrations = extractMigrationInfos(migrationResolver.resolveMigrations());
+        List<MigrationInfo> appliedMigrations = metaDataTable.allAppliedMigrations();
 
         return new MigrationInfos();
     }

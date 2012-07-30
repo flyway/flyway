@@ -31,6 +31,7 @@ import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -70,6 +71,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
             throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + basePackage, e);
         }
 
+        Collections.sort(migrations);
         return migrations;
     }
 

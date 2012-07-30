@@ -120,7 +120,8 @@ public class DbMigrator {
                                     LOG.info("Current schema version: " + currentSchemaVersion);
                                 }
 
-                                MigrationVersion latestAvailableMigrationVersion = migrations.get(0).getInfo().getVersion();
+                                ExecutableMigration lastestAvailableMigration = migrations.get(migrations.size() - 1);
+                                MigrationVersion latestAvailableMigrationVersion = lastestAvailableMigration.getInfo().getVersion();
                                 boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
                                 if (isFutureMigration) {
                                     LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
@@ -263,7 +264,6 @@ public class DbMigrator {
         for (ExecutableMigration migration : allMigrations) {
             if ((migration.getInfo().getVersion().compareTo(currentVersion) > 0)) {
                 nextMigration = migration;
-            } else {
                 break;
             }
         }
