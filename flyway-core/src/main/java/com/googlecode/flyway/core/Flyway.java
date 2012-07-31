@@ -336,6 +336,7 @@ public class Flyway {
      */
     @Deprecated
     public ValidationMode getValidationMode() {
+        LOG.warn("validationMode has been deprecated and will be removed in Flyway 2.0. Use validateOnMigrate instead.");
         if (validateOnMigrate) {
             return ValidationMode.ALL;
         }
@@ -350,6 +351,7 @@ public class Flyway {
      */
     @Deprecated
     public ValidationErrorMode getValidationErrorMode() {
+        LOG.warn("validationErrorMode has been deprecated and will be removed in Flyway 2.0. Use cleanOnValidationError instead.");
         if (cleanOnValidationError) {
             return ValidationErrorMode.CLEAN;
         }
@@ -441,6 +443,7 @@ public class Flyway {
      */
     @Deprecated
     public void setValidationMode(ValidationMode validationMode) {
+        LOG.warn("validationMode has been deprecated and will be removed in Flyway 2.0. Use validateOnMigrate instead.");
         validateOnMigrate = ValidationMode.ALL == validationMode;
     }
 
@@ -452,6 +455,7 @@ public class Flyway {
      */
     @Deprecated
     public void setValidationErrorMode(ValidationErrorMode validationErrorMode) {
+        LOG.warn("validationErrorMode has been deprecated and will be removed in Flyway 2.0. Use cleanOnValidationError instead.");
         cleanOnValidationError = ValidationErrorMode.CLEAN == validationErrorMode;
     }
 
@@ -971,6 +975,14 @@ public class Flyway {
         String validationModeProp = properties.getProperty("flyway.validationMode");
         if (validationModeProp != null) {
             setValidationMode(ValidationMode.valueOf(validationModeProp));
+        }
+        String cleanOnValidationErrorProp = properties.getProperty("flyway.cleanOnValidationError");
+        if (cleanOnValidationErrorProp != null) {
+            setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
+        }
+        String validateOnMigrateProp = properties.getProperty("flyway.validateOnMigrate");
+        if (validateOnMigrateProp != null) {
+            setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
         }
         String initialVersionProp = properties.getProperty("flyway.initialVersion");
         if (initialVersionProp != null) {

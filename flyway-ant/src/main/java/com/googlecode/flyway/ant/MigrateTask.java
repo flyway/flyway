@@ -64,8 +64,16 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      * (default)<br/> No validation is performed.<br/> <br/> <b>ALL</b><br/> For each sql migration a CRC32 checksum is
      * calculated when the sql script is executed. The validate mechanism checks if the sql migrations in the classpath
      * still has the same checksum as the sql migration already executed in the database.<br/> <br/>Also configurable with Ant Property: ${flyway.validationMode}
+     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     private String validationMode;
+
+    /**
+     * Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
+     * Also configurable with Ant Property: ${flyway.validateOnMigrate}
+     */
+    private boolean validateOnMigrate;
 
     /**
      * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
@@ -106,9 +114,19 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      *                       (default)<br/> No validation is performed.<br/> <br/> <b>ALL</b><br/> For each sql migration a CRC32 checksum is
      *                       calculated when the sql script is executed. The validate mechanism checks if the sql migrations in the classpath
      *                       still has the same checksum as the sql migration already executed in the database.<br/> <br/>Also configurable with Ant Property: ${flyway.validationMode}
+     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setValidationMode(String validationMode) {
         this.validationMode = validationMode;
+    }
+
+    /**
+     * @param validateOnMigrate Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
+     *                          Also configurable with Ant Property: ${flyway.validateOnMigrate}
+     */
+    public void setValidateOnMigrate(boolean validateOnMigrate) {
+        this.validateOnMigrate = validateOnMigrate;
     }
 
     /**
@@ -167,6 +185,10 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
         if (validationModeValue != null) {
             flyway.setValidationMode(ValidationMode.valueOf(validationModeValue.toUpperCase()));
         }
+        flyway.setValidateOnMigrate(
+                Boolean.valueOf(
+                        useValueIfPropertyNotSet(
+                                Boolean.toString(validateOnMigrate), "validateOnMigrate")));
         boolean disableInitCheckValue =
                 Boolean.valueOf(
                         useValueIfPropertyNotSet(

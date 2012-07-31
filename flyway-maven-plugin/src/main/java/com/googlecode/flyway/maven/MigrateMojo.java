@@ -16,9 +16,6 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
-import com.googlecode.flyway.core.migration.MigrationResolver;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.validation.ValidationMode;
 
 import java.util.HashMap;
@@ -92,8 +89,18 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * with Maven or System Property: ${flyway.validationMode}
      *
      * @parameter expression="${flyway.validationMode}"
+     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     private String validationMode;
+
+    /**
+     * Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
+     * Also configurable with Maven or System Property: ${flyway.validationErrorMode}
+     *
+     * @parameter expression="${flyway.validateOnMigrate}"
+     */
+    private boolean validateOnMigrate;
 
     @Override
     protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
@@ -117,13 +124,9 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
         if (validationMode != null) {
             flyway.setValidationMode(ValidationMode.valueOf(validationMode.toUpperCase()));
         }
+        flyway.setValidateOnMigrate(validateOnMigrate);
 
-        MigrationResolver migrationResolver =
-                new CompositeMigrationResolver(flyway.getLocations(), flyway.getBasePackage(), flyway.getBaseDir(), flyway.getEncoding(),
-                        flyway.getSqlMigrationPrefix(), flyway.getSqlMigrationSuffix(),
-                        flyway.getPlaceholders(), flyway.getPlaceholderPrefix(), flyway.getPlaceholderSuffix());
-
-        if (migrationResolver.resolveMigrations().isEmpty()) {
+        if (flyway.info().all().length == 0) {
             LOG.warn("Possible solution: run mvn compile first so Flyway can find the migrations");
             return;
         }

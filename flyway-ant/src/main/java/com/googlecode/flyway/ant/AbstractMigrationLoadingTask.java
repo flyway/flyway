@@ -67,8 +67,22 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
      * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
      * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
+     *
+     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     private String validationErrorMode;
+
+    /**
+     * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
+     * <p> This is exclusively intended as a convenience for development. Even tough we
+     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
+     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
+     * the next migration will bring you back to the state checked into SCM.</p>
+     * <p><b>Warning ! Do not enable in production !</b></p>
+     * <br/>Also configurable with Ant Property: ${flyway.cleanOnValidationError}
+     */
+    private boolean cleanOnValidationError;
 
     /**
      * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
@@ -140,9 +154,24 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      *                            dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
      *                            migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
      *                            <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
+     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setValidationErrorMode(String validationErrorMode) {
         this.validationErrorMode = validationErrorMode;
+    }
+
+    /**
+     * @param cleanOnValidationError Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
+     *                               <p> This is exclusively intended as a convenience for development. Even tough we
+     *                               strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
+     *                               way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
+     *                               the next migration will bring you back to the state checked into SCM.</p>
+     *                               <p><b>Warning ! Do not enable in production !</b></p>
+     *                               <br/>Also configurable with Ant Property: ${flyway.cleanOnValidationError}
+     */
+    public void setCleanOnValidationError(boolean cleanOnValidationError) {
+        this.cleanOnValidationError = cleanOnValidationError;
     }
 
     @Override
@@ -178,6 +207,10 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         if (validationErrorModeValue != null) {
             flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeValue.toUpperCase()));
         }
+        flyway.setCleanOnValidationError(
+                Boolean.valueOf(
+                        useValueIfPropertyNotSet(
+                                Boolean.toString(cleanOnValidationError), "cleanOnValidationError")));
         String targetValue = useValueIfPropertyNotSet(target, "target");
         if (targetValue != null) {
             flyway.setTarget(new MigrationVersion(targetValue));
