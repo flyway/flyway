@@ -579,6 +579,7 @@ public class Flyway {
      */
     @Deprecated
     public void setTarget(SchemaVersion target) {
+        LOG.warn("Flyway.setTarget(SchemaVersion) has been deprecated. Use setTarget(MigrationVersion) instead. Will be removed in Flyway 2.0.");
         this.target = new MigrationVersion(target.toString());
     }
 
@@ -655,6 +656,7 @@ public class Flyway {
      */
     @Deprecated
     public void setInitialVersion(SchemaVersion initialVersion) {
+        LOG.warn("Flyway.setInitialVersion(SchemaVersion) has been deprecated. Use setInitialVersion(MigrationVersion) instead. Will be removed in Flyway 2.0.");
         this.initialVersion = new MigrationVersion(initialVersion.toString());
     }
 

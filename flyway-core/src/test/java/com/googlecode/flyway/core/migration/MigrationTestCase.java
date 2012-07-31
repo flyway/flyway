@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.exception.FlywayException;
@@ -117,12 +118,12 @@ public abstract class MigrationTestCase {
         assertEquals("1.2", flyway.status().getVersion().toString());
         assertEquals("Populate table", flyway.status().getDescription());
 
-        flyway.setTarget(new SchemaVersion("1.0"));
+        flyway.setTarget(new MigrationVersion("1.0"));
         flyway.migrate();
         assertEquals("1.2", flyway.status().getVersion().toString());
         assertEquals("Populate table", flyway.status().getDescription());
 
-        flyway.setTarget(SchemaVersion.LATEST);
+        flyway.setTarget(MigrationVersion.LATEST);
         flyway.migrate();
         assertEquals("2.0", flyway.status().getVersion().toString());
     }
@@ -311,7 +312,7 @@ public abstract class MigrationTestCase {
     @Test
     public void checkValidationWithInitRow() throws Exception {
         flyway.setLocations(BASEDIR);
-        flyway.setTarget(new SchemaVersion("1.1"));
+        flyway.setTarget(new MigrationVersion("1.1"));
         flyway.migrate();
         assertEquals("1.1", flyway.status().getVersion().toString());
 
@@ -320,7 +321,7 @@ public abstract class MigrationTestCase {
         flyway.setInitialDescription("initial version 1.1");
         flyway.init();
 
-        flyway.setTarget(SchemaVersion.LATEST);
+        flyway.setTarget(MigrationVersion.LATEST);
         flyway.migrate();
         assertEquals("2.0", flyway.status().getVersion().toString());
         flyway.validate();

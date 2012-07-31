@@ -15,9 +15,9 @@
  */
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -104,7 +104,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     public void large() throws Exception {
         flyway.setLocations("migration/dbsupport/sqlserver/sql/large",
                 "com.googlecode.flyway.core.dbsupport.sqlserver.large");
-        flyway.setTarget(new SchemaVersion("3.1.0"));
+        flyway.setTarget(new MigrationVersion("3.1.0"));
         flyway.migrate();
 
         assertEquals("3.1.0", flyway.status().getVersion().toString());
