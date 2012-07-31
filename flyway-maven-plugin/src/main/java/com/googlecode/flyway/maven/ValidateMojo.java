@@ -27,9 +27,7 @@ import com.googlecode.flyway.core.Flyway;
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class ValidateMojo extends AbstractMigrationLoadingMojo {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
-        super.doExecute(flyway);
-
+    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
         flyway.validate();
     }
 }

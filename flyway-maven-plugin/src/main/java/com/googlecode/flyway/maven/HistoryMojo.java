@@ -23,8 +23,9 @@ import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
  *
  * @goal history
  * @since 0.9
+ * @deprecated Use flyway:info instead. Will be removed in Flyway 2.0.
  */
-@SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
+@Deprecated
 public class HistoryMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {

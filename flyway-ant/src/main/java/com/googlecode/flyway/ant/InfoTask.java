@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.maven;
+package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import com.googlecode.flyway.core.util.MigrationInfoDumper;
 
 /**
- * Maven goal that shows the status (current version) of the database.
- *
- * @goal status
- * @since 0.8
- * @deprecated Use flyway:info instead. Will be removed in Flyway 2.0.
+ * Ant task to retrieve the complete information about the migrations including applied, pending and current migrations with
+ * details and status.
  */
-@Deprecated
-public class StatusMojo extends AbstractFlywayMojo {
+public class InfoTask extends AbstractMigrationLoadingTask {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
-        MetaDataTableRowDumper.dumpMigration(flyway.status());
+    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
+        MigrationInfoDumper.dumpMigrations(flyway.info().all());
     }
 }

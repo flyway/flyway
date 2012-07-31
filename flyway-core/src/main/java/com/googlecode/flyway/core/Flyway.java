@@ -801,6 +801,7 @@ public class Flyway {
      */
     @Deprecated
     public MetaDataTableRow status() {
+        LOG.warn("Flyway.status() has been deprecated and will be removed in Flyway 2.0. Use Flyway.info() instead.");
         return execute(new Command<MetaDataTableRow>() {
             public MetaDataTableRow execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
@@ -817,6 +818,7 @@ public class Flyway {
      */
     @Deprecated
     public List<MetaDataTableRow> history() {
+        LOG.warn("Flyway.history() has been deprecated and will be removed in Flyway 2.0. Use Flyway.info() instead.");
         return execute(new Command<List<MetaDataTableRow>>() {
             public List<MetaDataTableRow> execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);

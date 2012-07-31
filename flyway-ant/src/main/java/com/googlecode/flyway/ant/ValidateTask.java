@@ -21,12 +21,9 @@ import com.googlecode.flyway.core.Flyway;
  * Ant task to validate the applied migrations in the database against the available classpath migrations in order to
  * detect accidental migration changes.
  */
-@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class ValidateTask extends AbstractMigrationLoadingTask {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
-        super.doExecute(flyway);
-
+    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
         flyway.validate();
     }
 }

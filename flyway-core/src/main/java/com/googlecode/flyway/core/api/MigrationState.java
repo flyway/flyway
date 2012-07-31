@@ -22,12 +22,12 @@ public enum MigrationState {
     /**
      * This migration has not been applied yet.
      */
-    PENDING,
+    PENDING("Pending"),
 
     /**
      * This migration was not applied against this DB, because the metadata table was initialized with a higher version.
      */
-    PREINIT,
+    PREINIT("PreInit"),
 
     /**
      * <p>This usually indicates a problem.</p>
@@ -37,7 +37,7 @@ public enum MigrationState {
      * </p>
      * <p>Fix by increasing the version number or clean and migrate again.</p>
      */
-    IGNORED,
+    IGNORED("Ignored"),
 
     /**
      * <p>This migration succeeded.</p>
@@ -46,7 +46,7 @@ public enum MigrationState {
      * This usually results from multiple older migration files being consolidated into a single one.
      * </p>
      */
-    MISSING_SUCCESS,
+    MISSING_SUCCESS("Missing"),
 
     /**
      * <p>This migration failed.</p>
@@ -56,17 +56,17 @@ public enum MigrationState {
      * </p>
      * <p>This should rarely, if ever, occur in practice.</p>
      */
-    MISSING_FAILED,
+    MISSING_FAILED("MisFail"),
 
     /**
      * This migration succeeded.
      */
-    SUCCESS,
+    SUCCESS("Success"),
 
     /**
      * This migration failed.
      */
-    FAILED,
+    FAILED("Failed"),
 
     /**
      * <p>This migration succeeded.</p>
@@ -76,7 +76,7 @@ public enum MigrationState {
      * It was most likely successfully installed by a future version of this deployable.
      * </p>
      */
-    FUTURE_SUCCESS,
+    FUTURE_SUCCESS("Future"),
 
     /**
      * <p>This migration failed.</p>
@@ -86,5 +86,26 @@ public enum MigrationState {
      * It most likely failed during the installation of a future version of this deployable.
      * </p>
      */
-    FUTURE_FAILED
+    FUTURE_FAILED("FutFail");
+
+    /**
+     * The name suitable for display to the end-user.
+     */
+    private final String displayName;
+
+    /**
+     * Creates a new MigrationState.
+     *
+     * @param displayName The name suitable for display to the end-user.
+     */
+    MigrationState(String displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * @return The name suitable for display to the end-user.
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
 }

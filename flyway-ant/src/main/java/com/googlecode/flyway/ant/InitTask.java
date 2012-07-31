@@ -16,7 +16,7 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.api.MigrationVersion;
 
 /**
  * Ant task that initializes the metadata table in an existing schema.
@@ -53,7 +53,7 @@ public class InitTask extends AbstractFlywayTask {
     protected void doExecute(Flyway flyway) throws Exception {
         String initialVersionValue = useValueIfPropertyNotSet(initialVersion, "initialVersion");
         if (initialVersionValue != null) {
-            flyway.setInitialVersion(new SchemaVersion(initialVersionValue));
+            flyway.setInitialVersion(new MigrationVersion(initialVersionValue));
         }
         String initialDescriptionValue = useValueIfPropertyNotSet(initialDescription, "initialDescription");
         if (initialDescriptionValue != null) {

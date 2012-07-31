@@ -16,9 +16,6 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
-import com.googlecode.flyway.core.migration.MigrationResolver;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.tools.ant.Project;
 
@@ -35,12 +32,6 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      * Property name prefix for placeholders that are configured through properties.
      */
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
-
-    /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)<br/>Also configurable with Ant Property: ${flyway.target}
-     */
-    private String target;
 
     /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
@@ -82,14 +73,6 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      * this! (default: false)<br/>Also configurable with Ant Property: ${flyway.disableInitCheck}
      */
     private boolean disableInitCheck;
-
-    /**
-     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     *               applied. (default: the latest version)<br/>Also configurable with Ant Property: ${flyway.target}
-     */
-    public void setTarget(String target) {
-        this.target = target;
-    }
 
     /**
      * @param ignoreFailedFutureMigration Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
@@ -161,13 +144,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
     }
 
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
-        super.doExecute(flyway);
-
-        String targetValue = useValueIfPropertyNotSet(target, "target");
-        if (targetValue != null) {
-            flyway.setTarget(new SchemaVersion(targetValue));
-        }
+    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
         boolean ignoreFailedFutureMigrationValue =
                 Boolean.valueOf(
                         useValueIfPropertyNotSet(
@@ -196,12 +173,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
                                 Boolean.toString(disableInitCheck), "disableInitCheck"));
         flyway.setDisableInitCheck(disableInitCheckValue);
 
-        MigrationResolver migrationResolver =
-                new CompositeMigrationResolver(flyway.getLocations(), flyway.getBasePackage(), flyway.getBaseDir(), flyway.getEncoding(),
-                        flyway.getSqlMigrationPrefix(), flyway.getSqlMigrationSuffix(),
-                        flyway.getPlaceholders(), flyway.getPlaceholderPrefix(), flyway.getPlaceholderSuffix());
-
-        if (migrationResolver.resolveMigrations().isEmpty()) {
+        if (flyway.info().all().length == 0) {
             LOG.warn("Possible solution: run the Ant javac and copy tasks first so Flyway can find the migrations");
             return;
         }

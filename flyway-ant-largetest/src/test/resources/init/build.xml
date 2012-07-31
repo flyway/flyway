@@ -36,6 +36,6 @@
     <target name="run">
         <mkdir dir="target/db"/>
         <flyway:init initialDescription="A new beginning!"/>
-        <flyway:status/>
+        <flyway:info/>
     </target>
 </project>

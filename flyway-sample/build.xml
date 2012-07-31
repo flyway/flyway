@@ -51,6 +51,8 @@
                       inline="true" pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>
         <ivy:retrieve organisation="org.hsqldb" module="hsqldb" revision="1.8.0.10" inline="true"
                       pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>
+       <ivy:retrieve organisation="org.springframework" module="spring-jdbc" revision="2.5.6" inline="true"
+                      pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>
 
         <path id="lib.path">
             <fileset dir="${lib.dir}/default" includes="*.jar"/>
@@ -108,6 +110,10 @@
 
     <target name="history" depends="init-flyway" description="Runs flyway:history">
         <flyway:history/>
+    </target>
+
+    <target name="info" depends="init-flyway" description="Runs flyway:info">
+        <flyway:info/>
     </target>
 
     <target name="clean" depends="init-flyway" description="Runs flyway:clean">

@@ -38,14 +38,6 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version) Also configurable with Maven or System Property: ${flyway.target}
-     *
-     * @parameter expression="${flyway.target}"
-     */
-    private String target;
-
-    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -104,12 +96,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     private String validationMode;
 
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
-        super.doExecute(flyway);
-
-        if (target != null) {
-            flyway.setTarget(new SchemaVersion(target));
-        }
+    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
         flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
 
         Map<String, String> mergedPlaceholders = new HashMap<String, String>();

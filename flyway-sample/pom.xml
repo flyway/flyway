@@ -43,7 +43,9 @@
                     <driver>org.hsqldb.jdbcDriver</driver>
                     <url>jdbc:hsqldb:file:${project.build.directory}/db/flyway_sample;shutdown=true</url>
                     <user>SA</user>
-                    <basePackage>com.googlecode.flyway.sample.migration</basePackage>
+                    <locations>
+                        <location>com.googlecode.flyway.sample.migration</location>
+                    </locations>
                 </configuration>
             </plugin>
             <plugin>

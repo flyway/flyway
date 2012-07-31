@@ -19,14 +19,13 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
  * Dumps migrations in an ascii-art table in the logs and the console.
  */
+@Deprecated
 public class MetaDataTableRowDumper {
     /**
      * Logger.

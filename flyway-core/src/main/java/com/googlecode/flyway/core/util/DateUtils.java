@@ -33,9 +33,12 @@ public class DateUtils {
      * Formats this date in the standard ISO format.
      *
      * @param date The date to format.
-     * @return The date in ISO format.
+     * @return The date in ISO format. An empty string if the date is null.
      */
     public static String formatDateAsIsoString(Date date) {
+        if (date == null) {
+            return "";
+        }
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
     }
 }

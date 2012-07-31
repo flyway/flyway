@@ -16,6 +16,7 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 
@@ -70,6 +71,12 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
     private String validationErrorMode;
 
     /**
+     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
+     * applied. (default: the latest version)<br/>Also configurable with Ant Property: ${flyway.target}
+     */
+    private String target;
+
+    /**
      * Do not use. For Ant itself.
      *
      * @param locations The locations on the classpath.
@@ -118,6 +125,14 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
     }
 
     /**
+     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
+     *               applied. (default: the latest version)<br/>Also configurable with Ant Property: ${flyway.target}
+     */
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    /**
      * @param validationErrorMode The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
      *                            Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in produktion !)</b><br/> Cleans the
      *                            database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
@@ -131,7 +146,7 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
     }
 
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
+    protected final void doExecute(Flyway flyway) throws Exception {
         String locationsProperty = getProject().getProperty("flyway.locations");
         if (locationsProperty != null) {
             flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
@@ -163,7 +178,21 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         if (validationErrorModeValue != null) {
             flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeValue.toUpperCase()));
         }
+        String targetValue = useValueIfPropertyNotSet(target, "target");
+        if (targetValue != null) {
+            flyway.setTarget(new MigrationVersion(targetValue));
+        }
+
+        doExecuteWithMigrationConfig(flyway);
     }
+
+    /**
+     * Executes Flyway fully configured for loading migrations.
+     *
+     * @param flyway The instance of Flyway to launch.
+     * @throws Exception when the execution failed.
+     */
+    protected abstract void doExecuteWithMigrationConfig(Flyway flyway) throws Exception;
 
     /**
      * The nested &lt;locations&gt; element of the task. Contains 1 or more &lt;location&gt; sub-elements.

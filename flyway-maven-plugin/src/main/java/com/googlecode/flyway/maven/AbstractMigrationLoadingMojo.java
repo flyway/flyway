@@ -16,6 +16,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import org.apache.maven.project.MavenProject;
@@ -92,6 +93,14 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     private String validationErrorMode;
 
     /**
+     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
+     * applied. (default: the latest version) Also configurable with Maven or System Property: ${flyway.target}
+     *
+     * @parameter expression="${flyway.target}"
+     */
+    private String target;
+
+    /**
      * Reference to the current project that includes the Flyway Maven plugin.
      *
      * @parameter expression="${project}" required="true"
@@ -99,7 +108,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     protected MavenProject mavenProject;
 
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
+    protected final void doExecute(Flyway flyway) throws Exception {
         String locationsProperty = mavenProject.getProperties().getProperty("flyway.locations");
         if (locationsProperty != null) {
             flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
@@ -125,5 +134,18 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
         if (validationErrorMode != null) {
             flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorMode.toUpperCase()));
         }
+        if (target != null) {
+            flyway.setTarget(new MigrationVersion(target));
+        }
+
+        doExecuteWithMigrationConfig(flyway);
     }
+
+    /**
+     * Executes Flyway fully configured for loading migrations.
+     *
+     * @param flyway The instance of Flyway to launch.
+     * @throws Exception when the execution failed.
+     */
+    protected abstract void doExecuteWithMigrationConfig(Flyway flyway) throws Exception;
 }

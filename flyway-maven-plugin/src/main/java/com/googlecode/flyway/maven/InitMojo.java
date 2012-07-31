@@ -16,7 +16,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.api.MigrationVersion;
 
 /**
  * Maven goal that initializes the metadata table in an existing schema.
@@ -44,7 +44,7 @@ public class InitMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
         if (initialVersion != null) {
-            flyway.setInitialVersion(new SchemaVersion(initialVersion));
+            flyway.setInitialVersion(new MigrationVersion(initialVersion));
         }
         if (initialDescription != null) {
             flyway.setInitialDescription(initialDescription);

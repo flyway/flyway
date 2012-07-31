@@ -17,8 +17,6 @@ package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
 
 /**
  * Flyway status task.

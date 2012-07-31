@@ -22,6 +22,7 @@ import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.FileCopyUtils;
 import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import com.googlecode.flyway.core.util.MigrationInfoDumper;
 import com.googlecode.flyway.core.util.PropertiesUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -91,6 +92,8 @@ public class Main {
                 MetaDataTableRowDumper.dumpMigration(flyway.status());
             } else if ("history".equals(operation)) {
                 MetaDataTableRowDumper.dumpMigrations(flyway.history());
+            } else if ("info".equals(operation)) {
+                MigrationInfoDumper.dumpMigrations(flyway.info().all());
             } else {
                 printUsage();
             }
@@ -188,8 +191,7 @@ public class Main {
         LOG.info("init     : Creates and initializes the metadata table in the schema");
         LOG.info("migrate  : Migrates the schema to the latest version");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
-        LOG.info("status   : Prints the current version of the schema");
-        LOG.info("history  : Prints the full migration history of the schema");
+        LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("=======");
