@@ -209,8 +209,8 @@ public class Main {
         LOG.info("placeholderPrefix      : Prefix of every placeholder");
         LOG.info("placeholderSuffix      : Suffix of every placeholder");
         LOG.info("target                 : Target version up to which Flyway should migrate");
-        LOG.info("validateOnMigrate      : Whether to automatically validate when running migrate");
-        LOG.info("cleanOnValidationError : Whether to automatically clean on a validation error");
+        LOG.info("validateOnMigrate      : Validate when running migrate");
+        LOG.info("cleanOnValidationError : Automatically clean on a validation error");
         LOG.info("initialVersion         : Initial version to put in the database");
         LOG.info("initialDescription     : Description of the initial version");
         LOG.info("disableInitCheck       : Don't check that non-empty schema has been initialized");

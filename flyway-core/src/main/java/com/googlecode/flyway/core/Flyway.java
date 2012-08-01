@@ -996,6 +996,10 @@ public class Flyway {
         if (disableInitCheckProp != null) {
             setDisableInitCheck(Boolean.parseBoolean(disableInitCheckProp));
         }
+        String ignoreFailedFutureMigrationProp = properties.getProperty("flyway.ignoreFailedFutureMigration");
+        if (ignoreFailedFutureMigrationProp != null) {
+            setIgnoreFailedFutureMigration(Boolean.parseBoolean(ignoreFailedFutureMigrationProp));
+        }
         String targetProp = properties.getProperty("flyway.target");
         if (targetProp != null) {
             setTarget(new MigrationVersion(targetProp));
