@@ -94,6 +94,8 @@ public class Main {
                 MetaDataTableRowDumper.dumpMigrations(flyway.history());
             } else if ("info".equals(operation)) {
                 MigrationInfoDumper.dumpMigrations(flyway.info().all());
+            } else if ("repair".equals(operation)) {
+                flyway.repair();
             } else {
                 printUsage();
             }

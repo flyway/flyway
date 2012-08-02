@@ -24,4 +24,5 @@
     <taskdef name="status" classname="com.googlecode.flyway.ant.StatusTask"/>
     <taskdef name="history" classname="com.googlecode.flyway.ant.HistoryTask"/>
     <taskdef name="info" classname="com.googlecode.flyway.ant.InfoTask"/>
+    <taskdef name="repair" classname="com.googlecode.flyway.ant.RepairTask"/>
 </antlib>

@@ -104,6 +104,31 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void repairFirst() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        assertNull(flyway.info().current());
+        assertEquals(0, flyway.info().all().length);
+
+        flyway.setLocations("migration/failed");
+        assertEquals(1, flyway.info().all().length);
+
+        try {
+            flyway.migrate();
+        } catch (FlywayException e) {
+            //Should happen
+        }
+        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationState.FAILED, flyway.info().current().getState());
+
+        flyway.repair();
+        assertNull(flyway.info().current());
+    }
+
+    @Test
     public void noConnectionLeak() {
         OpenConnectionCountDriverDataSource dataSource = createDataSource();
 

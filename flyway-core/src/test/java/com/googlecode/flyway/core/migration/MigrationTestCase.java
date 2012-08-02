@@ -87,6 +87,34 @@ public abstract class MigrationTestCase {
         connection.close();
     }
 
+    @Test
+    public void repair() throws Exception {
+        assertNull(flyway.info().current());
+        assertEquals(0, flyway.info().all().length);
+
+        flyway.setLocations("migration/future_failed");
+        assertEquals(4, flyway.info().all().length);
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (FlywayException e) {
+            //Expected
+        }
+
+        if (dbSupport.supportsDdlTransactions()) {
+            assertEquals("2.0", flyway.info().current().getVersion().toString());
+            assertEquals(com.googlecode.flyway.core.api.MigrationState.SUCCESS, flyway.info().current().getState());
+        } else {
+            assertEquals("3", flyway.info().current().getVersion().toString());
+            assertEquals(com.googlecode.flyway.core.api.MigrationState.FAILED, flyway.info().current().getState());
+        }
+
+        flyway.repair();
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals(com.googlecode.flyway.core.api.MigrationState.SUCCESS, flyway.info().current().getState());
+    }
+
     /**
      * @return The location containing the migrations for the quote test.
      */

@@ -890,6 +890,21 @@ public class Flyway {
     }
 
     /**
+     * Repairs the Flyway metadata table after a failed migration. User objects left behind must still be cleaned up
+     * manually.
+     *
+     * @throws FlywayException when the metadata table repair failed.
+     */
+    public void repair() throws FlywayException {
+        execute(new Command<Void>() {
+            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
+                createMetaDataTable(connectionMetaDataTable, dbSupport).repair();
+                return null;
+            }
+        });
+    }
+
+    /**
      * @return A new, fully configured, MetaDataTable instance.
      */
     private MetaDataTable createMetaDataTable(Connection connectionMetaDataTable, DbSupport dbSupport) {
@@ -1040,6 +1055,7 @@ public class Flyway {
             connectionUserObjects = JdbcUtils.openConnection(dataSource);
 
             DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable);
+            LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
             if (schemas.length == 0) {
                 try {
                     setSchemas(dbSupport.getCurrentSchema());

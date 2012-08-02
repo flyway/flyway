@@ -24,6 +24,8 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.StopWatch;
+import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
@@ -293,7 +295,7 @@ public class MetaDataTable {
 
 
     /**
-     * @return The current state of the schema.
+     * @return The current state of the schema. {@code MigrationState.SUCCESS} for an empty schema.
      */
     public MigrationState getCurrentSchemaState() {
         MigrationInfo latestAppliedMigration = latestAppliedMigration();
@@ -304,7 +306,7 @@ public class MetaDataTable {
     }
 
     /**
-     * @return The current version of the schema.
+     * @return The current version of the schema. {@code MigrationVersion.EMPTY} for an empty schema.
      */
     public MigrationVersion getCurrentSchemaVersion() {
         MigrationInfo latestAppliedMigration = latestAppliedMigration();
@@ -312,6 +314,53 @@ public class MetaDataTable {
             return MigrationVersion.EMPTY;
         }
         return new MigrationVersion(latestAppliedMigration.getVersion().toString());
+    }
+
+    /**
+     * <p>
+     * Repairs the metadata table after a failed migration.
+     * This is only necessary for databases without DDL-transaction support.
+     * </p>
+     * <p>
+     * On databases with DDL transaction support, a migration failure automatically triggers a rollback of all changes,
+     * including the ones in the metadata table.
+     * </p>
+     */
+    public void repair() {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        MigrationState result = new TransactionTemplate(connection).execute(new TransactionCallback<MigrationState>() {
+            public MigrationState doInTransaction() {
+                if (MigrationState.SUCCESS == getCurrentSchemaState()) {
+                    LOG.info("Repair not necessary. No failed migration detected.");
+                    return null;
+                }
+
+                try {
+                    jdbcTemplate.execute("delete from " + schema + "." + table + " where version=?",
+                            getCurrentSchemaVersion().toString());
+                    List<MigrationInfo> migrationInfos = allAppliedMigrations();
+                    if (!migrationInfos.isEmpty()) {
+                        MigrationInfo migrationInfo = migrationInfos.get(migrationInfos.size() - 1);
+                        jdbcTemplate.execute("update " + schema + "." + table + " set current_version=? where version=?",
+                                dbSupport.getBooleanTrue(), migrationInfo.getVersion().toString());
+                    }
+                } catch (SQLException e) {
+                    throw new FlywayException("Unable to repair metadata table", e);
+                }
+                return MigrationState.SUCCESS;
+            }
+        });
+
+        stopWatch.stop();
+
+        if (MigrationState.SUCCESS == result) {
+            LOG.info("Metadata successfully repaired (execution time "
+                    + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
+            LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+            LOG.info("Current schema version: " + getCurrentSchemaVersion());
+        }
     }
 
 
