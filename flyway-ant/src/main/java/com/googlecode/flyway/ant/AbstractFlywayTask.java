@@ -182,6 +182,22 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * Retrieves a boolean value either from an Ant property or if not set, directly.
+     *
+     * @param value          The boolean value to check.
+     * @param flywayProperty The flyway Ant property. Ex. 'url' for 'flyway.url'
+     * @return The boolean value.
+     */
+    protected boolean useValueIfPropertyNotSet(boolean value, String flywayProperty) {
+        String propertyValue = getProject().getProperty("flyway." + flywayProperty);
+        if (propertyValue != null) {
+            return Boolean.parseBoolean(propertyValue);
+        }
+
+        return value;
+    }
+
+    /**
      * Prepares the classpath this task runs in, so that it includes both the classpath for Flyway and the classpath for
      * the JDBC drivers and migrations.
      */

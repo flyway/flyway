@@ -78,8 +78,29 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * ${flyway.disableInitCheck}
      *
      * @parameter expression="${flyway.disableInitCheck}"
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     private boolean disableInitCheck;
+
+    /**
+     * <p>
+     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
+     * Only migrations above {@code initialVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
+     * </p>
+     * Also configurable with Maven or System Property: ${flyway.initOnMigrate}
+     *
+     * @parameter expression="${flyway.initOnMigrate}"
+     */
+    private boolean initOnMigrate;
 
     /**
      * The type of validation to be performed before migrating.<br/> <br/> Possible values are:<br/> <br/> <b>NONE</b>
@@ -120,7 +141,10 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
         if (placeholderSuffix != null) {
             flyway.setPlaceholderSuffix(placeholderSuffix);
         }
+
         flyway.setDisableInitCheck(disableInitCheck);
+        flyway.setInitOnMigrate(initOnMigrate);
+
         if (validationMode != null) {
             flyway.setValidationMode(ValidationMode.valueOf(validationMode.toUpperCase()));
         }

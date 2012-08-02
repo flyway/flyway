@@ -207,10 +207,7 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         if (validationErrorModeValue != null) {
             flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeValue.toUpperCase()));
         }
-        flyway.setCleanOnValidationError(
-                Boolean.valueOf(
-                        useValueIfPropertyNotSet(
-                                Boolean.toString(cleanOnValidationError), "cleanOnValidationError")));
+        flyway.setCleanOnValidationError(useValueIfPropertyNotSet(cleanOnValidationError, "cleanOnValidationError"));
         String targetValue = useValueIfPropertyNotSet(target, "target");
         if (targetValue != null) {
             flyway.setTarget(new MigrationVersion(targetValue));

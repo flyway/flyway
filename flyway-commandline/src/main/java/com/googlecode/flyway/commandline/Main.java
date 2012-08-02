@@ -194,6 +194,7 @@ public class Main {
         LOG.info("migrate  : Migrates the schema to the latest version");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
+        LOG.info("repair   : Repairs the metadata table after a failed migration");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("=======");
@@ -215,7 +216,7 @@ public class Main {
         LOG.info("cleanOnValidationError : Automatically clean on a validation error");
         LOG.info("initialVersion         : Initial version to put in the database");
         LOG.info("initialDescription     : Description of the initial version");
-        LOG.info("disableInitCheck       : Don't check that non-empty schema has been initialized");
+        LOG.info("initOnMigrate          : Init on migrate against uninitialized non-empty schema");
         LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
         LOG.info("");
