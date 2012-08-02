@@ -175,10 +175,29 @@ public class Flyway {
 
     /**
      * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
-     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
+     * Flyway does not migrate the wrong database in case of a configuration mistake. Be careful when disabling
      * this! (default: {@code false})
+     *
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     private boolean disableInitCheck;
+
+    /**
+     * <p>
+     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
+     * Only migrations above {@code initialVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
+     * </p>
+     */
+    private boolean initOnMigrate;
 
     /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
@@ -405,9 +424,31 @@ public class Flyway {
      * this!
      *
      * @return {@code true} if the check is disabled. {@code false} if it is active. (default: {@code false})
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public boolean isDisableInitCheck() {
         return disableInitCheck;
+    }
+
+    /**
+     * <p>
+     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
+     * Only migrations above {@code initialVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake!
+     * </p>
+     *
+     * @return {@code true} if init should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     */
+    public boolean isInitOnMigrate() {
+        return initOnMigrate;
     }
 
     /**
@@ -688,9 +729,31 @@ public class Flyway {
      * this!
      *
      * @param disableInitCheck {@code true} if the check is disabled. {@code false} if it is active. (default: {@code false})
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
      */
+    @Deprecated
     public void setDisableInitCheck(boolean disableInitCheck) {
         this.disableInitCheck = disableInitCheck;
+    }
+
+    /**
+     * <p>
+     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
+     * Only migrations above {@code initialVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake!
+     * </p>
+     *
+     * @param initOnMigrate {@code true} if init should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     */
+    public void setInitOnMigrate(boolean initOnMigrate) {
+        this.initOnMigrate = initOnMigrate;
     }
 
     /**
@@ -713,13 +776,54 @@ public class Flyway {
                     doValidate(connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
                 }
 
-                metaDataTable.createIfNotExists();
+                if (MigrationVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion())) {
+                    List<String> nonEmptySchemas = nonEmptySchemas(dbSupport);
+                    if (nonEmptySchemas.isEmpty()) {
+                        metaDataTable.createIfNotExists();
+                    } else {
+                        if (initOnMigrate) {
+                            doInit(connectionMetaDataTable, dbSupport);
+                        } else if (disableInitCheck) {
+                            metaDataTable.createIfNotExists();
+                        } else {
+                            if (nonEmptySchemas.size() == 1) {
+                                throw new FlywayException("Found non-empty schema '" + nonEmptySchemas.get(0)
+                                        + "' without metadata table! Use init() first to initialize the metadata table.");
+                            } else {
+                                throw new FlywayException("Found non-empty schemas '"
+                                        + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
+                                        + "' without metadata table! Use init() first to initialize the metadata table.");
+                            }
+                        }
+                    }
+                }
 
                 DbMigrator dbMigrator =
                         new DbMigrator(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
                 return dbMigrator.migrate(availableMigrations);
             }
         });
+    }
+
+    /**
+     * Returns the list configured schemas that are non-empty.
+     *
+     * @param dbSupport The DbSupport for checking the schemas.
+     * @return The schema list. An empty list if none.
+     */
+    private List<String> nonEmptySchemas(DbSupport dbSupport) {
+        List<String> nonEmptySchemas = new ArrayList<String>();
+
+        for (String schema : schemas) {
+            try {
+                if (!dbSupport.isSchemaEmpty(schema)) {
+                    nonEmptySchemas.add(schema);
+                }
+            } catch (SQLException e) {
+                throw new FlywayException("Error while checking whether schema '" + schema + "' is empty", e);
+            }
+        }
+        return nonEmptySchemas;
     }
 
     /**
@@ -749,19 +853,6 @@ public class Flyway {
      * @param metaDataTable         The metadata table.
      */
     private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, List<ExecutableMigration> availableMigrations, MetaDataTable metaDataTable) {
-        if (MigrationVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion()) && !disableInitCheck) {
-            for (String schema : schemas) {
-                try {
-                    if (!dbSupport.isSchemaEmpty(schema)) {
-                        throw new FlywayException("Found non-empty schema '" + schema
-                                + "' without metadata table! Use init() first to initialize the metadata table.");
-                    }
-                } catch (SQLException e) {
-                    throw new FlywayException("Error while checking whether schema '" + schema + "' is empty", e);
-                }
-            }
-        }
-
         DbValidator dbValidator = new DbValidator(metaDataTable);
         final String validationError = dbValidator.validate(availableMigrations);
 
@@ -882,11 +973,21 @@ public class Flyway {
     public void init() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                new DbInit(new TransactionTemplate(connectionMetaDataTable), metaDataTable).init(initialVersion, initialDescription);
+                doInit(connectionMetaDataTable, dbSupport);
                 return null;
             }
         });
+    }
+
+    /**
+     * Creates and initializes the Flyway metadata table.
+     *
+     * @param connectionMetaDataTable The connection for creating the table.
+     * @param dbSupport               The DbSupport for creating the table.
+     */
+    private void doInit(Connection connectionMetaDataTable, DbSupport dbSupport) {
+        MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
+        new DbInit(new TransactionTemplate(connectionMetaDataTable), metaDataTable).init(initialVersion, initialDescription);
     }
 
     /**

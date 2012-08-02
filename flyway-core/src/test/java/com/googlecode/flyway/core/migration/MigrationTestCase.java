@@ -16,7 +16,8 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.exception.FlywayException;
@@ -401,6 +402,48 @@ public abstract class MigrationTestCase {
         flyway.setLocations(BASEDIR);
         flyway.setDisableInitCheck(true);
         flyway.migrate();
+    }
+
+    @Test
+    public void nonEmptySchemaWithInitOnMigrate() throws Exception {
+        jdbcTemplate.execute("CREATE TABLE t1 (\n" +
+                "  name VARCHAR(25) NOT NULL,\n" +
+                "  PRIMARY KEY(name))");
+
+        flyway.setLocations(BASEDIR);
+        flyway.setInitOnMigrate(true);
+        flyway.migrate();
+        MigrationInfo[] migrationInfos = flyway.info().all();
+
+        assertEquals(5, migrationInfos.length);
+
+        assertEquals(com.googlecode.flyway.core.api.MigrationType.INIT, migrationInfos[0].getType());
+        assertEquals("0", migrationInfos[0].getVersion().toString());
+
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
+    }
+
+    @Test
+    public void nonEmptySchemaWithInitOnMigrateHighVersion() throws Exception {
+        jdbcTemplate.execute("CREATE TABLE t1 (\n" +
+                "  name VARCHAR(25) NOT NULL,\n" +
+                "  PRIMARY KEY(name))");
+
+        flyway.setLocations(BASEDIR);
+        flyway.setInitOnMigrate(true);
+        flyway.setInitialVersion(new MigrationVersion("99"));
+        flyway.migrate();
+        MigrationInfo[] migrationInfos = flyway.info().all();
+
+        assertEquals(5, migrationInfos.length);
+
+        assertEquals(MigrationType.SQL, migrationInfos[0].getType());
+        assertEquals("1", migrationInfos[0].getVersion().toString());
+        assertEquals(com.googlecode.flyway.core.api.MigrationState.PREINIT, migrationInfos[0].getState());
+
+        MigrationInfo migrationInfo = flyway.info().current();
+        assertEquals(MigrationType.INIT, migrationInfo.getType());
+        assertEquals("99", migrationInfo.getVersion().toString());
     }
 
     @Test

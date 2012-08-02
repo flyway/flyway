@@ -73,7 +73,7 @@ public class DbInfoAggregator {
 
         List<MigrationInfo> allMigrations = new ArrayList<MigrationInfo>();
         if (appliedMigrationsIterator.hasNext()
-                && !MigrationType.INIT.equals(appliedMigrationsList.get(0).getType())) {
+                && MigrationType.INIT.equals(appliedMigrationsList.get(0).getType())) {
             MigrationVersion initVersion = appliedMigrationsList.get(0).getVersion();
 
             while (availableMigrationsIterator.hasNext()) {
