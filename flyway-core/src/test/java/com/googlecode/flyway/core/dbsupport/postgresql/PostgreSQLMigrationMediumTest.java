@@ -138,7 +138,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Domains.
+     * Tests clean and migrate for PostgreSQL Enums.
      */
     @Test
     public void enumeration() throws Exception {
@@ -146,6 +146,20 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
 
         assertEquals("positive", jdbcTemplate.queryForString("SELECT x FROM t"));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for PostgreSQL Aggregates.
+     */
+    @Test
+    public void aggregate() throws Exception {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/aggregate");
+        flyway.migrate();
 
         flyway.clean();
 
