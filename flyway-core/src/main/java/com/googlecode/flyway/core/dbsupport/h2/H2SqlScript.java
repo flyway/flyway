@@ -49,7 +49,7 @@ public class H2SqlScript extends SqlScript {
     }
 
     @Override
-    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiterRegex) {
+    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiterRegex) {
         return DEFAULT_STATEMENT_DELIMITER;
     }
 

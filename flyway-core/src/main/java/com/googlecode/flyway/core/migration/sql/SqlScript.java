@@ -120,7 +120,8 @@ public class SqlScript {
         List<SqlStatement> statements = new ArrayList<SqlStatement>();
 
         int statementLineNumber = 0;
-        String statementSql = "";
+        StringBuilder statementSql = new StringBuilder();
+        StringBuilder statementSqlWithoutLineBreaks = new StringBuilder();
 
         Delimiter delimiter = DEFAULT_STATEMENT_DELIMITER;
 
@@ -128,21 +129,22 @@ public class SqlScript {
             String line = lines.get(lineNumber - 1);
             String trimmedLine = line.trim();
 
-            if (!StringUtils.hasText(statementSql) && !StringUtils.hasText(line)) {
+            if ((statementSqlWithoutLineBreaks.length() == 0) && !StringUtils.hasText(line)) {
                 // Skip empty line between statements.
                 continue;
             }
 
-            if (!StringUtils.hasText(statementSql)) {
+            if ((statementSqlWithoutLineBreaks.length() == 0)) {
                 // Start a new statement, marking it with this line number.
                 statementLineNumber = lineNumber;
             } else {
-                statementSql += "\n";
+                statementSql.append("\n");
+                statementSqlWithoutLineBreaks.append(" ");
             }
-            statementSql += line;
+            statementSql.append(line);
+            statementSqlWithoutLineBreaks.append(line.replace("\n", " ").replace("\r", " ").trim());
 
-            String statementSqlWithoutLineBreaks = statementSql.replaceAll("\n", " ").replaceAll("\r", " ").trim();
-            if (endsWithOpenMultilineStringLiteral(statementSqlWithoutLineBreaks)) {
+            if (endsWithOpenMultilineStringLiteral(statementSqlWithoutLineBreaks.toString())) {
                 continue;
             }
 
@@ -150,26 +152,28 @@ public class SqlScript {
             delimiter = changeDelimiterIfNecessary(statementSqlWithoutLineBreaks, trimmedLine, delimiter);
             if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
                 if (isDelimiterChangeExplicit()) {
-                    statementSql = "";
+                    statementSql = new StringBuilder();
+                    statementSqlWithoutLineBreaks = new StringBuilder();
                     continue;
                 }
             }
 
             if (lineTerminatesStatement(trimmedLine, delimiter)) {
-                String noDelimiterStatementSql = stripDelimiter(statementSql, delimiter);
+                String noDelimiterStatementSql = stripDelimiter(statementSql.toString(), delimiter);
                 statements.add(new SqlStatement(statementLineNumber, noDelimiterStatementSql));
                 LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
 
                 if (!isDelimiterChangeExplicit()) {
                     delimiter = DEFAULT_STATEMENT_DELIMITER;
                 }
-                statementSql = "";
+                statementSql = new StringBuilder();
+                statementSqlWithoutLineBreaks = new StringBuilder();
             }
         }
 
         // Catch any statements not followed by delimiter.
-        if (StringUtils.hasText(statementSql)) {
-            statements.add(new SqlStatement(statementLineNumber, statementSql));
+        if (StringUtils.hasText(statementSql.toString())) {
+            statements.add(new SqlStatement(statementLineNumber, statementSql.toString()));
         }
 
         return statements;
@@ -208,7 +212,7 @@ public class SqlScript {
      * @return The new delimiter to use (can be the same as the current one) or {@code null} for no delimiter.
      */
     @SuppressWarnings({"UnusedDeclaration"})
-    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
         return delimiter;
     }
 

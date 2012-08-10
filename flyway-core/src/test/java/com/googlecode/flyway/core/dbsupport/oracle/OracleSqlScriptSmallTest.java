@@ -71,11 +71,11 @@ public class OracleSqlScriptSmallTest {
     @Test
     public void changeDelimiterRegEx() {
         final OracleSqlScript script = new OracleSqlScript("", PlaceholderReplacer.NO_PLACEHOLDERS);
-        assertNull(script.changeDelimiterIfNecessary("begin_date", "begin_date", null));
-        assertEquals("/", script.changeDelimiterIfNecessary("begin date", "begin date", null).getDelimiter());
-        assertNull(script.changeDelimiterIfNecessary(" begin date", " begin date", null));
-        assertEquals("/", script.changeDelimiterIfNecessary("begin\tdate", "begin\tdate", null).getDelimiter());
-        assertEquals("/", script.changeDelimiterIfNecessary("begin", "begin", null).getDelimiter());
+        assertNull(script.changeDelimiterIfNecessary(new StringBuilder("begin_date"), "begin_date", null));
+        assertEquals("/", script.changeDelimiterIfNecessary(new StringBuilder("begin date"), "begin date", null).getDelimiter());
+        assertNull(script.changeDelimiterIfNecessary(new StringBuilder(" begin date"), " begin date", null));
+        assertEquals("/", script.changeDelimiterIfNecessary(new StringBuilder("begin\tdate"), "begin\tdate", null).getDelimiter());
+        assertEquals("/", script.changeDelimiterIfNecessary(new StringBuilder("begin"), "begin", null).getDelimiter());
     }
 
     @Test

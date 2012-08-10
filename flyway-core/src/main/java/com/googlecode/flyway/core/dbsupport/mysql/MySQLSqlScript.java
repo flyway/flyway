@@ -44,7 +44,7 @@ public class MySQLSqlScript extends SqlScript {
     }
 
     @Override
-    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
         if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
             return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
         }

@@ -36,7 +36,7 @@ public class SQLServerSqlScript extends SqlScript {
     }
 
     @Override
-    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
         return new Delimiter("GO", true);
     }
 }

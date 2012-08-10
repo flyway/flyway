@@ -44,13 +44,13 @@ public class OracleSqlScript extends SqlScript {
     }
 
     @Override
-    protected Delimiter changeDelimiterIfNecessary(String statement, String line, Delimiter delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
         String upperCaseLine = line.toUpperCase();
         if (upperCaseLine.matches("DECLARE|DECLARE\\s.*") || upperCaseLine.matches("BEGIN|BEGIN\\s.*")) {
             return PLSQL_DELIMITER;
         }
 
-        String upperCaseStatement = statement.toUpperCase();
+        String upperCaseStatement = statement.toString().toUpperCase();
         if (upperCaseStatement.matches("CREATE\\W*FUNCTION.*")
                 || upperCaseStatement.matches("CREATE\\W+PROCEDURE.*")
                 || upperCaseStatement.matches("CREATE\\W+PACKAGE.*")
@@ -67,10 +67,8 @@ public class OracleSqlScript extends SqlScript {
 
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String statement) {
-        String filteredStatementForParensQQuotes =
-                com.googlecode.flyway.core.util.StringUtils.replaceAll(statement, "q'(", "q'[");
-        filteredStatementForParensQQuotes =
-                com.googlecode.flyway.core.util.StringUtils.replaceAll(filteredStatementForParensQQuotes, ")'", "]'");
+        String filteredStatementForParensQQuotes = StringUtils.replaceAll(statement, "q'(", "q'[");
+        filteredStatementForParensQQuotes = StringUtils.replaceAll(filteredStatementForParensQQuotes, ")'", "]'");
 
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
         String[] tokens = StringUtils.tokenizeToStringArray(filteredStatementForParensQQuotes, " ;=|(),");

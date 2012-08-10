@@ -87,6 +87,22 @@ public class SqlScriptSmallTest {
         assertEquals("select col1, col2\nfrom mytable\nwhere col1 > 10", sqlStatement.getSql());
     }
 
+    @Test(timeout = 100000)
+    public void linesToStatementsSuperLongStatement() {
+        lines.add("INSERT INTO T1 (A, B, C, D) VALUES");
+        for (int i = 0; i < 10000; i++) {
+            lines.add("(1, '2', '3', '4'),");
+        }
+        lines.add("(1, '2', '3', '4');");
+
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertNotNull(sqlStatements);
+        assertEquals(1, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(1, sqlStatement.getLineNumber());
+    }
+
     @Test
     public void linesToStatementsPreserveEmptyLinesInsideStatement() {
         lines.add("update emailtemplate set body = 'Hi $order.billingContactDisplayName,");
