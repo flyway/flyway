@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.util.ObjectUtils;
-
 /**
  * Builds a SQL statement, one line at a time.
  */
@@ -27,14 +25,14 @@ public class SqlStatementBuilder {
     private StringBuilder statement = new StringBuilder();
 
     /**
-     * A simplified version of the current statement, to facilitate parsing.
-     */
-    private final StringBuilder statementSimplified = new StringBuilder();
-
-    /**
      * The initial line number of this statement.
      */
     private int lineNumber;
+
+    /**
+     * Flag indicating whether the current statement is still empty.
+     */
+    private boolean empty = true;
 
     /**
      * Flag indicating whether the current statement is properly terminated.
@@ -73,7 +71,7 @@ public class SqlStatementBuilder {
      * @return {@code true} if it is, {@code false} if it isn't.
      */
     public boolean isEmpty() {
-        return statementSimplified.length() == 0;
+        return empty;
     }
 
     /**
@@ -119,31 +117,24 @@ public class SqlStatementBuilder {
      * @param line The line to add.
      */
     public void addLine(String line) {
-        if (!isEmpty()) {
+        if (isEmpty()) {
+            empty = false;
+        } else {
             statement.append("\n");
-            statementSimplified.append(" ");
         }
 
-        statement.append(line);
+        String lineSimplified = line.replaceAll("\\s+", " ").trim().toUpperCase();
 
-        //TODO: Check if replace operations actually have an effect
-        statementSimplified.append(line.replace("\n", " ").replace("\r", " ").trim());
-
-        if (endsWithOpenMultilineStringLiteral(statementSimplified.toString())) {
+        if (endsWithOpenMultilineStringLiteral(lineSimplified)) {
+            statement.append(line);
             return;
         }
 
-        String trimmedLine = line.trim();
+        delimiter = changeDelimiterIfNecessary(lineSimplified, delimiter);
 
-        Delimiter oldDelimiter = delimiter;
-        delimiter = changeDelimiterIfNecessary(statementSimplified, trimmedLine, delimiter);
-        if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
-            if (isDelimiterChangeExplicit()) {
-                terminated = true;
-            }
-        }
+        statement.append(line);
 
-        if (lineTerminatesStatement(trimmedLine, delimiter)) {
+        if (lineTerminatesStatement(lineSimplified, delimiter)) {
             //TODO: Check if the delimiter can be stripped from the existing statement instead
             statement = new StringBuilder(stripDelimiter(statement.toString(), delimiter));
             terminated = true;
@@ -151,14 +142,14 @@ public class SqlStatementBuilder {
     }
 
     /**
-     * Checks whether the statement we have assembled so far ends with an open multi-line string literal (which will be
+     * Checks whether this line ends the statement with an open multi-line string literal (which will be
      * continued on the next line).
      *
-     * @param statement The current statement, assembled from the lines we have parsed so far. May not yet be complete.
+     * @param line The line that was just added to the statement.
      * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
      *         literal. {@code false} if not.
      */
-    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
+    protected boolean endsWithOpenMultilineStringLiteral(String line) {
         return false;
     }
 
@@ -166,23 +157,13 @@ public class SqlStatementBuilder {
      * Checks whether this line in the sql script indicates that the statement delimiter will be different from the
      * current one. Useful for database-specific stored procedures and block constructs.
      *
-     * @param statement The statement assembled so far, reduced to a single line with all linebreaks replaced by
-     *                  spaces.
      * @param line      The line to analyse.
      * @param delimiter The current delimiter.
      * @return The new delimiter to use (can be the same as the current one) or {@code null} for no delimiter.
      */
     @SuppressWarnings({"UnusedDeclaration"})
-    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
         return delimiter;
-    }
-
-    /**
-     * @return {@code true} if this database uses an explicit delimiter change statement. {@code false} if a delimiter
-     *         change is implied by certain statements.
-     */
-    protected boolean isDelimiterChangeExplicit() {
-        return false;
     }
 
     /**

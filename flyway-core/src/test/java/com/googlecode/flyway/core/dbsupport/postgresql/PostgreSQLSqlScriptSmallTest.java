@@ -26,9 +26,8 @@ import static org.junit.Assert.*;
 public class PostgreSQLSqlScriptSmallTest {
     @Test
     public void endsWithOpenMultilineStringLiteral() {
-        final PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
+        assertTrue(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
+        assertFalse(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
                 "2. second');"));
     }
 

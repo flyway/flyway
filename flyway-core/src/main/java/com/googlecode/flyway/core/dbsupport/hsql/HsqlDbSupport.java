@@ -34,13 +34,10 @@ import java.util.List;
  * HsqlDb-specific support
  */
 public class HsqlDbSupport extends DbSupport {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(HsqlDbSupport.class);
 
     /**
-     * Flag indicating whether we are running against the old HsqlDb 1.8 instead of the newer 2.x.
+     * Flag indicating whether we are running against the old Hsql 1.8 instead of the newer 2.x.
      */
     private boolean version18;
 
@@ -53,13 +50,15 @@ public class HsqlDbSupport extends DbSupport {
         super(new HsqlJdbcTemplate(connection));
 
         try {
-            version18 = jdbcTemplate.getMetaData().getDatabaseMajorVersion() < 2;
+            int majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+            LOG.debug("Hsql Major Version: " + majorVersion);
+            version18 = majorVersion < 2;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to determine the HsqlDb version", e);
+            throw new FlywayException("Unable to determine the Hsql version", e);
         }
 
         if (version18) {
-            LOG.info("Hsql does not support locking. No concurrent migration supported.");
+            LOG.info("Hsql 1.8 does not support locking. No concurrent migration supported.");
         }
     }
 

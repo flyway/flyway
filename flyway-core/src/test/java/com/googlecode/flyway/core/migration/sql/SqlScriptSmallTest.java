@@ -15,7 +15,9 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
+import com.googlecode.flyway.core.dbsupport.derby.DerbyDbSupport;
+import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
+import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerDbSupport;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class SqlScriptSmallTest {
     /**
      * Class under test.
      */
-    private SqlScript sqlScript = new SqlScript(new H2DbSupport(null));
+    private SqlScript sqlScript = new SqlScript(new MySQLDbSupport(null));
 
     /**
      * Input lines.
@@ -86,7 +88,7 @@ public class SqlScriptSmallTest {
         assertEquals("select col1, col2\nfrom mytable\nwhere col1 > 10", sqlStatement.getSql());
     }
 
-    @Test(timeout = 100000)
+    @Test(timeout = 1000)
     public void linesToStatementsSuperLongStatement() {
         lines.add("INSERT INTO T1 (A, B, C, D) VALUES");
         for (int i = 0; i < 10000; i++) {
@@ -150,7 +152,7 @@ public class SqlScriptSmallTest {
 
     @Test
     public void parsePlaceholderComments() {
-        String source = "${drop_view} \"SOME_VIEW\" IF EXISTS;\n" +"CREATE ${or_replace} VIEW \"SOME_VIEW\";\n";
+        String source = "${drop_view} \"SOME_VIEW\" IF EXISTS;\n" + "CREATE ${or_replace} VIEW \"SOME_VIEW\";\n";
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("drop_view", "--");
@@ -168,11 +170,11 @@ public class SqlScriptSmallTest {
     @Test
     public void parseNoTrim() {
         String source = "update emailtemplate set body = 'Hi $order.billingContactDisplayName,\n" +
-                        "\n" +
-                        "    Thanks for your interest in our products!\n" +
-                        "\n" +
-                        "    Please find your quote attached in PDF format.'\n" +
-                        "where templatename = 'quote_template'";
+                "\n" +
+                "    Thanks for your interest in our products!\n" +
+                "\n" +
+                "    Please find your quote attached in PDF format.'\n" +
+                "where templatename = 'quote_template'";
 
         List<SqlStatement> sqlStatements = sqlScript.parse(source, PlaceholderReplacer.NO_PLACEHOLDERS);
         assertNotNull(sqlStatements);
@@ -186,8 +188,8 @@ public class SqlScriptSmallTest {
     @Test
     public void parsePreserveTrailingCommentsInsideStatement() {
         String source = "update emailtemplate /* yes, it's true */\n" +
-                        "    set   body='Thanks !' /* my pleasure */\n" +
-                        "  and  subject = 'To our favorite customer!'";
+                "    set   body='Thanks !' /* my pleasure */\n" +
+                "  and  subject = 'To our favorite customer!'";
 
         List<SqlStatement> sqlStatements = sqlScript.parse(source, PlaceholderReplacer.NO_PLACEHOLDERS);
         assertNotNull(sqlStatements);

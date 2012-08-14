@@ -31,22 +31,45 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
 
+    /**
+     * Are we inside a ' multi-line string literal
+     */
+    private boolean insideQuoteStringLiteral = false;
+
+    /**
+     * Are we inside a q' multi-line string literal
+     */
+    private boolean insideQStringLiteral = false;
+
+    /**
+     * Q-Quote close token to look for.
+     */
+    private String qCloseToken = "]'";
+
+    /**
+     * Holds the beginning of the statement.
+     */
+    private String statementStart = "";
+
     @Override
-    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
-        String upperCaseLine = line.toUpperCase();
-        if (upperCaseLine.matches("DECLARE|DECLARE\\s.*") || upperCaseLine.matches("BEGIN|BEGIN\\s.*")) {
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (line.matches("DECLARE|DECLARE\\s.*") || line.matches("BEGIN|BEGIN\\s.*")) {
             return PLSQL_DELIMITER;
         }
 
-        String upperCaseStatement = statement.toString().toUpperCase();
-        if (upperCaseStatement.matches("CREATE\\W*FUNCTION.*")
-                || upperCaseStatement.matches("CREATE\\W+PROCEDURE.*")
-                || upperCaseStatement.matches("CREATE\\W+PACKAGE.*")
-                || upperCaseStatement.matches("CREATE\\W+TYPE.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+FUNCTION.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+PROCEDURE.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+PACKAGE.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+TYPE.*")) {
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
+            statementStart += line;
+            statementStart += " ";
+        }
+
+        if (statementStart.startsWith("CREATE FUNCTION")
+                || statementStart.startsWith("CREATE PROCEDURE")
+                || statementStart.startsWith("CREATE PACKAGE")
+                || statementStart.startsWith("CREATE TYPE")
+                || statementStart.startsWith("CREATE OR REPLACE FUNCTION")
+                || statementStart.startsWith("CREATE OR REPLACE PROCEDURE")
+                || statementStart.startsWith("CREATE OR REPLACE PACKAGE")
+                || statementStart.startsWith("CREATE OR REPLACE TYPE")) {
             return PLSQL_DELIMITER;
         }
 
@@ -54,8 +77,8 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
-        String filteredStatementForParensQQuotes = StringUtils.replaceAll(statement, "q'(", "q'[");
+    protected boolean endsWithOpenMultilineStringLiteral(String line) {
+        String filteredStatementForParensQQuotes = StringUtils.replaceAll(line, "q'(", "q'[");
         filteredStatementForParensQQuotes = StringUtils.replaceAll(filteredStatementForParensQQuotes, ")'", "]'");
 
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
@@ -63,8 +86,6 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
         List<Token> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 
-        boolean insideQuoteStringLiteral = false;
-        boolean insideQStringLiteral = false;
 
         for (Token delimitingToken : delimitingTokens) {
             boolean moreTokensApplicable = true;
@@ -107,7 +128,6 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      *         impact on string delimiting are discarded.
      */
     private List<Token> extractStringLiteralDelimitingTokens(String[] tokens) {
-        String qCloseToken = "]'";
 
         List<Token> delimitingTokens = new ArrayList<Token>();
         for (String token : tokens) {

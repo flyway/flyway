@@ -162,7 +162,7 @@ public class SqlScript {
                         if (trimmedLine.endsWith("*/")) {
                             inMultilineComment = false;
                         }
-                        // Skuip line part of a multi-line comment
+                        // Skip line part of a multi-line comment
                         continue;
                     }
                 }

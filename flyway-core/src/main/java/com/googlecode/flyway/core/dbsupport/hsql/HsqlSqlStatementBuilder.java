@@ -23,25 +23,39 @@ import com.googlecode.flyway.core.util.StringUtils;
  * SqlStamentBuilder supporting Hsql-specific delimiter changes.
  */
 public class HsqlSqlStatementBuilder extends SqlStatementBuilder {
+    /**
+     * The number of quotes encountered so far.
+     */
+    private int numQuotes;
+
+    /**
+     * Are we inside a BEGIN ATOMIC block.
+     */
+    private boolean insideAtomicBlock;
+
     @Override
-    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
-        String upperCaseStatement = statement.toString().toUpperCase();
-        if (upperCaseStatement.matches(".*\\W+BEGIN\\W+ATOMIC\\W+.*")) {
-            if (upperCaseStatement.trim().endsWith("END;")) {
-                return getDefaultDelimiter();
-            }
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (line.contains("BEGIN ATOMIC")) {
+            insideAtomicBlock = true;
+        }
+
+        if (line.endsWith("END;")) {
+            insideAtomicBlock = false;
+        }
+
+        if (insideAtomicBlock) {
             return null;
         }
         return getDefaultDelimiter();
     }
 
     @Override
-    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
+    protected boolean endsWithOpenMultilineStringLiteral(String line) {
         // Hsql only supports single quotes (') as delimiters
         // A single quote inside a string literal is represented as two single quotes ('')
         // An even number of single quotes thus means the string literal is closed.
         // An uneven number means we are still waiting for the closing delimiter on a following line
-        int numQuotes = StringUtils.countOccurrencesOf(statement, "'");
+        numQuotes += StringUtils.countOccurrencesOf(line, "'");
         return (numQuotes % 2) != 0;
     }
 }

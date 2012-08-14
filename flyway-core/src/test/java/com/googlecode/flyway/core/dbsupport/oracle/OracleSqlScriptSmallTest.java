@@ -23,10 +23,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test for OracleSqlScript.
@@ -72,28 +69,34 @@ public class OracleSqlScriptSmallTest {
     @Test
     public void changeDelimiterRegEx() {
         final OracleSqlStatementBuilder statementBuilder = new OracleSqlStatementBuilder();
-        assertNull(statementBuilder.changeDelimiterIfNecessary(new StringBuilder("begin_date"), "begin_date", null));
-        assertEquals("/", statementBuilder.changeDelimiterIfNecessary(new StringBuilder("begin date"), "begin date", null).getDelimiter());
-        assertNull(statementBuilder.changeDelimiterIfNecessary(new StringBuilder(" begin date"), " begin date", null));
-        assertEquals("/", statementBuilder.changeDelimiterIfNecessary(new StringBuilder("begin\tdate"), "begin\tdate", null).getDelimiter());
-        assertEquals("/", statementBuilder.changeDelimiterIfNecessary(new StringBuilder("begin"), "begin", null).getDelimiter());
+        assertNull(statementBuilder.changeDelimiterIfNecessary("BEGIN_DATE", null));
+        assertEquals("/", statementBuilder.changeDelimiterIfNecessary("BEGIN DATE", null).getDelimiter());
+        assertEquals("/", statementBuilder.changeDelimiterIfNecessary("BEGIN", null).getDelimiter());
     }
 
     @Test
     public void endsWithOpenMultilineStringLiteral() {
-        final OracleSqlStatementBuilder statementBuilder = new OracleSqlStatementBuilder();
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']' from dual;"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')' from dual;"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}' from dual;"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>' from dual;"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$' from dual;"));
 
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$"));
+    }
 
+    private boolean endsWithOpenMultilineStringLiteral(String line) {
+        OracleSqlStatementBuilder statementBuilder = new OracleSqlStatementBuilder();
+        return statementBuilder.endsWithOpenMultilineStringLiteral(line);
+    }
+
+    @Test
+    public void endsWithOpenMultilineStringLiteralComplex() {
+        OracleSqlStatementBuilder statementBuilder = new OracleSqlStatementBuilder();
         assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID)\n" +
                 "VALUES ('GEO_TEST', 'GEO',\n" +
                 "MDSYS.SDO_DIM_ARRAY\n" +
@@ -101,5 +104,6 @@ public class OracleSqlScriptSmallTest {
                 "MDSYS.SDO_DIM_ELEMENT('LAT', -90.0, 90.0, 0.05)\n" +
                 "),\n" +
                 "8307);"));
+
     }
 }

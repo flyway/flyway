@@ -31,6 +31,16 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final String DELIMITER_KEYWORD = "DELIMITER";
 
+    /**
+     * Are we currently inside a ' multi-line string literal.
+     */
+    private boolean insideQuoteStringLiteral = false;
+
+    /**
+     * Are we currently inside a " multi-line string literal.
+     */
+    private boolean insideDoubleQuoteStringLiteral = false;
+
     @Override
     public Delimiter extractNewDelimiterFromLine(String line) {
         if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
@@ -41,7 +51,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
         if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
             return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
         }
@@ -50,24 +60,16 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected boolean isDelimiterChangeExplicit() {
-        return true;
-    }
-
-    @Override
     public boolean isCommentDirective(String line) {
         return line.startsWith("/*!") && line.endsWith("*/;");
     }
 
     @Override
-    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
+    protected boolean endsWithOpenMultilineStringLiteral(String line) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
-        String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|(),");
+        String[] tokens = StringUtils.tokenizeToStringArray(line, " ;=|(),");
 
         List<Token> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
-
-        boolean insideQuoteStringLiteral = false;
-        boolean insideQStringLiteral = false;
 
         for (Token delimitingToken : delimitingTokens) {
             boolean moreTokensApplicable = true;
@@ -76,7 +78,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
                     continue;
                 }
 
-                if (!insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.SINGLE_OPEN)) {
+                if (!insideDoubleQuoteStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.SINGLE_OPEN)) {
                     insideQuoteStringLiteral = true;
                     if (delimitingToken.singleTypeApplicable) {
                         moreTokensApplicable = false;
@@ -88,18 +90,18 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
                     moreTokensApplicable = false;
                     continue;
                 }
-                if (!insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.DOUBLE_OPEN)) {
-                    insideQStringLiteral = true;
+                if (!insideDoubleQuoteStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.DOUBLE_OPEN)) {
+                    insideDoubleQuoteStringLiteral = true;
                     continue;
                 }
-                if (insideQStringLiteral && (tokenType == TokenType.DOUBLE_CLOSE)) {
-                    insideQStringLiteral = false;
+                if (insideDoubleQuoteStringLiteral && (tokenType == TokenType.DOUBLE_CLOSE)) {
+                    insideDoubleQuoteStringLiteral = false;
                     moreTokensApplicable = false;
                 }
             }
         }
 
-        return insideQuoteStringLiteral || insideQStringLiteral;
+        return insideQuoteStringLiteral || insideDoubleQuoteStringLiteral;
     }
 
     /**

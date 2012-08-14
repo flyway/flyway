@@ -24,13 +24,18 @@ import com.googlecode.flyway.core.util.StringUtils;
  * TODO Support for Procedures.
  */
 public class DB2SqlStatementBuilder extends SqlStatementBuilder {
+    /**
+     * The number of quotes encountered so far.
+     */
+    private int numQuotes;
+
     @Override
-    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
+    protected boolean endsWithOpenMultilineStringLiteral(String line) {
         // DB2 only supports single quotes (') as delimiters
         // A single quote inside a string literal is represented as two single quotes ('')
         // An even number of single quotes thus means the string literal is closed.
         // An uneven number means we are still waiting for the closing delimiter on a following line
-        int numQuotes = StringUtils.countOccurrencesOf(statement, "'");
+        numQuotes += StringUtils.countOccurrencesOf(line, "'");
         return (numQuotes % 2) != 0;
     }
 }

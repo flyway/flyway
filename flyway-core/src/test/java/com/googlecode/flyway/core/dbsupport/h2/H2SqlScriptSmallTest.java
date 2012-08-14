@@ -26,28 +26,32 @@ import static org.junit.Assert.assertTrue;
 public class H2SqlScriptSmallTest {
     @Test
     public void endsWithOpenMultilineStringLiteral() {
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t;"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a='xyz';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a= 'xyz';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a='xyz'"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a='$$';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a='xy''z';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a='xyz' and b like 'abc%';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a=' xyz ';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a=';';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a='$$''$$';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a='$$' || '$$';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("select * from t where a='$$'||'$$';"));
+        assertFalse(endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. T');"));
+        assertFalse(endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. Semicolon;');"));
+        assertFalse(endsWithOpenMultilineStringLiteral("INSERT INTO test_user (id, name) VALUES (1, 'Mr. Semicolon;');"));
+        assertFalse(endsWithOpenMultilineStringLiteral("insert into TAB1 (GUID, UID, VAL) values (1, '0100', 100);"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select * from t where a='$$||''$$;"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select * from t where a='"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select * from t where a='abc"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select * from t where a='abc''"));
+        assertTrue(endsWithOpenMultilineStringLiteral("select * from t where a='abc'''||'"));
+        assertTrue(endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. Semicolon+Linebreak;"));
+    }
+
+    private boolean endsWithOpenMultilineStringLiteral(String sql) {
         H2SqlStatementBuilder statementBuilder = new H2SqlStatementBuilder();
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t;"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='xyz';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a= 'xyz';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='xyz'"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='$$';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='xy''z';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='xyz' and b like 'abc%';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a=' xyz ';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a=';';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='$$''$$';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='$$' || '$$';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='$$'||'$$';"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. T');"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. Semicolon;');"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO test_user (id, name) VALUES (1, 'Mr. Semicolon;');"));
-        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("insert into TAB1 (GUID, UID, VAL) values (1, '0100', 100);"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='$$||''$$;"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='abc"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='abc''"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select * from t where a='abc'''||'"));
-        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. Semicolon+Linebreak;"));
+        return statementBuilder.endsWithOpenMultilineStringLiteral(sql);
     }
 }

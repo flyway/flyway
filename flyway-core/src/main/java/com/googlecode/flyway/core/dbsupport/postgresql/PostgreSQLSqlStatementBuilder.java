@@ -34,22 +34,26 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     static final String DOLLAR_QUOTE_REGEX = "\\$[A-Za-z0-9_]*\\$.*";
 
     /**
-     * Checks whether the statement we have assembled so far ends with an open multi-line string literal (which will be
-     * continued on the next line).
-     *
-     * @param statement The current statement, assembled from the lines we have parsed so far. May not yet be complete.
-     * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
-     *         literal. {@code false} if not.
+     * Are we currently in a ' multi-line string literal
      */
+    private boolean insideQuoteStringLiteral = false;
+
+    /**
+     * Are we currently in a $$ multi-line string literal
+     */
+    private boolean insideDollarStringLiteral = false;
+
+    /**
+     * The current dollar closing quote to look for.
+     */
+    private String dollarQuote = null;
+
     @Override
-    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
+    protected boolean endsWithOpenMultilineStringLiteral(String line) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
-        String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|(),");
+        String[] tokens = StringUtils.tokenizeToStringArray(line, " ;=|(),");
 
         List<Set<TokenType>> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
-
-        boolean insideQuoteStringLiteral = false;
-        boolean insideDollarStringLiteral = false;
 
         for (Set<TokenType> delimitingToken : delimitingTokens) {
             if (!insideDollarStringLiteral && !insideQuoteStringLiteral && delimitingToken.contains(TokenType.QUOTE_OPEN)) {
@@ -80,8 +84,6 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
      *         impact on string delimiting are discarded.
      */
     private List<Set<TokenType>> extractStringLiteralDelimitingTokens(String[] tokens) {
-        String dollarQuote = null;
-
         List<Set<TokenType>> delimitingTokens = new ArrayList<Set<TokenType>>();
         for (String token : tokens) {
             //Remove escaped quotes as they do not form a string literal delimiter
