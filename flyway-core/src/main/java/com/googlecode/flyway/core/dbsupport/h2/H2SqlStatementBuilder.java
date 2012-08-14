@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.h2;
 
-import com.googlecode.flyway.core.migration.sql.Delimiter;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.ArrayList;
@@ -26,31 +24,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * SqlScript supporting PostgreSQL specific syntax.
+ * SqlStatementBuilder supporting H2-specific delimiter changes.
  */
-public class PostgreSQLSqlScript extends SqlScript {
-    /**
-     * Matches $$, $BODY$, $xyz123$, ...
-     */
-    /*private -> for testing*/
-    static final String DOLLAR_QUOTE_REGEX = "\\$[A-Za-z0-9_]*\\$.*";
-
-    /**
-     * Creates a new sql script from this source with these placeholders to replace.
-     *
-     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @throws IllegalStateException Thrown when the script could not be read from this resource.
-     */
-    public PostgreSQLSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        super(sqlScriptSource, placeholderReplacer);
-    }
-
-    @Override
-    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiterRegex) {
-        return DEFAULT_STATEMENT_DELIMITER;
-    }
-
+public class H2SqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Checks whether the statement we have assembled so far ends with an open multi-line string literal (which will be
      * continued on the next line).
@@ -98,8 +74,6 @@ public class PostgreSQLSqlScript extends SqlScript {
      *         impact on string delimiting are discarded.
      */
     private List<Set<TokenType>> extractStringLiteralDelimitingTokens(String[] tokens) {
-        String dollarQuote = null;
-
         List<Set<TokenType>> delimitingTokens = new ArrayList<Set<TokenType>>();
         for (String token : tokens) {
             //Remove escaped quotes as they do not form a string literal delimiter
@@ -119,19 +93,16 @@ public class PostgreSQLSqlScript extends SqlScript {
                 tokenTypes.add(TokenType.QUOTE_CLOSE);
             }
 
-            if ((dollarQuote == null) && cleanToken.matches(DOLLAR_QUOTE_REGEX)) {
-                dollarQuote = cleanToken.substring(0, cleanToken.substring(1).indexOf("$") + 2);
-                if ((cleanToken.length() > dollarQuote.length()) && cleanToken.endsWith(dollarQuote)) {
+            if (cleanToken.startsWith("$$")) {
+                if ((cleanToken.length() > 2) && cleanToken.endsWith("$$")) {
                     // Ignore. $$ string literal is opened and closed inside the same token.
-                    dollarQuote = null;
                     continue;
                 }
                 tokenTypes.add(TokenType.DOLLAR_OPEN);
             }
 
-            if ((dollarQuote != null) && !cleanToken.startsWith(dollarQuote) && cleanToken.endsWith(dollarQuote)) {
+            if (cleanToken.endsWith("$$")) {
                 tokenTypes.add(TokenType.DOLLAR_CLOSE);
-                dollarQuote = null;
             }
 
             if (!tokenTypes.isEmpty()) {

@@ -13,65 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.oracle;
+package com.googlecode.flyway.core.dbsupport.mysql;
 
 import com.googlecode.flyway.core.migration.sql.Delimiter;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SqlScript supporting Oracle-specific PL/SQL constructs.
+ * SqlStatementBuilder supporting MySQL-specific delimiter changes.
  */
-public class OracleSqlScript extends SqlScript {
+public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
     /**
-     * Delimiter of PL/SQL blocks and statements.
+     * The keyword that indicates a change in delimiter.
      */
-    private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
+    private static final String DELIMITER_KEYWORD = "DELIMITER";
 
-    /**
-     * Creates a new sql script from this source with these placeholders to replace.
-     *
-     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @throws IllegalStateException Thrown when the script could not be read from this resource.
-     */
-    public OracleSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        super(sqlScriptSource, placeholderReplacer);
+    @Override
+    public Delimiter extractNewDelimiterFromLine(String line) {
+        if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
+            return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
+        }
+
+        return null;
     }
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
-        String upperCaseLine = line.toUpperCase();
-        if (upperCaseLine.matches("DECLARE|DECLARE\\s.*") || upperCaseLine.matches("BEGIN|BEGIN\\s.*")) {
-            return PLSQL_DELIMITER;
-        }
-
-        String upperCaseStatement = statement.toString().toUpperCase();
-        if (upperCaseStatement.matches("CREATE\\W*FUNCTION.*")
-                || upperCaseStatement.matches("CREATE\\W+PROCEDURE.*")
-                || upperCaseStatement.matches("CREATE\\W+PACKAGE.*")
-                || upperCaseStatement.matches("CREATE\\W+TYPE.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+FUNCTION.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+PROCEDURE.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+PACKAGE.*")
-                || upperCaseStatement.matches("CREATE\\W+OR\\W+REPLACE\\W+TYPE.*")) {
-            return PLSQL_DELIMITER;
+        if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
+            return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
         }
 
         return delimiter;
     }
 
     @Override
-    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
-        String filteredStatementForParensQQuotes = StringUtils.replaceAll(statement, "q'(", "q'[");
-        filteredStatementForParensQQuotes = StringUtils.replaceAll(filteredStatementForParensQQuotes, ")'", "]'");
+    protected boolean isDelimiterChangeExplicit() {
+        return true;
+    }
 
+    @Override
+    public boolean isCommentDirective(String line) {
+        return line.startsWith("/*!") && line.endsWith("*/;");
+    }
+
+    @Override
+    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
-        String[] tokens = StringUtils.tokenizeToStringArray(filteredStatementForParensQQuotes, " ;=|(),");
+        String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|(),");
 
         List<Token> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 
@@ -85,23 +76,23 @@ public class OracleSqlScript extends SqlScript {
                     continue;
                 }
 
-                if (!insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.QUOTE_OPEN)) {
+                if (!insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.SINGLE_OPEN)) {
                     insideQuoteStringLiteral = true;
                     if (delimitingToken.singleTypeApplicable) {
                         moreTokensApplicable = false;
                     }
                     continue;
                 }
-                if (insideQuoteStringLiteral && (tokenType == TokenType.QUOTE_CLOSE)) {
+                if (insideQuoteStringLiteral && (tokenType == TokenType.SINGLE_CLOSE)) {
                     insideQuoteStringLiteral = false;
                     moreTokensApplicable = false;
                     continue;
                 }
-                if (!insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.Q_OPEN)) {
+                if (!insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.DOUBLE_OPEN)) {
                     insideQStringLiteral = true;
                     continue;
                 }
-                if (insideQStringLiteral && (tokenType == TokenType.Q_CLOSE)) {
+                if (insideQStringLiteral && (tokenType == TokenType.DOUBLE_CLOSE)) {
                     insideQStringLiteral = false;
                     moreTokensApplicable = false;
                 }
@@ -119,8 +110,6 @@ public class OracleSqlScript extends SqlScript {
      *         impact on string delimiting are discarded.
      */
     private List<Token> extractStringLiteralDelimitingTokens(String[] tokens) {
-        String qCloseToken = "]'";
-
         List<Token> delimitingTokens = new ArrayList<Token>();
         for (String token : tokens) {
             //Remove escaped quotes as they do not form a string literal delimiter
@@ -129,22 +118,19 @@ public class OracleSqlScript extends SqlScript {
             List<TokenType> tokenTypes = new ArrayList<TokenType>();
 
             if (cleanToken.startsWith("'")) {
-                tokenTypes.add(TokenType.QUOTE_OPEN);
+                tokenTypes.add(TokenType.SINGLE_OPEN);
             }
 
             if (cleanToken.endsWith("'")) {
-                tokenTypes.add(TokenType.QUOTE_CLOSE);
+                tokenTypes.add(TokenType.SINGLE_CLOSE);
             }
 
-            if (cleanToken.startsWith("q'") && (cleanToken.length() >= 3)) {
-                String qOpenToken = cleanToken.substring(0, 3);
-                qCloseToken = computeQCloseToken(qOpenToken);
-
-                tokenTypes.add(TokenType.Q_OPEN);
+            if (cleanToken.startsWith("\"")) {
+                tokenTypes.add(TokenType.DOUBLE_OPEN);
             }
 
-            if (cleanToken.endsWith(qCloseToken)) {
-                tokenTypes.add(TokenType.Q_CLOSE);
+            if (cleanToken.endsWith("\"")) {
+                tokenTypes.add(TokenType.DOUBLE_CLOSE);
             }
 
             if (!tokenTypes.isEmpty()) {
@@ -156,28 +142,6 @@ public class OracleSqlScript extends SqlScript {
         }
 
         return delimitingTokens;
-    }
-
-    /**
-     * Computes the closing token for a q-quote string starting with this opening token.
-     *
-     * @param qOpenToken The opening token.
-     * @return The closing token.
-     */
-    private String computeQCloseToken(String qOpenToken) {
-        char specialChar = qOpenToken.charAt(2);
-        switch (specialChar) {
-            case '[':
-                return "]'";
-            case '(':
-                return ")'";
-            case '{':
-                return "}'";
-            case '<':
-                return ">'";
-            default:
-                return specialChar + "'";
-        }
     }
 
     /**
@@ -202,21 +166,21 @@ public class OracleSqlScript extends SqlScript {
         /**
          * Token opens ' string literal
          */
-        QUOTE_OPEN,
+        SINGLE_OPEN,
 
         /**
          * Token closes ' string literal
          */
-        QUOTE_CLOSE,
+        SINGLE_CLOSE,
 
         /**
-         * Token opens q' string literal
+         * Token opens " string literal
          */
-        Q_OPEN,
+        DOUBLE_OPEN,
 
         /**
-         * Token closes q' string literal
+         * Token closes " string literal
          */
-        Q_CLOSE
+        DOUBLE_CLOSE
     }
 }

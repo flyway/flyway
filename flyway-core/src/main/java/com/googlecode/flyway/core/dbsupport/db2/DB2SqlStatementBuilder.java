@@ -15,27 +15,15 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
 /**
- * SqlScript supporting DB2-specific delimiter changes.
+ * SqlStatementBuilder supporting DB2-specific delimiter changes.
  * <p/>
  * TODO Support for Procedures.
  */
-public class DB2SqlScript extends SqlScript {
-    /**
-     * Creates a new sql script from this source with these placeholders to replace.
-     *
-     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @throws IllegalStateException Thrown when the script could not be read from this resource.
-     */
-    public DB2SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        super(sqlScriptSource, placeholderReplacer);
-    }
-
+public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String statement) {
         // DB2 only supports single quotes (') as delimiters

@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
+import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class SqlScriptSmallTest {
     /**
      * Class under test.
      */
-    private SqlScript sqlScript = new SqlScript();
+    private SqlScript sqlScript = new SqlScript(new H2DbSupport(null));
 
     /**
      * Input lines.
@@ -43,33 +44,31 @@ public class SqlScriptSmallTest {
     @Test
     public void stripSqlCommentsNoComment() {
         lines.add("select * from table;");
-        List<String> result = sqlScript.stripSqlComments(lines);
-        assertEquals("select * from table;", result.get(0));
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertEquals("select * from table", sqlStatements.get(0).getSql());
     }
 
     @Test
     public void stripSqlCommentsSingleLineComment() {
         lines.add("--select * from table;");
-        List<String> result = sqlScript.stripSqlComments(lines);
-        assertEquals("", result.get(0));
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertEquals(0, sqlStatements.size());
     }
 
     @Test
     public void stripSqlCommentsMultiLineCommentSingleLine() {
         lines.add("/*comment line*/");
         lines.add("select * from table;");
-        List<String> result = sqlScript.stripSqlComments(lines);
-        assertEquals("", result.get(0));
-        assertEquals("select * from table;", result.get(1));
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertEquals("select * from table", sqlStatements.get(0).getSql());
     }
 
     @Test
     public void stripSqlCommentsMultiLineCommentMultipleLines() {
         lines.add("/*comment line");
         lines.add("more comment text*/");
-        List<String> result = sqlScript.stripSqlComments(lines);
-        assertEquals("", result.get(0));
-        assertEquals("", result.get(1));
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertEquals(0, sqlStatements.size());
     }
 
     @Test

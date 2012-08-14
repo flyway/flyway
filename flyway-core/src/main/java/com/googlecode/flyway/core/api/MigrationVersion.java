@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.api;
 
-import com.googlecode.flyway.core.util.StringUtils;
-
 /**
  * A version of a migration.
  *
@@ -52,7 +50,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return The individual elements this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
      */
     private String[] getElements() {
-        return StringUtils.tokenizeToStringArray(version, ".-");
+        return tokenizeToStringArray(version, ".-");
     }
 
     /**
@@ -104,7 +102,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
             String element1 = elements1[i];
             String element2 = elements2[i];
             final int compared;
-            if (StringUtils.isNumeric(element1) && StringUtils.isNumeric(element2)) {
+            if (isNumeric(element1) && isNumeric(element2)) {
                 compared = Long.valueOf(element1).compareTo(Long.valueOf(element2));
             } else {
                 compared = element1.compareTo(element2);
@@ -135,10 +133,53 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     private boolean onlyTrailingZeroes(String[] elements, int position) {
         for (int i = position; i < elements.length; i++) {
             String element = elements[i];
-            if (!StringUtils.isNumeric(element) || !Long.valueOf(element).equals(0L)) {
+            if (!isNumeric(element) || !Long.valueOf(element).equals(0L)) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Splits this string into an array using these delimiters.
+     *
+     * @param str        The string to split.
+     * @param delimiters The delimiters to use.
+     * @return The resulting array.
+     */
+    private String[] tokenizeToStringArray(String str, String delimiters) {
+        if (str == null) {
+            return null;
+        }
+        String[] tokens = str.split("[" + delimiters + "]");
+        for (int i = 0; i < tokens.length; i++) {
+            tokens[i] = tokens[i].trim();
+        }
+        return tokens;
+    }
+
+    /**
+     * <p>Checks if the String contains only unicode digits. A decimal point is not a unicode digit and returns
+     * false.</p> <p/> <p>{@code null} will return {@code false}. An empty String ("") will return {@code true}.</p>
+     * <p/>
+     * <pre>
+     * StringUtils.isNumeric(null)   = false
+     * StringUtils.isNumeric("")     = true
+     * StringUtils.isNumeric("  ")   = false
+     * StringUtils.isNumeric("123")  = true
+     * StringUtils.isNumeric("12 3") = false
+     * StringUtils.isNumeric("ab2c") = false
+     * StringUtils.isNumeric("12-3") = false
+     * StringUtils.isNumeric("12.3") = false
+     * </pre>
+     *
+     * @param str the String to check, may be null
+     * @return {@code true} if only contains digits, and is non-null
+     */
+    private boolean isNumeric(String str) {
+        if (str == null) {
+            return false;
+        }
+        return str.matches("\\d*");
     }
 }

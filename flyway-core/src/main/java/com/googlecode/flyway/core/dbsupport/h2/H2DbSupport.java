@@ -16,9 +16,9 @@
 package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -99,8 +99,8 @@ public class H2DbSupport extends DbSupport {
         return "0";
     }
 
-    public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        return new H2SqlScript(sqlScriptSource, placeholderReplacer);
+    public SqlStatementBuilder createSqlStatementBuilder() {
+        return new H2SqlStatementBuilder();
     }
 
     public SqlScript createCleanScript(String schema) throws SQLException {
@@ -129,7 +129,7 @@ public class H2DbSupport extends DbSupport {
             sqlStatements.add(new SqlStatement(lineNumber, statement));
             lineNumber++;
         }
-        return new SqlScript(sqlStatements);
+        return new SqlScript(sqlStatements, this);
     }
 
     /**

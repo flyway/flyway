@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class OracleSqlScriptSmallTest {
     public void parseSqlStatements() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1.sql").loadAsString("UTF-8");
 
-        OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        SqlScript sqlScript = new SqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
@@ -48,7 +49,7 @@ public class OracleSqlScriptSmallTest {
     public void parseSqlStatementsWithInlineCommentsInsidePlSqlBlocks() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V2__FunctionWithConditionals.sql").loadAsString("UTF-8");
 
-        OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        SqlScript sqlScript = new SqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
@@ -59,7 +60,7 @@ public class OracleSqlScriptSmallTest {
     public void parseFunctionsAndProcedures() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql").loadAsString("UTF-8");
 
-        OracleSqlScript sqlScript = new OracleSqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        SqlScript sqlScript = new SqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
@@ -70,30 +71,30 @@ public class OracleSqlScriptSmallTest {
 
     @Test
     public void changeDelimiterRegEx() {
-        final OracleSqlScript script = new OracleSqlScript("", PlaceholderReplacer.NO_PLACEHOLDERS);
-        assertNull(script.changeDelimiterIfNecessary(new StringBuilder("begin_date"), "begin_date", null));
-        assertEquals("/", script.changeDelimiterIfNecessary(new StringBuilder("begin date"), "begin date", null).getDelimiter());
-        assertNull(script.changeDelimiterIfNecessary(new StringBuilder(" begin date"), " begin date", null));
-        assertEquals("/", script.changeDelimiterIfNecessary(new StringBuilder("begin\tdate"), "begin\tdate", null).getDelimiter());
-        assertEquals("/", script.changeDelimiterIfNecessary(new StringBuilder("begin"), "begin", null).getDelimiter());
+        final OracleSqlStatementBuilder statementBuilder = new OracleSqlStatementBuilder();
+        assertNull(statementBuilder.changeDelimiterIfNecessary(new StringBuilder("begin_date"), "begin_date", null));
+        assertEquals("/", statementBuilder.changeDelimiterIfNecessary(new StringBuilder("begin date"), "begin date", null).getDelimiter());
+        assertNull(statementBuilder.changeDelimiterIfNecessary(new StringBuilder(" begin date"), " begin date", null));
+        assertEquals("/", statementBuilder.changeDelimiterIfNecessary(new StringBuilder("begin\tdate"), "begin\tdate", null).getDelimiter());
+        assertEquals("/", statementBuilder.changeDelimiterIfNecessary(new StringBuilder("begin"), "begin", null).getDelimiter());
     }
 
     @Test
     public void endsWithOpenMultilineStringLiteral() {
-        final OracleSqlScript script = new OracleSqlScript("", PlaceholderReplacer.NO_PLACEHOLDERS);
-        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']' from dual;"));
-        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')' from dual;"));
-        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}' from dual;"));
-        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>' from dual;"));
-        assertFalse(script.endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$' from dual;"));
+        final OracleSqlStatementBuilder statementBuilder = new OracleSqlStatementBuilder();
+        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']' from dual;"));
+        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')' from dual;"));
+        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}' from dual;"));
+        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>' from dual;"));
+        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$' from dual;"));
 
-        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']"));
-        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')"));
-        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}"));
-        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>"));
-        assertTrue(script.endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$"));
+        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']"));
+        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')"));
+        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}"));
+        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>"));
+        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$"));
 
-        assertFalse(script.endsWithOpenMultilineStringLiteral("INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID)\n" +
+        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID)\n" +
                 "VALUES ('GEO_TEST', 'GEO',\n" +
                 "MDSYS.SDO_DIM_ARRAY\n" +
                 "(MDSYS.SDO_DIM_ELEMENT('LONG', -180.0, 180.0, 0.05),\n" +

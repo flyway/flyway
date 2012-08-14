@@ -16,9 +16,9 @@
 package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -38,8 +38,8 @@ public class DB2DbSupport extends DbSupport {
         super(new DB2JdbcTemplate(connection));
     }
 
-    public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        return new DB2SqlScript(sqlScriptSource, placeholderReplacer);
+    public SqlStatementBuilder createSqlStatementBuilder() {
+        return new DB2SqlStatementBuilder();
     }
 
     public SqlScript createCleanScript(String schema) throws SQLException {
@@ -71,14 +71,14 @@ public class DB2DbSupport extends DbSupport {
             sqlStatements.add(new SqlStatement(count, dropStatement));
         }
 
-        return new SqlScript(sqlStatements);
+        return new SqlScript(sqlStatements, this);
     }
 
     /**
      * Generates DROP statements for the sequences in this schema.
+     *
      * @param schema The schema of the objects.
      * @return The drop statements.
-     *
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
@@ -89,11 +89,11 @@ public class DB2DbSupport extends DbSupport {
 
     /**
      * Generates DROP statements for this type of table, representing this type of object in this schema.
-     * @param schema The schema of the objects.
-     * @param tableType The type of table (Can be T, V, S, ...).
+     *
+     * @param schema     The schema of the objects.
+     * @param tableType  The type of table (Can be T, V, S, ...).
      * @param objectType The type of object.
      * @return The drop statements.
-     *
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatements(String schema, String tableType, String objectType) throws SQLException {

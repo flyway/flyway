@@ -16,35 +16,23 @@
 package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.migration.sql.Delimiter;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
 /**
- * SqlScript supporting Hsql-specific delimiter changes.
+ * SqlStamentBuilder supporting Hsql-specific delimiter changes.
  */
-public class HsqlSqlScript extends SqlScript {
-    /**
-     * Creates a new sql script from this source with these placeholders to replace.
-     *
-     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @throws IllegalStateException Thrown when the script could not be read from this resource.
-     */
-    public HsqlSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        super(sqlScriptSource, placeholderReplacer);
-    }
-
+public class HsqlSqlStatementBuilder extends SqlStatementBuilder {
     @Override
     protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
         String upperCaseStatement = statement.toString().toUpperCase();
         if (upperCaseStatement.matches(".*\\W+BEGIN\\W+ATOMIC\\W+.*")) {
             if (upperCaseStatement.trim().endsWith("END;")) {
-                return DEFAULT_STATEMENT_DELIMITER;
+                return getDefaultDelimiter();
             }
             return null;
         }
-        return DEFAULT_STATEMENT_DELIMITER;
+        return getDefaultDelimiter();
     }
 
     @Override

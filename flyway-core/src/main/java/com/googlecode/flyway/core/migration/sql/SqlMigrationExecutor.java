@@ -56,7 +56,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     public void execute(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
-        SqlScript sqlScript = dbSupport.createSqlScript(sqlScriptSource, placeholderReplacer);
+        SqlScript sqlScript = new SqlScript(sqlScriptSource, placeholderReplacer, dbSupport);
         sqlScript.execute(jdbcTemplate);
     }
 }

@@ -13,59 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.h2;
+package com.googlecode.flyway.core.dbsupport.derby;
+
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.googlecode.flyway.core.migration.sql.Delimiter;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
-import com.googlecode.flyway.core.util.StringUtils;
-
 /**
- * SqlScript supporting H2-specific delimiter changes.
+ * SqlStatementBuilder supporting Derby-specific delimiter changes.
  */
-public class H2SqlScript extends SqlScript {
-    /**
-     * Creates a new sql script from this source with these placeholders to replace.
-     *
-     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     *
-     * @throws IllegalStateException Thrown when the script could not be read from this resource.
-     */
-    public H2SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        super(sqlScriptSource, placeholderReplacer);
-    }
-
-    /**
-     * For testing only.
-     */
-    /* private -> for testing */ H2SqlScript() {
-        super();
-    }
-
-    @Override
-    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiterRegex) {
-        return DEFAULT_STATEMENT_DELIMITER;
-    }
-
+public class DerbySqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Checks whether the statement we have assembled so far ends with an open multi-line string literal (which will be
      * continued on the next line).
      *
      * @param statement The current statement, assembled from the lines we have parsed so far. May not yet be complete.
-     *
      * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
      *         literal. {@code false} if not.
      */
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String statement) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
-		String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|(),");
+        String[] tokens = StringUtils.tokenizeToStringArray(statement, " ;=|(),");
 
         List<Set<TokenType>> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 
@@ -97,7 +70,6 @@ public class H2SqlScript extends SqlScript {
      * Extract the type of all tokens that potentially delimit string literals.
      *
      * @param tokens The tokens to analyse.
-     *
      * @return The list of potentially delimiting string literals token types per token. Tokens that do not have any
      *         impact on string delimiting are discarded.
      */

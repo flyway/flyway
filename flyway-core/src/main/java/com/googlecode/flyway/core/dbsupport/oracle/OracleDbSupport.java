@@ -17,9 +17,9 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
@@ -84,8 +84,8 @@ public class OracleDbSupport extends DbSupport {
         return "0";
     }
 
-    public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        return new OracleSqlScript(sqlScriptSource, placeholderReplacer);
+    public SqlStatementBuilder createSqlStatementBuilder() {
+        return new OracleSqlStatementBuilder();
     }
 
     public SqlScript createCleanScript(String schema) throws SQLException {
@@ -113,7 +113,7 @@ public class OracleDbSupport extends DbSupport {
             sqlStatements.add(new SqlStatement(lineNumber, dropStatement));
             lineNumber++;
         }
-        return new SqlScript(sqlStatements);
+        return new SqlScript(sqlStatements, this);
     }
 
     /**

@@ -123,7 +123,7 @@ public class MetaDataTable {
 
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-                SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholderReplacer);
+                SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholderReplacer, dbSupport);
                 sqlScript.execute(jdbcTemplate);
                 return null;
             }

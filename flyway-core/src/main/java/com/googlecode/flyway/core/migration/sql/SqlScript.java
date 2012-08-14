@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.util.ObjectUtils;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -33,15 +33,12 @@ import java.util.List;
  * comments are stripped and ignored.
  */
 public class SqlScript {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(SqlScript.class);
 
     /**
-     * The default Statement delimiter.
+     * The database-specific support.
      */
-    protected static final Delimiter DEFAULT_STATEMENT_DELIMITER = new Delimiter(";", false);
+    private final DbSupport dbSupport;
 
     /**
      * The sql statements contained in this script.
@@ -53,8 +50,10 @@ public class SqlScript {
      *
      * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     * @param dbSupport           The database-specific support.
      */
-    public SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
+    public SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer, DbSupport dbSupport) {
+        this.dbSupport = dbSupport;
         this.sqlStatements = parse(sqlScriptSource, placeholderReplacer);
     }
 
@@ -62,19 +61,26 @@ public class SqlScript {
      * Creates a new SqlScript with these statements and this name.
      *
      * @param sqlStatements The statements of the script.
+     * @param dbSupport     The database-specific support.
      */
-    public SqlScript(List<SqlStatement> sqlStatements) {
+    public SqlScript(List<SqlStatement> sqlStatements, DbSupport dbSupport) {
+        this.dbSupport = dbSupport;
         this.sqlStatements = sqlStatements;
     }
 
     /**
      * Dummy constructor to increase testability.
+     *
+     * @param dbSupport The database-specific support.
      */
-    protected SqlScript() {
-        sqlStatements = null;
+    SqlScript(DbSupport dbSupport) {
+        this.dbSupport = dbSupport;
+        this.sqlStatements = null;
     }
 
     /**
+     * For increased testability.
+     *
      * @return The sql statements contained in this script.
      */
     public List<SqlStatement> getSqlStatements() {
@@ -104,8 +110,9 @@ public class SqlScript {
         Reader reader = new StringReader(sqlScriptSource);
         List<String> rawLines = readLines(reader);
         List<String> noPlaceholderLines = replacePlaceholders(rawLines, placeholderReplacer);
-        List<String> noCommentLines = stripSqlComments(noPlaceholderLines);
-        return linesToStatements(noCommentLines);
+        //TODO: Check necessity of stripping comments
+        //List<String> noCommentLines = stripSqlComments(noPlaceholderLines);
+        return linesToStatements(noPlaceholderLines);
     }
 
 
@@ -119,169 +126,72 @@ public class SqlScript {
     List<SqlStatement> linesToStatements(List<String> lines) {
         List<SqlStatement> statements = new ArrayList<SqlStatement>();
 
-        int statementLineNumber = 0;
-        StringBuilder statementSql = new StringBuilder();
-        StringBuilder statementSqlWithoutLineBreaks = new StringBuilder();
-
-        Delimiter delimiter = DEFAULT_STATEMENT_DELIMITER;
+        boolean inMultilineComment = false;
+        Delimiter nonStandardDelimiter = null;
+        SqlStatementBuilder sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
 
         for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
             String line = lines.get(lineNumber - 1);
-            String trimmedLine = line.trim();
 
-            if ((statementSqlWithoutLineBreaks.length() == 0) && !StringUtils.hasText(line)) {
-                // Skip empty line between statements.
-                continue;
-            }
-
-            if ((statementSqlWithoutLineBreaks.length() == 0)) {
-                // Start a new statement, marking it with this line number.
-                statementLineNumber = lineNumber;
-            } else {
-                statementSql.append("\n");
-                statementSqlWithoutLineBreaks.append(" ");
-            }
-            statementSql.append(line);
-            statementSqlWithoutLineBreaks.append(line.replace("\n", " ").replace("\r", " ").trim());
-
-            if (endsWithOpenMultilineStringLiteral(statementSqlWithoutLineBreaks.toString())) {
-                continue;
-            }
-
-            Delimiter oldDelimiter = delimiter;
-            delimiter = changeDelimiterIfNecessary(statementSqlWithoutLineBreaks, trimmedLine, delimiter);
-            if (!ObjectUtils.nullSafeEquals(delimiter, oldDelimiter)) {
-                if (isDelimiterChangeExplicit()) {
-                    statementSql = new StringBuilder();
-                    statementSqlWithoutLineBreaks = new StringBuilder();
+            if (sqlStatementBuilder.isEmpty()) {
+                if (!StringUtils.hasText(line)) {
+                    // Skip empty line between statements.
                     continue;
                 }
+
+                Delimiter newDelimiter = sqlStatementBuilder.extractNewDelimiterFromLine(line);
+                if (newDelimiter != null) {
+                    nonStandardDelimiter = newDelimiter;
+                    // Skip this line as it was an explicit delimiter change directive outside of any statements.
+                    continue;
+                }
+
+                String trimmedLine = line.trim();
+
+                if (!sqlStatementBuilder.isCommentDirective(trimmedLine)) {
+                    if (trimmedLine.startsWith("--")) {
+                        // Skip single-line comment
+                        continue;
+                    }
+
+                    if (trimmedLine.startsWith("/*")) {
+                        inMultilineComment = true;
+                    }
+
+                    if (inMultilineComment) {
+                        if (trimmedLine.endsWith("*/")) {
+                            inMultilineComment = false;
+                        }
+                        // Skuip line part of a multi-line comment
+                        continue;
+                    }
+                }
+
+                sqlStatementBuilder.setLineNumber(lineNumber);
+
+                // Start a new statement, marking it with this line number.
+                if (nonStandardDelimiter != null) {
+                    sqlStatementBuilder.setDelimiter(nonStandardDelimiter);
+                }
             }
 
-            if (lineTerminatesStatement(trimmedLine, delimiter)) {
-                String noDelimiterStatementSql = stripDelimiter(statementSql.toString(), delimiter);
-                statements.add(new SqlStatement(statementLineNumber, noDelimiterStatementSql));
-                LOG.debug("Found statement at line " + statementLineNumber + ": " + statementSql);
+            sqlStatementBuilder.addLine(line);
 
-                if (!isDelimiterChangeExplicit()) {
-                    delimiter = DEFAULT_STATEMENT_DELIMITER;
-                }
-                statementSql = new StringBuilder();
-                statementSqlWithoutLineBreaks = new StringBuilder();
+            if (sqlStatementBuilder.isTerminated()) {
+                SqlStatement sqlStatement = sqlStatementBuilder.getSqlStatement();
+                statements.add(sqlStatement);
+                LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql());
+
+                sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
             }
         }
 
         // Catch any statements not followed by delimiter.
-        if (StringUtils.hasText(statementSql.toString())) {
-            statements.add(new SqlStatement(statementLineNumber, statementSql.toString()));
+        if (!sqlStatementBuilder.isEmpty()) {
+            statements.add(sqlStatementBuilder.getSqlStatement());
         }
 
         return statements;
-    }
-
-    /**
-     * Checks whether this line terminates the current statement.
-     *
-     * @param line      The line to check.
-     * @param delimiter The current delimiter.
-     * @return {@code true} if it does, {@code false} if it doesn't.
-     */
-    private boolean lineTerminatesStatement(String line, Delimiter delimiter) {
-        if (delimiter == null) {
-            return false;
-        }
-
-        String upperCaseLine = line.toUpperCase();
-        String upperCaseDelimiter = delimiter.getDelimiter().toUpperCase();
-
-        if (delimiter.isAloneOnLine() && !upperCaseLine.startsWith(upperCaseDelimiter)) {
-            return false;
-        }
-
-        return upperCaseLine.endsWith(upperCaseDelimiter);
-    }
-
-    /**
-     * Checks whether this line in the sql script indicates that the statement delimiter will be different from the
-     * current one. Useful for database-specific stored procedures and block constructs.
-     *
-     * @param statement The statement assembled so far, reduced to a single line with all linebreaks replaced by
-     *                  spaces.
-     * @param line      The line to analyse.
-     * @param delimiter The current delimiter.
-     * @return The new delimiter to use (can be the same as the current one) or {@code null} for no delimiter.
-     */
-    @SuppressWarnings({"UnusedDeclaration"})
-    protected Delimiter changeDelimiterIfNecessary(StringBuilder statement, String line, Delimiter delimiter) {
-        return delimiter;
-    }
-
-    /**
-     * @return {@code true} if this database uses an explicit delimiter change statement. {@code false} if a delimiter
-     *         change is implied by certain statements.
-     */
-    protected boolean isDelimiterChangeExplicit() {
-        return false;
-    }
-
-    /**
-     * Strips this delimiter from this sql statement.
-     *
-     * @param sql       The statement to parse.
-     * @param delimiter The delimiter to strip.
-     * @return The sql statement without delimiter.
-     */
-    private static String stripDelimiter(String sql, Delimiter delimiter) {
-        return sql.substring(0, sql.toUpperCase().lastIndexOf(delimiter.getDelimiter().toUpperCase()));
-    }
-
-    /**
-     * Strip single line (--) and multi-line (/* * /) comments from these lines.
-     *
-     * @param lines The input lines.
-     * @return The input lines, trimmed of leading and trailing whitespace, with the comments lines left blank.
-     */
-    /* private -> for testing */
-    List<String> stripSqlComments(List<String> lines) {
-        List<String> noCommentLines = new ArrayList<String>(lines.size());
-
-        boolean inMultilineComment = false;
-        for (String line : lines) {
-            String trimmedLine = line.trim();
-
-            if (!isCommentDirective(trimmedLine)) {
-                if (trimmedLine.startsWith("--")) {
-                    noCommentLines.add("");
-                    continue;
-                }
-
-                if (trimmedLine.startsWith("/*")) {
-                    inMultilineComment = true;
-                }
-
-                if (inMultilineComment) {
-                    if (trimmedLine.endsWith("*/")) {
-                        inMultilineComment = false;
-                    }
-                    noCommentLines.add("");
-                    continue;
-                }
-            }
-
-            noCommentLines.add(line);
-        }
-
-        return noCommentLines;
-    }
-
-    /**
-     * Checks whether this line is in fact a directive disguised as a comment.
-     *
-     * @param line The line to analyse.
-     * @return {@code true} if it is a directive that should be processed by the database, {@code false} if not.
-     */
-    protected boolean isCommentDirective(String line) {
-        return false;
     }
 
     /**
@@ -323,17 +233,5 @@ public class SqlScript {
         }
 
         return noPlaceholderLines;
-    }
-
-    /**
-     * Checks whether the statement we have assembled so far ends with an open multi-line string literal (which will be
-     * continued on the next line).
-     *
-     * @param statement The current statement, assembled from the lines we have parsed so far. May not yet be complete.
-     * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
-     *         literal. {@code false} if not.
-     */
-    protected boolean endsWithOpenMultilineStringLiteral(String statement) {
-        return false;
     }
 }

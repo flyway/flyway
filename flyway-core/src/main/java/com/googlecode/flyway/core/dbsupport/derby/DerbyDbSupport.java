@@ -16,9 +16,11 @@
 package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerSqlStatementBuilder;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
 import java.sql.Connection;
@@ -76,8 +78,8 @@ public class DerbyDbSupport extends DbSupport {
         return "false";
     }
 
-    public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        return new DerbySqlScript(sqlScriptSource, placeholderReplacer);
+    public SqlStatementBuilder createSqlStatementBuilder() {
+        return new DerbySqlStatementBuilder();
     }
 
     public SqlScript createCleanScript(String schema) throws SQLException {
@@ -98,7 +100,7 @@ public class DerbyDbSupport extends DbSupport {
             sqlStatements.add(new SqlStatement(lineNumber, statement));
             lineNumber++;
         }
-        return new SqlScript(sqlStatements);
+        return new SqlScript(sqlStatements, this);
     }
 
     /**

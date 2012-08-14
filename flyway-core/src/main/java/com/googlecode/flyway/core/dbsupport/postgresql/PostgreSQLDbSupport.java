@@ -16,9 +16,9 @@
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -79,8 +79,8 @@ public class PostgreSQLDbSupport extends DbSupport {
         return "FALSE";
     }
 
-    public SqlScript createSqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        return new PostgreSQLSqlScript(sqlScriptSource, placeholderReplacer);
+    public SqlStatementBuilder createSqlStatementBuilder() {
+        return new PostgreSQLSqlStatementBuilder();
     }
 
     public SqlScript createCleanScript(String schema) throws SQLException {
@@ -100,7 +100,7 @@ public class PostgreSQLDbSupport extends DbSupport {
             lineNumber++;
         }
 
-        return new SqlScript(sqlStatements);
+        return new SqlScript(sqlStatements, this);
     }
 
     /**

@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.StringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -26,9 +26,9 @@ import static org.junit.Assert.*;
 public class PostgreSQLSqlScriptSmallTest {
     @Test
     public void endsWithOpenMultilineStringLiteral() {
-        final PostgreSQLSqlScript script = new PostgreSQLSqlScript("", PlaceholderReplacer.NO_PLACEHOLDERS);
-        assertTrue(script.endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
-        assertFalse(script.endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
+        final PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+        assertTrue(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
+        assertFalse(statementBuilder.endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
                 "2. second');"));
     }
 
@@ -37,9 +37,15 @@ public class PostgreSQLSqlScriptSmallTest {
         String sqlScriptSource = "INSERT INTO address VALUES (1, '1. first;\n"
                 + "2. second;\n"
                 + "3. third;')";
-        final PostgreSQLSqlScript script = new PostgreSQLSqlScript(sqlScriptSource, PlaceholderReplacer.NO_PLACEHOLDERS);
-        assertEquals(1, script.getSqlStatements().size());
-        assertEquals(sqlScriptSource, script.getSqlStatements().get(0).getSql());
+
+        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertEquals(sqlScriptSource, statementBuilder.getSqlStatement().getSql());
     }
 
     @Test
@@ -49,9 +55,15 @@ public class PostgreSQLSqlScriptSmallTest {
                         "multi-line\n" +
                         "quotes;\n" +
                         "$$)";
-        final PostgreSQLSqlScript script = new PostgreSQLSqlScript(sqlScriptSource, PlaceholderReplacer.NO_PLACEHOLDERS);
-        assertEquals(1, script.getSqlStatements().size());
-        assertEquals(sqlScriptSource, script.getSqlStatements().get(0).getSql());
+
+        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertEquals(sqlScriptSource, statementBuilder.getSqlStatement().getSql());
     }
 
     @Test
@@ -73,22 +85,28 @@ public class PostgreSQLSqlScriptSmallTest {
                         "$BODY$ LANGUAGE plpgsql;\n" +
                         "END;\n" +
                         "$$ LANGUAGE plpgsql";
-        final PostgreSQLSqlScript script = new PostgreSQLSqlScript(sqlScriptSource, PlaceholderReplacer.NO_PLACEHOLDERS);
-        assertEquals(1, script.getSqlStatements().size());
-        assertEquals(sqlScriptSource, script.getSqlStatements().get(0).getSql());
+
+        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertEquals(sqlScriptSource, statementBuilder.getSqlStatement().getSql());
     }
 
     @Test
     public void dollarQuoteRegex() {
-        assertFalse("abc".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertFalse("abc$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertFalse("$abc".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertTrue("$$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertTrue("$abc$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertTrue("$ABC$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertTrue("$aBcDeF$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertTrue("$aBc_DeF$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertTrue("$abcDEF123$".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
-        assertTrue("$abcDEF123$xxx".matches(PostgreSQLSqlScript.DOLLAR_QUOTE_REGEX));
+        assertFalse("abc".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertFalse("abc$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertFalse("$abc".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abc$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$ABC$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$aBcDeF$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$aBc_DeF$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abcDEF123$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abcDEF123$xxx".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
     }
 }
