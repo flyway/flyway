@@ -178,14 +178,13 @@ public class SqlStatementBuilder {
             return false;
         }
 
-        String upperCaseLine = line.toUpperCase();
         String upperCaseDelimiter = delimiter.getDelimiter().toUpperCase();
 
-        if (delimiter.isAloneOnLine() && !upperCaseLine.startsWith(upperCaseDelimiter)) {
-            return false;
+        if (delimiter.isAloneOnLine()) {
+            return line.equals(upperCaseDelimiter);
         }
 
-        return upperCaseLine.endsWith(upperCaseDelimiter);
+        return line.endsWith(upperCaseDelimiter);
     }
 
     /**

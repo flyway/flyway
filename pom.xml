@@ -1,4 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!--
+    Detailed information how to contribute: http://flywaydb.org/howToContribute.html
+
+    A number of Jdbc drivers are unfortunately not available from Maven Central due to licensing issues.
+    Instructions for installing them: http://flywaydb.org/devEnvironmentSetup.html
+
+    If your contribution does not require changes to the database-specific code it is also possible to run the build
+    without having to install the Jdbc drivers using mvn -P-MediumTests
+    -->
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-parent</artifactId>
@@ -8,7 +18,7 @@
     <description>
         Flyway: The agile database migration framework for Java.
     </description>
-    <url>http://code.google.com/p/flyway</url>
+    <url>http://flywaydb.org</url>
     <licenses>
         <license>
             <name>Apache 2</name>
@@ -21,8 +31,8 @@
         <url>http://code.google.com/p/flyway/source/browse/</url>
         <connection>scm:hg:https://flyway.googlecode.com/hg/</connection>
         <developerConnection>scm:hg:file://${flyway.releaserepo}</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
     <developers>
         <developer>
             <id>axel</id>

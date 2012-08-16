@@ -29,9 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test to demonstrate the migration functionality using Oracle.
@@ -200,9 +198,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Tests support for create trigger. Ensures that a Statement is used instead of a PreparedStatement.
-     *
+     * <p/>
      * Reference: http://docs.oracle.com/cd/E11882_01/java.112/e16548/oraint.htm#CHDIIDBE
-     *
+     * <p/>
      * Also ensures that schema-level triggers are properly cleaned.
      */
     @Test

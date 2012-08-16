@@ -39,3 +39,41 @@ FUNCTION add_partition_for_table (
     p_table_name VARCHAR2,
     p_date NUMBER )
   RETURN NUMBER;
+
+END AgingUtils;
+/
+
+create or replace
+PACKAGE BODY AgingUtils
+IS
+
+/* VERSION 5.11 */
+/*
+sqlplus ctr/ctr@'(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 172.30.2.35)(PORT = 1521))) ( CONNECT_DATA = (SERVICE_NAME = vero)))'
+*/
+procedure load_defaults (prop OUT tp_prop)
+IS
+  properties tp_prop;
+BEGIN
+      properties('persistence.aggregation.range.M') :=  'M';
+      properties('persistence.aggregation.range.W') :=  'W';
+      properties('persistence.aggregation.range.D') := 'D';
+      properties('persistence.aggregation.range.H') := 'D';
+      properties('persistence.aggregation.range.MIN') :=  'D';
+  ---    properties('persistence.aggregation.range.15') :=  'D';
+  ---    properties('persistence.aggregation.range.01') :=  'D';
+  ---    properties('persistence.aggregation.range.F_SESSION_CHUNK') :=  'D';
+  prop := properties;
+end;
+
+/**
+*/
+function version return varchar2
+is
+begin
+  return versionString;
+end;
+
+-- more procedures and functions here ...
+END AgingUtils;
+/
