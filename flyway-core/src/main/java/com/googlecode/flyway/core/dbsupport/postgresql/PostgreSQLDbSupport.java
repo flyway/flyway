@@ -88,6 +88,7 @@ public class PostgreSQLDbSupport extends DbSupport {
         allDropStatements.addAll(generateDropStatementsForTables(schema));
         allDropStatements.addAll(generateDropStatementsForSequences(schema));
         allDropStatements.addAll(generateDropStatementsForBaseTypes(schema, true));
+        allDropStatements.addAll(generateDropStatementsForAggregates(schema));
         allDropStatements.addAll(generateDropStatementsForRoutines(schema));
         allDropStatements.addAll(generateDropStatementsForEnums(schema));
         allDropStatements.addAll(generateDropStatementsForDomains(schema));
@@ -181,6 +182,28 @@ public class PostgreSQLDbSupport extends DbSupport {
     }
 
     /**
+     * Generates the statements for dropping the aggregates in this schema.
+     *
+     * @param schema The schema for which to generate the statements.
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> generateDropStatementsForAggregates(String schema) throws SQLException {
+        List<Map<String, String>> rows =
+                jdbcTemplate.queryForList(
+                        "SELECT proname, oidvectortypes(proargtypes) AS args "
+                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
+                                + "WHERE pg_proc.proisagg = true AND ns.nspname = ?",
+                        schema);
+
+        List<String> statements = new ArrayList<String>();
+        for (Map<String, String> row : rows) {
+            statements.add("DROP AGGREGATE IF EXISTS \"" + schema + "\".\"" + row.get("proname") + "\"(" + row.get("args") + ") CASCADE");
+        }
+        return statements;
+    }
+
+    /**
      * Generates the statements for dropping the routines in this schema.
      *
      * @param schema The schema for which to generate the statements.
@@ -191,7 +214,8 @@ public class PostgreSQLDbSupport extends DbSupport {
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
-                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) WHERE ns.nspname = ?",
+                                + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
+                                + "WHERE pg_proc.proisagg = false AND ns.nspname = ?",
                         schema);
 
         List<String> statements = new ArrayList<String>();
