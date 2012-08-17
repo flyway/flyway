@@ -88,6 +88,21 @@ public class SqlScriptSmallTest {
         assertEquals("select col1, col2\nfrom mytable\nwhere col1 > 10", sqlStatement.getSql());
     }
 
+    @Test
+    public void linesToStatementsMySQLCommentDirectives() {
+        lines.add("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;");
+        lines.add("DROP TABLE IF EXISTS account;");
+        lines.add("/*!40101 SET character_set_client = utf8 */;");
+
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertNotNull(sqlStatements);
+        assertEquals(3, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(1, sqlStatement.getLineNumber());
+        assertEquals("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */", sqlStatement.getSql());
+    }
+
     @Test(timeout = 1000)
     public void linesToStatementsSuperLongStatement() {
         lines.add("INSERT INTO T1 (A, B, C, D) VALUES");

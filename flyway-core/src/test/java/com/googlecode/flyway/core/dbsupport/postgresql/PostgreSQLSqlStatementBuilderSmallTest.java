@@ -18,12 +18,15 @@ package com.googlecode.flyway.core.dbsupport.postgresql;
 import com.googlecode.flyway.core.util.StringUtils;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 
 /**
- * Test for PostgreSQLSqlScript.
+ * Test for PostgreSQLSqlStatementBuilder.
  */
-public class PostgreSQLSqlScriptSmallTest {
+public class PostgreSQLSqlStatementBuilderSmallTest {
     @Test
     public void endsWithOpenMultilineStringLiteral() {
         assertTrue(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
