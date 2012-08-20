@@ -28,9 +28,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -140,13 +142,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 
-        Set<String> mergedLocations = new HashSet<String>();
-        //add legacy locations
-        mergedLocations.add(baseDir);
-        mergedLocations.add(basePackage);
-
-        //add new locations
-        mergedLocations.addAll(Arrays.asList(locations));
+        Set<String> mergedLocations = mergeLocations();
 
         for (String location : mergedLocations) {
             migrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
@@ -164,6 +160,48 @@ public class CompositeMigrationResolver implements MigrationResolver {
         checkForIncompatibilities(migrations);
 
         return migrations;
+    }
+
+    /**
+     * Merges the locations from all different sources into a single non-overlapping set.
+     *
+     * @return The merged locations set.
+     */
+    /* private -> for testing */ Set<String> mergeLocations() {
+        //Use set to remove duplicates
+        Set<String> mergedLocations = new TreeSet<String>();
+
+        //Add legacy locations
+        mergedLocations.add(baseDir);
+        mergedLocations.add(basePackage);
+
+        //Add new locations
+        mergedLocations.addAll(Arrays.asList(locations));
+
+        //Remove overlap. Ex: db/migration, db/migration/oracle -> db/migration
+        if (mergedLocations.size() > 1) {
+            Iterator<String> iterator = mergedLocations.iterator();
+            String location1 = iterator.next();
+            String location2 = iterator.next();
+
+            boolean first = true;
+
+            while (first || iterator.hasNext()) {
+                first = false;
+
+                if (location2.startsWith(location1)) {
+                    iterator.remove();
+                } else {
+                    location1 = location2;
+                }
+
+                if (iterator.hasNext()) {
+                    location2 = iterator.next();
+                }
+            }
+        }
+
+        return mergedLocations;
     }
 
     /**

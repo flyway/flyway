@@ -21,8 +21,24 @@ import com.googlecode.flyway.core.util.logging.Log;
  * Wrapper around a simple Console output.
  */
 public class ConsoleLog implements Log {
+    /**
+     * Whether to also print debug statement.
+     */
+    private final boolean debug;
+
+    /**
+     * Creates a new Console Log.
+     *
+     * @param debug {@code true} for also printing debug statements, {@code false} for only info and higher.
+     */
+    public ConsoleLog(boolean debug) {
+        this.debug = debug;
+    }
+
     public void debug(String message) {
-        //Hide by default
+        if (debug) {
+            System.out.println("DEBUG: " + message);
+        }
     }
 
     public void info(String message) {

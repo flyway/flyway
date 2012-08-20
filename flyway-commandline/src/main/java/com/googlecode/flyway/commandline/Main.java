@@ -43,8 +43,13 @@ import java.util.Properties;
 public class Main {
     private static Log LOG;
 
-    static {
-        LogFactory.setLogCreator(new ConsoleLogCreator());
+    /**
+     * Initializes the logging.
+     *
+     * @param debug {@code true} for also printing debug statements, {@code false} for only info and higher.
+     */
+    static void initLogging(boolean debug) {
+        LogFactory.setLogCreator(new ConsoleLogCreator(debug));
         LOG = LogFactory.getLog(Main.class);
     }
 
@@ -55,6 +60,7 @@ public class Main {
      */
     public static void main(String[] args) {
         boolean debug = isDebug(args);
+        initLogging(debug);
 
         try {
             printVersion();

@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.commandline;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -27,6 +28,11 @@ import static org.junit.Assert.assertTrue;
  * Test for Main.
  */
 public class MainSmallTest {
+    @Before
+    public void setUp() {
+        Main.initLogging(false);
+    }
+
     @Test
     public void isPropertyArgument() {
         assertTrue(Main.isPropertyArgument("-user=SA"));

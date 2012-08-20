@@ -23,7 +23,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +34,35 @@ import static org.junit.Assert.assertTrue;
  * Test for CompositeMigrationResolver.
  */
 public class CompositeMigrationResolverSmallTest {
+    @Test
+    public void mergeLocations() {
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/locations"}, "db/files", "db/classes", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        Set<String> locations = migrationResolver.mergeLocations();
+        assertEquals(3, locations.size());
+        Iterator<String> iterator = locations.iterator();
+        assertEquals("db/classes", iterator.next());
+        assertEquals("db/files", iterator.next());
+        assertEquals("db/locations", iterator.next());
+    }
+
+    @Test
+    public void mergeLocationsDuplicate() {
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/locations"}, "db/migration", "db/migration", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        Set<String> locations = migrationResolver.mergeLocations();
+        assertEquals(2, locations.size());
+        Iterator<String> iterator = locations.iterator();
+        assertEquals("db/locations", iterator.next());
+        assertEquals("db/migration", iterator.next());
+    }
+
+    @Test
+    public void mergeLocationsOverlap() {
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle"}, "db/migration", "db/migration", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        Set<String> locations = migrationResolver.mergeLocations();
+        assertEquals(1, locations.size());
+        assertEquals("db/migration", locations.iterator().next());
+    }
+
     @Test
     public void resolveMigrationsMultipleLocations() {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"migration/subdir/dir2"}, "db.migration", "migration/subdir/dir1", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");

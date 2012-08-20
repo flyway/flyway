@@ -41,6 +41,7 @@ public class MainMediumTest {
     @Before
     public void setUp() {
         oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Main.initLogging(false);
     }
 
     @After
