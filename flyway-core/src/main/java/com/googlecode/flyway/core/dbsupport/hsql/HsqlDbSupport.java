@@ -51,7 +51,6 @@ public class HsqlDbSupport extends DbSupport {
 
         try {
             int majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-            LOG.debug("Hsql Major Version: " + majorVersion);
             version18 = majorVersion < 2;
         } catch (SQLException e) {
             throw new FlywayException("Unable to determine the Hsql version", e);

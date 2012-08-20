@@ -61,17 +61,17 @@ public class DbSupportFactory {
 
         LOG.debug("Database: " + databaseProductName);
 
-        if ("Apache Derby".equals(databaseProductName)) {
+        if (databaseProductName.startsWith("Apache Derby")) {
             return new DerbyDbSupport(connection);
         }
-        if ("H2".equals(databaseProductName)) {
+        if (databaseProductName.startsWith("H2")) {
             return new H2DbSupport(connection);
         }
-        if ("HSQL Database Engine".equals(databaseProductName)
-                || "Google SQL Service/HSQL Database Engine".equals(databaseProductName)) {
+        if (databaseProductName.contains("HSQL Database Engine")) {
+            // For regular Hsql and the Google Cloud SQL local default DB.
             return new HsqlDbSupport(connection);
         }
-        if ("Microsoft SQL Server".equals(databaseProductName)) {
+        if (databaseProductName.startsWith("Microsoft SQL Server")) {
             return new SQLServerDbSupport(connection);
         }
         if (databaseProductName.contains("MySQL")) {
@@ -80,10 +80,10 @@ public class DbSupportFactory {
             //   ex.: Google SQL Service/MySQL
             return new MySQLDbSupport(connection);
         }
-        if ("Oracle".equals(databaseProductName)) {
+        if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
         }
-        if ("PostgreSQL".equals(databaseProductName)) {
+        if (databaseProductName.startsWith("PostgreSQL")) {
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
@@ -107,7 +107,10 @@ public class DbSupportFactory {
             if (databaseMetaData == null) {
                 throw new FlywayException("Unable to read database metadata while it is null!");
             }
-            return databaseMetaData.getDatabaseProductName();
+            String databaseProductName = databaseMetaData.getDatabaseProductName();
+            int databaseMajorVersion = databaseMetaData.getDatabaseMajorVersion();
+            int databaseMinorVersion = databaseMetaData.getDatabaseMinorVersion();
+            return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
             throw new FlywayException("Error while determining database product name", e);
         }

@@ -15,9 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.dbsupport.derby.DerbyDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
-import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerDbSupport;
 import org.junit.Test;
 
 import java.util.ArrayList;
