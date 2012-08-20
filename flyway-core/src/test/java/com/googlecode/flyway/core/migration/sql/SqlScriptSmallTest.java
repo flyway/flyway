@@ -118,6 +118,21 @@ public class SqlScriptSmallTest {
     }
 
     @Test
+    public void linesToStatementsMultilineCommentsWithDashes() {
+        lines.add("/*--------------------------------------------");
+        lines.add("Some comments");
+        lines.add("-----------------------------------------*/");
+        lines.add("SELECT 1;");
+
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertNotNull(sqlStatements);
+        assertEquals(1, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(4, sqlStatement.getLineNumber());
+    }
+
+    @Test
     public void linesToStatementsPreserveEmptyLinesInsideStatement() {
         lines.add("update emailtemplate set body = 'Hi $order.billingContactDisplayName,");
         lines.add("");

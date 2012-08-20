@@ -149,11 +149,6 @@ public class SqlScript {
                 String trimmedLine = line.trim();
 
                 if (!sqlStatementBuilder.isCommentDirective(trimmedLine)) {
-                    if (trimmedLine.startsWith("--")) {
-                        // Skip single-line comment
-                        continue;
-                    }
-
                     if (trimmedLine.startsWith("/*")) {
                         inMultilineComment = true;
                     }
@@ -163,6 +158,11 @@ public class SqlScript {
                             inMultilineComment = false;
                         }
                         // Skip line part of a multi-line comment
+                        continue;
+                    }
+
+                    if (trimmedLine.startsWith("--")) {
+                        // Skip single-line comment
                         continue;
                     }
                 }
