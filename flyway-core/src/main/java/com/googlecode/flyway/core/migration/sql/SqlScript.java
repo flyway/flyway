@@ -110,8 +110,6 @@ public class SqlScript {
         Reader reader = new StringReader(sqlScriptSource);
         List<String> rawLines = readLines(reader);
         List<String> noPlaceholderLines = replacePlaceholders(rawLines, placeholderReplacer);
-        //TODO: Check necessity of stripping comments
-        //List<String> noCommentLines = stripSqlComments(noPlaceholderLines);
         return linesToStatements(noPlaceholderLines);
     }
 
