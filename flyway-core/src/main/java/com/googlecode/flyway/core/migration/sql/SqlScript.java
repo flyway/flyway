@@ -139,13 +139,6 @@ public class SqlScript {
                     continue;
                 }
 
-                Delimiter newDelimiter = sqlStatementBuilder.extractNewDelimiterFromLine(line);
-                if (newDelimiter != null) {
-                    nonStandardDelimiter = newDelimiter;
-                    // Skip this line as it was an explicit delimiter change directive outside of any statements.
-                    continue;
-                }
-
                 String trimmedLine = line.trim();
 
                 if (!sqlStatementBuilder.isCommentDirective(trimmedLine)) {
@@ -165,6 +158,13 @@ public class SqlScript {
                         // Skip single-line comment
                         continue;
                     }
+                }
+
+                Delimiter newDelimiter = sqlStatementBuilder.extractNewDelimiterFromLine(line);
+                if (newDelimiter != null) {
+                    nonStandardDelimiter = newDelimiter;
+                    // Skip this line as it was an explicit delimiter change directive outside of any statements.
+                    continue;
                 }
 
                 sqlStatementBuilder.setLineNumber(lineNumber);

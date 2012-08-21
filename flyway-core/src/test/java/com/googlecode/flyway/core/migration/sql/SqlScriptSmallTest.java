@@ -87,6 +87,26 @@ public class SqlScriptSmallTest {
     }
 
     @Test
+    public void linesToStatementsDelimiterKeywordInMultilineComment() {
+        lines.add("/*");
+        lines.add("DELIMITER $$");
+        lines.add("*/");
+        lines.add("SELECT 1;");
+        lines.add("/*");
+        lines.add("END;");
+        lines.add("$$");
+        lines.add("DELIMITER ;");
+        lines.add("*/");
+
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        assertEquals(1, sqlStatements.size());
+
+        SqlStatement sqlStatement = sqlStatements.get(0);
+        assertEquals(4, sqlStatement.getLineNumber());
+        assertEquals("SELECT 1", sqlStatement.getSql());
+    }
+
+    @Test
     public void linesToStatementsMySQLCommentDirectives() {
         lines.add("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;");
         lines.add("DROP TABLE IF EXISTS account;");
