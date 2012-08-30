@@ -47,6 +47,18 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
         flyway.migrate();
     }
 
+    @Test
+    public void delimiter() throws Exception {
+        flyway.setLocations("migration/dbsupport/mysql/sql/delimiter");
+        flyway.migrate();
+    }
+
+    @Test
+    public void hashComment() throws Exception {
+        flyway.setLocations("migration/dbsupport/mysql/sql/hashComment");
+        flyway.migrate();
+    }
+
     /**
      * Tests clean and migrate for MySQL Triggers.
      */

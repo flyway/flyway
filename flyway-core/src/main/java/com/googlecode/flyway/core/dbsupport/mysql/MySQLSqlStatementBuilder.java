@@ -65,6 +65,11 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
+    public boolean isSingleLineComment(String line) {
+        return super.isSingleLineComment(line) || line.startsWith("#");
+    }
+
+    @Override
     protected boolean endsWithOpenMultilineStringLiteral(String line) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
         String[] tokens = StringUtils.tokenizeToStringArray(line, " ;=|(),");

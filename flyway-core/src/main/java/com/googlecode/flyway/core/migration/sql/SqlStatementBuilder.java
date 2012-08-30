@@ -112,6 +112,16 @@ public class SqlStatementBuilder {
     }
 
     /**
+     * Checks whether this line is just a single-line comment outside a statement or not.
+     *
+     * @param line The line to analyse.
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    public boolean isSingleLineComment(String line) {
+        return line.startsWith("--");
+    }
+
+    /**
      * Adds this line to the current statement being built.
      *
      * @param line The line to add.

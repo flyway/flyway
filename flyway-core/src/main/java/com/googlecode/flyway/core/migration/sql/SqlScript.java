@@ -152,7 +152,7 @@ public class SqlScript {
                         continue;
                     }
 
-                    if (trimmedLine.startsWith("--")) {
+                    if (sqlStatementBuilder.isSingleLineComment(trimmedLine)) {
                         // Skip single-line comment
                         continue;
                     }
