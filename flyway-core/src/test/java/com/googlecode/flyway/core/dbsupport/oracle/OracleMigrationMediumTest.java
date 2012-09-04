@@ -221,4 +221,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    /**
+     * Tests support for clean together with Index Organized Tables.
+     */
+    @Test
+    public void indexOrganizedTable() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/iot");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
 }

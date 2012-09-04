@@ -134,7 +134,9 @@ public class OracleDbSupport extends DbSupport {
                 // Ignore Materialized View Logs
                 + " AND object_name NOT LIKE 'MLOG$%' AND object_name NOT LIKE 'RUPD$%'"
                 // Ignore Oracle Text Index Tables
-                + " AND object_name NOT LIKE 'DR$%'";
+                + " AND object_name NOT LIKE 'DR$%'"
+                // Ignore Index Organized Tables
+                + " AND object_name NOT LIKE 'SYS_IOT_OVER_%'";
 
         List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, schema.toUpperCase());
         List<String> dropStatements = new ArrayList<String>();
