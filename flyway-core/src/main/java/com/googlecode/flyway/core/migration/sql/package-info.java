@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Private API: No compatibility guarantees provided.
+ * Private API. No compatibility guarantees provided.
  */
 package com.googlecode.flyway.core.migration.sql;
