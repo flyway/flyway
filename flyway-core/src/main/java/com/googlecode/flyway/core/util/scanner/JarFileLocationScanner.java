@@ -16,6 +16,10 @@
 package com.googlecode.flyway.core.util.scanner;
 
 import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
@@ -26,51 +30,65 @@ import java.util.jar.JarFile;
  * LocationScanner for jar files.
  */
 public class JarFileLocationScanner implements LocationScanner {
-    /**
-     * The protocol used in the resource URL. Could be jar or zip when used from WebLogic.
-     */
-    private final String protocol;
+    public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
+        JarFile jarFile = getJarFromUrl(locationUrl);
 
-    /**
-     * Creates a new JarFileLocationScanner.
-     * @param protocol The protocol used in the resource URL. Could be jar or zip when used from WebLogic.
-     */
-    public JarFileLocationScanner(String protocol) {
-        this.protocol = protocol;
-    }
-
-    public Set<String> findResourceNames(String location, String locationUrl) throws IOException {
-        return findResourceNamesFromJarFile(extractJarFileName(locationUrl), location);
-    }
-
-    /**
-     * Extracts the Jar File name from this locationUrl.
-     *
-     * @param locationUrl The url returned from the classloader.
-     * @return The jar file name.
-     */
-    /* private -> testing */ String extractJarFileName(String locationUrl) {
-        int startPos = 0;
-        if (locationUrl.startsWith(protocol)) {
-            startPos = (protocol + ":").length();
-        } else if (locationUrl.startsWith("file:")) {
-            startPos = "file:".length();
+        try {
+            return findResourceNamesFromJarFile(jarFile, location);
+        } finally {
+            jarFile.close();
         }
-        return locationUrl.substring(startPos, locationUrl.lastIndexOf("!"));
+    }
+
+    /**
+     * Retrieves the Jar file represented by this URL.
+     *
+     * @param locationUrl The URL of the jar.
+     * @return The jar file.
+     * @throws IOException when the jar could not be resolved.
+     */
+    private JarFile getJarFromUrl(URL locationUrl) throws IOException {
+        URLConnection con = locationUrl.openConnection();
+        if (con instanceof JarURLConnection) {
+            // Should usually be the case for traditional JAR files.
+            JarURLConnection jarCon = (JarURLConnection) con;
+            return jarCon.getJarFile();
+        }
+
+        // No JarURLConnection -> need to resort to URL file parsing.
+        // We'll assume URLs of the format "jar:path!/entry", with the protocol
+        // being arbitrary as long as following the entry format.
+        // We'll also handle paths with and without leading "file:" prefix.
+        String urlFile = locationUrl.getFile();
+
+        int separatorIndex = urlFile.indexOf("!/");
+        if (separatorIndex != -1) {
+            String jarFileUrl = urlFile.substring(0, separatorIndex);
+            if (jarFileUrl.startsWith("file:")) {
+                try {
+                    return new JarFile(new URL(jarFileUrl).toURI().getSchemeSpecificPart());
+                } catch (URISyntaxException ex) {
+                    // Fallback for URLs that are not valid URIs (should hardly ever happen).
+                    return new JarFile(jarFileUrl.substring("file:".length()));
+                }
+            }
+            return new JarFile(jarFileUrl);
+        }
+
+        return new JarFile(urlFile);
     }
 
     /**
      * Finds all the resource names contained in this directory within this jar file.
      *
-     * @param jarFileName The name of the jar file.
-     * @param directory   The directory to look under.
+     * @param jarFile   The jar file.
+     * @param directory The directory to look under.
      * @return The resource names.
      * @throws java.io.IOException when reading the jar file failed.
      */
-    private Set<String> findResourceNamesFromJarFile(String jarFileName, String directory) throws IOException {
+    private Set<String> findResourceNamesFromJarFile(JarFile jarFile, String directory) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        JarFile jarFile = new JarFile(jarFileName);
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             String entryName = entries.nextElement().getName();

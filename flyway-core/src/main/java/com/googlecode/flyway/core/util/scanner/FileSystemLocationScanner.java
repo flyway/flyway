@@ -15,11 +15,13 @@
  */
 package com.googlecode.flyway.core.util.scanner;
 
+import com.googlecode.flyway.core.util.UrlUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Set;
 import java.util.TreeSet;
@@ -30,13 +32,14 @@ import java.util.TreeSet;
 public class FileSystemLocationScanner implements LocationScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemLocationScanner.class);
 
-    public Set<String> findResourceNames(String location, String locationUrl) throws IOException {
-        String classPathRootOnDisk = locationUrl.substring(0, locationUrl.length() - location.length());
+    public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
+        String filePath = UrlUtils.toFilePath(locationUrl);
+        String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
         if (!classPathRootOnDisk.endsWith("/")) {
             classPathRootOnDisk = classPathRootOnDisk + "/";
         }
         LOG.debug("Scanning starting at classpath root in filesystem: " + classPathRootOnDisk);
-        return findResourceNamesFromFileSystem(classPathRootOnDisk, location, new File(locationUrl));
+        return findResourceNamesFromFileSystem(classPathRootOnDisk, location, new File(filePath));
     }
 
     /**

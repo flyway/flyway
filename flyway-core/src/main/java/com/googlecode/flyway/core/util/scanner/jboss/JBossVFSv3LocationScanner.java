@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.util.scanner.jboss;
 
+import com.googlecode.flyway.core.util.UrlUtils;
 import com.googlecode.flyway.core.util.scanner.LocationScanner;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -23,6 +24,7 @@ import org.jboss.vfs.VirtualFile;
 import org.jboss.vfs.VirtualFileFilter;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,8 +35,9 @@ import java.util.TreeSet;
 public class JBossVFSv3LocationScanner implements LocationScanner {
     private static final Log LOG = LogFactory.getLog(JBossVFSv3LocationScanner.class);
 
-    public Set<String> findResourceNames(String location, String locationUrl) throws IOException {
-        String classPathRootOnDisk = locationUrl.substring(0, locationUrl.length() - location.length());
+    public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
+        String filePath = UrlUtils.toFilePath(locationUrl);
+        String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
         if (!classPathRootOnDisk.endsWith("/")) {
             classPathRootOnDisk = classPathRootOnDisk + "/";
         }
@@ -42,7 +45,7 @@ public class JBossVFSv3LocationScanner implements LocationScanner {
 
         Set<String> resourceNames = new TreeSet<String>();
 
-        List<VirtualFile> files = VFS.getChild(locationUrl).getChildrenRecursively(new VirtualFileFilter() {
+        List<VirtualFile> files = VFS.getChild(filePath).getChildrenRecursively(new VirtualFileFilter() {
             public boolean accepts(VirtualFile file) {
                 return file.isFile();
             }

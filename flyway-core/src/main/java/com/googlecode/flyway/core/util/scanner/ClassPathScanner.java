@@ -19,15 +19,15 @@ import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.util.StringUtils;
+import com.googlecode.flyway.core.util.UrlUtils;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv3LocationScanner;
 import com.googlecode.flyway.core.util.scanner.osgi.EquinoxCommonResourceUrlResolver;
-import com.googlecode.flyway.core.util.logging.Log;
-import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -146,17 +146,14 @@ public class ClassPathScanner {
             UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
             URL resolvedUrl = urlResolver.toStandardJavaUrl(locationUrl);
 
-            String scanRoot = URLDecoder.decode(resolvedUrl.getFile(), "UTF-8");
-            if (scanRoot.endsWith("/")) {
-                scanRoot = scanRoot.substring(0, scanRoot.length() - 1);
-            }
+            String scanRoot = UrlUtils.toFilePath(resolvedUrl);
 
             String protocol = resolvedUrl.getProtocol();
             LocationScanner locationScanner = createLocationScanner(protocol);
             if (locationScanner == null) {
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
-                resourceNames.addAll(locationScanner.findResourceNames(location, scanRoot));
+                resourceNames.addAll(locationScanner.findResourceNames(location, resolvedUrl));
             }
         }
 
@@ -199,15 +196,18 @@ public class ClassPathScanner {
         if ("file".equals(protocol)) {
             return new FileSystemLocationScanner();
         }
+
         if ("jar".equals(protocol)
                 || "zip".equals(protocol) //WebLogic
                 || "wsjar".equals(protocol) //WebSphere
                 ) {
-            return new JarFileLocationScanner(protocol);
+            return new JarFileLocationScanner();
         }
+
         if (FeatureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
             return new JBossVFSv3LocationScanner();
         }
+
         return null;
     }
 

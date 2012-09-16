@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.util.scanner;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Set;
 
 /**
@@ -31,5 +32,5 @@ public interface LocationScanner {
      *
      * @throws IOException when the scanning failed.
      */
-    Set<String> findResourceNames(String location, String locationUrl) throws IOException;
+    Set<String> findResourceNames(String location, URL locationUrl) throws IOException;
 }
