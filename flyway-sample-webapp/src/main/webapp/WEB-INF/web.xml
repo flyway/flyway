@@ -32,8 +32,8 @@
         <servlet-class>com.googlecode.flyway.sample.webapp.MigrateServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>HistoryServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.HistoryServlet</servlet-class>
+        <servlet-name>InfoServlet</servlet-name>
+        <servlet-class>com.googlecode.flyway.sample.webapp.InfoServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -52,7 +52,7 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>HistoryServlet</servlet-name>
-        <url-pattern>/history</url-pattern>
+        <servlet-name>InfoServlet</servlet-name>
+        <url-pattern>/info</url-pattern>
     </servlet-mapping>
 </web-app>

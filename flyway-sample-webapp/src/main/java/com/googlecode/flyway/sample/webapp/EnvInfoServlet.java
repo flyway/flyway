@@ -42,8 +42,10 @@ public class EnvInfoServlet extends HttpServlet {
         String appserver;
         if (Environment.runningOnGoogleAppEngine()) {
             appserver = "Google AppEngine";
+        } else if (FeatureDetector.isJBossVFSv2Available()) {
+            appserver = "JBoss 5";
         } else if (FeatureDetector.isJBossVFSv3Available()) {
-            appserver = "JBoss";
+            appserver = "JBoss 6+";
         } else {
             appserver = "Other";
         }

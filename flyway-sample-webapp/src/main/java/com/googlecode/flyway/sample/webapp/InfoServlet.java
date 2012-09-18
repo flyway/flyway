@@ -16,6 +16,8 @@
 package com.googlecode.flyway.sample.webapp;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationInfos;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.DateUtils;
 
@@ -29,9 +31,9 @@ import java.io.PrintWriter;
 import java.util.List;
 
 /**
- * Servlet for querying the history of the DB instance.
+ * Servlet for querying the migration info.
  */
-public class HistoryServlet extends HttpServlet {
+public class InfoServlet extends HttpServlet {
     /**
      * The datasource to use.
      */
@@ -43,29 +45,33 @@ public class HistoryServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Flyway flyway = new Flyway();
+        flyway.setLocations("db.migration",
+                "db/more/migrations",
+                "com.googlecode.flyway.sample.migration",
+                "com/googlecode/flyway/sample/webapp/migration");
         flyway.setDataSource(dataSource);
 
-        List<MetaDataTableRow> metaDataTableRows = flyway.history();
+        MigrationInfos migrationInfos = flyway.info();
 
         response.setContentType("application/json");
 
         PrintWriter writer = response.getWriter();
         writer.print("{\"status\":\"OK\", \"rows\":[");
         boolean first = true;
-        for (MetaDataTableRow row : metaDataTableRows) {
+        for (MigrationInfo migrationInfo : migrationInfos.all()) {
             if (!first) {
                 writer.print(",");
             }
 
-            writer.print("{\"version\":\"" + row.getVersion() + "\",");
+            writer.print("{\"version\":\"" + migrationInfo.getVersion() + "\",");
             
-            String description = row.getDescription() == null ? "" : row.getDescription();
+            String description = migrationInfo.getDescription() == null ? "" : migrationInfo.getDescription();
             writer.print("\"description\":\"" + description + "\",");
-            writer.print("\"script\":\"" + row.getScript() + "\",");
-            writer.print("\"type\":\"" + row.getMigrationType() + "\",");
+            writer.print("\"script\":\"" + migrationInfo.getScript() + "\",");
+            writer.print("\"type\":\"" + migrationInfo.getType() + "\",");
 
-            writer.print("\"installedOn\":\"" + DateUtils.formatDateAsIsoString(row.getInstalledOn()) + "\",");
-            writer.print("\"state\":\"" + row.getState().name() + "\"}");
+            writer.print("\"installedOn\":\"" + DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()) + "\",");
+            writer.print("\"state\":\"" + migrationInfo.getState().name() + "\"}");
 
             first = false;
         }

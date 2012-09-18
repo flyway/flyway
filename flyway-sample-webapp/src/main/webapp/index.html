@@ -71,7 +71,7 @@
         </thead>
         <tbody id="migration-table">
         <tr id="migration-none">
-            <td colspan="6">No migrations applied yet</td>
+            <td colspan="6">No migrations found</td>
         </tr>
 
         </tbody>
@@ -90,8 +90,8 @@
         });
     }
 
-    function refreshMigrationHistory() {
-        $.get("history", function (data) {
+    function refreshMigrationInfo() {
+        $.get("info", function (data) {
             $("#migration-none").show();
             $(".migration-row").remove();
 
@@ -113,17 +113,17 @@
 
     $(document).ready(function () {
         loadEnvironmentInfo();
-        refreshMigrationHistory();
+        refreshMigrationInfo();
 
         $("#clean-button").click(function () {
             $.ajax({type:"POST", url:"clean", success:function (data) {
-                refreshMigrationHistory();
+                refreshMigrationInfo();
             }});
         });
 
         $("#migrate-button").click(function () {
             $.ajax({type:"POST", url:"migrate", success:function (data) {
-                refreshMigrationHistory();
+                refreshMigrationInfo();
             }});
         });
     });

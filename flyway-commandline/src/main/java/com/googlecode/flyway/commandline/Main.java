@@ -230,7 +230,7 @@ public class Main {
         LOG.info("=======");
         LOG.info("flyway." + extension + " -target=1.5 -placeholder.user=my_user info");
         LOG.info("");
-        LOG.info("More info at http://code.google.com/p/flyway/wiki/CommandLine");
+        LOG.info("More info at http://flywaydb.org/documentation/commandline");
     }
 
     /**
