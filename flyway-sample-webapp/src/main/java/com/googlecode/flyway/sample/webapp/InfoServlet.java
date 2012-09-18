@@ -18,39 +18,29 @@ package com.googlecode.flyway.sample.webapp;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationInfos;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.util.DateUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 /**
  * Servlet for querying the migration info.
  */
 public class InfoServlet extends HttpServlet {
     /**
-     * The datasource to use.
+     * The Flyway instance to use.
      */
-    private final DataSource dataSource = Environment.createDataSource();
+    private final Flyway flyway = Environment.createFlyway();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         throw new ServletException("POST not supported");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Flyway flyway = new Flyway();
-        flyway.setLocations("db.migration",
-                "db/more/migrations",
-                "com.googlecode.flyway.sample.migration",
-                "com/googlecode/flyway/sample/webapp/migration");
-        flyway.setDataSource(dataSource);
-
         MigrationInfos migrationInfos = flyway.info();
 
         response.setContentType("application/json");
@@ -64,7 +54,7 @@ public class InfoServlet extends HttpServlet {
             }
 
             writer.print("{\"version\":\"" + migrationInfo.getVersion() + "\",");
-            
+
             String description = migrationInfo.getDescription() == null ? "" : migrationInfo.getDescription();
             writer.print("\"description\":\"" + description + "\",");
             writer.print("\"script\":\"" + migrationInfo.getScript() + "\",");

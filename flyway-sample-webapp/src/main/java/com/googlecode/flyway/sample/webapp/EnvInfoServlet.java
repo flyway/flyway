@@ -15,7 +15,9 @@
  */
 package com.googlecode.flyway.sample.webapp;
 
+import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.FeatureDetector;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,9 +32,9 @@ import java.io.PrintWriter;
  */
 public class EnvInfoServlet extends HttpServlet {
     /**
-     * The datasource to use.
+     * The Flyway instance to use.
      */
-    private final DataSource dataSource = Environment.createDataSource();
+    private final Flyway flyway = Environment.createFlyway();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         throw new ServletException("POST not supported");
@@ -50,7 +52,7 @@ public class EnvInfoServlet extends HttpServlet {
             appserver = "Other";
         }
 
-        String database = Environment.createDataSource().getUrl();
+        String database = ((DriverDataSource) flyway.getDataSource()).getUrl();
 
         PrintWriter writer = response.getWriter();
         writer.print("{\"status\":\"OK\"," +

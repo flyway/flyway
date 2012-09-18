@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.sample.webapp;
 
-import com.googlecode.flyway.core.util.ClassUtils;
+import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.h2.Driver;
 
@@ -38,19 +38,29 @@ public class Environment {
     }
 
     /**
-     * Creates a new datasource.
+     * Creates a new Flyway instance.
      *
-     * @return The Google Cloud SQL datasource.
+     * @return The fully configured Flyway instance.
      */
-    public static DriverDataSource createDataSource() {
+    public static Flyway createFlyway() {
+        Flyway flyway = new Flyway();
+
         if (runningOnGoogleAppEngine()) {
-            return new DriverDataSource(
+            flyway.setDataSource(new DriverDataSource(
                     APPENGINE_JDBC_DRIVER,
                     "jdbc:google:rdbms://flyway-test-project:flywaycloudsql/flyway_cloudsql_db",
                     null,
-                    null);
+                    null));
+        } else {
+            flyway.setDataSource(
+                    new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", ""));
         }
 
-        return new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("db.migration",
+                "db/more/migrations",
+                "com.googlecode.flyway.sample.migration",
+                "com/googlecode/flyway/sample/webapp/migration");
+
+        return flyway;
     }
 }

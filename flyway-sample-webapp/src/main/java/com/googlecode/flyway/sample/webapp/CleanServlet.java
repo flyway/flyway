@@ -21,7 +21,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 import java.io.IOException;
 
 /**
@@ -29,14 +28,11 @@ import java.io.IOException;
  */
 public class CleanServlet extends HttpServlet {
     /**
-     * The datasource to use.
+     * The Flyway instance to use.
      */
-    private final DataSource dataSource = Environment.createDataSource();
+    private final Flyway flyway = Environment.createFlyway();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-
         flyway.clean();
 
         response.setContentType("application/json");
