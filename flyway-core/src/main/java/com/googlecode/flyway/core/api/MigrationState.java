@@ -22,12 +22,12 @@ public enum MigrationState {
     /**
      * This migration has not been applied yet.
      */
-    PENDING("Pending"),
+    PENDING("Pending", false),
 
     /**
      * This migration was not applied against this DB, because the metadata table was initialized with a higher version.
      */
-    PREINIT("PreInit"),
+    PREINIT("PreInit", false),
 
     /**
      * <p>This usually indicates a problem.</p>
@@ -37,7 +37,7 @@ public enum MigrationState {
      * </p>
      * <p>Fix by increasing the version number or clean and migrate again.</p>
      */
-    IGNORED("Ignored"),
+    IGNORED("Ignored", false),
 
     /**
      * <p>This migration succeeded.</p>
@@ -46,7 +46,7 @@ public enum MigrationState {
      * This usually results from multiple older migration files being consolidated into a single one.
      * </p>
      */
-    MISSING_SUCCESS("Missing"),
+    MISSING_SUCCESS("Missing", true),
 
     /**
      * <p>This migration failed.</p>
@@ -56,17 +56,17 @@ public enum MigrationState {
      * </p>
      * <p>This should rarely, if ever, occur in practice.</p>
      */
-    MISSING_FAILED("MisFail"),
+    MISSING_FAILED("MisFail", true),
 
     /**
      * This migration succeeded.
      */
-    SUCCESS("Success"),
+    SUCCESS("Success", true),
 
     /**
      * This migration failed.
      */
-    FAILED("Failed"),
+    FAILED("Failed", true),
 
     /**
      * <p>This migration succeeded.</p>
@@ -76,7 +76,7 @@ public enum MigrationState {
      * It was most likely successfully installed by a future version of this deployable.
      * </p>
      */
-    FUTURE_SUCCESS("Future"),
+    FUTURE_SUCCESS("Future", true),
 
     /**
      * <p>This migration failed.</p>
@@ -86,7 +86,7 @@ public enum MigrationState {
      * It most likely failed during the installation of a future version of this deployable.
      * </p>
      */
-    FUTURE_FAILED("FutFail");
+    FUTURE_FAILED("FutFail", true);
 
     /**
      * The name suitable for display to the end-user.
@@ -94,12 +94,19 @@ public enum MigrationState {
     private final String displayName;
 
     /**
+     * Flag indicating if this migration has been applied or not.
+     */
+    private final boolean applied;
+
+    /**
      * Creates a new MigrationState.
      *
      * @param displayName The name suitable for display to the end-user.
+     * @param applied     Flag indicating if this migration has been applied or not.
      */
-    MigrationState(String displayName) {
+    MigrationState(String displayName, boolean applied) {
         this.displayName = displayName;
+        this.applied = applied;
     }
 
     /**
@@ -107,5 +114,12 @@ public enum MigrationState {
      */
     public String getDisplayName() {
         return displayName;
+    }
+
+    /**
+     * @return Flag indicating if this migration has been applied or not.
+     */
+    public boolean isApplied() {
+        return applied;
     }
 }

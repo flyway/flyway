@@ -46,7 +46,7 @@ public class MigrationInfos {
     }
 
     /**
-     * Retrieves the information of the current migration.
+     * Retrieves the information of the current applied migration.
      *
      * @return The info. {@code null} if no migrations have been applied yet.
      */
@@ -54,8 +54,7 @@ public class MigrationInfos {
         // Look for the first applied & available migration.
         for (int i = migrationInfos.size() - 1; i >= 0; i--) {
             MigrationInfo migrationInfo = migrationInfos.get(i);
-            if (MigrationState.SUCCESS.equals(migrationInfo.getState())
-                    || MigrationState.FAILED.equals(migrationInfo.getState())) {
+            if (migrationInfo.getState().isApplied()) {
                 return migrationInfo;
             }
         }
