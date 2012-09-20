@@ -66,15 +66,29 @@ public class DbInfoAggregator {
      * @return The info about the migrations.
      */
     public MigrationInfos aggregateMigrationInfo() {
-        Iterator<MigrationInfo> availableMigrationsIterator = extractMigrationInfos(migrationResolver.resolveMigrations()).iterator();
+        List<MigrationInfo> availableMigrations = extractMigrationInfos(migrationResolver.resolveMigrations());
+        List<MigrationInfo> appliedMigrations = metaDataTable.allAppliedMigrations();
 
-        List<MigrationInfo> appliedMigrationsList = metaDataTable.allAppliedMigrations();
-        Iterator<MigrationInfo> appliedMigrationsIterator = appliedMigrationsList.iterator();
+        return mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
+    }
+
+    /**
+     * Merges the available and the applied migrations to produce one fully aggregated and consolidated list.
+     *
+     * @param availableMigrations The available migrations.
+     * @param appliedMigrations The applied migrations.
+     *
+     * @return The complete list of migrations.
+     */
+    /* private -> testing */
+    MigrationInfos mergeAvailableAndAppliedMigrations(List<MigrationInfo> availableMigrations, List<MigrationInfo> appliedMigrations) {
+        Iterator<MigrationInfo> availableMigrationsIterator = availableMigrations.iterator();
+        Iterator<MigrationInfo> appliedMigrationsIterator = appliedMigrations.iterator();
 
         List<MigrationInfo> allMigrations = new ArrayList<MigrationInfo>();
         if (appliedMigrationsIterator.hasNext()
-                && MigrationType.INIT.equals(appliedMigrationsList.get(0).getType())) {
-            MigrationVersion initVersion = appliedMigrationsList.get(0).getVersion();
+                && MigrationType.INIT.equals(appliedMigrations.get(0).getType())) {
+            MigrationVersion initVersion = appliedMigrations.get(0).getVersion();
 
             while (availableMigrationsIterator.hasNext()) {
                 MigrationInfo availableMigration = availableMigrationsIterator.next();

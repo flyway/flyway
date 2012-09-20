@@ -200,6 +200,14 @@ public class Flyway {
     private boolean initOnMigrate;
 
     /**
+     * Allows migrations to be run "out of order".
+     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
+     * it will be applied too instead of being ignored.</p>
+     * <p>(default: {@code false})</p>
+     */
+    private boolean outOfOrder;
+
+    /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     private DataSource dataSource;
@@ -449,6 +457,17 @@ public class Flyway {
      */
     public boolean isInitOnMigrate() {
         return initOnMigrate;
+    }
+
+    /**
+     * Allows migrations to be run "out of order".
+     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
+     * it will be applied too instead of being ignored.</p>
+     *
+     * @return {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
+     */
+    public boolean isOutOfOrder() {
+        return outOfOrder;
     }
 
     /**
@@ -754,6 +773,17 @@ public class Flyway {
      */
     public void setInitOnMigrate(boolean initOnMigrate) {
         this.initOnMigrate = initOnMigrate;
+    }
+
+    /**
+     * Allows migrations to be run "out of order".
+     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
+     * it will be applied too instead of being ignored.</p>
+     *
+     * @param outOfOrder {@code true} if outOfOrder migrations should be applied, {@code false} if not. (default: {@code false})
+     */
+    public void setOutOfOrder(boolean outOfOrder) {
+        this.outOfOrder = outOfOrder;
     }
 
     /**
