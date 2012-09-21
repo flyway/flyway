@@ -120,8 +120,8 @@ public class DbMigrator {
                                     LOG.info("Current schema version: " + currentSchemaVersion);
                                 }
 
-                                ExecutableMigration lastestAvailableMigration = migrations.get(migrations.size() - 1);
-                                MigrationVersion latestAvailableMigrationVersion = lastestAvailableMigration.getInfo().getVersion();
+                                ExecutableMigration latestAvailableMigration = migrations.get(migrations.size() - 1);
+                                MigrationVersion latestAvailableMigrationVersion = latestAvailableMigration.getInfo().getVersion();
                                 boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
                                 if (isFutureMigration) {
                                     LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
@@ -238,7 +238,7 @@ public class DbMigrator {
         LOG.debug(String.format("Finished migrating to version %s (execution time %s)",
                 version, TimeFormat.format(executionTime)));
 
-        MigrationInfo migrationInfo = migration.getInfo();
+        MigrationInfoImpl migrationInfo = migration.getInfo();
         migrationInfo.addExecutionDetails(new Date(), executionTime, state);
         metaDataTable.insert(migrationInfo);
         LOG.debug("MetaData table successfully updated to reflect changes");

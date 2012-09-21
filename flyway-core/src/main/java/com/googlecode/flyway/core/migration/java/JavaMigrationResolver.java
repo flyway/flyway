@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.java;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
@@ -57,7 +57,7 @@ public class JavaMigrationResolver implements MigrationResolver {
             for (Class<?> clazz : classes) {
                 JavaMigration javaMigration = (JavaMigration) ClassUtils.instantiate(clazz.getName());
 
-                MigrationInfo migrationInfo = extractMigrationInfo(javaMigration);
+                MigrationInfoImpl migrationInfo = extractMigrationInfo(javaMigration);
                 String physicalLocation = ClassUtils.getLocationOnDisk(clazz);
                 MigrationExecutor migrationExecutor = new JavaMigrationExecutor(javaMigration);
 
@@ -77,7 +77,7 @@ public class JavaMigrationResolver implements MigrationResolver {
      * @param javaMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ MigrationInfo extractMigrationInfo(JavaMigration javaMigration) {
+    /* private -> testing */ MigrationInfoImpl extractMigrationInfo(JavaMigration javaMigration) {
         Integer checksum = null;
         if (javaMigration instanceof JavaMigrationChecksumProvider) {
             JavaMigrationChecksumProvider checksumProvider = (JavaMigrationChecksumProvider) javaMigration;
@@ -99,6 +99,6 @@ public class JavaMigrationResolver implements MigrationResolver {
         }
 
         String script = javaMigration.getClass().getName();
-        return new MigrationInfo(version, description, script, checksum, MigrationType.JAVA);
+        return new MigrationInfoImpl(version, description, script, checksum, MigrationType.JAVA);
     }
 }

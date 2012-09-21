@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.metadatatable;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
@@ -375,7 +376,7 @@ public class MetaDataTable {
             String script = rs.getString("SCRIPT");
             Integer checksum = toInteger((Number) rs.getObject("CHECKSUM"));
 
-            MigrationInfo migrationInfo = new MigrationInfo(version, description, script, checksum, migrationType);
+            MigrationInfoImpl migrationInfo = new MigrationInfoImpl(version, description, script, checksum, migrationType);
 
             Date installedOn = rs.getTimestamp("INSTALLED_ON");
             Integer executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));

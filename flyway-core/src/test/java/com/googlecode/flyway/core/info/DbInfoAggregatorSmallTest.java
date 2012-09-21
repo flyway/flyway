@@ -1,6 +1,7 @@
 package com.googlecode.flyway.core.info;
 
 import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class DbInfoAggregatorSmallTest {
      * @return The available migration.
      */
     private MigrationInfo createAvailableMigration(int version) {
-        return new MigrationInfo(new MigrationVersion(Integer.toString(version)), "abc", "x", null, MigrationType.SQL);
+        return new MigrationInfoImpl(new MigrationVersion(Integer.toString(version)), "abc", "x", null, MigrationType.SQL);
     }
 
     /**
@@ -134,7 +135,8 @@ public class DbInfoAggregatorSmallTest {
      * @return The applied migration.
      */
     private MigrationInfo createAppliedMigration(int version) {
-        MigrationInfo migrationInfo = createAvailableMigration(version);
+        MigrationInfoImpl migrationInfo =
+                new MigrationInfoImpl(new MigrationVersion(Integer.toString(version)), "abc", "x", null, MigrationType.SQL);
         migrationInfo.addExecutionDetails(new Date(), 123, MigrationState.SUCCESS);
         return migrationInfo;
     }
@@ -146,7 +148,7 @@ public class DbInfoAggregatorSmallTest {
      * @return The applied init migration.
      */
     private MigrationInfo createAppliedInitMigration(int version) {
-        MigrationInfo migrationInfo = new MigrationInfo(new MigrationVersion(Integer.toString(version)), "abc", "x", null, MigrationType.INIT);
+        MigrationInfoImpl migrationInfo = new MigrationInfoImpl(new MigrationVersion(Integer.toString(version)), "abc", "x", null, MigrationType.INIT);
         migrationInfo.addExecutionDetails(new Date(), 123, MigrationState.SUCCESS);
         return migrationInfo;
     }

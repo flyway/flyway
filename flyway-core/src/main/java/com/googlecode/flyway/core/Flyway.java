@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationInfos;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.clean.DbCleaner;

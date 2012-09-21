@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.spring;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
@@ -60,7 +60,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
             for (Class<?> clazz : classes) {
                 SpringJdbcMigration springJdbcMigration = (SpringJdbcMigration) ClassUtils.instantiate(clazz.getName());
 
-                MigrationInfo migrationInfo = extractMigrationInfo(springJdbcMigration);
+                MigrationInfoImpl migrationInfo = extractMigrationInfo(springJdbcMigration);
                 String physicalLocation = ClassUtils.getLocationOnDisk(clazz);
                 MigrationExecutor migrationExecutor = new SpringJdbcMigrationExecutor(springJdbcMigration);
 
@@ -80,7 +80,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
      * @param springJdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ MigrationInfo extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
+    /* private -> testing */ MigrationInfoImpl extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
         Integer checksum = null;
         if (springJdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) springJdbcMigration;
@@ -103,6 +103,6 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
 
         String script = springJdbcMigration.getClass().getName();
 
-        return new MigrationInfo(version, description, script, checksum, MigrationType.JAVA);
+        return new MigrationInfoImpl(version, description, script, checksum, MigrationType.JAVA);
     }
 }

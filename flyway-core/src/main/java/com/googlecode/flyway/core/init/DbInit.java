@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.init;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
@@ -75,8 +75,8 @@ public class DbInit {
 
         metaDataTable.createIfNotExists();
 
-        final MigrationInfo migrationInfo =
-                new MigrationInfo(initialVersion, initialDescription, initialDescription, null, MigrationType.INIT);
+        final MigrationInfoImpl migrationInfo =
+                new MigrationInfoImpl(initialVersion, initialDescription, initialDescription, null, MigrationType.INIT);
         migrationInfo.addExecutionDetails(new Date(), 0, MigrationState.SUCCESS);
 
         transactionTemplate.execute(new TransactionCallback<Void>() {

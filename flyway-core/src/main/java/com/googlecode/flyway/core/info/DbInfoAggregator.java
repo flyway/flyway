@@ -16,6 +16,8 @@
 package com.googlecode.flyway.core.info;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.MigrationInfosImpl;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationInfos;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
@@ -27,6 +29,8 @@ import com.googlecode.flyway.core.migration.MigrationResolver;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Aggregates info about all known migrations from both the classpath and the DB.
@@ -76,138 +80,74 @@ public class DbInfoAggregator {
      * Merges the available and the applied migrations to produce one fully aggregated and consolidated list.
      *
      * @param availableMigrations The available migrations.
-     * @param appliedMigrations The applied migrations.
-     *
+     * @param appliedMigrations   The applied migrations.
      * @return The complete list of migrations.
      */
     /* private -> testing */
     MigrationInfos mergeAvailableAndAppliedMigrations(List<MigrationInfo> availableMigrations, List<MigrationInfo> appliedMigrations) {
-        Iterator<MigrationInfo> availableMigrationsIterator = availableMigrations.iterator();
-        Iterator<MigrationInfo> appliedMigrationsIterator = appliedMigrations.iterator();
+        Map<MigrationVersion, MigrationInfo> allMigrationsMap = new TreeMap<MigrationVersion, MigrationInfo>();
 
-        List<MigrationInfo> allMigrations = new ArrayList<MigrationInfo>();
-        if (appliedMigrationsIterator.hasNext()
-                && MigrationType.INIT.equals(appliedMigrations.get(0).getType())) {
+        for (MigrationInfo availableMigration : availableMigrations) {
+            allMigrationsMap.put(availableMigration.getVersion(), availableMigration);
+        }
+
+        MigrationVersion lastAvailableVersion = MigrationVersion.EMPTY;
+        if (!availableMigrations.isEmpty()) {
+            lastAvailableVersion = availableMigrations.get(availableMigrations.size() - 1).getVersion();
+        }
+
+        for (MigrationInfo appliedMigration : appliedMigrations) {
+            if (!allMigrationsMap.containsKey(appliedMigration.getVersion())) {
+                MigrationState newState = appliedMigration.getState();
+                if (appliedMigration.getVersion().compareTo(lastAvailableVersion) < 0) {
+                    // Missing migrations
+                    if (MigrationState.SUCCESS.equals(appliedMigration.getState())) {
+                        newState = MigrationState.MISSING_SUCCESS;
+                    } else {
+                        newState = MigrationState.MISSING_FAILED;
+                    }
+                } else if (appliedMigration.getVersion().compareTo(lastAvailableVersion) > 0) {
+                    // Future migrations
+                    if (MigrationState.SUCCESS.equals(appliedMigration.getState())) {
+                        newState = MigrationState.FUTURE_SUCCESS;
+                    } else {
+                        newState = MigrationState.FUTURE_FAILED;
+                    }
+                }
+                ((MigrationInfoImpl) appliedMigration).addExecutionDetails(
+                        appliedMigration.getInstalledOn(), appliedMigration.getExecutionTime(), newState);
+            }
+            allMigrationsMap.put(appliedMigration.getVersion(), appliedMigration);
+        }
+
+        if (!appliedMigrations.isEmpty() && MigrationType.INIT.equals(appliedMigrations.get(0).getType())) {
             MigrationVersion initVersion = appliedMigrations.get(0).getVersion();
 
-            while (availableMigrationsIterator.hasNext()) {
-                MigrationInfo availableMigration = availableMigrationsIterator.next();
-                if (availableMigration.getVersion().compareTo(initVersion) >= 0) {
+            for (MigrationInfo migrationInfo : allMigrationsMap.values()) {
+                if (migrationInfo.getVersion().compareTo(initVersion) < 0) {
+                    ((MigrationInfoImpl) migrationInfo).addExecutionDetails(null, null, MigrationState.PREINIT);
+                } else {
                     break;
                 }
-                addPreInitMigration(allMigrations, availableMigration);
-            }
-
-            allMigrations.add(appliedMigrationsIterator.next());
-        }
-
-        while (availableMigrationsIterator.hasNext() && appliedMigrationsIterator.hasNext()) {
-            MigrationInfo availableMigration = availableMigrationsIterator.next();
-            MigrationInfo appliedMigration = appliedMigrationsIterator.next();
-
-            while (availableMigration.getVersion().compareTo(appliedMigration.getVersion()) < 0) {
-                addIgnoredMigration(allMigrations, availableMigration);
-
-                if (availableMigrationsIterator.hasNext()) {
-                    availableMigration = availableMigrationsIterator.next();
-                }
-            }
-
-            while (appliedMigration.getVersion().compareTo(availableMigration.getVersion()) < 0) {
-                addMissingMigration(allMigrations, appliedMigration);
-
-                if (appliedMigrationsIterator.hasNext()) {
-                    appliedMigration = appliedMigrationsIterator.next();
-                }
-            }
-
-            if (availableMigration.getVersion().equals(appliedMigration.getVersion())) {
-                allMigrations.add(appliedMigration);
             }
         }
 
-        addPendingMigrations(allMigrations, availableMigrationsIterator);
-        addFutureMigrations(allMigrations, appliedMigrationsIterator);
+        if (!appliedMigrations.isEmpty()) {
+            MigrationVersion lastAppliedVersion = appliedMigrations.get(appliedMigrations.size() - 1).getVersion();
+
+            for (MigrationInfo migrationInfo : allMigrationsMap.values()) {
+                if ((migrationInfo.getVersion().compareTo(lastAppliedVersion) < 0)
+                        && MigrationState.PENDING.equals(migrationInfo.getState())) {
+                    ((MigrationInfoImpl) migrationInfo).addExecutionDetails(null, null, MigrationState.IGNORED);
+                }
+            }
+        }
+
+        List<MigrationInfo> allMigrations = new ArrayList<MigrationInfo>(allMigrationsMap.values());
 
         filterOutMigrationsAboveTarget(allMigrations);
 
-        return new MigrationInfos(allMigrations);
-    }
-
-    /**
-     * Adds this pre-init migration to the list of all migrations.
-     *
-     * @param allMigrations The migration list.
-     * @param migration The migration to add.
-     */
-    private void addPreInitMigration(List<MigrationInfo> allMigrations, MigrationInfo migration) {
-        migration.addExecutionDetails(null, null, MigrationState.PREINIT);
-        allMigrations.add(migration);
-    }
-
-    /**
-     * Adds this ignored migration to the list of all migrations.
-     *
-     * @param allMigrations The migration list.
-     * @param migration The migration to add.
-     */
-    private void addIgnoredMigration(List<MigrationInfo> allMigrations, MigrationInfo migration) {
-        migration.addExecutionDetails(null, null, MigrationState.IGNORED);
-        allMigrations.add(migration);
-    }
-
-    /**
-     * Adds this missing migration to the list of all migrations.
-     *
-     * @param allMigrations The migration list.
-     * @param migration The migration to add.
-     */
-    private void addMissingMigration(List<MigrationInfo> allMigrations, MigrationInfo migration) {
-        if (migration.getState() == MigrationState.SUCCESS) {
-            migration.addExecutionDetails(
-                    migration.getInstalledOn(), migration.getExecutionTime(), MigrationState.MISSING_SUCCESS);
-        } else {
-            migration.addExecutionDetails(
-                    migration.getInstalledOn(), migration.getExecutionTime(), MigrationState.MISSING_FAILED);
-        }
-        allMigrations.add(migration);
-    }
-
-    /**
-     * Adds all pending migrations to the list of all migrations.
-     *
-     * @param allMigrations The migration list.
-     * @param iterator The migration iterator.
-     */
-    private void addPendingMigrations(List<MigrationInfo> allMigrations, Iterator<MigrationInfo> iterator) {
-        MigrationInfo availableMigration;
-        while (iterator.hasNext()) {
-            availableMigration = iterator.next();
-            allMigrations.add(availableMigration);
-        }
-    }
-
-    /**
-     * Adds all future migrations to the list of all migrations.
-     *
-     * @param allMigrations The migration list.
-     * @param iterator The migration iterator.
-     */
-    private void addFutureMigrations(List<MigrationInfo> allMigrations, Iterator<MigrationInfo> iterator) {
-        MigrationInfo appliedMigration;
-        while (iterator.hasNext()) {
-            appliedMigration = iterator.next();
-            if (MigrationState.SUCCESS == appliedMigration.getState()) {
-                appliedMigration.addExecutionDetails(
-                        appliedMigration.getInstalledOn(), appliedMigration.getExecutionTime(),
-                        MigrationState.FUTURE_SUCCESS);
-            } else {
-                appliedMigration.addExecutionDetails(
-                        appliedMigration.getInstalledOn(), appliedMigration.getExecutionTime(),
-                        MigrationState.FUTURE_FAILED);
-            }
-            allMigrations.add(appliedMigration);
-        }
+        return new MigrationInfosImpl(allMigrations);
     }
 
     /**

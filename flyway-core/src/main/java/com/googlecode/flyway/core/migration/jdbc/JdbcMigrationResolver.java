@@ -15,8 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.jdbc;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationState;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
@@ -61,7 +60,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
             for (Class<?> clazz : classes) {
                 JdbcMigration jdbcMigration = (JdbcMigration) ClassUtils.instantiate(clazz.getName());
 
-                MigrationInfo migrationInfo = extractMigrationInfo(jdbcMigration);
+                MigrationInfoImpl migrationInfo = extractMigrationInfo(jdbcMigration);
                 String physicalLocation = ClassUtils.getLocationOnDisk(clazz);
                 MigrationExecutor migrationExecutor = new JdbcMigrationExecutor(jdbcMigration);
 
@@ -81,7 +80,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
      * @param jdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ MigrationInfo extractMigrationInfo(JdbcMigration jdbcMigration) {
+    /* private -> testing */ MigrationInfoImpl extractMigrationInfo(JdbcMigration jdbcMigration) {
         Integer checksum = null;
         if (jdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
@@ -104,6 +103,6 @@ public class JdbcMigrationResolver implements MigrationResolver {
 
         String script = jdbcMigration.getClass().getName();
 
-        return new MigrationInfo(version, description, script, checksum, MigrationType.JDBC);
+        return new MigrationInfoImpl(version, description, script, checksum, MigrationType.JDBC);
     }
 }

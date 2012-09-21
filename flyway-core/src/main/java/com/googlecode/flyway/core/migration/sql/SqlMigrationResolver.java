@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.ExecutableMigration;
@@ -87,7 +87,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                     new ClassPathScanner().scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
 
             for (ClassPathResource resource : resources) {
-                MigrationInfo migrationInfo = extractMigrationInfo(resource);
+                MigrationInfoImpl migrationInfo = extractMigrationInfo(resource);
                 String physicalLocation = resource.getLocationOnDisk();
                 MigrationExecutor migrationExecutor = new SqlMigrationExecutor(resource, placeholderReplacer, encoding);
 
@@ -107,7 +107,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param resource The resource to analyse.
      * @return The migration info.
      */
-    private MigrationInfo extractMigrationInfo(ClassPathResource resource) {
+    private MigrationInfoImpl extractMigrationInfo(ClassPathResource resource) {
         final String versionString =
                 extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
         String scriptName = resource.getLocation().substring(resource.getLocation().indexOf(location) + location.length() + "/".length());
@@ -115,7 +115,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         String sqlScriptSource = resource.loadAsString(encoding);
         int checksum = calculateChecksum(sqlScriptSource);
 
-        return new MigrationInfo(
+        return new MigrationInfoImpl(
                 MigrationInfoHelper.extractVersion(versionString),
                 MigrationInfoHelper.extractDescription(versionString),
                 scriptName,

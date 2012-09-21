@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
-
 /**
  * An executable migration that can be applied against a DB.
  */
@@ -24,7 +22,7 @@ public class ExecutableMigration implements Comparable<ExecutableMigration> {
     /**
      * The info about the migration.
      */
-    private final MigrationInfo info;
+    private final MigrationInfoImpl info;
 
     /**
      * The physical location of the migration on disk.
@@ -43,7 +41,7 @@ public class ExecutableMigration implements Comparable<ExecutableMigration> {
      * @param physicalLocation The physical location of the migration on disk.
      * @param executor         The executor to run this migration.
      */
-    public ExecutableMigration(MigrationInfo info, String physicalLocation, MigrationExecutor executor) {
+    public ExecutableMigration(MigrationInfoImpl info, String physicalLocation, MigrationExecutor executor) {
         this.info = info;
         this.physicalLocation = physicalLocation;
         this.executor = executor;
@@ -52,7 +50,7 @@ public class ExecutableMigration implements Comparable<ExecutableMigration> {
     /**
      * @return The info about the migration.
      */
-    public MigrationInfo getInfo() {
+    public MigrationInfoImpl getInfo() {
         return info;
     }
 
