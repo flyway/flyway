@@ -15,12 +15,10 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
-import com.googlecode.flyway.core.migration.MigrationExecutor;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
@@ -79,8 +77,8 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
 
-    public List<ExecutableMigration> resolveMigrations() {
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+    public List<MigrationInfoImpl> resolveMigrations() {
+        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
 
         try {
             ClassPathResource[] resources =
@@ -88,10 +86,10 @@ public class SqlMigrationResolver implements MigrationResolver {
 
             for (ClassPathResource resource : resources) {
                 MigrationInfoImpl migrationInfo = extractMigrationInfo(resource);
-                String physicalLocation = resource.getLocationOnDisk();
-                MigrationExecutor migrationExecutor = new SqlMigrationExecutor(resource, placeholderReplacer, encoding);
+                migrationInfo.setPhysicalLocation(resource.getLocationOnDisk());
+                migrationInfo.setExecutor(new SqlMigrationExecutor(resource, placeholderReplacer, encoding));
 
-                migrations.add(new ExecutableMigration(migrationInfo, physicalLocation, migrationExecutor));
+                migrations.add(migrationInfo);
             }
         } catch (IOException e) {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);

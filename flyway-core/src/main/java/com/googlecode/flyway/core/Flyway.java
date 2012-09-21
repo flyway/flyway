@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationInfos;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.clean.DbCleaner;
@@ -29,7 +28,7 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
 import com.googlecode.flyway.core.migration.DbMigrator;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
@@ -796,7 +795,7 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                List<ExecutableMigration> availableMigrations = createMigrationResolver().resolveMigrations();
+                List<MigrationInfoImpl> availableMigrations = createMigrationResolver().resolveMigrations();
                 if (availableMigrations.isEmpty()) {
                     return 0;
                 }
@@ -865,7 +864,7 @@ public class Flyway {
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                List<ExecutableMigration> availableMigrations = createMigrationResolver().resolveMigrations();
+                List<MigrationInfoImpl> availableMigrations = createMigrationResolver().resolveMigrations();
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
@@ -883,7 +882,7 @@ public class Flyway {
      * @param availableMigrations   The available migrations on the classpath.
      * @param metaDataTable         The metadata table.
      */
-    private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, List<ExecutableMigration> availableMigrations, MetaDataTable metaDataTable) {
+    private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, List<MigrationInfoImpl> availableMigrations, MetaDataTable metaDataTable) {
         DbValidator dbValidator = new DbValidator(metaDataTable);
         final String validationError = dbValidator.validate(availableMigrations);
 
@@ -950,7 +949,7 @@ public class Flyway {
         return execute(new Command<List<MetaDataTableRow>>() {
             public List<MetaDataTableRow> execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                List<MigrationInfo> migrationInfos = metaDataTable.allAppliedMigrations();
+                List<? extends MigrationInfo> migrationInfos = metaDataTable.allAppliedMigrations();
 
                 List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>(migrationInfos.size());
                 for (MigrationInfo migrationInfo : migrationInfos) {

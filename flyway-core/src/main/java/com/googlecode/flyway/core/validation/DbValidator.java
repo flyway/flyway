@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.validation;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
 import com.googlecode.flyway.core.util.ObjectUtils;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -58,7 +57,7 @@ public class DbValidator {
      * @param migrations All migrations available on the classpath, sorted by version, newest first.
      * @return description of validation error or NULL if no validation error was found
      */
-    public String validate(List<ExecutableMigration> migrations) {
+    public String validate(List<? extends MigrationInfo> migrations) {
         LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -75,10 +74,10 @@ public class DbValidator {
             final MigrationVersion initVersion = firstAppliedMigration.getVersion();
             appliedMigrations.remove(firstAppliedMigration);
 
-            Iterator<ExecutableMigration> iterator = migrations.iterator();
+            Iterator<? extends MigrationInfo> iterator = migrations.iterator();
             while (iterator.hasNext()) {
-                ExecutableMigration migration = iterator.next();
-                if (migration.getInfo().getVersion().compareTo(initVersion) <= 0) {
+                MigrationInfo migration = iterator.next();
+                if (migration.getVersion().compareTo(initVersion) <= 0) {
                     iterator.remove();
                 }
             }
@@ -89,8 +88,8 @@ public class DbValidator {
             for (MigrationInfo metaDataTableRow : appliedMigrations) {
                 schemaVersions.add(new MigrationVersion(metaDataTableRow.getVersion().toString()));
             }
-            for (ExecutableMigration migration : migrations) {
-                schemaVersions.remove(migration.getInfo().getVersion());
+            for (MigrationInfo migration : migrations) {
+                schemaVersions.remove(migration.getVersion());
             }
 
             String diff = StringUtils.collectionToCommaDelimitedString(schemaVersions);
@@ -102,21 +101,21 @@ public class DbValidator {
         for (int i = 0; i < appliedMigrations.size(); i++) {
             MigrationInfo appliedMigration = appliedMigrations.get(i);
             //Migrations are sorted in the opposite order: newest first.
-            ExecutableMigration classpathMigration = migrations.get(i);
+            MigrationInfo classpathMigration = migrations.get(i);
 
             if (!new MigrationVersion(appliedMigration.getVersion().toString())
-                    .equals(classpathMigration.getInfo().getVersion())) {
+                    .equals(classpathMigration.getVersion())) {
                 return String.format("Version mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScript(), appliedMigration.getVersion(), classpathMigration.getInfo().getVersion());
+                        appliedMigration.getScript(), appliedMigration.getVersion(), classpathMigration.getVersion());
 
             }
-            if (!appliedMigration.getType().equals(classpathMigration.getInfo().getType())) {
+            if (!appliedMigration.getType().equals(classpathMigration.getType())) {
                 return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
-                        appliedMigration.getScript(), appliedMigration.getType(), classpathMigration.getInfo().getType());
+                        appliedMigration.getScript(), appliedMigration.getType(), classpathMigration.getType());
             }
 
             final Integer appliedChecksum = appliedMigration.getChecksum();
-            final Integer classpathChecksum = classpathMigration.getInfo().getChecksum();
+            final Integer classpathChecksum = classpathMigration.getChecksum();
             if (!ObjectUtils.nullSafeEquals(appliedChecksum, classpathChecksum)) {
                 return String.format("Checksum mismatch for migration %s: DB=%s, Classpath=%s",
                         appliedMigration.getScript(), appliedChecksum, classpathChecksum);

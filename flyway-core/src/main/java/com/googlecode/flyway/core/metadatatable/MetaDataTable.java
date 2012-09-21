@@ -16,12 +16,12 @@
 package com.googlecode.flyway.core.metadatatable;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
@@ -39,7 +39,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -243,7 +242,7 @@ public class MetaDataTable {
 
         String query = getSelectStatement() + " where current_version=" + dbSupport.getBooleanTrue();
         try {
-            final List<MigrationInfo> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
+            final List<? extends MigrationInfo> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
             if (migrationInfos.isEmpty()) {
                 throw new FlywayException("Cannot determine latest applied migration. Was the metadata table manually modified?");
             }
@@ -257,15 +256,15 @@ public class MetaDataTable {
      * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
      *         applied so far.
      */
-    public List<MigrationInfo> allAppliedMigrations() {
+    public List<MigrationInfoImpl> allAppliedMigrations() {
         if (!exists()) {
-            return new ArrayList<MigrationInfo>();
+            return new ArrayList<MigrationInfoImpl>();
         }
 
         String query = getSelectStatement();
 
         try {
-            final List<MigrationInfo> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
+            final List<MigrationInfoImpl> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
             Collections.sort(migrationInfos);
             return migrationInfos;
         } catch (SQLException e) {
@@ -341,7 +340,7 @@ public class MetaDataTable {
                 try {
                     jdbcTemplate.execute("delete from " + schema + "." + table + " where version=?",
                             getCurrentSchemaVersion().toString());
-                    List<MigrationInfo> migrationInfos = allAppliedMigrations();
+                    List<? extends MigrationInfo> migrationInfos = allAppliedMigrations();
                     if (!migrationInfos.isEmpty()) {
                         MigrationInfo migrationInfo = migrationInfos.get(migrationInfos.size() - 1);
                         jdbcTemplate.execute("update " + schema + "." + table + " set current_version=? where version=?",
@@ -368,8 +367,8 @@ public class MetaDataTable {
     /**
      * Row mapper for Migrations.
      */
-    private class MigrationInfoRowMapper implements RowMapper<MigrationInfo> {
-        public MigrationInfo mapRow(final ResultSet rs) throws SQLException {
+    private class MigrationInfoRowMapper implements RowMapper<MigrationInfoImpl> {
+        public MigrationInfoImpl mapRow(final ResultSet rs) throws SQLException {
             MigrationVersion version = new MigrationVersion(rs.getString("VERSION"));
             String description = rs.getString("DESCRIPTION");
             MigrationType migrationType = MigrationType.valueOf(rs.getString("TYPE"));
@@ -377,12 +376,9 @@ public class MetaDataTable {
             Integer checksum = toInteger((Number) rs.getObject("CHECKSUM"));
 
             MigrationInfoImpl migrationInfo = new MigrationInfoImpl(version, description, script, checksum, migrationType);
-
-            Date installedOn = rs.getTimestamp("INSTALLED_ON");
-            Integer executionTime = toInteger((Number) rs.getObject("EXECUTION_TIME"));
-            MigrationState migrationState = MigrationState.valueOf(rs.getString("STATE"));
-
-            migrationInfo.addExecutionDetails(installedOn, executionTime, migrationState);
+            migrationInfo.setInstalledOn(rs.getTimestamp("INSTALLED_ON"));
+            migrationInfo.setExecutionTime(toInteger((Number) rs.getObject("EXECUTION_TIME")));
+            migrationInfo.setState(MigrationState.valueOf(rs.getString("STATE")));
 
             return migrationInfo;
         }

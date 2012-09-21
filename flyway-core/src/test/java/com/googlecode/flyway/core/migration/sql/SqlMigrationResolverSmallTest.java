@@ -15,7 +15,8 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.migration.ExecutableMigration;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -43,20 +44,20 @@ public class SqlMigrationResolverSmallTest {
     public void resolveMigrations() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver("migration/subdir", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
-        Collection<ExecutableMigration> migrations = sqlMigrationResolver.resolveMigrations();
+        Collection<MigrationInfoImpl> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
 
-        List<ExecutableMigration> migrationList = new ArrayList<ExecutableMigration>(migrations);
+        List<MigrationInfo> migrationList = new ArrayList<MigrationInfo>(migrations);
         Collections.sort(migrationList);
 
-        assertEquals("1", migrationList.get(0).getInfo().getVersion().toString());
-        assertEquals("1.1", migrationList.get(1).getInfo().getVersion().toString());
-        assertEquals("2.0", migrationList.get(2).getInfo().getVersion().toString());
+        assertEquals("1", migrationList.get(0).getVersion().toString());
+        assertEquals("1.1", migrationList.get(1).getVersion().toString());
+        assertEquals("2.0", migrationList.get(2).getVersion().toString());
 
-        assertEquals("dir1/V1__First.sql", migrationList.get(0).getInfo().getScript());
-        assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getInfo().getScript());
-        assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getInfo().getScript());
+        assertEquals("dir1/V1__First.sql", migrationList.get(0).getScript());
+        assertEquals("V1_1__Populate_table.sql", migrationList.get(1).getScript());
+        assertEquals("dir2/V2_0__Add_foreign_key.sql", migrationList.get(2).getScript());
     }
 
     @Test

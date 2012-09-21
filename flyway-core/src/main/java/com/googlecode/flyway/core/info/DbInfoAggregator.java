@@ -16,14 +16,13 @@
 package com.googlecode.flyway.core.info;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.migration.MigrationInfosImpl;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationInfos;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
+import com.googlecode.flyway.core.migration.MigrationInfosImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 
 import java.util.ArrayList;
@@ -70,8 +69,8 @@ public class DbInfoAggregator {
      * @return The info about the migrations.
      */
     public MigrationInfos aggregateMigrationInfo() {
-        List<MigrationInfo> availableMigrations = extractMigrationInfos(migrationResolver.resolveMigrations());
-        List<MigrationInfo> appliedMigrations = metaDataTable.allAppliedMigrations();
+        List<MigrationInfoImpl> availableMigrations = migrationResolver.resolveMigrations();
+        List<MigrationInfoImpl> appliedMigrations = metaDataTable.allAppliedMigrations();
 
         return mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
     }
@@ -84,10 +83,10 @@ public class DbInfoAggregator {
      * @return The complete list of migrations.
      */
     /* private -> testing */
-    MigrationInfos mergeAvailableAndAppliedMigrations(List<MigrationInfo> availableMigrations, List<MigrationInfo> appliedMigrations) {
-        Map<MigrationVersion, MigrationInfo> allMigrationsMap = new TreeMap<MigrationVersion, MigrationInfo>();
+    MigrationInfos mergeAvailableAndAppliedMigrations(List<MigrationInfoImpl> availableMigrations, List<MigrationInfoImpl> appliedMigrations) {
+        Map<MigrationVersion, MigrationInfoImpl> allMigrationsMap = new TreeMap<MigrationVersion, MigrationInfoImpl>();
 
-        for (MigrationInfo availableMigration : availableMigrations) {
+        for (MigrationInfoImpl availableMigration : availableMigrations) {
             allMigrationsMap.put(availableMigration.getVersion(), availableMigration);
         }
 
@@ -96,26 +95,23 @@ public class DbInfoAggregator {
             lastAvailableVersion = availableMigrations.get(availableMigrations.size() - 1).getVersion();
         }
 
-        for (MigrationInfo appliedMigration : appliedMigrations) {
+        for (MigrationInfoImpl appliedMigration : appliedMigrations) {
             if (!allMigrationsMap.containsKey(appliedMigration.getVersion())) {
-                MigrationState newState = appliedMigration.getState();
                 if (appliedMigration.getVersion().compareTo(lastAvailableVersion) < 0) {
                     // Missing migrations
                     if (MigrationState.SUCCESS.equals(appliedMigration.getState())) {
-                        newState = MigrationState.MISSING_SUCCESS;
+                        appliedMigration.setState(MigrationState.MISSING_SUCCESS);
                     } else {
-                        newState = MigrationState.MISSING_FAILED;
+                        appliedMigration.setState(MigrationState.MISSING_FAILED);
                     }
                 } else if (appliedMigration.getVersion().compareTo(lastAvailableVersion) > 0) {
                     // Future migrations
                     if (MigrationState.SUCCESS.equals(appliedMigration.getState())) {
-                        newState = MigrationState.FUTURE_SUCCESS;
+                        appliedMigration.setState(MigrationState.FUTURE_SUCCESS);
                     } else {
-                        newState = MigrationState.FUTURE_FAILED;
+                        appliedMigration.setState(MigrationState.FUTURE_FAILED);
                     }
                 }
-                ((MigrationInfoImpl) appliedMigration).addExecutionDetails(
-                        appliedMigration.getInstalledOn(), appliedMigration.getExecutionTime(), newState);
             }
             allMigrationsMap.put(appliedMigration.getVersion(), appliedMigration);
         }
@@ -123,9 +119,9 @@ public class DbInfoAggregator {
         if (!appliedMigrations.isEmpty() && MigrationType.INIT.equals(appliedMigrations.get(0).getType())) {
             MigrationVersion initVersion = appliedMigrations.get(0).getVersion();
 
-            for (MigrationInfo migrationInfo : allMigrationsMap.values()) {
+            for (MigrationInfoImpl migrationInfo : allMigrationsMap.values()) {
                 if (migrationInfo.getVersion().compareTo(initVersion) < 0) {
-                    ((MigrationInfoImpl) migrationInfo).addExecutionDetails(null, null, MigrationState.PREINIT);
+                    migrationInfo.setState(MigrationState.PREINIT);
                 } else {
                     break;
                 }
@@ -135,10 +131,10 @@ public class DbInfoAggregator {
         if (!appliedMigrations.isEmpty()) {
             MigrationVersion lastAppliedVersion = appliedMigrations.get(appliedMigrations.size() - 1).getVersion();
 
-            for (MigrationInfo migrationInfo : allMigrationsMap.values()) {
+            for (MigrationInfoImpl migrationInfo : allMigrationsMap.values()) {
                 if ((migrationInfo.getVersion().compareTo(lastAppliedVersion) < 0)
                         && MigrationState.PENDING.equals(migrationInfo.getState())) {
-                    ((MigrationInfoImpl) migrationInfo).addExecutionDetails(null, null, MigrationState.IGNORED);
+                    migrationInfo.setState(MigrationState.IGNORED);
                 }
             }
         }
@@ -163,19 +159,5 @@ public class DbInfoAggregator {
                 iterator.remove();
             }
         }
-    }
-
-    /**
-     * Extract the migration infos from these executable migrations.
-     *
-     * @param executableMigrations The executable migrations to get the infos from.
-     * @return The migration infos.
-     */
-    private List<MigrationInfo> extractMigrationInfos(List<ExecutableMigration> executableMigrations) {
-        List<MigrationInfo> migrationInfos = new ArrayList<MigrationInfo>(executableMigrations.size());
-        for (ExecutableMigration executableMigration : executableMigrations) {
-            migrationInfos.add(executableMigration.getInfo());
-        }
-        return migrationInfos;
     }
 }

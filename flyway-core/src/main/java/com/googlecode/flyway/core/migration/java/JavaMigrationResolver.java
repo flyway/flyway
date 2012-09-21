@@ -15,13 +15,11 @@
  */
 package com.googlecode.flyway.core.migration.java;
 
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
-import com.googlecode.flyway.core.migration.MigrationExecutor;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
@@ -49,8 +47,8 @@ public class JavaMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    public List<ExecutableMigration> resolveMigrations() {
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+    public List<MigrationInfoImpl> resolveMigrations() {
+        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
 
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, JavaMigration.class);
@@ -58,10 +56,10 @@ public class JavaMigrationResolver implements MigrationResolver {
                 JavaMigration javaMigration = (JavaMigration) ClassUtils.instantiate(clazz.getName());
 
                 MigrationInfoImpl migrationInfo = extractMigrationInfo(javaMigration);
-                String physicalLocation = ClassUtils.getLocationOnDisk(clazz);
-                MigrationExecutor migrationExecutor = new JavaMigrationExecutor(javaMigration);
+                migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
+                migrationInfo.setExecutor(new JavaMigrationExecutor(javaMigration));
 
-                migrations.add(new ExecutableMigration(migrationInfo, physicalLocation, migrationExecutor));
+                migrations.add(migrationInfo);
             }
         } catch (Exception e) {
             throw new FlywayException("Unable to resolve Java migrations in location: " + basePackage, e);

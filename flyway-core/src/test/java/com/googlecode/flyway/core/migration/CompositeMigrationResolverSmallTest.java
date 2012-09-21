@@ -15,7 +15,8 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.exception.FlywayException;
 import org.junit.Test;
 
@@ -66,11 +67,11 @@ public class CompositeMigrationResolverSmallTest {
     public void resolveMigrationsMultipleLocations() {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"migration/subdir/dir2"}, "db.migration", "migration/subdir/dir1", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
-        List<ExecutableMigration> migrations = migrationResolver.resolveMigrations();
+        List<MigrationInfoImpl> migrations = migrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
-        assertEquals("First", migrations.get(0).getInfo().getDescription());
-        assertEquals("Add foreign key", migrations.get(1).getInfo().getDescription());
+        assertEquals("First", migrations.get(0).getDescription());
+        assertEquals("Add foreign key", migrations.get(1).getDescription());
     }
 
     /**
@@ -79,8 +80,8 @@ public class CompositeMigrationResolverSmallTest {
     @Test
     public void collectMigrations() {
         MigrationResolver migrationResolver = new MigrationResolver() {
-            public List<ExecutableMigration> resolveMigrations() {
-                List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+            public List<MigrationInfoImpl> resolveMigrations() {
+                List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
 
                 migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
                 migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
@@ -91,31 +92,21 @@ public class CompositeMigrationResolverSmallTest {
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
         migrationResolvers.add(migrationResolver);
 
-        Collection<ExecutableMigration> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
+        Collection<MigrationInfoImpl> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
         assertEquals(2, migrations.size());
     }
 
     @Test
-    public void checkForIncompatibilities() {
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
-        migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
-        migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.SQL, "1", "Description2", "Migration2", 1234));
-
-        try {
-            CompositeMigrationResolver.checkForIncompatibilities(migrations);
-        } catch (FlywayException e) {
-            assertTrue(e.getMessage().contains("Migration1"));
-            assertTrue(e.getMessage().contains("Migration2"));
-        }
-    }
-
-    @Test
     public void checkForIncompatibilitiesMessage() {
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
-        migrations.add(new ExecutableMigration(
-                new MigrationInfoImpl(new MigrationVersion("1"), "First", "V1__First.sql", 123, com.googlecode.flyway.core.api.MigrationType.SQL),
-                "target/test-classes/migration/validate/V1__First.sql", null));
-        migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
+        MigrationInfoImpl migration1 =  new MigrationInfoImpl(new MigrationVersion("1"), "First", "V1__First.sql", 123, com.googlecode.flyway.core.api.MigrationType.SQL);
+        migration1.setPhysicalLocation("target/test-classes/migration/validate/V1__First.sql");
+
+        MigrationInfoImpl migration2 = createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123);
+        migration2.setPhysicalLocation("Migration1");
+
+        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
+        migrations.add(migration1);
+        migrations.add(migration2);
 
         try {
             CompositeMigrationResolver.checkForIncompatibilities(migrations);
@@ -130,7 +121,7 @@ public class CompositeMigrationResolverSmallTest {
      */
     @Test
     public void checkForIncompatibilitiesNoConflict() {
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
         migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.JAVA, "1", "Description", "Migration1", 123));
         migrations.add(createTestMigration(com.googlecode.flyway.core.api.MigrationType.SQL, "2", "Description2", "Migration2", 1234));
 
@@ -147,8 +138,7 @@ public class CompositeMigrationResolverSmallTest {
      * @param aChecksum      The checksum.
      * @return The new test migration.
      */
-    private ExecutableMigration createTestMigration(final com.googlecode.flyway.core.api.MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
-        return new ExecutableMigration(
-                new MigrationInfoImpl(new MigrationVersion(aVersion), aDescription, aScript, aChecksum, aMigrationType), aScript, null);
+    private MigrationInfoImpl createTestMigration(final com.googlecode.flyway.core.api.MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
+        return new MigrationInfoImpl(new MigrationVersion(aVersion), aDescription, aScript, aChecksum, aMigrationType);
     }
 }

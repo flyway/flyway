@@ -67,6 +67,16 @@ public class MigrationInfoImpl implements MigrationInfo {
     private Integer executionTime;
 
     /**
+     * The physical location of the migration on disk.
+     */
+    private String physicalLocation;
+
+    /**
+     * The executor to run this migration.
+     */
+    private MigrationExecutor executor;
+
+    /**
      * Creates a new MigrationInfo. It will be initialized in state PENDING.
      *
      * @param version       The target version of this migration.
@@ -81,19 +91,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         this.script = script;
         this.checksum = checksum;
         this.migrationType = migrationType;
-    }
-
-    /**
-     * Adds details about the execution of this migration.
-     *
-     * @param installedOn    The timestamp when this migration was installed.
-     * @param executionTime  The execution time (in millis) of this migration.
-     * @param migrationState The state of the migration (FAILED, SUCCESS, ...)
-     */
-    public void addExecutionDetails(Date installedOn, Integer executionTime, com.googlecode.flyway.core.api.MigrationState migrationState) {
-        this.installedOn = installedOn;
-        this.executionTime = executionTime;
-        this.migrationState = migrationState;
     }
 
     public com.googlecode.flyway.core.api.MigrationType getType() {
@@ -126,6 +123,55 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     public Integer getExecutionTime() {
         return executionTime;
+    }
+
+    /**
+     * @return The physical location of the migration on disk.
+     */
+    public String getPhysicalLocation() {
+        return physicalLocation;
+    }
+
+    /**
+     * @return The executor to run this migration.
+     */
+    public MigrationExecutor getExecutor() {
+        return executor;
+    }
+
+    /**
+     * @param migrationState The state of the migration (FAILED, SUCCESS, ...)
+     */
+    public void setState(MigrationState migrationState) {
+        this.migrationState = migrationState;
+    }
+
+    /**
+     * @param installedOn The timestamp when this migration was installed.
+     */
+    public void setInstalledOn(Date installedOn) {
+        this.installedOn = installedOn;
+    }
+
+    /**
+     * @param executionTime The execution time (in millis) of this migration.
+     */
+    public void setExecutionTime(Integer executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    /**
+     * @param physicalLocation The physical location of the migration on disk.
+     */
+    public void setPhysicalLocation(String physicalLocation) {
+        this.physicalLocation = physicalLocation;
+    }
+
+    /**
+     * @param executor The executor to run this migration.
+     */
+    public void setExecutor(MigrationExecutor executor) {
+        this.executor = executor;
     }
 
     @Override

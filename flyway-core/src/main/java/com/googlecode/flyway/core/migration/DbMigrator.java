@@ -102,7 +102,7 @@ public class DbMigrator {
      * @return The number of successfully applied migrations.
      * @throws FlywayException when migration failed.
      */
-    public int migrate(final List<ExecutableMigration> migrations) throws FlywayException {
+    public int migrate(final List<MigrationInfoImpl> migrations) throws FlywayException {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -120,8 +120,8 @@ public class DbMigrator {
                                     LOG.info("Current schema version: " + currentSchemaVersion);
                                 }
 
-                                ExecutableMigration latestAvailableMigration = migrations.get(migrations.size() - 1);
-                                MigrationVersion latestAvailableMigrationVersion = latestAvailableMigration.getInfo().getVersion();
+                                MigrationInfoImpl latestAvailableMigration = migrations.get(migrations.size() - 1);
+                                MigrationVersion latestAvailableMigrationVersion = latestAvailableMigration.getVersion();
                                 boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
                                 if (isFutureMigration) {
                                     LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
@@ -141,7 +141,7 @@ public class DbMigrator {
                                     return null;
                                 }
 
-                                ExecutableMigration migration = getNextMigration(migrations, currentSchemaVersion);
+                                MigrationInfoImpl migration = getNextMigration(migrations, currentSchemaVersion);
                                 if (migration == null) {
                                     // No further migrations available
                                     return null;
@@ -200,8 +200,8 @@ public class DbMigrator {
      * @return The row that was added to the metadata table.
      * @throws MigrationException when the migration failed.
      */
-    private MigrationInfo applyMigration(final ExecutableMigration migration) throws MigrationException {
-        MigrationVersion version = migration.getInfo().getVersion();
+    private MigrationInfo applyMigration(final MigrationInfoImpl migration) throws MigrationException {
+        MigrationVersion version = migration.getVersion();
         LOG.info("Migrating to version " + version);
 
         StopWatch stopWatch = new StopWatch();
@@ -238,12 +238,13 @@ public class DbMigrator {
         LOG.debug(String.format("Finished migrating to version %s (execution time %s)",
                 version, TimeFormat.format(executionTime)));
 
-        MigrationInfoImpl migrationInfo = migration.getInfo();
-        migrationInfo.addExecutionDetails(new Date(), executionTime, state);
-        metaDataTable.insert(migrationInfo);
+        migration.setInstalledOn(new Date());
+        migration.setExecutionTime(executionTime);
+        migration.setState(state);
+        metaDataTable.insert(migration);
         LOG.debug("MetaData table successfully updated to reflect changes");
 
-        return migrationInfo;
+        return migration;
     }
 
     /**
@@ -253,16 +254,16 @@ public class DbMigrator {
      * @param allMigrations  All available migrations, sorted by version, newest first.
      * @return The next migration to apply.
      */
-    private ExecutableMigration getNextMigration(List<ExecutableMigration> allMigrations, MigrationVersion currentVersion) {
+    private MigrationInfoImpl getNextMigration(List<MigrationInfoImpl> allMigrations, MigrationVersion currentVersion) {
         if (target.compareTo(currentVersion) < 0) {
             LOG.warn("Database version (" + currentVersion + ") is newer than the target version ("
                     + target + ") !");
             return null;
         }
 
-        ExecutableMigration nextMigration = null;
-        for (ExecutableMigration migration : allMigrations) {
-            if ((migration.getInfo().getVersion().compareTo(currentVersion) > 0)) {
+        MigrationInfoImpl nextMigration = null;
+        for (MigrationInfoImpl migration : allMigrations) {
+            if ((migration.getVersion().compareTo(currentVersion) > 0)) {
                 nextMigration = migration;
                 break;
             }
@@ -272,7 +273,7 @@ public class DbMigrator {
             return null;
         }
 
-        if (target.compareTo(nextMigration.getInfo().getVersion()) < 0) {
+        if (target.compareTo(nextMigration.getVersion()) < 0) {
             return null;
         }
 

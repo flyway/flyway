@@ -15,16 +15,14 @@
  */
 package com.googlecode.flyway.core.migration.spring;
 
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
 import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
 import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
-import com.googlecode.flyway.core.migration.MigrationExecutor;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
@@ -52,8 +50,8 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    public List<ExecutableMigration> resolveMigrations() {
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+    public List<MigrationInfoImpl> resolveMigrations() {
+        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
 
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, SpringJdbcMigration.class);
@@ -61,10 +59,10 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
                 SpringJdbcMigration springJdbcMigration = (SpringJdbcMigration) ClassUtils.instantiate(clazz.getName());
 
                 MigrationInfoImpl migrationInfo = extractMigrationInfo(springJdbcMigration);
-                String physicalLocation = ClassUtils.getLocationOnDisk(clazz);
-                MigrationExecutor migrationExecutor = new SpringJdbcMigrationExecutor(springJdbcMigration);
+                migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
+                migrationInfo.setExecutor(new SpringJdbcMigrationExecutor(springJdbcMigration));
 
-                migrations.add(new ExecutableMigration(migrationInfo, physicalLocation, migrationExecutor));
+                migrations.add(migrationInfo);
             }
         } catch (Exception e) {
             throw new FlywayException("Unable to resolve Spring Jdbc Java migrations in location: " + basePackage, e);

@@ -88,7 +88,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
      * found.
      */
-    private List<ExecutableMigration> availableMigrations;
+    private List<MigrationInfoImpl> availableMigrations;
 
     /**
      * Creates a new CompositeMigrationResolver.
@@ -122,7 +122,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      *         can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    public List<ExecutableMigration> resolveMigrations() {
+    public List<MigrationInfoImpl> resolveMigrations() {
         if (availableMigrations == null) {
             availableMigrations = doFindAvailableMigrations();
         }
@@ -137,7 +137,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      *         can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
-    private List<ExecutableMigration> doFindAvailableMigrations() throws FlywayException {
+    private List<MigrationInfoImpl> doFindAvailableMigrations() throws FlywayException {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
@@ -154,7 +154,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
             }
         }
 
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>(collectMigrations(migrationResolvers));
+        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>(collectMigrations(migrationResolvers));
         Collections.sort(migrations);
 
         checkForIncompatibilities(migrations);
@@ -213,8 +213,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @return All migrations.
      */
     /* private -> for testing */
-    static Collection<ExecutableMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
-        Set<ExecutableMigration> migrations = new HashSet<ExecutableMigration>();
+    static Collection<MigrationInfoImpl> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
+        Set<MigrationInfoImpl> migrations = new HashSet<MigrationInfoImpl>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
             migrations.addAll(migrationResolver.resolveMigrations());
         }
@@ -228,17 +228,17 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @throws FlywayException when two different migration with the same version number are found.
      */
     /* private -> for testing */
-    static void checkForIncompatibilities(List<ExecutableMigration> migrations) {
+    static void checkForIncompatibilities(List<MigrationInfoImpl> migrations) {
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
-            ExecutableMigration current = migrations.get(i);
-            ExecutableMigration next = migrations.get(i + 1);
+            MigrationInfoImpl current = migrations.get(i);
+            MigrationInfoImpl next = migrations.get(i + 1);
             if (current.compareTo(next) == 0) {
                 throw new FlywayException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
-                        current.getInfo().getVersion(),
-                        current.getInfo().getType(),
+                        current.getVersion(),
+                        current.getType(),
                         current.getPhysicalLocation(),
-                        next.getInfo().getType(),
+                        next.getType(),
                         next.getPhysicalLocation()));
             }
         }

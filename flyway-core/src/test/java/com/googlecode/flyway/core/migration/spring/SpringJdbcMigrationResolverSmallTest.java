@@ -16,7 +16,7 @@
 package com.googlecode.flyway.core.migration.spring;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.spring.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.migration.spring.dummy.Version3dot5;
 import org.junit.Test;
@@ -37,21 +37,21 @@ public class SpringJdbcMigrationResolverSmallTest {
     public void resolveMigrations() {
         SpringJdbcMigrationResolver springJdbcMigrationResolver =
                 new SpringJdbcMigrationResolver("com/googlecode/flyway/core/migration/spring/dummy");
-        Collection<ExecutableMigration> migrations = springJdbcMigrationResolver.resolveMigrations();
+        Collection<MigrationInfoImpl> migrations = springJdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
 
-        List<ExecutableMigration> migrationList = new ArrayList<ExecutableMigration>(migrations);
+        List<MigrationInfo> migrationList = new ArrayList<MigrationInfo>(migrations);
         Collections.sort(migrationList);
 
-        assertEquals("2", migrationList.get(0).getInfo().getVersion().toString());
-        assertEquals("3.5", migrationList.get(1).getInfo().getVersion().toString());
+        assertEquals("2", migrationList.get(0).getVersion().toString());
+        assertEquals("3.5", migrationList.get(1).getVersion().toString());
 
-        assertEquals("InterfaceBasedMigration", migrationList.get(0).getInfo().getDescription());
-        assertEquals("Three Dot Five", migrationList.get(1).getInfo().getDescription());
+        assertEquals("InterfaceBasedMigration", migrationList.get(0).getDescription());
+        assertEquals("Three Dot Five", migrationList.get(1).getDescription());
 
-        assertNull(migrationList.get(0).getInfo().getChecksum());
-        assertEquals(35, migrationList.get(1).getInfo().getChecksum().intValue());
+        assertNull(migrationList.get(0).getChecksum());
+        assertEquals(35, migrationList.get(1).getChecksum().intValue());
     }
 
     @Test

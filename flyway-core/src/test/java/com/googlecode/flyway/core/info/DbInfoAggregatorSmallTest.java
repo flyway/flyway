@@ -20,8 +20,8 @@ public class DbInfoAggregatorSmallTest {
     public void onlyPending() {
         DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(null, null, MigrationVersion.LATEST);
 
-        List<MigrationInfo> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
-        List<MigrationInfo> appliedMigrations = new ArrayList<MigrationInfo>();
+        List<MigrationInfoImpl> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
+        List<MigrationInfoImpl> appliedMigrations = new ArrayList<MigrationInfoImpl>();
 
         MigrationInfos migrationInfos = dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
@@ -34,8 +34,8 @@ public class DbInfoAggregatorSmallTest {
     public void allApplied() {
         DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(null, null, MigrationVersion.LATEST);
 
-        List<MigrationInfo> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
-        List<MigrationInfo> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
+        List<MigrationInfoImpl> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
+        List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
 
         MigrationInfos migrationInfos = dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
@@ -48,8 +48,8 @@ public class DbInfoAggregatorSmallTest {
     public void onePendingOneApplied() {
         DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(null, null, MigrationVersion.LATEST);
 
-        List<MigrationInfo> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
-        List<MigrationInfo> appliedMigrations = Arrays.asList(createAppliedMigration(1));
+        List<MigrationInfoImpl> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
+        List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(1));
 
         MigrationInfos migrationInfos = dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
@@ -62,8 +62,8 @@ public class DbInfoAggregatorSmallTest {
     public void oneAppliedOneSkipped() {
         DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(null, null, MigrationVersion.LATEST);
 
-        List<MigrationInfo> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
-        List<MigrationInfo> appliedMigrations = Arrays.asList(createAppliedMigration(2));
+        List<MigrationInfoImpl> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
+        List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(2));
 
         MigrationInfos migrationInfos = dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
@@ -77,8 +77,8 @@ public class DbInfoAggregatorSmallTest {
     public void twoAppliedOneFuture() {
         DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(null, null, MigrationVersion.LATEST);
 
-        List<MigrationInfo> availableMigrations = Arrays.asList(createAvailableMigration(1));
-        List<MigrationInfo> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
+        List<MigrationInfoImpl> availableMigrations = Arrays.asList(createAvailableMigration(1));
+        List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
 
         MigrationInfos migrationInfos = dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
@@ -92,8 +92,8 @@ public class DbInfoAggregatorSmallTest {
     public void preInit() {
         DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(null, null, MigrationVersion.LATEST);
 
-        List<MigrationInfo> availableMigrations = Arrays.asList(createAvailableMigration(1));
-        List<MigrationInfo> appliedMigrations = Arrays.asList(createAppliedInitMigration(2));
+        List<MigrationInfoImpl> availableMigrations = Arrays.asList(createAvailableMigration(1));
+        List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedInitMigration(2));
 
         MigrationInfos migrationInfos = dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
@@ -107,8 +107,8 @@ public class DbInfoAggregatorSmallTest {
     public void missing() {
         DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(null, null, MigrationVersion.LATEST);
 
-        List<MigrationInfo> availableMigrations = Arrays.asList(createAvailableMigration(2));
-        List<MigrationInfo> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
+        List<MigrationInfoImpl> availableMigrations = Arrays.asList(createAvailableMigration(2));
+        List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
 
         MigrationInfos migrationInfos = dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
@@ -124,7 +124,7 @@ public class DbInfoAggregatorSmallTest {
      * @param version The version of the migration.
      * @return The available migration.
      */
-    private MigrationInfo createAvailableMigration(int version) {
+    private MigrationInfoImpl createAvailableMigration(int version) {
         return new MigrationInfoImpl(new MigrationVersion(Integer.toString(version)), "abc", "x", null, MigrationType.SQL);
     }
 
@@ -134,10 +134,12 @@ public class DbInfoAggregatorSmallTest {
      * @param version The version of the migration.
      * @return The applied migration.
      */
-    private MigrationInfo createAppliedMigration(int version) {
+    private MigrationInfoImpl createAppliedMigration(int version) {
         MigrationInfoImpl migrationInfo =
                 new MigrationInfoImpl(new MigrationVersion(Integer.toString(version)), "abc", "x", null, MigrationType.SQL);
-        migrationInfo.addExecutionDetails(new Date(), 123, MigrationState.SUCCESS);
+        migrationInfo.setInstalledOn(new Date());
+        migrationInfo.setExecutionTime(123);
+        migrationInfo.setState(MigrationState.SUCCESS);
         return migrationInfo;
     }
 
@@ -147,9 +149,11 @@ public class DbInfoAggregatorSmallTest {
      * @param version The version of the migration.
      * @return The applied init migration.
      */
-    private MigrationInfo createAppliedInitMigration(int version) {
+    private MigrationInfoImpl createAppliedInitMigration(int version) {
         MigrationInfoImpl migrationInfo = new MigrationInfoImpl(new MigrationVersion(Integer.toString(version)), "abc", "x", null, MigrationType.INIT);
-        migrationInfo.addExecutionDetails(new Date(), 123, MigrationState.SUCCESS);
+        migrationInfo.setInstalledOn(new Date());
+        migrationInfo.setExecutionTime(123);
+        migrationInfo.setState(MigrationState.SUCCESS);
         return migrationInfo;
     }
 }

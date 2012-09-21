@@ -16,7 +16,7 @@
 package com.googlecode.flyway.core.migration.java;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.java.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.migration.java.dummy.Version3dot5;
 import org.junit.Test;
@@ -37,19 +37,19 @@ public class JavaMigrationResolverSmallTest {
     public void resolveMigrations() {
         JavaMigrationResolver javaMigrationResolver =
                 new JavaMigrationResolver("com/googlecode/flyway/core/migration/java/dummy");
-        Collection<ExecutableMigration> migrations = javaMigrationResolver.resolveMigrations();
+        Collection<MigrationInfoImpl> migrations = javaMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
 
-        List<ExecutableMigration> migrationList = new ArrayList<ExecutableMigration>(migrations);
+        List<MigrationInfo> migrationList = new ArrayList<MigrationInfo>(migrations);
         Collections.sort(migrationList);
 
-        MigrationInfo migrationInfo = migrationList.get(0).getInfo();
+        MigrationInfo migrationInfo = migrationList.get(0);
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
         assertNull(migrationInfo.getChecksum());
 
-        MigrationInfo migrationInfo1 = migrationList.get(1).getInfo();
+        MigrationInfo migrationInfo1 = migrationList.get(1);
         assertEquals("3.5", migrationInfo1.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo1.getDescription());
         assertEquals(35, migrationInfo1.getChecksum().intValue());

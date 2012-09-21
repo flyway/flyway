@@ -77,7 +77,9 @@ public class DbInit {
 
         final MigrationInfoImpl migrationInfo =
                 new MigrationInfoImpl(initialVersion, initialDescription, initialDescription, null, MigrationType.INIT);
-        migrationInfo.addExecutionDetails(new Date(), 0, MigrationState.SUCCESS);
+        migrationInfo.setInstalledOn(new Date());
+        migrationInfo.setExecutionTime(0);
+        migrationInfo.setState(MigrationState.SUCCESS);
 
         transactionTemplate.execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {

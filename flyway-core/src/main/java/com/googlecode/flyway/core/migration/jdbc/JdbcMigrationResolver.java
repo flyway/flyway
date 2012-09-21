@@ -15,16 +15,14 @@
  */
 package com.googlecode.flyway.core.migration.jdbc;
 
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
 import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.exception.FlywayException;
-import com.googlecode.flyway.core.migration.ExecutableMigration;
-import com.googlecode.flyway.core.migration.MigrationExecutor;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
@@ -52,8 +50,8 @@ public class JdbcMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    public List<ExecutableMigration> resolveMigrations() {
-        List<ExecutableMigration> migrations = new ArrayList<ExecutableMigration>();
+    public List<MigrationInfoImpl> resolveMigrations() {
+        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
 
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, JdbcMigration.class);
@@ -61,10 +59,10 @@ public class JdbcMigrationResolver implements MigrationResolver {
                 JdbcMigration jdbcMigration = (JdbcMigration) ClassUtils.instantiate(clazz.getName());
 
                 MigrationInfoImpl migrationInfo = extractMigrationInfo(jdbcMigration);
-                String physicalLocation = ClassUtils.getLocationOnDisk(clazz);
-                MigrationExecutor migrationExecutor = new JdbcMigrationExecutor(jdbcMigration);
+                migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
+                migrationInfo.setExecutor(new JdbcMigrationExecutor(jdbcMigration));
 
-                migrations.add(new ExecutableMigration(migrationInfo, physicalLocation, migrationExecutor));
+                migrations.add(migrationInfo);
             }
         } catch (Exception e) {
             throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + basePackage, e);

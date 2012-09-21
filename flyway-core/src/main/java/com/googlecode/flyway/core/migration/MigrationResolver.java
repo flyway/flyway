@@ -26,5 +26,5 @@ public interface MigrationResolver {
      *
      * @return The available migrations. Sorted by Version, oldest first.
      */
-    List<ExecutableMigration> resolveMigrations();
+    List<MigrationInfoImpl> resolveMigrations();
 }

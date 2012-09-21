@@ -183,10 +183,10 @@ public abstract class MigrationTestCase {
                 "UTF-8",
                 "V",
                 ".sql");
-        List<ExecutableMigration> migrations = sqlMigrationResolver.resolveMigrations();
-        for (ExecutableMigration migration : migrations) {
-            if (migration.getInfo().getVersion().toString().equals(appliedMigration.getVersion().toString())) {
-                assertEquals("Wrong checksum for " + appliedMigration.getScript(), migration.getInfo().getChecksum(), appliedMigration.getChecksum());
+        List<MigrationInfoImpl> migrations = sqlMigrationResolver.resolveMigrations();
+        for (MigrationInfo migration : migrations) {
+            if (migration.getVersion().toString().equals(appliedMigration.getVersion().toString())) {
+                assertEquals("Wrong checksum for " + appliedMigration.getScript(), migration.getChecksum(), appliedMigration.getChecksum());
             }
         }
     }
