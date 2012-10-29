@@ -83,13 +83,15 @@ public class FlywayMediumTest {
         assertEquals(4, flyway.info().pending().length);
 
         flyway.setTarget(new MigrationVersion("1.1"));
-        assertEquals(2, flyway.info().all().length);
+        assertEquals(4, flyway.info().all().length);
         assertEquals(2, flyway.info().pending().length);
+        assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[2].getState());
+        assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
 
         flyway.migrate();
         assertEquals("1.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
-        assertEquals(2, flyway.info().all().length);
+        assertEquals(4, flyway.info().all().length);
         assertEquals(0, flyway.info().pending().length);
 
         flyway.setTarget(MigrationVersion.LATEST);

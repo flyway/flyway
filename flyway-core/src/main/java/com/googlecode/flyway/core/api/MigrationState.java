@@ -22,12 +22,17 @@ public enum MigrationState {
     /**
      * This migration has not been applied yet.
      */
-    PENDING("Pending", false, false),
+    PENDING("Pending", true, false, false),
+
+    /**
+     * This migration has not been applied yet, and won't be applied because target is set to a lower version.
+     */
+    ABOVE_TARGET(">Target", true, false, false),
 
     /**
      * This migration was not applied against this DB, because the metadata table was initialized with a higher version.
      */
-    PREINIT("PreInit", false, false),
+    PREINIT("PreInit", true, false, false),
 
     /**
      * <p>This usually indicates a problem.</p>
@@ -37,7 +42,7 @@ public enum MigrationState {
      * </p>
      * <p>Fix by increasing the version number or clean and migrate again.</p>
      */
-    IGNORED("Ignored", false, false),
+    IGNORED("Ignored", true, false, false),
 
     /**
      * <p>This migration succeeded.</p>
@@ -46,7 +51,7 @@ public enum MigrationState {
      * This usually results from multiple older migration files being consolidated into a single one.
      * </p>
      */
-    MISSING_SUCCESS("Missing", true, false),
+    MISSING_SUCCESS("Missing", false, true, false),
 
     /**
      * <p>This migration failed.</p>
@@ -56,17 +61,17 @@ public enum MigrationState {
      * </p>
      * <p>This should rarely, if ever, occur in practice.</p>
      */
-    MISSING_FAILED("MisFail", true, true),
+    MISSING_FAILED("MisFail", false, true, true),
 
     /**
      * This migration succeeded.
      */
-    SUCCESS("Success", true, false),
+    SUCCESS("Success", true, true, false),
 
     /**
      * This migration failed.
      */
-    FAILED("Failed", true, true),
+    FAILED("Failed", true, true, true),
 
     /**
      * <p>This migration succeeded.</p>
@@ -76,7 +81,7 @@ public enum MigrationState {
      * It was most likely successfully installed by a future version of this deployable.
      * </p>
      */
-    FUTURE_SUCCESS("Future", true, false),
+    FUTURE_SUCCESS("Future", false, true, false),
 
     /**
      * <p>This migration failed.</p>
@@ -86,12 +91,17 @@ public enum MigrationState {
      * It most likely failed during the installation of a future version of this deployable.
      * </p>
      */
-    FUTURE_FAILED("FutFail", true, true);
+    FUTURE_FAILED("FutFail", false, true, true);
 
     /**
      * The name suitable for display to the end-user.
      */
     private final String displayName;
+
+    /**
+     * Flag indicating if this migration is available on the classpath or not.
+     */
+    private final boolean available;
 
     /**
      * Flag indicating if this migration has been applied or not.
@@ -107,11 +117,13 @@ public enum MigrationState {
      * Creates a new MigrationState.
      *
      * @param displayName The name suitable for display to the end-user.
+     * @param available   Flag indicating if this migration is available on the classpath or not.
      * @param applied     Flag indicating if this migration has been applied or not.
      * @param failed      Flag indicating if this migration has failed when it was applied or not.
      */
-    MigrationState(String displayName, boolean applied, boolean failed) {
+    MigrationState(String displayName, boolean available, boolean applied, boolean failed) {
         this.displayName = displayName;
+        this.available = available;
         this.applied = applied;
         this.failed = failed;
     }
@@ -121,6 +133,13 @@ public enum MigrationState {
      */
     public String getDisplayName() {
         return displayName;
+    }
+
+    /**
+     * @return Flag indicating if this migration is available on the classpath or not.
+     */
+    public boolean isAvailable() {
+        return available;
     }
 
     /**

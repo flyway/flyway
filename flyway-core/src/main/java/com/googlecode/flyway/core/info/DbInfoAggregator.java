@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.info;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationInfos;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
@@ -26,7 +24,6 @@ import com.googlecode.flyway.core.migration.MigrationInfosImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -68,11 +65,13 @@ public class DbInfoAggregator {
      *
      * @return The info about the migrations.
      */
-    public MigrationInfos aggregateMigrationInfo() {
+    public MigrationInfosImpl aggregateMigrationInfo() {
         List<MigrationInfoImpl> availableMigrations = migrationResolver.resolveMigrations();
         List<MigrationInfoImpl> appliedMigrations = metaDataTable.allAppliedMigrations();
 
-        return mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
+        List<MigrationInfoImpl> allMigrations = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
+
+        return new MigrationInfosImpl(allMigrations);
     }
 
     /**
@@ -83,11 +82,15 @@ public class DbInfoAggregator {
      * @return The complete list of migrations.
      */
     /* private -> testing */
-    MigrationInfos mergeAvailableAndAppliedMigrations(List<MigrationInfoImpl> availableMigrations, List<MigrationInfoImpl> appliedMigrations) {
+    List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(List<MigrationInfoImpl> availableMigrations, List<MigrationInfoImpl> appliedMigrations) {
         Map<MigrationVersion, MigrationInfoImpl> allMigrationsMap = new TreeMap<MigrationVersion, MigrationInfoImpl>();
 
         for (MigrationInfoImpl availableMigration : availableMigrations) {
-            allMigrationsMap.put(availableMigration.getVersion(), availableMigration);
+            MigrationVersion version = availableMigration.getVersion();
+            if (version.compareTo(target) > 0) {
+                availableMigration.setState(MigrationState.ABOVE_TARGET);
+            }
+            allMigrationsMap.put(version, availableMigration);
         }
 
         MigrationVersion lastAvailableVersion = MigrationVersion.EMPTY;
@@ -139,25 +142,6 @@ public class DbInfoAggregator {
             }
         }
 
-        List<MigrationInfo> allMigrations = new ArrayList<MigrationInfo>(allMigrationsMap.values());
-
-        filterOutMigrationsAboveTarget(allMigrations);
-
-        return new MigrationInfosImpl(allMigrations);
-    }
-
-    /**
-     * Filters out the migrations from this list that have a version newer than target.
-     *
-     * @param migrations The list to filter.
-     */
-    private void filterOutMigrationsAboveTarget(List<MigrationInfo> migrations) {
-        Iterator<MigrationInfo> iterator = migrations.iterator();
-        while (iterator.hasNext()) {
-            MigrationInfo info = iterator.next();
-            if (info.getVersion().compareTo(target) > 0) {
-                iterator.remove();
-            }
-        }
+        return new ArrayList<MigrationInfoImpl>(allMigrationsMap.values());
     }
 }

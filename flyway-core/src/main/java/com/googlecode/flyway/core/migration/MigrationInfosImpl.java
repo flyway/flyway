@@ -27,19 +27,19 @@ public class MigrationInfosImpl implements MigrationInfos {
     /**
      * The migration infos.
      */
-    private final List<MigrationInfo> migrationInfos;
+    private final List<? extends MigrationInfo> migrationInfos;
 
     /**
      * Creates a new migrationInfos based on these migration infos.
      *
      * @param migrationInfos The migration infos.
      */
-    public MigrationInfosImpl(List<MigrationInfo> migrationInfos) {
+    public MigrationInfosImpl(List<? extends MigrationInfo> migrationInfos) {
         this.migrationInfos = migrationInfos;
     }
 
-    public MigrationInfo[] all() {
-        return migrationInfos.toArray(new MigrationInfo[migrationInfos.size()]);
+    public MigrationInfoImpl[] all() {
+        return migrationInfos.toArray(new MigrationInfoImpl[migrationInfos.size()]);
     }
 
     public MigrationInfo current() {
@@ -73,5 +73,19 @@ public class MigrationInfosImpl implements MigrationInfos {
         }
 
         return pendingMigrations.toArray(new MigrationInfo[pendingMigrations.size()]);
+    }
+
+    /**
+     * @return The last (highest version) available migration.
+     */
+    public MigrationInfo lastAvailable() {
+        for (int i = migrationInfos.size() - 1; i >= 0; i--) {
+            MigrationInfo migrationInfo = migrationInfos.get(i);
+            if (migrationInfo.getState().isAvailable()) {
+                return migrationInfo;
+            }
+        }
+
+        return null;
     }
 }

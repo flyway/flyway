@@ -795,18 +795,22 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                List<MigrationInfoImpl> availableMigrations = createMigrationResolver().resolveMigrations();
+                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
+                MigrationResolver migrationResolver = createMigrationResolver();
+
+                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(migrationResolver, metaDataTable, target);
+
+                List<MigrationInfoImpl> availableMigrations = migrationResolver.resolveMigrations();
                 if (availableMigrations.isEmpty()) {
                     return 0;
                 }
 
-                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
                 if (validateOnMigrate) {
                     doValidate(connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
                 }
 
-                if (MigrationVersion.EMPTY.equals(metaDataTable.getCurrentSchemaVersion())) {
+                if (dbInfoAggregator.aggregateMigrationInfo().current() == null) {
                     List<String> nonEmptySchemas = nonEmptySchemas(dbSupport);
                     if (nonEmptySchemas.isEmpty()) {
                         metaDataTable.createIfNotExists();
@@ -830,7 +834,7 @@ public class Flyway {
 
                 DbMigrator dbMigrator =
                         new DbMigrator(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
-                return dbMigrator.migrate(availableMigrations);
+                return dbMigrator.migrate(migrationResolver.resolveMigrations());
             }
         });
     }
@@ -980,7 +984,7 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the complete information about the migrations including applied, pending and current migrations with
+     * Retrieves the complete information about all the migrations including applied, pending and current migrations with
      * details and status.
      *
      * @return All migrations sorted by version, oldest first.
@@ -990,7 +994,8 @@ public class Flyway {
         return execute(new Command<MigrationInfos>() {
             public MigrationInfos execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                return new DbInfoAggregator(createMigrationResolver(), metaDataTable, target).aggregateMigrationInfo();
+                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(createMigrationResolver(), metaDataTable, target);
+                return dbInfoAggregator.aggregateMigrationInfo();
             }
         });
     }
