@@ -22,8 +22,8 @@ import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
@@ -50,15 +50,15 @@ public class JdbcMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    public List<MigrationInfoImpl> resolveMigrations() {
-        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
+    public List<ResolvedMigration> resolveMigrations() {
+        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, JdbcMigration.class);
             for (Class<?> clazz : classes) {
                 JdbcMigration jdbcMigration = (JdbcMigration) ClassUtils.instantiate(clazz.getName());
 
-                MigrationInfoImpl migrationInfo = extractMigrationInfo(jdbcMigration);
+                ResolvedMigration migrationInfo = extractMigrationInfo(jdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
                 migrationInfo.setExecutor(new JdbcMigrationExecutor(jdbcMigration));
 
@@ -78,7 +78,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
      * @param jdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ MigrationInfoImpl extractMigrationInfo(JdbcMigration jdbcMigration) {
+    /* private -> testing */ ResolvedMigration extractMigrationInfo(JdbcMigration jdbcMigration) {
         Integer checksum = null;
         if (jdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
@@ -101,6 +101,13 @@ public class JdbcMigrationResolver implements MigrationResolver {
 
         String script = jdbcMigration.getClass().getName();
 
-        return new MigrationInfoImpl(version, description, script, checksum, MigrationType.JDBC);
+
+        ResolvedMigration resolvedMigration = new ResolvedMigration();
+        resolvedMigration.setVersion(version);
+        resolvedMigration.setDescription(description);
+        resolvedMigration.setScript(script);
+        resolvedMigration.setChecksum(checksum);
+        resolvedMigration.setType(MigrationType.JDBC);
+        return resolvedMigration;
     }
 }

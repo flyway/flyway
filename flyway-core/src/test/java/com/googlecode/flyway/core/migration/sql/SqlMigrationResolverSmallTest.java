@@ -15,8 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.sql;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -44,11 +43,11 @@ public class SqlMigrationResolverSmallTest {
     public void resolveMigrations() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver("migration/subdir", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
-        Collection<MigrationInfoImpl> migrations = sqlMigrationResolver.resolveMigrations();
+        Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
 
-        List<MigrationInfo> migrationList = new ArrayList<MigrationInfo>(migrations);
+        List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
         Collections.sort(migrationList);
 
         assertEquals("1", migrationList.get(0).getVersion().toString());

@@ -15,8 +15,7 @@
  */
 package com.googlecode.flyway.core.migration.jdbc;
 
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.migration.jdbc.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.migration.jdbc.dummy.Version3dot5;
 import org.junit.Test;
@@ -37,19 +36,19 @@ public class JdbcMigrationResolverSmallTest {
     public void resolveMigrations() {
         JdbcMigrationResolver jdbcMigrationResolver =
                 new JdbcMigrationResolver("com/googlecode/flyway/core/migration/jdbc/dummy");
-        Collection<MigrationInfoImpl> migrations = jdbcMigrationResolver.resolveMigrations();
+        Collection<ResolvedMigration> migrations = jdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
 
-        List<MigrationInfo> migrationList = new ArrayList<MigrationInfo>(migrations);
+        List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
         Collections.sort(migrationList);
 
-        MigrationInfo migrationInfo = migrationList.get(0);
+        ResolvedMigration migrationInfo = migrationList.get(0);
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
         assertNull(migrationInfo.getChecksum());
 
-        MigrationInfo migrationInfo1 = migrationList.get(1);
+        ResolvedMigration migrationInfo1 = migrationList.get(1);
         assertEquals("3.5", migrationInfo1.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo1.getDescription());
         assertEquals(35, migrationInfo1.getChecksum().intValue());
@@ -58,7 +57,7 @@ public class JdbcMigrationResolverSmallTest {
     @Test
     public void conventionOverConfiguration() {
         JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(null);
-        MigrationInfo migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
+        ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
         assertNull(migrationInfo.getChecksum());
@@ -67,7 +66,7 @@ public class JdbcMigrationResolverSmallTest {
     @Test
     public void explicitInfo() {
         JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(null);
-        MigrationInfo migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
+        ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
         assertEquals("3.5", migrationInfo.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo.getDescription());
         assertEquals(35, migrationInfo.getChecksum().intValue());

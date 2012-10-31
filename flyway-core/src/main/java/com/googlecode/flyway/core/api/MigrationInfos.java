@@ -34,13 +34,6 @@ public interface MigrationInfos {
     MigrationInfo current();
 
     /**
-     * Retrieves the information of the failed migration, if any.
-     *
-     * @return The info. {@code null} all migrations were successful.
-     */
-    MigrationInfo failed();
-
-    /**
      * Retrieves the full set of infos about pending migrations, available locally, but not yet applied to the DB.
      *
      * @return The pending migrations. An empty array if none.

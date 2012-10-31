@@ -22,6 +22,7 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationInfosImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,16 +49,26 @@ public class DbInfoAggregator {
     private final MigrationVersion target;
 
     /**
+     * Allows migrations to be run "out of order".
+     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
+     * it will be applied too instead of being ignored.</p>
+     * <p>(default: {@code false})</p>
+     */
+    private boolean outOfOrder;
+
+    /**
      * Creates a new info aggregator.
      *
      * @param migrationResolver The migration resolver for available migrations.
      * @param metaDataTable     The metadata table for applied migrations.
      * @param target            The target version up to which to retrieve the info.
+     * @param outOfOrder        Allows migrations to be run "out of order".
      */
-    public DbInfoAggregator(MigrationResolver migrationResolver, MetaDataTable metaDataTable, MigrationVersion target) {
+    public DbInfoAggregator(MigrationResolver migrationResolver, MetaDataTable metaDataTable, MigrationVersion target, boolean outOfOrder) {
         this.migrationResolver = migrationResolver;
         this.metaDataTable = metaDataTable;
         this.target = target;
+        this.outOfOrder = outOfOrder;
     }
 
     /**
@@ -66,7 +77,7 @@ public class DbInfoAggregator {
      * @return The info about the migrations.
      */
     public MigrationInfosImpl aggregateMigrationInfo() {
-        List<MigrationInfoImpl> availableMigrations = migrationResolver.resolveMigrations();
+        List<ResolvedMigration> availableMigrations = migrationResolver.resolveMigrations();
         List<MigrationInfoImpl> appliedMigrations = metaDataTable.allAppliedMigrations();
 
         List<MigrationInfoImpl> allMigrations = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
@@ -82,15 +93,21 @@ public class DbInfoAggregator {
      * @return The complete list of migrations.
      */
     /* private -> testing */
-    List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(List<MigrationInfoImpl> availableMigrations, List<MigrationInfoImpl> appliedMigrations) {
+    List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(List<ResolvedMigration> availableMigrations, List<MigrationInfoImpl> appliedMigrations) {
         Map<MigrationVersion, MigrationInfoImpl> allMigrationsMap = new TreeMap<MigrationVersion, MigrationInfoImpl>();
 
-        for (MigrationInfoImpl availableMigration : availableMigrations) {
+        for (ResolvedMigration availableMigration : availableMigrations) {
             MigrationVersion version = availableMigration.getVersion();
+
+            MigrationInfoImpl migration = new MigrationInfoImpl(
+                    version, availableMigration.getDescription(), availableMigration.getScript(),
+                    availableMigration.getChecksum(), availableMigration.getType());
+
             if (version.compareTo(target) > 0) {
-                availableMigration.setState(MigrationState.ABOVE_TARGET);
+                migration.setState(MigrationState.ABOVE_TARGET);
             }
-            allMigrationsMap.put(version, availableMigration);
+
+            allMigrationsMap.put(version, migration);
         }
 
         MigrationVersion lastAvailableVersion = MigrationVersion.EMPTY;
@@ -136,7 +153,8 @@ public class DbInfoAggregator {
 
             for (MigrationInfoImpl migrationInfo : allMigrationsMap.values()) {
                 if ((migrationInfo.getVersion().compareTo(lastAppliedVersion) < 0)
-                        && MigrationState.PENDING.equals(migrationInfo.getState())) {
+                        && MigrationState.PENDING.equals(migrationInfo.getState())
+                        && !outOfOrder) {
                     migrationInfo.setState(MigrationState.IGNORED);
                 }
             }

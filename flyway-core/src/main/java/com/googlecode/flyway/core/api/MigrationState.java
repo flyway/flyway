@@ -40,7 +40,7 @@ public enum MigrationState {
      * This migration was not applied against this DB, because a migration with a higher version has already been
      * applied. This probably means some checkins happened out of order.
      * </p>
-     * <p>Fix by increasing the version number or clean and migrate again.</p>
+     * <p>Fix by increasing the version number, run clean and migrate again or rerun migration with outOfOrder enabled.</p>
      */
     IGNORED("Ignored", true, false, false),
 
@@ -72,6 +72,15 @@ public enum MigrationState {
      * This migration failed.
      */
     FAILED("Failed", true, true, true),
+
+    /**
+     * <p>This migration succeeded.</p>
+     * <p>
+     * This migration succeeded, but it was applied out of order.
+     * Rerunning the entire migration history might produce different results!
+     * </p>
+     */
+    OUT_OF_ORDER("OutOrder", true, true, false),
 
     /**
      * <p>This migration succeeded.</p>

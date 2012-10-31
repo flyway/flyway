@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.validation;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.ObjectUtils;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -57,7 +58,7 @@ public class DbValidator {
      * @param migrations All migrations available on the classpath, sorted by version, newest first.
      * @return description of validation error or NULL if no validation error was found
      */
-    public String validate(List<? extends MigrationInfo> migrations) {
+    public String validate(List<ResolvedMigration> migrations) {
         LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -74,9 +75,9 @@ public class DbValidator {
             final MigrationVersion initVersion = firstAppliedMigration.getVersion();
             appliedMigrations.remove(firstAppliedMigration);
 
-            Iterator<? extends MigrationInfo> iterator = migrations.iterator();
+            Iterator<ResolvedMigration> iterator = migrations.iterator();
             while (iterator.hasNext()) {
-                MigrationInfo migration = iterator.next();
+                ResolvedMigration migration = iterator.next();
                 if (migration.getVersion().compareTo(initVersion) <= 0) {
                     iterator.remove();
                 }
@@ -88,7 +89,7 @@ public class DbValidator {
             for (MigrationInfo metaDataTableRow : appliedMigrations) {
                 schemaVersions.add(new MigrationVersion(metaDataTableRow.getVersion().toString()));
             }
-            for (MigrationInfo migration : migrations) {
+            for (ResolvedMigration migration : migrations) {
                 schemaVersions.remove(migration.getVersion());
             }
 
@@ -101,7 +102,7 @@ public class DbValidator {
         for (int i = 0; i < appliedMigrations.size(); i++) {
             MigrationInfo appliedMigration = appliedMigrations.get(i);
             //Migrations are sorted in the opposite order: newest first.
-            MigrationInfo classpathMigration = migrations.get(i);
+            ResolvedMigration classpathMigration = migrations.get(i);
 
             if (!new MigrationVersion(appliedMigration.getVersion().toString())
                     .equals(classpathMigration.getVersion())) {

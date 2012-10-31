@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
@@ -47,15 +48,15 @@ public class JavaMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    public List<MigrationInfoImpl> resolveMigrations() {
-        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
+    public List<ResolvedMigration> resolveMigrations() {
+        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, JavaMigration.class);
             for (Class<?> clazz : classes) {
                 JavaMigration javaMigration = (JavaMigration) ClassUtils.instantiate(clazz.getName());
 
-                MigrationInfoImpl migrationInfo = extractMigrationInfo(javaMigration);
+                ResolvedMigration migrationInfo = extractMigrationInfo(javaMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
                 migrationInfo.setExecutor(new JavaMigrationExecutor(javaMigration));
 
@@ -75,7 +76,7 @@ public class JavaMigrationResolver implements MigrationResolver {
      * @param javaMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ MigrationInfoImpl extractMigrationInfo(JavaMigration javaMigration) {
+    /* private -> testing */ ResolvedMigration extractMigrationInfo(JavaMigration javaMigration) {
         Integer checksum = null;
         if (javaMigration instanceof JavaMigrationChecksumProvider) {
             JavaMigrationChecksumProvider checksumProvider = (JavaMigrationChecksumProvider) javaMigration;
@@ -97,6 +98,13 @@ public class JavaMigrationResolver implements MigrationResolver {
         }
 
         String script = javaMigration.getClass().getName();
-        return new MigrationInfoImpl(version, description, script, checksum, MigrationType.JAVA);
+
+        ResolvedMigration resolvedMigration = new ResolvedMigration();
+        resolvedMigration.setVersion(version);
+        resolvedMigration.setDescription(description);
+        resolvedMigration.setScript(script);
+        resolvedMigration.setChecksum(checksum);
+        resolvedMigration.setType(MigrationType.JAVA);
+        return resolvedMigration;
     }
 }

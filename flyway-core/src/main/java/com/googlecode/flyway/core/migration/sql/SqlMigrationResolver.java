@@ -18,8 +18,8 @@ package com.googlecode.flyway.core.migration.sql;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
@@ -77,15 +77,15 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
 
-    public List<MigrationInfoImpl> resolveMigrations() {
-        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
+    public List<ResolvedMigration> resolveMigrations() {
+        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         try {
             ClassPathResource[] resources =
                     new ClassPathScanner().scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
 
             for (ClassPathResource resource : resources) {
-                MigrationInfoImpl migrationInfo = extractMigrationInfo(resource);
+                ResolvedMigration migrationInfo = extractMigrationInfo(resource);
                 migrationInfo.setPhysicalLocation(resource.getLocationOnDisk());
                 migrationInfo.setExecutor(new SqlMigrationExecutor(resource, placeholderReplacer, encoding));
 
@@ -105,7 +105,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param resource The resource to analyse.
      * @return The migration info.
      */
-    private MigrationInfoImpl extractMigrationInfo(ClassPathResource resource) {
+    private ResolvedMigration extractMigrationInfo(ClassPathResource resource) {
         final String versionString =
                 extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
         String scriptName = resource.getLocation().substring(resource.getLocation().indexOf(location) + location.length() + "/".length());
@@ -113,12 +113,13 @@ public class SqlMigrationResolver implements MigrationResolver {
         String sqlScriptSource = resource.loadAsString(encoding);
         int checksum = calculateChecksum(sqlScriptSource);
 
-        return new MigrationInfoImpl(
-                MigrationInfoHelper.extractVersion(versionString),
-                MigrationInfoHelper.extractDescription(versionString),
-                scriptName,
-                checksum,
-                MigrationType.SQL);
+        ResolvedMigration migration = new ResolvedMigration();
+        migration.setVersion(MigrationInfoHelper.extractVersion(versionString));
+        migration.setDescription(MigrationInfoHelper.extractDescription(versionString));
+        migration.setScript(scriptName);
+        migration.setChecksum(checksum);
+        migration.setType(MigrationType.SQL);
+        return migration;
     }
 
     /**

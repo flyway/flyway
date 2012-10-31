@@ -15,18 +15,15 @@
  */
 package com.googlecode.flyway.core.init;
 
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
-import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
-
-import java.util.Date;
 
 /**
  * Workflow for initializing the database with a new metadata table and an initial marker version.
@@ -75,19 +72,19 @@ public class DbInit {
 
         metaDataTable.createIfNotExists();
 
-        final MigrationInfoImpl migrationInfo =
-                new MigrationInfoImpl(initialVersion, initialDescription, initialDescription, null, MigrationType.INIT);
-        migrationInfo.setInstalledOn(new Date());
-        migrationInfo.setExecutionTime(0);
-        migrationInfo.setState(MigrationState.SUCCESS);
+        final ResolvedMigration resolvedMigration = new ResolvedMigration();
+        resolvedMigration.setVersion(initialVersion);
+        resolvedMigration.setDescription(initialDescription);
+        resolvedMigration.setScript(initialDescription);
+        resolvedMigration.setType(MigrationType.INIT);
 
         transactionTemplate.execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-                metaDataTable.insert(migrationInfo);
+                metaDataTable.insert(resolvedMigration, true, 0);
                 return null;
             }
         });
 
-        LOG.info("Schema initialized with version: " + migrationInfo.getVersion());
+        LOG.info("Schema initialized with version: " + initialVersion);
     }
 }

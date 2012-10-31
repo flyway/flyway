@@ -38,6 +38,7 @@ public class MigrationInfosImpl implements MigrationInfos {
         this.migrationInfos = migrationInfos;
     }
 
+    @SuppressWarnings("SuspiciousToArrayCall")
     public MigrationInfoImpl[] all() {
         return migrationInfos.toArray(new MigrationInfoImpl[migrationInfos.size()]);
     }
@@ -46,17 +47,6 @@ public class MigrationInfosImpl implements MigrationInfos {
         for (int i = migrationInfos.size() - 1; i >= 0; i--) {
             MigrationInfo migrationInfo = migrationInfos.get(i);
             if (migrationInfo.getState().isApplied()) {
-                return migrationInfo;
-            }
-        }
-
-        return null;
-    }
-
-    public MigrationInfo failed() {
-        for (int i = migrationInfos.size() - 1; i >= 0; i--) {
-            MigrationInfo migrationInfo = migrationInfos.get(i);
-            if (migrationInfo.getState().isFailed()) {
                 return migrationInfo;
             }
         }
@@ -73,19 +63,5 @@ public class MigrationInfosImpl implements MigrationInfos {
         }
 
         return pendingMigrations.toArray(new MigrationInfo[pendingMigrations.size()]);
-    }
-
-    /**
-     * @return The last (highest version) available migration.
-     */
-    public MigrationInfo lastAvailable() {
-        for (int i = migrationInfos.size() - 1; i >= 0; i--) {
-            MigrationInfo migrationInfo = migrationInfos.get(i);
-            if (migrationInfo.getState().isAvailable()) {
-                return migrationInfo;
-            }
-        }
-
-        return null;
     }
 }

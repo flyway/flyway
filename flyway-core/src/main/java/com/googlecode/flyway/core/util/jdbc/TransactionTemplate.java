@@ -60,7 +60,7 @@ public class TransactionTemplate {
                 throw new TransactionException("Transaction failed!", e);
             } catch (SQLException se) {
                 LOG.error("Unable to rollback transaction", e);
-                throw new TransactionException("Error while executing transaction. Roll back failed!", e);
+                throw new TransactionException("Error while executing transaction. Roll back failed!", se);
             }
         } catch (RuntimeException e) {
             try {
@@ -68,7 +68,7 @@ public class TransactionTemplate {
                 throw e;
             } catch (SQLException se) {
                 LOG.error("Unable to rollback transaction", e);
-                throw new TransactionException("Error while executing transaction. Roll back failed!", e);
+                throw new TransactionException("Error while executing transaction. Roll back failed!", se);
             }
         }
     }

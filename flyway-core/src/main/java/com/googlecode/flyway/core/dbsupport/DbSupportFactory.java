@@ -55,9 +55,6 @@ public class DbSupportFactory {
      */
     public static DbSupport createDbSupport(Connection connection) {
         String databaseProductName = getDatabaseProductName(connection);
-        if (databaseProductName == null) {
-            throw new FlywayException("Unable to determine database. Product name is null.");
-        }
 
         LOG.debug("Database: " + databaseProductName);
 
@@ -107,9 +104,15 @@ public class DbSupportFactory {
             if (databaseMetaData == null) {
                 throw new FlywayException("Unable to read database metadata while it is null!");
             }
+
             String databaseProductName = databaseMetaData.getDatabaseProductName();
+            if (databaseProductName == null) {
+                throw new FlywayException("Unable to determine database. Product name is null.");
+            }
+
             int databaseMajorVersion = databaseMetaData.getDatabaseMajorVersion();
             int databaseMinorVersion = databaseMetaData.getDatabaseMinorVersion();
+
             return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
             throw new FlywayException("Error while determining database product name", e);

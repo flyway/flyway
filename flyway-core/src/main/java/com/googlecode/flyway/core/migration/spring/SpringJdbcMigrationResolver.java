@@ -22,8 +22,8 @@ import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
 import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
@@ -50,15 +50,15 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         this.basePackage = basePackage;
     }
 
-    public List<MigrationInfoImpl> resolveMigrations() {
-        List<MigrationInfoImpl> migrations = new ArrayList<MigrationInfoImpl>();
+    public List<ResolvedMigration> resolveMigrations() {
+        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
                 SpringJdbcMigration springJdbcMigration = (SpringJdbcMigration) ClassUtils.instantiate(clazz.getName());
 
-                MigrationInfoImpl migrationInfo = extractMigrationInfo(springJdbcMigration);
+                ResolvedMigration migrationInfo = extractMigrationInfo(springJdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
                 migrationInfo.setExecutor(new SpringJdbcMigrationExecutor(springJdbcMigration));
 
@@ -78,7 +78,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
      * @param springJdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ MigrationInfoImpl extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
+    /* private -> testing */ ResolvedMigration extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
         Integer checksum = null;
         if (springJdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) springJdbcMigration;
@@ -101,6 +101,12 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
 
         String script = springJdbcMigration.getClass().getName();
 
-        return new MigrationInfoImpl(version, description, script, checksum, MigrationType.JAVA);
+        ResolvedMigration resolvedMigration = new ResolvedMigration();
+        resolvedMigration.setVersion(version);
+        resolvedMigration.setDescription(description);
+        resolvedMigration.setScript(script);
+        resolvedMigration.setChecksum(checksum);
+        resolvedMigration.setType(MigrationType.JAVA);
+        return resolvedMigration;
     }
 }

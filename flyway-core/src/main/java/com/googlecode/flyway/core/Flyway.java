@@ -32,6 +32,7 @@ import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationType;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -798,16 +799,16 @@ public class Flyway {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 MigrationResolver migrationResolver = createMigrationResolver();
 
-                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(migrationResolver, metaDataTable, target);
+                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(migrationResolver, metaDataTable, target, outOfOrder);
 
-                List<MigrationInfoImpl> availableMigrations = migrationResolver.resolveMigrations();
-                if (availableMigrations.isEmpty()) {
+                List<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations();
+                if (resolvedMigrations.isEmpty()) {
                     return 0;
                 }
 
 
                 if (validateOnMigrate) {
-                    doValidate(connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
+                    doValidate(connectionUserObjects, dbSupport, resolvedMigrations, metaDataTable);
                 }
 
                 if (dbInfoAggregator.aggregateMigrationInfo().current() == null) {
@@ -833,7 +834,7 @@ public class Flyway {
                 }
 
                 DbMigrator dbMigrator =
-                        new DbMigrator(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable, target, ignoreFailedFutureMigration);
+                        new DbMigrator(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable, target, ignoreFailedFutureMigration, outOfOrder);
                 return dbMigrator.migrate(migrationResolver.resolveMigrations());
             }
         });
@@ -868,11 +869,11 @@ public class Flyway {
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                List<MigrationInfoImpl> availableMigrations = createMigrationResolver().resolveMigrations();
+                List<ResolvedMigration> resolvedMigrations = createMigrationResolver().resolveMigrations();
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
-                doValidate(connectionUserObjects, dbSupport, availableMigrations, metaDataTable);
+                doValidate(connectionUserObjects, dbSupport, resolvedMigrations, metaDataTable);
                 return null;
             }
         });
@@ -883,12 +884,12 @@ public class Flyway {
      *
      * @param connectionUserObjects The database connection for user object changes.
      * @param dbSupport             The database-specific support for these connections.
-     * @param availableMigrations   The available migrations on the classpath.
+     * @param resolvedMigrations    The available migrations on the classpath.
      * @param metaDataTable         The metadata table.
      */
-    private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, List<MigrationInfoImpl> availableMigrations, MetaDataTable metaDataTable) {
+    private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, List<ResolvedMigration> resolvedMigrations, MetaDataTable metaDataTable) {
         DbValidator dbValidator = new DbValidator(metaDataTable);
-        final String validationError = dbValidator.validate(availableMigrations);
+        final String validationError = dbValidator.validate(resolvedMigrations);
 
         if (validationError != null) {
             final String msg = "Validate failed. Found differences between applied migrations and available migrations: " + validationError;
@@ -994,7 +995,7 @@ public class Flyway {
         return execute(new Command<MigrationInfos>() {
             public MigrationInfos execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(createMigrationResolver(), metaDataTable, target);
+                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(createMigrationResolver(), metaDataTable, target, outOfOrder);
                 return dbInfoAggregator.aggregateMigrationInfo();
             }
         });

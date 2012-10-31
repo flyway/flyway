@@ -22,6 +22,7 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
+import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
@@ -102,7 +103,7 @@ public class MetaDataTable {
         try {
             return dbSupport.tableExists(schema, table);
         } catch (SQLException e) {
-            throw new FlywayException("Error checking whether table '" + table + "' exists in schema '" + schema + "'",
+            throw new FlywayException("Error checking whether metadata table (" + fullyQualifiedMetadataTableName() + ") exists",
                     e);
         }
     }
@@ -111,7 +112,7 @@ public class MetaDataTable {
      * Creates Flyway's metadata table.
      */
     private void create() {
-        LOG.info("Creating Metadata table: " + table + " (Schema: " + schema + ")");
+        LOG.info("Creating Metadata table: " + fullyQualifiedMetadataTableName());
 
         final String createMetaDataTableScriptSource =
                 new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql").loadAsString("UTF-8");
@@ -129,7 +130,7 @@ public class MetaDataTable {
             }
         });
 
-        LOG.debug("Metadata table created: " + table + " (Schema: " + schema + ")");
+        LOG.debug("Metadata table created: " + fullyQualifiedMetadataTableName());
     }
 
     /**
@@ -148,33 +149,35 @@ public class MetaDataTable {
         try {
             dbSupport.lockTable(schema, table);
         } catch (SQLException e) {
-            throw new FlywayException("Unable to lock metadata table '" + table + "' in schema '" + schema + "'", e);
+            throw new FlywayException("Unable to lock metadata table (" + fullyQualifiedMetadataTableName() + ")", e);
         }
     }
 
     /**
-     * Adds this row to the metadata table and mark it as current.
+     * Adds this migration as executed to the metadata table and mark it as current.
      *
-     * @param migrationInfo The migrationInfo to add.
+     * @param resolvedMigration The migrationInfo to add.
+     * @param success           Whether the migration was successfully executed.
+     * @param executionTime     The time in millis it took to execute the migration.
      */
-    public void insert(MigrationInfo migrationInfo) {
+    public void insert(ResolvedMigration resolvedMigration, boolean success, int executionTime) {
         try {
-            jdbcTemplate.update("UPDATE " + schema + "." + table + " SET current_version=" + dbSupport.getBooleanFalse());
-            final String version = migrationInfo.getVersion().toString();
-            final String description = abbreviateDescription(migrationInfo.getDescription());
-            final String state = migrationInfo.getState().name();
-            final String migrationType = migrationInfo.getType().name();
-            final Integer checksum = migrationInfo.getChecksum();
-            final String script = abbreviateScript(migrationInfo.getScript());
-            final Integer executionTime = migrationInfo.getExecutionTime();
-            jdbcTemplate.update("INSERT INTO " + schema + "." + table
+            jdbcTemplate.update("UPDATE " + fullyQualifiedMetadataTableName() + " SET current_version=" + dbSupport.getBooleanFalse());
+            String version = resolvedMigration.getVersion().toString();
+            String description = abbreviateDescription(resolvedMigration.getDescription());
+            String migrationType = resolvedMigration.getType().name();
+            Integer checksum = resolvedMigration.getChecksum();
+            String script = abbreviateScript(resolvedMigration.getScript());
+            String state = success ? "SUCCESS" : "FAILED";
+
+            jdbcTemplate.update("INSERT INTO " + fullyQualifiedMetadataTableName()
                     + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
                     + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
                     + dbSupport.getBooleanTrue() + ")",
                     version, description, migrationType, script, checksum, executionTime, state);
         } catch (SQLException e) {
             throw new FlywayException(
-                    "Unable to insert metadata table row for version " + migrationInfo.getVersion().toString(), e);
+                    "Unable to insert metadata table row for version " + resolvedMigration.getVersion().toString(), e);
         }
     }
 
@@ -226,7 +229,7 @@ public class MetaDataTable {
         }
 
         try {
-            return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + schema + "." + table) > 0;
+            return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + fullyQualifiedMetadataTableName()) > 0;
         } catch (SQLException e) {
             throw new FlywayException("Error checking if the metadata table has at least one row", e);
         }
@@ -276,7 +279,7 @@ public class MetaDataTable {
      * @return The select statement for reading the metadata table.
      */
     private String getSelectStatement() {
-        return "select version as VERSION, description as DESCRIPTION, type as TYPE, script as SCRIPT, checksum as CHECKSUM, installed_on as INSTALLED_ON, execution_time as EXECUTION_TIME, state as STATE from " + schema + "." + table;
+        return "select version as VERSION, description as DESCRIPTION, type as TYPE, script as SCRIPT, checksum as CHECKSUM, installed_on as INSTALLED_ON, execution_time as EXECUTION_TIME, state as STATE from " + fullyQualifiedMetadataTableName();
     }
 
     /**
@@ -297,12 +300,24 @@ public class MetaDataTable {
     /**
      * @return The current state of the schema. {@code MigrationState.SUCCESS} for an empty schema.
      */
-    public MigrationState getCurrentSchemaState() {
-        MigrationInfo latestAppliedMigration = latestAppliedMigration();
-        if (latestAppliedMigration == null) {
-            return MigrationState.SUCCESS;
+    public boolean hasFailedMigration() {
+        if (!exists()) {
+            return false;
         }
-        return latestAppliedMigration.getState();
+
+        try {
+            int failedCount = jdbcTemplate.queryForInt("select count(*) from " + fullyQualifiedMetadataTableName() + " where state='FAILED'");
+            return failedCount > 0;
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check the metadata table (" + fullyQualifiedMetadataTableName() + ") for failed migrations", e);
+        }
+    }
+
+    /**
+     * @return The fully qualified name of the metadata table, including the schema it is contained in.
+     */
+    private String fullyQualifiedMetadataTableName() {
+        return schema + "." + table;
     }
 
     /**
@@ -332,18 +347,18 @@ public class MetaDataTable {
 
         MigrationState result = new TransactionTemplate(connection).execute(new TransactionCallback<MigrationState>() {
             public MigrationState doInTransaction() {
-                if (MigrationState.SUCCESS == getCurrentSchemaState()) {
+                if (!hasFailedMigration()) {
                     LOG.info("Repair not necessary. No failed migration detected.");
                     return null;
                 }
 
                 try {
-                    jdbcTemplate.execute("delete from " + schema + "." + table + " where version=?",
+                    jdbcTemplate.execute("delete from " + fullyQualifiedMetadataTableName() + " where version=?",
                             getCurrentSchemaVersion().toString());
                     List<? extends MigrationInfo> migrationInfos = allAppliedMigrations();
                     if (!migrationInfos.isEmpty()) {
                         MigrationInfo migrationInfo = migrationInfos.get(migrationInfos.size() - 1);
-                        jdbcTemplate.execute("update " + schema + "." + table + " set current_version=? where version=?",
+                        jdbcTemplate.execute("update " + fullyQualifiedMetadataTableName() + " set current_version=? where version=?",
                                 dbSupport.getBooleanTrue(), migrationInfo.getVersion().toString());
                     }
                 } catch (SQLException e) {
