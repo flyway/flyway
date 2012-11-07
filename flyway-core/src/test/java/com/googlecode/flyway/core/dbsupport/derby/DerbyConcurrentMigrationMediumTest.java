@@ -32,10 +32,6 @@ public class DerbyConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("derby.user", "flyway");
-        String password = customProperties.getProperty("derby.password", "");
-        String url = customProperties.getProperty("derby.url", "jdbc:derby:memory:flyway_db_concurrent;create=true");
-
-        return new DriverDataSource(new EmbeddedDriver(), url, user, password);
+        return new DriverDataSource(new EmbeddedDriver(), "jdbc:derby:memory:flyway_db;create=true", "flyway", "");
     }
 }

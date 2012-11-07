@@ -186,16 +186,16 @@ public class JdbcTemplate {
     }
 
     /**
-     * Checks whether the database contains tables matching these criteria.
+     * Checks whether the database contains a table matching these criteria.
      * 
      * @param catalog The catalog where the table resides. (optional)
      * @param schema The schema where the table resides. (optional)
      * @param table The name of the table. (optional)
      * @param tableTypes The types of table to look for (ex.: TABLE). (optional)
-     * @return {@code true} if matching tables have been found, {@code false} if not.
+     * @return {@code true} if a matching table has been found, {@code false} if not.
      * @throws SQLException when the check failed.
      */
-    public boolean hasTables(String catalog, String schema, String table, String... tableTypes) throws SQLException {
+    public boolean tableExists(String catalog, String schema, String table, String... tableTypes) throws SQLException {
         String[] types = tableTypes;
         if (types.length == 0) {
             types = null;
@@ -205,6 +205,29 @@ public class JdbcTemplate {
         boolean found;
         try {
             resultSet = connection.getMetaData().getTables(catalog, schema, table, types);
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return found;
+    }
+
+    /**
+     * Checks whether the database contains a column matching these criteria.
+     *
+     * @param catalog The catalog where the table resides. (optional)
+     * @param schema The schema where the table resides. (optional)
+     * @param table The name of the table. (optional)
+     * @param column The column to look for. (optional)
+     * @return {@code true} if a matching column has been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    public boolean columnExists(String catalog, String schema, String table, String column) throws SQLException {
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            resultSet = connection.getMetaData().getColumns(catalog, schema, table, column);
             found = resultSet.next();
         } finally {
             JdbcUtils.closeResultSet(resultSet);

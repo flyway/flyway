@@ -65,7 +65,11 @@ public class OracleDbSupport extends DbSupport {
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
+        return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean columnExists(String schema, String table, String column) throws SQLException {
+        return jdbcTemplate.columnExists(null, schema, table, column);
     }
 
     public boolean supportsDdlTransactions() {
@@ -188,5 +192,10 @@ public class OracleDbSupport extends DbSupport {
      */
     private boolean spatialExtensionsAvailable() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE owner = 'MDSYS' AND view_name = 'USER_SDO_GEOM_METADATA'") > 0;
+    }
+
+    @Override
+    public String quote(String identifier) {
+        return "\"" + identifier + "\"";
     }
 }

@@ -61,7 +61,7 @@ public abstract class AntLargeTest {
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_1'"));
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_2'"));
         assertTrue(stdOut.contains("Cleaned database schema 'flyway_3'"));
-        assertTrue(stdOut.contains("Creating Metadata table: MASTER_OF_THE_VERSIONS"));
+        assertTrue(stdOut.contains("Creating Metadata table: flyway_1.MASTER_OF_THE_VERSIONS"));
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 

@@ -133,8 +133,12 @@ public class DB2DbSupport extends DbSupport {
         return objectCount == 0;
     }
 
-    public boolean tableExists(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
+    public boolean tableExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean columnExists(String schema, String table, String column) throws SQLException {
+        return jdbcTemplate.columnExists(null, schema, table, column);
     }
 
     public String getCurrentSchema() throws SQLException {
@@ -159,5 +163,10 @@ public class DB2DbSupport extends DbSupport {
 
     public String getBooleanFalse() {
         return "0";
+    }
+
+    @Override
+    public String quote(String identifier) {
+        return "\"" + identifier + "\"";
     }
 }

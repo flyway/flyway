@@ -76,7 +76,6 @@ public class SqlMigrationResolver implements MigrationResolver {
         this.sqlMigrationSuffix = sqlMigrationSuffix;
     }
 
-
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
@@ -85,11 +84,11 @@ public class SqlMigrationResolver implements MigrationResolver {
                     new ClassPathScanner().scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
 
             for (ClassPathResource resource : resources) {
-                ResolvedMigration migrationInfo = extractMigrationInfo(resource);
-                migrationInfo.setPhysicalLocation(resource.getLocationOnDisk());
-                migrationInfo.setExecutor(new SqlMigrationExecutor(resource, placeholderReplacer, encoding));
+                ResolvedMigration resolvedMigration = extractMigrationInfo(resource);
+                resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
+                resolvedMigration.setExecutor(new SqlMigrationExecutor(resource, placeholderReplacer, encoding));
 
-                migrations.add(migrationInfo);
+                migrations.add(resolvedMigration);
             }
         } catch (IOException e) {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
@@ -110,8 +109,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                 extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
         String scriptName = resource.getLocation().substring(resource.getLocation().indexOf(location) + location.length() + "/".length());
 
-        String sqlScriptSource = resource.loadAsString(encoding);
-        int checksum = calculateChecksum(sqlScriptSource);
+        int checksum = calculateChecksum(resource.loadAsBytes());
 
         ResolvedMigration migration = new ResolvedMigration();
         migration.setVersion(MigrationInfoHelper.extractVersion(versionString));
@@ -142,14 +140,14 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
     /**
-     * Calculates the checksum of this sql script.
+     * Calculates the checksum of these bytes.
      *
-     * @param sql The sql to calculate the checksum for.
-     * @return The crc-32 checksum of the script.
+     * @param bytes    The bytes to calculate the checksum for.
+     * @return The crc-32 checksum of the bytes.
      */
-    private int calculateChecksum(String sql) {
+    private static int calculateChecksum(byte[] bytes) {
         final CRC32 crc32 = new CRC32();
-        crc32.update(sql.getBytes());
+        crc32.update(bytes);
         return (int) crc32.getValue();
     }
 }

@@ -16,10 +16,10 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -67,7 +67,11 @@ public class SQLServerDbSupport extends DbSupport {
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.hasTables(null, schema, table);
+        return jdbcTemplate.tableExists(null, schema, table);
+    }
+
+    public boolean columnExists(String schema, String table, String column) throws SQLException {
+        return jdbcTemplate.columnExists(null, schema, table, column);
     }
 
     public boolean supportsDdlTransactions() {
@@ -107,6 +111,16 @@ public class SQLServerDbSupport extends DbSupport {
     }
 
     /**
+     * Escapes this identifier, so it can be safely used in sql queries.
+     *
+     * @param identifier The identifier to escaped.
+     * @return The escaped version.
+     */
+    private String escapeIdentifier(String identifier) {
+        return StringUtils.replaceAll(identifier, "]", "]]");
+    }
+
+    /**
      * Cleans the tables in this schema.
      *
      * @param schema The schema to generate the statements for.
@@ -120,7 +134,7 @@ public class SQLServerDbSupport extends DbSupport {
 
         List<String> statements = new ArrayList<String>();
         for (String tableName : tableNames) {
-            statements.add("DROP TABLE [" + schema + "].[" + tableName + "]");
+            statements.add("DROP TABLE [" + schema + "].[" + escapeIdentifier(tableName) + "]");
         }
         return statements;
     }
@@ -210,5 +224,10 @@ public class SQLServerDbSupport extends DbSupport {
             statements.add("DROP TYPE [" + schema + "].[" + typeName + "]");
         }
         return statements;
+    }
+
+    @Override
+    public String quote(String identifier) {
+        return "[" + identifier + "]";
     }
 }

@@ -67,7 +67,11 @@ public class MySQLDbSupport extends DbSupport {
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.hasTables(schema, null, table);
+        return jdbcTemplate.tableExists(schema, null, table);
+    }
+
+    public boolean columnExists(String schema, String table, String column) throws SQLException {
+        return jdbcTemplate.columnExists(schema, null, table, column);
     }
 
     public boolean supportsDdlTransactions() {
@@ -165,5 +169,10 @@ public class MySQLDbSupport extends DbSupport {
             statements.add("DROP VIEW `" + schema + "`.`" + viewName + "`");
         }
         return statements;
+    }
+
+    @Override
+    public String quote(String identifier) {
+        return "`" + identifier + "`";
     }
 }

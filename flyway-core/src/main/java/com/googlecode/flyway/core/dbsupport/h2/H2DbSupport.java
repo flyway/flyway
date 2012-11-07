@@ -80,7 +80,11 @@ public class H2DbSupport extends DbSupport {
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
+        return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean columnExists(String schema, String table, String column) throws SQLException {
+        return jdbcTemplate.columnExists(null, schema, table, column);
     }
 
     public boolean supportsDdlTransactions() {
@@ -187,5 +191,10 @@ public class H2DbSupport extends DbSupport {
         }
 
         return jdbcTemplate.queryForStringList(query, schema);
+    }
+
+    @Override
+    public String quote(String identifier) {
+        return "\"" + identifier + "\"";
     }
 }

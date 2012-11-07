@@ -89,11 +89,15 @@ public class HsqlDbSupport extends DbSupport {
     }
 
     public boolean isSchemaEmpty(final String schema) throws SQLException {
-        return !jdbcTemplate.hasTables(null, schema.toUpperCase(), null);
+        return !jdbcTemplate.tableExists(null, schema.toUpperCase(), null);
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
+        return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean columnExists(String schema, String table, String column) throws SQLException {
+        return jdbcTemplate.columnExists(null, schema, table, column);
     }
 
     public boolean supportsDdlTransactions() {
@@ -173,5 +177,10 @@ public class HsqlDbSupport extends DbSupport {
         }
 
         return statements;
+    }
+
+    @Override
+    public String quote(String identifier) {
+        return "\"" + identifier + "\"";
     }
 }

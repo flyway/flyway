@@ -16,8 +16,6 @@
 package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerSqlStatementBuilder;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
@@ -55,11 +53,15 @@ public class DerbyDbSupport extends DbSupport {
     }
 
     public boolean isSchemaEmpty(String schema) throws SQLException {
-        return !jdbcTemplate.hasTables(null, schema.toUpperCase(), null);
+        return !jdbcTemplate.tableExists(null, schema.toUpperCase(), null);
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.hasTables(null, schema.toUpperCase(), table.toUpperCase());
+        return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean columnExists(String schema, String table, String column) throws SQLException {
+        return jdbcTemplate.columnExists(null, schema, table, column);
     }
 
     public boolean supportsDdlTransactions() {
@@ -163,5 +165,10 @@ public class DerbyDbSupport extends DbSupport {
         }
 
         return jdbcTemplate.queryForStringList(query, schema);
+    }
+
+    @Override
+    public String quote(String identifier) {
+        return "\"" + identifier + "\"";
     }
 }

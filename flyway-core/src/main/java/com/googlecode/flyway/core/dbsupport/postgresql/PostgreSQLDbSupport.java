@@ -60,7 +60,11 @@ public class PostgreSQLDbSupport extends DbSupport {
     }
 
     public boolean tableExists(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.hasTables(null, schema.toLowerCase(), table.toLowerCase(), "TABLE");
+        return jdbcTemplate.tableExists(null, schema.toLowerCase(), table.toLowerCase(), "TABLE");
+    }
+
+    public boolean columnExists(String schema, String table, String column) throws SQLException {
+        return jdbcTemplate.columnExists(null, schema, table, column);
     }
 
     public boolean supportsDdlTransactions() {
@@ -263,5 +267,10 @@ public class PostgreSQLDbSupport extends DbSupport {
         }
 
         return statements;
+    }
+
+    @Override
+    public String quote(String identifier) {
+        return "\"" + identifier + "\"";
     }
 }

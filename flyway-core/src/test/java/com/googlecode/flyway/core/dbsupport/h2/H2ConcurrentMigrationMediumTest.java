@@ -28,10 +28,6 @@ import java.util.Properties;
 public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("h2.user", "sa");
-        String password = customProperties.getProperty("h2.password", "");
-        String url = customProperties.getProperty("h2.url", "jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1");
-
-        return new DriverDataSource(new Driver(), url, user, password, "SET LOCK_TIMEOUT 100000");
+        return new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "", "SET LOCK_TIMEOUT 100000");
     }
 }

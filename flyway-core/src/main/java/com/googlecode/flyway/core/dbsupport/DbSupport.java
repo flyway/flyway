@@ -89,6 +89,17 @@ public abstract class DbSupport {
     public abstract boolean tableExists(String schema, String table) throws SQLException;
 
     /**
+     * Checks whether this column in this table is already present in the database.
+     *
+     * @param schema The schema in which to look.
+     * @param table  The table to look for.
+     * @param column The column to look for.
+     * @return {@code true} if the column exists, {@code false} if it doesn't.
+     * @throws SQLException when there was an error checking whether this column exists in this schema.
+     */
+    public abstract boolean columnExists(String schema, String table, String column) throws SQLException;
+
+    /**
      * Retrieves the current schema.
      *
      * @return The current schema for this connection.
@@ -126,4 +137,12 @@ public abstract class DbSupport {
      * @return The representation of the value {@code false} in a boolean column.
      */
     public abstract String getBooleanFalse();
+
+    /**
+     * Quote this identifier for use in sql queries.
+     *
+     * @param identifier The identifier to quote.
+     * @return The fully qualified quoted identifier.
+     */
+    public abstract String quote(String identifier);
 }

@@ -15,7 +15,10 @@
  */
 package com.googlecode.flyway.core.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -42,7 +45,28 @@ public class FileCopyUtils {
     public static String copyToString(Reader in) throws IOException {
         StringWriter out = new StringWriter();
         copy(in, out);
-        return out.toString();
+        String str = out.toString();
+
+        //Strip UTF-8 BOM if necessary
+        if (str.startsWith("\ufeff")) {
+            return str.substring(1);
+        }
+
+        return str;
+    }
+
+    /**
+     * Copy the contents of the given InputStream into a new byte array.
+     * Closes the stream when done.
+     *
+     * @param in the stream to copy from
+     * @return the new byte array that has been copied to
+     * @throws IOException in case of I/O errors
+     */
+    public static byte[] copyToByteArray(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
+        copy(in, out);
+        return out.toByteArray();
     }
 
     /**
@@ -61,6 +85,40 @@ public class FileCopyUtils {
                 out.write(buffer, 0, bytesRead);
             }
             out.flush();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ex) {
+                //Ignore
+            }
+            try {
+                out.close();
+            } catch (IOException ex) {
+                //Ignore
+            }
+        }
+    }
+
+    /**
+     * Copy the contents of the given InputStream to the given OutputStream.
+     * Closes both streams when done.
+     *
+     * @param in  the stream to copy from
+     * @param out the stream to copy to
+     * @return the number of bytes copied
+     * @throws IOException in case of I/O errors
+     */
+    private static int copy(InputStream in, OutputStream out) throws IOException {
+        try {
+            int byteCount = 0;
+            byte[] buffer = new byte[4096];
+            int bytesRead = -1;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+                byteCount += bytesRead;
+            }
+            out.flush();
+            return byteCount;
         } finally {
             try {
                 in.close();
