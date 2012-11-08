@@ -17,13 +17,13 @@ package com.googlecode.flyway.core.metadatatable;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.migration.MigrationState;
-import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 
 import java.util.Date;
 
 /**
  * A row in the schema metadata table containing information about a migration that has already been applied to a db.
+ *
  * @deprecated Superseeded by MigrationInfo. Will be removed in Flyway 2.0.
  */
 @Deprecated
@@ -37,11 +37,6 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      * The description for the migration history.
      */
     private String description;
-
-    /**
-     * The type of the migration (INIT, SQL or JAVA).
-     */
-    private MigrationType migrationType;
 
     /**
      * The script name for the migration history.
@@ -73,7 +68,6 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      *
      * @param schemaVersion The version of this migration.
      * @param description   The description for the migration history.
-     * @param migrationType The type of the migration (INIT, SQL or JAVA).
      * @param script        The script name for the migration history.
      * @param checksum      The checksum of the migration.
      * @param installedOn   The timestamp when this migration was applied to the database. (Automatically set by the
@@ -81,11 +75,10 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      * @param executionTime The time (in ms) it took to execute.
      * @param state         The state of this migration.
      */
-    public MetaDataTableRow(SchemaVersion schemaVersion, String description, MigrationType migrationType, String script,
+    public MetaDataTableRow(SchemaVersion schemaVersion, String description, String script,
                             Integer checksum, Date installedOn, Integer executionTime, MigrationState state) {
         this.schemaVersion = schemaVersion;
         this.description = abbreviateDescription(description);
-        this.migrationType = migrationType;
         this.script = abbreviateScript(script);
         this.checksum = checksum;
         this.installedOn = installedOn;
@@ -101,7 +94,6 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     public MetaDataTableRow(MigrationInfo migrationInfo) {
         schemaVersion = new SchemaVersion(migrationInfo.getVersion().toString());
         description = abbreviateDescription(migrationInfo.getDescription());
-        migrationType = MigrationType.valueOf(migrationInfo.getType().name());
         script = abbreviateScript(migrationInfo.getScript());
         checksum = migrationInfo.getChecksum();
     }
@@ -151,13 +143,6 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     public void update(Integer executionTime, MigrationState state) {
         this.executionTime = executionTime;
         this.state = state;
-    }
-
-    /**
-     * @return The type of the migration (INIT, SQL or JAVA).
-     */
-    public MigrationType getMigrationType() {
-        return migrationType;
     }
 
     /**

@@ -28,10 +28,8 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
 import com.googlecode.flyway.core.migration.DbMigrator;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.MigrationState;
-import com.googlecode.flyway.core.migration.MigrationType;
 import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -977,10 +975,9 @@ public class Flyway {
         }
 
         SchemaVersion version = new SchemaVersion(migrationInfo.getVersion().toString());
-        MigrationType type = MigrationType.valueOf(migrationInfo.getType().name());
         MigrationState state = MigrationState.valueOf(migrationInfo.getState().name());
 
-        return new MetaDataTableRow(version, migrationInfo.getDescription(), type, migrationInfo.getScript(),
+        return new MetaDataTableRow(version, migrationInfo.getDescription(), migrationInfo.getScript(),
                 migrationInfo.getChecksum(), migrationInfo.getInstalledOn(), migrationInfo.getExecutionTime(), state);
     }
 
