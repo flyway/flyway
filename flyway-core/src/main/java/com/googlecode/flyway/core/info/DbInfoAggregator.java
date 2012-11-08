@@ -20,7 +20,7 @@ import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
-import com.googlecode.flyway.core.migration.MigrationInfosImpl;
+import com.googlecode.flyway.core.migration.MigrationInfoServiceImpl;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.ResolvedMigration;
 
@@ -76,13 +76,13 @@ public class DbInfoAggregator {
      *
      * @return The info about the migrations.
      */
-    public MigrationInfosImpl aggregateMigrationInfo() {
+    public MigrationInfoServiceImpl aggregateMigrationInfo() {
         List<ResolvedMigration> availableMigrations = migrationResolver.resolveMigrations();
         List<MigrationInfoImpl> appliedMigrations = metaDataTable.allAppliedMigrations();
 
         List<MigrationInfoImpl> allMigrations = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
-        return new MigrationInfosImpl(allMigrations);
+        return new MigrationInfoServiceImpl(allMigrations);
     }
 
     /**

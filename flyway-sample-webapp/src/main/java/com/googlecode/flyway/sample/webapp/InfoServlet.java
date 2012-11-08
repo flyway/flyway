@@ -17,7 +17,7 @@ package com.googlecode.flyway.sample.webapp;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationInfos;
+import com.googlecode.flyway.core.api.MigrationInfoService;
 import com.googlecode.flyway.core.util.DateUtils;
 
 import javax.servlet.ServletException;
@@ -41,14 +41,14 @@ public class InfoServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        MigrationInfos migrationInfos = flyway.info();
+        MigrationInfoService migrationInfoService = flyway.info();
 
         response.setContentType("application/json");
 
         PrintWriter writer = response.getWriter();
         writer.print("{\"status\":\"OK\", \"rows\":[");
         boolean first = true;
-        for (MigrationInfo migrationInfo : migrationInfos.all()) {
+        for (MigrationInfo migrationInfo : migrationInfoService.all()) {
             if (!first) {
                 writer.print(",");
             }

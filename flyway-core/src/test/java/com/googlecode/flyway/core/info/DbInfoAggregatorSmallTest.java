@@ -15,12 +15,12 @@
  */
 package com.googlecode.flyway.core.info;
 
-import com.googlecode.flyway.core.api.MigrationInfos;
+import com.googlecode.flyway.core.api.MigrationInfoService;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
-import com.googlecode.flyway.core.migration.MigrationInfosImpl;
+import com.googlecode.flyway.core.migration.MigrationInfoServiceImpl;
 import com.googlecode.flyway.core.migration.ResolvedMigration;
 import org.junit.Test;
 
@@ -43,12 +43,12 @@ public class DbInfoAggregatorSmallTest {
         List<ResolvedMigration> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
         List<MigrationInfoImpl> appliedMigrations = new ArrayList<MigrationInfoImpl>();
 
-        MigrationInfos migrationInfos =
-                new MigrationInfosImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
+        MigrationInfoService migrationInfoService =
+                new MigrationInfoServiceImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
 
-        assertNull(migrationInfos.current());
-        assertEquals(2, migrationInfos.all().length);
-        assertEquals(2, migrationInfos.pending().length);
+        assertNull(migrationInfoService.current());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(2, migrationInfoService.pending().length);
     }
 
     @Test
@@ -58,11 +58,11 @@ public class DbInfoAggregatorSmallTest {
         List<ResolvedMigration> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
         List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
 
-        MigrationInfos migrationInfos = new MigrationInfosImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
+        MigrationInfoService migrationInfoService = new MigrationInfoServiceImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
 
-        assertEquals("2", migrationInfos.current().getVersion().toString());
-        assertEquals(2, migrationInfos.all().length);
-        assertEquals(0, migrationInfos.pending().length);
+        assertEquals("2", migrationInfoService.current().getVersion().toString());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(0, migrationInfoService.pending().length);
     }
 
     @Test
@@ -72,11 +72,11 @@ public class DbInfoAggregatorSmallTest {
         List<ResolvedMigration> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
         List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(1));
 
-        MigrationInfos migrationInfos = new MigrationInfosImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
+        MigrationInfoService migrationInfoService = new MigrationInfoServiceImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
 
-        assertEquals("1", migrationInfos.current().getVersion().toString());
-        assertEquals(2, migrationInfos.all().length);
-        assertEquals(1, migrationInfos.pending().length);
+        assertEquals("1", migrationInfoService.current().getVersion().toString());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(1, migrationInfoService.pending().length);
     }
 
     @Test
@@ -86,12 +86,12 @@ public class DbInfoAggregatorSmallTest {
         List<ResolvedMigration> availableMigrations = Arrays.asList(createAvailableMigration(1), createAvailableMigration(2));
         List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(2));
 
-        MigrationInfos migrationInfos = new MigrationInfosImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
+        MigrationInfoService migrationInfoService = new MigrationInfoServiceImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
 
-        assertEquals("2", migrationInfos.current().getVersion().toString());
-        assertEquals(MigrationState.IGNORED, migrationInfos.all()[0].getState());
-        assertEquals(2, migrationInfos.all().length);
-        assertEquals(0, migrationInfos.pending().length);
+        assertEquals("2", migrationInfoService.current().getVersion().toString());
+        assertEquals(MigrationState.IGNORED, migrationInfoService.all()[0].getState());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(0, migrationInfoService.pending().length);
     }
 
     @Test
@@ -101,12 +101,12 @@ public class DbInfoAggregatorSmallTest {
         List<ResolvedMigration> availableMigrations = Arrays.asList(createAvailableMigration(1));
         List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
 
-        MigrationInfos migrationInfos = new MigrationInfosImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
+        MigrationInfoService migrationInfoService = new MigrationInfoServiceImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
 
-        assertEquals("2", migrationInfos.current().getVersion().toString());
-        assertEquals(MigrationState.FUTURE_SUCCESS, migrationInfos.current().getState());
-        assertEquals(2, migrationInfos.all().length);
-        assertEquals(0, migrationInfos.pending().length);
+        assertEquals("2", migrationInfoService.current().getVersion().toString());
+        assertEquals(MigrationState.FUTURE_SUCCESS, migrationInfoService.current().getState());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(0, migrationInfoService.pending().length);
     }
 
     @Test
@@ -116,12 +116,12 @@ public class DbInfoAggregatorSmallTest {
         List<ResolvedMigration> availableMigrations = Arrays.asList(createAvailableMigration(1));
         List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedInitMigration(2));
 
-        MigrationInfos migrationInfos = new MigrationInfosImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
+        MigrationInfoService migrationInfoService = new MigrationInfoServiceImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
 
-        assertEquals("2", migrationInfos.current().getVersion().toString());
-        assertEquals(MigrationState.PREINIT, migrationInfos.all()[0].getState());
-        assertEquals(2, migrationInfos.all().length);
-        assertEquals(0, migrationInfos.pending().length);
+        assertEquals("2", migrationInfoService.current().getVersion().toString());
+        assertEquals(MigrationState.PREINIT, migrationInfoService.all()[0].getState());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(0, migrationInfoService.pending().length);
     }
 
     @Test
@@ -131,12 +131,12 @@ public class DbInfoAggregatorSmallTest {
         List<ResolvedMigration> availableMigrations = Arrays.asList(createAvailableMigration(2));
         List<MigrationInfoImpl> appliedMigrations = Arrays.asList(createAppliedMigration(1), createAppliedMigration(2));
 
-        MigrationInfos migrationInfos = new MigrationInfosImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
+        MigrationInfoService migrationInfoService = new MigrationInfoServiceImpl(dbInfoAggregator.mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations));
 
-        assertEquals("2", migrationInfos.current().getVersion().toString());
-        assertEquals(MigrationState.MISSING_SUCCESS, migrationInfos.all()[0].getState());
-        assertEquals(2, migrationInfos.all().length);
-        assertEquals(0, migrationInfos.pending().length);
+        assertEquals("2", migrationInfoService.current().getVersion().toString());
+        assertEquals(MigrationState.MISSING_SUCCESS, migrationInfoService.all()[0].getState());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(0, migrationInfoService.pending().length);
     }
 
     /**

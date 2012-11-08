@@ -16,7 +16,7 @@
 package com.googlecode.flyway.core;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationInfos;
+import com.googlecode.flyway.core.api.MigrationInfoService;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.clean.DbCleaner;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
@@ -988,9 +988,9 @@ public class Flyway {
      * @return All migrations sorted by version, oldest first.
      * @throws FlywayException when the info retrieval failed.
      */
-    public MigrationInfos info() {
-        return execute(new Command<MigrationInfos>() {
-            public MigrationInfos execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
+    public MigrationInfoService info() {
+        return execute(new Command<MigrationInfoService>() {
+            public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(createMigrationResolver(), metaDataTable, target, outOfOrder);
                 return dbInfoAggregator.aggregateMigrationInfo();

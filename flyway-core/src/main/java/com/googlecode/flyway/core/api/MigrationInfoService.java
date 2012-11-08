@@ -18,7 +18,7 @@ package com.googlecode.flyway.core.api;
 /**
  * Info about all migrations, including applied, current and pending with details and status.
  */
-public interface MigrationInfos {
+public interface MigrationInfoService {
     /**
      * Retrieves the full set of infos about applied, current and future migrations.
      *

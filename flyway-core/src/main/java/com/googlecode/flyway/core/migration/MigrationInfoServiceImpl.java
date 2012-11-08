@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Default implementation of MigrationInfos.
+ * Default implementation of MigrationInfoService.
  */
-public class MigrationInfosImpl implements MigrationInfos {
+public class MigrationInfoServiceImpl implements MigrationInfoService {
     /**
      * The migration infos.
      */
@@ -34,7 +34,7 @@ public class MigrationInfosImpl implements MigrationInfos {
      *
      * @param migrationInfos The migration infos.
      */
-    public MigrationInfosImpl(List<? extends MigrationInfo> migrationInfos) {
+    public MigrationInfoServiceImpl(List<? extends MigrationInfo> migrationInfos) {
         this.migrationInfos = migrationInfos;
     }
 
