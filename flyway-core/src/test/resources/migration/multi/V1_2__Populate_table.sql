@@ -14,11 +14,11 @@
 -- limitations under the License.
 --
 
-INSERT INTO flyway_1.test_user1 (name) VALUES ('Mr. T');
-INSERT INTO flyway_1.test_user1 (name) VALUES ('Mr. Semicolon;');
+INSERT INTO ${schema1}.test_user1 (name) VALUES ('Mr. T');
+INSERT INTO ${schema1}.test_user1 (name) VALUES ('Mr. Semicolon;');
 
-INSERT INTO flyway_2.test_user2 (name) VALUES ('Mr. T');
-INSERT INTO flyway_2.test_user2 (name) VALUES ('Mr. Semicolon;');
+INSERT INTO ${schema2}.test_user2 (name) VALUES ('Mr. T');
+INSERT INTO ${schema2}.test_user2 (name) VALUES ('Mr. Semicolon;');
 
-INSERT INTO flyway_3.test_user3 (name) VALUES ('Mr. T');
-INSERT INTO flyway_3.test_user3 (name) VALUES ('Mr. Semicolon;');
+INSERT INTO ${schema3}.test_user3 (name) VALUES ('Mr. T');
+INSERT INTO ${schema3}.test_user3 (name) VALUES ('Mr. Semicolon;');

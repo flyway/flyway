@@ -38,7 +38,12 @@ UPDATE "${schema}"."${table}" SET "type" = 'SPRING_JDBC' WHERE "type" = 'JAVA';
 ALTER TABLE "${schema}"."${table}" RENAME COLUMN script TO "script";
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN "script" SET DATA TYPE VARCHAR(1000);
 
-ALTER TABLE "${schema}"."${table}" RENAME COLUMN checksum TO "checksum";
+ALTER TABLE "${schema}"."${table}" ADD "checksum_s" INT;
+CALL SYSPROC.ADMIN_CMD ('REORG TABLE "${schema}"."${table}"');
+UPDATE "${schema}"."${table}" SET "checksum_s" = INTEGER(checksum) WHERE checksum IS NOT NULL;
+ALTER TABLE "${schema}"."${table}" DROP COLUMN checksum;
+ALTER TABLE "${schema}"."${table}" RENAME COLUMN "checksum_s" TO "checksum";
+
 ALTER TABLE "${schema}"."${table}" RENAME COLUMN installed_by TO "installed_by";
 ALTER TABLE "${schema}"."${table}" RENAME COLUMN installed_on TO "installed_on";
 

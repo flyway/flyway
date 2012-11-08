@@ -14,16 +14,16 @@
 -- limitations under the License.
 --
 
-CREATE TABLE ${schema}.${table} (
-    [version] NVARCHAR(20) NOT NULL PRIMARY KEY,
-    [description] NVARCHAR(100),
-    [type] NVARCHAR(10) NOT NULL,
-    [script] NVARCHAR(200) NOT NULL UNIQUE,
+CREATE TABLE [${schema}].[${table}] (
+    [version_rank] INT NOT NULL CONSTRAINT [${table}_primary_key] PRIMARY KEY,
+    [installed_rank] INT NOT NULL,
+    [version] NVARCHAR(50) NOT NULL,
+    [description] NVARCHAR(200),
+    [type] NVARCHAR(20) NOT NULL,
+    [script] NVARCHAR(1000) NOT NULL,
     [checksum] INT,
-    installed_by NVARCHAR(30) NOT NULL,
-    installed_on DATETIME DEFAULT GETDATE(),
-    execution_time INT,
-    [state] NVARCHAR(15) NOT NULL,
-    current_version BIT NOT NULL
+    [installed_by] NVARCHAR(30) NOT NULL,
+    [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),
+    [execution_time] INT NOT NULL,
+    [success] BIT NOT NULL
 );
-CREATE INDEX ${table}_cv_idx ON ${schema}.${table} (current_version);

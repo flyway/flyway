@@ -29,7 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test to demonstrate the migration functionality using Oracle.
@@ -39,7 +41,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("oracle.user", "flyway");
-        String password = customProperties.getProperty("orcale.password", "flyway");
+        String password = customProperties.getProperty("oracle.password", "flyway");
         String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
 
         return new DriverDataSource("oracle.jdbc.OracleDriver", url, user, password);

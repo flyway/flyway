@@ -83,8 +83,8 @@ public class CompositeMigrationResolverSmallTest {
             public List<ResolvedMigration> resolveMigrations() {
                 List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-                migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
-                migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
+                migrations.add(createTestMigration(MigrationType.SPRING_JDBC, "1", "Description", "Migration1", 123));
+                migrations.add(createTestMigration(MigrationType.SPRING_JDBC, "1", "Description", "Migration1", 123));
                 migrations.add(createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234));
                 return migrations;
             }
@@ -101,7 +101,7 @@ public class CompositeMigrationResolverSmallTest {
         ResolvedMigration migration1 = createTestMigration(MigrationType.SQL, "1", "First", "V1__First.sql", 123);
         migration1.setPhysicalLocation("target/test-classes/migration/validate/V1__First.sql");
 
-        ResolvedMigration migration2 = createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123);
+        ResolvedMigration migration2 = createTestMigration(MigrationType.SPRING_JDBC, "1", "Description", "Migration1", 123);
         migration2.setPhysicalLocation("Migration1");
 
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
@@ -122,7 +122,7 @@ public class CompositeMigrationResolverSmallTest {
     @Test
     public void checkForIncompatibilitiesNoConflict() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
-        migrations.add(createTestMigration(MigrationType.JAVA, "1", "Description", "Migration1", 123));
+        migrations.add(createTestMigration(MigrationType.SPRING_JDBC, "1", "Description", "Migration1", 123));
         migrations.add(createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234));
 
         CompositeMigrationResolver.checkForIncompatibilities(migrations);

@@ -56,8 +56,12 @@ public class DerbyDbSupport extends DbSupport {
         return !jdbcTemplate.tableExists(null, schema.toUpperCase(), null);
     }
 
-    public boolean tableExists(final String schema, final String table) throws SQLException {
+    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean tableExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.tableExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
@@ -69,7 +73,7 @@ public class DerbyDbSupport extends DbSupport {
     }
 
     public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("LOCK TABLE " + schema + "." + table + " IN EXCLUSIVE MODE");
+        jdbcTemplate.execute("LOCK TABLE " + quote(schema) + "." + quote(table) + " IN EXCLUSIVE MODE");
     }
 
     public String getBooleanTrue() {
@@ -168,7 +172,7 @@ public class DerbyDbSupport extends DbSupport {
     }
 
     @Override
-    public String quote(String identifier) {
+    public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
     }
 }

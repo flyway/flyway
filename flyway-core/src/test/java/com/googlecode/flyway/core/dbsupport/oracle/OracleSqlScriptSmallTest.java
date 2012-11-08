@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
 public class OracleSqlScriptSmallTest {
     @Test
     public void parseSqlStatements() throws Exception {
-        String source = new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1.sql").loadAsString("UTF-8");
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1__Placeholders.sql").loadAsString("UTF-8");
 
         SqlScript sqlScript = new SqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();

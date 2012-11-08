@@ -58,10 +58,10 @@ public abstract class AntLargeTest {
     @Test
     public void multi() throws Exception {
         String stdOut = runAnt(0, "multi");
-        assertTrue(stdOut.contains("Cleaned database schema 'flyway_1'"));
-        assertTrue(stdOut.contains("Cleaned database schema 'flyway_2'"));
-        assertTrue(stdOut.contains("Cleaned database schema 'flyway_3'"));
-        assertTrue(stdOut.contains("Creating Metadata table: flyway_1.MASTER_OF_THE_VERSIONS"));
+        assertTrue(stdOut.contains("Cleaned database schema 'FLYWAY_1'"));
+        assertTrue(stdOut.contains("Cleaned database schema 'FLYWAY_2'"));
+        assertTrue(stdOut.contains("Cleaned database schema 'FLYWAY_3'"));
+        assertTrue(stdOut.contains("Creating Metadata table: \"FLYWAY_1\".\"MASTER_OF_THE_VERSIONS\""));
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 
@@ -69,12 +69,6 @@ public abstract class AntLargeTest {
     public void status() throws Exception {
         String stdOut = runAnt(0, "status");
         assertTrue(stdOut.contains("No migrations applied yet"));
-    }
-
-    @Test
-    public void validate() throws Exception {
-        String stdOut = runAnt(1, "validate");
-        assertTrue(stdOut.contains("Validate failed. Found differences between applied migrations and available migrations"));
     }
 
     @Test

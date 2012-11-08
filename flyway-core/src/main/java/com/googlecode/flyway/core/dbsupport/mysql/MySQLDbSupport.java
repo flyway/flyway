@@ -66,7 +66,11 @@ public class MySQLDbSupport extends DbSupport {
         return objectCount == 0;
     }
 
-    public boolean tableExists(final String schema, final String table) throws SQLException {
+    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
+        return jdbcTemplate.tableExists(schema, null, table);
+    }
+
+    public boolean tableExists(String schema, String table) throws SQLException {
         return jdbcTemplate.tableExists(schema, null, table);
     }
 
@@ -79,7 +83,7 @@ public class MySQLDbSupport extends DbSupport {
     }
 
     public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
+        jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -172,7 +176,7 @@ public class MySQLDbSupport extends DbSupport {
     }
 
     @Override
-    public String quote(String identifier) {
+    public String doQuote(String identifier) {
         return "`" + identifier + "`";
     }
 }

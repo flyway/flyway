@@ -14,17 +14,17 @@
 -- limitations under the License.
 --
 
-CREATE TABLE flyway_1.test_user1 (
+CREATE TABLE ${schema1}.test_user1 (
   name VARCHAR(25) NOT NULL,  -- this is a valid comment
   PRIMARY KEY(name)
 );
 
-CREATE TABLE flyway_2.test_user2 (
+CREATE TABLE ${schema2}.test_user2 (
   name VARCHAR(25) NOT NULL,  -- this is a valid comment
   PRIMARY KEY(name)
 );
 
-CREATE TABLE flyway_3.test_user3 (
+CREATE TABLE ${schema3}.test_user3 (
   name VARCHAR(25) NOT NULL,  -- this is a valid comment
   PRIMARY KEY(name)
 );

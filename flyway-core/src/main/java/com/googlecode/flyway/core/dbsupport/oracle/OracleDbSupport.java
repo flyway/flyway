@@ -64,8 +64,12 @@ public class OracleDbSupport extends DbSupport {
         return objectCount == 0;
     }
 
-    public boolean tableExists(final String schema, final String table) throws SQLException {
+    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean tableExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.tableExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
@@ -77,7 +81,7 @@ public class OracleDbSupport extends DbSupport {
     }
 
     public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.update("select * from " + schema + "." + table + " for update");
+        jdbcTemplate.update("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -129,7 +133,7 @@ public class OracleDbSupport extends DbSupport {
      * @return The complete drop statements, ready to execute.
      * @throws SQLException when the drop statements could not be generated.
      */
-    private List<String> generateDropStatementsForObjectType(String objectType, final String extraArguments, final String schema) throws SQLException {
+    private List<String> generateDropStatementsForObjectType(String objectType, String extraArguments, String schema) throws SQLException {
         String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?"
                 // Ignore Recycle bin objects
                 + " AND object_name NOT LIKE 'BIN$%'"
@@ -142,10 +146,10 @@ public class OracleDbSupport extends DbSupport {
                 // Ignore Index Organized Tables
                 + " AND object_name NOT LIKE 'SYS_IOT_OVER_%'";
 
-        List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, schema.toUpperCase());
+        List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, schema);
         List<String> dropStatements = new ArrayList<String>();
         for (String objectName : objectNames) {
-            dropStatements.add("DROP " + objectType + " " + schema + ".\"" + objectName + "\" " + extraArguments);
+            dropStatements.add("DROP " + objectType + " " + quote(schema, objectName) + extraArguments);
         }
         return dropStatements;
     }
@@ -165,8 +169,8 @@ public class OracleDbSupport extends DbSupport {
             return statements;
         }
         if (!getCurrentSchema().equalsIgnoreCase(schema)) {
-            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", schema.toUpperCase());
-            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", schema.toUpperCase());
+            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", schema);
+            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", schema);
             if (count > 0) {
                 LOG.warn("Unable to clean Oracle Spatial objects for schema '" + schema + "' as they do not belong to the default schema for this connection!");
             }
@@ -195,7 +199,7 @@ public class OracleDbSupport extends DbSupport {
     }
 
     @Override
-    public String quote(String identifier) {
+    public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
     }
 }

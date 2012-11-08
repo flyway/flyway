@@ -59,8 +59,12 @@ public class PostgreSQLDbSupport extends DbSupport {
         return objectCount == 0;
     }
 
-    public boolean tableExists(final String schema, final String table) throws SQLException {
+    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return jdbcTemplate.tableExists(null, schema.toLowerCase(), table.toLowerCase(), "TABLE");
+    }
+
+    public boolean tableExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.tableExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
@@ -72,7 +76,7 @@ public class PostgreSQLDbSupport extends DbSupport {
     }
 
     public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
+        jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -126,7 +130,7 @@ public class PostgreSQLDbSupport extends DbSupport {
                                 " AND table_type='BASE TABLE'" +
                                 //and are not child tables (= do not inherit from another table).
                                 " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
-                                " WHERE inhrelid = (t.table_schema||'.'||t.table_name)::regclass::oid))",
+                                " WHERE inhrelid = ('\"'||t.table_schema||'\".\"'||t.table_name||'\"')::regclass::oid))",
                         schema);
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
@@ -270,7 +274,7 @@ public class PostgreSQLDbSupport extends DbSupport {
     }
 
     @Override
-    public String quote(String identifier) {
+    public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
     }
 }

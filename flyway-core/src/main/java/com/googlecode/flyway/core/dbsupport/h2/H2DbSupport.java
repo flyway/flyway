@@ -79,8 +79,12 @@ public class H2DbSupport extends DbSupport {
         return tables.isEmpty();
     }
 
-    public boolean tableExists(final String schema, final String table) throws SQLException {
+    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean tableExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.tableExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
@@ -92,7 +96,7 @@ public class H2DbSupport extends DbSupport {
     }
 
     public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + schema + "." + table + " for update");
+        jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -194,7 +198,7 @@ public class H2DbSupport extends DbSupport {
     }
 
     @Override
-    public String quote(String identifier) {
+    public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
     }
 }

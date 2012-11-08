@@ -228,7 +228,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
         flyway.setIgnoreFailedFutureMigration(useValueIfPropertyNotSet(ignoreFailedFutureMigration, "ignoreFailedFutureMigration"));
 
         if (flyway.info().all().length == 0) {
-            LOG.warn("Possible solution: run the Ant javac and copy tasks first so Flyway can find the migrations");
+            log.warn("Possible solution: run the Ant javac and copy tasks first so Flyway can find the migrations");
             return;
         }
 

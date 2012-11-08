@@ -37,7 +37,7 @@ public abstract class AbstractFlywayTask extends Task {
     /**
      * Logger.
      */
-    protected Log LOG;
+    protected Log log;
 
     /**
      * The classpath used to load the JDBC driver and the migrations.
@@ -220,7 +220,7 @@ public abstract class AbstractFlywayTask extends Task {
     @Override
     public void execute() throws BuildException {
         LogFactory.setLogCreator(new AntLogCreator(getProject()));
-        LOG = LogFactory.getLog(getClass());
+        log = LogFactory.getLog(getClass());
 
         prepareClassPath();
 
@@ -239,12 +239,12 @@ public abstract class AbstractFlywayTask extends Task {
 
             doExecute(flyway);
         } catch (Exception e) {
-            LOG.error(e.toString());
+            log.error(e.toString());
 
             @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause != null) {
-                LOG.error("Caused by " + rootCause.toString());
+                log.error("Caused by " + rootCause.toString());
             }
             throw new BuildException("Flyway Error: " + e.toString(), e);
         }

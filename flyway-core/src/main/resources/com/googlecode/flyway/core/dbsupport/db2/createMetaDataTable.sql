@@ -14,19 +14,18 @@
 -- limitations under the License.
 --
 
-CREATE TABLE ${schema}.${table} (
-    version VARCHAR(20) NOT NULL,
-    description VARCHAR(100),
-    type VARCHAR(10) NOT NULL,
-    script VARCHAR(200) NOT NULL UNIQUE,
-    CONSTRAINT "${table}_script_unique" UNIQUE(script),
-    checksum BIGINT,
-    installed_by VARCHAR(30) NOT NULL,
-    installed_on TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,
-    execution_time INT,
-    state VARCHAR(15) NOT NULL,
-    current_version SMALLINT NOT NULL,
-    CONSTRAINT ${table}_currversion CHECK (current_version in(0,1)),
-    PRIMARY KEY (version)
+CREATE TABLE "${schema}"."${table}" (
+    "version_rank" INT NOT NULL,
+    "installed_rank" INT NOT NULL,
+    "version" VARCHAR(50) NOT NULL,
+    "description" VARCHAR(200) NOT NULL,
+    "type" VARCHAR(20) NOT NULL,
+    "script" VARCHAR(1000) NOT NULL,
+    "checksum" INT,
+    "installed_by" VARCHAR(30) NOT NULL,
+    "installed_on" TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,
+    "execution_time" INT NOT NULL,
+    "success" SMALLINT NOT NULL,
+    CONSTRAINT "${table}_s" CHECK ("success" in(0,1)),
+    PRIMARY KEY ("version_rank")
 );
-CREATE INDEX ${schema}.${table}_cv_idx ON ${schema}.${table} (current_version);

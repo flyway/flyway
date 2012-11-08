@@ -120,7 +120,7 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
     }
 
     /**
-     * @return The filename of this resource.
+     * @return The filename of this resource, without the path.
      */
     public String getFilename() {
         return location.substring(location.lastIndexOf("/") + 1);

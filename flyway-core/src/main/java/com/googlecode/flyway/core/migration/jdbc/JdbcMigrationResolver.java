@@ -25,6 +25,8 @@ import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassUtils;
+import com.googlecode.flyway.core.util.Pair;
+import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
 import java.util.ArrayList;
@@ -89,14 +91,16 @@ public class JdbcMigrationResolver implements MigrationResolver {
         String description;
         if (jdbcMigration instanceof MigrationInfoProvider) {
             MigrationInfoProvider infoProvider = (MigrationInfoProvider) jdbcMigration;
-            version = new MigrationVersion(infoProvider.getVersion().toString());
+            version = infoProvider.getVersion();
             description = infoProvider.getDescription();
+            if (!StringUtils.hasText(description)) {
+                throw new FlywayException("Missing description for migration " + version);
+            }
         } else {
-            String className = jdbcMigration.getClass().getName();
-            String classShortName = className.substring(className.lastIndexOf(".") + 1);
-            String nameWithoutV = classShortName.substring(1);
-            version = MigrationInfoHelper.extractVersion(nameWithoutV);
-            description = MigrationInfoHelper.extractDescription(nameWithoutV);
+            Pair<MigrationVersion,String> info =
+                    MigrationInfoHelper.extractVersionAndDescription(ClassUtils.getShortName(jdbcMigration.getClass()), "V", "");
+            version = info.getLeft();
+            description = info.getRight();
         }
 
         String script = jdbcMigration.getClass().getName();

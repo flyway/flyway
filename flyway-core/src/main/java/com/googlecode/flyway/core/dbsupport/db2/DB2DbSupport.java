@@ -43,8 +43,6 @@ public class DB2DbSupport extends DbSupport {
     }
 
     public SqlScript createCleanScript(String schema) throws SQLException {
-        String upperCaseSchema = schema.toUpperCase();
-
         // TODO PROCEDURES and FUNCTIONS
         final List<String> allDropStatements = new ArrayList<String>();
 
@@ -52,16 +50,16 @@ public class DB2DbSupport extends DbSupport {
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
         // views
-        allDropStatements.addAll(generateDropStatements(upperCaseSchema, "V", "VIEW"));
+        allDropStatements.addAll(generateDropStatements(schema, "V", "VIEW"));
 
         // aliases
-        allDropStatements.addAll(generateDropStatements(upperCaseSchema, "A", "ALIAS"));
+        allDropStatements.addAll(generateDropStatements(schema, "A", "ALIAS"));
 
         // tables
-        allDropStatements.addAll(generateDropStatements(upperCaseSchema, "T", "TABLE"));
+        allDropStatements.addAll(generateDropStatements(schema, "T", "TABLE"));
 
         // sequences
-        allDropStatements.addAll(generateDropStatementsForSequences(upperCaseSchema));
+        allDropStatements.addAll(generateDropStatementsForSequences(schema));
 
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
@@ -115,8 +113,7 @@ public class DB2DbSupport extends DbSupport {
         List<String> dropStatements = new ArrayList<String>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(query);
         for (String dbObject : dbObjects) {
-            // DB2 needs double quotes
-            dropStatements.add(dropPrefix + " \"" + schema + "\".\"" + dbObject + "\"");
+            dropStatements.add(dropPrefix + quote(schema) + "." + quote(dbObject));
         }
         return dropStatements;
     }
@@ -133,8 +130,12 @@ public class DB2DbSupport extends DbSupport {
         return objectCount == 0;
     }
 
-    public boolean tableExists(String schema, String table) throws SQLException {
+    public boolean tableExistsNoQuotes(String schema, String table) throws SQLException {
         return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+    }
+
+    public boolean tableExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.tableExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
@@ -154,7 +155,7 @@ public class DB2DbSupport extends DbSupport {
     }
 
     public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.update("lock table " + schema + "." + table + " in exclusive mode");
+        jdbcTemplate.update("lock table " + quote(schema) + "." + quote(table) + " in exclusive mode");
     }
 
     public String getBooleanTrue() {
@@ -166,7 +167,7 @@ public class DB2DbSupport extends DbSupport {
     }
 
     @Override
-    public String quote(String identifier) {
+    public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
     }
 }

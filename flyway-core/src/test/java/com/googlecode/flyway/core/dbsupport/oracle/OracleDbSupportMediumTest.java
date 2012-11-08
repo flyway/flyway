@@ -48,7 +48,7 @@ public class OracleDbSupportMediumTest {
         String password = customProperties.getProperty("oracle.password");
         String url = customProperties.getProperty("oracle.url");
 
-        String dataSourceUser = useProxy ? "flyway_proxy[" + user + "]" : user;
+        String dataSourceUser = useProxy ? "\"flyway_proxy\"[" + user + "]" : user;
 
         DataSource dataSource = new DriverDataSource(DRIVER_CLASS, url, dataSourceUser, password);
 
@@ -103,7 +103,7 @@ public class OracleDbSupportMediumTest {
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
         for (int i = 0; i < 200; i++) {
-            dbSupport.tableExists(dbSupport.getCurrentSchema(), "schema_version");
+            dbSupport.tableExistsNoQuotes(dbSupport.getCurrentSchema(), "schema_version");
         }
         connection.close();
     }

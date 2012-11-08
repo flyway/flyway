@@ -14,17 +14,17 @@
 -- limitations under the License.
 --
 
-CREATE TABLE ${schema}.${table} (
-    version VARCHAR(20) NOT NULL UNIQUE,
-    description VARCHAR(100),
-    type VARCHAR(10) NOT NULL,
-    script VARCHAR(200) NOT NULL UNIQUE,
-    checksum INT,
-    installed_by VARCHAR(30) NOT NULL,
-    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    execution_time INT,
-    state VARCHAR(15) NOT NULL,
-    current_version BOOL NOT NULL,
-    PRIMARY KEY(version)
+CREATE TABLE `${schema}`.`${table}` (
+    `version_rank` INT NOT NULL,
+    `installed_rank` INT NOT NULL,
+    `version` VARCHAR(50) NOT NULL,
+    `description` VARCHAR(200) NOT NULL,
+    `type` VARCHAR(20) NOT NULL,
+    `script` VARCHAR(1000) NOT NULL,
+    `checksum` INT,
+    `installed_by` VARCHAR(30) NOT NULL,
+    `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `execution_time` INT NOT NULL,
+    `success` BOOL NOT NULL,
+    PRIMARY KEY(`version_rank`)
 ) ENGINE=InnoDB;
-ALTER TABLE ${schema}.${table} ADD INDEX ${table}_current_version_index (current_version);

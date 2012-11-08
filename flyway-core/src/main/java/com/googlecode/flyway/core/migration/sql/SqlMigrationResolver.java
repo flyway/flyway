@@ -16,11 +16,13 @@
 package com.googlecode.flyway.core.migration.sql;
 
 import com.googlecode.flyway.core.api.MigrationType;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 
 import java.io.IOException;
@@ -30,7 +32,7 @@ import java.util.List;
 import java.util.zip.CRC32;
 
 /**
- * Migration resolver for sql files on the classpath. The sql files must have names like V1.sql or V1_1.sql or
+ * Migration resolver for sql files on the classpath. The sql files must have names like
  * V1__Description.sql or V1_1__Description.sql.
  */
 public class SqlMigrationResolver implements MigrationResolver {
@@ -105,17 +107,17 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @return The migration info.
      */
     private ResolvedMigration extractMigrationInfo(ClassPathResource resource) {
-        final String versionString =
-                extractVersionStringFromFileName(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
-        String scriptName = resource.getLocation().substring(resource.getLocation().indexOf(location) + location.length() + "/".length());
-
-        int checksum = calculateChecksum(resource.loadAsBytes());
-
         ResolvedMigration migration = new ResolvedMigration();
-        migration.setVersion(MigrationInfoHelper.extractVersion(versionString));
-        migration.setDescription(MigrationInfoHelper.extractDescription(versionString));
+
+        Pair<MigrationVersion, String> info =
+                MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
+        migration.setVersion(info.getLeft());
+        migration.setDescription(info.getRight());
+
+        String scriptName = resource.getLocation().substring(resource.getLocation().indexOf(location) + location.length() + "/".length());
         migration.setScript(scriptName);
-        migration.setChecksum(checksum);
+
+        migration.setChecksum(calculateChecksum(resource.loadAsBytes()));
         migration.setType(MigrationType.SQL);
         return migration;
     }
@@ -142,7 +144,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Calculates the checksum of these bytes.
      *
-     * @param bytes    The bytes to calculate the checksum for.
+     * @param bytes The bytes to calculate the checksum for.
      * @return The crc-32 checksum of the bytes.
      */
     private static int calculateChecksum(byte[] bytes) {

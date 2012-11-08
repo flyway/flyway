@@ -55,12 +55,6 @@ public abstract class CommandLineLargeTest {
     }
 
     @Test
-    public void validate() throws Exception {
-        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "validate", "-url=jdbc:hsqldb:file:sql/validate/flyway_sample;shutdown=true", "-baseDir=validate", "-basePackage=dummy", "-locations=dummy");
-        assertTrue(stdOut.contains("Validate failed. Found differences between applied migrations and available migrations"));
-    }
-
-    @Test
     public void sqlFolderRoot() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-driver=org.hsqldb.jdbcDriver", "-sqlMigrationPrefix=Mig", "-basePackage=dummy");
         assertTrue(stdOut.contains("777"));

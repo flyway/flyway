@@ -34,13 +34,13 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
 
-        jdbcTemplate.execute("DROP SCHEMA flyway_1 IF EXISTS CASCADE");
-        jdbcTemplate.execute("DROP SCHEMA flyway_2 IF EXISTS CASCADE");
-        jdbcTemplate.execute("DROP SCHEMA flyway_3 IF EXISTS CASCADE");
+        jdbcTemplate.execute("DROP SCHEMA \"flyway_1\" IF EXISTS CASCADE");
+        jdbcTemplate.execute("DROP SCHEMA \"flyway_2\" IF EXISTS CASCADE");
+        jdbcTemplate.execute("DROP SCHEMA \"flyway_3\" IF EXISTS CASCADE");
 
-        jdbcTemplate.execute("CREATE SCHEMA flyway_1 AUTHORIZATION DBA");
-        jdbcTemplate.execute("CREATE SCHEMA flyway_2 AUTHORIZATION DBA");
-        jdbcTemplate.execute("CREATE SCHEMA flyway_3 AUTHORIZATION DBA");
+        jdbcTemplate.execute("CREATE SCHEMA \"flyway_1\" AUTHORIZATION DBA");
+        jdbcTemplate.execute("CREATE SCHEMA \"flyway_2\" AUTHORIZATION DBA");
+        jdbcTemplate.execute("CREATE SCHEMA \"flyway_3\" AUTHORIZATION DBA");
     }
 
     @Override

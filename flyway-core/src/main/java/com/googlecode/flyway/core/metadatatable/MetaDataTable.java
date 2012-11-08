@@ -162,23 +162,68 @@ public class MetaDataTable {
      */
     public void insert(ResolvedMigration resolvedMigration, boolean success, int executionTime) {
         try {
-            jdbcTemplate.update("UPDATE " + fullyQualifiedMetadataTableName() + " SET current_version=" + dbSupport.getBooleanFalse());
-            String version = resolvedMigration.getVersion().toString();
+            MigrationVersion version = resolvedMigration.getVersion();
+            int versionRank = calculateVersionRank(version);
+            int installedRank = caculateInstalledRank();
             String description = abbreviateDescription(resolvedMigration.getDescription());
             String migrationType = resolvedMigration.getType().name();
             Integer checksum = resolvedMigration.getChecksum();
             String script = abbreviateScript(resolvedMigration.getScript());
-            String state = success ? "SUCCESS" : "FAILED";
 
             jdbcTemplate.update("INSERT INTO " + fullyQualifiedMetadataTableName()
-                    + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
-                    + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
-                    + dbSupport.getBooleanTrue() + ")",
-                    version, description, migrationType, script, checksum, executionTime, state);
+                    + " (" + dbSupport.quote("version_rank")
+                    + "," + dbSupport.quote("installed_rank")
+                    + "," + dbSupport.quote("version")
+                    + "," + dbSupport.quote("description")
+                    + "," + dbSupport.quote("type")
+                    + "," + dbSupport.quote("script")
+                    + "," + dbSupport.quote("checksum")
+                    + "," + dbSupport.quote("installed_by")
+                    + "," + dbSupport.quote("execution_time")
+                    + "," + dbSupport.quote("success")
+                    + ")"
+                    + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
+                    versionRank, installedRank, version.toString(), description, migrationType, script, checksum,
+                    executionTime, success);
         } catch (SQLException e) {
-            throw new FlywayException(
-                    "Unable to insert metadata table row for version " + resolvedMigration.getVersion().toString(), e);
+            throw new FlywayException("Unable to insert metadata table row for version " + resolvedMigration.getVersion(), e);
         }
+    }
+
+    /**
+     * Calculates the installed rank for the new migration to be inserted.
+     *
+     * @return The installed rank.
+     */
+    private int caculateInstalledRank() throws SQLException {
+        int currentMax = jdbcTemplate.queryForInt("SELECT MAX(" + dbSupport.quote("installed_rank") + ")"
+                + " FROM " + fullyQualifiedMetadataTableName());
+        return currentMax + 1;
+    }
+
+    /**
+     * Calculate the rank for this new version about to be inserted.
+     *
+     * @param version The version to calculated for.
+     * @return The rank.
+     */
+    private int calculateVersionRank(MigrationVersion version) throws SQLException {
+        List<String> versions = jdbcTemplate.queryForStringList("select " + dbSupport.quote("version") + " from " + fullyQualifiedMetadataTableName());
+
+        List<MigrationVersion> migrationVersions = new ArrayList<MigrationVersion>();
+        for (String versionStr : versions) {
+            migrationVersions.add(new MigrationVersion(versionStr));
+        }
+
+        Collections.sort(migrationVersions);
+
+        for (int i = 0; i < migrationVersions.size(); i++) {
+            if (version.compareTo(migrationVersions.get(i)) < 0) {
+                return i + 1;
+            }
+        }
+
+        return migrationVersions.size() + 1;
     }
 
     /**
@@ -192,11 +237,11 @@ public class MetaDataTable {
             return null;
         }
 
-        if (description.length() <= 100) {
+        if (description.length() <= 200) {
             return description;
         }
 
-        return description.substring(0, 97) + "...";
+        return description.substring(0, 197) + "...";
     }
 
     /**
@@ -210,11 +255,11 @@ public class MetaDataTable {
             return null;
         }
 
-        if (script.length() <= 200) {
+        if (script.length() <= 1000) {
             return script;
         }
 
-        return "..." + script.substring(3, 200);
+        return "..." + script.substring(3, 1000);
     }
 
     /**
@@ -243,7 +288,8 @@ public class MetaDataTable {
             return null;
         }
 
-        String query = getSelectStatement() + " where current_version=" + dbSupport.getBooleanTrue();
+        String query = getSelectStatement() + " WHERE " + dbSupport.quote("version_rank")
+                + "IN (SELECT MAX(" + dbSupport.quote("version_rank") + ") FROM " + fullyQualifiedMetadataTableName() + ")";
         try {
             final List<? extends MigrationInfo> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
             if (migrationInfos.isEmpty()) {
@@ -279,7 +325,15 @@ public class MetaDataTable {
      * @return The select statement for reading the metadata table.
      */
     private String getSelectStatement() {
-        return "select version as VERSION, description as DESCRIPTION, type as TYPE, script as SCRIPT, checksum as CHECKSUM, installed_on as INSTALLED_ON, execution_time as EXECUTION_TIME, state as STATE from " + fullyQualifiedMetadataTableName();
+        return "SELECT " + dbSupport.quote("version")
+                + "," + dbSupport.quote("description")
+                + "," + dbSupport.quote("type")
+                + "," + dbSupport.quote("script")
+                + "," + dbSupport.quote("checksum")
+                + "," + dbSupport.quote("installed_on")
+                + "," + dbSupport.quote("execution_time")
+                + "," + dbSupport.quote("success")
+                + " FROM " + fullyQualifiedMetadataTableName();
     }
 
     /**
@@ -306,7 +360,8 @@ public class MetaDataTable {
         }
 
         try {
-            int failedCount = jdbcTemplate.queryForInt("select count(*) from " + fullyQualifiedMetadataTableName() + " where state='FAILED'");
+            int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + fullyQualifiedMetadataTableName()
+                    + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
             return failedCount > 0;
         } catch (SQLException e) {
             throw new FlywayException("Unable to check the metadata table (" + fullyQualifiedMetadataTableName() + ") for failed migrations", e);
@@ -317,7 +372,7 @@ public class MetaDataTable {
      * @return The fully qualified name of the metadata table, including the schema it is contained in.
      */
     private String fullyQualifiedMetadataTableName() {
-        return schema + "." + table;
+        return dbSupport.quote(schema) + "." + dbSupport.quote(table);
     }
 
     /**
@@ -345,37 +400,28 @@ public class MetaDataTable {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        MigrationState result = new TransactionTemplate(connection).execute(new TransactionCallback<MigrationState>() {
-            public MigrationState doInTransaction() {
+        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+            public Void doInTransaction() {
                 if (!hasFailedMigration()) {
                     LOG.info("Repair not necessary. No failed migration detected.");
                     return null;
                 }
 
                 try {
-                    jdbcTemplate.execute("delete from " + fullyQualifiedMetadataTableName() + " where version=?",
-                            getCurrentSchemaVersion().toString());
-                    List<? extends MigrationInfo> migrationInfos = allAppliedMigrations();
-                    if (!migrationInfos.isEmpty()) {
-                        MigrationInfo migrationInfo = migrationInfos.get(migrationInfos.size() - 1);
-                        jdbcTemplate.execute("update " + fullyQualifiedMetadataTableName() + " set current_version=? where version=?",
-                                dbSupport.getBooleanTrue(), migrationInfo.getVersion().toString());
-                    }
+                    jdbcTemplate.execute("DELETE FROM " + fullyQualifiedMetadataTableName() + " WHERE " + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse());
                 } catch (SQLException e) {
                     throw new FlywayException("Unable to repair metadata table", e);
                 }
-                return MigrationState.SUCCESS;
+                return null;
             }
         });
 
         stopWatch.stop();
 
-        if (MigrationState.SUCCESS == result) {
-            LOG.info("Metadata successfully repaired (execution time "
-                    + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
-            LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
-            LOG.info("Current schema version: " + getCurrentSchemaVersion());
-        }
+        LOG.info("Metadata successfully repaired (execution time "
+                + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
+        LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+        LOG.info("Current schema version: " + getCurrentSchemaVersion());
     }
 
 
@@ -384,16 +430,21 @@ public class MetaDataTable {
      */
     private class MigrationInfoRowMapper implements RowMapper<MigrationInfoImpl> {
         public MigrationInfoImpl mapRow(final ResultSet rs) throws SQLException {
-            MigrationVersion version = new MigrationVersion(rs.getString("VERSION"));
-            String description = rs.getString("DESCRIPTION");
-            MigrationType migrationType = MigrationType.valueOf(rs.getString("TYPE"));
-            String script = rs.getString("SCRIPT");
-            Integer checksum = toInteger((Number) rs.getObject("CHECKSUM"));
+            MigrationVersion version = new MigrationVersion(rs.getString("version"));
+            String description = rs.getString("description");
+            MigrationType migrationType = MigrationType.valueOf(rs.getString("type"));
+            String script = rs.getString("script");
+            Integer checksum = toInteger((Number) rs.getObject("checksum"));
 
             MigrationInfoImpl migrationInfo = new MigrationInfoImpl(version, description, script, checksum, migrationType);
-            migrationInfo.setInstalledOn(rs.getTimestamp("INSTALLED_ON"));
-            migrationInfo.setExecutionTime(toInteger((Number) rs.getObject("EXECUTION_TIME")));
-            migrationInfo.setState(MigrationState.valueOf(rs.getString("STATE")));
+            migrationInfo.setInstalledOn(rs.getTimestamp("installed_on"));
+            migrationInfo.setExecutionTime(toInteger((Number) rs.getObject("execution_time")));
+            boolean success = rs.getBoolean("success");
+            if (success) {
+                migrationInfo.setState(MigrationState.SUCCESS);
+            } else {
+                migrationInfo.setState(MigrationState.FAILED);
+            }
 
             return migrationInfo;
         }

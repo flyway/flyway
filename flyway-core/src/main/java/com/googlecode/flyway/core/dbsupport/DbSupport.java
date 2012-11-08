@@ -79,6 +79,16 @@ public abstract class DbSupport {
     public abstract boolean isSchemaEmpty(String schema) throws SQLException;
 
     /**
+     * Checks whether this table is already present in the database. WITHOUT quoting either the table or the schema name!
+     *
+     * @param schema The schema in which to look.
+     * @param table  The table to look for.
+     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     * @throws SQLException when there was an error checking whether this table exists in this schema.
+     */
+    public abstract boolean tableExistsNoQuotes(String schema, String table) throws SQLException;
+
+    /**
      * Checks whether this table is already present in the database.
      *
      * @param schema The schema in which to look.
@@ -139,10 +149,32 @@ public abstract class DbSupport {
     public abstract String getBooleanFalse();
 
     /**
+     * Quote these identifiers for use in sql queries. Multiple identifiers will be quoted and separated by a dot.
+     *
+     * @param identifiers The identifiers to quote.
+     * @return The fully qualified quoted identifiers.
+     */
+    public String quote(String... identifiers) {
+        String result = "";
+
+        boolean first = true;
+        for (String identifier : identifiers) {
+            if (!first) {
+                result += ".";
+            }
+            first = false;
+            result += doQuote(identifier);
+        }
+
+        return result;
+    }
+
+
+    /**
      * Quote this identifier for use in sql queries.
      *
      * @param identifier The identifier to quote.
      * @return The fully qualified quoted identifier.
      */
-    public abstract String quote(String identifier);
+    protected abstract String doQuote(String identifier);
 }

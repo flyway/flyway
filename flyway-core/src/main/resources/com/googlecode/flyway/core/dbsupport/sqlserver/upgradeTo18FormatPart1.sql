@@ -85,6 +85,8 @@ ALTER TABLE [${schema}].[${table}] ADD [version_rank] INT;
 ALTER TABLE [${schema}].[${table}] ADD [installed_rank] INT;
 
 ALTER TABLE [${schema}].[${table}] ADD [success] BIT;
+GO
+
 UPDATE [${schema}].[${table}] SET [success] = 1 WHERE state = 'SUCCESS';
 UPDATE [${schema}].[${table}] SET [success] = 0 WHERE state = 'FAILED';
 ALTER TABLE [${schema}].[${table}] ALTER COLUMN [success] BIT NOT NULL;

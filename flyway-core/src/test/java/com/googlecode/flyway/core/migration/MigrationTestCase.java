@@ -173,7 +173,7 @@ public abstract class MigrationTestCase {
         flyway.setLocations(BASEDIR);
         flyway.setTable("my_custom_table");
         flyway.migrate();
-        int count = jdbcTemplate.queryForInt("select count(*) from my_custom_table");
+        int count = jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("my_custom_table"));
         assertEquals(4, count);
     }
 
@@ -225,7 +225,6 @@ public abstract class MigrationTestCase {
     @Test
     public void validateClean() throws Exception {
         flyway.setLocations("migration/validate");
-        flyway.setSqlMigrationSuffix("First.sql");
         flyway.migrate();
 
         SchemaVersion schemaVersion = flyway.status().getVersion();
@@ -330,14 +329,15 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-        assertTrue(dbSupport.tableExists(dbSupport.getCurrentSchema(), "SCHEMA_VERSION"));
+        assertTrue(dbSupport.tableExists(dbSupport.getCurrentSchema(), "schema_version"));
         assertTrue(dbSupport.tableExists(flyway.getSchemas()[0], flyway.getTable()));
     }
 
     @Test
     public void columnExists() throws Exception {
         flyway.init();
-        assertFalse(dbSupport.columnExists(flyway.getSchemas()[0], flyway.getTable(), "version_rank"));
+        assertTrue(dbSupport.columnExists(flyway.getSchemas()[0], flyway.getTable(), "version_rank"));
+        assertFalse(dbSupport.columnExists(flyway.getSchemas()[0], flyway.getTable(), "dummy"));
     }
 
     @Test
@@ -350,19 +350,6 @@ public abstract class MigrationTestCase {
     }
 
     /**
-     * Check if meta table has no current migration (manually edited).
-     */
-    @Test(expected = FlywayException.class)
-    public void checkForInvalidMetatable() throws Exception {
-        flyway.setLocations(BASEDIR);
-        flyway.migrate();
-
-        jdbcTemplate.update("UPDATE schema_version SET current_version = " + dbSupport.getBooleanFalse()
-                + " where current_version = " + dbSupport.getBooleanTrue());
-        flyway.migrate();
-    }
-
-    /**
      * Check validation with INIT row.
      */
     @Test
@@ -372,7 +359,7 @@ public abstract class MigrationTestCase {
         flyway.migrate();
         assertEquals("1.1", flyway.status().getVersion().toString());
 
-        jdbcTemplate.update("DROP TABLE schema_version");
+        jdbcTemplate.update("DROP TABLE " + dbSupport.quote(flyway.getTable()));
         flyway.setInitialVersion(new SchemaVersion("1.1"));
         flyway.setInitialDescription("initial version 1.1");
         flyway.init();
@@ -503,6 +490,11 @@ public abstract class MigrationTestCase {
         assertNull(flyway.status());
 
         flyway.setLocations("migration/multi");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("schema1", dbSupport.quote("flyway_1"));
+        placeholders.put("schema2", dbSupport.quote("flyway_2"));
+        placeholders.put("schema3", dbSupport.quote("flyway_3"));
+        flyway.setPlaceholders(placeholders);
         flyway.migrate();
         SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("2.0", schemaVersion.toString());
@@ -510,11 +502,11 @@ public abstract class MigrationTestCase {
         assertEquals(0, flyway.migrate());
 
         assertEquals(3, flyway.history().size());
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from flyway_1.schema_version"));
+        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1","schema_version")));
 
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from flyway_1.test_user1"));
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from flyway_2.test_user2"));
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from flyway_3.test_user3"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1") + ".test_user1"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_2") + ".test_user2"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_3") + ".test_user3"));
 
         flyway.clean();
         flyway.migrate();
@@ -532,6 +524,13 @@ public abstract class MigrationTestCase {
         upgradeMetaDataTableTo18Format();
     }
 
+    @Test
+    public void format18upgradeMixedCase() throws Exception {
+        flyway.setTable("MiXeD_CaSe");
+        createMetaDataTableIn17Format();
+        upgradeMetaDataTableTo18Format();
+    }
+
     @Test(expected = FlywayException.class)
     public void format18upgradeEmptyDescription() throws Exception {
         createMetaDataTableIn17Format();
@@ -542,8 +541,8 @@ public abstract class MigrationTestCase {
     @Test
     public void format18upgradeCheckRank() throws Exception {
         createMetaDataTableIn17Format();
-        insert17Row("1.1", "View", "SQL", "V1_1__View.sql", 1234, 666, "SUCCESS");
-        insert17Row("1", "First", "SQL", "V1__First.sql", 1234, 666, "SUCCESS");
+        insert17Row("1.1", "View", "SQL", "V1_1__View.sql", Integer.MAX_VALUE, 666, "SUCCESS");
+        insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
         insert17Row("3", "Spring", "JAVA", "V3__Spring", null, 55, "SUCCESS");
         insert17Row("4", "Jdbc", "JDBC", "V4__Jdbc", null, 55, "SUCCESS");
         upgradeMetaDataTableTo18Format();

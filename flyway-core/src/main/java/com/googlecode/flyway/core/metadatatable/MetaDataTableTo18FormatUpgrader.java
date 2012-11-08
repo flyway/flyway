@@ -197,7 +197,7 @@ public class MetaDataTableTo18FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws Exception {
-        if (!dbSupport.tableExists(schema, table)) {
+        if (!dbSupport.tableExistsNoQuotes(schema, table)) {
             return false;
         }
 

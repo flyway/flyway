@@ -25,14 +25,14 @@ public interface MigrationInfoProvider {
     /**
      * Returns the version after the migration is complete.
      *
-     * @return The version after the migration is complete.
+     * @return The version after the migration is complete. Never {@code null}.
      */
     MigrationVersion getVersion();
 
     /**
      * Returns the description for the migration history.
      *
-     * @return The description for the migration history.
+     * @return The description for the migration history. Never {@code null}.
      */
     String getDescription();
 }

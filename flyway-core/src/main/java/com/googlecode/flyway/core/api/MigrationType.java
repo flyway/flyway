@@ -35,7 +35,7 @@ public enum MigrationType {
     JDBC,
 
     /**
-     * The type for Spring Jdbc java-based migrations. Will be renamed to SPRING_JDBC in Flyway 2.0.
+     * The type for Spring Jdbc java-based migrations.
      */
-    JAVA
+    SPRING_JDBC
 }

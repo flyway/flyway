@@ -58,12 +58,6 @@ public class MavenLargeTest {
     }
 
     @Test
-    public void validate() throws Exception {
-        String stdOut = runMaven(1, "validate", "clean", "compile", "flyway:validate");
-        assertTrue(stdOut.contains("Validate failed. Found differences between applied migrations and available migrations"));
-    }
-
-    @Test
     public void settings() throws Exception {
         String stdOut = runMaven(0, "settings", "clean", "flyway:init", "flyway:status", "-s", installDir + "/settings/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));

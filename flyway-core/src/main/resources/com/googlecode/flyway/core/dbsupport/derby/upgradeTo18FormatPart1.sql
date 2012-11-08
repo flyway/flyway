@@ -47,10 +47,9 @@ ALTER TABLE "${schema}"."${table}" ALTER COLUMN "execution_time" NOT NULL;
 ALTER TABLE "${schema}"."${table}" ADD "version_rank" INT;
 ALTER TABLE "${schema}"."${table}" ADD "installed_rank" INT;
 
-ALTER TABLE "${schema}"."${table}" ADD "success" SMALLINT;
-UPDATE "${schema}"."${table}" SET "success" = 1 WHERE state = 'SUCCESS';
-UPDATE "${schema}"."${table}" SET "success" = 0 WHERE state = 'FAILED';
+ALTER TABLE "${schema}"."${table}" ADD "success" BOOLEAN;
+UPDATE "${schema}"."${table}" SET "success" = TRUE WHERE state = 'SUCCESS';
+UPDATE "${schema}"."${table}" SET "success" = FALSE WHERE state = 'FAILED';
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN "success" NOT NULL;
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_s" CHECK ("success" in(0,1));
 ALTER TABLE "${schema}"."${table}" DROP COLUMN state;
 

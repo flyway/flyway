@@ -14,17 +14,17 @@
 -- limitations under the License.
 --
 
-CREATE USER flyway IDENTIFIED BY flyway;
-CREATE USER flyway_1 IDENTIFIED BY flyway;
-CREATE USER flyway_2 IDENTIFIED BY flyway;
-CREATE USER flyway_3 IDENTIFIED BY flyway;
-CREATE USER flyway_proxy IDENTIFIED BY flyway;
-GRANT RESOURCE TO flyway_1;
-GRANT RESOURCE TO flyway_2;
-GRANT RESOURCE TO flyway_3;
-GRANT all privileges TO flyway;
-GRANT all privileges TO flyway_proxy;
-GRANT create session TO flyway;
-GRANT create session TO flyway_proxy;
+CREATE USER "FLYWAY" IDENTIFIED BY flyway;
+CREATE USER "flyway_1" IDENTIFIED BY flyway;
+CREATE USER "flyway_2" IDENTIFIED BY flyway;
+CREATE USER "flyway_3" IDENTIFIED BY flyway;
+CREATE USER "flyway_proxy" IDENTIFIED BY flyway;
+GRANT RESOURCE TO "flyway_1";
+GRANT RESOURCE TO "flyway_2";
+GRANT RESOURCE TO "flyway_3";
+GRANT all privileges TO "FLYWAY";
+GRANT all privileges TO "flyway_proxy";
+GRANT create session TO "FLYWAY";
+GRANT create session TO "flyway_proxy";
 
-ALTER USER flyway GRANT CONNECT THROUGH flyway_proxy;
+ALTER USER "FLYWAY" GRANT CONNECT THROUGH "flyway_proxy";

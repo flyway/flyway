@@ -28,7 +28,7 @@ public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTest
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("oracle.user", "flyway");
-        String password = customProperties.getProperty("orcale.password", "flyway");
+        String password = customProperties.getProperty("oracle.password", "flyway");
         String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
 
         return new DriverDataSource("oracle.jdbc.OracleDriver", url, user, password);

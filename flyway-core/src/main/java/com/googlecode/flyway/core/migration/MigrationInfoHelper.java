@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.util.Pair;
 
 /**
  * Parsing support for migrations that use the standard Flyway version + description embedding in their name. These
@@ -31,47 +32,32 @@ public class MigrationInfoHelper {
     }
 
     /**
-     * Extracts the schema version from a migration name formatted as 1_2__Description.
+     * Extracts the schema version and the description from a migration name formatted as 1_2__Description.
      *
-     * @param migrationName The string to parse.
-     *
+     * @param migrationName The migration name to parse. Should not contain any folders or packages.
      * @return The extracted schema version.
+     * @throws FlywayException if the migration name does not follow the standard conventions.
      */
-    public static MigrationVersion extractVersion(String migrationName) {
-        String rawVersion;
+    public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName, String prefix, String suffix) {
+        String cleanMigrationName = migrationName.substring(prefix.length(), migrationName.length() - suffix.length());
+
+        String version;
+        String description;
 
         // Handle the description
-        int descriptionPos = migrationName.indexOf("__");
+        int descriptionPos = cleanMigrationName.indexOf("__");
         if (descriptionPos < 0) {
-            rawVersion = migrationName;
+            throw new FlywayException("Wrong migration name format: " + migrationName + "(It should look like this: " + prefix + "1_2__Description" + suffix + ")");
         } else {
-            rawVersion = migrationName.substring(0, descriptionPos);
+            version = cleanMigrationName.substring(0, descriptionPos).replace("_", ".");
+            description = cleanMigrationName.substring(descriptionPos + 2).replaceAll("_", " ");
         }
-
-        String version = rawVersion.replace("_", ".");
 
         if (version.startsWith(".")) {
             throw new FlywayException(
                     "Invalid version starting with a dot (.) instead of a digit or a letter: " + version);
         }
 
-        return new MigrationVersion(version);
-    }
-
-    /**
-     * Extracts the description from a migration name formatted as 1_2__Description.
-     *
-     * @param migrationName The string to parse.
-     *
-     * @return The extracted description.
-     */
-    public static String extractDescription(String migrationName) {
-        // Handle the description
-        int descriptionPos = migrationName.indexOf("__");
-        if (descriptionPos >= 0) {
-            return migrationName.substring(descriptionPos + 2).replaceAll("_", " ");
-        }
-
-        return null;
+        return Pair.of(new MigrationVersion(version), description);
     }
 }

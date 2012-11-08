@@ -301,6 +301,8 @@ public class JdbcTemplate {
                 setNull(statement, i + 1);
             } else if (params[i] instanceof Integer) {
                 statement.setInt(i + 1, (Integer) params[i]);
+            } else if (params[i] instanceof Boolean) {
+                statement.setBoolean(i + 1, (Boolean) params[i]);
             } else {
                 statement.setString(i + 1, (String) params[i]);
             }

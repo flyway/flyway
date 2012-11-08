@@ -17,10 +17,10 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.util.Pair;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * Test for MigrationInfoHelper.
@@ -29,12 +29,9 @@ public class MigrationInfoHelperSmallTest {
     /**
      * Tests a schema version that lacks a description.
      */
-    @Test
+    @Test(expected = FlywayException.class)
     public void extractSchemaVersionNoDescription() {
-        MigrationVersion version = MigrationInfoHelper.extractVersion("9_4");
-        String description = MigrationInfoHelper.extractDescription("9_4");
-        assertEquals("9.4", version.toString());
-        assertNull(description);
+        MigrationInfoHelper.extractVersionAndDescription("9_4", "", "");
     }
 
     /**
@@ -42,8 +39,9 @@ public class MigrationInfoHelperSmallTest {
      */
     @Test
     public void extractSchemaVersionWithDescription() {
-        MigrationVersion version = MigrationInfoHelper.extractVersion("9_4__EmailAxel");
-        String description = MigrationInfoHelper.extractDescription("9_4__EmailAxel");
+        Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription("9_4__EmailAxel", "", "");
+        MigrationVersion version = info.getLeft();
+        String description = info.getRight();
         assertEquals("9.4", version.toString());
         assertEquals("EmailAxel", description);
     }
@@ -53,9 +51,10 @@ public class MigrationInfoHelperSmallTest {
      */
     @Test
     public void extractSchemaVersionWithDescriptionWithSpaces() {
-        MigrationVersion schemaVersion = MigrationInfoHelper.extractVersion("9_4__Big_jump");
-        String description = MigrationInfoHelper.extractDescription("9_4__Big_jump");
-        assertEquals("9.4", schemaVersion.toString());
+        Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription("9_4__Big_jump", "", "");
+        MigrationVersion version = info.getLeft();
+        String description = info.getRight();
+        assertEquals("9.4", version.toString());
         assertEquals("Big jump", description);
     }
 
@@ -64,14 +63,15 @@ public class MigrationInfoHelperSmallTest {
      */
     @Test
     public void extractSchemaVersionWithLeadingZeroes() {
-        MigrationVersion schemaVersion = MigrationInfoHelper.extractVersion("009_4__EmailAxel");
-        String description = MigrationInfoHelper.extractDescription("009_4__EmailAxel");
-        assertEquals("009.4", schemaVersion.toString());
+        Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription("009_4__EmailAxel", "", "");
+        MigrationVersion version = info.getLeft();
+        String description = info.getRight();
+        assertEquals("009.4", version.toString());
         assertEquals("EmailAxel", description);
     }
 
     @Test(expected = FlywayException.class)
     public void extractSchemaVersionWithLeadingUnderscore() {
-        MigrationInfoHelper.extractVersion("_8_0");
+        MigrationInfoHelper.extractVersionAndDescription("_8_0__Description", "", "");
     }
 }
