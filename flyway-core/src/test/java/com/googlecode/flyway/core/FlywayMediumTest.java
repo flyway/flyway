@@ -132,7 +132,7 @@ public class FlywayMediumTest {
     }
 
     @Test
-    @Ignore("Not implemented yet")
+    @Ignore
     public void outOfOrder() {
         DriverDataSource dataSource =
                 new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");

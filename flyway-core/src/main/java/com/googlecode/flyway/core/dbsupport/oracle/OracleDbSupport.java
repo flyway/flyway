@@ -112,7 +112,7 @@ public class OracleDbSupport extends DbSupport {
         allDropStatements.addAll(generateDropStatementsForObjectType("SYNONYM", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("TRIGGER", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS", schema));
-        allDropStatements.addAll(generateDropStatementsForObjectType("TABLE", "CASCADE CONSTRAINTS PURGE", schema));
+        allDropStatements.addAll(generateDropStatementsForTables(schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", "FORCE", schema));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
@@ -122,6 +122,36 @@ public class OracleDbSupport extends DbSupport {
             lineNumber++;
         }
         return new SqlScript(sqlStatements, this);
+    }
+
+    /**
+     * Generates the drop statements for all tables.
+     *
+     * @param schema         The schema for which to generate the statements.
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForTables(String schema) throws SQLException {
+        String query = "SELECT table_name FROM all_tables WHERE owner = ?"
+                // Ignore Recycle bin objects
+                + " AND table_name NOT LIKE 'BIN$%'"
+                // Ignore Spatial Index Tables and Sequences as they get dropped automatically when the index gets dropped.
+                + " AND table_name NOT LIKE 'MDRT_%$' AND table_name NOT LIKE 'MDRS_%$'"
+                // Ignore Materialized View Logs
+                + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
+                // Ignore Oracle Text Index Tables
+                + " AND table_name NOT LIKE 'DR$%'"
+                // Ignore Index Organized Tables
+                + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
+                // Ignore Nested Tables
+                + " AND nested != 'YES'";
+
+        List<String> objectNames = jdbcTemplate.queryForStringList(query, schema);
+        List<String> dropStatements = new ArrayList<String>();
+        for (String objectName : objectNames) {
+            dropStatements.add("DROP TABLE " + quote(schema, objectName) + " CASCADE CONSTRAINTS PURGE");
+        }
+        return dropStatements;
     }
 
     /**
@@ -149,7 +179,7 @@ public class OracleDbSupport extends DbSupport {
         List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, schema);
         List<String> dropStatements = new ArrayList<String>();
         for (String objectName : objectNames) {
-            dropStatements.add("DROP " + objectType + " " + quote(schema, objectName) + extraArguments);
+            dropStatements.add("DROP " + objectType + " " + quote(schema, objectName) + " " + extraArguments);
         }
         return dropStatements;
     }

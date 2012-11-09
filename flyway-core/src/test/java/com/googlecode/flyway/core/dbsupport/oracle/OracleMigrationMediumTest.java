@@ -234,4 +234,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    /**
+     * Tests support for clean together with Nested Tables.
+     */
+    @Test
+    public void nestedTable() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/nested");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
 }
