@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.util.jdbc;
 
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.api.FlywayException;
 
 /**
  * Exception thrown when a failure caused a transaction rollback.
@@ -25,7 +25,7 @@ public class TransactionException extends FlywayException {
      * Creates a new transaction exception with this message and this cause.
      *
      * @param message The message.
-     * @param cause The cause.
+     * @param cause   The cause.
      */
     public TransactionException(String message, Throwable cause) {
         super(message, cause);

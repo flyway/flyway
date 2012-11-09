@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.util.jdbc;
 
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 

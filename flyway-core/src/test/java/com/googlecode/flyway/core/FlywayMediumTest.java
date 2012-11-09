@@ -15,10 +15,10 @@
  */
 package com.googlecode.flyway.core;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.h2.Driver;
 import org.junit.Ignore;
@@ -30,7 +30,11 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Medium tests for the main Flyway class.

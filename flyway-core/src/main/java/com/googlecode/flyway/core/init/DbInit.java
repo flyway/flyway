@@ -15,9 +15,9 @@
  */
 package com.googlecode.flyway.core.init;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.migration.ResolvedMigration;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;

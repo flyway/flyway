@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.exception;
+package com.googlecode.flyway.core.api;
 
 /**
  * Exception thrown when Flyway encounters a problem.
- *
- * @deprecated Use com.googlecode.flyway.core.api.FlywayException instead.
  */
-@Deprecated
-public class FlywayException extends RuntimeException {
+public class FlywayException extends com.googlecode.flyway.core.exception.FlywayException {
     /**
      * Creates a new FlywayException with this message and this cause.
      *

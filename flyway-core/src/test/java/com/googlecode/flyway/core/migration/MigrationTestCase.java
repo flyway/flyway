@@ -16,12 +16,12 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo18FormatUpgrader;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
@@ -502,7 +502,7 @@ public abstract class MigrationTestCase {
         assertEquals(0, flyway.migrate());
 
         assertEquals(3, flyway.history().size());
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1","schema_version")));
+        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1", "schema_version")));
 
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1") + ".test_user1"));
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_2") + ".test_user2"));

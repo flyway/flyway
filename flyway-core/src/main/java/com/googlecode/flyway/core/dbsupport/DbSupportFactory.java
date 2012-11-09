@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.db2.DB2DbSupport;
 import com.googlecode.flyway.core.dbsupport.derby.DerbyDbSupport;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
@@ -23,7 +24,6 @@ import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerDbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 

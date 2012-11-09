@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;

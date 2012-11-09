@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Test;
 
@@ -109,16 +109,16 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
 
     /**
      * Tests clean and migrate for MySQL InnoDb tables with upper case names.
-     *
+     * <p/>
      * Only effective on Windows when the server is configured using:
-     *
+     * <p/>
      * [mysqld]
      * lower-case-table-names=0
-     *
+     * <p/>
      * This should be added to a file called my.cnf
-     *
+     * <p/>
      * The server can then be started with this command:
-     *
+     * <p/>
      * mysqld --defaults-file="path/to/my.cnf"
      */
     @Test

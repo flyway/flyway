@@ -15,12 +15,14 @@
  */
 package com.googlecode.flyway.core.util.jdbc;
 
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.ClassUtils;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -62,12 +64,11 @@ public class DriverDataSource implements DataSource {
     /**
      * Creates a new DriverDataSource.
      *
-     * @param driver The JDBC Driver instance to use.
-     * @param url The JDBC URL to use for connecting through the Driver.
-     * @param user The JDBC user to use for connecting through the Driver.
+     * @param driver   The JDBC Driver instance to use.
+     * @param url      The JDBC URL to use for connecting through the Driver.
+     * @param user     The JDBC user to use for connecting through the Driver.
      * @param password The JDBC password to use for connecting through the Driver.
      * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     *
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(Driver driver, String url, String user, String password, String... initSqls) throws FlywayException {
@@ -78,11 +79,10 @@ public class DriverDataSource implements DataSource {
      * Creates a new DriverDataSource.
      *
      * @param driverClass The name of the JDBC Driver class to use.
-     * @param url The JDBC URL to use for connecting through the Driver.
-     * @param user The JDBC user to use for connecting through the Driver.
-     * @param password The JDBC password to use for connecting through the Driver.
-     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     *
+     * @param url         The JDBC URL to use for connecting through the Driver.
+     * @param user        The JDBC user to use for connecting through the Driver.
+     * @param password    The JDBC password to use for connecting through the Driver.
+     * @param initSqls    The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(String driverClass, String url, String user, String password, String... initSqls) throws FlywayException {
@@ -90,7 +90,7 @@ public class DriverDataSource implements DataSource {
         try {
             driver = ClassUtils.instantiate(driverClass);
         } catch (Exception e) {
-            throw new FlywayException("Unable to instantiate jdbc driver: " +  driverClass);
+            throw new FlywayException("Unable to instantiate jdbc driver: " + driverClass);
         }
         configure(driver, url, user, password, initSqls);
     }
@@ -98,12 +98,11 @@ public class DriverDataSource implements DataSource {
     /**
      * Configures this DriverDataSource.
      *
-     * @param driver The JDBC Driver instance to use.
-     * @param url The JDBC URL to use for connecting through the Driver.
-     * @param user The JDBC user to use for connecting through the Driver.
+     * @param driver   The JDBC Driver instance to use.
+     * @param url      The JDBC URL to use for connecting through the Driver.
+     * @param user     The JDBC user to use for connecting through the Driver.
      * @param password The JDBC password to use for connecting through the Driver.
      * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     *
      * @throws FlywayException when the datasource could not be configured.
      */
     private void configure(Driver driver, String url, String user, String password, String... initSqls) throws FlywayException {

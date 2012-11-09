@@ -15,12 +15,12 @@
  */
 package com.googlecode.flyway.core.migration.spring;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.api.migration.MigrationChecksumProvider;
 import com.googlecode.flyway.core.api.migration.MigrationInfoProvider;
 import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.MigrationResolver;
 import com.googlecode.flyway.core.migration.ResolvedMigration;
@@ -97,7 +97,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
                 throw new FlywayException("Missing description for migration " + version);
             }
         } else {
-            Pair<MigrationVersion,String> info =
+            Pair<MigrationVersion, String> info =
                     MigrationInfoHelper.extractVersionAndDescription(ClassUtils.getShortName(springJdbcMigration.getClass()), "V", "");
             version = info.getLeft();
             description = info.getRight();

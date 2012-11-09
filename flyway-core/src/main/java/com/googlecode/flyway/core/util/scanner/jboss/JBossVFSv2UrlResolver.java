@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.util.scanner.jboss;
 
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.scanner.UrlResolver;
 
 import java.io.IOException;

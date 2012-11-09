@@ -15,8 +15,8 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
@@ -127,7 +127,7 @@ public class OracleDbSupport extends DbSupport {
     /**
      * Generates the drop statements for all tables.
      *
-     * @param schema         The schema for which to generate the statements.
+     * @param schema The schema for which to generate the statements.
      * @return The complete drop statements, ready to execute.
      * @throws SQLException when the drop statements could not be generated.
      */

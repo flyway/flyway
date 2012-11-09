@@ -15,8 +15,8 @@
  */
 package com.googlecode.flyway.core.migration.java;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.exception.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationExecutor;
 import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;

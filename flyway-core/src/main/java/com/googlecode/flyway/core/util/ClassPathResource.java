@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.util;
 
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.api.FlywayException;
 
 import java.io.IOException;
 import java.io.InputStream;

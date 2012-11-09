@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Exceptions thrown by Flyway.
+ * Private API. No compatibility guarantees provided.
  */
 package com.googlecode.flyway.core.exception;

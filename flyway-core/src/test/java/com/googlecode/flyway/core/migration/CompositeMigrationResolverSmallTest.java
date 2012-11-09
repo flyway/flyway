@@ -15,9 +15,9 @@
  */
 package com.googlecode.flyway.core.migration;
 
-import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
-import com.googlecode.flyway.core.exception.FlywayException;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import org.junit.Test;
 
 import java.util.ArrayList;
