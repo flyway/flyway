@@ -52,6 +52,11 @@ public class DerbyDbSupport extends DbSupport {
         return jdbcTemplate.queryForString("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1");
     }
 
+    @Override
+    public void setCurrentSchema(String schema) throws SQLException {
+        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+    }
+
     public boolean isSchemaEmpty(String schema) throws SQLException {
         return !jdbcTemplate.tableExists(null, schema.toUpperCase(), null);
     }

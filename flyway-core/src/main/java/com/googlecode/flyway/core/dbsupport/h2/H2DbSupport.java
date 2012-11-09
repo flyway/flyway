@@ -74,6 +74,11 @@ public class H2DbSupport extends DbSupport {
         return schema;
     }
 
+    @Override
+    public void setCurrentSchema(String schema) throws SQLException {
+        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+    }
+
     public boolean isSchemaEmpty(String schema) throws SQLException {
         List<String> tables = jdbcTemplate.queryForStringList("SHOW TABLES FROM " + schema);
         return tables.isEmpty();

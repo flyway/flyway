@@ -52,6 +52,11 @@ public class PostgreSQLDbSupport extends DbSupport {
         return jdbcTemplate.queryForString("SELECT current_schema()");
     }
 
+    @Override
+    public void setCurrentSchema(String schema) throws SQLException {
+        jdbcTemplate.execute("SET search_path = " + quote(schema));
+    }
+
     public boolean isSchemaEmpty(String schema) throws SQLException {
         int objectCount = jdbcTemplate.queryForInt(
                 "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",

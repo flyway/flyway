@@ -111,4 +111,10 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         assertEquals(MigrationState.SUCCESS, flyway.status().getState());
         assertTrue(jdbcTemplate.queryForInt("SELECT COUNT(*) FROM dbo.CHANGELOG") > 0);
     }
+
+    @Override
+    @Ignore("Not supported on SQL Server")
+    public void setCurrentSchema() throws Exception {
+        //Skip
+    }
 }

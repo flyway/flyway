@@ -51,6 +51,11 @@ public class MySQLDbSupport extends DbSupport {
         return jdbcTemplate.getConnection().getCatalog();
     }
 
+    @Override
+    public void setCurrentSchema(String schema) throws SQLException {
+        jdbcTemplate.execute("USE " + quote(schema));
+    }
+
     public boolean isSchemaEmpty(String schema) throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
                 "( " +

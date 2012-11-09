@@ -146,6 +146,11 @@ public class DB2DbSupport extends DbSupport {
         return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim();
     }
 
+    @Override
+    public void setCurrentSchema(String schema) throws SQLException {
+        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+    }
+
     public String getCurrentUserFunction() {
         return "CURRENT_USER";
     }

@@ -15,11 +15,13 @@
  */
 package com.googlecode.flyway.core.dbsupport.derby;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.apache.derby.jdbc.EmbeddedDriver;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -31,8 +33,28 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
+    public void setUp() throws Exception {
+        super.setUp();
+
+        jdbcTemplate.execute("CREATE SCHEMA \"flyway_1\"");
+        jdbcTemplate.execute("CREATE SCHEMA \"flyway_2\"");
+        jdbcTemplate.execute("CREATE SCHEMA \"flyway_3\"");
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        try {
+            new DriverDataSource(new EmbeddedDriver(), "jdbc:derby:memory:flyway_db;drop=true", "", "").getConnection();
+        } catch (SQLException e) {
+            //OK, expected error 08006. See http://db.apache.org/derby/docs/dev/devguide/cdevdvlpinmemdb.html
+        }
+
+        super.tearDown();
+    }
+
+    @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(new EmbeddedDriver(), "jdbc:derby:memory:flyway_db;create=true", "flyway", "");
+        return new DriverDataSource(new EmbeddedDriver(), "jdbc:derby:memory:flyway_db;create=true", "", "");
     }
 
     @Override

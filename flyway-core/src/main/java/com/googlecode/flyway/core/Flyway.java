@@ -1202,6 +1202,12 @@ public class Flyway {
                 }
             }
 
+            try {
+                DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
+            } catch (SQLException e) {
+                throw new FlywayException("Error setting current schema to " + schemas[0], e);
+            }
+
             if (schemas.length == 1) {
                 LOG.debug("Schema: " + schemas[0]);
             } else {

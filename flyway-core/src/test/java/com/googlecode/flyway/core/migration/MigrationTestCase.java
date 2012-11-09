@@ -513,6 +513,18 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void setCurrentSchema() throws Exception {
+        flyway.setSchemas("flyway_1");
+        flyway.clean();
+
+        flyway.setLocations("migration/current_schema");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("schema1", dbSupport.quote("flyway_1"));
+        flyway.setPlaceholders(placeholders);
+        flyway.migrate();
+    }
+
+    @Test
     public void subDir() {
         flyway.setLocations("migration/subdir");
         assertEquals(3, flyway.migrate());

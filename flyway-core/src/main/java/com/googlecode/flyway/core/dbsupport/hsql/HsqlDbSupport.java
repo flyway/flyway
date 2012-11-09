@@ -88,6 +88,11 @@ public class HsqlDbSupport extends DbSupport {
         return schema;
     }
 
+    @Override
+    public void setCurrentSchema(String schema) throws SQLException {
+        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+    }
+
     public boolean isSchemaEmpty(final String schema) throws SQLException {
         return !jdbcTemplate.tableExists(null, schema.toUpperCase(), null);
     }

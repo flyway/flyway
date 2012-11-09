@@ -59,6 +59,11 @@ public class OracleDbSupport extends DbSupport {
         return jdbcTemplate.queryForString("SELECT USER FROM dual");
     }
 
+    @Override
+    public void setCurrentSchema(String schema) throws SQLException {
+        jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + quote(schema));
+    }
+
     public boolean isSchemaEmpty(String schema) throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", schema);
         return objectCount == 0;

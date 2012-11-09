@@ -118,6 +118,14 @@ public abstract class DbSupport {
     public abstract String getCurrentSchema() throws SQLException;
 
     /**
+     * Sets the current schema to this schema.
+     *
+     * @param schema The new current schema for this connection.
+     * @throws SQLException when the current schema could not be set.
+     */
+    public abstract void setCurrentSchema(String schema) throws SQLException;
+
+    /**
      * @return The database function that returns the current user.
      */
     public abstract String getCurrentUserFunction();

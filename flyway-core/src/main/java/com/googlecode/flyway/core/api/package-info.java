@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Migration info and related classes.
+ * FlywayException, MigrationInfo and related classes.
  */
 package com.googlecode.flyway.core.api;

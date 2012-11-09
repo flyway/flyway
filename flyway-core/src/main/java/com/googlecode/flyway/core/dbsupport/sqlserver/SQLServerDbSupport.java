@@ -20,6 +20,8 @@ import com.googlecode.flyway.core.migration.sql.SqlScript;
 import com.googlecode.flyway.core.migration.sql.SqlStatement;
 import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,6 +33,8 @@ import java.util.Map;
  * SQLServer-specific support.
  */
 public class SQLServerDbSupport extends DbSupport {
+    private static final Log LOG = LogFactory.getLog(SQLServerDbSupport.class);
+
     /**
      * Creates a new instance.
      *
@@ -50,6 +54,13 @@ public class SQLServerDbSupport extends DbSupport {
 
     public String getCurrentSchema() throws SQLException {
         return jdbcTemplate.queryForString("SELECT SCHEMA_NAME()");
+    }
+
+    @Override
+    public void setCurrentSchema(String schema) throws SQLException {
+        LOG.info("SQLServer does not support setting the schema for the current session. Default schema not changed to " + schema);
+        // Not currently supported.
+        // See http://connect.microsoft.com/SQLServer/feedback/details/390528/t-sql-statement-for-changing-default-schema-context
     }
 
     public boolean isSchemaEmpty(String schema) throws SQLException {
