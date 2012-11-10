@@ -29,6 +29,7 @@ import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Upgrade the metadata table to Flyway 1.8's format.
+ * Upgrade the metadata table to Flyway 2.0's format.
  */
-public class MetaDataTableTo18FormatUpgrader {
-    private static final Log LOG = LogFactory.getLog(MetaDataTableTo18FormatUpgrader.class);
+public class MetaDataTableTo20FormatUpgrader {
+    private static final Log LOG = LogFactory.getLog(MetaDataTableTo20FormatUpgrader.class);
 
     /**
      * Database-specific support.
@@ -70,15 +71,14 @@ public class MetaDataTableTo18FormatUpgrader {
      * Creates a new upgrader.
      *
      * @param dbSupport         Database-specific support.
-     * @param jdbcTemplate      For executing operations against the DB.
      * @param schema            The schema containing the metadata table.
      * @param table             The metadata table.
      * @param migrationResolver The migration resolver.
      */
-    public MetaDataTableTo18FormatUpgrader(DbSupport dbSupport, JdbcTemplate jdbcTemplate, String schema, String table,
+    public MetaDataTableTo20FormatUpgrader(DbSupport dbSupport, String schema, String table,
                                            MigrationResolver migrationResolver) {
         this.dbSupport = dbSupport;
-        this.jdbcTemplate = jdbcTemplate;
+        this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.schema = schema;
         this.table = table;
         this.migrationResolver = migrationResolver;
@@ -87,36 +87,41 @@ public class MetaDataTableTo18FormatUpgrader {
     /**
      * Performs the actual upgrade.
      *
-     * @throws Exception when the upgrade failed.
+     * @throws FlywayException when the upgrade failed.
      */
-    public void upgrade() throws Exception {
-        if (!needsUpgrade()) {
-            LOG.debug("No metadata table upgrade necessary");
-            return;
+    public void upgrade() throws FlywayException {
+        try {
+            if (!needsUpgrade()) {
+                LOG.debug("No metadata table upgrade necessary");
+                return;
+            }
+
+            LOG.info("Upgrading the metadata table (" + schema + "." + table + ") to the new Flyway 2.0 format...");
+
+            LOG.info("Checking prerequisites...");
+            checkPrerequisites();
+
+            LOG.info("Step 1/4: Creating new columns...");
+            executePart(1);
+
+            LOG.info("Step 2/4: Populating new columns...");
+            addRanks();
+
+            LOG.info("Step 3/4: Tightening constraints...");
+            executePart(3);
+
+            LOG.info("Step 4/4: Fixing checksums...");
+            fixChecksums();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to upgrade the metadata table " + dbSupport.quote(schema, table)
+                    + " to the new Flyway 2.0 format", e);
         }
-
-        LOG.info("Upgrading the metadata table (" + schema + "." + table + ") to the new Flyway 1.8 format...");
-
-        LOG.info("Checking prerequisites...");
-        checkPrerequisites();
-
-        LOG.info("Step 1/4: Creating new columns...");
-        executePart(1);
-
-        LOG.info("Step 2/4: Populating new columns...");
-        addRanks();
-
-        LOG.info("Step 3/4: Tightening constraints...");
-        executePart(3);
-
-        LOG.info("Step 4/4: Fixing checksums...");
-        fixChecksums();
     }
 
     /**
      * Fixes the platform encoding dependent checksums.
      */
-    private void fixChecksums() throws Exception {
+    private void fixChecksums() throws SQLException {
         Map<MigrationVersion, Integer> correctedChecksums = new HashMap<MigrationVersion, Integer>();
 
         List<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations();
@@ -142,7 +147,7 @@ public class MetaDataTableTo18FormatUpgrader {
      * @param num The number of the part.
      */
     private void executePart(int num) {
-        ClassPathResource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo18FormatPart" + num + ".sql");
+        ClassPathResource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo20FormatPart" + num + ".sql");
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
@@ -157,7 +162,7 @@ public class MetaDataTableTo18FormatUpgrader {
     /**
      * Adds the values to the rank columns.
      */
-    private void addRanks() throws Exception {
+    private void addRanks() throws SQLException {
         List<String> versions = jdbcTemplate.queryForStringList("SELECT " + dbSupport.quote("version")
                 + " FROM " + dbSupport.quote(schema) + "." + dbSupport.quote(table));
 
@@ -180,12 +185,12 @@ public class MetaDataTableTo18FormatUpgrader {
     /**
      * Checks whether all prerequisites are met for upgrading the table.
      */
-    private void checkPrerequisites() throws Exception {
+    private void checkPrerequisites() throws SQLException {
         List<String> versions = jdbcTemplate.queryForStringList("select version from " + schema + "." + table + " where description is null");
 
         if (!versions.isEmpty()) {
             throw new FlywayException(
-                    "Unable to upgrade metadata to the new Flyway 1.8 format as description is now mandatory" +
+                    "Unable to upgrade metadata to the new Flyway 2.0 format as description is now mandatory" +
                             " and these migrations do not have one: "
                             + StringUtils.collectionToCommaDelimitedString(versions));
         }
@@ -196,7 +201,7 @@ public class MetaDataTableTo18FormatUpgrader {
      *
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
-    private boolean needsUpgrade() throws Exception {
+    private boolean needsUpgrade() throws SQLException {
         if (!dbSupport.tableExistsNoQuotes(schema, table)) {
             return false;
         }

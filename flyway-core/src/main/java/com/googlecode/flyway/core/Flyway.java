@@ -26,6 +26,7 @@ import com.googlecode.flyway.core.info.DbInfoAggregator;
 import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
 import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
 import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.MigrationResolver;
@@ -797,7 +798,7 @@ public class Flyway {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 MigrationResolver migrationResolver = createMigrationResolver();
 
-                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(migrationResolver, metaDataTable, target, outOfOrder);
+                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
 
                 List<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations();
                 if (resolvedMigrations.isEmpty()) {
@@ -809,7 +810,7 @@ public class Flyway {
                     doValidate(connectionUserObjects, dbSupport, resolvedMigrations, metaDataTable);
                 }
 
-                if (dbInfoAggregator.aggregateMigrationInfo().current() == null) {
+                if (metaDataTable.latestAppliedMigration() == null) {
                     List<String> nonEmptySchemas = nonEmptySchemas(dbSupport);
                     if (nonEmptySchemas.isEmpty()) {
                         metaDataTable.createIfNotExists();
@@ -867,11 +868,13 @@ public class Flyway {
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                List<ResolvedMigration> resolvedMigrations = createMigrationResolver().resolveMigrations();
+                MigrationResolver migrationResolver = createMigrationResolver();
+
+                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
-                doValidate(connectionUserObjects, dbSupport, resolvedMigrations, metaDataTable);
+                doValidate(connectionUserObjects, dbSupport, migrationResolver.resolveMigrations(), metaDataTable);
                 return null;
             }
         });
@@ -992,7 +995,11 @@ public class Flyway {
         return execute(new Command<MigrationInfoService>() {
             public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(createMigrationResolver(), metaDataTable, target, outOfOrder);
+                MigrationResolver migrationResolver = createMigrationResolver();
+
+                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
+
+                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(migrationResolver, metaDataTable, target, outOfOrder);
                 return dbInfoAggregator.aggregateMigrationInfo();
             }
         });
@@ -1006,6 +1013,8 @@ public class Flyway {
     public void init() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
+                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, createMigrationResolver()).upgrade();
+
                 doInit(connectionMetaDataTable, dbSupport);
                 return null;
             }
@@ -1032,6 +1041,7 @@ public class Flyway {
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
+                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, createMigrationResolver()).upgrade();
                 createMetaDataTable(connectionMetaDataTable, dbSupport).repair();
                 return null;
             }
@@ -1203,7 +1213,9 @@ public class Flyway {
             }
 
             try {
-                DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
+                if (!schemas[0].equals(dbSupport.getCurrentSchema())) {
+                    DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
+                }
             } catch (SQLException e) {
                 throw new FlywayException("Error setting current schema to " + schemas[0], e);
             }

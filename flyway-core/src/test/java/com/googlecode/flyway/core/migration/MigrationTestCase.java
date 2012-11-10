@@ -23,7 +23,7 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableTo18FormatUpgrader;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
 import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
 import com.googlecode.flyway.core.migration.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.migration.sql.SqlScript;
@@ -531,33 +531,33 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void format18upgrade() throws Exception {
+    public void format20upgrade() throws Exception {
         createMetaDataTableIn17Format();
-        upgradeMetaDataTableTo18Format();
+        upgradeMetaDataTableTo20Format();
     }
 
     @Test
-    public void format18upgradeMixedCase() throws Exception {
+    public void format20upgradeMixedCase() throws Exception {
         flyway.setTable("MiXeD_CaSe");
         createMetaDataTableIn17Format();
-        upgradeMetaDataTableTo18Format();
+        upgradeMetaDataTableTo20Format();
     }
 
     @Test(expected = FlywayException.class)
-    public void format18upgradeEmptyDescription() throws Exception {
+    public void format20upgradeEmptyDescription() throws Exception {
         createMetaDataTableIn17Format();
         insert17Row("1", null, "SQL", "V1__First.sql", 1234, 666, "SUCCESS");
-        upgradeMetaDataTableTo18Format();
+        upgradeMetaDataTableTo20Format();
     }
 
     @Test
-    public void format18upgradeCheckRank() throws Exception {
+    public void format20upgradeCheckRank() throws Exception {
         createMetaDataTableIn17Format();
         insert17Row("1.1", "View", "SQL", "V1_1__View.sql", Integer.MAX_VALUE, 666, "SUCCESS");
         insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
         insert17Row("3", "Spring", "JAVA", "V3__Spring", null, 55, "SUCCESS");
         insert17Row("4", "Jdbc", "JDBC", "V4__Jdbc", null, 55, "SUCCESS");
-        upgradeMetaDataTableTo18Format();
+        upgradeMetaDataTableTo20Format();
         assertIntColumnValue("1", "version_rank", 1);
         assertIntColumnValue("1", "installed_rank", 1);
         assertIntColumnValue("1.1", "version_rank", 2);
@@ -567,6 +567,16 @@ public abstract class MigrationTestCase {
         assertIntColumnValue("4", "version_rank", 4);
         assertIntColumnValue("4", "installed_rank", 4);
         assertStringColumnValue("3", "type", "SPRING_JDBC");
+    }
+
+    @Test
+    public void format20upgradeOnMigrate() throws Exception {
+        createMetaDataTableIn17Format();
+        insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
+        jdbcTemplate.execute("CREATE TABLE test_user (id INT NOT NULL,name VARCHAR(25) NOT NULL,PRIMARY KEY(name))");
+        flyway.setLocations(BASEDIR);
+        flyway.migrate();
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
     }
 
     /**
@@ -597,12 +607,12 @@ public abstract class MigrationTestCase {
     }
 
     /**
-     * Upgrade a Flyway 1.7 format metadata table to the new Flyway 1.8 format.
+     * Upgrade a Flyway 1.7 format metadata table to the new Flyway 2.0 format.
      */
-    private void upgradeMetaDataTableTo18Format() throws Exception {
+    private void upgradeMetaDataTableTo20Format() throws Exception {
         CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, BASEDIR, BASEDIR, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
-        MetaDataTableTo18FormatUpgrader upgrader = new MetaDataTableTo18FormatUpgrader(dbSupport, jdbcTemplate, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
+        MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
         upgrader.upgrade();
     }
 
