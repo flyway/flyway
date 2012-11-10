@@ -19,7 +19,6 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import org.apache.maven.project.MavenProject;
 
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
@@ -31,48 +30,49 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
      * and java-based migrations. (default: db/migration)
+     * <p>Also configurable with Maven or System Property: ${flyway.locations} (Comma-separated list)</p>
      *
      * @parameter
      */
     private String[] locations;
 
     /**
-     * The base package where the Java migrations are located. (default: db.migration) <br> Also configurable with Maven
-     * or System Property: ${flyway.basePackage}
+     * The base package where the Java migrations are located. (default: db.migration) <br>
+     * <p>Also configurable with Maven or System Property: ${flyway.basePackage}</p>
      *
      * @parameter expression="${flyway.basePackage}"
-     * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
+     * @deprecated Uses locations instead. Will be removed in Flyway 3.0.
      */
     private String basePackage;
 
     /**
-     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br> Also
-     * configurable with Maven or System Property: ${flyway.baseDir}
+     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br> <p>Also
+     * configurable with Maven or System Property: ${flyway.baseDir}</p>
      *
      * @parameter expression="${flyway.baseDir}"
-     * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
+     * @deprecated Uses locations instead. Will be removed in Flyway 3.0.
      */
     private String baseDir;
 
     /**
-     * The encoding of Sql migrations. (default: UTF-8)<br> Also configurable with Maven or System Property:
-     * ${flyway.encoding}
+     * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
+     * ${flyway.encoding}</p>
      *
      * @parameter expression="${flyway.encoding}"
      */
     private String encoding;
 
     /**
-     * The file name prefix for Sql migrations (default: V) Also configurable with Maven or System Property:
-     * ${flyway.sqlMigrationPrefix}
+     * The file name prefix for Sql migrations (default: V) <p>Also configurable with Maven or System Property:
+     * ${flyway.sqlMigrationPrefix}</p>
      *
      * @parameter expression="${flyway.sqlMigrationPrefix}"
      */
     private String sqlMigrationPrefix;
 
     /**
-     * The file name suffix for Sql migrations (default: .sql) Also configurable with Maven or System Property:
-     * ${flyway.sqlMigrationSuffix}
+     * The file name suffix for Sql migrations (default: .sql) <p>Also configurable with Maven or System Property:
+     * ${flyway.sqlMigrationSuffix}</p>
      *
      * @parameter expression="${flyway.sqlMigrationSuffix}"
      */
@@ -85,11 +85,11 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
      * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
      * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
-     * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/> Also configurable with Maven or System Property:
-     * ${flyway.validationErrorMode}
+     * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/> <p>Also configurable with Maven or System Property:
+     * ${flyway.validationErrorMode}</p>
      *
      * @parameter expression="${flyway.validationErrorMode}"
-     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 2.0.
+     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private String validationErrorMode;
@@ -101,7 +101,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
      * the next migration will bring you back to the state checked into SCM.</p>
      * <p><b>Warning ! Do not enable in production !</b></p><br/>
-     * Also configurable with Maven or System Property: ${flyway.cleanOnValidationError}
+     * <p>Also configurable with Maven or System Property: ${flyway.cleanOnValidationError}</p>
      *
      * @parameter expression="${flyway.cleanOnValidationError}"
      */
@@ -109,18 +109,12 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
 
     /**
      * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version) Also configurable with Maven or System Property: ${flyway.target}
+     * applied. (default: the latest version)
+     * <p>Also configurable with Maven or System Property: ${flyway.target}</p>
      *
      * @parameter expression="${flyway.target}"
      */
     private String target;
-
-    /**
-     * Reference to the current project that includes the Flyway Maven plugin.
-     *
-     * @parameter expression="${project}" required="true"
-     */
-    protected MavenProject mavenProject;
 
     @Override
     protected final void doExecute(Flyway flyway) throws Exception {

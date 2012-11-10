@@ -23,7 +23,7 @@ import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
  *
  * @goal status
  * @since 0.8
- * @deprecated Use flyway:info instead. Will be removed in Flyway 2.0.
+ * @deprecated Use flyway:info instead. Will be removed in Flyway 3.0.
  */
 @Deprecated
 public class StatusMojo extends AbstractFlywayMojo {

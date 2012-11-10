@@ -67,8 +67,9 @@ public abstract class AbstractFlywayTask extends Task {
     private String password;
 
     /**
-     * Comma-separated list of the schemas managed by Flyway. The first schema in the list will be the one containing
-     * the metadata table. (default: The default schema for the datasource connection)<br/>Also configurable with Ant Property:
+     * Comma-separated list of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
+     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
+     * (default: The default schema for the datasource connection)<br/>Also configurable with Ant Property:
      * ${flyway.schemas}
      */
     private String schemas;
@@ -129,8 +130,9 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param schemas Comma-separated list of the schemas managed by Flyway. The first schema in the list will be the one containing
-     *                the metadata table. (default: The default schema for the datasource connection)<br/>Also configurable with Ant Property:
+     * @param schemas Comma-separated list of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
+     *                the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
+     *                (default: The default schema for the datasource connection)<br/>Also configurable with Ant Property:
      *                ${flyway.schemas}
      */
     public void setSchemas(String schemas) {

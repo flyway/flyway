@@ -93,7 +93,8 @@ public class Flyway {
     private String encoding = "UTF-8";
 
     /**
-     * The schemas managed by Flyway. The first schema in the list will be the one containing the metadata table.
+     * The schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
+     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
      * (default: The default schema for the datasource connection)
      */
     private String[] schemas = new String[0];
@@ -262,8 +263,8 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the schemas managed by Flyway. The first schema in the list will be the one containing the metadata
-     * table.
+     * Retrieves the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
+     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
      *
      * @return The schemas managed by Flyway. (default: The default schema for the datasource connection)
      */
@@ -290,8 +291,8 @@ public class Flyway {
      * @return The target version up to which Flyway should run migrations. Migrations with a higher version number will
      *         not be applied. (default: the latest version)
      */
-    public SchemaVersion getTarget() {
-        return new SchemaVersion(target.toString());
+    public MigrationVersion getTarget() {
+        return target;
     }
 
     /**
@@ -413,8 +414,8 @@ public class Flyway {
      *
      * @return The initial version to put in the database. (default: 0)
      */
-    public SchemaVersion getInitialVersion() {
-        return new SchemaVersion(initialVersion.toString());
+    public MigrationVersion getInitialVersion() {
+        return initialVersion;
     }
 
     /**
@@ -613,7 +614,8 @@ public class Flyway {
     }
 
     /**
-     * Sets the schemas managed by Flyway. The first schema in the list will be the one containing the metadata table.
+     * Sets the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
+          * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
      */

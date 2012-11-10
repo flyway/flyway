@@ -25,6 +25,7 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 
@@ -36,58 +37,73 @@ import javax.sql.DataSource;
  * @requiresDependencyResolution compile
  * @configurator include-project-dependencies
  */
-@SuppressWarnings({"JavaDoc", "FieldCanBeLocal"})
+@SuppressWarnings({"JavaDoc", "FieldCanBeLocal", "UnusedDeclaration"})
 abstract class AbstractFlywayMojo extends AbstractMojo {
     protected Log LOG;
 
     /**
-     * The fully qualified classname of the jdbc driver to use to connect to the database.<br> default property:
-     * ${flyway.driver}
+     * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.driver}</p>
      *
      * @parameter expression="${flyway.driver}"
      */
     /* private -> for testing */ String driver;
 
     /**
-     * The jdbc url to use to connect to the database.<br> default property: ${flyway.url}
+     * The jdbc url to use to connect to the database.<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.url}</p>
      *
      * @parameter expression="${flyway.url}"
      */
     /* private -> for testing */ String url;
 
     /**
-     * The user to use to connect to the database.<br> default property: ${flyway.user}<br>
-     * The credentials can be specified by user/password or serverId from settings.xml
+     * The user to use to connect to the database.<br>
+     * The credentials can be specified by user/password or {@code serverId} from settings.xml
+     * <p>Also configurable with Maven or System Property: ${flyway.user}</p>
      *
      * @parameter expression="${flyway.user}"
      */
     /* private -> for testing */ String user;
 
     /**
-     * The password to use to connect to the database. (default: <i>blank</i>)<br> default property: ${flyway.password}
+     * The password to use to connect to the database. (default: <i>blank</i>)<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.password}</p>
      *
      * @parameter expression="${flyway.password}"
      */
     private String password = "";
 
     /**
-     * Comma-separated list of the schemas managed by Flyway. The first schema in the list will be the one containing
-     * the metadata table. (default: The default schema for the datasource connection)<br> default property:
-     * ${flyway.schemas}
+     * List of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
+     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
+     * (default: The default schema for the datasource connection)<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
      *
      * @parameter expression="${flyway.schemas}"
      */
-    private String schemas;
+    private String[] schemas;
 
     /**
-     * <p>The name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode) the
-     * metadata table is placed in the default schema for the connection provided by the datasource. </p> <p> When the
-     * <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first schema of
-     * the list. </p> (default: schema_version)<br> default property: ${flyway.table}
+     * <p>The name of the metadata table that will be used by Flyway. (default: schema_version)</p>
+     * <p> By default (single-schema mode) the
+     * metadata table is placed in the default schema for the connection provided by the datasource. <br/> When the
+     * {@code flyway.schemas} property is set (multi-schema mode), the metadata table is placed in the first schema of
+     * the list. </p>
+     * <p>Also configurable with Maven or System Property: ${flyway.table}</p>
      *
      * @parameter expression="${flyway.table}"
      */
     private String table;
+
+    /**
+     * The id of the server tag in settings.xml (default: flyway-db)<br/>
+     * The credentials can be specified by user/password or {@code serverId} from settings.xml<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.serverId}</p>
+     *
+     * @parameter expression="${flyway.serverId}"
+     */
+    private String serverId = "flyway-db";
 
     /**
      * The link to the settings.xml
@@ -99,13 +115,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private Settings settings;
 
     /**
-     * The id of the server tag in settings.xml<br>default: flyway-db<br>
-     * The credentials can be specified by user/password or serverId from settings.xml<br> default property:
-     * ${flyway.serverId}
+     * Reference to the current project that includes the Flyway Maven plugin.
      *
-     * @parameter expression="${flyway.serverId}"
+     * @parameter expression="${project}" required="true"
      */
-    private String serverId = "flyway-db";
+    protected MavenProject mavenProject;
 
     /**
      * Load username password from settings
@@ -142,8 +156,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             Flyway flyway = new Flyway();
             flyway.setDataSource(createDataSource());
-            if (schemas != null) {
-                flyway.setSchemas(StringUtils.tokenizeToStringArray(schemas, ","));
+
+            String schemasProperty = mavenProject.getProperties().getProperty("flyway.schemas");
+            if (schemasProperty != null) {
+                flyway.setLocations(StringUtils.tokenizeToStringArray(schemasProperty, ","));
+            } else if (schemas != null) {
+                flyway.setSchemas(schemas);
             }
             if (table != null) {
                 flyway.setTable(table);

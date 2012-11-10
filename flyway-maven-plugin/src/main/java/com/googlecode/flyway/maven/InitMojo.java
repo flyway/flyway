@@ -22,20 +22,20 @@ import com.googlecode.flyway.core.api.MigrationVersion;
  * Maven goal that initializes the metadata table in an existing schema.
  *
  * @goal init
- * @since 0.8.5
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class InitMojo extends AbstractFlywayMojo {
     /**
-     * The initial version to put in the database. (default: 0) <br> default property: ${flyway.initialVersion}
+     * The initial version to put in the database. (default: 0) <br>
+     * <p>Also configurable with Maven or System Property: ${flyway.initialVersion}</p>
      *
      * @parameter expression="${flyway.initialVersion}"
      */
     private String initialVersion;
 
     /**
-     * The description of the initial version. (default: << Flyway Init >>)<br> default property:
-     * ${flyway.initialDescription}
+     * The description of the initial version. (default: << Flyway Init >>)<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.initialDescription}</p>
      *
      * @parameter expression="${flyway.initialDescription}"
      */

@@ -27,6 +27,9 @@
                     <driver>org.hsqldb.jdbcDriver</driver>
                     <url>jdbc:hsqldb:file:${project.build.directory}/db/flyway_sample;shutdown=true</url>
                     <user>SA</user>
+                    <schemas>
+                        <schema>PUBLIC</schema>
+                    </schemas>
                 </configuration>
             </plugin>
             <plugin>

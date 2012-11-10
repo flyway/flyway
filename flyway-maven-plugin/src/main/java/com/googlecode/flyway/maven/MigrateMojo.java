@@ -41,8 +41,8 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
      * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
-     * bad migration. (default: false) Also configurable with Maven or System Property:
-     * ${flyway.ignoreFailedFutureMigration}
+     * bad migration. (default: false)
+     * <p>Also configurable with Maven or System Property: ${flyway.ignoreFailedFutureMigration}</p>
      *
      * @parameter expression="${flyway.ignoreFailedFutureMigration}"
      */
@@ -51,21 +51,23 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.
      *
+     * <p>Also configurable with Maven or System Properties like ${flyway.placeholders.myplaceholder} or ${flyway.placeholders.otherone}</p>
+     *
      * @parameter
      */
     private Map<String, String> placeholders;
 
     /**
-     * The prefix of every placeholder. (default: ${ )<br> Also configurable with Maven or System Property:
-     * ${flyway.placeholderPrefix}
+     * The prefix of every placeholder. (default: ${ )<br>
+     *     <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
      *
      * @parameter expression="${flyway.placeholderPrefix}"
      */
     private String placeholderPrefix;
 
     /**
-     * The suffix of every placeholder. (default: } )<br> Also configurable with Maven or System Property:
-     * ${flyway.placeholderSuffix}
+     * The suffix of every placeholder. (default: } )<br>
+     *     <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
      *
      * @parameter expression="${flyway.placeholderSuffix}"
      */
@@ -74,8 +76,8 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
     /**
      * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
      * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
-     * this! (default: false)<br/>Also configurable with Maven or System Property:
-     * ${flyway.disableInitCheck}
+     * this! (default: false)<br/><p>Also configurable with Maven or System Property:
+     * ${flyway.disableInitCheck}</p>
      *
      * @parameter expression="${flyway.disableInitCheck}"
      * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
@@ -96,7 +98,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
      * </p>
-     * Also configurable with Maven or System Property: ${flyway.initOnMigrate}
+     * <p>Also configurable with Maven or System Property: ${flyway.initOnMigrate}</p>
      *
      * @parameter expression="${flyway.initOnMigrate}"
      */
@@ -106,18 +108,18 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * The type of validation to be performed before migrating.<br/> <br/> Possible values are:<br/> <br/> <b>NONE</b>
      * (default)<br/> No validation is performed.<br/> <br/> <b>ALL</b><br/> For each sql migration a CRC32 checksum is
      * calculated when the sql script is executed. The validate mechanism checks if the sql migrations in the classpath
-     * still has the same checksum as the sql migration already executed in the database.<br/> <br/> Also configurable
-     * with Maven or System Property: ${flyway.validationMode}
+     * still has the same checksum as the sql migration already executed in the database.<br/> <p>Also configurable
+     * with Maven or System Property: ${flyway.validationMode}</p>
      *
      * @parameter expression="${flyway.validationMode}"
-     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private String validationMode;
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
-     * Also configurable with Maven or System Property: ${flyway.validationErrorMode}
+     * <p>Also configurable with Maven or System Property: ${flyway.validationErrorMode}</p>
      *
      * @parameter expression="${flyway.validateOnMigrate}"
      */
