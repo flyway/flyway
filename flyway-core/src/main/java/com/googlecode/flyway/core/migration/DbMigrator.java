@@ -20,7 +20,7 @@ import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
-import com.googlecode.flyway.core.info.DbInfoAggregator;
+import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
 import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
@@ -152,7 +152,7 @@ public class DbMigrator {
                                     if (isFutureMigration && ignoreFailedFutureMigration) {
                                         LOG.warn("Detected failed migration to version " + currentSchemaVersion + " !");
                                     } else {
-                                        throw new MigrationException(currentSchemaVersion, false);
+                                        return Pair.of(false, currentSchemaVersion);
                                     }
                                 }
 
@@ -160,7 +160,7 @@ public class DbMigrator {
                                     return null;
                                 }
 
-                                ResolvedMigration migration = getNextMigration(migrations, currentSchemaVersion);
+                                ResolvedMigration migration = getNextMigration(migrations);
                                 if (migration == null) {
                                     // No further migrations available
                                     return null;
@@ -176,7 +176,7 @@ public class DbMigrator {
                 }
 
                 if (!result.getLeft()) {
-                    throw new MigrationException(result.getRight(), false);
+                    throw new FlywayException("Migration to version " + result.getRight() + " failed! Please restore backups and roll back database and code!");
                 }
 
                 migrationSuccessCount++;
@@ -217,9 +217,9 @@ public class DbMigrator {
      *
      * @param migration The migration to apply.
      * @return Pair of success flag and version.
-     * @throws MigrationException when the migration failed.
+     * @throws FlywayException when the migration failed.
      */
-    private Pair<Boolean, MigrationVersion> applyMigration(final ResolvedMigration migration) throws MigrationException {
+    private Pair<Boolean, MigrationVersion> applyMigration(final ResolvedMigration migration) throws FlywayException {
         MigrationVersion version = migration.getVersion();
         LOG.info("Migrating to version " + version);
 
@@ -251,7 +251,7 @@ public class DbMigrator {
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
         if (!success && dbSupport.supportsDdlTransactions()) {
-            throw new MigrationException(version, true);
+            throw new FlywayException("Migration to version " + version + " failed! Changes successfully rolled back.");
         }
         LOG.debug(String.format("Finished migrating to version %s (execution time %s)",
                 version, TimeFormat.format(executionTime)));
@@ -267,13 +267,12 @@ public class DbMigrator {
     /**
      * Returns the next migration to apply.
      *
-     * @param currentVersion The current version of the schema.
-     * @param allMigrations  All available migrations, sorted by version, newest first.
+     * @param allMigrations All available migrations, sorted by version, newest first.
      * @return The next migration to apply.
      */
-    private ResolvedMigration getNextMigration(List<ResolvedMigration> allMigrations, MigrationVersion currentVersion) {
+    private ResolvedMigration getNextMigration(List<ResolvedMigration> allMigrations) {
         MigrationInfo[] pendingMigrations =
-                new DbInfoAggregator(migrationResolver, metaDataTable, target, outOfOrder).aggregateMigrationInfo().pending();
+                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder).pending();
 
         if (pendingMigrations.length == 0) {
             return null;

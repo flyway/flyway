@@ -23,7 +23,7 @@ import java.util.Date;
 /**
  * A migration applied to the database (maps to a row in the metadata table).
  */
-public class AppliedMigration {
+public class AppliedMigration implements Comparable<AppliedMigration> {
     /**
      * The position of this version amongst all others. (For easy order by sorting)
      */
@@ -94,7 +94,7 @@ public class AppliedMigration {
      * @param executionTime The execution time (in millis) of this migration.
      * @param success       Flag indicating whether the migration was successful or not.
      */
-    AppliedMigration(int versionRank, int installedRank, MigrationVersion version, String description,
+    public AppliedMigration(int versionRank, int installedRank, MigrationVersion version, String description,
                      MigrationType type, String script, Integer checksum, Date installedOn,
                      String installedBy, int executionTime, boolean success) {
         this.versionRank = versionRank;
@@ -243,5 +243,45 @@ public class AppliedMigration {
      */
     public boolean isSuccess() {
         return success;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AppliedMigration that = (AppliedMigration) o;
+
+        if (executionTime != that.executionTime) return false;
+        if (installedRank != that.installedRank) return false;
+        if (success != that.success) return false;
+        if (versionRank != that.versionRank) return false;
+        if (checksum != null ? !checksum.equals(that.checksum) : that.checksum != null) return false;
+        if (!description.equals(that.description)) return false;
+        if (installedBy != null ? !installedBy.equals(that.installedBy) : that.installedBy != null) return false;
+        if (installedOn != null ? !installedOn.equals(that.installedOn) : that.installedOn != null) return false;
+        if (!script.equals(that.script)) return false;
+        if (type != that.type) return false;
+        return version.equals(that.version);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = versionRank;
+        result = 31 * result + installedRank;
+        result = 31 * result + version.hashCode();
+        result = 31 * result + description.hashCode();
+        result = 31 * result + type.hashCode();
+        result = 31 * result + script.hashCode();
+        result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
+        result = 31 * result + (installedOn != null ? installedOn.hashCode() : 0);
+        result = 31 * result + (installedBy != null ? installedBy.hashCode() : 0);
+        result = 31 * result + executionTime;
+        result = 31 * result + (success ? 1 : 0);
+        return result;
+    }
+
+    public int compareTo(AppliedMigration o) {
+        return version.compareTo(o.version);
     }
 }

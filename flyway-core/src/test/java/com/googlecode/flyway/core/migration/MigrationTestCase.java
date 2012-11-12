@@ -319,7 +319,7 @@ public abstract class MigrationTestCase {
         try {
             flyway.migrate();
             fail();
-        } catch (MigrationException e) {
+        } catch (FlywayException e) {
             if (dbSupport.supportsDdlTransactions()) {
                 assertTrue(e.getMessage().contains("rolled back"));
             } else {

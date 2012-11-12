@@ -22,9 +22,10 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.clean.DbCleaner;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
-import com.googlecode.flyway.core.info.DbInfoAggregator;
+import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
 import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableImpl;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
 import com.googlecode.flyway.core.migration.DbMigrator;
@@ -32,13 +33,14 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.StringUtils;
+import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
-import com.googlecode.flyway.core.validation.DbValidator;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 
@@ -891,8 +893,29 @@ public class Flyway {
      * @param metaDataTable         The metadata table.
      */
     private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, List<ResolvedMigration> resolvedMigrations, MetaDataTable metaDataTable) {
-        DbValidator dbValidator = new DbValidator(metaDataTable);
-        final String validationError = dbValidator.validate(resolvedMigrations);
+        LOG.debug("Validating migrations ...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        MigrationInfoServiceImpl migrationInfoService =
+                new MigrationInfoServiceImpl(createMigrationResolver(), metaDataTable, target, outOfOrder);
+
+        if (migrationInfoService.applied().length == 0) {
+            LOG.info("No migrations applied yet. No validation necessary.");
+            return;
+        }
+
+        String validationError = migrationInfoService.validate();
+
+        stopWatch.stop();
+        int count = migrationInfoService.all().length;
+        if (count == 1) {
+            LOG.info(String.format("Validated 1 migration (execution time %s)",
+                    TimeFormat.format(stopWatch.getTotalTimeMillis())));
+        } else {
+            LOG.info(String.format("Validated %d migrations (execution time %s)",
+                    count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+        }
 
         if (validationError != null) {
             final String msg = "Validate failed. Found differences between applied migrations and available migrations: " + validationError;
@@ -977,8 +1000,7 @@ public class Flyway {
 
                 new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
 
-                DbInfoAggregator dbInfoAggregator = new DbInfoAggregator(migrationResolver, metaDataTable, target, outOfOrder);
-                return dbInfoAggregator.aggregateMigrationInfo();
+                return new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
             }
         });
     }
@@ -1030,7 +1052,7 @@ public class Flyway {
      * @return A new, fully configured, MetaDataTable instance.
      */
     private MetaDataTable createMetaDataTable(Connection connectionMetaDataTable, DbSupport dbSupport) {
-        return new MetaDataTable(connectionMetaDataTable, dbSupport, schemas[0], table);
+        return new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table);
     }
 
     /**
