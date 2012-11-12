@@ -166,7 +166,6 @@ public class Main {
      * @param properties The properties object to initialize.
      */
     private static void initializeDefaults(Properties properties) {
-        properties.put("flyway.password", "");
         properties.put("flyway.locations", "/,db/migration");
     }
 

@@ -52,6 +52,21 @@ public class FlywaySmallTest {
         });
     }
 
+    /**
+     * This must be possible to enable NTLM authentication on SQL Server.
+     */
+    @Test
+    public void configureNoUserNoPassword() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1");
+        properties.setProperty("flyway.driver", "org.h2.Driver");
+
+        final Flyway flyway = new Flyway();
+        flyway.configure(properties);
+
+        assertNotNull(flyway.getDataSource());
+    }
+
     @Test
     public void configureTarget() {
         Properties properties = new Properties();

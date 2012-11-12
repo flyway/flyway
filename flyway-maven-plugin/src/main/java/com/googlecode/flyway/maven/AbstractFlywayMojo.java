@@ -58,7 +58,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /* private -> for testing */ String url;
 
     /**
-     * The user to use to connect to the database.<br>
+     * The user to use to connect to the database. (default: <i>blank</i>)<br>
      * The credentials can be specified by user/password or {@code serverId} from settings.xml
      * <p>Also configurable with Maven or System Property: ${flyway.user}</p>
      *
@@ -72,7 +72,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter expression="${flyway.password}"
      */
-    private String password = "";
+    private String password;
 
     /**
      * List of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
@@ -129,12 +129,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private void loadCredentialsFromSettings() throws FlywayException {
         if (user == null) {
             final Server server = settings.getServer(serverId);
-            if (server == null) {
-                throw new FlywayException(String.format("Database username missing. It was not specified as a property" +
-                        " and it was not defined in settings.xml for the server with the id '%s'", serverId));
+            if (server != null) {
+                user = server.getUsername();
+                password = server.getPassword();
             }
-            user = server.getUsername();
-            password = server.getPassword();
         }
     }
 
@@ -171,6 +169,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         } catch (Exception e) {
             log.error(e.toString());
 
+            @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause != null) {
                 log.error("Caused by " + rootCause.toString());

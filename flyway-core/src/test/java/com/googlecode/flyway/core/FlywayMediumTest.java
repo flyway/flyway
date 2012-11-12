@@ -74,7 +74,7 @@ public class FlywayMediumTest {
     @Test
     public void info() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", null);
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);

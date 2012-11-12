@@ -56,7 +56,7 @@ public abstract class AbstractFlywayTask extends Task {
     private String url;
 
     /**
-     * The user to use to connect to the database.<br/>Also configurable with Ant Property: ${flyway.user}<br>
+     * The user to use to connect to the database. (default: <i>blank</i>)<br/>Also configurable with Ant Property: ${flyway.user}<br>
      * The credentials can be specified by user/password or serverId from settings.xml
      */
     private String user;
@@ -160,9 +160,6 @@ public abstract class AbstractFlywayTask extends Task {
         String urlValue = useValueIfPropertyNotSet(url, "url");
         String userValue = useValueIfPropertyNotSet(user, "user");
         String passwordValue = useValueIfPropertyNotSet(password, "password");
-        if (passwordValue == null) {
-            passwordValue = "";
-        }
 
         return new DriverDataSource(driverValue, urlValue, userValue, passwordValue);
     }
