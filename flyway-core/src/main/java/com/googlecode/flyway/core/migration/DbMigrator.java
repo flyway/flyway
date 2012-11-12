@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.info.DbInfoAggregator;
+import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
@@ -255,7 +256,9 @@ public class DbMigrator {
         LOG.debug(String.format("Finished migrating to version %s (execution time %s)",
                 version, TimeFormat.format(executionTime)));
 
-        metaDataTable.insert(migration, success, executionTime);
+        AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
+                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, success);
+        metaDataTable.insert(appliedMigration);
         LOG.debug("MetaData table successfully updated to reflect changes");
 
         return Pair.of(success, migration.getVersion());

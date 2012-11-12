@@ -16,19 +16,17 @@
 package com.googlecode.flyway.core.metadatatable;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.MigrationInfoImpl;
-import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
@@ -154,21 +152,14 @@ public class MetaDataTable {
     }
 
     /**
-     * Adds this migration as executed to the metadata table and mark it as current.
+     * Adds this migration as executed to the metadata table.
      *
-     * @param resolvedMigration The migrationInfo to add.
-     * @param success           Whether the migration was successfully executed.
-     * @param executionTime     The time in millis it took to execute the migration.
+     * @param appliedMigration The migration that was executed.
      */
-    public void insert(ResolvedMigration resolvedMigration, boolean success, int executionTime) {
+    public void insert(AppliedMigration appliedMigration) {
+        MigrationVersion version = appliedMigration.getVersion();
         try {
-            MigrationVersion version = resolvedMigration.getVersion();
             int versionRank = calculateVersionRank(version);
-            int installedRank = caculateInstalledRank();
-            String description = abbreviateDescription(resolvedMigration.getDescription());
-            String migrationType = resolvedMigration.getType().name();
-            Integer checksum = resolvedMigration.getChecksum();
-            String script = abbreviateScript(resolvedMigration.getScript());
 
             jdbcTemplate.update("UPDATE " + fullyQualifiedMetadataTableName()
                     + " SET " + dbSupport.quote("version_rank") + " = " + dbSupport.quote("version_rank")
@@ -186,10 +177,17 @@ public class MetaDataTable {
                     + "," + dbSupport.quote("success")
                     + ")"
                     + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
-                    versionRank, installedRank, version.toString(), description, migrationType, script, checksum,
-                    executionTime, success);
+                    versionRank,
+                    calculateInstalledRank(),
+                    version.toString(),
+                    appliedMigration.getDescription(),
+                    appliedMigration.getType().name(),
+                    appliedMigration.getScript(),
+                    appliedMigration.getChecksum(),
+                    appliedMigration.getExecutionTime(),
+                    appliedMigration.isSuccess());
         } catch (SQLException e) {
-            throw new FlywayException("Unable to insert metadata table row for version " + resolvedMigration.getVersion(), e);
+            throw new FlywayException("Unable to insert metadata table row for version " + version, e);
         }
     }
 
@@ -198,7 +196,7 @@ public class MetaDataTable {
      *
      * @return The installed rank.
      */
-    private int caculateInstalledRank() throws SQLException {
+    private int calculateInstalledRank() throws SQLException {
         int currentMax = jdbcTemplate.queryForInt("SELECT MAX(" + dbSupport.quote("installed_rank") + ")"
                 + " FROM " + fullyQualifiedMetadataTableName());
         return currentMax + 1;
@@ -230,42 +228,6 @@ public class MetaDataTable {
     }
 
     /**
-     * Abbreviates this description to a length that will fit in the database.
-     *
-     * @param description The description to process.
-     * @return The abbreviated version.
-     */
-    private String abbreviateDescription(String description) {
-        if (description == null) {
-            return null;
-        }
-
-        if (description.length() <= 200) {
-            return description;
-        }
-
-        return description.substring(0, 197) + "...";
-    }
-
-    /**
-     * Abbreviates this script to a length that will fit in the database.
-     *
-     * @param script The script to process.
-     * @return The abbreviated version.
-     */
-    private String abbreviateScript(String script) {
-        if (script == null) {
-            return null;
-        }
-
-        if (script.length() <= 1000) {
-            return script;
-        }
-
-        return "..." + script.substring(3, 1000);
-    }
-
-    /**
      * Checks whether the metadata table contains at least one row.
      *
      * @return {@code true} if the metadata table has at least one row. {@code false} if it is empty or it doesn't exist
@@ -284,27 +246,6 @@ public class MetaDataTable {
     }
 
     /**
-     * @return The latest migration applied on the schema. {@code null} if no migration has been applied so far.
-     */
-    public MigrationInfo latestAppliedMigration() {
-        if (!hasRows()) {
-            return null;
-        }
-
-        String query = getSelectStatement() + " WHERE " + dbSupport.quote("version_rank")
-                + "IN (SELECT MAX(" + dbSupport.quote("version_rank") + ") FROM " + fullyQualifiedMetadataTableName() + ")";
-        try {
-            final List<? extends MigrationInfo> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
-            if (migrationInfos.isEmpty()) {
-                throw new FlywayException("Cannot determine latest applied migration. Was the metadata table manually modified?");
-            }
-            return migrationInfos.get(0);
-        } catch (SQLException e) {
-            throw new FlywayException("Error determining latest applied migration", e);
-        }
-    }
-
-    /**
      * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
      *         applied so far.
      */
@@ -313,22 +254,7 @@ public class MetaDataTable {
             return new ArrayList<MigrationInfoImpl>();
         }
 
-        String query = getSelectStatement();
-
-        try {
-            final List<MigrationInfoImpl> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
-            Collections.sort(migrationInfos);
-            return migrationInfos;
-        } catch (SQLException e) {
-            throw new FlywayException("Error while retrieving the list of applied migrations", e);
-        }
-    }
-
-    /**
-     * @return The select statement for reading the metadata table.
-     */
-    private String getSelectStatement() {
-        return "SELECT " + dbSupport.quote("version")
+        String query = "SELECT " + dbSupport.quote("version")
                 + "," + dbSupport.quote("description")
                 + "," + dbSupport.quote("type")
                 + "," + dbSupport.quote("script")
@@ -337,6 +263,14 @@ public class MetaDataTable {
                 + "," + dbSupport.quote("execution_time")
                 + "," + dbSupport.quote("success")
                 + " FROM " + fullyQualifiedMetadataTableName();
+
+        try {
+            final List<MigrationInfoImpl> migrationInfos = jdbcTemplate.query(query, new MigrationInfoRowMapper());
+            Collections.sort(migrationInfos);
+            return migrationInfos;
+        } catch (SQLException e) {
+            throw new FlywayException("Error while retrieving the list of applied migrations", e);
+        }
     }
 
     /**
@@ -382,11 +316,18 @@ public class MetaDataTable {
      * @return The current version of the schema. {@code MigrationVersion.EMPTY} for an empty schema.
      */
     public MigrationVersion getCurrentSchemaVersion() {
-        MigrationInfo latestAppliedMigration = latestAppliedMigration();
-        if (latestAppliedMigration == null) {
+        if (!hasRows()) {
             return MigrationVersion.EMPTY;
         }
-        return new MigrationVersion(latestAppliedMigration.getVersion().toString());
+
+        String query = "SELECT " + dbSupport.quote("version") + " FROM " + fullyQualifiedMetadataTableName() + " WHERE " + dbSupport.quote("version_rank")
+                + "IN (SELECT MAX(" + dbSupport.quote("version_rank") + ") FROM " + fullyQualifiedMetadataTableName() + ")";
+        try {
+            String version = jdbcTemplate.queryForString(query);
+            return new MigrationVersion(version);
+        } catch (SQLException e) {
+            throw new FlywayException("Error determining current schema version", e);
+        }
     }
 
     /**

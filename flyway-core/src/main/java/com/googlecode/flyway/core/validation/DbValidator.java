@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.validation;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
@@ -70,7 +71,7 @@ public class DbValidator {
         }
 
         final MigrationInfo firstAppliedMigration = appliedMigrations.get(0);
-        if (com.googlecode.flyway.core.api.MigrationType.INIT.equals(firstAppliedMigration.getType())) {
+        if (MigrationType.INIT.equals(firstAppliedMigration.getType())) {
             // if first migration is INIT, just check checksum of following migrations
             final MigrationVersion initVersion = firstAppliedMigration.getVersion();
             appliedMigrations.remove(firstAppliedMigration);

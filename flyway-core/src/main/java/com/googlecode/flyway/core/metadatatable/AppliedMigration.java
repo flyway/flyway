@@ -47,7 +47,7 @@ public class AppliedMigration {
     /**
      * The type of migration (INIT, SQL, ...)
      */
-    private MigrationType migrationType;
+    private MigrationType type;
 
     /**
      * The name of the script to execute for this migration, relative to its classpath location.
@@ -80,13 +80,13 @@ public class AppliedMigration {
     private boolean success;
 
     /**
-     * Creates a new applied migration.
+     * Creates a new applied migration. Only called from the RowMapper.
      *
      * @param versionRank   The position of this version amongst all others. (For easy order by sorting)
      * @param installedRank The order in which this migration was applied amongst all others. (For out of order detection)
      * @param version       The target version of this migration.
      * @param description   The description of the migration.
-     * @param migrationType The type of migration (INIT, SQL, ...)
+     * @param type          The type of migration (INIT, SQL, ...)
      * @param script        The name of the script to execute for this migration, relative to its classpath location.
      * @param checksum      The checksum of the migration. (Optional)
      * @param installedOn   The timestamp when this migration was installed.
@@ -94,20 +94,78 @@ public class AppliedMigration {
      * @param executionTime The execution time (in millis) of this migration.
      * @param success       Flag indicating whether the migration was successful or not.
      */
-    public AppliedMigration(int versionRank, int installedRank, MigrationVersion version, String description,
-                            MigrationType migrationType, String script, Integer checksum, Date installedOn,
-                            String installedBy, int executionTime, boolean success) {
+    AppliedMigration(int versionRank, int installedRank, MigrationVersion version, String description,
+                     MigrationType type, String script, Integer checksum, Date installedOn,
+                     String installedBy, int executionTime, boolean success) {
         this.versionRank = versionRank;
         this.installedRank = installedRank;
         this.version = version;
         this.description = description;
-        this.migrationType = migrationType;
+        this.type = type;
         this.script = script;
         this.checksum = checksum;
         this.installedOn = installedOn;
         this.installedBy = installedBy;
         this.executionTime = executionTime;
         this.success = success;
+    }
+
+    /**
+     * Creates a new applied migration.
+     *
+     * @param version       The target version of this migration.
+     * @param description   The description of the migration.
+     * @param type          The type of migration (INIT, SQL, ...)
+     * @param script        The name of the script to execute for this migration, relative to its classpath location.
+     * @param checksum      The checksum of the migration. (Optional)
+     * @param executionTime The execution time (in millis) of this migration.
+     * @param success       Flag indicating whether the migration was successful or not.
+     */
+    public AppliedMigration(MigrationVersion version, String description, MigrationType type, String script,
+                            Integer checksum, int executionTime, boolean success) {
+        this.version = version;
+        this.description = abbreviateDescription(description);
+        this.type = type;
+        this.script = abbreviateScript(script);
+        this.checksum = checksum;
+        this.executionTime = executionTime;
+        this.success = success;
+    }
+
+    /**
+     * Abbreviates this description to a length that will fit in the database.
+     *
+     * @param description The description to process.
+     * @return The abbreviated version.
+     */
+    private String abbreviateDescription(String description) {
+        if (description == null) {
+            return null;
+        }
+
+        if (description.length() <= 200) {
+            return description;
+        }
+
+        return description.substring(0, 197) + "...";
+    }
+
+    /**
+     * Abbreviates this script to a length that will fit in the database.
+     *
+     * @param script The script to process.
+     * @return The abbreviated version.
+     */
+    private String abbreviateScript(String script) {
+        if (script == null) {
+            return null;
+        }
+
+        if (script.length() <= 1000) {
+            return script;
+        }
+
+        return "..." + script.substring(3, 1000);
     }
 
     /**
@@ -141,8 +199,8 @@ public class AppliedMigration {
     /**
      * @return The type of migration (INIT, SQL, ...)
      */
-    public MigrationType getMigrationType() {
-        return migrationType;
+    public MigrationType getType() {
+        return type;
     }
 
     /**

@@ -18,8 +18,8 @@ package com.googlecode.flyway.core.init;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
-import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -72,15 +72,13 @@ public class DbInit {
 
         metaDataTable.createIfNotExists();
 
-        final ResolvedMigration resolvedMigration = new ResolvedMigration();
-        resolvedMigration.setVersion(initialVersion);
-        resolvedMigration.setDescription(initialDescription);
-        resolvedMigration.setScript(initialDescription);
-        resolvedMigration.setType(MigrationType.INIT);
+        final AppliedMigration appliedMigration =
+                new AppliedMigration(initialVersion, initialDescription, MigrationType.INIT, initialDescription, null,
+                        0, true);
 
         transactionTemplate.execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-                metaDataTable.insert(resolvedMigration, true, 0);
+                metaDataTable.insert(appliedMigration);
                 return null;
             }
         });

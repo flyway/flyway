@@ -937,16 +937,11 @@ public class Flyway {
     @Deprecated
     public MetaDataTableRow status() {
         LOG.warn("Flyway.status() has been deprecated and will be removed in Flyway 3.0. Use Flyway.info().current() instead.");
-        return execute(new Command<MetaDataTableRow>() {
-            public MetaDataTableRow execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                MigrationInfo migrationInfo = metaDataTable.latestAppliedMigration();
-                if (migrationInfo == null) {
-                    return null;
-                }
-                return new MetaDataTableRow(migrationInfo);
-            }
-        });
+        MigrationInfo current = info().current();
+        if (current == null) {
+            return null;
+        }
+        return new MetaDataTableRow(current);
     }
 
     /**
@@ -958,18 +953,13 @@ public class Flyway {
     @Deprecated
     public List<MetaDataTableRow> history() {
         LOG.warn("Flyway.history() has been deprecated and will be removed in Flyway 3.0. Use Flyway.info().applied() instead.");
-        return execute(new Command<List<MetaDataTableRow>>() {
-            public List<MetaDataTableRow> execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                List<? extends MigrationInfo> migrationInfos = metaDataTable.allAppliedMigrations();
+        MigrationInfo[] migrationInfos = info().applied();
 
-                List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>(migrationInfos.size());
-                for (MigrationInfo migrationInfo : migrationInfos) {
-                    metaDataTableRows.add(new MetaDataTableRow(migrationInfo));
-                }
-                return metaDataTableRows;
-            }
-        });
+        List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            metaDataTableRows.add(new MetaDataTableRow(migrationInfo));
+        }
+        return metaDataTableRows;
     }
 
     /**
