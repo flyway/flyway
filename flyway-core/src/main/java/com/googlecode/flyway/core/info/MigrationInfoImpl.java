@@ -59,6 +59,13 @@ public class MigrationInfoImpl implements MigrationInfo {
         this.context = context;
     }
 
+    /**
+     * @return The resolved migration to aggregate the info from.
+     */
+    public ResolvedMigration getResolvedMigration() {
+        return resolvedMigration;
+    }
+
     public MigrationType getType() {
         if (resolvedMigration != null) {
             return resolvedMigration.getType();

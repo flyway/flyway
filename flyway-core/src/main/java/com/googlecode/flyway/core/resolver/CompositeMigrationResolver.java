@@ -168,7 +168,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @return The merged locations set.
      */
     /* private -> for testing */ Set<String> mergeLocations() {
-        //TODO: In Flyway 2.0, add warnings for duplicates and overlaps
+        //TODO: In Flyway 3.0, add warnings for duplicates and overlaps
 
         //Use set to remove duplicates
         Set<String> mergedLocations = new TreeSet<String>();

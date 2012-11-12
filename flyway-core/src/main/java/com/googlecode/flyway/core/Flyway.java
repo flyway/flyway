@@ -75,7 +75,7 @@ public class Flyway {
     /**
      * The base package where the Java migrations are located. (default: db.migration)
      *
-     * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
+     * @deprecated Uses locations instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private String basePackage = "db/migration";
@@ -83,7 +83,7 @@ public class Flyway {
     /**
      * The base directory on the classpath where the Sql migrations are located. (default: db/migration)
      *
-     * @deprecated Uses locations instead. Will be removed in Flyway 2.0.
+     * @deprecated Uses locations instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private String baseDir = "db/migration";
@@ -180,7 +180,7 @@ public class Flyway {
      * Flyway does not migrate the wrong database in case of a configuration mistake. Be careful when disabling
      * this! (default: {@code false})
      *
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private boolean disableInitCheck;
@@ -236,7 +236,7 @@ public class Flyway {
      * Retrieves the base package where the Java migrations are located.
      *
      * @return The base package where the Java migrations are located. (default: db.migration)
-     * @deprecated Uses getLocations instead. Will be removed in Flyway 2.0.
+     * @deprecated Uses getLocations instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public String getBasePackage() {
@@ -247,7 +247,7 @@ public class Flyway {
      * Retrieves the base directory on the classpath where the Sql migrations are located.
      *
      * @return The base directory on the classpath where the Sql migrations are located. (default: db/migration)
-     * @deprecated Uses getLocations instead. Will be removed in Flyway 2.0.
+     * @deprecated Uses getLocations instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public String getBaseDir() {
@@ -361,11 +361,11 @@ public class Flyway {
      * Retrieves the mode for validation. Only used for migrate. When using validate validationMode is always ALL.
      *
      * @return The mode for validation. (default: NONE)
-     * @deprecated Use isValidateOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use isValidateOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public ValidationMode getValidationMode() {
-        LOG.warn("validationMode has been deprecated and will be removed in Flyway 2.0. Use validateOnMigrate instead.");
+        LOG.warn("validationMode has been deprecated and will be removed in Flyway 3.0. Use validateOnMigrate instead.");
         if (validateOnMigrate) {
             return ValidationMode.ALL;
         }
@@ -376,11 +376,11 @@ public class Flyway {
      * Retrieves the error mode for validation.
      *
      * @return The error mode for validation. (default: FAIL)
-     * @deprecated Use isCleanOnValidationError instead. Will be removed in Flyway 2.0.
+     * @deprecated Use isCleanOnValidationError instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public ValidationErrorMode getValidationErrorMode() {
-        LOG.warn("validationErrorMode has been deprecated and will be removed in Flyway 2.0. Use cleanOnValidationError instead.");
+        LOG.warn("validationErrorMode has been deprecated and will be removed in Flyway 3.0. Use cleanOnValidationError instead.");
         if (cleanOnValidationError) {
             return ValidationErrorMode.CLEAN;
         }
@@ -434,7 +434,7 @@ public class Flyway {
      * this!
      *
      * @return {@code true} if the check is disabled. {@code false} if it is active. (default: {@code false})
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public boolean isDisableInitCheck() {
@@ -501,11 +501,11 @@ public class Flyway {
      * Sets the mode for validation. Only used for migrate. When using validate validationMode is always ALL.
      *
      * @param validationMode The mode for validation. (default: NONE)
-     * @deprecated Use setValidateOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use setValidateOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setValidationMode(ValidationMode validationMode) {
-        LOG.warn("validationMode has been deprecated and will be removed in Flyway 2.0. Use validateOnMigrate instead.");
+        LOG.warn("validationMode has been deprecated and will be removed in Flyway 3.0. Use validateOnMigrate instead.");
         validateOnMigrate = ValidationMode.ALL == validationMode;
     }
 
@@ -513,11 +513,11 @@ public class Flyway {
      * Sets the error mode for validation.
      *
      * @param validationErrorMode The error mode for validation. (default: FAIL)
-     * @deprecated Use setCleanOnValidationError instead. Will be removed in Flyway 2.0.
+     * @deprecated Use setCleanOnValidationError instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setValidationErrorMode(ValidationErrorMode validationErrorMode) {
-        LOG.warn("validationErrorMode has been deprecated and will be removed in Flyway 2.0. Use cleanOnValidationError instead.");
+        LOG.warn("validationErrorMode has been deprecated and will be removed in Flyway 3.0. Use cleanOnValidationError instead.");
         cleanOnValidationError = ValidationErrorMode.CLEAN == validationErrorMode;
     }
 
@@ -562,7 +562,7 @@ public class Flyway {
      * Sets the base package where the migrations are located.
      *
      * @param basePackage The base package where the migrations are located. (default: db.migration)
-     * @deprecated Use setLocations instead. Will be removed in Flyway 2.0.
+     * @deprecated Use setLocations instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setBasePackage(String basePackage) {
@@ -574,7 +574,7 @@ public class Flyway {
      * Sets the base directory on the classpath where the Sql migrations are located.
      *
      * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: db/migration)
-     * @deprecated Use setLocations instead. Will be removed in Flyway 2.0.
+     * @deprecated Use setLocations instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setBaseDir(String baseDir) {
@@ -642,11 +642,11 @@ public class Flyway {
      *
      * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
      *               number will not be applied. (default: the latest version)
-     * @deprecated Use setTarget(MigrationVersion) instead. Will be removed in Flyway 2.0.
+     * @deprecated Use setTarget(MigrationVersion) instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setTarget(SchemaVersion target) {
-        LOG.warn("Flyway.setTarget(SchemaVersion) has been deprecated. Use setTarget(MigrationVersion) instead. Will be removed in Flyway 2.0.");
+        LOG.warn("Flyway.setTarget(SchemaVersion) has been deprecated. Use setTarget(MigrationVersion) instead. Will be removed in Flyway 3.0.");
         this.target = new MigrationVersion(target.toString());
     }
 
@@ -719,11 +719,11 @@ public class Flyway {
      * The initial version to put in the database. Only used for init.
      *
      * @param initialVersion The initial version to put in the database. (default: 0)
-     * @deprecated Use setInitialVersion(MigrationVersion) instead. Will be removed in Flyway 2.0.
+     * @deprecated Use setInitialVersion(MigrationVersion) instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setInitialVersion(SchemaVersion initialVersion) {
-        LOG.warn("Flyway.setInitialVersion(SchemaVersion) has been deprecated. Use setInitialVersion(MigrationVersion) instead. Will be removed in Flyway 2.0.");
+        LOG.warn("Flyway.setInitialVersion(SchemaVersion) has been deprecated. Use setInitialVersion(MigrationVersion) instead. Will be removed in Flyway 3.0.");
         this.initialVersion = new MigrationVersion(initialVersion.toString());
     }
 
@@ -751,7 +751,7 @@ public class Flyway {
      * this!
      *
      * @param disableInitCheck {@code true} if the check is disabled. {@code false} if it is active. (default: {@code false})
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setDisableInitCheck(boolean disableInitCheck) {
@@ -808,9 +808,8 @@ public class Flyway {
                     return 0;
                 }
 
-
                 if (validateOnMigrate) {
-                    doValidate(connectionUserObjects, dbSupport, resolvedMigrations, metaDataTable);
+                    doValidate(connectionUserObjects, dbSupport, migrationResolver, metaDataTable);
                 }
 
                 if (metaDataTable.getCurrentSchemaVersion() == MigrationVersion.EMPTY) {
@@ -878,7 +877,7 @@ public class Flyway {
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
-                doValidate(connectionUserObjects, dbSupport, migrationResolver.resolveMigrations(), metaDataTable);
+                doValidate(connectionUserObjects, dbSupport, migrationResolver, metaDataTable);
                 return null;
             }
         });
@@ -889,16 +888,17 @@ public class Flyway {
      *
      * @param connectionUserObjects The database connection for user object changes.
      * @param dbSupport             The database-specific support for these connections.
-     * @param resolvedMigrations    The available migrations on the classpath.
+     * @param migrationResolver     The migration resolver;
      * @param metaDataTable         The metadata table.
      */
-    private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, List<ResolvedMigration> resolvedMigrations, MetaDataTable metaDataTable) {
+    private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, MigrationResolver migrationResolver,
+                            MetaDataTable metaDataTable) {
         LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         MigrationInfoServiceImpl migrationInfoService =
-                new MigrationInfoServiceImpl(createMigrationResolver(), metaDataTable, target, outOfOrder);
+                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
 
         if (migrationInfoService.applied().length == 0) {
             LOG.info("No migrations applied yet. No validation necessary.");

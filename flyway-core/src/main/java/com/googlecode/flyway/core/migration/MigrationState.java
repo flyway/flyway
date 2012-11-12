@@ -17,7 +17,7 @@ package com.googlecode.flyway.core.migration;
 
 /**
  * The state of a migration.
- * @deprecated Superseeded by equivalent in the API package. Will be removed in Flyway 2.0.
+ * @deprecated Superseeded by equivalent in the API package. Will be removed in Flyway 3.0.
  */
 @Deprecated
 public enum MigrationState {

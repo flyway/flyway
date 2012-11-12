@@ -65,7 +65,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      * calculated when the sql script is executed. The validate mechanism checks if the sql migrations in the classpath
      * still has the same checksum as the sql migration already executed in the database.<br/> <br/>Also configurable with Ant Property: ${flyway.validationMode}
      *
-     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private String validationMode;
@@ -81,7 +81,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
      * this! (default: false)<br/>Also configurable with Ant Property: ${flyway.disableInitCheck}
      *
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private boolean disableInitCheck;
@@ -135,7 +135,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      *                       (default)<br/> No validation is performed.<br/> <br/> <b>ALL</b><br/> For each sql migration a CRC32 checksum is
      *                       calculated when the sql script is executed. The validate mechanism checks if the sql migrations in the classpath
      *                       still has the same checksum as the sql migration already executed in the database.<br/> <br/>Also configurable with Ant Property: ${flyway.validationMode}
-     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setValidationMode(String validationMode) {
@@ -154,7 +154,7 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      * @param disableInitCheck Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
      *                         Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
      *                         this! (default: false)<br/>Also configurable with Ant Property: ${flyway.disableInitCheck}
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setDisableInitCheck(boolean disableInitCheck) {
@@ -186,13 +186,13 @@ public class MigrateTask extends AbstractMigrationLoadingTask {
      * Adds a placeholder from a nested &lt;placeholder&gt; element. Called by Ant.
      *
      * @param placeholder The fully configured placeholder element.
-     * @deprecated Use the &lt;placeholders&gt; element instead of adding individual &lt;placeholder&gt; elements directly. Will be removed in Flyway 2.0.
+     * @deprecated Use the &lt;placeholders&gt; element instead of adding individual &lt;placeholder&gt; elements directly. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void addConfiguredPlaceholder(PlaceholderElement placeholder) {
         getProject().log(this, "The direct use of <placeholder> is deprecated." +
                 " They should be nested inside a <placeholders> element." +
-                " Support for this will be removed in Flyway 2.0.", null, Project.MSG_WARN);
+                " Support for this will be removed in Flyway 3.0.", null, Project.MSG_WARN);
         placeholders.put(placeholder.name, placeholder.value);
     }
 

@@ -68,7 +68,7 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
      * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
      *
-     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 2.0.
+     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private String validationErrorMode;
@@ -101,7 +101,7 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
 
     /**
      * @param basePackage The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
-     * @deprecated Use locations instead. Will be removed in Flyway 2.0.
+     * @deprecated Use locations instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setBasePackage(String basePackage) {
@@ -110,7 +110,7 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
 
     /**
      * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br/>Also configurable with Ant Property: ${flyway.baseDir}
-     * @deprecated Use locations instead. Will be removed in Flyway 2.0.
+     * @deprecated Use locations instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setBaseDir(String baseDir) {
@@ -154,7 +154,7 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      *                            dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
      *                            migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
      *                            <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/>Also configurable with Ant Property: ${flyway.validationErrorMode}
-     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 2.0.
+     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public void setValidationErrorMode(String validationErrorMode) {

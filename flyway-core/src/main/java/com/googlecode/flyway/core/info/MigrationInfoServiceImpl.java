@@ -152,15 +152,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         return null;
     }
 
-    public MigrationInfo[] pending() {
-        List<MigrationInfo> pendingMigrations = new ArrayList<MigrationInfo>();
-        for (MigrationInfo migrationInfo : migrationInfos) {
-            if (com.googlecode.flyway.core.api.MigrationState.PENDING == migrationInfo.getState()) {
+    public MigrationInfoImpl[] pending() {
+        List<MigrationInfoImpl> pendingMigrations = new ArrayList<MigrationInfoImpl>();
+        for (MigrationInfoImpl migrationInfo : migrationInfos) {
+            if (MigrationState.PENDING == migrationInfo.getState()) {
                 pendingMigrations.add(migrationInfo);
             }
         }
 
-        return pendingMigrations.toArray(new MigrationInfo[pendingMigrations.size()]);
+        return pendingMigrations.toArray(new MigrationInfoImpl[pendingMigrations.size()]);
     }
 
     public MigrationInfo[] applied() {
@@ -172,6 +172,71 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         }
 
         return appliedMigrations.toArray(new MigrationInfo[appliedMigrations.size()]);
+    }
+
+    /**
+     * Retrieves the full set of infos about the migrations resolved on the classpath.
+     *
+     * @return The resolved migrations. An empty array if none.
+     */
+    public MigrationInfo[] resolved() {
+        List<MigrationInfo> resolvedMigrations = new ArrayList<MigrationInfo>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (migrationInfo.getState().isResolved()) {
+                resolvedMigrations.add(migrationInfo);
+            }
+        }
+
+        return resolvedMigrations.toArray(new MigrationInfo[resolvedMigrations.size()]);
+    }
+
+    /**
+     * Retrieves the full set of infos about the migrations that failed.
+     *
+     * @return The failed migrations. An empty array if none.
+     */
+    public MigrationInfo[] failed() {
+        List<MigrationInfo> failedMigrations = new ArrayList<MigrationInfo>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (migrationInfo.getState().isFailed()) {
+                failedMigrations.add(migrationInfo);
+            }
+        }
+
+        return failedMigrations.toArray(new MigrationInfo[failedMigrations.size()]);
+    }
+
+    /**
+     * Retrieves the full set of infos about future migrations applied to the DB.
+     *
+     * @return The future migrations. An empty array if none.
+     */
+    public MigrationInfo[] future() {
+        List<MigrationInfo> futureMigrations = new ArrayList<MigrationInfo>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if ((migrationInfo.getState() == MigrationState.FUTURE_SUCCESS)
+                    || (migrationInfo.getState() == MigrationState.FUTURE_FAILED)) {
+                futureMigrations.add(migrationInfo);
+            }
+        }
+
+        return futureMigrations.toArray(new MigrationInfo[futureMigrations.size()]);
+    }
+
+    /**
+     * Retrieves the full set of infos about out of order migrations applied to the DB.
+     *
+     * @return The out of order migrations. An empty array if none.
+     */
+    public MigrationInfo[] outOfOrder() {
+        List<MigrationInfo> outOfOrderMigrations = new ArrayList<MigrationInfo>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (migrationInfo.getState() == MigrationState.OUT_OF_ORDER) {
+                outOfOrderMigrations.add(migrationInfo);
+            }
+        }
+
+        return outOfOrderMigrations.toArray(new MigrationInfo[outOfOrderMigrations.size()]);
     }
 
     /**

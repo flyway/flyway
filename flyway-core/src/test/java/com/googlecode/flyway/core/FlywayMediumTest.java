@@ -21,7 +21,6 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.h2.Driver;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationHandler;
@@ -136,7 +135,6 @@ public class FlywayMediumTest {
     }
 
     @Test
-    @Ignore
     public void outOfOrder() {
         DriverDataSource dataSource =
                 new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");
@@ -144,23 +142,26 @@ public class FlywayMediumTest {
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/sql");
+        flyway.setTarget(new MigrationVersion("1.2"));
         assertEquals(4, flyway.info().all().length);
-        assertEquals(4, flyway.info().pending().length);
+        assertEquals(3, flyway.info().pending().length);
 
         flyway.clean();
-        assertEquals(4, flyway.migrate());
+        assertEquals(3, flyway.migrate());
         assertEquals(0, flyway.info().pending().length);
 
         flyway.setLocations("migration/sql", "migration/outoforder");
         assertEquals(5, flyway.info().all().length);
-        assertEquals(MigrationState.IGNORED, flyway.info().all()[3].getState());
+        assertEquals(MigrationState.IGNORED, flyway.info().all()[2].getState());
         assertEquals(0, flyway.migrate());
 
+        flyway.setTarget(MigrationVersion.LATEST);
         flyway.setOutOfOrder(true);
-        assertEquals(MigrationState.PENDING, flyway.info().all()[3].getState());
-        assertEquals(1, flyway.migrate());
+        assertEquals(MigrationState.PENDING, flyway.info().all()[2].getState());
+        assertEquals(2, flyway.migrate());
 
-        assertEquals(MigrationState.OUT_OF_ORDER, flyway.info().all()[3].getState());
+        assertEquals(MigrationState.OUT_OF_ORDER, flyway.info().all()[2].getState());
+        assertEquals(MigrationState.SUCCESS, flyway.info().all()[4].getState());
     }
 
     @Test

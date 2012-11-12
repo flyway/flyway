@@ -17,9 +17,11 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.info.MigrationInfoImpl;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
 import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
@@ -36,7 +38,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
-import java.util.List;
 
 /**
  * Main workflow for migrating the database.
@@ -121,8 +122,6 @@ public class DbMigrator {
      * @throws FlywayException when migration failed.
      */
     public int migrate() throws FlywayException {
-        final List<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
-
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -135,38 +134,46 @@ public class DbMigrator {
                             public Pair<Boolean, MigrationVersion> doInTransaction() {
                                 metaDataTable.lock();
 
-                                MigrationVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
+                                MigrationInfoServiceImpl service =
+                                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
+
+                                MigrationInfo current = service.current();
+                                MigrationVersion currentSchemaVersion = current == null ? null : current.getVersion();
                                 if (firstRun) {
                                     LOG.info("Current schema version: " + currentSchemaVersion);
-                                }
 
-                                ResolvedMigration latestAvailableMigration = migrations.get(migrations.size() - 1);
-                                MigrationVersion latestAvailableMigrationVersion = latestAvailableMigration.getVersion();
-                                boolean isFutureMigration = latestAvailableMigrationVersion.compareTo(currentSchemaVersion) < 0;
-                                if (isFutureMigration) {
-                                    LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
-                                            + latestAvailableMigrationVersion + ") !");
-                                }
-
-                                if (metaDataTable.hasFailedMigration()) {
-                                    if (isFutureMigration && ignoreFailedFutureMigration) {
-                                        LOG.warn("Detected failed migration to version " + currentSchemaVersion + " !");
-                                    } else {
-                                        return Pair.of(false, currentSchemaVersion);
+                                    if (outOfOrder) {
+                                        LOG.warn("outOfOrder mode is active. Migration run may not be reproducible.");
                                     }
                                 }
 
+                                MigrationInfo[] future = service.future();
+                                MigrationInfo[] resolved = service.resolved();
+                                boolean isFutureMigration = future.length < 0;
                                 if (isFutureMigration) {
+                                    LOG.warn("Database version (" + currentSchemaVersion + ") is newer than the latest available migration ("
+                                            + resolved[resolved.length - 1].getVersion() + ") !");
+                                }
+
+                                MigrationInfo[] failed = service.failed();
+                                if (failed.length > 0) {
+                                    if ((failed.length == 1)
+                                            && (failed[0].getState() == MigrationState.FUTURE_FAILED)
+                                            && ignoreFailedFutureMigration) {
+                                        LOG.warn("Detected failed migration to version " + failed[0].getVersion() + " !");
+                                    } else {
+                                        return Pair.of(false, failed[0].getVersion());
+                                    }
+                                }
+
+                                MigrationInfoImpl[] pendingMigrations = service.pending();
+
+                                if (pendingMigrations.length == 0) {
                                     return null;
                                 }
 
-                                ResolvedMigration migration = getNextMigration(migrations);
-                                if (migration == null) {
-                                    // No further migrations available
-                                    return null;
-                                }
-
-                                return applyMigration(migration);
+                                boolean isOutOfOrder = pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
+                                return applyMigration(pendingMigrations[0].getResolvedMigration(), isOutOfOrder);
                             }
                         });
 
@@ -215,13 +222,18 @@ public class DbMigrator {
     /**
      * Applies this migration to the database. The migration state and the execution time are updated accordingly.
      *
-     * @param migration The migration to apply.
+     * @param migration    The migration to apply.
+     * @param isOutOfOrder If this migration is being applied out of order.
      * @return Pair of success flag and version.
      * @throws FlywayException when the migration failed.
      */
-    private Pair<Boolean, MigrationVersion> applyMigration(final ResolvedMigration migration) throws FlywayException {
+    private Pair<Boolean, MigrationVersion> applyMigration(final ResolvedMigration migration, boolean isOutOfOrder) throws FlywayException {
         MigrationVersion version = migration.getVersion();
-        LOG.info("Migrating to version " + version);
+        if (isOutOfOrder) {
+            LOG.info("Migrating to version " + version + " (out of order)");
+        } else {
+            LOG.info("Migrating to version " + version);
+        }
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -262,29 +274,5 @@ public class DbMigrator {
         LOG.debug("MetaData table successfully updated to reflect changes");
 
         return Pair.of(success, migration.getVersion());
-    }
-
-    /**
-     * Returns the next migration to apply.
-     *
-     * @param allMigrations All available migrations, sorted by version, newest first.
-     * @return The next migration to apply.
-     */
-    private ResolvedMigration getNextMigration(List<ResolvedMigration> allMigrations) {
-        MigrationInfo[] pendingMigrations =
-                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder).pending();
-
-        if (pendingMigrations.length == 0) {
-            return null;
-        }
-
-        for (ResolvedMigration migration : allMigrations) {
-            if ((migration.getVersion().equals(pendingMigrations[0].getVersion()))) {
-                return migration;
-            }
-        }
-
-        throw new IllegalStateException("Could not find pending migration for version "
-                + pendingMigrations[0].getVersion());
     }
 }

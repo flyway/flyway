@@ -80,7 +80,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * ${flyway.disableInitCheck}</p>
      *
      * @parameter expression="${flyway.disableInitCheck}"
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 2.0.
+     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     private boolean disableInitCheck;

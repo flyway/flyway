@@ -18,7 +18,7 @@ package com.googlecode.flyway.core.validation;
 /**
  * Mode for handling validation errors.
  *
- * @deprecated Use Flyway.cleanOnValidationError instead. Will be removed in Flyway 2.0.
+ * @deprecated Use Flyway.cleanOnValidationError instead. Will be removed in Flyway 3.0.
  */
 @Deprecated
 public enum ValidationErrorMode {

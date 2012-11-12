@@ -110,7 +110,7 @@ public enum MigrationState {
     /**
      * Flag indicating if this migration is available on the classpath or not.
      */
-    private final boolean available;
+    private final boolean resolved;
 
     /**
      * Flag indicating if this migration has been applied or not.
@@ -126,13 +126,13 @@ public enum MigrationState {
      * Creates a new MigrationState.
      *
      * @param displayName The name suitable for display to the end-user.
-     * @param available   Flag indicating if this migration is available on the classpath or not.
+     * @param resolved   Flag indicating if this migration is available on the classpath or not.
      * @param applied     Flag indicating if this migration has been applied or not.
      * @param failed      Flag indicating if this migration has failed when it was applied or not.
      */
-    MigrationState(String displayName, boolean available, boolean applied, boolean failed) {
+    MigrationState(String displayName, boolean resolved, boolean applied, boolean failed) {
         this.displayName = displayName;
-        this.available = available;
+        this.resolved = resolved;
         this.applied = applied;
         this.failed = failed;
     }
@@ -149,5 +149,19 @@ public enum MigrationState {
      */
     public boolean isApplied() {
         return applied;
+    }
+
+    /**
+     * @return Flag indicating if this migration has been resolved or not.
+     */
+    public boolean isResolved() {
+        return resolved;
+    }
+
+    /**
+     * @return Flag indicating if this migration has failed or not.
+     */
+    public boolean isFailed() {
+        return failed;
     }
 }

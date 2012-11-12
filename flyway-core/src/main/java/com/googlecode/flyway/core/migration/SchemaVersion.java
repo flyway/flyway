@@ -21,7 +21,7 @@ import com.googlecode.flyway.core.util.StringUtils;
  * A version of a database schema.
  *
  * @author Axel Fontaine
- * @deprecated Superseeded by MigrationVersion. Will be removed in Flyway 2.0.
+ * @deprecated Superseeded by MigrationVersion. Will be removed in Flyway 3.0.
  */
 @Deprecated
 public final class SchemaVersion implements Comparable<SchemaVersion> {
