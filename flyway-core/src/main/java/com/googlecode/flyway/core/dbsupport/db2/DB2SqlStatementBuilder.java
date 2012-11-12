@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
+import com.googlecode.flyway.core.dbsupport.Delimiter;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
@@ -28,6 +29,27 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
      * The number of quotes encountered so far.
      */
     private int numQuotes;
+
+    /**
+     * Are we currently inside a BEGIN ATOMIC block?
+     */
+    private boolean insideAtomicBlock;
+
+    @Override
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (line.contains("BEGIN ATOMIC")) {
+            insideAtomicBlock = true;
+        }
+
+        if (line.endsWith("END;")) {
+            insideAtomicBlock = false;
+        }
+
+        if (insideAtomicBlock) {
+            return null;
+        }
+        return getDefaultDelimiter();
+    }
 
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String line) {
