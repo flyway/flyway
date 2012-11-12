@@ -16,14 +16,18 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.info.DbInfoAggregator;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.resolver.MigrationResolver;
+import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
-import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionException;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
@@ -39,9 +43,6 @@ import java.util.List;
  * @author Axel Fontaine
  */
 public class DbMigrator {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(DbMigrator.class);
 
     /**
@@ -58,6 +59,11 @@ public class DbMigrator {
      * The database metadata table.
      */
     private final MetaDataTable metaDataTable;
+
+    /**
+     * The migration resolver.
+     */
+    private final MigrationResolver migrationResolver;
 
     /**
      * The connection to use.
@@ -89,17 +95,19 @@ public class DbMigrator {
      * @param connectionForMigrations     The connection to use to perform the actual database migrations.
      * @param dbSupport                   Database-specific functionality.
      * @param metaDataTable               The database metadata table.
+     * @param migrationResolver           The migration resolver.
      * @param target                      The target version of the migration.
      * @param ignoreFailedFutureMigration Flag whether to ignore failed future migrations or not.
      * @param outOfOrder                  Allows migrations to be run "out of order".
      */
     public DbMigrator(Connection connection, Connection connectionForMigrations, DbSupport dbSupport,
-                      MetaDataTable metaDataTable, MigrationVersion target, boolean ignoreFailedFutureMigration,
+                      MetaDataTable metaDataTable, MigrationResolver migrationResolver, MigrationVersion target, boolean ignoreFailedFutureMigration,
                       boolean outOfOrder) {
         this.connection = connection;
         this.connectionForMigrations = connectionForMigrations;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
+        this.migrationResolver = migrationResolver;
         this.target = target;
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
         this.outOfOrder = outOfOrder;
@@ -108,11 +116,12 @@ public class DbMigrator {
     /**
      * Starts the actual migration.
      *
-     * @param migrations The available migrations.
      * @return The number of successfully applied migrations.
      * @throws FlywayException when migration failed.
      */
-    public int migrate(final List<ResolvedMigration> migrations) throws FlywayException {
+    public int migrate() throws FlywayException {
+        final List<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -260,28 +269,20 @@ public class DbMigrator {
      * @return The next migration to apply.
      */
     private ResolvedMigration getNextMigration(List<ResolvedMigration> allMigrations, MigrationVersion currentVersion) {
-        if (target.compareTo(currentVersion) < 0) {
-            LOG.warn("Database version (" + currentVersion + ") is newer than the target version ("
-                    + target + ") !");
+        MigrationInfo[] pendingMigrations =
+                new DbInfoAggregator(migrationResolver, metaDataTable, target, outOfOrder).aggregateMigrationInfo().pending();
+
+        if (pendingMigrations.length == 0) {
             return null;
         }
 
-        ResolvedMigration nextMigration = null;
         for (ResolvedMigration migration : allMigrations) {
-            if ((migration.getVersion().compareTo(currentVersion) > 0)) {
-                nextMigration = migration;
-                break;
+            if ((migration.getVersion().equals(pendingMigrations[0].getVersion()))) {
+                return migration;
             }
         }
 
-        if (nextMigration == null) {
-            return null;
-        }
-
-        if (target.compareTo(nextMigration.getVersion()) < 0) {
-            return null;
-        }
-
-        return nextMigration;
+        throw new IllegalStateException("Could not find pending migration for version "
+                + pendingMigrations[0].getVersion());
     }
 }

@@ -21,8 +21,8 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationInfoServiceImpl;
-import com.googlecode.flyway.core.migration.MigrationResolver;
-import com.googlecode.flyway.core.migration.ResolvedMigration;
+import com.googlecode.flyway.core.resolver.MigrationResolver;
+import com.googlecode.flyway.core.resolver.ResolvedMigration;
 
 import java.util.ArrayList;
 import java.util.List;

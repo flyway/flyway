@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
-import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

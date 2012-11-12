@@ -145,23 +145,9 @@ public enum MigrationState {
     }
 
     /**
-     * @return Flag indicating if this migration is available on the classpath or not.
-     */
-    public boolean isAvailable() {
-        return available;
-    }
-
-    /**
      * @return Flag indicating if this migration has been applied or not.
      */
     public boolean isApplied() {
         return applied;
-    }
-
-    /**
-     * @return Flag indicating if this migration has failed when it was applied or not.
-     */
-    public boolean isFailed() {
-        return failed;
     }
 }

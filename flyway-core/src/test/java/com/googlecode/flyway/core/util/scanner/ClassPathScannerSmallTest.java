@@ -18,8 +18,8 @@ package com.googlecode.flyway.core.util.scanner;
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.dbsupport.db2.DB2MigrationMediumTest;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
-import com.googlecode.flyway.core.migration.jdbc.dummy.V2__InterfaceBasedMigration;
-import com.googlecode.flyway.core.migration.jdbc.dummy.Version3dot5;
+import com.googlecode.flyway.core.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
+import com.googlecode.flyway.core.resolver.jdbc.dummy.Version3dot5;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
 import org.hamcrest.Matcher;
@@ -114,7 +114,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClasses() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/migration/jdbc/dummy", JdbcMigration.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/resolver/jdbc/dummy", JdbcMigration.class);
 
         assertEquals(2, classes.length);
 

@@ -15,8 +15,8 @@
  */
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
-import com.googlecode.flyway.core.migration.sql.Delimiter;
-import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
+import com.googlecode.flyway.core.dbsupport.Delimiter;
+import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 
 /**
  * SqlStatementBuilder supporting SQL Server-specific delimiter changes.

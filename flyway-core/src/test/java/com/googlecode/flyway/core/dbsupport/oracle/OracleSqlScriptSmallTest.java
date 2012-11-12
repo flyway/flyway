@@ -15,9 +15,9 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
-import com.googlecode.flyway.core.migration.sql.SqlStatement;
+import com.googlecode.flyway.core.resolver.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.resolver.sql.SqlScript;
+import com.googlecode.flyway.core.dbsupport.SqlStatement;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import org.junit.Test;
 

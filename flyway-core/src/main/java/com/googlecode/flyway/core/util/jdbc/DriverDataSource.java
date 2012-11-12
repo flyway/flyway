@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.util.jdbc;
 
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.ClassUtils;
 
 import javax.sql.DataSource;

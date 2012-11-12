@@ -27,11 +27,11 @@ import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
-import com.googlecode.flyway.core.migration.CompositeMigrationResolver;
+import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.migration.DbMigrator;
-import com.googlecode.flyway.core.migration.MigrationResolver;
+import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.migration.MigrationState;
-import com.googlecode.flyway.core.migration.ResolvedMigration;
+import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -812,7 +812,7 @@ public class Flyway {
                     doValidate(connectionUserObjects, dbSupport, resolvedMigrations, metaDataTable);
                 }
 
-                if (metaDataTable.latestAppliedMigration() == null) {
+                if (metaDataTable.getCurrentSchemaVersion() == MigrationVersion.EMPTY) {
                     List<String> nonEmptySchemas = nonEmptySchemas(dbSupport);
                     if (nonEmptySchemas.isEmpty()) {
                         metaDataTable.createIfNotExists();
@@ -835,8 +835,9 @@ public class Flyway {
                 }
 
                 DbMigrator dbMigrator =
-                        new DbMigrator(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable, target, ignoreFailedFutureMigration, outOfOrder);
-                return dbMigrator.migrate(migrationResolver.resolveMigrations());
+                        new DbMigrator(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable,
+                                migrationResolver, target, ignoreFailedFutureMigration, outOfOrder);
+                return dbMigrator.migrate();
             }
         });
     }
@@ -932,11 +933,11 @@ public class Flyway {
      * Returns the status (current version) of the database.
      *
      * @return The latest applied migration, or {@code null} if no migration has been applied yet.
-     * @deprecated Use flyway.info() instead. Will be removed in Flyway 2.0.
+     * @deprecated Use flyway.info().current() instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public MetaDataTableRow status() {
-        LOG.warn("Flyway.status() has been deprecated and will be removed in Flyway 2.0. Use Flyway.info() instead.");
+        LOG.warn("Flyway.status() has been deprecated and will be removed in Flyway 3.0. Use Flyway.info().current() instead.");
         return execute(new Command<MetaDataTableRow>() {
             public MetaDataTableRow execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
@@ -949,11 +950,11 @@ public class Flyway {
      * Returns the history (all applied migrations) of the database.
      *
      * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
-     * @deprecated Use flyway.info() instead. Will be removed in Flyway 2.0.
+     * @deprecated Use flyway.info().applied() instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
     public List<MetaDataTableRow> history() {
-        LOG.warn("Flyway.history() has been deprecated and will be removed in Flyway 2.0. Use Flyway.info() instead.");
+        LOG.warn("Flyway.history() has been deprecated and will be removed in Flyway 3.0. Use Flyway.info().applied() instead.");
         return execute(new Command<List<MetaDataTableRow>>() {
             public List<MetaDataTableRow> execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);

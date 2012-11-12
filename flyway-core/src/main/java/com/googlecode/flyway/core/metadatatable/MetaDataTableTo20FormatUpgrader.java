@@ -19,13 +19,13 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.MigrationResolver;
-import com.googlecode.flyway.core.migration.ResolvedMigration;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.resolver.MigrationResolver;
+import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import com.googlecode.flyway.core.resolver.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.resolver.sql.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 

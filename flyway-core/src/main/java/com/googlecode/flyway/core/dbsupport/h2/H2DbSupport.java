@@ -16,9 +16,9 @@
 package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
-import com.googlecode.flyway.core.migration.sql.SqlStatement;
-import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
+import com.googlecode.flyway.core.resolver.sql.SqlScript;
+import com.googlecode.flyway.core.dbsupport.SqlStatement;
+import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.logging.Log;

@@ -21,7 +21,7 @@ import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.migration.MigrationInfoServiceImpl;
-import com.googlecode.flyway.core.migration.ResolvedMigration;
+import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import org.junit.Test;
 
 import java.util.ArrayList;

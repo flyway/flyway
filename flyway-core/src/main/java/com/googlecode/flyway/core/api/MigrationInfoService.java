@@ -39,4 +39,11 @@ public interface MigrationInfoService {
      * @return The pending migrations. An empty array if none.
      */
     MigrationInfo[] pending();
+
+    /**
+     * Retrieves the full set of infos about the migrations applied to the DB.
+     *
+     * @return The applied migrations. An empty array if none.
+     */
+    MigrationInfo[] applied();
 }

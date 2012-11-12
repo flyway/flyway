@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
-import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
+import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
 /**

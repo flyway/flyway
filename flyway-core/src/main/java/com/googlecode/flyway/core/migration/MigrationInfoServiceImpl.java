@@ -64,4 +64,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
         return pendingMigrations.toArray(new MigrationInfo[pendingMigrations.size()]);
     }
+
+    public MigrationInfo[] applied() {
+        List<MigrationInfo> appliedMigrations = new ArrayList<MigrationInfo>();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            if (migrationInfo.getState().isApplied()) {
+                appliedMigrations.add(migrationInfo);
+            }
+        }
+
+        return appliedMigrations.toArray(new MigrationInfo[appliedMigrations.size()]);
+    }
 }

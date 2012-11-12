@@ -15,9 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.migration.sql.SqlScript;
-import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
-import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.resolver.sql.SqlScript;
 
 import java.sql.SQLException;
 

@@ -67,16 +67,6 @@ public class MigrationInfoImpl implements MigrationInfo {
     private Integer executionTime;
 
     /**
-     * The physical location of the migration on disk.
-     */
-    private String physicalLocation;
-
-    /**
-     * The executor to run this migration.
-     */
-    private MigrationExecutor executor;
-
-    /**
      * Creates a new MigrationInfo. It will be initialized in state PENDING.
      *
      * @param version       The target version of this migration.
@@ -126,20 +116,6 @@ public class MigrationInfoImpl implements MigrationInfo {
     }
 
     /**
-     * @return The physical location of the migration on disk.
-     */
-    public String getPhysicalLocation() {
-        return physicalLocation;
-    }
-
-    /**
-     * @return The executor to run this migration.
-     */
-    public MigrationExecutor getExecutor() {
-        return executor;
-    }
-
-    /**
      * @param migrationState The state of the migration (FAILED, SUCCESS, ...)
      */
     public void setState(MigrationState migrationState) {
@@ -158,20 +134,6 @@ public class MigrationInfoImpl implements MigrationInfo {
      */
     public void setExecutionTime(Integer executionTime) {
         this.executionTime = executionTime;
-    }
-
-    /**
-     * @param physicalLocation The physical location of the migration on disk.
-     */
-    public void setPhysicalLocation(String physicalLocation) {
-        this.physicalLocation = physicalLocation;
-    }
-
-    /**
-     * @param executor The executor to run this migration.
-     */
-    public void setExecutor(MigrationExecutor executor) {
-        this.executor = executor;
     }
 
     @Override

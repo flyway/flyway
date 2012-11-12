@@ -15,8 +15,8 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
-import com.googlecode.flyway.core.migration.sql.Delimiter;
-import com.googlecode.flyway.core.migration.sql.SqlStatementBuilder;
+import com.googlecode.flyway.core.dbsupport.Delimiter;
+import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.ArrayList;

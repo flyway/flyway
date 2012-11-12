@@ -22,13 +22,13 @@ import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
-import com.googlecode.flyway.core.migration.ResolvedMigration;
-import com.googlecode.flyway.core.migration.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.migration.sql.SqlScript;
+import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import com.googlecode.flyway.core.resolver.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.resolver.sql.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
-import com.googlecode.flyway.core.util.jdbc.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
@@ -170,6 +170,9 @@ public class MetaDataTable {
             Integer checksum = resolvedMigration.getChecksum();
             String script = abbreviateScript(resolvedMigration.getScript());
 
+            jdbcTemplate.update("UPDATE " + fullyQualifiedMetadataTableName()
+                    + " SET " + dbSupport.quote("version_rank") + " = " + dbSupport.quote("version_rank")
+                    + " + 1 WHERE " + dbSupport.quote("version_rank") + " >= ?", versionRank);
             jdbcTemplate.update("INSERT INTO " + fullyQualifiedMetadataTableName()
                     + " (" + dbSupport.quote("version_rank")
                     + "," + dbSupport.quote("installed_rank")
@@ -372,7 +375,7 @@ public class MetaDataTable {
      * @return The fully qualified name of the metadata table, including the schema it is contained in.
      */
     private String fullyQualifiedMetadataTableName() {
-        return dbSupport.quote(schema) + "." + dbSupport.quote(table);
+        return dbSupport.quote(schema, table);
     }
 
     /**
