@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.resolver.sql;
-
-import com.googlecode.flyway.core.util.StringUtils;
+package com.googlecode.flyway.core.util;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.resolver.sql;
+package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.dbsupport.SqlStatement;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -226,8 +226,9 @@ public class SqlScriptSmallTest {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("drop_view", "--");
         placeholders.put("or_replace", "OR REPLACE");
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
-        List<SqlStatement> sqlStatements = sqlScript.parse(source, new PlaceholderReplacer(placeholders, "${", "}"));
+        List<SqlStatement> sqlStatements = sqlScript.parse(placeholderReplacer.replacePlaceholders(source));
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -245,7 +246,7 @@ public class SqlScriptSmallTest {
                 "    Please find your quote attached in PDF format.'\n" +
                 "where templatename = 'quote_template'";
 
-        List<SqlStatement> sqlStatements = sqlScript.parse(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        List<SqlStatement> sqlStatements = sqlScript.parse(source);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -260,7 +261,7 @@ public class SqlScriptSmallTest {
                 "    set   body='Thanks !' /* my pleasure */\n" +
                 "  and  subject = 'To our favorite customer!'";
 
-        List<SqlStatement> sqlStatements = sqlScript.parse(source, PlaceholderReplacer.NO_PLACEHOLDERS);
+        List<SqlStatement> sqlStatements = sqlScript.parse(source);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 

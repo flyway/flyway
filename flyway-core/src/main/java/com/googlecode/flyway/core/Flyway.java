@@ -27,12 +27,11 @@ import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
-import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.migration.DbMigrator;
-import com.googlecode.flyway.core.resolver.MigrationResolver;
-import com.googlecode.flyway.core.migration.MigrationState;
-import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
+import com.googlecode.flyway.core.resolver.MigrationResolver;
+import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
@@ -615,7 +614,7 @@ public class Flyway {
 
     /**
      * Sets the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-          * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
+     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
      */
@@ -941,7 +940,11 @@ public class Flyway {
         return execute(new Command<MetaDataTableRow>() {
             public MetaDataTableRow execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-                return toMetaDataTableRow(metaDataTable.latestAppliedMigration());
+                MigrationInfo migrationInfo = metaDataTable.latestAppliedMigration();
+                if (migrationInfo == null) {
+                    return null;
+                }
+                return new MetaDataTableRow(migrationInfo);
             }
         });
     }
@@ -962,29 +965,11 @@ public class Flyway {
 
                 List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>(migrationInfos.size());
                 for (MigrationInfo migrationInfo : migrationInfos) {
-                    metaDataTableRows.add(toMetaDataTableRow(migrationInfo));
+                    metaDataTableRows.add(new MetaDataTableRow(migrationInfo));
                 }
                 return metaDataTableRows;
             }
         });
-    }
-
-    /**
-     * Converts this migrationInfo into a metaDataTableRow.
-     *
-     * @param migrationInfo The migration info to convert.
-     * @return The matching metaDataTableRow.
-     */
-    private MetaDataTableRow toMetaDataTableRow(MigrationInfo migrationInfo) {
-        if (migrationInfo == null) {
-            return null;
-        }
-
-        SchemaVersion version = new SchemaVersion(migrationInfo.getVersion().toString());
-        MigrationState state = MigrationState.valueOf(migrationInfo.getState().name());
-
-        return new MetaDataTableRow(version, migrationInfo.getDescription(), migrationInfo.getScript(),
-                migrationInfo.getChecksum(), migrationInfo.getInstalledOn(), migrationInfo.getExecutionTime(), state);
     }
 
     /**

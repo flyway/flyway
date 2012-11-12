@@ -16,7 +16,7 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.util.MigrationInfoDumper;
+import com.googlecode.flyway.core.info.MigrationInfoDumper;
 
 /**
  * Ant task to retrieve the complete information about the migrations including applied, pending and current migrations with

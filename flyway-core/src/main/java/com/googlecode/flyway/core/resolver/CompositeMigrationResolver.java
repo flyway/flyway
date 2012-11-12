@@ -19,7 +19,7 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.resolver.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.resolver.jdbc.JdbcMigrationResolver;
 import com.googlecode.flyway.core.resolver.spring.SpringJdbcMigrationResolver;
-import com.googlecode.flyway.core.resolver.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.FeatureDetector;
 

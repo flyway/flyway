@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util;
+package com.googlecode.flyway.core.info;
 
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.util.DateUtils;
+import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
@@ -43,7 +45,7 @@ public class MigrationInfoDumper {
         LOG.info("+-------------+------------------------+---------------------+---------+");
 
         if (migrationInfos.length == 0) {
-            LOG.info("| No migrations applied and no migrations pending                      |");
+            LOG.info("| No migrations found                                                  |");
         } else {
             for (MigrationInfo migrationInfo : migrationInfos) {
                 LOG.info("| " + StringUtils.trimOrPad(migrationInfo.getVersion().toString(), 11)

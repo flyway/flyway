@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.resolver.sql;
 
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
 import java.util.HashMap;

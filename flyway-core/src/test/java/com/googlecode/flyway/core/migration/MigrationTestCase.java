@@ -24,9 +24,9 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
-import com.googlecode.flyway.core.resolver.sql.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.resolver.sql.SqlScript;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
@@ -593,7 +593,7 @@ public abstract class MigrationTestCase {
         placeholders.put("table", flyway.getTable());
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
-        SqlScript sqlScript = new SqlScript(source, placeholderReplacer, dbSupport);
+        SqlScript sqlScript = new SqlScript(placeholderReplacer.replacePlaceholders(source), dbSupport);
         sqlScript.execute(jdbcTemplate);
     }
 

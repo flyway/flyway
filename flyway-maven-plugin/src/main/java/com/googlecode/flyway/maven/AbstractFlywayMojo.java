@@ -39,7 +39,7 @@ import javax.sql.DataSource;
  */
 @SuppressWarnings({"JavaDoc", "FieldCanBeLocal", "UnusedDeclaration"})
 abstract class AbstractFlywayMojo extends AbstractMojo {
-    protected Log LOG;
+    protected Log log;
 
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
@@ -150,7 +150,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     public final void execute() throws MojoExecutionException, MojoFailureException {
         LogFactory.setLogCreator(new MavenLogCreator(this));
-        LOG = LogFactory.getLog(getClass());
+        log = LogFactory.getLog(getClass());
         try {
             loadCredentialsFromSettings();
 
@@ -169,11 +169,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             doExecute(flyway);
         } catch (Exception e) {
-            LOG.error(e.toString());
+            log.error(e.toString());
 
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause != null) {
-                LOG.error("Caused by " + rootCause.toString());
+                log.error("Caused by " + rootCause.toString());
             }
             throw new MojoExecutionException("Flyway Error: " + e.toString(), e);
         }

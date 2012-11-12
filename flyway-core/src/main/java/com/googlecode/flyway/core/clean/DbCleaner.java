@@ -17,7 +17,7 @@ package com.googlecode.flyway.core.clean;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.resolver.sql.SqlScript;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;

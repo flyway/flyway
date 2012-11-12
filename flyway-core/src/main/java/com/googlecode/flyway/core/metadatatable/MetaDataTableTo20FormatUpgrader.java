@@ -21,8 +21,8 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.resolver.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.resolver.sql.SqlScript;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
@@ -153,9 +153,9 @@ public class MetaDataTableTo20FormatUpgrader {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", schema);
         placeholders.put("table", table);
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-        SqlScript sqlScript = new SqlScript(source, placeholderReplacer, dbSupport);
+        SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
         sqlScript.execute(jdbcTemplate);
     }
 

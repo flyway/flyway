@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.resolver.sql;
 
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
 import java.util.ArrayList;

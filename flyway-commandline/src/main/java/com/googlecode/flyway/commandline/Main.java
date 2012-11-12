@@ -17,12 +17,12 @@ package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.FileCopyUtils;
-import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
-import com.googlecode.flyway.core.util.MigrationInfoDumper;
+import com.googlecode.flyway.core.info.MigrationInfoDumper;
 import com.googlecode.flyway.core.util.PropertiesUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -95,9 +95,17 @@ public class Main {
             } else if ("validate".equals(operation)) {
                 flyway.validate();
             } else if ("status".equals(operation)) {
-                MetaDataTableRowDumper.dumpMigration(flyway.status());
+                LOG.warn("status is deprecated. Use info instead.");
+                MigrationInfo current = flyway.info().current();
+
+                if (current == null) {
+                    MigrationInfoDumper.dumpMigrations(new MigrationInfo[0]);
+                } else {
+                    MigrationInfoDumper.dumpMigrations(new MigrationInfo[]{current});
+                }
             } else if ("history".equals(operation)) {
-                MetaDataTableRowDumper.dumpMigrations(flyway.history());
+                LOG.warn("history is deprecated. Use info instead.");
+                MigrationInfoDumper.dumpMigrations(flyway.info().applied());
             } else if ("info".equals(operation)) {
                 MigrationInfoDumper.dumpMigrations(flyway.info().all());
             } else if ("repair".equals(operation)) {

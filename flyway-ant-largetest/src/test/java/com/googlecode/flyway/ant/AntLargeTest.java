@@ -68,7 +68,7 @@ public abstract class AntLargeTest {
     @Test
     public void status() throws Exception {
         String stdOut = runAnt(0, "status");
-        assertTrue(stdOut.contains("No migrations applied yet"));
+        assertTrue(stdOut.contains("No migrations found"));
     }
 
     @Test

@@ -15,15 +15,17 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.resolver.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.resolver.sql.SqlScript;
 import com.googlecode.flyway.core.dbsupport.SqlStatement;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for OracleSqlScript.
@@ -33,7 +35,7 @@ public class OracleSqlScriptSmallTest {
     public void parseSqlStatements() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1__Placeholders.sql").loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS, new OracleDbSupport(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
@@ -46,7 +48,7 @@ public class OracleSqlScriptSmallTest {
     public void parseSqlStatementsWithInlineCommentsInsidePlSqlBlocks() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V2__FunctionWithConditionals.sql").loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS, new OracleDbSupport(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
@@ -57,7 +59,7 @@ public class OracleSqlScriptSmallTest {
     public void parseFunctionsAndProcedures() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql").loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, PlaceholderReplacer.NO_PLACEHOLDERS, new OracleDbSupport(null));
+        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());

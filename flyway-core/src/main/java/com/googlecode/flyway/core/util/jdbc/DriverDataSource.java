@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.util.jdbc;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.ClassUtils;
 
 import javax.sql.DataSource;
@@ -24,6 +23,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 /**
@@ -195,9 +195,14 @@ public class DriverDataSource implements DataSource {
         }
         Connection connection = driver.connect(url, props);
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
         for (String initSql : initSqls) {
-            jdbcTemplate.executeStatement(initSql);
+            Statement statement = null;
+            try {
+                statement = connection.createStatement();
+                statement.execute(initSql);
+            } finally {
+                JdbcUtils.closeStatement(statement);
+            }
         }
 
         return connection;

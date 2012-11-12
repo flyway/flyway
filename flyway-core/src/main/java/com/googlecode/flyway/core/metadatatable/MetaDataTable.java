@@ -23,8 +23,8 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.migration.MigrationInfoImpl;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.resolver.sql.PlaceholderReplacer;
-import com.googlecode.flyway.core.resolver.sql.SqlScript;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
@@ -114,17 +114,17 @@ public class MetaDataTable {
     private void create() {
         LOG.info("Creating Metadata table: " + fullyQualifiedMetadataTableName());
 
-        final String createMetaDataTableScriptSource =
+        final String source =
                 new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql").loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", schema);
         placeholders.put("table", table);
-        final PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        final String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-                SqlScript sqlScript = new SqlScript(createMetaDataTableScriptSource, placeholderReplacer, dbSupport);
+                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
                 sqlScript.execute(jdbcTemplate);
                 return null;
             }

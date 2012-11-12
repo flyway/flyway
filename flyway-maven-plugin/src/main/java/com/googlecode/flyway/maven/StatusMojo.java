@@ -16,7 +16,8 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.info.MigrationInfoDumper;
 
 /**
  * Maven goal that shows the status (current version) of the database.
@@ -29,6 +30,13 @@ import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 public class StatusMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        MetaDataTableRowDumper.dumpMigration(flyway.status());
+        log.warn("flyway:status is deprecated. Use flyway:info instead.");
+        MigrationInfo current = flyway.info().current();
+
+        if (current == null) {
+            MigrationInfoDumper.dumpMigrations(new MigrationInfo[0]);
+        } else {
+            MigrationInfoDumper.dumpMigrations(new MigrationInfo[]{current});
+        }
     }
 }

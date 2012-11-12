@@ -16,19 +16,20 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import com.googlecode.flyway.core.info.MigrationInfoDumper;
 
 /**
  * Maven goal that shows the history (all applied migrations) of the database.
  *
  * @goal history
  * @since 0.9
- * @deprecated Use flyway:info instead. Will be removed in Flyway 2.0.
+ * @deprecated Use flyway:info instead. Will be removed in Flyway 3.0.
  */
 @Deprecated
 public class HistoryMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        MetaDataTableRowDumper.dumpMigrations(flyway.history());
+        log.warn("flyway:history is deprecated. Use flyway:info instead.");
+        MigrationInfoDumper.dumpMigrations(flyway.info().applied());
     }
 }

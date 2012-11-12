@@ -16,7 +16,8 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.info.MigrationInfoDumper;
 
 /**
  * Flyway status task.
@@ -24,6 +25,13 @@ import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 public class StatusTask extends AbstractFlywayTask {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        MetaDataTableRowDumper.dumpMigration(flyway.status());
+        log.warn("<flyway:status/> is deprecated. Use <flyway:info/> instead.");
+        MigrationInfo current = flyway.info().current();
+
+        if (current == null) {
+            MigrationInfoDumper.dumpMigrations(new MigrationInfo[0]);
+        } else {
+            MigrationInfoDumper.dumpMigrations(new MigrationInfo[]{current});
+        }
     }
 }

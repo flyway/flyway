@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.resolver.sql;
+package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.Delimiter;
-import com.googlecode.flyway.core.dbsupport.SqlStatement;
-import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
@@ -51,13 +46,12 @@ public class SqlScript {
     /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
-     * @param sqlScriptSource     The sql script as a text block with all placeholders still present.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @param dbSupport           The database-specific support.
+     * @param sqlScriptSource The sql script as a text block with all placeholders still present.
+     * @param dbSupport       The database-specific support.
      */
-    public SqlScript(String sqlScriptSource, PlaceholderReplacer placeholderReplacer, DbSupport dbSupport) {
+    public SqlScript(String sqlScriptSource, DbSupport dbSupport) {
         this.dbSupport = dbSupport;
-        this.sqlStatements = parse(sqlScriptSource, placeholderReplacer);
+        this.sqlStatements = parse(sqlScriptSource);
     }
 
     /**
@@ -104,18 +98,13 @@ public class SqlScript {
     /**
      * Parses this script source into statements.
      *
-     * @param sqlScriptSource     The script source to parse.
-     * @param placeholderReplacer The placeholder replacer to use.
+     * @param sqlScriptSource The script source to parse.
      * @return The parsed statements.
      */
     /* private -> for testing */
-    List<SqlStatement> parse(String sqlScriptSource, PlaceholderReplacer placeholderReplacer) {
-        Reader reader = new StringReader(sqlScriptSource);
-        List<String> rawLines = readLines(reader);
-        List<String> noPlaceholderLines = replacePlaceholders(rawLines, placeholderReplacer);
-        return linesToStatements(noPlaceholderLines);
+    List<SqlStatement> parse(String sqlScriptSource) {
+        return linesToStatements(readLines(new StringReader(sqlScriptSource)));
     }
-
 
     /**
      * Turns these lines in a series of statements.
@@ -217,22 +206,5 @@ public class SqlScript {
         }
 
         return lines;
-    }
-
-    /**
-     * Replaces the placeholders in these lines with their values.
-     *
-     * @param lines               The input lines.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @return The lines with placeholders replaced.
-     */
-    private List<String> replacePlaceholders(List<String> lines, PlaceholderReplacer placeholderReplacer) {
-        List<String> noPlaceholderLines = new ArrayList<String>(lines.size());
-
-        for (String line : lines) {
-            noPlaceholderLines.add(placeholderReplacer.replacePlaceholders(line));
-        }
-
-        return noPlaceholderLines;
     }
 }

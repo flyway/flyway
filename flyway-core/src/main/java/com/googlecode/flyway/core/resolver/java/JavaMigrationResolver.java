@@ -18,7 +18,7 @@ package com.googlecode.flyway.core.resolver.java;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.migration.MigrationInfoHelper;
+import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
 import com.googlecode.flyway.core.migration.java.JavaMigrationChecksumProvider;
 import com.googlecode.flyway.core.migration.java.JavaMigrationInfoProvider;

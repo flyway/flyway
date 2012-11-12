@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.util.Pair;
 import org.junit.Test;
 

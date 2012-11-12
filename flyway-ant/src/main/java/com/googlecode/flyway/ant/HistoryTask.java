@@ -16,7 +16,7 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
+import com.googlecode.flyway.core.info.MigrationInfoDumper;
 
 /**
  * Ant task that shows the history (all applied migrations) of the database.
@@ -25,6 +25,7 @@ import com.googlecode.flyway.core.util.MetaDataTableRowDumper;
 public class HistoryTask extends AbstractFlywayTask {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        MetaDataTableRowDumper.dumpMigrations(flyway.history());
+        log.warn("<flyway:history/> is deprecated. Use <flyway:info/> instead.");
+        MigrationInfoDumper.dumpMigrations(flyway.info().applied());
     }
 }

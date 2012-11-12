@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.resolver.sql.SqlScript;
-
 import java.sql.SQLException;
 
 /**

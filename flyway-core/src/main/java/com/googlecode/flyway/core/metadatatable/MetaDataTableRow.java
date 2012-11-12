@@ -24,67 +24,14 @@ import java.util.Date;
 /**
  * A row in the schema metadata table containing information about a migration that has already been applied to a db.
  *
- * @deprecated Superseeded by MigrationInfo. Will be removed in Flyway 2.0.
+ * @deprecated Superseeded by MigrationInfo. Will be removed in Flyway 3.0.
  */
 @Deprecated
 public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     /**
-     * The version of this migration.
+     * The migration info this maps to.
      */
-    private SchemaVersion schemaVersion;
-
-    /**
-     * The description for the migration history.
-     */
-    private String description;
-
-    /**
-     * The script name for the migration history.
-     */
-    private String script;
-
-    /**
-     * The checksum of the migration.
-     */
-    private Integer checksum;
-
-    /**
-     * The timestamp when this migration was applied to the database. (Automatically set by the database)
-     */
-    private Date installedOn;
-
-    /**
-     * The time (in ms) it took to execute.
-     */
-    private Integer executionTime;
-
-    /**
-     * The state of this migration.
-     */
-    private MigrationState state;
-
-    /**
-     * Creates a new MetaDataTableRow. This constructor is here to support the rowmapper.
-     *
-     * @param schemaVersion The version of this migration.
-     * @param description   The description for the migration history.
-     * @param script        The script name for the migration history.
-     * @param checksum      The checksum of the migration.
-     * @param installedOn   The timestamp when this migration was applied to the database. (Automatically set by the
-     *                      database)
-     * @param executionTime The time (in ms) it took to execute.
-     * @param state         The state of this migration.
-     */
-    public MetaDataTableRow(SchemaVersion schemaVersion, String description, String script,
-                            Integer checksum, Date installedOn, Integer executionTime, MigrationState state) {
-        this.schemaVersion = schemaVersion;
-        this.description = abbreviateDescription(description);
-        this.script = abbreviateScript(script);
-        this.checksum = checksum;
-        this.installedOn = installedOn;
-        this.executionTime = executionTime;
-        this.state = state;
-    }
+    private MigrationInfo migrationInfo;
 
     /**
      * Initializes a new metadatatable row with this migration info.
@@ -92,10 +39,14 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
      * @param migrationInfo The migration that was or is being applied.
      */
     public MetaDataTableRow(MigrationInfo migrationInfo) {
-        schemaVersion = new SchemaVersion(migrationInfo.getVersion().toString());
-        description = abbreviateDescription(migrationInfo.getDescription());
-        script = abbreviateScript(migrationInfo.getScript());
-        checksum = migrationInfo.getChecksum();
+        this.migrationInfo = migrationInfo;
+    }
+
+    /**
+     * @return The migration info this maps to.
+     */
+    public MigrationInfo getMigrationInfo() {
+        return migrationInfo;
     }
 
     /**
@@ -135,63 +86,56 @@ public class MetaDataTableRow implements Comparable<MetaDataTableRow> {
     }
 
     /**
-     * Updates this MetaDataTableRow with this execution time and this migration state.
-     *
-     * @param executionTime The time (in ms) it took to execute.
-     * @param state         The state of this migration.
-     */
-    public void update(Integer executionTime, MigrationState state) {
-        this.executionTime = executionTime;
-        this.state = state;
-    }
-
-    /**
      * @return The checksum of the migration.
      */
     public Integer getChecksum() {
-        return checksum;
+        return migrationInfo.getChecksum();
     }
 
     /**
      * @return The schema version after the migration is complete.
      */
     public SchemaVersion getVersion() {
-        return schemaVersion;
+        return new SchemaVersion(migrationInfo.getVersion().toString());
     }
 
     /**
      * @return The description for the migration history.
      */
     public String getDescription() {
-        return description;
+        return abbreviateDescription(migrationInfo.getDescription());
     }
 
     /**
      * @return The state of this migration.
      */
     public MigrationState getState() {
-        return state;
+        if (migrationInfo.getState().equals(com.googlecode.flyway.core.api.MigrationState.FAILED)) {
+            return MigrationState.FAILED;
+        }
+
+        return MigrationState.SUCCESS;
     }
 
     /**
      * @return The timestamp when this migration was applied to the database. (Automatically set by the database)
      */
     public Date getInstalledOn() {
-        return installedOn;
+        return migrationInfo.getInstalledOn();
     }
 
     /**
      * @return The time (in ms) it took to execute.
      */
     public Integer getExecutionTime() {
-        return executionTime;
+        return migrationInfo.getExecutionTime();
     }
 
     /**
      * @return The script name for the migration history.
      */
     public String getScript() {
-        return script;
+        return abbreviateScript(migrationInfo.getScript());
     }
 
     public int compareTo(MetaDataTableRow o) {
