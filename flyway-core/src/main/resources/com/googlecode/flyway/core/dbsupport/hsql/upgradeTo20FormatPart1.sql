@@ -23,18 +23,21 @@ ALTER TABLE "${schema}"."${table}" DROP PRIMARY KEY;
 ALTER TABLE "${schema}"."${table}" DROP COLUMN current_version;
 
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN version RENAME TO "version";
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" SET DATA TYPE VARCHAR(50);
+ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" VARCHAR(50);
+ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" SET NOT NULL;
 
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN description RENAME TO "description";
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "description" SET DATA TYPE VARCHAR(200);
+ALTER TABLE "${schema}"."${table}" ALTER COLUMN "description" VARCHAR(200);
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN "description" SET NOT NULL;
 
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN type RENAME TO "type";
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "type" SET DATA TYPE VARCHAR(20);
+ALTER TABLE "${schema}"."${table}" ALTER COLUMN "type" VARCHAR(20);
+ALTER TABLE "${schema}"."${table}" ALTER COLUMN "type" SET NOT NULL;
 UPDATE "${schema}"."${table}" SET "type" = 'SPRING_JDBC' WHERE "type" = 'JAVA';
 
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN script RENAME TO "script";
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "script" SET DATA TYPE VARCHAR(1000);
+ALTER TABLE "${schema}"."${table}" ALTER COLUMN "script" VARCHAR(1000);
+ALTER TABLE "${schema}"."${table}" ALTER COLUMN "script" SET NOT NULL;
 
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN checksum RENAME TO "checksum";
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN installed_by RENAME TO "installed_by";

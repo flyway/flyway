@@ -326,30 +326,25 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public void repair() {
+        if (!hasFailedMigration()) {
+            LOG.info("Repair not necessary. No failed migration detected.");
+            return;
+        }
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-            public Void doInTransaction() {
-                if (!hasFailedMigration()) {
-                    LOG.info("Repair not necessary. No failed migration detected.");
-                    return null;
-                }
-
-                try {
-                    jdbcTemplate.execute("DELETE FROM " + fullyQualifiedMetadataTableName() + " WHERE " + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse());
-                } catch (SQLException e) {
-                    throw new FlywayException("Unable to repair metadata table", e);
-                }
-                return null;
-            }
-        });
+        try {
+            jdbcTemplate.execute("DELETE FROM " + fullyQualifiedMetadataTableName()
+                    + " WHERE " + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse());
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to repair metadata table", e);
+        }
 
         stopWatch.stop();
 
         LOG.info("Metadata successfully repaired (execution time "
                 + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
         LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
-        LOG.info("Current schema version: " + getCurrentSchemaVersion());
     }
 }

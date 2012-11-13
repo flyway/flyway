@@ -116,6 +116,16 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      */
     private String target;
 
+    /**
+     * Allows migrations to be run "out of order" (default: {@code false}).
+     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
+     * it will be applied too instead of being ignored.</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.outOfOrder}</p>
+     *
+     * @parameter expression="${flyway.outOfOrder}"
+     */
+    private boolean outOfOrder;
+
     @Override
     protected final void doExecute(Flyway flyway) throws Exception {
         String locationsProperty = mavenProject.getProperties().getProperty("flyway.locations");
@@ -144,6 +154,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
             flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorMode.toUpperCase()));
         }
         flyway.setCleanOnValidationError(cleanOnValidationError);
+        flyway.setOutOfOrder(outOfOrder);
         if (target != null) {
             flyway.setTarget(new MigrationVersion(target));
         }

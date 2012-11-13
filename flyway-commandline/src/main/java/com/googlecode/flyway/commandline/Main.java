@@ -225,6 +225,7 @@ public class Main {
         LOG.info("placeholderPrefix      : Prefix of every placeholder");
         LOG.info("placeholderSuffix      : Suffix of every placeholder");
         LOG.info("target                 : Target version up to which Flyway should migrate");
+        LOG.info("outOfOrder             : Allows migrations to be run \"out of order\"");
         LOG.info("validateOnMigrate      : Validate when running migrate");
         LOG.info("cleanOnValidationError : Automatically clean on a validation error");
         LOG.info("initialVersion         : Initial version to put in the database");

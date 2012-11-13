@@ -19,15 +19,24 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
+import org.apache.tools.ant.Project;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Base class for tasks that rely on loading migrations from the classpath.
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
+    /**
+     * Property name prefix for placeholders that are configured through properties.
+     */
+    private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
      * and java-based migrations. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.locations}
@@ -89,6 +98,29 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      * applied. (default: the latest version)<br/>Also configurable with Ant Property: ${flyway.target}
      */
     private String target;
+
+    /**
+     * Allows migrations to be run "out of order" (default: {@code false}).
+     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
+     * it will be applied too instead of being ignored.</p>
+     * Also configurable with Ant Property: ${flyway.outOfOrder}
+     */
+    private boolean outOfOrder;
+
+    /**
+     * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+     */
+    private Map<String, String> placeholders = new HashMap<String, String>();
+
+    /**
+     * The prefix of every placeholder. (default: ${ )<br/>Also configurable with Ant Property: ${flyway.placeholderPrefix}
+     */
+    private String placeholderPrefix;
+
+    /**
+     * The suffix of every placeholder. (default: } )<br/>Also configurable with Ant Property: ${flyway.placeholderSuffix}
+     */
+    private String placeholderSuffix;
 
     /**
      * Do not use. For Ant itself.
@@ -174,6 +206,53 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         this.cleanOnValidationError = cleanOnValidationError;
     }
 
+    /**
+     * @param outOfOrder Allows migrations to be run "out of order" (default: {@code false}).
+     *                   <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
+     *                   it will be applied too instead of being ignored.</p>
+     *                   Also configurable with Ant Property: ${flyway.outOfOrder}
+     */
+    public void setOutOfOrder(boolean outOfOrder) {
+        this.outOfOrder = outOfOrder;
+    }
+
+    /**
+     * @param placeholderPrefix The prefix of every placeholder. (default: ${ )<br/>Also configurable with Ant Property: ${flyway.placeholderPrefix}
+     */
+    public void setPlaceholderPrefix(String placeholderPrefix) {
+        this.placeholderPrefix = placeholderPrefix;
+    }
+
+    /**
+     * @param placeholderSuffix The suffix of every placeholder. (default: } )<br/>Also configurable with Ant Property: ${flyway.placeholderSuffix}
+     */
+    public void setPlaceholderSuffix(String placeholderSuffix) {
+        this.placeholderSuffix = placeholderSuffix;
+    }
+
+    /**
+     * Adds a placeholder from a nested &lt;placeholder&gt; element. Called by Ant.
+     *
+     * @param placeholder The fully configured placeholder element.
+     * @deprecated Use the &lt;placeholders&gt; element instead of adding individual &lt;placeholder&gt; elements directly. Will be removed in Flyway 3.0.
+     */
+    @Deprecated
+    public void addConfiguredPlaceholder(PlaceholderElement placeholder) {
+        getProject().log(this, "The direct use of <placeholder> is deprecated." +
+                " They should be nested inside a <placeholders> element." +
+                " Support for this will be removed in Flyway 3.0.", null, Project.MSG_WARN);
+        placeholders.put(placeholder.name, placeholder.value);
+    }
+
+    /**
+     * Adds placeholders from a nested &lt;placeholders&gt; element. Called by Ant.
+     *
+     * @param placeholders The fully configured placeholders element.
+     */
+    public void addConfiguredPlaceholders(PlaceholdersElement placeholders) {
+        this.placeholders = placeholders.placeholders;
+    }
+
     @Override
     protected final void doExecute(Flyway flyway) throws Exception {
         String locationsProperty = getProject().getProperty("flyway.locations");
@@ -208,12 +287,43 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
             flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeValue.toUpperCase()));
         }
         flyway.setCleanOnValidationError(useValueIfPropertyNotSet(cleanOnValidationError, "cleanOnValidationError"));
+        flyway.setOutOfOrder(useValueIfPropertyNotSet(outOfOrder, "outOfOrder"));
         String targetValue = useValueIfPropertyNotSet(target, "target");
         if (targetValue != null) {
             flyway.setTarget(new MigrationVersion(targetValue));
         }
 
+        addPlaceholdersFromProperties(placeholders, getProject().getProperties());
+        flyway.setPlaceholders(placeholders);
+
+        String placeholderPrefixValue = useValueIfPropertyNotSet(placeholderPrefix, "placeholderPrefix");
+        if (placeholderPrefixValue != null) {
+            flyway.setPlaceholderPrefix(placeholderPrefixValue);
+        }
+        String placeholderSuffixValue = useValueIfPropertyNotSet(placeholderSuffix, "placeholderSuffix");
+        if (placeholderSuffixValue != null) {
+            flyway.setPlaceholderSuffix(placeholderSuffixValue);
+        }
+
         doExecuteWithMigrationConfig(flyway);
+    }
+
+    /**
+     * Adds the additional placeholders contained in these properties to the existing list.
+     *
+     * @param placeholders The existing list of placeholders.
+     * @param properties   The properties containing additional placeholders.
+     */
+    private static void addPlaceholdersFromProperties(Map<String, String> placeholders, Hashtable properties) {
+        for (Object property : properties.keySet()) {
+            String propertyName = (String) property;
+            if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
+                    && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
+                String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
+                String placeholderValue = (String) properties.get(propertyName);
+                placeholders.put(placeholderName, placeholderValue);
+            }
+        }
     }
 
     /**
@@ -259,6 +369,54 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
          */
         public void setPath(String path) {
             this.path = path;
+        }
+    }
+
+    /**
+     * Nested &lt;placeholders&gt; element of the migrate Ant task.
+     */
+    public static class PlaceholdersElement {
+        /**
+         * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+         */
+        Map<String, String> placeholders = new HashMap<String, String>();
+
+        /**
+         * Adds a placeholder from a nested &lt;placeholder&gt; element. Called by Ant.
+         *
+         * @param placeholder The fully configured placeholder element.
+         */
+        public void addConfiguredPlaceholder(PlaceholderElement placeholder) {
+            placeholders.put(placeholder.name, placeholder.value);
+        }
+    }
+
+    /**
+     * Nested &lt;placeholder&gt; element inside the &lt;placeholders&gt; element of the migrate Ant task.
+     */
+    public static class PlaceholderElement {
+        /**
+         * The name of the placeholder.
+         */
+        private String name;
+
+        /**
+         * The value of the placeholder.
+         */
+        private String value;
+
+        /**
+         * @param name The name of the placeholder.
+         */
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        /**
+         * @param value The value of the placeholder.
+         */
+        public void setValue(String value) {
+            this.value = value;
         }
     }
 }

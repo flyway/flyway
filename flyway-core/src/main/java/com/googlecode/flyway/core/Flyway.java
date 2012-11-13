@@ -662,6 +662,17 @@ public class Flyway {
     }
 
     /**
+     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
+     * not be applied.
+     *
+     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
+     *               number will not be applied. (default: the latest version)
+     */
+    public void setTarget(String target) {
+        this.target = new MigrationVersion(target);
+    }
+
+    /**
      * Sets the placeholders to replace in sql migration scripts.
      *
      * @param placeholders The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -734,6 +745,15 @@ public class Flyway {
      */
     public void setInitialVersion(MigrationVersion initialVersion) {
         this.initialVersion = initialVersion;
+    }
+
+    /**
+     * The initial version to put in the database. Only used for init.
+     *
+     * @param initialVersion The initial version to put in the database. (default: 0)
+     */
+    public void setInitialVersion(String initialVersion) {
+        this.initialVersion = new MigrationVersion(initialVersion);
     }
 
     /**

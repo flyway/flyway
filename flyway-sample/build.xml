@@ -51,7 +51,7 @@
                       inline="true" pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>
         <ivy:retrieve organisation="org.hsqldb" module="hsqldb" revision="1.8.0.10" inline="true"
                       pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>
-       <ivy:retrieve organisation="org.springframework" module="spring-jdbc" revision="2.5.6" inline="true"
+        <ivy:retrieve organisation="org.springframework" module="spring-jdbc" revision="2.5.6" inline="true"
                       pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>
 
         <path id="lib.path">
@@ -72,7 +72,7 @@
             <fileset dir="src/main/resources" excludes="**/*.java"/>
         </copy>
 
-        <mkdir dir="target/jar" />
+        <mkdir dir="target/jar"/>
         <jar destfile="target/jar/flyway-sample.jar" basedir="target/build"/>
     </target>
 
@@ -96,7 +96,9 @@
 
     <target name="migrate" depends="init-flyway" description="Runs flyway:migrate">
         <flyway:migrate>
-            <placeholder name="name" value="Mr. T"/>
+            <placeholders>
+                <placeholder name="name" value="Mr. T"/>
+            </placeholders>
         </flyway:migrate>
     </target>
 
@@ -104,12 +106,8 @@
         <flyway:validate/>
     </target>
 
-    <target name="status" depends="init-flyway" description="Runs flyway:status">
-        <flyway:status/>
-    </target>
-
-    <target name="history" depends="init-flyway" description="Runs flyway:history">
-        <flyway:history/>
+    <target name="repair" depends="init-flyway" description="Runs flyway:repair">
+        <flyway:repair/>
     </target>
 
     <target name="info" depends="init-flyway" description="Runs flyway:info">
