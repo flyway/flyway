@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
     Detailed information how to contribute: http://flywaydb.org/howToContribute.html
 
@@ -13,11 +12,11 @@
     <parent>
         <groupId>com.googlecode.flyway</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>1.8-SNAPSHOT</version>
+        <version>2.0</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-core</artifactId>
-    <version>1.8-SNAPSHOT</version>
+    <version>2.0</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
