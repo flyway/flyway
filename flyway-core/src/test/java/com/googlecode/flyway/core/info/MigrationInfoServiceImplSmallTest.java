@@ -15,7 +15,6 @@
  */
 package com.googlecode.flyway.core.info;
 
-import com.googlecode.flyway.core.api.MigrationInfoService;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
@@ -33,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * Test for DbInfoAggregator.
+ * Test for MigrationInfoServiceImpl.
  */
 public class MigrationInfoServiceImplSmallTest {
     @Test
