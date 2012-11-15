@@ -79,6 +79,17 @@ public class FlywaySmallTest {
     }
 
     @Test
+    public void configureOutOfOrder() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.outOfOrder", "true");
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+
+        assertEquals(true, flyway.isOutOfOrder());
+    }
+
+    @Test
     public void configureValidationMode() {
         Properties properties = new Properties();
         properties.setProperty("flyway.validationMode", "ALL");

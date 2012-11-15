@@ -1184,6 +1184,10 @@ public class Flyway {
         if (targetProp != null) {
             setTarget(new MigrationVersion(targetProp));
         }
+        String outOfOrderProp = properties.getProperty("flyway.outOfOrder");
+        if (outOfOrderProp != null) {
+            setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
+        }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>();
         for (Object property : properties.keySet()) {
