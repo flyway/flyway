@@ -141,8 +141,8 @@ public class OracleDbSupport extends DbSupport {
         String query = "SELECT table_name FROM all_tables WHERE owner = ?"
                 // Ignore Recycle bin objects
                 + " AND table_name NOT LIKE 'BIN$%'"
-                // Ignore Spatial Index Tables and Sequences as they get dropped automatically when the index gets dropped.
-                + " AND table_name NOT LIKE 'MDRT_%$' AND table_name NOT LIKE 'MDRS_%$'"
+                // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
+                + " AND table_name NOT LIKE 'MDRT_%$'"
                 // Ignore Materialized View Logs
                 + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
                 // Ignore Oracle Text Index Tables
@@ -190,7 +190,9 @@ public class OracleDbSupport extends DbSupport {
      * @throws SQLException when the drop statements could not be generated.
      */
     private List<String> generateDropStatementsForObjectType(String objectType, String extraArguments, String schema) throws SQLException {
-        String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?";
+        String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?"
+                // Ignore Spatial Index Sequences as they get dropped automatically when the index gets dropped.
+                + " AND object_name NOT LIKE 'MDRS_%$'";
 
         List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, schema);
         List<String> dropStatements = new ArrayList<String>();
