@@ -150,7 +150,9 @@ public class OracleDbSupport extends DbSupport {
                 // Ignore Index Organized Tables
                 + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
                 // Ignore Nested Tables
-                + " AND nested != 'YES'";
+                + " AND nested != 'YES'"
+                // Ignore Nested Tables
+                + " AND secondary != 'Y'";
 
         List<String> objectNames = jdbcTemplate.queryForStringList(query, schema);
         List<String> dropStatements = new ArrayList<String>();
@@ -188,17 +190,7 @@ public class OracleDbSupport extends DbSupport {
      * @throws SQLException when the drop statements could not be generated.
      */
     private List<String> generateDropStatementsForObjectType(String objectType, String extraArguments, String schema) throws SQLException {
-        String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?"
-                // Ignore Recycle bin objects
-                + " AND object_name NOT LIKE 'BIN$%'"
-                // Ignore Spatial Index Tables and Sequences as they get dropped automatically when the index gets dropped.
-                + " AND object_name NOT LIKE 'MDRT_%$' AND object_name NOT LIKE 'MDRS_%$'"
-                // Ignore Materialized View Logs
-                + " AND object_name NOT LIKE 'MLOG$%' AND object_name NOT LIKE 'RUPD$%'"
-                // Ignore Oracle Text Index Tables
-                + " AND object_name NOT LIKE 'DR$%'"
-                // Ignore Index Organized Tables
-                + " AND object_name NOT LIKE 'SYS_IOT_OVER_%'";
+        String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?";
 
         List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, schema);
         List<String> dropStatements = new ArrayList<String>();
