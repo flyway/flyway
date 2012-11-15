@@ -245,4 +245,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    /**
+     * Tests support for clean together with XML Type.
+     */
+    @Test
+    public void xml() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/xml");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
 }

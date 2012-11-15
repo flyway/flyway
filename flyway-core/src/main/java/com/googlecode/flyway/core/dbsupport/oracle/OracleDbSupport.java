@@ -118,6 +118,7 @@ public class OracleDbSupport extends DbSupport {
         allDropStatements.addAll(generateDropStatementsForObjectType("TRIGGER", "", schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS", schema));
         allDropStatements.addAll(generateDropStatementsForTables(schema));
+        allDropStatements.addAll(generateDropStatementsForXmlTables(schema));
         allDropStatements.addAll(generateDropStatementsForObjectType("TYPE", "FORCE", schema));
 
         List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
@@ -155,6 +156,24 @@ public class OracleDbSupport extends DbSupport {
         List<String> dropStatements = new ArrayList<String>();
         for (String objectName : objectNames) {
             dropStatements.add("DROP TABLE " + quote(schema, objectName) + " CASCADE CONSTRAINTS PURGE");
+        }
+        return dropStatements;
+    }
+
+    /**
+     * Generates the drop statements for all xml tables.
+     *
+     * @param schema The schema for which to generate the statements.
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForXmlTables(String schema) throws SQLException {
+        String query = "SELECT table_name FROM all_xml_tables WHERE owner = ?";
+
+        List<String> objectNames = jdbcTemplate.queryForStringList(query, schema);
+        List<String> dropStatements = new ArrayList<String>();
+        for (String objectName : objectNames) {
+            dropStatements.add("DROP TABLE " + quote(schema, objectName) + " PURGE");
         }
         return dropStatements;
     }
