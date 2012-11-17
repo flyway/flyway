@@ -86,7 +86,7 @@ public class OracleDbSupport extends DbSupport {
     }
 
     public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.update("select * from " + quote(schema) + "." + quote(table) + " for update");
+        jdbcTemplate.execute("select * from " + quote(schema, table) + " for update");
     }
 
     public String getBooleanTrue() {
