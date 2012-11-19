@@ -16,7 +16,8 @@
 
 DROP INDEX ${schema}.${table}_current_version_index;
 
-RENAME TABLE ${schema}.${table} TO "${table}";
+RENAME TABLE ${schema}.${table} TO "${table}_bak";
+RENAME TABLE ${schema}."${table}_bak" TO "${table}";
 
 ALTER TABLE "${schema}"."${table}" DROP UNIQUE ${schema}.${table}_script_unique;
 ALTER TABLE "${schema}"."${table}" DROP PRIMARY KEY;

@@ -545,6 +545,13 @@ public abstract class MigrationTestCase {
         upgradeMetaDataTableTo20Format();
     }
 
+    @Test
+    public void format20upgradeUpperCase() throws Exception {
+        flyway.setTable("UPPER_CASE");
+        createMetaDataTableIn17Format();
+        upgradeMetaDataTableTo20Format();
+    }
+
     @Test(expected = FlywayException.class)
     public void format20upgradeEmptyDescription() throws Exception {
         createMetaDataTableIn17Format();

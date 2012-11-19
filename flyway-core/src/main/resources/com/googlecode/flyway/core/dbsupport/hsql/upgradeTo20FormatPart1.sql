@@ -16,7 +16,8 @@
 
 DROP INDEX ${schema}.${table}_current_version_index;
 
-ALTER TABLE ${schema}.${table} RENAME TO "${table}";
+ALTER TABLE ${schema}.${table} RENAME TO "${table}_bak";
+ALTER TABLE ${schema}."${table}_bak" RENAME TO "${table}";
 
 ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT ${schema}.${table}_script_unique;
 ALTER TABLE "${schema}"."${table}" DROP PRIMARY KEY;

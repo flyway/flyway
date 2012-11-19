@@ -249,6 +249,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     /**
      * Tests support for clean together with XML Type.
      */
+    @Ignore("Disabled due to missing functionality in Oracle XE 10g. Works fine with XE 11g.")
     @Test
     public void xml() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/xml");
