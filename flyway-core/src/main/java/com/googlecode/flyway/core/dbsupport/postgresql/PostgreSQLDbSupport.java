@@ -54,7 +54,8 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     public void setCurrentSchema(String schema) throws SQLException {
-        jdbcTemplate.execute("SET search_path = " + quote(schema));
+        String searchPath = jdbcTemplate.queryForString("SHOW search_path");
+        jdbcTemplate.execute("SET search_path = " + quote(schema) + "," + searchPath);
     }
 
     public boolean isSchemaEmpty(String schema) throws SQLException {
