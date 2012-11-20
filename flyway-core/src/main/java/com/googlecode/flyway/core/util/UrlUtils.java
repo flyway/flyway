@@ -37,7 +37,7 @@ public class UrlUtils {
      * @return The file path.
      */
     public static String toFilePath(URL url) {
-        String filePath = null;
+        String filePath;
 
         try {
             filePath = URLDecoder.decode(url.getPath(), "UTF-8");

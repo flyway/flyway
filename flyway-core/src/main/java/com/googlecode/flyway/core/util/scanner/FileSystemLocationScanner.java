@@ -34,12 +34,18 @@ public class FileSystemLocationScanner implements LocationScanner {
 
     public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
         String filePath = UrlUtils.toFilePath(locationUrl);
+        File folder = new File(filePath);
+        if (!folder.isDirectory()) {
+            LOG.debug("Skipping path as it is not a directory: " + filePath);
+            return new TreeSet<String>();
+        }
+
         String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
         if (!classPathRootOnDisk.endsWith("/")) {
             classPathRootOnDisk = classPathRootOnDisk + "/";
         }
         LOG.debug("Scanning starting at classpath root in filesystem: " + classPathRootOnDisk);
-        return findResourceNamesFromFileSystem(classPathRootOnDisk, location, new File(filePath));
+        return findResourceNamesFromFileSystem(classPathRootOnDisk, location, folder);
     }
 
     /**
@@ -74,8 +80,9 @@ public class FileSystemLocationScanner implements LocationScanner {
 
     /**
      * Converts this file into a resource name on the classpath.
+     *
      * @param classPathRootOnDisk The location of the classpath root on disk, with a trailing slash.
-     * @param file The file.
+     * @param file                The file.
      * @return The resource name on the classpath.
      * @throws IOException when the file could not be read.
      */

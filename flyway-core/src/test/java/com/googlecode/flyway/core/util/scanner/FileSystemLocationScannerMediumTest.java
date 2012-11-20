@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.util.scanner;
 import org.junit.Test;
 
 import java.io.File;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Set;
 
@@ -42,5 +43,15 @@ public class FileSystemLocationScannerMediumTest {
         assertEquals("sql/V1_2__Populate_table.sql", names[1]);
         assertEquals("sql/V1__First.sql", names[2]);
         assertEquals("sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", names[3]);
+    }
+
+    @Test
+    public void findResourceNamesNonExistantPath() throws Exception {
+        URL url = new URL("file", null, 0, "X:\\dummy\\sql");
+
+        Set<String> resourceNames =
+                new FileSystemLocationScanner().findResourceNames("sql", url);
+
+        assertEquals(0, resourceNames.size());
     }
 }
