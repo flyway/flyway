@@ -142,4 +142,13 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/mysql/sql/doublequote");
         flyway.migrate();
     }
+
+    /**
+     * Tests parsing support for \' in string literals.
+     */
+    @Test
+    public void escapeSingleQuote() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/mysql/sql/escape");
+        flyway.migrate();
+    }
 }

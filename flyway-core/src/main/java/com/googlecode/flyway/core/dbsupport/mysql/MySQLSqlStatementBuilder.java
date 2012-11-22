@@ -120,7 +120,8 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
         List<Token> delimitingTokens = new ArrayList<Token>();
         for (String token : tokens) {
             //Remove escaped quotes as they do not form a string literal delimiter
-            String cleanToken = StringUtils.replace(token, "''", "");
+            String noQuoteQuote = StringUtils.replace(token, "''", "");
+            String cleanToken = StringUtils.replace(noQuoteQuote, "\\'", "");
 
             List<TokenType> tokenTypes = new ArrayList<TokenType>();
 
