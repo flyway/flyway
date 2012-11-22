@@ -95,6 +95,16 @@ public abstract class DbSupport {
     public abstract boolean tableExists(String schema, String table) throws SQLException;
 
     /**
+     * Checks whether this table has a primary key.
+     *
+     * @param schema The schema in which to look.
+     * @param table  The table to look for.
+     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     * @throws SQLException when there was an error checking whether this table exists in this schema.
+     */
+    public abstract boolean primaryKeyExists(String schema, String table) throws SQLException;
+
+    /**
      * Checks whether this column in this table is already present in the database.
      *
      * @param schema The schema in which to look.

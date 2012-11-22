@@ -89,6 +89,11 @@ public class SQLServerDbSupport extends DbSupport {
         return jdbcTemplate.columnExists(null, schema, table, column);
     }
 
+    @Override
+    public boolean primaryKeyExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.primaryKeyExists(null, schema, table);
+    }
+
     public boolean supportsDdlTransactions() {
         return true;
     }

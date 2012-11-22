@@ -14,19 +14,16 @@
 -- limitations under the License.
 --
 
-CREATE TABLE [${schema}].[${table}] (
-    [version_rank] INT NOT NULL,
-    [installed_rank] INT NOT NULL,
-    [version] NVARCHAR(50) NOT NULL,
-    [description] NVARCHAR(200),
-    [type] NVARCHAR(20) NOT NULL,
-    [script] NVARCHAR(1000) NOT NULL,
-    [checksum] INT,
-    [installed_by] NVARCHAR(30) NOT NULL,
-    [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),
-    [execution_time] INT NOT NULL,
-    [success] BIT NOT NULL
-);
+DECLARE @pk VARCHAR(MAX);
+SET @pk = (SELECT name FROM sys.key_constraints WHERE SCHEMA_NAME(schema_id) = N'${schema}' AND OBJECT_NAME(parent_object_id) = N'${table}');
+
+DECLARE @DROP_TEMPLATE VARCHAR(MAX);
+SET @DROP_TEMPLATE = 'ALTER TABLE [${schema}].[${table}] DROP CONSTRAINT {pk}';
+
+DECLARE @SQL_SCRIPT VARCHAR(MAX);
+SET @SQL_SCRIPT = REPLACE(@DROP_TEMPLATE, '{pk}', @pk)
+EXECUTE (@SQL_SCRIPT)
+GO
 
 CREATE INDEX [${table}_vr_idx] ON [${schema}].[${table}] ([version_rank]);
 CREATE INDEX [${table}_ir_idx] ON [${schema}].[${table}] ([installed_rank]);

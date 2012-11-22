@@ -92,11 +92,11 @@ public class MetaDataTableTo20FormatUpgrader {
     public void upgrade() throws FlywayException {
         try {
             if (!needsUpgrade()) {
-                LOG.debug("No metadata table upgrade necessary");
+                LOG.debug("No metadata table upgrade to the Flyway 2.0 format necessary");
                 return;
             }
 
-            LOG.info("Upgrading the metadata table (" + schema + "." + table + ") to the new Flyway 2.0 format...");
+            LOG.info("Upgrading the metadata table (" + schema + "." + table + ") to the Flyway 2.0 format...");
 
             LOG.info("Checking prerequisites...");
             checkPrerequisites();
@@ -114,7 +114,7 @@ public class MetaDataTableTo20FormatUpgrader {
             fixChecksums();
         } catch (SQLException e) {
             throw new FlywayException("Unable to upgrade the metadata table " + dbSupport.quote(schema, table)
-                    + " to the new Flyway 2.0 format", e);
+                    + " to the Flyway 2.0 format", e);
         }
     }
 

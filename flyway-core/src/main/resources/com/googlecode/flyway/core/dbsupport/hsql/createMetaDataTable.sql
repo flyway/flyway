@@ -15,7 +15,7 @@
 --
 
 CREATE TABLE "${schema}"."${table}" (
-    "version_rank" INT NOT NULL PRIMARY KEY,
+    "version_rank" INT NOT NULL,
     "installed_rank" INT NOT NULL,
     "version" VARCHAR(50) NOT NULL,
     "description" VARCHAR(200) NOT NULL,
@@ -27,3 +27,6 @@ CREATE TABLE "${schema}"."${table}" (
     "execution_time" INT NOT NULL,
     "success" BIT NOT NULL
 );
+CREATE INDEX "${schema}"."${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
+CREATE INDEX "${schema}"."${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
+CREATE INDEX "${schema}"."${table}_s_idx" ON "${schema}"."${table}" ("success");

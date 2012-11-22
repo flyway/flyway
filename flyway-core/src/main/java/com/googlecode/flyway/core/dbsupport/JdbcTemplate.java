@@ -245,6 +245,28 @@ public class JdbcTemplate {
     }
 
     /**
+     * Checks whether the table has a primary key.
+     *
+     * @param catalog    The catalog where the table resides. (optional)
+     * @param schema     The schema where the table resides. (optional)
+     * @param table      The name of the table. (optional)
+     * @return {@code true} if a primary key has been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    public boolean primaryKeyExists(String catalog, String schema, String table) throws SQLException {
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            resultSet = connection.getMetaData().getPrimaryKeys(catalog, schema, table);
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return found;
+    }
+
+    /**
      * Executes this sql statement using a PreparedStatement.
      *
      * @param sql    The statement to execute.

@@ -23,6 +23,7 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
@@ -31,8 +32,10 @@ import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
+import org.h2.Driver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -533,9 +536,29 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void outOfOrderMultipleRankIncrease() {
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+
+        flyway.setLocations("migration/sql", "migration/outoforder");
+        flyway.setOutOfOrder(true);
+        flyway.migrate();
+
+        assertEquals(com.googlecode.flyway.core.api.MigrationState.OUT_OF_ORDER, flyway.info().all()[2].getState());
+    }
+
+    @Test
     public void format20upgrade() throws Exception {
         createMetaDataTableIn17Format();
         upgradeMetaDataTableTo20Format();
+        assertTrue(dbSupport.primaryKeyExists(flyway.getSchemas()[0], flyway.getTable()));
+    }
+
+    @Test
+    public void format202upgrade() throws Exception {
+        createMetaDataTableIn17Format();
+        upgradeMetaDataTableTo20Format();
+        upgradeMetaDataTableTo202Format();
     }
 
     @Test
@@ -616,12 +639,22 @@ public abstract class MigrationTestCase {
     }
 
     /**
-     * Upgrade a Flyway 1.7 format metadata table to the new Flyway 2.0 format.
+     * Upgrade a Flyway 1.7 format metadata table to the Flyway 2.0 format.
      */
     private void upgradeMetaDataTableTo20Format() throws Exception {
         CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, BASEDIR, BASEDIR, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
+        upgrader.upgrade();
+    }
+
+    /**
+     * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.0.2 format.
+     */
+    private void upgradeMetaDataTableTo202Format() throws Exception {
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, BASEDIR, BASEDIR, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+
+        MetaDataTableTo202FormatUpgrader upgrader = new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
         upgrader.upgrade();
     }
 

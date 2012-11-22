@@ -83,6 +83,11 @@ public class MySQLDbSupport extends DbSupport {
         return jdbcTemplate.columnExists(schema, null, table, column);
     }
 
+    @Override
+    public boolean primaryKeyExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.primaryKeyExists(schema, null, table);
+    }
+
     public boolean supportsDdlTransactions() {
         return false;
     }

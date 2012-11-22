@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.dbsupport.SqlStatement;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +114,7 @@ public class DB2DbSupport extends DbSupport {
         List<String> dropStatements = new ArrayList<String>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(query);
         for (String dbObject : dbObjects) {
-            dropStatements.add(dropPrefix + quote(schema) + "." + quote(dbObject));
+            dropStatements.add(dropPrefix + " " + quote(schema, dbObject));
         }
         return dropStatements;
     }
@@ -136,6 +137,11 @@ public class DB2DbSupport extends DbSupport {
 
     public boolean tableExists(String schema, String table) throws SQLException {
         return jdbcTemplate.tableExists(null, schema, table);
+    }
+
+    @Override
+    public boolean primaryKeyExists(String schema, String table) throws SQLException {
+        return jdbcTemplate.primaryKeyExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {

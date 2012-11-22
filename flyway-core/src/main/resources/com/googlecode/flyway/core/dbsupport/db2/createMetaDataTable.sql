@@ -26,6 +26,8 @@ CREATE TABLE "${schema}"."${table}" (
     "installed_on" TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,
     "execution_time" INT NOT NULL,
     "success" SMALLINT NOT NULL,
-    CONSTRAINT "${table}_s" CHECK ("success" in(0,1)),
-    PRIMARY KEY ("version_rank")
+    CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
 );
+CREATE INDEX "${schema}"."${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
+CREATE INDEX "${schema}"."${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
+CREATE INDEX "${schema}"."${table}_s_idx" ON "${schema}"."${table}" ("success");

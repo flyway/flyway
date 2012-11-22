@@ -25,8 +25,10 @@ CREATE TABLE "${schema}"."${table}" (
     "installed_by" VARCHAR(30) NOT NULL,
     "installed_on" TIMESTAMP NOT NULL DEFAULT now(),
     "execution_time" INTEGER NOT NULL,
-    "success" BOOLEAN NOT NULL,
-    CONSTRAINT "${table}_primary_key" PRIMARY KEY ("version_rank")
+    "success" BOOLEAN NOT NULL
 ) WITH (
   OIDS=FALSE
 );
+CREATE INDEX "${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
+CREATE INDEX "${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
+CREATE INDEX "${table}_s_idx" ON "${schema}"."${table}" ("success");

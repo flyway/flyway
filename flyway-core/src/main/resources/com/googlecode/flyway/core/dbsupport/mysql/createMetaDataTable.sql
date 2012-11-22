@@ -25,6 +25,8 @@ CREATE TABLE `${schema}`.`${table}` (
     `installed_by` VARCHAR(30) NOT NULL,
     `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `execution_time` INT NOT NULL,
-    `success` BOOL NOT NULL,
-    PRIMARY KEY(`version_rank`)
+    `success` BOOL NOT NULL
 ) ENGINE=InnoDB;
+CREATE INDEX `${table}_vr_idx` ON `${schema}`.`${table}` (`version_rank`);
+CREATE INDEX `${table}_ir_idx` ON `${schema}`.`${table}` (`installed_rank`);
+CREATE INDEX `${table}_s_idx` ON `${schema}`.`${table}` (`success`);

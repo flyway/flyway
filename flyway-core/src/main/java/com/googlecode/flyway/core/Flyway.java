@@ -27,6 +27,7 @@ import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableImpl;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
 import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -818,16 +819,16 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 MigrationResolver migrationResolver = createMigrationResolver();
 
-                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
+                upgradeMetadataTable(dbSupport, migrationResolver);
 
                 List<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations();
                 if (resolvedMigrations.isEmpty()) {
                     return 0;
                 }
 
+                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 if (validateOnMigrate) {
                     doValidate(connectionUserObjects, dbSupport, migrationResolver, metaDataTable);
                 }
@@ -893,7 +894,7 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MigrationResolver migrationResolver = createMigrationResolver();
 
-                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
+                upgradeMetadataTable(dbSupport, migrationResolver);
 
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
 
@@ -1018,7 +1019,7 @@ public class Flyway {
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 MigrationResolver migrationResolver = createMigrationResolver();
 
-                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
+                upgradeMetadataTable(dbSupport, migrationResolver);
 
                 return new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
             }
@@ -1033,12 +1034,24 @@ public class Flyway {
     public void init() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, createMigrationResolver()).upgrade();
+                MigrationResolver migrationResolver = createMigrationResolver();
+                upgradeMetadataTable(dbSupport, migrationResolver);
 
                 doInit(connectionMetaDataTable, dbSupport);
                 return null;
             }
         });
+    }
+
+    /**
+     * Upgrades the metadata table to the newest format.
+     *
+     * @param dbSupport               The DbSupport for creating the table.
+     * @param migrationResolver       The migration resolver.
+     */
+    private void upgradeMetadataTable(DbSupport dbSupport, MigrationResolver migrationResolver) {
+        new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
+        new MetaDataTableTo202FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
     }
 
     /**
@@ -1061,7 +1074,8 @@ public class Flyway {
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, createMigrationResolver()).upgrade();
+                MigrationResolver migrationResolver = createMigrationResolver();
+                upgradeMetadataTable(dbSupport, migrationResolver);
                 createMetaDataTable(connectionMetaDataTable, dbSupport).repair();
                 return null;
             }
