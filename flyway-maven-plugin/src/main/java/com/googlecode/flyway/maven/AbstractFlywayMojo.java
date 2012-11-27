@@ -157,7 +157,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             String schemasProperty = mavenProject.getProperties().getProperty("flyway.schemas");
             if (schemasProperty != null) {
-                flyway.setLocations(StringUtils.tokenizeToStringArray(schemasProperty, ","));
+                flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasProperty, ","));
             } else if (schemas != null) {
                 flyway.setSchemas(schemas);
             }
