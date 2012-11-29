@@ -56,20 +56,15 @@ public class MySQLDbSupport extends DbSupport {
         jdbcTemplate.execute("USE " + quote(schema));
     }
 
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
-                "( " +
-                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLES " +
-                "Union " +
-                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.VIEWS " +
-                "Union " +
-                "Select CONSTRAINT_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from information_schema.TABLE_CONSTRAINTS " +
-                "Union " +
-                "Select ROUTINE_NAME as OBJECT_NAME, ROUTINE_SCHEMA as OBJECT_SCHEMA from information_schema.ROUTINES " +
-                ") R " +
-                "Where R.OBJECT_SCHEMA=?", schema);
-        return objectCount == 0;
-    }
+	public boolean isSchemaEmpty(String schema) throws SQLException {
+		int objectCount = jdbcTemplate.queryForInt("Select "
+				+ "(Select count(*) from information_schema.TABLES Where TABLE_SCHEMA=?) + "
+				+ "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
+				+ "(Select count(*) from information_schema.TABLE_CONSTRAINTS Where TABLE_SCHEMA=?) + "
+				+ "(Select count(*) from information_schema.ROUTINES Where ROUTINE_SCHEMA=?)", schema, 
+				schema, schema, schema);
+		return objectCount == 0;
+	}
 
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return jdbcTemplate.tableExists(schema, null, table);
