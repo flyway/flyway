@@ -135,6 +135,20 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void infoInit() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.init();
+
+        assertEquals(1, flyway.info().all().length);
+        assertEquals("0", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+    }
+
+    @Test
     public void outOfOrder() {
         DriverDataSource dataSource =
                 new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");

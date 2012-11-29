@@ -116,6 +116,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (resolvedMigration == null) {
+            if (MigrationType.INIT == appliedMigration.getType()) {
+                return MigrationState.SUCCESS;
+            }
+
             if (getVersion().compareTo(context.lastResolved) < 0) {
                 if (appliedMigration.isSuccess()) {
                     return MigrationState.MISSING_SUCCESS;

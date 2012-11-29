@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test for AbstractFlywayMojo.
  */
-public class AbstractFlywayMojoTest {
+public class AbstractFlywayMojoSmallTest {
     @Test
     public void execute() throws Exception {
         AbstractFlywayMojo mojo = new AbstractFlywayMojo() {
