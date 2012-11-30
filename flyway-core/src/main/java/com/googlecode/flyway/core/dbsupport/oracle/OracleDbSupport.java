@@ -175,14 +175,30 @@ public class OracleDbSupport extends DbSupport {
      * @throws SQLException when the drop statements could not be generated.
      */
     private List<String> generateDropStatementsForXmlTables(String schema) throws SQLException {
-        String query = "SELECT table_name FROM all_xml_tables WHERE owner = ?";
-
-        List<String> objectNames = jdbcTemplate.queryForStringList(query, schema);
         List<String> dropStatements = new ArrayList<String>();
+
+        if (!xmlDBExtensionsAvailable()) {
+            LOG.debug("Oracle XML DB Extensions are not available. No cleaning of XML tables.");
+            return dropStatements;
+        }
+
+        List<String> objectNames =
+                jdbcTemplate.queryForStringList("SELECT table_name FROM all_xml_tables WHERE owner = ?", schema);
         for (String objectName : objectNames) {
             dropStatements.add("DROP TABLE " + quote(schema, objectName) + " PURGE");
         }
         return dropStatements;
+    }
+
+    /**
+     * Checks whether Oracle XML DB extensions are available or not.
+     *
+     * @return {@code true} if they are available, {@code false} if not.
+     * @throws SQLException when checking availability of the extensions failed.
+     */
+    private boolean xmlDBExtensionsAvailable() throws SQLException {
+        return (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username = 'XDB'") > 0)
+                && (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE view_name = 'RESOURCE_VIEW'") > 0);
     }
 
     /**
