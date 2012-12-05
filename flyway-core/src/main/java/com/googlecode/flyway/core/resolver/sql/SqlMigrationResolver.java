@@ -115,12 +115,27 @@ public class SqlMigrationResolver implements MigrationResolver {
         migration.setVersion(info.getLeft());
         migration.setDescription(info.getRight());
 
-        String scriptName = resource.getLocation().substring(resource.getLocation().indexOf(location) + location.length() + "/".length());
-        migration.setScript(scriptName);
+        migration.setScript(extractScriptName(resource));
 
         migration.setChecksum(calculateChecksum(resource.loadAsBytes()));
         migration.setType(MigrationType.SQL);
         return migration;
+    }
+
+    /**
+     * Extracts the script name from this resource.
+     *
+     * @param resource The resource to process.
+     * @return The script name.
+     */
+    /* private -> for testing */ String extractScriptName(ClassPathResource resource) {
+        int start = 0;
+
+        if (location.length() > 0) {
+            start = location.length() + "/".length();
+        }
+
+        return resource.getLocation().substring(start);
     }
 
     /**

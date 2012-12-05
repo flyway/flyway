@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.resolver.sql;
 
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
@@ -74,5 +75,21 @@ public class SqlMigrationResolverSmallTest {
                 new SqlMigrationResolver("non/existing", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
 
         assertTrue(sqlMigrationResolver.resolveMigrations().isEmpty());
+    }
+
+    @Test
+    public void extractScriptName() {
+        SqlMigrationResolver sqlMigrationResolver =
+                new SqlMigrationResolver("db/migration", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", ".sql");
+
+        assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(new ClassPathResource("db/migration/db_0__init.sql")));
+    }
+
+    @Test
+    public void extractScriptNameRootLocation() {
+        SqlMigrationResolver sqlMigrationResolver =
+                new SqlMigrationResolver("", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", ".sql");
+
+        assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(new ClassPathResource("db_0__init.sql")));
     }
 }
