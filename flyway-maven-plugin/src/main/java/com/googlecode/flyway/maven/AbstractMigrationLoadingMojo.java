@@ -128,7 +128,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
 
     @Override
     protected final void doExecute(Flyway flyway) throws Exception {
-        String locationsProperty = mavenProject.getProperties().getProperty("flyway.locations");
+        String locationsProperty = getProperty("flyway.locations");
         if (locationsProperty != null) {
             flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
         } else if (locations != null) {

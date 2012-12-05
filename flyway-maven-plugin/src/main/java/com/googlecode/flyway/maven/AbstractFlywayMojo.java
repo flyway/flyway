@@ -179,6 +179,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     }
 
     /**
+     * Retrieves this property from either the system or the maven properties.
+     *
+     * @param name The name of the property to retrieve.
+     * @return The property value. {@code null} if not found.
+     */
+    protected String getProperty(String name) {
+        String systemProperty = System.getProperty(name);
+
+        if (systemProperty != null) {
+            return systemProperty;
+        }
+
+        return mavenProject.getProperties().getProperty(name);
+    }
+
+    /**
      * Executes this mojo.
      *
      * @param flyway The flyway instance to operate on.
