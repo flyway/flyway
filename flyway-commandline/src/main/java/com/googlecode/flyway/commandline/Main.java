@@ -18,11 +18,11 @@ package com.googlecode.flyway.commandline;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.info.MigrationInfoDumper;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.FileCopyUtils;
-import com.googlecode.flyway.core.info.MigrationInfoDumper;
 import com.googlecode.flyway.core.util.PropertiesUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -86,33 +86,7 @@ public class Main {
             Flyway flyway = new Flyway();
             flyway.configure(properties);
 
-            if ("clean".equals(operation)) {
-                flyway.clean();
-            } else if ("init".equals(operation)) {
-                flyway.init();
-            } else if ("migrate".equals(operation)) {
-                flyway.migrate();
-            } else if ("validate".equals(operation)) {
-                flyway.validate();
-            } else if ("status".equals(operation)) {
-                LOG.warn("status is deprecated. Use info instead.");
-                MigrationInfo current = flyway.info().current();
-
-                if (current == null) {
-                    MigrationInfoDumper.dumpMigrations(new MigrationInfo[0]);
-                } else {
-                    MigrationInfoDumper.dumpMigrations(new MigrationInfo[]{current});
-                }
-            } else if ("history".equals(operation)) {
-                LOG.warn("history is deprecated. Use info instead.");
-                MigrationInfoDumper.dumpMigrations(flyway.info().applied());
-            } else if ("info".equals(operation)) {
-                MigrationInfoDumper.dumpMigrations(flyway.info().all());
-            } else if ("repair".equals(operation)) {
-                flyway.repair();
-            } else {
-                printUsage();
-            }
+            executeOperation(flyway, operation);
         } catch (Exception e) {
             if (debug) {
                 LOG.error("Unexpected error", e);
@@ -128,6 +102,42 @@ public class Main {
                 }
             }
             System.exit(1);
+        }
+    }
+
+    /**
+     * Executes this operation on this Flyway instance.
+     *
+     * @param flyway    The Flyway instance.
+     * @param operation The operation to execute.
+     */
+    private static void executeOperation(Flyway flyway, String operation) {
+        if ("clean".equals(operation)) {
+            flyway.clean();
+        } else if ("init".equals(operation)) {
+            flyway.init();
+        } else if ("migrate".equals(operation)) {
+            flyway.migrate();
+        } else if ("validate".equals(operation)) {
+            flyway.validate();
+        } else if ("status".equals(operation)) {
+            LOG.warn("status is deprecated. Use info instead.");
+            MigrationInfo current = flyway.info().current();
+
+            if (current == null) {
+                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[0]));
+            } else {
+                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[]{current}));
+            }
+        } else if ("history".equals(operation)) {
+            LOG.warn("history is deprecated. Use info instead.");
+            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied()));
+        } else if ("info".equals(operation)) {
+            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
+        } else if ("repair".equals(operation)) {
+            flyway.repair();
+        } else {
+            printUsage();
         }
     }
 

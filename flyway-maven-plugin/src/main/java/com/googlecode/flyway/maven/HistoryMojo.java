@@ -16,6 +16,7 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.info.MigrationInfoDumper;
 
 /**
@@ -30,6 +31,6 @@ public class HistoryMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
         log.warn("flyway:history is deprecated. Use flyway:info instead.");
-        MigrationInfoDumper.dumpMigrations(flyway.info().applied());
+        log.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied()));
     }
 }

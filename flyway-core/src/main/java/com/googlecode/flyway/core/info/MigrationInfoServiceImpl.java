@@ -20,6 +20,8 @@ import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import com.googlecode.flyway.core.util.DateUtils;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;

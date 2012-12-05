@@ -29,9 +29,9 @@ public class StatusTask extends AbstractFlywayTask {
         MigrationInfo current = flyway.info().current();
 
         if (current == null) {
-            MigrationInfoDumper.dumpMigrations(new MigrationInfo[0]);
+            log.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[0]));
         } else {
-            MigrationInfoDumper.dumpMigrations(new MigrationInfo[]{current});
+            log.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[]{current}));
         }
     }
 }

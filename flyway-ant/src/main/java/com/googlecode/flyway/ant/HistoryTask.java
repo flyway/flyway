@@ -26,6 +26,6 @@ public class HistoryTask extends AbstractFlywayTask {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
         log.warn("<flyway:history/> is deprecated. Use <flyway:info/> instead.");
-        MigrationInfoDumper.dumpMigrations(flyway.info().applied());
+        log.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied()));
     }
 }

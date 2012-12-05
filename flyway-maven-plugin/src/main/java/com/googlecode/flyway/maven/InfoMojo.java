@@ -28,6 +28,6 @@ import com.googlecode.flyway.core.info.MigrationInfoDumper;
 public class InfoMojo extends AbstractMigrationLoadingMojo {
     @Override
     protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
-        MigrationInfoDumper.dumpMigrations(flyway.info().all());
+        log.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
     }
 }

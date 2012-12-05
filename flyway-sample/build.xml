@@ -49,7 +49,7 @@
     <target name="init-dependencies" depends="init-ivy">
         <ivy:retrieve organisation="com.googlecode.flyway" module="flyway-ant" revision="${maven.project.version}"
                       inline="true" pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>
-        <ivy:retrieve organisation="org.hsqldb" module="hsqldb" revision="1.8.0.10" inline="true"
+        <ivy:retrieve organisation="org.hsqldb" module="hsqldb" revision="2.2.8" inline="true"
                       pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>
         <ivy:retrieve organisation="org.springframework" module="spring-jdbc" revision="2.5.6" inline="true"
                       pattern="${lib.dir}/[conf]/[artifact].[ext]" conf="default"/>

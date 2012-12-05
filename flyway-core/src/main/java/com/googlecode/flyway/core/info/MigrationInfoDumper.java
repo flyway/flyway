@@ -18,15 +18,11 @@ package com.googlecode.flyway.core.info;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.util.DateUtils;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.logging.Log;
-import com.googlecode.flyway.core.util.logging.LogFactory;
 
 /**
  * Dumps migrations in an ascii-art table in the logs and the console.
  */
 public class MigrationInfoDumper {
-    private static final Log LOG = LogFactory.getLog(MigrationInfoDumper.class);
-
     /**
      * Prevent instantiation.
      */
@@ -35,26 +31,31 @@ public class MigrationInfoDumper {
     }
 
     /**
-     * Dumps this list of migrationInfos in the log file.
+     * Dumps the info about all migrations into an ascii table.
      *
      * @param migrationInfos The list of migrationInfos to dump.
+     * @return The ascii table, as one big multi-line string.
      */
-    public static void dumpMigrations(MigrationInfo[] migrationInfos) {
-        LOG.info("+-------------+------------------------+---------------------+---------+");
-        LOG.info("| Version     | Description            | Installed on        | State   |");
-        LOG.info("+-------------+------------------------+---------------------+---------+");
+    public static String dumpToAsciiTable(MigrationInfo[] migrationInfos) {
+        StringBuilder table = new StringBuilder();
+
+        table.append("+----------------+----------------------------+---------------------+---------+\n");
+        table.append("| Version        | Description                | Installed on        | State   |\n");
+        table.append("+----------------+----------------------------+---------------------+---------+\n");
 
         if (migrationInfos.length == 0) {
-            LOG.info("| No migrations found                                                  |");
+            table.append("| No migrations found                                                         |\n");
         } else {
             for (MigrationInfo migrationInfo : migrationInfos) {
-                LOG.info("| " + StringUtils.trimOrPad(migrationInfo.getVersion().toString(), 11)
-                        + " | " + StringUtils.trimOrPad(migrationInfo.getDescription(), 22)
-                        + " | " + StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()), 19)
-                        + " | " + StringUtils.trimOrPad(migrationInfo.getState().getDisplayName(), 7) + " |");
+                table.append("| ").append(StringUtils.trimOrPad(migrationInfo.getVersion().toString(), 14));
+                table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getDescription(), 26));
+                table.append(" | ").append(StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()), 19));
+                table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getState().getDisplayName(), 7));
+                table.append(" |\n");
             }
         }
 
-        LOG.info("+-------------+------------------------+---------------------+---------+");
+        table.append("+----------------+----------------------------+---------------------+---------+");
+        return table.toString();
     }
 }
