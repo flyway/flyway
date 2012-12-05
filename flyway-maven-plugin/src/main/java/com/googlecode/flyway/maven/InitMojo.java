@@ -25,31 +25,8 @@ import com.googlecode.flyway.core.api.MigrationVersion;
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class InitMojo extends AbstractFlywayMojo {
-    /**
-     * The initial version to put in the database. (default: 0) <br>
-     * <p>Also configurable with Maven or System Property: ${flyway.initialVersion}</p>
-     *
-     * @parameter expression="${flyway.initialVersion}"
-     */
-    private String initialVersion;
-
-    /**
-     * The description of the initial version. (default: << Flyway Init >>)<br>
-     * <p>Also configurable with Maven or System Property: ${flyway.initialDescription}</p>
-     *
-     * @parameter expression="${flyway.initialDescription}"
-     */
-    private String initialDescription;
-
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        if (initialVersion != null) {
-            flyway.setInitialVersion(new MigrationVersion(initialVersion));
-        }
-        if (initialDescription != null) {
-            flyway.setInitialDescription(initialDescription);
-        }
-
         flyway.init();
     }
 }

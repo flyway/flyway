@@ -154,7 +154,6 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
 
         if (flyway.info().all().length == 0) {
             log.warn("Possible solution: run mvn compile first so Flyway can find the migrations");
-            return;
         }
 
         flyway.migrate();

@@ -823,11 +823,6 @@ public class Flyway {
 
                 upgradeMetadataTable(dbSupport, migrationResolver);
 
-                List<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations();
-                if (resolvedMigrations.isEmpty()) {
-                    return 0;
-                }
-
                 MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 if (validateOnMigrate) {
                     doValidate(connectionUserObjects, dbSupport, migrationResolver, metaDataTable);

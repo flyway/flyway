@@ -17,6 +17,7 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -97,6 +98,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String table;
 
     /**
+     * The initial version to put in the database. (default: 0) <br>
+     * <p>Also configurable with Maven or System Property: ${flyway.initialVersion}</p>
+     *
+     * @parameter expression="${flyway.initialVersion}"
+     */
+    private String initialVersion;
+
+    /**
+     * The description of the initial version. (default: << Flyway Init >>)<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.initialDescription}</p>
+     *
+     * @parameter expression="${flyway.initialDescription}"
+     */
+    private String initialDescription;
+
+    /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
      * The credentials can be specified by user/password or {@code serverId} from settings.xml<br>
      * <p>Also configurable with Maven or System Property: ${flyway.serverId}</p>
@@ -163,6 +180,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             }
             if (table != null) {
                 flyway.setTable(table);
+            }
+            if (initialVersion != null) {
+                flyway.setInitialVersion(new MigrationVersion(initialVersion));
+            }
+            if (initialDescription != null) {
+                flyway.setInitialDescription(initialDescription);
             }
 
             doExecute(flyway);
