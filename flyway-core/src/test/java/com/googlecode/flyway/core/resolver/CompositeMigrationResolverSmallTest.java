@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -64,6 +65,25 @@ public class CompositeMigrationResolverSmallTest {
         Set<String> locations = migrationResolver.mergeLocations();
         assertEquals(1, locations.size());
         assertEquals("db/migration", locations.iterator().next());
+    }
+
+    @Test
+    public void mergeLocationsSimilarButNoOverlap() {
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle"}, "db/migration", "db/migrationtest", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        Set<String> locations = migrationResolver.mergeLocations();
+        assertEquals(2, locations.size());
+        assertTrue(locations.contains("db/migration"));
+        assertTrue(locations.contains("db/migrationtest"));
+    }
+
+    @Ignore("Broken until legacy locations and overlap detection code is removed")
+    @Test
+    public void mergeLocationsSimilarButNoOverlapHyphen() {
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle"}, "db/migration", "db/migration-test", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        Set<String> locations = migrationResolver.mergeLocations();
+        assertEquals(2, locations.size());
+        assertTrue(locations.contains("db/migration"));
+        assertTrue(locations.contains("db/migration-test"));
     }
 
     @Test

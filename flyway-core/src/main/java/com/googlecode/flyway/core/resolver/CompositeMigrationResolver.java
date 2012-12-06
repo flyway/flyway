@@ -191,7 +191,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
             while (first || iterator.hasNext()) {
                 first = false;
 
-                if (location2.startsWith(location1)) {
+                if ((location2 + "/").startsWith((location1 + "/"))) {
                     iterator.remove();
                 } else {
                     location1 = location2;
