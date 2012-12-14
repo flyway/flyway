@@ -27,9 +27,9 @@
         </license>
     </licenses>
     <scm>
-        <url>http://code.google.com/p/flyway/source/browse/</url>
-        <connection>scm:hg:https://flyway.googlecode.com/hg/</connection>
-        <developerConnection>scm:hg:file://${flyway.releaserepo}</developerConnection>
+        <url>scm:git:git@github.com:flyway/flyway.git</url>
+        <connection>scm:git:git@github.com:flyway/flyway.git</connection>
+        <developerConnection>scm:git:git@github.com:flyway/flyway.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <developers>
