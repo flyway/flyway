@@ -1,0 +1,13 @@
+syntax: glob
+
+target
+*.iml
+*.ipr
+*.iws
+*.ids
+.project
+.classpath
+.settings
+.metadata
+.idea
+db
