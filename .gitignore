@@ -1,5 +1,3 @@
-syntax: glob
-
 target
 *.iml
 *.ipr
