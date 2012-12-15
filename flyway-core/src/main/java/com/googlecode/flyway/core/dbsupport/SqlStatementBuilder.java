@@ -204,7 +204,8 @@ public class SqlStatementBuilder {
      * @param delimiter The delimiter to strip.
      * @return The sql statement without delimiter.
      */
-    private static String stripDelimiter(String sql, Delimiter delimiter) {
-        return sql.substring(0, sql.toUpperCase().lastIndexOf(delimiter.getDelimiter().toUpperCase()));
+    /* private -> testing */
+    static String stripDelimiter(String sql, Delimiter delimiter) {
+        return sql.substring(0, sql.toLowerCase().lastIndexOf(delimiter.getDelimiter().toLowerCase()));
     }
 }
