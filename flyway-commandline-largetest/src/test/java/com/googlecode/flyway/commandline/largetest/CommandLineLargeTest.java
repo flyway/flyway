@@ -44,19 +44,19 @@ public abstract class CommandLineLargeTest {
 
     @Test
     public void migrateWithCustomLocations() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-baseDir=dummy", "-basePackage=dummy", "-locations=migrations");
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=migrations");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 
     @Test
     public void exitCodeForFailedMigration() throws Exception {
-        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-baseDir=invalid", "-basePackage=dummy", "-locations=dummy");
+        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=invalid");
         assertTrue(stdOut.contains("Migration to version 1 failed!"));
     }
 
     @Test
     public void sqlFolderRoot() throws Exception {
-        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-driver=org.hsqldb.jdbcDriver", "-sqlMigrationPrefix=Mig", "-basePackage=dummy");
+        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-driver=org.hsqldb.jdbcDriver", "-sqlMigrationPrefix=Mig");
         assertTrue(stdOut.contains("777"));
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }

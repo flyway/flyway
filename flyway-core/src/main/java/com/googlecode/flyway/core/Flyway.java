@@ -74,22 +74,6 @@ public class Flyway {
     private String[] locations = new String[]{"db/migration"};
 
     /**
-     * The base package where the Java migrations are located. (default: db.migration)
-     *
-     * @deprecated Uses locations instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    private String basePackage = "db/migration";
-
-    /**
-     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)
-     *
-     * @deprecated Uses locations instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    private String baseDir = "db/migration";
-
-    /**
      * The encoding of Sql migrations. (default: UTF-8)
      */
     private String encoding = "UTF-8";
@@ -231,28 +215,6 @@ public class Flyway {
      */
     public String[] getLocations() {
         return locations;
-    }
-
-    /**
-     * Retrieves the base package where the Java migrations are located.
-     *
-     * @return The base package where the Java migrations are located. (default: db.migration)
-     * @deprecated Uses getLocations instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public String getBasePackage() {
-        return basePackage;
-    }
-
-    /**
-     * Retrieves the base directory on the classpath where the Sql migrations are located.
-     *
-     * @return The base directory on the classpath where the Sql migrations are located. (default: db/migration)
-     * @deprecated Uses getLocations instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public String getBaseDir() {
-        return baseDir;
     }
 
     /**
@@ -558,31 +520,6 @@ public class Flyway {
             this.locations[i] = normalizeLocation(locations[i]);
         }
     }
-
-    /**
-     * Sets the base package where the migrations are located.
-     *
-     * @param basePackage The base package where the migrations are located. (default: db.migration)
-     * @deprecated Use setLocations instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setBasePackage(String basePackage) {
-        LOG.warn("Flyway.setBasePackage is deprecated. Use Flyway.setLocations instead.");
-        this.basePackage = normalizeLocation(basePackage);
-    }
-
-    /**
-     * Sets the base directory on the classpath where the Sql migrations are located.
-     *
-     * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: db/migration)
-     * @deprecated Use setLocations instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setBaseDir(String baseDir) {
-        LOG.warn("Flyway.setBaseDir is deprecated. Use Flyway.setLocations instead.");
-        this.baseDir = normalizeLocation(baseDir);
-    }
-
 
     /**
      * Normalizes this classpath location by
@@ -1088,7 +1025,7 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver() {
-        return new CompositeMigrationResolver(locations, basePackage, baseDir, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        return new CompositeMigrationResolver(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
     }
 
     /**
@@ -1116,14 +1053,6 @@ public class Flyway {
         String locationsProp = properties.getProperty("flyway.locations");
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
-        }
-        String baseDirProp = properties.getProperty("flyway.baseDir");
-        if (baseDirProp != null) {
-            setBaseDir(baseDirProp);
-        }
-        String basePackageProp = properties.getProperty("flyway.basePackage");
-        if (basePackageProp != null) {
-            setBasePackage(basePackageProp);
         }
         String placeholderPrefixProp = properties.getProperty("flyway.placeholderPrefix");
         if (placeholderPrefixProp != null) {

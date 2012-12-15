@@ -37,24 +37,6 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     private String[] locations;
 
     /**
-     * The base package where the Java migrations are located. (default: db.migration) <br>
-     * <p>Also configurable with Maven or System Property: ${flyway.basePackage}</p>
-     *
-     * @parameter expression="${flyway.basePackage}"
-     * @deprecated Uses locations instead. Will be removed in Flyway 3.0.
-     */
-    private String basePackage;
-
-    /**
-     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br> <p>Also
-     * configurable with Maven or System Property: ${flyway.baseDir}</p>
-     *
-     * @parameter expression="${flyway.baseDir}"
-     * @deprecated Uses locations instead. Will be removed in Flyway 3.0.
-     */
-    private String baseDir;
-
-    /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
      * ${flyway.encoding}</p>
      *
@@ -134,13 +116,6 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
         } else if (locations != null) {
             flyway.setLocations(locations);
         }
-        if (basePackage != null) {
-            flyway.setBasePackage(basePackage);
-        }
-        if (baseDir != null) {
-            flyway.setBaseDir(baseDir);
-        }
-
         if (encoding != null) {
             flyway.setEncoding(encoding);
         }

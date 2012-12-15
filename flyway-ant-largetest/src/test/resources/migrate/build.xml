@@ -52,9 +52,9 @@
     </target>
 
     <target name="run" depends="compile">
-        <flyway:migrate basePackage="largetest.migrate">
+        <flyway:migrate>
             <placeholder name="name" value="Mr. T"/>
         </flyway:migrate>
-        <flyway:history />
+        <flyway:info />
     </target>
 </project>

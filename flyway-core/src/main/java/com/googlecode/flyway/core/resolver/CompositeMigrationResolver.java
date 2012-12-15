@@ -45,16 +45,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
     private final String[] locations;
 
     /**
-     * The base package where the Java migrations are located.
-     */
-    private final String basePackage;
-
-    /**
-     * The base directory on the classpath where the Sql migrations are located.
-     */
-    private final String baseDir;
-
-    /**
      * The encoding of Sql migrations.
      */
     private final String encoding;
@@ -94,8 +84,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * Creates a new CompositeMigrationResolver.
      *
      * @param locations          The locations where migrations are located.
-     * @param basePackage        The base package where the Java migrations are located.
-     * @param baseDir            The base directory on the classpath where the Sql migrations are located.
      * @param encoding           The encoding of Sql migrations.
      * @param sqlMigrationPrefix The file name prefix for sql migrations.
      * @param sqlMigrationSuffix The file name suffix for sql migrations.
@@ -103,10 +91,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param placeholderPrefix  The prefix of every placeholder.
      * @param placeholderSuffix  The suffix of every placeholder.
      */
-    public CompositeMigrationResolver(String[] locations, String basePackage, String baseDir, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+    public CompositeMigrationResolver(String[] locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
         this.locations = locations;
-        this.basePackage = basePackage;
-        this.baseDir = baseDir;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
         this.sqlMigrationSuffix = sqlMigrationSuffix;
@@ -172,10 +158,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
         //Use set to remove duplicates
         Set<String> mergedLocations = new TreeSet<String>();
-
-        //Add legacy locations
-        mergedLocations.add(baseDir);
-        mergedLocations.add(basePackage);
 
         //Add new locations
         mergedLocations.addAll(Arrays.asList(locations));

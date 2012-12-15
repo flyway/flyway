@@ -44,16 +44,6 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
     private String[] locations;
 
     /**
-     * The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
-     */
-    private String basePackage;
-
-    /**
-     * The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br/>Also configurable with Ant Property: ${flyway.baseDir}
-     */
-    private String baseDir;
-
-    /**
      * The encoding of Sql migrations. (default: UTF-8)<br/>Also configurable with Ant Property: ${flyway.encoding}
      */
     private String encoding;
@@ -129,24 +119,6 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
      */
     public void addConfiguredLocations(Locations locations) {
         this.locations = locations.locations.toArray(new String[locations.locations.size()]);
-    }
-
-    /**
-     * @param basePackage The base package where the Java migrations are located. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.basePackage}
-     * @deprecated Use locations instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setBasePackage(String basePackage) {
-        this.basePackage = basePackage;
-    }
-
-    /**
-     * @param baseDir The base directory on the classpath where the Sql migrations are located. (default: db/migration)<br/>Also configurable with Ant Property: ${flyway.baseDir}
-     * @deprecated Use locations instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setBaseDir(String baseDir) {
-        this.baseDir = baseDir;
     }
 
     /**
@@ -256,20 +228,13 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
     @Override
     protected final void doExecute(Flyway flyway) throws Exception {
         String locationsProperty = getProject().getProperty("flyway.locations");
+        log.info("locationsProperty: " + locationsProperty);
+        log.info("locations: " + StringUtils.arrayToCommaDelimitedString(locations));
         if (locationsProperty != null) {
             flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
         } else if (locations != null) {
             flyway.setLocations(locations);
         }
-        String basePackageValue = useValueIfPropertyNotSet(basePackage, "basePackage");
-        if (basePackageValue != null) {
-            flyway.setBasePackage(basePackageValue);
-        }
-        String baseDirValue = useValueIfPropertyNotSet(baseDir, "baseDir");
-        if (baseDirValue != null) {
-            flyway.setBaseDir(baseDirValue);
-        }
-
         String encodingValue = useValueIfPropertyNotSet(encoding, "encoding");
         if (encodingValue != null) {
             flyway.setEncoding(encodingValue);

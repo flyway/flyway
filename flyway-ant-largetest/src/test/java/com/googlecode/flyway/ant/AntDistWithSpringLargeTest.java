@@ -31,7 +31,7 @@ public class AntDistWithSpringLargeTest extends AntLargeTest {
 
     @Test
     public void migrate() throws Exception {
-        String stdOut = runAnt(0, "migrate", "-Dflyway.baseDir=largetest/sql");
+        String stdOut = runAnt(0, "migrate", "-Dflyway.locations=largetest");
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
         assertTrue(stdOut.contains("Populate table"));
     }

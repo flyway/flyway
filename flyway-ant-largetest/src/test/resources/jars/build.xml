@@ -41,8 +41,11 @@
                  resource="com/googlecode/flyway/ant/antlib.xml"
                  classpathref="lib.path"/>
 
-        <flyway:migrate baseDir="sql">
+        <flyway:migrate>
             <placeholder name="name" value="Mr. T"/>
+            <locations>
+                <location path="sql"/>
+            </locations>
         </flyway:migrate>
         <flyway:history />
     </target>

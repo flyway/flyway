@@ -142,9 +142,13 @@ public class StringUtils {
      * Turns this string array in one comma-delimited string.
      *
      * @param strings The array to process.
-     * @return The new comma-delimited string.
+     * @return The new comma-delimited string. An empty string if {@code strings} is {@code null}.
      */
     public static String arrayToCommaDelimitedString(String[] strings) {
+        if (strings == null) {
+            return "";
+        }
+
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < strings.length; i++) {
             if (i > 0) {

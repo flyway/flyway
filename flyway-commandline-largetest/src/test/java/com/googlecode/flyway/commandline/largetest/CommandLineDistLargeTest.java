@@ -36,7 +36,7 @@ public class CommandLineDistLargeTest extends CommandLineLargeTest {
      */
     @Test
     public void migrate() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=db/migration");
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 }

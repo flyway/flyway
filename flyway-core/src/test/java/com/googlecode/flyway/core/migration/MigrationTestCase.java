@@ -22,20 +22,18 @@ import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
-import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
-import org.h2.Driver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -642,7 +640,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 1.7 format metadata table to the Flyway 2.0 format.
      */
     private void upgradeMetaDataTableTo20Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, BASEDIR, BASEDIR, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
         upgrader.upgrade();
@@ -652,7 +650,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.0.2 format.
      */
     private void upgradeMetaDataTableTo202Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, BASEDIR, BASEDIR, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         MetaDataTableTo202FormatUpgrader upgrader = new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
         upgrader.upgrade();

@@ -18,9 +18,6 @@ package com.googlecode.flyway.core.resolver;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
-import com.googlecode.flyway.core.resolver.MigrationResolver;
-import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -40,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void mergeLocations() {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/locations"}, "db/files", "db/classes", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/locations", "db/files", "db/classes"}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
         Set<String> locations = migrationResolver.mergeLocations();
         assertEquals(3, locations.size());
         Iterator<String> iterator = locations.iterator();
@@ -51,7 +48,7 @@ public class CompositeMigrationResolverSmallTest {
 
     @Test
     public void mergeLocationsDuplicate() {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/locations"}, "db/migration", "db/migration", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/locations", "db/migration", "db/migration"}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
         Set<String> locations = migrationResolver.mergeLocations();
         assertEquals(2, locations.size());
         Iterator<String> iterator = locations.iterator();
@@ -61,7 +58,7 @@ public class CompositeMigrationResolverSmallTest {
 
     @Test
     public void mergeLocationsOverlap() {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle"}, "db/migration", "db/migration", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle", "db/migration", "db/migration"}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
         Set<String> locations = migrationResolver.mergeLocations();
         assertEquals(1, locations.size());
         assertEquals("db/migration", locations.iterator().next());
@@ -69,7 +66,7 @@ public class CompositeMigrationResolverSmallTest {
 
     @Test
     public void mergeLocationsSimilarButNoOverlap() {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle"}, "db/migration", "db/migrationtest", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle", "db/migration", "db/migrationtest"}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
         Set<String> locations = migrationResolver.mergeLocations();
         assertEquals(2, locations.size());
         assertTrue(locations.contains("db/migration"));
@@ -79,7 +76,7 @@ public class CompositeMigrationResolverSmallTest {
     @Ignore("Broken until legacy locations and overlap detection code is removed")
     @Test
     public void mergeLocationsSimilarButNoOverlapHyphen() {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle"}, "db/migration", "db/migration-test", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"db/migration/oracle", "db/migration", "db/migration-test"}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
         Set<String> locations = migrationResolver.mergeLocations();
         assertEquals(2, locations.size());
         assertTrue(locations.contains("db/migration"));
@@ -88,7 +85,7 @@ public class CompositeMigrationResolverSmallTest {
 
     @Test
     public void resolveMigrationsMultipleLocations() {
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"migration/subdir/dir2"}, "db.migration", "migration/subdir/dir1", "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{"migration/subdir/dir2", "db.migration", "migration/subdir/dir1"}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         List<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
 

@@ -47,12 +47,17 @@
     </target>
 
     <target name="run" depends="compile">
-        <sql driver="${flyway.driver}" url="${flyway.url}" userid="${flyway.user}" password="" classpathref="newClasspath">
+        <sql driver="${flyway.driver}" url="${flyway.url}" userid="${flyway.user}" password=""
+             classpathref="newClasspath">
             CREATE SCHEMA flyway_1 AUTHORIZATION DBA;
             CREATE SCHEMA flyway_2 AUTHORIZATION DBA;
             CREATE SCHEMA flyway_3 AUTHORIZATION DBA;
         </sql>
         <flyway:clean classpathref="newClasspath"/>
-        <flyway:migrate baseDir="largetest/sql" table="MASTER_OF_THE_VERSIONS" classpathref="newClasspath"/>
+        <flyway:migrate table="MASTER_OF_THE_VERSIONS" classpathref="newClasspath">
+            <locations>
+                <location path="largetest/sql"/>
+            </locations>
+        </flyway:migrate>
     </target>
 </project>

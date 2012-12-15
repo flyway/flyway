@@ -41,22 +41,22 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
     /**
      * The base package on the classpath where to migrations are located.
      */
-    private final String basePackage;
+    private final String location;
 
     /**
      * Creates a new instance.
      *
-     * @param basePackage The base package on the classpath where to migrations are located.
+     * @param location The base package on the classpath where to migrations are located.
      */
-    public SpringJdbcMigrationResolver(String basePackage) {
-        this.basePackage = basePackage;
+    public SpringJdbcMigrationResolver(String location) {
+        this.location = location;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         try {
-            Class<?>[] classes = new ClassPathScanner().scanForClasses(basePackage, SpringJdbcMigration.class);
+            Class<?>[] classes = new ClassPathScanner().scanForClasses(location, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
                 SpringJdbcMigration springJdbcMigration = (SpringJdbcMigration) ClassUtils.instantiate(clazz.getName());
 
@@ -67,7 +67,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
                 migrations.add(migrationInfo);
             }
         } catch (Exception e) {
-            throw new FlywayException("Unable to resolve Spring Jdbc Java migrations in location: " + basePackage, e);
+            throw new FlywayException("Unable to resolve Spring Jdbc Java migrations in location: " + location, e);
         }
 
         Collections.sort(migrations);

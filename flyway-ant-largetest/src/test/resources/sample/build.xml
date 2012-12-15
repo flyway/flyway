@@ -34,6 +34,7 @@
         <mkdir dir="target/db"/>
         <flyway:migrate driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true" user="sa">
             <locations>
+                <location path="db/migration"/>
                 <location path="com.googlecode.flyway.sample"/>
             </locations>
         </flyway:migrate>
