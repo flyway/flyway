@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -23,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +93,15 @@ public class SqlScript {
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
         for (SqlStatement sqlStatement : sqlStatements) {
-            sqlStatement.execute(jdbcTemplate);
+            String sql = sqlStatement.getSql();
+            LOG.debug("Executing SQL: " + sql);
+
+            try {
+                jdbcTemplate.executeStatement(sql);
+            } catch (SQLException e) {
+                throw new FlywayException("Error executing statement at line " + sqlStatement.getLineNumber()
+                        + ": " + sql, e);
+            }
         }
     }
 

@@ -26,11 +26,6 @@ import java.sql.SQLException;
  */
 public class SqlStatement {
     /**
-     * Logger.
-     */
-    private static final Log LOG = LogFactory.getLog(SqlStatement.class);
-
-    /**
      * The original line number where the statement was located in the script it came from.
      */
     private int lineNumber;
@@ -63,20 +58,5 @@ public class SqlStatement {
      */
     public String getSql() {
         return sql;
-    }
-
-    /**
-     * Executes this statement against the database.
-     *
-     * @param jdbcTemplate The jdbc template to use to execute this statement.
-     */
-    public void execute(JdbcTemplate jdbcTemplate) {
-        LOG.debug("Executing SQL: " + this.sql);
-        try {
-            jdbcTemplate.executeStatement(sql);
-        } catch (SQLException e) {
-            throw new FlywayException("Error executing statement at line " + lineNumber
-                    + ": " + sql, e);
-        }
     }
 }
