@@ -34,6 +34,7 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
+import com.googlecode.flyway.core.util.Locations;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
@@ -71,7 +72,7 @@ public class Flyway {
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
      * and java-based migrations. (default: db/migration)
      */
-    private String[] locations = new String[]{"db/migration"};
+    private Locations locations = new Locations("db/migration");
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)
@@ -214,7 +215,7 @@ public class Flyway {
      *         and java-based migrations. (default: db/migration)
      */
     public String[] getLocations() {
-        return locations;
+        return locations.getLocations().toArray(new String[locations.getLocations().size()]);
     }
 
     /**
@@ -515,32 +516,7 @@ public class Flyway {
      *                  and java-based migrations. (default: db/migration)
      */
     public void setLocations(String... locations) {
-        this.locations = new String[locations.length];
-        for (int i = 0; i < locations.length; i++) {
-            this.locations[i] = normalizeLocation(locations[i]);
-        }
-    }
-
-    /**
-     * Normalizes this classpath location by
-     * <ul>
-     * <li>eliminating all leading and trailing spaces</li>
-     * <li>eliminating all leading and trailing slashes</li>
-     * <li>turning all separators into slashes</li>
-     * </ul>
-     *
-     * @param location The location to normalize.
-     * @return The normalized location.
-     */
-    private String normalizeLocation(String location) {
-        String directory = location.trim().replace(".", "/").replace("\\", "/");
-        if (directory.startsWith("/")) {
-            directory = directory.substring(1);
-        }
-        if (directory.endsWith("/")) {
-            directory = directory.substring(0, directory.length() - 1);
-        }
-        return directory;
+        this.locations = new Locations(locations);
     }
 
     /**
@@ -1025,7 +1001,7 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver() {
-        return new CompositeMigrationResolver(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        return new CompositeMigrationResolver(locations.getLocations(), encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
     }
 
     /**

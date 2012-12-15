@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -640,7 +641,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 1.7 format metadata table to the Flyway 2.0 format.
      */
     private void upgradeMetaDataTableTo20Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(Arrays.asList(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
         upgrader.upgrade();
@@ -650,7 +651,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.0.2 format.
      */
     private void upgradeMetaDataTableTo202Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new String[]{BASEDIR}, "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(Arrays.asList(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         MetaDataTableTo202FormatUpgrader upgrader = new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
         upgrader.upgrade();

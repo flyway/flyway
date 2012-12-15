@@ -19,20 +19,17 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.resolver.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.resolver.jdbc.JdbcMigrationResolver;
 import com.googlecode.flyway.core.resolver.spring.SpringJdbcMigrationResolver;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.FeatureDetector;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -42,7 +39,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * The locations where the migrations are located.
      */
-    private final String[] locations;
+    private final List<String> locations;
 
     /**
      * The encoding of Sql migrations.
@@ -91,7 +88,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param placeholderPrefix  The prefix of every placeholder.
      * @param placeholderSuffix  The suffix of every placeholder.
      */
-    public CompositeMigrationResolver(String[] locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+    public CompositeMigrationResolver(List<String> locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
         this.locations = locations;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
@@ -128,9 +125,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 
-        Set<String> mergedLocations = mergeLocations();
-
-        for (String location : mergedLocations) {
+        for (String location : locations) {
             migrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
             migrationResolvers.add(new JdbcMigrationResolver(location));
 
@@ -146,46 +141,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
         checkForIncompatibilities(migrations);
 
         return migrations;
-    }
-
-    /**
-     * Merges the locations from all different sources into a single non-overlapping set.
-     *
-     * @return The merged locations set.
-     */
-    /* private -> for testing */ Set<String> mergeLocations() {
-        //TODO: In Flyway 3.0, add warnings for duplicates and overlaps
-
-        //Use set to remove duplicates
-        Set<String> mergedLocations = new TreeSet<String>();
-
-        //Add new locations
-        mergedLocations.addAll(Arrays.asList(locations));
-
-        //Remove overlap. Ex: db/migration, db/migration/oracle -> db/migration
-        if (mergedLocations.size() > 1) {
-            Iterator<String> iterator = mergedLocations.iterator();
-            String location1 = iterator.next();
-            String location2 = iterator.next();
-
-            boolean first = true;
-
-            while (first || iterator.hasNext()) {
-                first = false;
-
-                if ((location2 + "/").startsWith((location1 + "/"))) {
-                    iterator.remove();
-                } else {
-                    location1 = location2;
-                }
-
-                if (iterator.hasNext()) {
-                    location2 = iterator.next();
-                }
-            }
-        }
-
-        return mergedLocations;
     }
 
     /**
