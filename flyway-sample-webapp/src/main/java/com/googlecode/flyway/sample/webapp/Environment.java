@@ -17,17 +17,11 @@ package com.googlecode.flyway.sample.webapp;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.h2.Driver;
 
 /**
  * Environment of this application.
  */
 public class Environment {
-    /**
-     * The Jdbc Driver for AppEngine.
-     */
-    private static final String APPENGINE_JDBC_DRIVER = "com.google.appengine.api.rdbms.AppEngineDriver";
-
     /**
      * Checks whether we are currently running on AppEngine.
      *
@@ -47,13 +41,13 @@ public class Environment {
 
         if (runningOnGoogleAppEngine()) {
             flyway.setDataSource(new DriverDataSource(
-                    APPENGINE_JDBC_DRIVER,
+                    null,
                     "jdbc:google:rdbms://flyway-test-project:flywaycloudsql/flyway_cloudsql_db",
                     null,
                     null));
         } else {
             flyway.setDataSource(
-                    new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", ""));
+                    new DriverDataSource(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", ""));
         }
 
         flyway.setLocations("db.migration",

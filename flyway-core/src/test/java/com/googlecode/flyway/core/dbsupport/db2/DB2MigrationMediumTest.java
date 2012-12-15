@@ -35,7 +35,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         String password = customProperties.getProperty("db2.password", "flyway");
         String url = customProperties.getProperty("db2.url", "jdbc:db2://localhost:50000/flyway");
 
-        return new DriverDataSource("com.ibm.db2.jcc.DB2Driver", url, user, password);
+        return new DriverDataSource(null, url, user, password);
     }
 
     @Override

@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.dbsupport.h2;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.h2.Driver;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -32,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "",
+        return new DriverDataSource(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "",
                 "CREATE SCHEMA IF NOT EXISTS \"flyway_1\"",
                 "CREATE SCHEMA IF NOT EXISTS \"flyway_2\"",
                 "CREATE SCHEMA IF NOT EXISTS \"flyway_3\"");

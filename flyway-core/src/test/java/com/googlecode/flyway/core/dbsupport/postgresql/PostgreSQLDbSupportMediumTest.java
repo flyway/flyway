@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.dbsupport.postgresql;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import org.junit.Test;
-import org.postgresql.Driver;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -48,6 +47,7 @@ public class PostgreSQLDbSupportMediumTest {
 
     /**
      * Creates a datasource for use in tests.
+     *
      * @return The new datasource.
      */
     private DataSource createDataSource() throws Exception {
@@ -60,7 +60,7 @@ public class PostgreSQLDbSupportMediumTest {
         String password = customProperties.getProperty("postgresql.password", "flyway");
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
 
-        return new DriverDataSource(new Driver(), url, user, password);
+        return new DriverDataSource(null, url, user, password);
     }
 
 

@@ -101,8 +101,9 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param driver The fully qualified classname of the jdbc driver to use to connect to the database.<br/>Also configurable with Ant Property:
-     *               ${flyway.driver}
+     * @param driver The fully qualified classname of the jdbc driver to use to connect to the database.<br/>
+     *               By default, the driver is autodetected based on the url.<br/>
+     *               Also configurable with Ant Property: ${flyway.driver}
      */
     public void setDriver(String driver) {
         this.driver = driver;

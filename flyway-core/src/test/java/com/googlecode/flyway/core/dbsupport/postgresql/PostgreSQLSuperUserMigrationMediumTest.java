@@ -20,9 +20,7 @@ import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Before;
 import org.junit.Test;
-import org.postgresql.Driver;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
@@ -46,7 +44,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
 
         flyway = new Flyway();
-        flyway.setDataSource(new DriverDataSource(new Driver(), url, "postgres", password));
+        flyway.setDataSource(new DriverDataSource(null, url, "postgres", password));
         flyway.setValidationMode(ValidationMode.ALL);
         flyway.clean();
     }

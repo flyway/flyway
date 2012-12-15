@@ -17,7 +17,6 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.hsqldb.jdbcDriver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -28,6 +27,6 @@ import java.util.Properties;
 public class HsqlDbConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(new jdbcDriver(), "jdbc:hsqldb:mem:flyway_db", "SA", "");
+        return new DriverDataSource(null, "jdbc:hsqldb:mem:flyway_db", "SA", "");
     }
 }

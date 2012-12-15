@@ -33,11 +33,6 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings({"JavaDoc"})
 public class OracleDbSupportMediumTest {
     /**
-     * The driver class to use.
-     */
-    private static final String DRIVER_CLASS = "oracle.jdbc.OracleDriver";
-
-    /**
      * Checks the result of the getCurrentSchema call.
      *
      * @param useProxy Flag indicating whether to check it using a proxy user or not.
@@ -50,7 +45,7 @@ public class OracleDbSupportMediumTest {
 
         String dataSourceUser = useProxy ? "\"flyway_proxy\"[" + user + "]" : user;
 
-        DataSource dataSource = new DriverDataSource(DRIVER_CLASS, url, dataSourceUser, password);
+        DataSource dataSource = new DriverDataSource(null, url, dataSourceUser, password);
 
         Connection connection = dataSource.getConnection();
         String currentSchema = new OracleDbSupport(connection).getCurrentSchema();
@@ -125,6 +120,7 @@ public class OracleDbSupportMediumTest {
 
     /**
      * Creates a datasource for use in tests.
+     *
      * @return The new datasource.
      */
     private DataSource createDataSource() throws Exception {
@@ -133,6 +129,6 @@ public class OracleDbSupportMediumTest {
         String password = customProperties.getProperty("oracle.password");
         String url = customProperties.getProperty("oracle.url");
 
-        return new DriverDataSource(DRIVER_CLASS, url, user, password);
+        return new DriverDataSource(null, url, user, password);
     }
 }

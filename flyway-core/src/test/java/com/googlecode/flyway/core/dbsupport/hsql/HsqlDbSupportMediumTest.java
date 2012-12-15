@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.hsqldb.jdbcDriver;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -29,7 +28,7 @@ import static org.junit.Assert.assertFalse;
 public class HsqlDbSupportMediumTest {
     @Test
     public void isSchemaEmpty() throws Exception {
-        DriverDataSource dataSource = new DriverDataSource(new jdbcDriver(), "jdbc:hsqldb:mem:flyway_db", "SA", "");
+        DriverDataSource dataSource = new DriverDataSource(null, "jdbc:hsqldb:mem:flyway_db", "SA", "");
 
         Connection connection = dataSource.getConnection();
         HsqlDbSupport dbSupport = new HsqlDbSupport(connection);

@@ -17,7 +17,6 @@ package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import net.sourceforge.jtds.jdbc.Driver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -32,6 +31,6 @@ public class JtdsSQLServerConcurrentMigrationMediumTest extends ConcurrentMigrat
         String password = customProperties.getProperty("sqlserver.password", "flyway");
         String url = customProperties.getProperty("sqlserver.jtds_url", "jdbc:jtds:sqlserver://localhost:1433/flyway_db");
 
-        return new DriverDataSource(new Driver(), url, user, password);
+        return new DriverDataSource(null, url, user, password);
     }
 }

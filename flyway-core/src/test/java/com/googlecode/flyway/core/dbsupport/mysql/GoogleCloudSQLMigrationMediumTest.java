@@ -15,7 +15,6 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
-import com.google.appengine.api.rdbms.AppEngineDriver;
 import com.google.appengine.api.rdbms.dev.LocalRdbmsService;
 import com.google.appengine.tools.development.testing.LocalRdbmsServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -47,7 +46,7 @@ public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
         helper = new LocalServiceTestHelper(config);
         helper.setUp();
 
-        return new DriverDataSource(new AppEngineDriver(), "jdbc:google:rdbms://localhost/flyway_cloudsql_db", "", "");
+        return new DriverDataSource(null, "jdbc:google:rdbms://localhost/flyway_cloudsql_db", "", "");
     }
 
     @Override

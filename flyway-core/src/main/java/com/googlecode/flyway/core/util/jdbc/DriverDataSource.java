@@ -65,21 +65,7 @@ public class DriverDataSource implements DataSource {
     /**
      * Creates a new DriverDataSource.
      *
-     * @param driver   The JDBC Driver instance to use.
-     * @param url      The JDBC URL to use for connecting through the Driver.
-     * @param user     The JDBC user to use for connecting through the Driver.
-     * @param password The JDBC password to use for connecting through the Driver.
-     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     * @throws FlywayException when the datasource could not be created.
-     */
-    public DriverDataSource(Driver driver, String url, String user, String password, String... initSqls) throws FlywayException {
-        configure(driver, url, user, password, initSqls);
-    }
-
-    /**
-     * Creates a new DriverDataSource.
-     *
-     * @param driverClass The name of the JDBC Driver class to use.
+     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
      * @param url         The JDBC URL to use for connecting through the Driver.
      * @param user        The JDBC user to use for connecting through the Driver.
      * @param password    The JDBC password to use for connecting through the Driver.
@@ -87,32 +73,42 @@ public class DriverDataSource implements DataSource {
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(String driverClass, String url, String user, String password, String... initSqls) throws FlywayException {
-        Driver driver;
-        try {
-            driver = ClassUtils.instantiate(driverClass);
-        } catch (Exception e) {
-            throw new FlywayException("Unable to instantiate jdbc driver: " + driverClass);
-        }
-        configure(driver, url, user, password, initSqls);
-    }
-
-    /**
-     * Configures this DriverDataSource.
-     *
-     * @param driver   The JDBC Driver instance to use.
-     * @param url      The JDBC URL to use for connecting through the Driver.
-     * @param user     The JDBC user to use for connecting through the Driver.
-     * @param password The JDBC password to use for connecting through the Driver.
-     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
-     * @throws FlywayException when the datasource could not be configured.
-     */
-    private void configure(Driver driver, String url, String user, String password, String... initSqls) throws FlywayException {
-        this.driver = driver;
-
         if (!url.toLowerCase().startsWith("jdbc:")) {
             throw new FlywayException("Invalid jdbc url (should start with jdbc:) : " + url);
         }
         this.url = url;
+
+        if (driverClass == null) {
+            if (url.startsWith("jdbc:db2:")) {
+                driverClass = "com.ibm.db2.jcc.DB2Driver";
+            } else if (url.startsWith("jdbc:derby:")) {
+                driverClass = "org.apache.derby.jdbc.EmbeddedDriver";
+            } else if (url.startsWith("jdbc:h2:")) {
+                driverClass = "org.h2.Driver";
+            } else if (url.startsWith("jdbc:hsqldb:")) {
+                driverClass = "org.hsqldb.jdbcDriver";
+            } else if (url.startsWith("jdbc:mysql:")) {
+                driverClass = "com.mysql.jdbc.Driver";
+            } else if (url.startsWith("jdbc:google:")) {
+                driverClass = "com.google.appengine.api.rdbms.AppEngineDriver";
+            } else if (url.startsWith("jdbc:oracle:")) {
+                driverClass = "oracle.jdbc.OracleDriver";
+            } else if (url.startsWith("jdbc:postgresql:")) {
+                driverClass = "org.postgresql.Driver";
+            } else if (url.startsWith("jdbc:jtds:")) {
+                driverClass = "net.sourceforge.jtds.jdbc.Driver";
+            } else if (url.startsWith("jdbc:sqlserver:")) {
+                driverClass = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+            } else {
+                throw new FlywayException("Unable to autodetect Jdbc driver for url: " + url);
+            }
+        }
+
+        try {
+            this.driver = ClassUtils.instantiate(driverClass);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to instantiate jdbc driver: " + driverClass);
+        }
 
         this.user = user;
         this.password = password;

@@ -20,7 +20,6 @@ import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.h2.Driver;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationHandler;
@@ -43,10 +42,10 @@ public class FlywayMediumTest {
     @Test
     public void multipleSetDataSourceCalls() throws Exception {
         DriverDataSource dataSource1 =
-                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1", "sa", "");
 
         DriverDataSource dataSource2 =
-                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1", "sa", "");
 
         Connection connection1 = dataSource1.getConnection();
         Connection connection2 = dataSource2.getConnection();
@@ -74,7 +73,7 @@ public class FlywayMediumTest {
     @Test
     public void info() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", null);
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", null);
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -112,7 +111,7 @@ public class FlywayMediumTest {
     @Test
     public void repairFirst() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -137,7 +136,7 @@ public class FlywayMediumTest {
     @Test
     public void infoInit() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -151,7 +150,7 @@ public class FlywayMediumTest {
     @Test
     public void outOfOrder() {
         DriverDataSource dataSource =
-                new DriverDataSource(new Driver(), "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -238,7 +237,7 @@ public class FlywayMediumTest {
      * @return A new OpenConnectionCountDriverDataSource for the tests.
      */
     private OpenConnectionCountDriverDataSource createDataSource() {
-        return new OpenConnectionCountDriverDataSource(new Driver(), "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
+        return new OpenConnectionCountDriverDataSource("jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
     }
 
     private static class OpenConnectionCountDriverDataSource extends DriverDataSource {
@@ -247,8 +246,8 @@ public class FlywayMediumTest {
          */
         private int openConnectionCount = 0;
 
-        public OpenConnectionCountDriverDataSource(Driver driver, String url, String user, String password) throws FlywayException {
-            super(driver, url, user, password);
+        public OpenConnectionCountDriverDataSource(String url, String user, String password) throws FlywayException {
+            super(null, url, user, password);
         }
 
         /**

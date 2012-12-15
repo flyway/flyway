@@ -116,7 +116,7 @@ public class FlywaySmallTest {
 
     @Test
     public void configureWithExistingDataSource() {
-        DataSource dataSource = new DriverDataSource(new org.h2.Driver(), "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        DataSource dataSource = new DriverDataSource(null, "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
 
         Properties properties = new Properties();
 
@@ -129,10 +129,10 @@ public class FlywaySmallTest {
 
     @Test
     public void configureWithPartialDbConfigInProperties() {
-        DataSource dataSource = new DriverDataSource(new org.h2.Driver(), "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        DataSource dataSource = new DriverDataSource(null, "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
 
         Properties properties = new Properties();
-        properties.setProperty("flyway.url", "dummy_url");
+        properties.setProperty("flyway.user", "dummy_user");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);

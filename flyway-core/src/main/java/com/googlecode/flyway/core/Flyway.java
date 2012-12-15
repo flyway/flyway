@@ -1017,13 +1017,11 @@ public class Flyway {
         String userProp = properties.getProperty("flyway.user");
         String passwordProp = properties.getProperty("flyway.password");
 
-        if (StringUtils.hasText(driverProp) && StringUtils.hasText(urlProp)) {
-            // All datasource properties set
+        if (StringUtils.hasText(urlProp)) {
             setDataSource(new DriverDataSource(driverProp, urlProp, userProp, passwordProp));
-        } else if (!StringUtils.hasText(driverProp) || !StringUtils.hasText(urlProp)) {
-            // Some, but not all datasource properties set
-            LOG.warn("Discarding INCOMPLETE dataSource configuration!" +
-                    " Both flyway.driver and flyway.url must be set.");
+        } else if (!StringUtils.hasText(urlProp) &&
+                (StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
+            LOG.warn("Discarding INCOMPLETE dataSource configuration! flyway.url must be set.");
         }
 
         String locationsProp = properties.getProperty("flyway.locations");

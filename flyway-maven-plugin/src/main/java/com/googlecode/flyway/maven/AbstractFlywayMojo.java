@@ -44,6 +44,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
+     * By default, the driver is autodetected based on the url.<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.driver}</p>
      *
      * @parameter expression="${flyway.driver}"

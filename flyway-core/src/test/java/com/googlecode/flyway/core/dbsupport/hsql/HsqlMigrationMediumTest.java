@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.hsqldb.jdbcDriver;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -45,7 +44,7 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(new jdbcDriver(), "jdbc:hsqldb:mem:flyway_db", "SA", "");
+        return new DriverDataSource(null, "jdbc:hsqldb:mem:flyway_db", "SA", "");
     }
 
     @Override

@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.dbsupport.postgresql;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
-import org.postgresql.Driver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -36,7 +35,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         String password = customProperties.getProperty("postgresql.password", "flyway");
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
 
-        return new DriverDataSource(new Driver(), url, user, password);
+        return new DriverDataSource(null, url, user, password);
     }
 
     @Override

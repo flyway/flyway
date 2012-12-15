@@ -17,7 +17,6 @@ package com.googlecode.flyway.core.dbsupport.mysql;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.mysql.jdbc.Driver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -32,6 +31,6 @@ public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
         String password = customProperties.getProperty("mysql.password", "flyway");
         String url = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
 
-        return new DriverDataSource(new Driver(), url, user, password);
+        return new DriverDataSource(null, url, user, password);
     }
 }

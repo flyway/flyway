@@ -17,7 +17,6 @@ package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.apache.derby.jdbc.EmbeddedDriver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -32,6 +31,6 @@ public class DerbyConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(new EmbeddedDriver(), "jdbc:derby:memory:flyway_db;create=true", "", "");
+        return new DriverDataSource(null, "jdbc:derby:memory:flyway_db;create=true", "", "");
     }
 }

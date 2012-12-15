@@ -31,6 +31,6 @@ public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTest
         String password = customProperties.getProperty("oracle.password", "flyway");
         String url = customProperties.getProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
 
-        return new DriverDataSource("oracle.jdbc.OracleDriver", url, user, password);
+        return new DriverDataSource(null, url, user, password);
     }
 }
