@@ -210,6 +210,9 @@ public class MigrationInfoServiceImplSmallTest {
                 return null;
             }
 
+            public void init(MigrationVersion initVersion, String initDescription) {
+            }
+
             public void repair() {
             }
         };

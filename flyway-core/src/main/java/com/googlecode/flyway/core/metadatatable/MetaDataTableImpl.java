@@ -327,6 +327,28 @@ public class MetaDataTableImpl implements MetaDataTable {
         }
     }
 
+    public void init(MigrationVersion initVersion, String initDescription) {
+        if (getCurrentSchemaVersion() != MigrationVersion.EMPTY) {
+            throw new FlywayException(
+                    "Schema already initialized. Current Version: " + getCurrentSchemaVersion());
+        }
+
+        createIfNotExists();
+
+        final AppliedMigration appliedMigration =
+                new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
+                        0, true);
+
+        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+            public Void doInTransaction() {
+                insert(appliedMigration);
+                return null;
+            }
+        });
+
+        LOG.info("Schema initialized with version: " + initVersion);
+    }
+
     public void repair() {
         if (!hasFailedMigration()) {
             LOG.info("Repair of metadata table " + fullyQualifiedMetadataTableName() + " not necessary. No failed migration detected.");

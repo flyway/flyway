@@ -57,6 +57,14 @@ public interface MetaDataTable {
     MigrationVersion getCurrentSchemaVersion();
 
     /**
+     * Creates and initializes the Flyway metadata table.
+     *
+     * @param initVersion             The version to tag an existing schema with when executing init.
+     * @param initDescription         The description to tag an existing schema with when executing init.
+     */
+    void init(MigrationVersion initVersion, String initDescription);
+
+    /**
      * <p>
      * Repairs the metadata table after a failed migration.
      * This is only necessary for databases without DDL-transaction support.

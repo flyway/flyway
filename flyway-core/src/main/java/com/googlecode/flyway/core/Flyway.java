@@ -23,7 +23,6 @@ import com.googlecode.flyway.core.clean.DbCleaner;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
-import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableImpl;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
@@ -784,6 +783,7 @@ public class Flyway {
 
     /**
      * Starts the database migration. All pending migrations will be applied in order.
+     * Calling migrate on an up-to-date database has no effect.
      *
      * @return The number of successfully applied migrations.
      * @throws FlywayException when the migration failed.
@@ -1028,8 +1028,7 @@ public class Flyway {
      * @param dbSupport               The DbSupport for creating the table.
      */
     private void doInit(Connection connectionMetaDataTable, DbSupport dbSupport) {
-        MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-        new DbInit(new TransactionTemplate(connectionMetaDataTable), metaDataTable).init(initVersion, initDescription);
+        createMetaDataTable(connectionMetaDataTable, dbSupport).init(initVersion, initDescription);
     }
 
     /**
