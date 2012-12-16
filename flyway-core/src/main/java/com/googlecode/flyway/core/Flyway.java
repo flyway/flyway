@@ -765,7 +765,7 @@ public class Flyway {
 
                 DbMigrator dbMigrator =
                         new DbMigrator(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable,
-                                migrationResolver, target, ignoreFailedFutureMigration, outOfOrder);
+                                schemas[0], migrationResolver, target, ignoreFailedFutureMigration, outOfOrder);
                 return dbMigrator.migrate();
             }
         });

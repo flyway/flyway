@@ -99,7 +99,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         try {
             return dbSupport.tableExists(schema, table);
         } catch (SQLException e) {
-            throw new FlywayException("Error checking whether metadata table (" + fullyQualifiedMetadataTableName() + ") exists",
+            throw new FlywayException("Error checking whether metadata table " + fullyQualifiedMetadataTableName() + " exists",
                     e);
         }
     }
@@ -126,7 +126,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             }
         });
 
-        LOG.debug("Metadata table created: " + fullyQualifiedMetadataTableName());
+        LOG.debug("Metadata table " + fullyQualifiedMetadataTableName() + " created.");
     }
 
     public void createIfNotExists() {
@@ -139,7 +139,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         try {
             dbSupport.lockTable(schema, table);
         } catch (SQLException e) {
-            throw new FlywayException("Unable to lock metadata table (" + fullyQualifiedMetadataTableName() + ")", e);
+            throw new FlywayException("Unable to lock metadata table " + fullyQualifiedMetadataTableName(), e);
         }
     }
 
@@ -173,8 +173,9 @@ public class MetaDataTableImpl implements MetaDataTable {
                     appliedMigration.getChecksum(),
                     appliedMigration.getExecutionTime(),
                     appliedMigration.isSuccess());
+            LOG.debug("MetaData table " + fullyQualifiedMetadataTableName() + " successfully updated to reflect changes");
         } catch (SQLException e) {
-            throw new FlywayException("Unable to insert metadata table row for version " + version, e);
+            throw new FlywayException("Unable to insert row for version '" + version + "' in metadata table " + fullyQualifiedMetadataTableName(), e);
         }
     }
 
@@ -228,7 +229,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         try {
             return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + fullyQualifiedMetadataTableName()) > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Error checking if the metadata table has at least one row", e);
+            throw new FlywayException("Error checking if the metadata table " + fullyQualifiedMetadataTableName() + " has at least one row", e);
         }
     }
 
@@ -270,7 +271,8 @@ public class MetaDataTableImpl implements MetaDataTable {
                 }
             });
         } catch (SQLException e) {
-            throw new FlywayException("Error while retrieving the list of applied migrations", e);
+            throw new FlywayException("Error while retrieving the list of applied migrations from metadata table "
+                    + fullyQualifiedMetadataTableName(), e);
         }
     }
 
@@ -299,7 +301,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                     + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
             return failedCount > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check the metadata table (" + fullyQualifiedMetadataTableName() + ") for failed migrations", e);
+            throw new FlywayException("Unable to check the metadata table " + fullyQualifiedMetadataTableName() + " for failed migrations", e);
         }
     }
 
@@ -321,13 +323,13 @@ public class MetaDataTableImpl implements MetaDataTable {
             String version = jdbcTemplate.queryForString(query);
             return new MigrationVersion(version);
         } catch (SQLException e) {
-            throw new FlywayException("Error determining current schema version", e);
+            throw new FlywayException("Error determining current schema version from metadata table " + fullyQualifiedMetadataTableName(), e);
         }
     }
 
     public void repair() {
         if (!hasFailedMigration()) {
-            LOG.info("Repair not necessary. No failed migration detected.");
+            LOG.info("Repair of metadata table " + fullyQualifiedMetadataTableName() + " not necessary. No failed migration detected.");
             return;
         }
 
@@ -338,12 +340,12 @@ public class MetaDataTableImpl implements MetaDataTable {
             jdbcTemplate.execute("DELETE FROM " + fullyQualifiedMetadataTableName()
                     + " WHERE " + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse());
         } catch (SQLException e) {
-            throw new FlywayException("Unable to repair metadata table", e);
+            throw new FlywayException("Unable to repair metadata table " + fullyQualifiedMetadataTableName(), e);
         }
 
         stopWatch.stop();
 
-        LOG.info("Metadata successfully repaired (execution time "
+        LOG.info("Metadata table " + fullyQualifiedMetadataTableName() +" successfully repaired (execution time "
                 + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
         LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
     }

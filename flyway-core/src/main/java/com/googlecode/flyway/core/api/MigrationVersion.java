@@ -24,17 +24,22 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Version for an empty schema.
      */
-    public static final MigrationVersion EMPTY = new MigrationVersion(null);
+    public static final MigrationVersion EMPTY = new MigrationVersion(null, "<< Empty Schema >>");
 
     /**
      * Latest version.
      */
-    public static final MigrationVersion LATEST = new MigrationVersion(Long.toString(Long.MAX_VALUE));
+    public static final MigrationVersion LATEST = new MigrationVersion(Long.toString(Long.MAX_VALUE), "<< Latest Version >>");
 
     /**
-     * The printable version.
+     * The version.
      */
     private final String version;
+
+    /**
+     * The printable text to represent the version.
+     */
+    private final String displayText;
 
     /**
      * Creates a Version using this version string.
@@ -44,6 +49,19 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      */
     public MigrationVersion(String version) {
         this.version = version;
+        this.displayText = version;
+    }
+
+    /**
+     * Creates a Version using this version string.
+     *
+     * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
+     *                means that this version refers to an empty schema.
+     * @param displayText The alternative text to display instead of the version number.
+     */
+    private MigrationVersion(String version, String displayText) {
+        this.version = version;
+        this.displayText = displayText;
     }
 
     /**
@@ -54,11 +72,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
-     * @return The version string
+     * @return The textual representation of the version.
      */
     @Override
     public String toString() {
-        return version;
+        return displayText;
     }
 
     @Override

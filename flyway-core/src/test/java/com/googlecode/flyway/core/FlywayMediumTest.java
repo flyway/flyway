@@ -179,7 +179,7 @@ public class FlywayMediumTest {
 
     @Test
     public void noConnectionLeak() {
-        OpenConnectionCountDriverDataSource dataSource = createDataSource();
+        OpenConnectionCountDriverDataSource dataSource = new OpenConnectionCountDriverDataSource();
 
         assertEquals(0, dataSource.getOpenConnectionCount());
         Flyway flyway = new Flyway();
@@ -193,7 +193,7 @@ public class FlywayMediumTest {
 
     @Test
     public void noConnectionLeakWithException() {
-        OpenConnectionCountDriverDataSource dataSource = createDataSource();
+        OpenConnectionCountDriverDataSource dataSource = new OpenConnectionCountDriverDataSource();
 
         assertEquals(0, dataSource.getOpenConnectionCount());
         Flyway flyway = new Flyway();
@@ -215,7 +215,7 @@ public class FlywayMediumTest {
      */
     @Test
     public void connectionCount() throws Exception {
-        OpenConnectionCountDriverDataSource dataSource = createDataSource();
+        OpenConnectionCountDriverDataSource dataSource = new OpenConnectionCountDriverDataSource();
 
         assertEquals(0, dataSource.getOpenConnectionCount());
         Connection connection = dataSource.getConnection();
@@ -233,21 +233,14 @@ public class FlywayMediumTest {
         assertEquals(0, dataSource.getOpenConnectionCount());
     }
 
-    /**
-     * @return A new OpenConnectionCountDriverDataSource for the tests.
-     */
-    private OpenConnectionCountDriverDataSource createDataSource() {
-        return new OpenConnectionCountDriverDataSource("jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
-    }
-
     private static class OpenConnectionCountDriverDataSource extends DriverDataSource {
         /**
          * The number of connections currently open.
          */
         private int openConnectionCount = 0;
 
-        public OpenConnectionCountDriverDataSource(String url, String user, String password) throws FlywayException {
-            super(null, url, user, password);
+        public OpenConnectionCountDriverDataSource() {
+            super(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
         }
 
         /**
