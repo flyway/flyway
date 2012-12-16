@@ -143,7 +143,7 @@ public class FlywayMediumTest {
         flyway.init();
 
         assertEquals(1, flyway.info().all().length);
-        assertEquals("0", flyway.info().current().getVersion().toString());
+        assertEquals("1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
     }
 

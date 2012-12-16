@@ -51,7 +51,7 @@ public abstract class CommandLineLargeTest {
     @Test
     public void exitCodeForFailedMigration() throws Exception {
         String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=invalid");
-        assertTrue(stdOut.contains("Migration to version 1 failed!"));
+        assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 failed!"));
     }
 
     @Test

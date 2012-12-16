@@ -407,6 +407,7 @@ public abstract class MigrationTestCase {
                 "  PRIMARY KEY(name))");
 
         flyway.setLocations(BASEDIR);
+        flyway.setInitVersion("0");
         flyway.init();
         flyway.migrate();
     }
@@ -429,6 +430,7 @@ public abstract class MigrationTestCase {
                 "  PRIMARY KEY(name))");
 
         flyway.setLocations(BASEDIR);
+        flyway.setInitVersion("0");
         flyway.setInitOnMigrate(true);
         flyway.migrate();
         MigrationInfo[] migrationInfos = flyway.info().all();
