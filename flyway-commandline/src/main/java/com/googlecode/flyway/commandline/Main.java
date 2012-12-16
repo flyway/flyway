@@ -238,8 +238,8 @@ public class Main {
         LOG.info("outOfOrder             : Allows migrations to be run \"out of order\"");
         LOG.info("validateOnMigrate      : Validate when running migrate");
         LOG.info("cleanOnValidationError : Automatically clean on a validation error");
-        LOG.info("initialVersion         : Initial version to put in the database");
-        LOG.info("initialDescription     : Description of the initial version");
+        LOG.info("initVersion            : Version to tag schema with when executing init");
+        LOG.info("initDescription        : Description to tag schema with when executing init");
         LOG.info("initOnMigrate          : Init on migrate against uninitialized non-empty schema");
         LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");

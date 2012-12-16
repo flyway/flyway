@@ -83,6 +83,34 @@ public abstract class AbstractFlywayTask extends Task {
     private String table;
 
     /**
+     * The version to tag an existing schema with when executing init. (default: 1)<br/>Also configurable with Ant Property: ${flyway.initialVersion}
+     *
+     * @deprecated Use initVersion instead. Will be removed in Flyway 3.0.
+     */
+    @Deprecated
+    private String initialVersion;
+
+    /**
+     * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br/>Also configurable with Ant Property:
+     * ${flyway.initialDescription}
+     *
+     * @deprecated Use initDescription instead. Will be removed in Flyway 3.0.
+     */
+    @Deprecated
+    private String initialDescription;
+
+    /**
+     * The version to tag an existing schema with when executing init. (default: 1)<br/>Also configurable with Ant Property: ${flyway.initVersion}
+     */
+    private String initVersion;
+
+    /**
+     * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br/>Also configurable with Ant Property:
+     * ${flyway.initDescription}
+     */
+    private String initDescription;
+
+    /**
      * @param classpath The classpath used to load the JDBC driver and the migrations.<br/>Also configurable with Ant
      *                  Property: ${flyway.classpath}
      */
@@ -148,6 +176,41 @@ public abstract class AbstractFlywayTask extends Task {
      */
     public void setTable(String table) {
         this.table = table;
+    }
+
+    /**
+     * @param initialVersion The version to tag an existing schema with when executing init. (default: 1)<br/>Also configurable with Ant Property: ${flyway.initialVersion}
+     * @deprecated Use setInitVersion instead. Will be removed in Flyway 3.0.
+     */
+    @Deprecated
+    public void setInitialVersion(String initialVersion) {
+        this.initialVersion = initialVersion;
+    }
+
+    /**
+     * @param initialDescription The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br/>Also configurable with Ant Property:
+     *                           ${flyway.initialDescription}
+     * @deprecated Use setInitDescription instead. Will be removed in Flyway 3.0.
+     */
+    @Deprecated
+    public void setInitialDescription(String initialDescription) {
+        this.initialDescription = initialDescription;
+    }
+
+
+    /**
+     * @param initVersion The version to tag an existing schema with when executing init. (default: 1)<br/>Also configurable with Ant Property: ${flyway.initVersion}
+     */
+    public void setInitVersion(String initVersion) {
+        this.initVersion = initVersion;
+    }
+
+    /**
+     * @param initDescription The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br/>Also configurable with Ant Property:
+     *                        ${flyway.initDescription}
+     */
+    public void setInitDescription(String initDescription) {
+        this.initDescription = initDescription;
     }
 
     /**
@@ -235,6 +298,22 @@ public abstract class AbstractFlywayTask extends Task {
             String tableValue = useValueIfPropertyNotSet(table, "table");
             if (tableValue != null) {
                 flyway.setTable(tableValue);
+            }
+            String initialVersionValue = useValueIfPropertyNotSet(initialVersion, "initialVersion");
+            if (initialVersionValue != null) {
+                flyway.setInitialVersion(initialVersionValue);
+            }
+            String initialDescriptionValue = useValueIfPropertyNotSet(initialDescription, "initialDescription");
+            if (initialDescriptionValue != null) {
+                flyway.setInitialDescription(initialDescriptionValue);
+            }
+            String initVersionValue = useValueIfPropertyNotSet(initVersion, "initVersion");
+            if (initVersionValue != null) {
+                flyway.setInitVersion(initVersionValue);
+            }
+            String initDescriptionValue = useValueIfPropertyNotSet(initDescription, "initDescription");
+            if (initDescriptionValue != null) {
+                flyway.setInitDescription(initDescriptionValue);
             }
 
             doExecute(flyway);

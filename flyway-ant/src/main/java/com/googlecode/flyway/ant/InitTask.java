@@ -16,50 +16,14 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.MigrationVersion;
 
 /**
  * Ant task that initializes the metadata table in an existing schema.
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class InitTask extends AbstractFlywayTask {
-    /**
-     * The initial version to put in the database. (default: 0)<br/>Also configurable with Ant Property: ${flyway.initialVersion}
-     */
-    private String initialVersion;
-
-    /**
-     * The description of the initial version. (default: << Flyway Init >>)<br/>Also configurable with Ant Property:
-     * ${flyway.initialDescription}
-     */
-    private String initialDescription;
-
-    /**
-     * @param initialVersion The initial version to put in the database. (default: 0)<br/>Also configurable with Ant Property: ${flyway.initialVersion}
-     */
-    public void setInitialVersion(String initialVersion) {
-        this.initialVersion = initialVersion;
-    }
-
-    /**
-     * @param initialDescription The description of the initial version. (default: << Flyway Init >>)<br/>Also configurable with Ant Property:
-     *                           ${flyway.initialDescription}
-     */
-    public void setInitialDescription(String initialDescription) {
-        this.initialDescription = initialDescription;
-    }
-
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        String initialVersionValue = useValueIfPropertyNotSet(initialVersion, "initialVersion");
-        if (initialVersionValue != null) {
-            flyway.setInitialVersion(new MigrationVersion(initialVersionValue));
-        }
-        String initialDescriptionValue = useValueIfPropertyNotSet(initialDescription, "initialDescription");
-        if (initialDescriptionValue != null) {
-            flyway.setInitialDescription(initialDescriptionValue);
-        }
-
         flyway.init();
     }
 }

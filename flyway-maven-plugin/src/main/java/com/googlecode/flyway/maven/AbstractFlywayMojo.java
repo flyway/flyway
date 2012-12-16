@@ -17,7 +17,6 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -99,20 +98,40 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String table;
 
     /**
-     * The initial version to put in the database. (default: 0) <br>
+     * The version to tag an existing schema with when executing init. (default: 1)<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.initialVersion}</p>
      *
      * @parameter expression="${flyway.initialVersion}"
+     * @deprecated Use initVersion instead. Will be removed in Flyway 3.0.
      */
+    @Deprecated
     private String initialVersion;
 
     /**
-     * The description of the initial version. (default: << Flyway Init >>)<br>
+     * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.initialDescription}</p>
      *
      * @parameter expression="${flyway.initialDescription}"
+     * @deprecated Use initDescription instead. Will be removed in Flyway 3.0.
      */
+    @Deprecated
     private String initialDescription;
+
+    /**
+     * The version to tag an existing schema with when executing init. (default: 1)<br/>
+     * <p>Also configurable with Maven or System Property: ${flyway.initVersion}</p>
+     *
+     * @parameter expression="${flyway.initVersion}"
+     */
+    private String initVersion;
+
+    /**
+     * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.initDescription}</p>
+     *
+     * @parameter expression="${flyway.initDescription}"
+     */
+    private String initDescription;
 
     /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
@@ -183,10 +202,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 flyway.setTable(table);
             }
             if (initialVersion != null) {
-                flyway.setInitialVersion(new MigrationVersion(initialVersion));
+                flyway.setInitialVersion(initialVersion);
             }
             if (initialDescription != null) {
                 flyway.setInitialDescription(initialDescription);
+            }
+            if (initVersion != null) {
+                flyway.setInitVersion(initVersion);
+            }
+            if (initDescription != null) {
+                flyway.setInitDescription(initDescription);
             }
 
             doExecute(flyway);
