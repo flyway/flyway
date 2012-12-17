@@ -25,7 +25,7 @@ import java.sql.SQLException;
 /**
  * Db2-specific table.
  */
-public class DB3Table extends Table {
+public class DB2Table extends Table {
     /**
      * Creates a new Db2 table.
      *
@@ -34,7 +34,7 @@ public class DB3Table extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public DB3Table(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    public DB2Table(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
     }
 
