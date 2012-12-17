@@ -19,6 +19,7 @@
     </dependencies>
     <properties>
         <flyway.placeholders.name>Mr. T</flyway.placeholders.name>
+        <flyway.sqlMigrationPrefix></flyway.sqlMigrationPrefix>
     </properties>
     <build>
         <plugins>
