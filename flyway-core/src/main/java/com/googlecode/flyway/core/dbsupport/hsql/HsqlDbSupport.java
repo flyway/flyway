@@ -124,7 +124,7 @@ public class HsqlDbSupport extends DbSupport {
         if (version18) {
             //Do nothing -> Locking is not supported by HsqlDb 1.8
         } else {
-            jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
+            jdbcTemplate.execute("select * from " + quote(schema, table) + " for update");
         }
     }
 
