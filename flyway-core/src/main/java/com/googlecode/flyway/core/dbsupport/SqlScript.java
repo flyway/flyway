@@ -57,17 +57,6 @@ public class SqlScript {
     }
 
     /**
-     * Creates a new SqlScript with these statements and this name.
-     *
-     * @param sqlStatements The statements of the script.
-     * @param dbSupport     The database-specific support.
-     */
-    public SqlScript(List<SqlStatement> sqlStatements, DbSupport dbSupport) {
-        this.dbSupport = dbSupport;
-        this.sqlStatements = sqlStatements;
-    }
-
-    /**
      * Dummy constructor to increase testability.
      *
      * @param dbSupport The database-specific support.

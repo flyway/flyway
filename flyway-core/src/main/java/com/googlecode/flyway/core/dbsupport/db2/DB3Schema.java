@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * DB2 implementation of Schema.
  */
-public class DB2Schema extends Schema {
+public class DB3Schema extends Schema {
     /**
      * Creates a new DB2 schema.
      *
@@ -35,7 +35,7 @@ public class DB2Schema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public DB2Schema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public DB3Schema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -137,7 +137,7 @@ public class DB2Schema extends Schema {
                 "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = ?", name);
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
-            tables[i] = new DB2Table(jdbcTemplate, dbSupport, this, tableNames.get(i));
+            tables[i] = new DB3Table(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
     }

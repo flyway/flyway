@@ -109,6 +109,6 @@ public class DB2DbSupport extends DbSupport {
 
     @Override
     public Schema getSchema(String name) {
-        return new DB2Schema(jdbcTemplate, this, name);
+        return new DB3Schema(jdbcTemplate, this, name);
     }
 }
