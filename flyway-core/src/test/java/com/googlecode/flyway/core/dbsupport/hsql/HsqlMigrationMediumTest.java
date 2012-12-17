@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.hsql;
 
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -74,5 +75,18 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
 
         flyway.clean();
         flyway.migrate();
+    }
+
+    @Test
+    public void view() throws Exception {
+        Schema schema = dbSupport.getSchema("MY_VIEWS");
+        schema.create();
+
+        flyway.setSchemas("PUBLIC", "MY_VIEWS");
+        flyway.setLocations("migration/dbsupport/hsql/sql/view");
+        flyway.migrate();
+        flyway.clean();
+
+        schema.drop();
     }
 }

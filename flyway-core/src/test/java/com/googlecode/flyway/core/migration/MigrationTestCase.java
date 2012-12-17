@@ -66,7 +66,7 @@ public abstract class MigrationTestCase {
     protected static final String BASEDIR = "migration/sql";
 
     private Connection connection;
-    private DbSupport dbSupport;
+    protected DbSupport dbSupport;
 
     protected JdbcTemplate jdbcTemplate;
     protected Flyway flyway;

@@ -48,12 +48,12 @@ public class HsqlSchema extends Schema {
     }
 
     public void create() throws SQLException {
-        String user = jdbcTemplate.queryForString("SELECT USER()");
-        jdbcTemplate.execute("CREATE SCHEMA ? AUTHORIZATION ?", name, user);
+        String user = jdbcTemplate.queryForString("SELECT USER() FROM (VALUES(0))");
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name) + " AUTHORIZATION " + user);
     }
 
     public void drop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA ? CASCADE", name);
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " CASCADE");
     }
 
     public void clean() throws SQLException {
