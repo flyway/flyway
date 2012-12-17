@@ -16,15 +16,11 @@
 package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.dbsupport.SqlStatement;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * DB2 Support.
@@ -43,82 +39,6 @@ public class DB2DbSupport extends DbSupport {
         return new DB2SqlStatementBuilder();
     }
 
-    public SqlScript createCleanScript(String schema) throws SQLException {
-        // TODO PROCEDURES and FUNCTIONS
-        final List<String> allDropStatements = new ArrayList<String>();
-
-        // MQTs are dropped when the backing views or tables are dropped
-        // Indexes in DB2 are dropped when the corresponding table is dropped
-
-        // views
-        allDropStatements.addAll(generateDropStatements(schema, "V", "VIEW"));
-
-        // aliases
-        allDropStatements.addAll(generateDropStatements(schema, "A", "ALIAS"));
-
-        // tables
-        allDropStatements.addAll(generateDropStatements(schema, "T", "TABLE"));
-
-        // sequences
-        allDropStatements.addAll(generateDropStatementsForSequences(schema));
-
-
-        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int count = 0;
-        for (String dropStatement : allDropStatements) {
-            count++;
-            sqlStatements.add(new SqlStatement(count, dropStatement));
-        }
-
-        return new SqlScript(sqlStatements, this);
-    }
-
-    /**
-     * Generates DROP statements for the sequences in this schema.
-     *
-     * @param schema The schema of the objects.
-     * @return The drop statements.
-     * @throws SQLException when the statements could not be generated.
-     */
-    private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
-        String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + schema
-                + "' and SEQTYPE='S'";
-        return buildDropStatements("drop sequence", dropSeqGenQuery, schema);
-    }
-
-    /**
-     * Generates DROP statements for this type of table, representing this type of object in this schema.
-     *
-     * @param schema     The schema of the objects.
-     * @param tableType  The type of table (Can be T, V, S, ...).
-     * @param objectType The type of object.
-     * @return The drop statements.
-     * @throws SQLException when the statements could not be generated.
-     */
-    private List<String> generateDropStatements(String schema, String tableType, String objectType) throws SQLException {
-        String dropTablesGenQuery = "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='" + tableType + "' and TABSCHEMA = '"
-                + schema + "'";
-        return buildDropStatements("DROP " + objectType, dropTablesGenQuery, schema);
-    }
-
-    /**
-     * Builds the drop statements for database objects in this schema.
-     *
-     * @param dropPrefix The drop command for the database object (e.g. 'drop table').
-     * @param query      The query to get all present database objects
-     * @param schema     The schema for which to build the statements.
-     * @return The statements.
-     * @throws SQLException when the drop statements could not be built.
-     */
-    private List<String> buildDropStatements(final String dropPrefix, final String query, String schema) throws SQLException {
-        List<String> dropStatements = new ArrayList<String>();
-        List<String> dbObjects = jdbcTemplate.queryForStringList(query);
-        for (String dbObject : dbObjects) {
-            dropStatements.add(dropPrefix + " " + quote(schema, dbObject));
-        }
-        return dropStatements;
-    }
-
     public String getScriptLocation() {
         return "com/googlecode/flyway/core/dbsupport/db2/";
     }
@@ -131,21 +51,26 @@ public class DB2DbSupport extends DbSupport {
         return objectCount == 0;
     }
 
+    @Override
+    public boolean schemaExists(String schema) throws SQLException {
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM syscat.schemata WHERE schemaname=?", schema) > 0;
+    }
+
     public boolean tableExistsNoQuotes(String schema, String table) throws SQLException {
-        return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
     }
 
     public boolean tableExists(String schema, String table) throws SQLException {
-        return jdbcTemplate.tableExists(null, schema, table);
+        return tableExists(null, schema, table);
     }
 
     @Override
     public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return jdbcTemplate.primaryKeyExists(null, schema, table);
+        return primaryKeyExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return jdbcTemplate.columnExists(null, schema, table, column);
+        return columnExists(null, schema, table, column);
     }
 
     public String getCurrentSchema() throws SQLException {
@@ -180,5 +105,10 @@ public class DB2DbSupport extends DbSupport {
     @Override
     public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
+    }
+
+    @Override
+    public Schema getSchema(String name) {
+        return new DB2Schema(jdbcTemplate, this, name);
     }
 }

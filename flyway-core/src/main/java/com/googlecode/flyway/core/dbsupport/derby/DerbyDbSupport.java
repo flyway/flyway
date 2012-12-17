@@ -16,16 +16,11 @@
 package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.dbsupport.SqlStatement;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
-import com.googlecode.flyway.core.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Derby database specific support
@@ -58,24 +53,29 @@ public class DerbyDbSupport extends DbSupport {
     }
 
     public boolean isSchemaEmpty(String schema) throws SQLException {
-        return !jdbcTemplate.tableExists(null, schema.toUpperCase(), null);
+        return !tableExists(null, schema.toUpperCase(), null);
+    }
+
+    @Override
+    public boolean schemaExists(String schema) throws SQLException {
+        return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM sys.sysschemas WHERE schemaname=?", schema) > 0;
     }
 
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
     }
 
     public boolean tableExists(String schema, String table) throws SQLException {
-        return jdbcTemplate.tableExists(null, schema, table);
+        return tableExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return jdbcTemplate.columnExists(null, schema, table, column);
+        return columnExists(null, schema, table, column);
     }
 
     @Override
     public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return jdbcTemplate.primaryKeyExists(null, schema, table);
+        return primaryKeyExists(null, schema, table);
     }
 
     public boolean supportsDdlTransactions() {
@@ -98,91 +98,13 @@ public class DerbyDbSupport extends DbSupport {
         return new DerbySqlStatementBuilder();
     }
 
-    public SqlScript createCleanScript(String schema) throws SQLException {
-        List<String> statements = generateDropStatementsForConstraints(schema);
-
-        List<String> viewNames = listObjectNames("TABLE", "TABLETYPE='V'", schema);
-        statements.addAll(generateDropStatements("VIEW", viewNames, "", schema));
-
-        List<String> tableNames = listObjectNames("TABLE", "TABLETYPE='T'", schema);
-        statements.addAll(generateDropStatements("TABLE", tableNames, "", schema));
-
-        List<String> sequenceNames = listObjectNames("SEQUENCE", "", schema);
-        statements.addAll(generateDropStatements("SEQUENCE", sequenceNames, "RESTRICT", schema));
-
-        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int lineNumber = 1;
-        for (String statement : statements) {
-            sqlStatements.add(new SqlStatement(lineNumber, statement));
-            lineNumber++;
-        }
-        return new SqlScript(sqlStatements, this);
-    }
-
-    /**
-     * Generate the statements for dropping all the constraints in this schema.
-     *
-     * @param schema              The schema for which the statements should be generated.
-     * @return The list of statements.
-     * @throws SQLException when the statements could not be generated.
-     */
-    private List<String> generateDropStatementsForConstraints(String schema) throws SQLException {
-        List<Map<String,String>> results = jdbcTemplate.queryForList("SELECT c.constraintname, t.tablename FROM sys.sysconstraints c" +
-                " INNER JOIN sys.systables t ON c.tableid = t.tableid" +
-                " INNER JOIN sys.sysschemas s ON c.schemaid = s.schemaid" +
-                " WHERE c.type = 'F' AND s.schemaname = ?", schema);
-
-        List<String> statements = new ArrayList<String>();
-        for (Map<String,String> result : results) {
-            String dropStatement =
-                    "ALTER TABLE \"" + schema + "\".\"" + result.get("TABLENAME") + "\""
-                            + " DROP CONSTRAINT \"" + result.get("CONSTRAINTNAME") + "\"";
-
-            statements.add(dropStatement);
-        }
-        return statements;
-    }
-
-    /**
-     * Generate the statements for dropping all the objects of this type in this schema.
-     *
-     * @param objectType          The type of object to drop (Sequence, constant, ...)
-     * @param objectNames         The names of the objects to drop.
-     * @param dropStatementSuffix Suffix to append to the statement for dropping the objects.
-     * @param schema              The schema for which the statements should be generated.
-     * @return The list of statements.
-     */
-    private List<String> generateDropStatements(String objectType, List<String> objectNames, String dropStatementSuffix, String schema) {
-        List<String> statements = new ArrayList<String>();
-        for (String objectName : objectNames) {
-            String dropStatement =
-                    "DROP " + objectType + " \"" + schema + "\".\"" + objectName + "\"" + " " + dropStatementSuffix;
-
-            statements.add(dropStatement);
-        }
-        return statements;
-    }
-
-    /**
-     * List the names of the objects of this type in this schema.
-     *
-     * @param objectType  The type of objects to list (Sequence, constant, ...)
-     * @param querySuffix Suffix to append to the query to find the objects to list.
-     * @param schema      The schema of objects to list.
-     * @return The names of the objects.
-     * @throws SQLException when the object names could not be listed.
-     */
-    private List<String> listObjectNames(String objectType, String querySuffix, String schema) throws SQLException {
-        String query = "SELECT " + objectType + "name FROM sys.sys" + objectType + "s WHERE schemaid in (SELECT schemaid FROM sys.sysschemas where schemaname = ?)";
-        if (StringUtils.hasLength(querySuffix)) {
-            query += " AND " + querySuffix;
-        }
-
-        return jdbcTemplate.queryForStringList(query, schema);
-    }
-
     @Override
     public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
+    }
+
+    @Override
+    public Schema getSchema(String name) {
+        return new DerbySchema(jdbcTemplate, this, name);
     }
 }

@@ -15,6 +15,9 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
+
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -43,20 +46,19 @@ public abstract class DbSupport {
     }
 
     /**
+     * Retrieves the schema with this name in the database.
+     *
+     * @param name The name of the schema.
+     * @return The schema.
+     */
+    public abstract Schema getSchema(String name);
+
+    /**
      * Creates a new SqlStatementBuilder for this specific database.
      *
      * @return The new SqlStatementBuilder.
      */
     public abstract SqlStatementBuilder createSqlStatementBuilder();
-
-    /**
-     * Creates a new sql script which clean this schema, by dropping all objects.
-     *
-     * @param schema The schema to clean.
-     * @return A new sql script, containing drop statements for all objects
-     * @throws SQLException when querying the database for generating the clean script failed.
-     */
-    public abstract SqlScript createCleanScript(String schema) throws SQLException;
 
     /**
      * Returns the location on the classpath where the scripts for this database reside.
@@ -73,6 +75,15 @@ public abstract class DbSupport {
      * @throws SQLException when there was an error checking whether the schema is empty.
      */
     public abstract boolean isSchemaEmpty(String schema) throws SQLException;
+
+    /**
+     * Checks whether this schema is already present in the database.
+     *
+     * @param schema The schema to look for.
+     * @return {@code true} if the schema exists, {@code false} if it doesn't.
+     * @throws SQLException when there was an error checking whether this schema exists.
+     */
+    public abstract boolean schemaExists(String schema) throws SQLException;
 
     /**
      * Checks whether this table is already present in the database. WITHOUT quoting either the table or the schema name!
@@ -191,4 +202,77 @@ public abstract class DbSupport {
      * @return The fully qualified quoted identifier.
      */
     protected abstract String doQuote(String identifier);
+
+    /**
+     * Checks whether the database contains a table matching these criteria.
+     *
+     * @param catalog    The catalog where the table resides. (optional)
+     * @param schema     The schema where the table resides. (optional)
+     * @param table      The name of the table. (optional)
+     * @param tableTypes The types of table to look for (ex.: TABLE). (optional)
+     * @return {@code true} if a matching table has been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    protected boolean tableExists(String catalog, String schema, String table, String... tableTypes) throws SQLException {
+        String[] types = tableTypes;
+        if (types.length == 0) {
+            types = null;
+        }
+
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            resultSet = jdbcTemplate.getMetaData().getTables(catalog, schema, table, types);
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return found;
+    }
+
+    /**
+     * Checks whether the database contains a column matching these criteria.
+     *
+     * @param catalog The catalog where the table resides. (optional)
+     * @param schema  The schema where the table resides. (optional)
+     * @param table   The name of the table. (optional)
+     * @param column  The column to look for. (optional)
+     * @return {@code true} if a matching column has been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    protected boolean columnExists(String catalog, String schema, String table, String column) throws SQLException {
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            resultSet = jdbcTemplate.getMetaData().getColumns(catalog, schema, table, column);
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return found;
+    }
+
+    /**
+     * Checks whether the table has a primary key.
+     *
+     * @param catalog    The catalog where the table resides. (optional)
+     * @param schema     The schema where the table resides. (optional)
+     * @param table      The name of the table. (optional)
+     * @return {@code true} if a primary key has been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    protected boolean primaryKeyExists(String catalog, String schema, String table) throws SQLException {
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            resultSet = jdbcTemplate.getMetaData().getPrimaryKeys(catalog, schema, table);
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return found;
+    }
 }

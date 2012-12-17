@@ -16,8 +16,7 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.dbsupport.SqlStatement;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -25,9 +24,6 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * SQLServer-specific support.
@@ -77,21 +73,26 @@ public class SQLServerDbSupport extends DbSupport {
         return objectCount == 0;
     }
 
+    @Override
+    public boolean schemaExists(String schema) throws SQLException {
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", schema) > 0;
+    }
+
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.tableExists(null, schema, table);
+        return tableExists(null, schema, table);
     }
 
     public boolean tableExists(String schema, String table) throws SQLException {
-        return jdbcTemplate.tableExists(null, schema, table);
+        return tableExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return jdbcTemplate.columnExists(null, schema, table, column);
+        return columnExists(null, schema, table, column);
     }
 
     @Override
     public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return jdbcTemplate.primaryKeyExists(null, schema, table);
+        return primaryKeyExists(null, schema, table);
     }
 
     public boolean supportsDdlTransactions() {
@@ -114,22 +115,6 @@ public class SQLServerDbSupport extends DbSupport {
         return new SQLServerSqlStatementBuilder();
     }
 
-    public SqlScript createCleanScript(String schema) throws SQLException {
-        List<String> statements = cleanForeignKeys(schema);
-        statements.addAll(cleanRoutines(schema));
-        statements.addAll(cleanViews(schema));
-        statements.addAll(cleanTables(schema));
-        statements.addAll(cleanTypes(schema));
-
-        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int lineNumber = 1;
-        for (String statement : statements) {
-            sqlStatements.add(new SqlStatement(lineNumber, statement));
-            lineNumber++;
-        }
-        return new SqlScript(sqlStatements, this);
-    }
-
     /**
      * Escapes this identifier, so it can be safely used in sql queries.
      *
@@ -140,114 +125,13 @@ public class SQLServerDbSupport extends DbSupport {
         return StringUtils.replaceAll(identifier, "]", "]]");
     }
 
-    /**
-     * Cleans the tables in this schema.
-     *
-     * @param schema The schema to generate the statements for.
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanTables(String schema) throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(
-                "SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE' and table_schema=?",
-                schema);
-
-        List<String> statements = new ArrayList<String>();
-        for (String tableName : tableNames) {
-            statements.add("DROP TABLE [" + schema + "].[" + escapeIdentifier(tableName) + "]");
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the foreign keys in this schema.
-     *
-     * @param schema The schema to generate the statements for.
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanForeignKeys(String schema) throws SQLException {
-        @SuppressWarnings({"unchecked"})
-        List<Map<String, String>> constraintNames =
-                jdbcTemplate.queryForList(
-                        "SELECT table_name, constraint_name FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS" +
-                                " WHERE constraint_type = 'FOREIGN KEY' and table_schema=?",
-                        schema);
-
-        List<String> statements = new ArrayList<String>();
-        for (Map<String, String> row : constraintNames) {
-            String tableName = row.get("table_name");
-            String constraintName = row.get("constraint_name");
-            statements.add("ALTER TABLE [" + schema + "].[" + tableName + "] DROP CONSTRAINT [" + constraintName + "]");
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the routines in this schema.
-     *
-     * @param schema The schema to generate the statements for.
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanRoutines(String schema) throws SQLException {
-        @SuppressWarnings({"unchecked"})
-        List<Map<String, String>> routineNames =
-                jdbcTemplate.queryForList("SELECT routine_name, routine_type FROM INFORMATION_SCHEMA.ROUTINES" +
-                        " WHERE routine_schema=?",
-                        schema);
-
-        List<String> statements = new ArrayList<String>();
-        for (Map<String, String> row : routineNames) {
-            String routineName = row.get("routine_name");
-            String routineType = row.get("routine_type");
-            statements.add("DROP " + routineType + " [" + schema + "].[" + routineName + "]");
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the views in this schema.
-     *
-     * @param schema The schema to generate the statements for.
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanViews(String schema) throws SQLException {
-        List<String> viewNames =
-                jdbcTemplate.queryForStringList("SELECT table_name FROM INFORMATION_SCHEMA.VIEWS WHERE table_schema=?",
-                        schema);
-
-        List<String> statements = new ArrayList<String>();
-        for (String viewName : viewNames) {
-            statements.add("DROP VIEW [" + schema + "].[" + viewName + "]");
-        }
-        return statements;
-    }
-
-    /**
-     * Cleans the types in this schema.
-     *
-     * @param schema The schema to generate the statements for.
-     * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
-     */
-    private List<String> cleanTypes(String schema) throws SQLException {
-        List<String> typeNames =
-                jdbcTemplate.queryForStringList(
-                        "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
-                                " WHERE t.is_user_defined = 1 AND s.name = ?",
-                        schema);
-
-        List<String> statements = new ArrayList<String>();
-        for (String typeName : typeNames) {
-            statements.add("DROP TYPE [" + schema + "].[" + typeName + "]");
-        }
-        return statements;
+    @Override
+    public String doQuote(String identifier) {
+        return "[" + escapeIdentifier(identifier) + "]";
     }
 
     @Override
-    public String doQuote(String identifier) {
-        return "[" + identifier + "]";
+    public Schema getSchema(String name) {
+        return new SQLServerSchema(jdbcTemplate, this, name);
     }
 }

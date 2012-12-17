@@ -1001,6 +1001,8 @@ public class Flyway {
     public void init() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
+                createSchemasIfNecessary(dbSupport);
+
                 MigrationResolver migrationResolver = createMigrationResolver();
                 upgradeMetadataTable(dbSupport, migrationResolver);
 
@@ -1008,6 +1010,34 @@ public class Flyway {
                 return null;
             }
         });
+    }
+
+    /**
+     * Creates the schemas if they don't already exist.
+     *
+     * @param dbSupport The database-specific support.
+     */
+    private void createSchemasIfNecessary(DbSupport dbSupport) {
+        try {
+            for (String schema : schemas) {
+                if (dbSupport.schemaExists(schema)) {
+                    LOG.debug("Schema " + dbSupport.quote(schema) + " already exists. Skipping schema creation.");
+                    return;
+                }
+            }
+
+            for (String schema : schemas) {
+                if (dbSupport.schemaExists(schema)) {
+                    LOG.debug("Schema " + dbSupport.quote(schema) + " already exists. Skipping schema creation.");
+                    return;
+                }
+            }
+
+
+
+        } catch (SQLException e) {
+            throw new FlywayException("Failed to process schema creation", e);
+        }
     }
 
     /**

@@ -17,8 +17,7 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.dbsupport.SqlStatement;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -27,8 +26,6 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * HsqlDb-specific support
@@ -94,24 +91,29 @@ public class HsqlDbSupport extends DbSupport {
     }
 
     public boolean isSchemaEmpty(final String schema) throws SQLException {
-        return !jdbcTemplate.tableExists(null, schema.toUpperCase(), null);
+        return !tableExists(null, schema.toUpperCase(), null);
+    }
+
+    @Override
+    public boolean schemaExists(String schema) throws SQLException {
+        return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM information_schema.system_schemas WHERE table_schem=?", schema) > 0;
     }
 
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return jdbcTemplate.tableExists(null, schema.toUpperCase(), table.toUpperCase());
+        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
     }
 
     public boolean tableExists(String schema, String table) throws SQLException {
-        return jdbcTemplate.tableExists(null, schema, table);
+        return tableExists(null, schema, table);
     }
 
     public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return jdbcTemplate.columnExists(null, schema, table, column);
+        return columnExists(null, schema, table, column);
     }
 
     @Override
     public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return jdbcTemplate.primaryKeyExists(null, schema, table);
+        return primaryKeyExists(null, schema, table);
     }
 
     public boolean supportsDdlTransactions() {
@@ -138,63 +140,13 @@ public class HsqlDbSupport extends DbSupport {
         return new HsqlSqlStatementBuilder();
     }
 
-    public SqlScript createCleanScript(final String schema) throws SQLException {
-        final List<String> statements = generateDropStatementsForTables(schema);
-        statements.addAll(generateDropStatementsForSequences(schema));
-
-        List<SqlStatement> sqlStatements = new ArrayList<SqlStatement>();
-        int lineNumber = 1;
-        for (String statement : statements) {
-            sqlStatements.add(new SqlStatement(lineNumber, statement));
-            lineNumber++;
-        }
-        return new SqlScript(sqlStatements, this);
-    }
-
-    /**
-     * Generates the statements to drop the tables in this schema.
-     *
-     * @param schema The schema to generate the statements for.
-     * @return The drop statements.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForTables(final String schema) throws SQLException {
-        final List<String> statements = new ArrayList<String>();
-
-        ResultSet resultSet = null;
-        try {
-            resultSet = jdbcTemplate.getMetaData().getTables(null, schema, null, new String[]{"TABLE"});
-            while (resultSet.next()) {
-                statements.add("DROP TABLE \"" + schema + "\".\"" + resultSet.getString("TABLE_NAME") + "\" CASCADE");
-            }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-        }
-
-        return statements;
-    }
-
-    /**
-     * Generates the statements to drop the sequences in this schema.
-     *
-     * @param schema The schema to generate the statements for.
-     * @return The drop statements.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
-        List<String> sequenceNames = jdbcTemplate.queryForStringList(
-                "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES where SEQUENCE_SCHEMA = ?", schema);
-
-        List<String> statements = new ArrayList<String>();
-        for (String seqName : sequenceNames) {
-            statements.add("DROP SEQUENCE \"" + schema + "\".\"" + seqName + "\"");
-        }
-
-        return statements;
-    }
-
     @Override
     public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
+    }
+
+    @Override
+    public Schema getSchema(String name) {
+        return new HsqlSchema(jdbcTemplate, this, name);
     }
 }

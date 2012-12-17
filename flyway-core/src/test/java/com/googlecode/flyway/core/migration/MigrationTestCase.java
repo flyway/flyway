@@ -686,4 +686,10 @@ public abstract class MigrationTestCase {
                 + " WHERE " + dbSupport.quote("version") + " = ?", version);
         assertEquals("Wrong value for column: " + column, expected, actual);
     }
+
+    @Test
+    public void schemaExists() throws SQLException {
+        assertTrue(dbSupport.schemaExists(dbSupport.getCurrentSchema()));
+        assertFalse(dbSupport.schemaExists("InVaLidScHeMa"));
+    }
 }
