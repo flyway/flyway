@@ -21,6 +21,7 @@ CREATE TABLE PUBLIC.t1 (
 );
 
 CREATE TABLE PUBLIC.t2 (
+  -- Test with a quote makes that migration fails '
   id INT NOT NULL,
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(id)

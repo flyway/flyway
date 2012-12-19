@@ -15,7 +15,6 @@
  */
 package com.googlecode.flyway.core.dbsupport.hsql;
 
-import com.googlecode.flyway.core.util.StringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

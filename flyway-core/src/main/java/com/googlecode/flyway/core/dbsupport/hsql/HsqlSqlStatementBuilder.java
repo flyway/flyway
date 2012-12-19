@@ -51,6 +51,10 @@ public class HsqlSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String line) {
+        if (line.trim().startsWith("--")) {
+            return (numQuotes % 2) != 0;
+        }
+
         // Hsql only supports single quotes (') as delimiters
         // A single quote inside a string literal is represented as two single quotes ('')
         // An even number of single quotes thus means the string literal is closed.
