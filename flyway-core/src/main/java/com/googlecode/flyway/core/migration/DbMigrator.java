@@ -32,12 +32,12 @@ import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
-import com.googlecode.flyway.core.util.jdbc.TransactionException;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Main workflow for migrating the database.
@@ -193,7 +193,7 @@ public class DbMigrator {
 
                 migrationSuccessCount++;
             }
-        } catch (TransactionException e) {
+        } catch (SQLException e) {
             throw new FlywayException("Migration of schema " + dbSupport.quote(schema) + " failed !", e);
         }
 

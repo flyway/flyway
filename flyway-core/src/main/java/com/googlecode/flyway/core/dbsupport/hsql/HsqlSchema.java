@@ -44,7 +44,7 @@ public class HsqlSchema extends Schema {
     }
 
     public boolean empty() throws SQLException {
-        return allTables().length > 0;
+        return allTables().length == 0;
     }
 
     public void create() throws SQLException {

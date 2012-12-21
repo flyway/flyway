@@ -163,7 +163,9 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
-        if ((resolvedMigration == null) && (appliedMigration.getType() != MigrationType.INIT)) {
+        if ((resolvedMigration == null)
+                && (appliedMigration.getType() != MigrationType.SCHEMA)
+                && (appliedMigration.getType() != MigrationType.INIT)) {
             return "Detected applied migration missing on the classpath: " + getVersion();
         }
 

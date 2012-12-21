@@ -18,10 +18,7 @@ package com.googlecode.flyway.core.dbsupport.h2;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.dbsupport.SqlStatement;
 import com.googlecode.flyway.core.dbsupport.Table;
-import com.googlecode.flyway.core.dbsupport.derby.DerbyTable;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -29,7 +26,6 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * H2 implementation of Schema.
@@ -53,15 +49,15 @@ public class H2Schema extends Schema {
     }
 
     public boolean empty() throws SQLException {
-        return allTables().length > 0;
+        return allTables().length == 0;
     }
 
     public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
     public void drop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA ?", name);
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name));
     }
 
     public void clean() throws SQLException {

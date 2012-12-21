@@ -202,10 +202,6 @@ public class MetaDataTableTo20FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws SQLException {
-        if (!dbSupport.tableExistsNoQuotes(schema, table)) {
-            return false;
-        }
-
-        return !dbSupport.columnExists(schema, table, "version_rank");
+        return dbSupport.tableExistsNoQuotes(schema, table) && !dbSupport.columnExists(schema, table, "version_rank");
     }
 }

@@ -52,11 +52,11 @@ public class PostgreSQLSchema extends Schema {
     }
 
     public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
     public void drop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA ? CASCADE", name);
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " CASCADE");
     }
 
     public void clean() throws SQLException {

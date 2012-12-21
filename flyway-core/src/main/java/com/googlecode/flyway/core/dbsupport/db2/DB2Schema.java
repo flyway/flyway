@@ -52,12 +52,12 @@ public class DB2Schema extends Schema {
     }
 
     public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+        jdbcTemplate.execute("CREATE SCHEMA " + name + " AUTHORIZATION DB2ADMIN");
     }
 
     public void drop() throws SQLException {
         clean();
-        jdbcTemplate.execute("DROP SCHEMA ? RESTRICT", name);
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " RESTRICT");
     }
 
     public void clean() throws SQLException {

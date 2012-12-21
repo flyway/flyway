@@ -58,9 +58,9 @@ public abstract class AntLargeTest {
     @Test
     public void multi() throws Exception {
         String stdOut = runAnt(0, "multi");
-        assertTrue(stdOut.contains("Cleaned database schema 'FLYWAY_1'"));
-        assertTrue(stdOut.contains("Cleaned database schema 'FLYWAY_2'"));
-        assertTrue(stdOut.contains("Cleaned database schema 'FLYWAY_3'"));
+        assertTrue(stdOut.contains("Cleaned schema 'FLYWAY_1'"));
+        assertTrue(stdOut.contains("Cleaned schema 'FLYWAY_2'"));
+        assertTrue(stdOut.contains("Cleaned schema 'FLYWAY_3'"));
         assertTrue(stdOut.contains("Creating Metadata table: \"FLYWAY_1\".\"MASTER_OF_THE_VERSIONS\""));
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }

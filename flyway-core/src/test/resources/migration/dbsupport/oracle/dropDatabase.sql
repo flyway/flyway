@@ -15,7 +15,4 @@
 --
 
 DROP USER "FLYWAY" CASCADE;
-DROP USER "flyway_1" CASCADE;
-DROP USER "flyway_2" CASCADE;
-DROP USER "flyway_3" CASCADE;
 DROP USER "flyway_proxy" CASCADE;

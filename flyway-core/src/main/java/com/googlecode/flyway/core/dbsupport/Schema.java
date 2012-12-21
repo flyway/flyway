@@ -15,9 +15,6 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
-
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -100,4 +97,9 @@ public abstract class Schema {
      * @throws SQLException when the retrieval failed.
      */
     public abstract Table[] allTables() throws SQLException;
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

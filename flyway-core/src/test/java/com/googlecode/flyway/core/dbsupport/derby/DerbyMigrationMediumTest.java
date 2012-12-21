@@ -31,15 +31,6 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_1\"");
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_2\"");
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_3\"");
-    }
-
-    @Override
     public void tearDown() throws Exception {
         try {
             new DriverDataSource(null, "jdbc:derby:memory:flyway_db;drop=true", "", "").getConnection();

@@ -20,10 +20,7 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.dbsupport.*;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
@@ -507,27 +504,29 @@ public abstract class MigrationTestCase {
         assertEquals("Add foreign key", flyway.status().getDescription());
         assertEquals(0, flyway.migrate());
 
-        assertEquals(3, flyway.history().size());
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1", "schema_version")));
-
+        assertEquals(4, flyway.info().applied().length);
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1") + ".test_user1"));
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_2") + ".test_user2"));
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_3") + ".test_user3"));
 
         flyway.clean();
-        flyway.migrate();
     }
 
     @Test
     public void setCurrentSchema() throws Exception {
-        flyway.setSchemas("flyway_1");
+        Schema schema = dbSupport.getSchema("current_schema_test");
+        schema.create();
+
+        flyway.setSchemas("current_schema_test");
         flyway.clean();
 
         flyway.setLocations("migration/current_schema");
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema1", dbSupport.quote("flyway_1"));
+        placeholders.put("schema1", dbSupport.quote("current_schema_test"));
         flyway.setPlaceholders(placeholders);
         flyway.migrate();
+
+        schema.drop();
     }
 
     @Test
@@ -653,10 +652,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.0.2 format.
      */
     private void upgradeMetaDataTableTo202Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(Arrays.asList(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
-
-        MetaDataTableTo202FormatUpgrader upgrader = new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
-        upgrader.upgrade();
+        new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable()).upgrade();
     }
 
     /**

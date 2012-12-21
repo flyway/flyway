@@ -59,12 +59,12 @@ public class SQLServerSchema extends Schema {
     }
 
     public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
     public void drop() throws SQLException {
         clean();
-        jdbcTemplate.execute("DROP SCHEMA ?", name);
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name));
     }
 
     public void clean() throws SQLException {

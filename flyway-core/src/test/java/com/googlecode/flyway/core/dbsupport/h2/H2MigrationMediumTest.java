@@ -31,10 +31,7 @@ import static org.junit.Assert.assertEquals;
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "",
-                "CREATE SCHEMA IF NOT EXISTS \"flyway_1\"",
-                "CREATE SCHEMA IF NOT EXISTS \"flyway_2\"",
-                "CREATE SCHEMA IF NOT EXISTS \"flyway_3\"");
+        return new DriverDataSource(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
     }
 
     @Override

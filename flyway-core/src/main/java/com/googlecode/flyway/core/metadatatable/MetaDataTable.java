@@ -20,7 +20,7 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import java.util.List;
 
 /**
- *
+ * The metadata table used to track all applied migrations.
  */
 public interface MetaDataTable {
     /**
@@ -47,7 +47,7 @@ public interface MetaDataTable {
     List<AppliedMigration> allAppliedMigrations();
 
     /**
-     * @return The current state of the schema. {@code MigrationState.SUCCESS} for an empty schema.
+     * @return The current state of the schema. {@code false} for an empty schema.
      */
     boolean hasFailedMigration();
 
@@ -75,4 +75,11 @@ public interface MetaDataTable {
      * </p>
      */
     void repair();
+
+    /**
+     * Indicates in the metadata table that Flyway created these schemas.
+     *
+     * @param schemas The schemas that were created by Flyway.
+     */
+    void schemasCreated(String[] schemas);
 }

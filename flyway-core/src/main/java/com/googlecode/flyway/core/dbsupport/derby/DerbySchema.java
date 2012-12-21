@@ -46,16 +46,16 @@ public class DerbySchema extends Schema {
     }
 
     public boolean empty() throws SQLException {
-        return allTables().length > 0;
+        return allTables().length == 0;
     }
 
     public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
     public void drop() throws SQLException {
         clean();
-        jdbcTemplate.execute("DROP SCHEMA ? RESTRICT", name);
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " RESTRICT");
     }
 
     public void clean() throws SQLException {

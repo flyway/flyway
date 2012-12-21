@@ -21,9 +21,12 @@ import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test to demonstrate the migration functionality using DB2.
@@ -41,6 +44,52 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
+    }
+
+    /**
+     * Override the test from the base class as DB2 doesn't seem to be able to issue a CREATE SCHEMA statement from JDBC.
+     */
+    @Test
+    public void setCurrentSchema() throws Exception {
+        flyway.setSchemas("flyway_1");
+        flyway.clean();
+
+        flyway.setLocations("migration/current_schema");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("schema1", dbSupport.quote("flyway_1"));
+        flyway.setPlaceholders(placeholders);
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Override the test from the base class as DB2 doesn't seem to be able to issue a CREATE SCHEMA statement from JDBC.
+     */
+    @Test
+    public void migrateMultipleSchemas() throws Exception {
+        flyway.setSchemas("flyway_1", "flyway_2", "flyway_3");
+        flyway.clean();
+
+        assertNull(flyway.status());
+
+        flyway.setLocations("migration/multi");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("schema1", dbSupport.quote("flyway_1"));
+        placeholders.put("schema2", dbSupport.quote("flyway_2"));
+        placeholders.put("schema3", dbSupport.quote("flyway_3"));
+        flyway.setPlaceholders(placeholders);
+        flyway.migrate();
+        SchemaVersion schemaVersion = flyway.status().getVersion();
+        assertEquals("2.0", schemaVersion.toString());
+        assertEquals("Add foreign key", flyway.status().getDescription());
+        assertEquals(0, flyway.migrate());
+
+        assertEquals(3, flyway.info().applied().length);
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1") + ".test_user1"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_2") + ".test_user2"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_3") + ".test_user3"));
+
+        flyway.clean();
     }
 
     @Test

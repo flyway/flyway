@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.util.jdbc;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
@@ -48,7 +49,7 @@ public class TransactionTemplate {
      * @return The result of the transaction code.
      * @throws TransactionException when the transaction execution failed.
      */
-    public <T> T execute(TransactionCallback<T> transactionCallback) throws TransactionException {
+    public <T> T execute(TransactionCallback<T> transactionCallback) throws SQLException {
         try {
             connection.setAutoCommit(false);
             T result = transactionCallback.doInTransaction();
@@ -57,10 +58,10 @@ public class TransactionTemplate {
         } catch (SQLException e) {
             try {
                 connection.rollback();
-                throw new TransactionException("Transaction failed!", e);
+                throw e;
             } catch (SQLException se) {
                 LOG.error("Unable to rollback transaction", e);
-                throw new TransactionException("Error while executing transaction. Roll back failed!", se);
+                throw new FlywayException("Error while executing transaction. Roll back failed!", se);
             }
         } catch (RuntimeException e) {
             try {
@@ -68,7 +69,7 @@ public class TransactionTemplate {
                 throw e;
             } catch (SQLException se) {
                 LOG.error("Unable to rollback transaction", e);
-                throw new TransactionException("Error while executing transaction. Roll back failed!", se);
+                throw new FlywayException("Error while executing transaction. Roll back failed!", se);
             }
         }
     }

@@ -21,10 +21,8 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.util.StopWatch;
-import com.googlecode.flyway.core.util.TimeFormat;
+import com.googlecode.flyway.core.resolver.MigrationResolver;
+import com.googlecode.flyway.core.util.*;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
@@ -34,19 +32,12 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Supports reading and writing to the metadata table.
  */
 public class MetaDataTableImpl implements MetaDataTable {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(MetaDataTableImpl.class);
 
     /**
@@ -77,17 +68,27 @@ public class MetaDataTableImpl implements MetaDataTable {
     /**
      * Creates a new instance of the metadata table support.
      *
-     * @param connection Connection with ddl manipulation access to the database.
-     * @param dbSupport  Database-specific functionality.
-     * @param schema     The schema in which the metadata table belongs.
-     * @param table      The name of the schema metadata table used by flyway.
+     * @param connection        Connection with ddl manipulation access to the database.
+     * @param dbSupport         Database-specific functionality.
+     * @param schema            The schema in which the metadata table belongs.
+     * @param table             The name of the schema metadata table used by flyway.
+     * @param migrationResolver For resolving available migrations.
      */
-    public MetaDataTableImpl(Connection connection, DbSupport dbSupport, String schema, String table) {
+    public MetaDataTableImpl(Connection connection, DbSupport dbSupport, String schema, String table, MigrationResolver migrationResolver) {
         this.connection = connection;
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.schema = schema;
         this.table = table;
+
+        try {
+            if (dbSupport.tableExistsNoQuotes(schema, table)) {
+                new MetaDataTableTo20FormatUpgrader(dbSupport, schema, table, migrationResolver).upgrade();
+                new MetaDataTableTo202FormatUpgrader(dbSupport, schema, table).upgrade();
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check if metadata table already exists", e);
+        }
     }
 
     /**
@@ -118,13 +119,17 @@ public class MetaDataTableImpl implements MetaDataTable {
         placeholders.put("table", table);
         final String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-            public Void doInTransaction() {
-                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-                sqlScript.execute(jdbcTemplate);
-                return null;
-            }
-        });
+        try {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+                public Void doInTransaction() {
+                    SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                    sqlScript.execute(jdbcTemplate);
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            throw new FlywayException("Error while creating metadata table " + fullyQualifiedMetadataTableName(), e);
+        }
 
         LOG.debug("Metadata table " + fullyQualifiedMetadataTableName() + " created.");
     }
@@ -339,12 +344,17 @@ public class MetaDataTableImpl implements MetaDataTable {
                 new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
                         0, true);
 
-        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-            public Void doInTransaction() {
-                insert(appliedMigration);
-                return null;
-            }
-        });
+        try {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+                public Void doInTransaction() {
+                    insert(appliedMigration);
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            throw new FlywayException("Error initializing metadata table " + fullyQualifiedMetadataTableName(), e);
+
+        }
 
         LOG.info("Schema initialized with version: " + initVersion);
     }
@@ -367,8 +377,29 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         stopWatch.stop();
 
-        LOG.info("Metadata table " + fullyQualifiedMetadataTableName() +" successfully repaired (execution time "
+        LOG.info("Metadata table " + fullyQualifiedMetadataTableName() + " successfully repaired (execution time "
                 + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
         LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+    }
+
+    public void schemasCreated(String[] schemas) {
+        String description = StringUtils.arrayToCommaDelimitedString(schemas);
+
+        createIfNotExists();
+
+        final AppliedMigration appliedMigration =
+                new AppliedMigration(new MigrationVersion("0"), "<< Flyway Schema Creation >>", MigrationType.SCHEMA,
+                        description, null, 0, true);
+
+        try {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+                public Void doInTransaction() {
+                    insert(appliedMigration);
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            throw new FlywayException("Error marking schemas as created in metadata table " + fullyQualifiedMetadataTableName(), e);
+        }
     }
 }

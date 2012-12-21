@@ -17,23 +17,21 @@ package com.googlecode.flyway.core.clean;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
-import com.googlecode.flyway.core.util.jdbc.TransactionException;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * Main workflow for cleaning the database.
  */
 public class DbCleaner {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(DbCleaner.class);
 
     /**
@@ -42,9 +40,9 @@ public class DbCleaner {
     private final DbSupport dbSupport;
 
     /**
-     * The transaction template to use.
+     * The connection to use.
      */
-    private final TransactionTemplate transactionTemplate;
+    private final Connection connection;
 
     /**
      * The schemas to clean.
@@ -52,16 +50,23 @@ public class DbCleaner {
     private final String[] schemas;
 
     /**
+     * Whether to also drop the schemas themselves.
+     */
+    private final boolean dropSchemas;
+
+    /**
      * Creates a new database cleaner.
      *
-     * @param transactionTemplate The transaction template to use.
-     * @param dbSupport           Database-specific functionality.
-     * @param schemas             The schemas to clean.
+     * @param connection  The connection to use.
+     * @param dbSupport   Database-specific functionality.
+     * @param schemas     The schemas to clean.
+     * @param dropSchemas Whether to also drop the schemas themselves.
      */
-    public DbCleaner(TransactionTemplate transactionTemplate, DbSupport dbSupport, String[] schemas) {
-        this.transactionTemplate = transactionTemplate;
+    public DbCleaner(Connection connection, DbSupport dbSupport, String[] schemas, boolean dropSchemas) {
+        this.connection = connection;
         this.dbSupport = dbSupport;
         this.schemas = schemas;
+        this.dropSchemas = dropSchemas;
     }
 
     /**
@@ -70,9 +75,39 @@ public class DbCleaner {
      * @throws FlywayException when clean failed.
      */
     public void clean() throws FlywayException {
-        for (String schema : schemas) {
-            cleanSchema(schema);
+        for (String schemaName : schemas) {
+            Schema schema = dbSupport.getSchema(schemaName);
+            if (dropSchemas) {
+                dropSchema(schema);
+            } else {
+                cleanSchema(schema);
+            }
         }
+    }
+
+    /**
+     * Drops this schema.
+     *
+     * @param schema The schema to drop.
+     * @throws FlywayException when the drop failed.
+     */
+    private void dropSchema(final Schema schema) {
+        LOG.debug("Dropping schema '" + schema + "' ...");
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        try {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+                public Void doInTransaction() throws SQLException {
+                    schema.drop();
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            throw new FlywayException("Error while dropping schema " + schema, e);
+        }
+        stopWatch.stop();
+        LOG.info(String.format("Dropped schema '%s' (execution time %s)",
+                schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
     /**
@@ -81,26 +116,22 @@ public class DbCleaner {
      * @param schema The schema to clean.
      * @throws FlywayException when clean failed.
      */
-    private void cleanSchema(final String schema) {
-        LOG.debug("Starting to drop all database objects in schema '" + schema + "' ...");
+    private void cleanSchema(final Schema schema) {
+        LOG.debug("Cleaning schema '" + schema.getName() + "' ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
-            transactionTemplate.execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() {
-                    try {
-                        dbSupport.getSchema(schema).clean();
-                    } catch (SQLException e) {
-                        throw new FlywayException("Error while generating clean script", e);
-                    }
+            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+                public Void doInTransaction() throws SQLException {
+                    schema.clean();
                     return null;
                 }
             });
-        } catch (TransactionException e) {
-            throw new FlywayException("Clean failed! Schema: " + schema, e);
+        } catch (SQLException e) {
+            throw new FlywayException("Error while cleaning schema " + schema.getName(), e);
         }
         stopWatch.stop();
-        LOG.info(String.format("Cleaned database schema '%s' (execution time %s)",
+        LOG.info(String.format("Cleaned schema '%s' (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 }

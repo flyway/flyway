@@ -16,24 +16,16 @@
 package com.googlecode.flyway.core.metadatatable;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationType;
-import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.resolver.MigrationResolver;
-import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -63,31 +55,24 @@ public class MetaDataTableTo202FormatUpgrader {
     private final String table;
 
     /**
-     * The migration resolver.
-     */
-    private final MigrationResolver migrationResolver;
-
-    /**
      * Creates a new upgrader.
      *
-     * @param dbSupport         Database-specific support.
-     * @param schema            The schema containing the metadata table.
-     * @param table             The metadata table.
-     * @param migrationResolver The migration resolver.
+     * @param dbSupport Database-specific support.
+     * @param schema    The schema containing the metadata table.
+     * @param table     The metadata table.
      */
-    public MetaDataTableTo202FormatUpgrader(DbSupport dbSupport, String schema, String table,
-                                            MigrationResolver migrationResolver) {
+    public MetaDataTableTo202FormatUpgrader(DbSupport dbSupport, String schema, String table) {
         this.dbSupport = dbSupport;
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.schema = schema;
         this.table = table;
-        this.migrationResolver = migrationResolver;
     }
 
     /**
      * Performs the actual upgrade.
      *
-     * @throws com.googlecode.flyway.core.api.FlywayException when the upgrade failed.
+     * @throws com.googlecode.flyway.core.api.FlywayException
+     *          when the upgrade failed.
      */
     public void upgrade() throws FlywayException {
         try {
@@ -96,7 +81,7 @@ public class MetaDataTableTo202FormatUpgrader {
                 return;
             }
 
-            LOG.info("Upgrading the metadata table (" + dbSupport.quote(schema,table) + ") to the Flyway 2.0.2 format...");
+            LOG.info("Upgrading the metadata table (" + dbSupport.quote(schema, table) + ") to the Flyway 2.0.2 format...");
             executeScript();
         } catch (SQLException e) {
             throw new FlywayException("Unable to upgrade the metadata table " + dbSupport.quote(schema, table)
@@ -126,10 +111,6 @@ public class MetaDataTableTo202FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws SQLException {
-        if (!dbSupport.tableExists(schema, table)) {
-            return false;
-        }
-
-        return dbSupport.primaryKeyExists(schema, table);
+        return dbSupport.tableExists(schema, table) && dbSupport.primaryKeyExists(schema, table);
     }
 }

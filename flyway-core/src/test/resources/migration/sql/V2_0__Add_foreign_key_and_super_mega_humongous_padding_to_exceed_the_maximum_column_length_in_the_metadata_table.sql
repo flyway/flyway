@@ -23,4 +23,4 @@ CREATE TABLE couple (
   CONSTRAINT couple_user2_fk FOREIGN KEY (name2) REFERENCES test_user(name)
 );
 
-INSERT INTO couple (id, name1, name2) VALUES (1, 'Mr. T', 'Mr. Semicolon;');
+INSERT INTO couple (id, name1, name2) VALUES (1, 'Mr. Iße T', 'Mr. Semicolon;');

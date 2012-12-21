@@ -37,7 +37,7 @@ public abstract class Table {
     protected final Schema schema;
 
     /**
-     * The name of the schema.
+     * The name of the table.
      */
     protected final String name;
 
@@ -57,7 +57,7 @@ public abstract class Table {
     }
 
     /**
-     * @return The name of the schema, quoted for the database it lives in.
+     * @return The name of the table.
      */
     public String getName() {
         return name;

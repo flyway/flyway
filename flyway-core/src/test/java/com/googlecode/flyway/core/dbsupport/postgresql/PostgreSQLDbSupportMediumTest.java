@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import org.junit.Test;
@@ -38,9 +39,12 @@ public class PostgreSQLDbSupportMediumTest {
     public void setCurrentSchema() throws Exception {
         Connection connection = createDataSource().getConnection();
         PostgreSQLDbSupport dbSupport = new PostgreSQLDbSupport(connection);
-        dbSupport.setCurrentSchema("flyway_3");
+        Schema schema = dbSupport.getSchema("search_path_test");
+        schema.create();
+        dbSupport.setCurrentSchema("search_path_test");
         String searchPath = dbSupport.getJdbcTemplate().queryForString("SHOW search_path");
-        assertEquals("flyway_3, \"$user\", public", searchPath);
+        assertEquals("search_path_test, \"$user\", public", searchPath);
+        schema.drop();
         JdbcUtils.closeConnection(connection);
     }
 

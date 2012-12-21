@@ -20,7 +20,12 @@ package com.googlecode.flyway.core.api;
  */
 public enum MigrationType {
     /**
-     * The type for the default init migration.
+     * The type for the schema creation migration.
+     */
+    SCHEMA,
+
+    /**
+     * The type for the metadata init migration.
      */
     INIT,
 

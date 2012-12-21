@@ -31,19 +31,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class HsqlMigrationMediumTest extends MigrationTestCase {
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
-        jdbcTemplate.execute("DROP SCHEMA \"flyway_1\" IF EXISTS CASCADE");
-        jdbcTemplate.execute("DROP SCHEMA \"flyway_2\" IF EXISTS CASCADE");
-        jdbcTemplate.execute("DROP SCHEMA \"flyway_3\" IF EXISTS CASCADE");
-
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_1\" AUTHORIZATION DBA");
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_2\" AUTHORIZATION DBA");
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_3\" AUTHORIZATION DBA");
-    }
-
-    @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(null, "jdbc:hsqldb:mem:flyway_db", "SA", "");
     }

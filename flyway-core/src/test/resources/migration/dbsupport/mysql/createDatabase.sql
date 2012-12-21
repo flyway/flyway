@@ -15,14 +15,7 @@
 --
 
 CREATE DATABASE flyway_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
-CREATE DATABASE flyway_1 DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
-CREATE DATABASE flyway_2 DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
-CREATE DATABASE flyway_3 DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
 CREATE DATABASE flyway_cloudsql_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
 CREATE USER 'flyway' IDENTIFIED BY 'flyway';
-GRANT all ON flyway_db.* TO 'flyway' IDENTIFIED BY 'flyway';
-GRANT all ON flyway_1.* TO 'flyway' IDENTIFIED BY 'flyway';
-GRANT all ON flyway_2.* TO 'flyway' IDENTIFIED BY 'flyway';
-GRANT all ON flyway_3.* TO 'flyway' IDENTIFIED BY 'flyway';
-GRANT all ON flyway_cloudsql_db.* TO 'flyway' IDENTIFIED BY 'flyway';
+GRANT all ON *.* TO 'flyway' IDENTIFIED BY 'flyway';
 FLUSH PRIVILEGES;

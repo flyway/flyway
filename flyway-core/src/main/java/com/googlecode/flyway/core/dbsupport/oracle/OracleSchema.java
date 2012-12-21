@@ -20,14 +20,12 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
-import com.googlecode.flyway.core.dbsupport.h2.H2Table;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Oracle implementation of Schema.
@@ -56,12 +54,12 @@ public class OracleSchema extends Schema {
     }
 
     public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE USER ? IDENTIFIED BY flyway", name);
-        jdbcTemplate.execute("GRANT RESOURCE TO ?", name);
+        jdbcTemplate.execute("CREATE USER " + dbSupport.quote(name) + " IDENTIFIED BY flyway");
+        jdbcTemplate.execute("GRANT RESOURCE TO " + dbSupport.quote(name));
     }
 
     public void drop() throws SQLException {
-        jdbcTemplate.execute("DROP USER ? CASCADE", name);
+        jdbcTemplate.execute("DROP USER " + dbSupport.quote(name) + " CASCADE");
     }
 
     public void clean() throws SQLException {

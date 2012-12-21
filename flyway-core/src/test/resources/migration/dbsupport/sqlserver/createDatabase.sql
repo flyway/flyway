@@ -19,15 +19,3 @@ GO
 
 CREATE DATABASE flyway_db_case_sensitive COLLATE SQL_Latin1_General_CP1_CS_AS;
 GO
-
-USE flyway_db;
-GO
-
-CREATE SCHEMA flyway_1;
-GO
-
-CREATE SCHEMA flyway_2;
-GO
-
-CREATE SCHEMA flyway_3;
-GO

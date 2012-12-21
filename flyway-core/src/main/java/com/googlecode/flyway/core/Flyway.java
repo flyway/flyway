@@ -15,19 +15,13 @@
  */
 package com.googlecode.flyway.core;
 
-import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationInfoService;
-import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.api.*;
 import com.googlecode.flyway.core.clean.DbCleaner;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
-import com.googlecode.flyway.core.metadatatable.MetaDataTable;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableImpl;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
+import com.googlecode.flyway.core.metadatatable.*;
 import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
@@ -38,7 +32,6 @@ import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
-import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
@@ -47,11 +40,7 @@ import com.googlecode.flyway.core.validation.ValidationMode;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -791,33 +780,41 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
+                boolean schemasCreated = createSchemasIfNecessary(dbSupport);
+
+                try {
+                    if (!schemas[0].equals(dbSupport.getCurrentSchema())) {
+                        DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
+                    }
+                } catch (SQLException e) {
+                    throw new FlywayException("Error setting current schema to " + schemas[0], e);
+                }
+
                 MigrationResolver migrationResolver = createMigrationResolver();
-
-                upgradeMetadataTable(dbSupport, migrationResolver);
-
-                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
+                MetaDataTable metaDataTable =
+                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver);
                 if (validateOnMigrate) {
-                    doValidate(connectionUserObjects, dbSupport, migrationResolver, metaDataTable);
+                    doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable);
                 }
 
                 if (metaDataTable.getCurrentSchemaVersion() == MigrationVersion.EMPTY) {
                     List<String> nonEmptySchemas = nonEmptySchemas(dbSupport);
-                    if (nonEmptySchemas.isEmpty()) {
+                    if (initOnMigrate || disableInitCheck || nonEmptySchemas.isEmpty()) {
                         metaDataTable.createIfNotExists();
+                        if (schemasCreated) {
+                            metaDataTable.schemasCreated(schemas);
+                        }
+                        if (initOnMigrate && !nonEmptySchemas.isEmpty()) {
+                            metaDataTable.init(initVersion, initDescription);
+                        }
                     } else {
-                        if (initOnMigrate) {
-                            doInit(connectionMetaDataTable, dbSupport);
-                        } else if (disableInitCheck) {
-                            metaDataTable.createIfNotExists();
+                        if (nonEmptySchemas.size() == 1) {
+                            throw new FlywayException("Found non-empty schema '" + nonEmptySchemas.get(0)
+                                    + "' without metadata table! Use init() first to initialize the metadata table.");
                         } else {
-                            if (nonEmptySchemas.size() == 1) {
-                                throw new FlywayException("Found non-empty schema '" + nonEmptySchemas.get(0)
-                                        + "' without metadata table! Use init() first to initialize the metadata table.");
-                            } else {
-                                throw new FlywayException("Found non-empty schemas '"
-                                        + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                        + "' without metadata table! Use init() first to initialize the metadata table.");
-                            }
+                            throw new FlywayException("Found non-empty schemas '"
+                                    + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
+                                    + "' without metadata table! Use init() first to initialize the metadata table.");
                         }
                     }
                 }
@@ -841,7 +838,7 @@ public class Flyway {
 
         for (String schema : schemas) {
             try {
-                if (!dbSupport.isSchemaEmpty(schema)) {
+                if (!dbSupport.getSchema(schema).empty()) {
                     nonEmptySchemas.add(schema);
                 }
             } catch (SQLException e) {
@@ -860,12 +857,10 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MigrationResolver migrationResolver = createMigrationResolver();
+                MetaDataTable metaDataTable =
+                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver);
 
-                upgradeMetadataTable(dbSupport, migrationResolver);
-
-                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
-
-                doValidate(connectionUserObjects, dbSupport, migrationResolver, metaDataTable);
+                doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable);
                 return null;
             }
         });
@@ -874,12 +869,12 @@ public class Flyway {
     /**
      * Performs the actual validation. All set up must have taken place beforehand.
      *
-     * @param connectionUserObjects The database connection for user object changes.
-     * @param dbSupport             The database-specific support for these connections.
-     * @param migrationResolver     The migration resolver;
-     * @param metaDataTable         The metadata table.
+     * @param connectionMetaDataTable The database connection for the metadata table.
+     * @param dbSupport               The database-specific support for these connections.
+     * @param migrationResolver       The migration resolver;
+     * @param metaDataTable           The metadata table.
      */
-    private void doValidate(Connection connectionUserObjects, DbSupport dbSupport, MigrationResolver migrationResolver,
+    private void doValidate(Connection connectionMetaDataTable, DbSupport dbSupport, MigrationResolver migrationResolver,
                             MetaDataTable metaDataTable) {
         LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
@@ -908,7 +903,7 @@ public class Flyway {
         if (validationError != null) {
             final String msg = "Validate failed. Found differences between applied migrations and available migrations: " + validationError;
             if (cleanOnValidationError) {
-                doClean(connectionUserObjects, dbSupport);
+                doClean(connectionMetaDataTable, dbSupport);
             } else {
                 throw new FlywayException(msg);
             }
@@ -923,7 +918,7 @@ public class Flyway {
     public void clean() {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                doClean(connectionUserObjects, dbSupport);
+                doClean(connectionMetaDataTable, dbSupport);
                 return null;
             }
         });
@@ -932,11 +927,19 @@ public class Flyway {
     /**
      * Cleans the configured schemas.
      *
-     * @param connectionUserObjects The database connection for user object changes.
-     * @param dbSupport             The database-specific support for these connections.
+     * @param connectionMetaDataTable The database connection for the metadata table.
+     * @param dbSupport               The database-specific support for these connections.
      */
-    private void doClean(Connection connectionUserObjects, DbSupport dbSupport) {
-        new DbCleaner(new TransactionTemplate(connectionUserObjects), dbSupport, schemas).clean();
+    private void doClean(Connection connectionMetaDataTable, DbSupport dbSupport) {
+        boolean dropSchemas = false;
+        try {
+            List<AppliedMigration> appliedMigrations =
+                    new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, createMigrationResolver()).allAppliedMigrations();
+            dropSchemas = !appliedMigrations.isEmpty() && (appliedMigrations.get(0).getType() == MigrationType.SCHEMA);
+        } catch (FlywayException e) {
+            LOG.error("Unable to detect if a schema migration has been applied", e);
+        }
+        new DbCleaner(connectionMetaDataTable, dbSupport, schemas, dropSchemas).clean();
     }
 
     /**
@@ -983,10 +986,9 @@ public class Flyway {
     public MigrationInfoService info() {
         return execute(new Command<MigrationInfoService>() {
             public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                MetaDataTable metaDataTable = createMetaDataTable(connectionMetaDataTable, dbSupport);
                 MigrationResolver migrationResolver = createMigrationResolver();
-
-                upgradeMetadataTable(dbSupport, migrationResolver);
+                MetaDataTable metaDataTable =
+                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver);
 
                 return new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
             }
@@ -1001,12 +1003,15 @@ public class Flyway {
     public void init() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
-                createSchemasIfNecessary(dbSupport);
+                boolean schemasCreated = createSchemasIfNecessary(dbSupport);
 
                 MigrationResolver migrationResolver = createMigrationResolver();
-                upgradeMetadataTable(dbSupport, migrationResolver);
-
-                doInit(connectionMetaDataTable, dbSupport);
+                MetaDataTable metaDataTable =
+                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver);
+                if (schemasCreated) {
+                    metaDataTable.schemasCreated(schemas);
+                }
+                metaDataTable.init(initVersion, initDescription);
                 return null;
             }
         });
@@ -1016,28 +1021,33 @@ public class Flyway {
      * Creates the schemas if they don't already exist.
      *
      * @param dbSupport The database-specific support.
+     * @return {@code true} if schemas where created, {@code false if not}.
      */
-    private void createSchemasIfNecessary(DbSupport dbSupport) {
-        try {
-            for (String schema : schemas) {
-                if (dbSupport.schemaExists(schema)) {
-                    LOG.debug("Schema " + dbSupport.quote(schema) + " already exists. Skipping schema creation.");
-                    return;
+    private boolean createSchemasIfNecessary(DbSupport dbSupport) {
+        List<Schema> schemaList = new ArrayList<Schema>();
+
+        for (String schemaName : schemas) {
+            Schema schema = dbSupport.getSchema(schemaName);
+            try {
+                if (schema.exists()) {
+                    LOG.debug("Schema " + dbSupport.quote(schema.getName()) + " already exists. Skipping schema creation.");
+                    return false;
                 }
+            } catch (SQLException e) {
+                throw new FlywayException("Failed to check if schema " + schema + " exists", e);
             }
-
-            for (String schema : schemas) {
-                if (dbSupport.schemaExists(schema)) {
-                    LOG.debug("Schema " + dbSupport.quote(schema) + " already exists. Skipping schema creation.");
-                    return;
-                }
-            }
-
-
-
-        } catch (SQLException e) {
-            throw new FlywayException("Failed to process schema creation", e);
+            schemaList.add(schema);
         }
+
+        for (Schema schema : schemaList) {
+            try {
+                LOG.info("Creating schema " + dbSupport.quote(schema.getName()) + " ...");
+                schema.create();
+            } catch (SQLException e) {
+                throw new FlywayException("Failed create schema " + schema, e);
+            }
+        }
+        return true;
     }
 
     /**
@@ -1048,17 +1058,7 @@ public class Flyway {
      */
     private void upgradeMetadataTable(DbSupport dbSupport, MigrationResolver migrationResolver) {
         new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
-        new MetaDataTableTo202FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
-    }
-
-    /**
-     * Creates and initializes the Flyway metadata table.
-     *
-     * @param connectionMetaDataTable The connection for creating the table.
-     * @param dbSupport               The DbSupport for creating the table.
-     */
-    private void doInit(Connection connectionMetaDataTable, DbSupport dbSupport) {
-        createMetaDataTable(connectionMetaDataTable, dbSupport).init(initVersion, initDescription);
+        new MetaDataTableTo202FormatUpgrader(dbSupport, schemas[0], table).upgrade();
     }
 
     /**
@@ -1071,18 +1071,10 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MigrationResolver migrationResolver = createMigrationResolver();
-                upgradeMetadataTable(dbSupport, migrationResolver);
-                createMetaDataTable(connectionMetaDataTable, dbSupport).repair();
+                new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver).repair();
                 return null;
             }
         });
-    }
-
-    /**
-     * @return A new, fully configured, MetaDataTable instance.
-     */
-    private MetaDataTable createMetaDataTable(Connection connectionMetaDataTable, DbSupport dbSupport) {
-        return new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table);
     }
 
     /**
@@ -1239,14 +1231,6 @@ public class Flyway {
                 } catch (SQLException e) {
                     throw new FlywayException("Error retrieving current schema", e);
                 }
-            }
-
-            try {
-                if (!schemas[0].equals(dbSupport.getCurrentSchema())) {
-                    DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
-                }
-            } catch (SQLException e) {
-                throw new FlywayException("Error setting current schema to " + schemas[0], e);
             }
 
             if (schemas.length == 1) {

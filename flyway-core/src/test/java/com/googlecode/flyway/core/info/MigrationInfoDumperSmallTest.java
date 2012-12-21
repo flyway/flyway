@@ -126,6 +126,9 @@ public class MigrationInfoDumperSmallTest {
 
             public void repair() {
             }
+
+            public void schemasCreated(String[] schemas) {
+            }
         };
     }
 }
