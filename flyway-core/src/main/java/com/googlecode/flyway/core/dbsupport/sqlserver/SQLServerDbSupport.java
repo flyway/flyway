@@ -59,25 +59,6 @@ public class SQLServerDbSupport extends DbSupport {
         // See http://connect.microsoft.com/SQLServer/feedback/details/390528/t-sql-statement-for-changing-default-schema-context
     }
 
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
-                "( " +
-                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.TABLES " +
-                "Union " +
-                "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.VIEWS " +
-                "Union " +
-                "Select CONSTRAINT_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.TABLE_CONSTRAINTS " +
-                "Union " +
-                "Select ROUTINE_NAME as OBJECT_NAME, ROUTINE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.ROUTINES " +
-                ") R where OBJECT_SCHEMA = ?", schema);
-        return objectCount == 0;
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", schema) > 0;
-    }
-
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return tableExists(null, schema, table);
     }

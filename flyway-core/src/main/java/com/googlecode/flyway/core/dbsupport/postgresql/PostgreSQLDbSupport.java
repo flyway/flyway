@@ -54,18 +54,6 @@ public class PostgreSQLDbSupport extends DbSupport {
         jdbcTemplate.execute("SET search_path = " + quote(schema) + "," + searchPath);
     }
 
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt(
-                "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                schema);
-        return objectCount == 0;
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM pg_namespace WHERE nspname=?", schema) > 0;
-    }
-
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return tableExists(null, schema.toLowerCase(), table.toLowerCase(), "TABLE");
     }

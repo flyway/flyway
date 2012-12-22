@@ -23,7 +23,6 @@ import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * H2 database specific support
@@ -67,16 +66,6 @@ public class H2DbSupport extends DbSupport {
     @Override
     public void setCurrentSchema(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + quote(schema));
-    }
-
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        List<String> tables = jdbcTemplate.queryForStringList("SHOW TABLES FROM " + schema);
-        return tables.isEmpty();
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", schema) > 0;
     }
 
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {

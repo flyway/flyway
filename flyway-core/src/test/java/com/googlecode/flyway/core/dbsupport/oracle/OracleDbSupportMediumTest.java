@@ -113,7 +113,7 @@ public class OracleDbSupportMediumTest {
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
         for (int i = 0; i < 200; i++) {
-            dbSupport.isSchemaEmpty(dbSupport.getCurrentSchema());
+            dbSupport.getSchema(dbSupport.getCurrentSchema()).empty();
         }
         connection.close();
     }

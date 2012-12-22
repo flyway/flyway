@@ -90,15 +90,6 @@ public class HsqlDbSupport extends DbSupport {
         jdbcTemplate.execute("SET SCHEMA " + quote(schema));
     }
 
-    public boolean isSchemaEmpty(final String schema) throws SQLException {
-        return !tableExists(null, schema.toUpperCase(), null);
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM information_schema.system_schemas WHERE table_schem=?", schema) > 0;
-    }
-
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return tableExists(null, schema.toUpperCase(), table.toUpperCase());
     }

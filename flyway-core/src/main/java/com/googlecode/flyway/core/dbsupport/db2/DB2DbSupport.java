@@ -43,19 +43,6 @@ public class DB2DbSupport extends DbSupport {
         return "com/googlecode/flyway/core/dbsupport/db2/";
     }
 
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("select count(*) from syscat.tables where tabschema = ?", schema);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", schema);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", schema);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", schema);
-        return objectCount == 0;
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM syscat.schemata WHERE schemaname=?", schema) > 0;
-    }
-
     public boolean tableExistsNoQuotes(String schema, String table) throws SQLException {
         return tableExists(null, schema.toUpperCase(), table.toUpperCase());
     }

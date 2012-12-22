@@ -81,14 +81,8 @@ public class MetaDataTableImpl implements MetaDataTable {
         this.schema = schema;
         this.table = table;
 
-        try {
-            if (dbSupport.tableExistsNoQuotes(schema, table)) {
-                new MetaDataTableTo20FormatUpgrader(dbSupport, schema, table, migrationResolver).upgrade();
-                new MetaDataTableTo202FormatUpgrader(dbSupport, schema, table).upgrade();
-            }
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to check if metadata table already exists", e);
-        }
+        new MetaDataTableTo20FormatUpgrader(dbSupport, schema, table, migrationResolver).upgrade();
+        new MetaDataTableTo202FormatUpgrader(dbSupport, schema, table).upgrade();
     }
 
     /**

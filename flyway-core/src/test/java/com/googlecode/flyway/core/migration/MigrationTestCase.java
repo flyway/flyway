@@ -373,18 +373,18 @@ public abstract class MigrationTestCase {
 
     @Test
     public void isSchemaEmpty() throws Exception {
-        String schema = dbSupport.getCurrentSchema();
+        Schema schema = dbSupport.getSchema(dbSupport.getCurrentSchema());
 
-        assertTrue(dbSupport.isSchemaEmpty(schema));
+        assertTrue(schema.empty());
 
         flyway.setLocations(BASEDIR);
         flyway.migrate();
 
-        assertFalse(dbSupport.isSchemaEmpty(schema));
+        assertFalse(schema.empty());
 
         flyway.clean();
 
-        assertTrue(dbSupport.isSchemaEmpty(schema));
+        assertTrue(schema.empty());
     }
 
     @Test(expected = FlywayException.class)
@@ -685,7 +685,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void schemaExists() throws SQLException {
-        assertTrue(dbSupport.schemaExists(dbSupport.getCurrentSchema()));
-        assertFalse(dbSupport.schemaExists("InVaLidScHeMa"));
+        assertTrue(dbSupport.getSchema(dbSupport.getCurrentSchema()).exists());
+        assertFalse(dbSupport.getSchema("InVaLidScHeMa").exists());
     }
 }

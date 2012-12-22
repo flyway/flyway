@@ -68,24 +68,6 @@ public abstract class DbSupport {
     public abstract String getScriptLocation();
 
     /**
-     * Checks if this database schema is empty.
-     *
-     * @param schema The schema to check.
-     * @return {@code true} if it is empty, {@code false} if it is not.
-     * @throws SQLException when there was an error checking whether the schema is empty.
-     */
-    public abstract boolean isSchemaEmpty(String schema) throws SQLException;
-
-    /**
-     * Checks whether this schema is already present in the database.
-     *
-     * @param schema The schema to look for.
-     * @return {@code true} if the schema exists, {@code false} if it doesn't.
-     * @throws SQLException when there was an error checking whether this schema exists.
-     */
-    public abstract boolean schemaExists(String schema) throws SQLException;
-
-    /**
      * Checks whether this table is already present in the database. WITHOUT quoting either the table or the schema name!
      *
      * @param schema The schema in which to look.

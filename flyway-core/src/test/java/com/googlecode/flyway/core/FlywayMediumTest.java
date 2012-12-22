@@ -18,6 +18,7 @@ package com.googlecode.flyway.core;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
@@ -50,8 +51,11 @@ public class FlywayMediumTest {
         Connection connection1 = dataSource1.getConnection();
         Connection connection2 = dataSource2.getConnection();
 
-        assertTrue(new H2DbSupport(connection1).isSchemaEmpty("PUBLIC"));
-        assertTrue(new H2DbSupport(connection2).isSchemaEmpty("PUBLIC"));
+        Schema schema1 = new H2DbSupport(connection1).getSchema("PUBLIC");
+        Schema schema2 = new H2DbSupport(connection2).getSchema("PUBLIC");
+
+        assertTrue(schema1.empty());
+        assertTrue(schema2.empty());
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource1);
@@ -63,8 +67,8 @@ public class FlywayMediumTest {
         flyway.setLocations("migration/sql");
         flyway.migrate();
 
-        assertTrue(new H2DbSupport(connection1).isSchemaEmpty("PUBLIC"));
-        assertFalse(new H2DbSupport(connection2).isSchemaEmpty("PUBLIC"));
+        assertTrue(schema1.empty());
+        assertFalse(schema2.empty());
 
         connection1.close();
         connection2.close();

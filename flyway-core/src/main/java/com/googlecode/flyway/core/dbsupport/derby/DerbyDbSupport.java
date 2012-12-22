@@ -52,15 +52,6 @@ public class DerbyDbSupport extends DbSupport {
         jdbcTemplate.execute("SET SCHEMA " + quote(schema));
     }
 
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        return !tableExists(null, schema.toUpperCase(), null);
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM sys.sysschemas WHERE schemaname=?", schema) > 0;
-    }
-
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return tableExists(null, schema.toUpperCase(), table.toUpperCase());
     }

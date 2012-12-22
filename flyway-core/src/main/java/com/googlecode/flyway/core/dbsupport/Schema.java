@@ -100,6 +100,20 @@ public abstract class Schema {
 
     @Override
     public String toString() {
-        return name;
+        return dbSupport.quote(name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Schema schema = (Schema) o;
+        return name.equals(schema.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }

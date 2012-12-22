@@ -52,21 +52,6 @@ public class MySQLDbSupport extends DbSupport {
         jdbcTemplate.execute("USE " + quote(schema));
     }
 
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("Select "
-                + "(Select count(*) from information_schema.TABLES Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.TABLE_CONSTRAINTS Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.ROUTINES Where ROUTINE_SCHEMA=?)", schema,
-                schema, schema, schema);
-        return objectCount == 0;
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", schema) > 0;
-    }
-
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return tableExists(schema, null, table);
     }

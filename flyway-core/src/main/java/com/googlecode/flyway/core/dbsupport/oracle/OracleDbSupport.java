@@ -53,16 +53,6 @@ public class OracleDbSupport extends DbSupport {
         jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + quote(schema));
     }
 
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", schema);
-        return objectCount == 0;
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username=?", schema) > 0;
-    }
-
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
         return tableExists(null, schema.toUpperCase(), table.toUpperCase());
     }
