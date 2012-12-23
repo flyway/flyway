@@ -106,7 +106,7 @@ public class DbCleaner {
             throw new FlywayException("Error while dropping schema " + schema, e);
         }
         stopWatch.stop();
-        LOG.info(String.format("Dropped schema '%s' (execution time %s)",
+        LOG.info(String.format("Dropped schema %s (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
@@ -131,7 +131,7 @@ public class DbCleaner {
             throw new FlywayException("Error while cleaning schema " + schema.getName(), e);
         }
         stopWatch.stop();
-        LOG.info(String.format("Cleaned schema '%s' (execution time %s)",
+        LOG.info(String.format("Cleaned schema %s (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 }
