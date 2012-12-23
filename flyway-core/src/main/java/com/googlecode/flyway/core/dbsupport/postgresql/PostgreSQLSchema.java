@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerTable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -240,5 +241,10 @@ public class PostgreSQLSchema extends Schema {
             tables[i] = new PostgreSQLTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new PostgreSQLTable(jdbcTemplate, dbSupport, this, tableName);
     }
 }

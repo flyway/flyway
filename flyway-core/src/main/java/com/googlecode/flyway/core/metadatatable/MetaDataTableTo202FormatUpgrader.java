@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.dbsupport.Table;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -45,34 +46,26 @@ public class MetaDataTableTo202FormatUpgrader {
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * The schema containing the metadata table.
-     */
-    private final String schema;
-
-    /**
      * The metadata table.
      */
-    private final String table;
+    private final Table table;
 
     /**
      * Creates a new upgrader.
      *
      * @param dbSupport Database-specific support.
-     * @param schema    The schema containing the metadata table.
      * @param table     The metadata table.
      */
-    public MetaDataTableTo202FormatUpgrader(DbSupport dbSupport, String schema, String table) {
+    public MetaDataTableTo202FormatUpgrader(DbSupport dbSupport, Table table) {
         this.dbSupport = dbSupport;
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
-        this.schema = schema;
         this.table = table;
     }
 
     /**
      * Performs the actual upgrade.
      *
-     * @throws com.googlecode.flyway.core.api.FlywayException
-     *          when the upgrade failed.
+     * @throws FlywayException when the upgrade failed.
      */
     public void upgrade() throws FlywayException {
         try {
@@ -81,11 +74,10 @@ public class MetaDataTableTo202FormatUpgrader {
                 return;
             }
 
-            LOG.info("Upgrading the metadata table (" + dbSupport.quote(schema, table) + ") to the Flyway 2.0.2 format...");
+            LOG.info("Upgrading the metadata table " + table + " to the Flyway 2.0.2 format...");
             executeScript();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to upgrade the metadata table " + dbSupport.quote(schema, table)
-                    + " to the Flyway 2.0.2 format", e);
+            throw new FlywayException("Unable to upgrade the metadata table " + table + " to the Flyway 2.0.2 format", e);
         }
     }
 
@@ -97,8 +89,8 @@ public class MetaDataTableTo202FormatUpgrader {
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", schema);
-        placeholders.put("table", table);
+        placeholders.put("schema", table.getSchema().getName());
+        placeholders.put("table", table.getName());
         String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
         SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
@@ -111,6 +103,6 @@ public class MetaDataTableTo202FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws SQLException {
-        return dbSupport.tableExists(schema, table) && dbSupport.primaryKeyExists(schema, table);
+        return table.exists() && dbSupport.primaryKeyExists(table.getSchema().getName(), table.getName());
     }
 }

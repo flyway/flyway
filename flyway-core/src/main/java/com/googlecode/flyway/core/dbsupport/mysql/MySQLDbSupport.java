@@ -56,10 +56,6 @@ public class MySQLDbSupport extends DbSupport {
         return tableExists(schema, null, table);
     }
 
-    public boolean tableExists(String schema, String table) throws SQLException {
-        return tableExists(schema, null, table);
-    }
-
     public boolean columnExists(String schema, String table, String column) throws SQLException {
         return columnExists(schema, null, table, column);
     }

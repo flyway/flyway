@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerTable;
 import com.googlecode.flyway.core.util.StringUtils;
 
 import java.sql.SQLException;
@@ -145,5 +146,10 @@ public class DerbySchema extends Schema {
         }
 
         return jdbcTemplate.queryForStringList(query, name);
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new DerbyTable(jdbcTemplate, dbSupport, this, tableName);
     }
 }

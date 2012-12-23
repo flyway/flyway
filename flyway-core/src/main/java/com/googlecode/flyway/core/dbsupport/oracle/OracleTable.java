@@ -42,4 +42,9 @@ public class OracleTable extends Table {
     public void drop() throws SQLException {
         jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE CONSTRAINTS PURGE");
     }
+
+    @Override
+    public boolean exists() throws SQLException {
+        return exists(null, schema, name);
+    }
 }

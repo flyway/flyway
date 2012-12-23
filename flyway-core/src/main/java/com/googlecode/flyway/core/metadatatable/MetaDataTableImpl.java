@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.dbsupport.Table;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.util.*;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
@@ -46,14 +47,9 @@ public class MetaDataTableImpl implements MetaDataTable {
     private final DbSupport dbSupport;
 
     /**
-     * The schema in which the metadata table belongs.
+     * The metadata table used by flyway.
      */
-    private final String schema;
-
-    /**
-     * The name of the schema metadata table used by flyway.
-     */
-    private final String table;
+    private final Table table;
 
     /**
      * Connection with ddl manipulation access to the database.
@@ -70,19 +66,17 @@ public class MetaDataTableImpl implements MetaDataTable {
      *
      * @param connection        Connection with ddl manipulation access to the database.
      * @param dbSupport         Database-specific functionality.
-     * @param schema            The schema in which the metadata table belongs.
-     * @param table             The name of the schema metadata table used by flyway.
+     * @param table             The metadata table used by flyway.
      * @param migrationResolver For resolving available migrations.
      */
-    public MetaDataTableImpl(Connection connection, DbSupport dbSupport, String schema, String table, MigrationResolver migrationResolver) {
+    public MetaDataTableImpl(Connection connection, DbSupport dbSupport, Table table, MigrationResolver migrationResolver) {
         this.connection = connection;
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
-        this.schema = schema;
         this.table = table;
 
-        new MetaDataTableTo20FormatUpgrader(dbSupport, schema, table, migrationResolver).upgrade();
-        new MetaDataTableTo202FormatUpgrader(dbSupport, schema, table).upgrade();
+        new MetaDataTableTo20FormatUpgrader(dbSupport, table, migrationResolver).upgrade();
+        new MetaDataTableTo202FormatUpgrader(dbSupport, table).upgrade();
     }
 
     /**
@@ -92,9 +86,9 @@ public class MetaDataTableImpl implements MetaDataTable {
      */
     private boolean exists() {
         try {
-            return dbSupport.tableExists(schema, table);
+            return table.exists();
         } catch (SQLException e) {
-            throw new FlywayException("Error checking whether metadata table " + fullyQualifiedMetadataTableName() + " exists",
+            throw new FlywayException("Error checking whether metadata table " + table + " exists",
                     e);
         }
     }
@@ -103,14 +97,14 @@ public class MetaDataTableImpl implements MetaDataTable {
      * Creates Flyway's metadata table.
      */
     private void create() {
-        LOG.info("Creating Metadata table: " + fullyQualifiedMetadataTableName());
+        LOG.info("Creating Metadata table: " + table);
 
         final String source =
                 new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql").loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", schema);
-        placeholders.put("table", table);
+        placeholders.put("schema", table.getSchema().getName());
+        placeholders.put("table", table.getName());
         final String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
         try {
@@ -122,10 +116,10 @@ public class MetaDataTableImpl implements MetaDataTable {
                 }
             });
         } catch (SQLException e) {
-            throw new FlywayException("Error while creating metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Error while creating metadata table " + table, e);
         }
 
-        LOG.debug("Metadata table " + fullyQualifiedMetadataTableName() + " created.");
+        LOG.debug("Metadata table " + table + " created.");
     }
 
     public void createIfNotExists() {
@@ -136,9 +130,9 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     public void lock() {
         try {
-            dbSupport.lockTable(schema, table);
+            dbSupport.lockTable(table.getSchema().getName(), table.getName());
         } catch (SQLException e) {
-            throw new FlywayException("Unable to lock metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Unable to lock metadata table " + table, e);
         }
     }
 
@@ -147,10 +141,10 @@ public class MetaDataTableImpl implements MetaDataTable {
         try {
             int versionRank = calculateVersionRank(version);
 
-            jdbcTemplate.update("UPDATE " + fullyQualifiedMetadataTableName()
+            jdbcTemplate.update("UPDATE " + table
                     + " SET " + dbSupport.quote("version_rank") + " = " + dbSupport.quote("version_rank")
                     + " + 1 WHERE " + dbSupport.quote("version_rank") + " >= ?", versionRank);
-            jdbcTemplate.update("INSERT INTO " + fullyQualifiedMetadataTableName()
+            jdbcTemplate.update("INSERT INTO " + table
                     + " (" + dbSupport.quote("version_rank")
                     + "," + dbSupport.quote("installed_rank")
                     + "," + dbSupport.quote("version")
@@ -172,9 +166,9 @@ public class MetaDataTableImpl implements MetaDataTable {
                     appliedMigration.getChecksum(),
                     appliedMigration.getExecutionTime(),
                     appliedMigration.isSuccess());
-            LOG.debug("MetaData table " + fullyQualifiedMetadataTableName() + " successfully updated to reflect changes");
+            LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
-            throw new FlywayException("Unable to insert row for version '" + version + "' in metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Unable to insert row for version '" + version + "' in metadata table " + table, e);
         }
     }
 
@@ -185,7 +179,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      */
     private int calculateInstalledRank() throws SQLException {
         int currentMax = jdbcTemplate.queryForInt("SELECT MAX(" + dbSupport.quote("installed_rank") + ")"
-                + " FROM " + fullyQualifiedMetadataTableName());
+                + " FROM " + table);
         return currentMax + 1;
     }
 
@@ -196,7 +190,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      * @return The rank.
      */
     private int calculateVersionRank(MigrationVersion version) throws SQLException {
-        List<String> versions = jdbcTemplate.queryForStringList("select " + dbSupport.quote("version") + " from " + fullyQualifiedMetadataTableName());
+        List<String> versions = jdbcTemplate.queryForStringList("select " + dbSupport.quote("version") + " from " + table);
 
         List<MigrationVersion> migrationVersions = new ArrayList<MigrationVersion>();
         for (String versionStr : versions) {
@@ -226,9 +220,9 @@ public class MetaDataTableImpl implements MetaDataTable {
         }
 
         try {
-            return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + fullyQualifiedMetadataTableName()) > 0;
+            return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table) > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Error checking if the metadata table " + fullyQualifiedMetadataTableName() + " has at least one row", e);
+            throw new FlywayException("Error checking if the metadata table " + table + " has at least one row", e);
         }
     }
 
@@ -248,7 +242,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 + "," + dbSupport.quote("installed_by")
                 + "," + dbSupport.quote("execution_time")
                 + "," + dbSupport.quote("success")
-                + " FROM " + fullyQualifiedMetadataTableName()
+                + " FROM " + table
                 + " ORDER BY " + dbSupport.quote("version_rank");
 
         try {
@@ -271,7 +265,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             });
         } catch (SQLException e) {
             throw new FlywayException("Error while retrieving the list of applied migrations from metadata table "
-                    + fullyQualifiedMetadataTableName(), e);
+                    + table, e);
         }
     }
 
@@ -296,19 +290,12 @@ public class MetaDataTableImpl implements MetaDataTable {
         }
 
         try {
-            int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + fullyQualifiedMetadataTableName()
+            int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table
                     + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
             return failedCount > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check the metadata table " + fullyQualifiedMetadataTableName() + " for failed migrations", e);
+            throw new FlywayException("Unable to check the metadata table " + table + " for failed migrations", e);
         }
-    }
-
-    /**
-     * @return The fully qualified name of the metadata table, including the schema it is contained in.
-     */
-    private String fullyQualifiedMetadataTableName() {
-        return dbSupport.quote(schema, table);
     }
 
     public MigrationVersion getCurrentSchemaVersion() {
@@ -316,13 +303,13 @@ public class MetaDataTableImpl implements MetaDataTable {
             return MigrationVersion.EMPTY;
         }
 
-        String query = "SELECT " + dbSupport.quote("version") + " FROM " + fullyQualifiedMetadataTableName() + " WHERE " + dbSupport.quote("version_rank")
-                + "IN (SELECT MAX(" + dbSupport.quote("version_rank") + ") FROM " + fullyQualifiedMetadataTableName() + ")";
+        String query = "SELECT " + dbSupport.quote("version") + " FROM " + table + " WHERE " + dbSupport.quote("version_rank")
+                + "IN (SELECT MAX(" + dbSupport.quote("version_rank") + ") FROM " + table + ")";
         try {
             String version = jdbcTemplate.queryForString(query);
             return new MigrationVersion(version);
         } catch (SQLException e) {
-            throw new FlywayException("Error determining current schema version from metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Error determining current schema version from metadata table " + table, e);
         }
     }
 
@@ -346,7 +333,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 }
             });
         } catch (SQLException e) {
-            throw new FlywayException("Error initializing metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Error initializing metadata table " + table, e);
 
         }
 
@@ -355,7 +342,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     public void repair() {
         if (!hasFailedMigration()) {
-            LOG.info("Repair of metadata table " + fullyQualifiedMetadataTableName() + " not necessary. No failed migration detected.");
+            LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
             return;
         }
 
@@ -363,15 +350,15 @@ public class MetaDataTableImpl implements MetaDataTable {
         stopWatch.start();
 
         try {
-            jdbcTemplate.execute("DELETE FROM " + fullyQualifiedMetadataTableName()
+            jdbcTemplate.execute("DELETE FROM " + table
                     + " WHERE " + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse());
         } catch (SQLException e) {
-            throw new FlywayException("Unable to repair metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Unable to repair metadata table " + table, e);
         }
 
         stopWatch.stop();
 
-        LOG.info("Metadata table " + fullyQualifiedMetadataTableName() + " successfully repaired (execution time "
+        LOG.info("Metadata table " + table + " successfully repaired (execution time "
                 + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
         LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
     }
@@ -393,7 +380,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 }
             });
         } catch (SQLException e) {
-            throw new FlywayException("Error marking schemas as created in metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Error marking schemas as created in metadata table " + table, e);
         }
     }
 }

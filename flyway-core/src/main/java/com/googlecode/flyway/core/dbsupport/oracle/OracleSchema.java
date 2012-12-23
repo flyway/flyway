@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerTable;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
@@ -239,5 +240,10 @@ public class OracleSchema extends Schema {
             tables[i] = new OracleTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new OracleTable(jdbcTemplate, dbSupport, this, tableName);
     }
 }

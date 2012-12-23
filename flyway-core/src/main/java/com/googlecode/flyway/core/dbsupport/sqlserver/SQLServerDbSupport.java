@@ -63,10 +63,6 @@ public class SQLServerDbSupport extends DbSupport {
         return tableExists(null, schema, table);
     }
 
-    public boolean tableExists(String schema, String table) throws SQLException {
-        return tableExists(null, schema, table);
-    }
-
     public boolean columnExists(String schema, String table, String column) throws SQLException {
         return columnExists(null, schema, table, column);
     }

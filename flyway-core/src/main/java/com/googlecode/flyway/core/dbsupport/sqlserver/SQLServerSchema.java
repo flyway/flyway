@@ -185,4 +185,9 @@ public class SQLServerSchema extends Schema {
         }
         return tables;
     }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new SQLServerTable(jdbcTemplate, dbSupport, this, tableName);
+    }
 }

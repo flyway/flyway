@@ -792,7 +792,8 @@ public class Flyway {
 
                 MigrationResolver migrationResolver = createMigrationResolver();
                 MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver);
+                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport,
+                                dbSupport.getSchema(schemas[0]).getTable(table), migrationResolver);
                 if (validateOnMigrate) {
                     doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable);
                 }
@@ -858,7 +859,8 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MigrationResolver migrationResolver = createMigrationResolver();
                 MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver);
+                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport,
+                                dbSupport.getSchema(schemas[0]).getTable(table), migrationResolver);
 
                 doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable);
                 return null;
@@ -934,7 +936,9 @@ public class Flyway {
         boolean dropSchemas = false;
         try {
             List<AppliedMigration> appliedMigrations =
-                    new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, createMigrationResolver()).allAppliedMigrations();
+                    new MetaDataTableImpl(connectionMetaDataTable, dbSupport,
+                            dbSupport.getSchema(schemas[0]).getTable(table), createMigrationResolver())
+                            .allAppliedMigrations();
             dropSchemas = !appliedMigrations.isEmpty() && (appliedMigrations.get(0).getType() == MigrationType.SCHEMA);
         } catch (FlywayException e) {
             LOG.error("Unable to detect if a schema migration has been applied", e);
@@ -988,7 +992,8 @@ public class Flyway {
             public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MigrationResolver migrationResolver = createMigrationResolver();
                 MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver);
+                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport,
+                                dbSupport.getSchema(schemas[0]).getTable(table), migrationResolver);
 
                 return new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
             }
@@ -1007,7 +1012,8 @@ public class Flyway {
 
                 MigrationResolver migrationResolver = createMigrationResolver();
                 MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver);
+                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport,
+                                dbSupport.getSchema(schemas[0]).getTable(table), migrationResolver);
                 if (schemasCreated) {
                     metaDataTable.schemasCreated(schemas);
                 }
@@ -1051,17 +1057,6 @@ public class Flyway {
     }
 
     /**
-     * Upgrades the metadata table to the newest format.
-     *
-     * @param dbSupport         The DbSupport for creating the table.
-     * @param migrationResolver The migration resolver.
-     */
-    private void upgradeMetadataTable(DbSupport dbSupport, MigrationResolver migrationResolver) {
-        new MetaDataTableTo20FormatUpgrader(dbSupport, schemas[0], table, migrationResolver).upgrade();
-        new MetaDataTableTo202FormatUpgrader(dbSupport, schemas[0], table).upgrade();
-    }
-
-    /**
      * Repairs the Flyway metadata table after a failed migration. User objects left behind must still be cleaned up
      * manually.
      *
@@ -1071,7 +1066,9 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport) {
                 MigrationResolver migrationResolver = createMigrationResolver();
-                new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0], table, migrationResolver).repair();
+                new MetaDataTableImpl(connectionMetaDataTable, dbSupport,
+                        dbSupport.getSchema(schemas[0]).getTable(table), migrationResolver)
+                        .repair();
                 return null;
             }
         });

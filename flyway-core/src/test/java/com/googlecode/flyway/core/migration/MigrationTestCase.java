@@ -330,8 +330,8 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-        assertTrue(dbSupport.tableExists(dbSupport.getCurrentSchema(), "schema_version"));
-        assertTrue(dbSupport.tableExists(flyway.getSchemas()[0], flyway.getTable()));
+        assertTrue(dbSupport.getSchema(dbSupport.getCurrentSchema()).getTable("schema_version").exists());
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 
     @Test
@@ -644,7 +644,7 @@ public abstract class MigrationTestCase {
     private void upgradeMetaDataTableTo20Format() throws Exception {
         CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(Arrays.asList(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
-        MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
+        MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getSchema(dbSupport.getCurrentSchema()).getTable(flyway.getTable()), migrationResolver);
         upgrader.upgrade();
     }
 
@@ -652,7 +652,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.0.2 format.
      */
     private void upgradeMetaDataTableTo202Format() throws Exception {
-        new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable()).upgrade();
+        new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getSchema(dbSupport.getCurrentSchema()).getTable(flyway.getTable())).upgrade();
     }
 
     /**

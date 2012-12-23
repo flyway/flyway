@@ -141,4 +141,9 @@ public class DB2Schema extends Schema {
         }
         return tables;
     }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new DB2Table(jdbcTemplate, dbSupport, this, tableName);
+    }
 }

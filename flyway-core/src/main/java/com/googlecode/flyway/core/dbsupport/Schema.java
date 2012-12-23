@@ -98,6 +98,14 @@ public abstract class Schema {
      */
     public abstract Table[] allTables() throws SQLException;
 
+    /**
+     * Retrieves the table with this name in this schema.
+     *
+     * @param tableName The name of the table.
+     * @return The table.
+     */
+    public abstract Table getTable(String tableName);
+
     @Override
     public String toString() {
         return dbSupport.quote(name);

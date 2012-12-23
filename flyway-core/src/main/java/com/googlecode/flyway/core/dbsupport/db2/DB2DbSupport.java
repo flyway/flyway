@@ -47,10 +47,6 @@ public class DB2DbSupport extends DbSupport {
         return tableExists(null, schema.toUpperCase(), table.toUpperCase());
     }
 
-    public boolean tableExists(String schema, String table) throws SQLException {
-        return tableExists(null, schema, table);
-    }
-
     @Override
     public boolean primaryKeyExists(String schema, String table) throws SQLException {
         return primaryKeyExists(null, schema, table);

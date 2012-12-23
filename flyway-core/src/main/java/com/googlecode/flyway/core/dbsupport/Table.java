@@ -15,6 +15,9 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
+
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -57,6 +60,13 @@ public abstract class Table {
     }
 
     /**
+     * @return The schema this table lives in.
+     */
+    public Schema getSchema() {
+        return schema;
+    }
+
+    /**
      * @return The name of the table.
      */
     public String getName() {
@@ -68,4 +78,49 @@ public abstract class Table {
      * @throws java.sql.SQLException when the drop failed.
      */
     public abstract void drop() throws SQLException;
+
+    /**
+     * Checks whether this table exists.
+     *
+     * @return {@code true} if it does, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    public abstract boolean exists() throws SQLException;
+
+    /**
+     * Checks whether the database contains a table matching these criteria.
+     *
+     * @param catalog    The catalog where the table resides. (optional)
+     * @param schema     The schema where the table resides. (optional)
+     * @param table      The name of the table. (optional)
+     * @param tableTypes The types of table to look for (ex.: TABLE). (optional)
+     * @return {@code true} if a matching table has been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    protected boolean exists(Schema catalog, Schema schema, String table, String... tableTypes) throws SQLException {
+        String[] types = tableTypes;
+        if (types.length == 0) {
+            types = null;
+        }
+
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            resultSet = jdbcTemplate.getMetaData().getTables(
+                    catalog == null ? null : catalog.getName(),
+                    schema == null ? null : schema.getName(),
+                    table,
+                    types);
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return found;
+    }
+
+    @Override
+    public String toString() {
+        return dbSupport.quote(schema.getName(), name);
+    }
 }
