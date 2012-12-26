@@ -44,8 +44,8 @@ public class PostgreSQLDbSupport extends DbSupport {
         return "current_user";
     }
 
-    public String getCurrentSchema() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT current_schema()");
+    public Schema getCurrentSchema() throws SQLException {
+        return getSchema(jdbcTemplate.queryForString("SELECT current_schema()"));
     }
 
     @Override

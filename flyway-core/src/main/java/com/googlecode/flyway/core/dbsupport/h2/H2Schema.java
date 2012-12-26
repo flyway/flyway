@@ -19,7 +19,6 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
-import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerTable;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -78,7 +77,7 @@ public class H2Schema extends Schema {
 
         List<String> domainNames = listObjectNames("DOMAIN", "");
         if (!domainNames.isEmpty()) {
-            if (name.equals(dbSupport.getCurrentSchema())) {
+            if (name.equals(dbSupport.getCurrentSchema().getName())) {
                 for (String statement : generateDropStatementsForCurrentSchema("DOMAIN", domainNames, "")) {
                     jdbcTemplate.execute(statement);
                 }

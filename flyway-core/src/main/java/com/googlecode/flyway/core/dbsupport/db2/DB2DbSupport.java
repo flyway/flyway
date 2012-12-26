@@ -56,8 +56,8 @@ public class DB2DbSupport extends DbSupport {
         return columnExists(null, schema, table, column);
     }
 
-    public String getCurrentSchema() throws SQLException {
-        return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim();
+    public Schema getCurrentSchema() throws SQLException {
+        return getSchema(jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim());
     }
 
     @Override

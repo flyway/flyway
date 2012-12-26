@@ -43,8 +43,8 @@ public class MySQLDbSupport extends DbSupport {
         return "SUBSTRING_INDEX(USER(),'@',1)";
     }
 
-    public String getCurrentSchema() throws SQLException {
-        return jdbcTemplate.getConnection().getCatalog();
+    public Schema getCurrentSchema() throws SQLException {
+        return getSchema(jdbcTemplate.getConnection().getCatalog());
     }
 
     @Override

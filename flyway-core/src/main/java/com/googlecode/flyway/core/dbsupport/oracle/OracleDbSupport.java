@@ -44,8 +44,8 @@ public class OracleDbSupport extends DbSupport {
         return "USER";
     }
 
-    public String getCurrentSchema() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT USER FROM dual");
+    public Schema getCurrentSchema() throws SQLException {
+        return getSchema(jdbcTemplate.queryForString("SELECT USER FROM dual"));
     }
 
     @Override

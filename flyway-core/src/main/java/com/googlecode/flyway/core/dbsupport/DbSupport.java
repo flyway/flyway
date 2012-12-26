@@ -104,7 +104,7 @@ public abstract class DbSupport {
      * @return The current schema for this connection.
      * @throws SQLException when the current schema could not be retrieved.
      */
-    public abstract String getCurrentSchema() throws SQLException;
+    public abstract Schema getCurrentSchema() throws SQLException;
 
     /**
      * Sets the current schema to this schema.

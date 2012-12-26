@@ -66,7 +66,7 @@ public class HsqlDbSupport extends DbSupport {
         return "USER()";
     }
 
-    public String getCurrentSchema() throws SQLException {
+    public Schema getCurrentSchema() throws SQLException {
         ResultSet resultSet = null;
         String schema = null;
 
@@ -82,7 +82,7 @@ public class HsqlDbSupport extends DbSupport {
             JdbcUtils.closeResultSet(resultSet);
         }
 
-        return schema;
+        return getSchema(schema);
     }
 
     @Override

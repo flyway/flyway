@@ -45,7 +45,7 @@ public class H2DbSupport extends DbSupport {
         return "USER()";
     }
 
-    public String getCurrentSchema() throws SQLException {
+    public Schema getCurrentSchema() throws SQLException {
         ResultSet resultSet = null;
         String schema = null;
         try {
@@ -60,7 +60,7 @@ public class H2DbSupport extends DbSupport {
             JdbcUtils.closeResultSet(resultSet);
         }
 
-        return schema;
+        return getSchema(schema);
     }
 
     @Override

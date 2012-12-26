@@ -43,8 +43,8 @@ public class DerbyDbSupport extends DbSupport {
         return "CURRENT_USER";
     }
 
-    public String getCurrentSchema() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1");
+    public Schema getCurrentSchema() throws SQLException {
+        return getSchema(jdbcTemplate.queryForString("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1"));
     }
 
     @Override

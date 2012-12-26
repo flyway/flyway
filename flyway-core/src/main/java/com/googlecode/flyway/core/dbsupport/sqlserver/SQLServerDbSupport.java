@@ -48,8 +48,8 @@ public class SQLServerDbSupport extends DbSupport {
         return "SUSER_NAME()";
     }
 
-    public String getCurrentSchema() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT SCHEMA_NAME()");
+    public Schema getCurrentSchema() throws SQLException {
+        return getSchema(jdbcTemplate.queryForString("SELECT SCHEMA_NAME()"));
     }
 
     @Override

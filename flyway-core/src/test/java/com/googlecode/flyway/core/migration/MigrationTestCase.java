@@ -330,7 +330,7 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-        assertTrue(dbSupport.getSchema(dbSupport.getCurrentSchema()).getTable("schema_version").exists());
+        assertTrue(dbSupport.getCurrentSchema().getTable("schema_version").exists());
         assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 
@@ -373,7 +373,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void isSchemaEmpty() throws Exception {
-        Schema schema = dbSupport.getSchema(dbSupport.getCurrentSchema());
+        Schema schema = dbSupport.getCurrentSchema();
 
         assertTrue(schema.empty());
 
@@ -619,7 +619,7 @@ public abstract class MigrationTestCase {
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", dbSupport.getCurrentSchema());
+        placeholders.put("schema", dbSupport.getCurrentSchema().getName());
         placeholders.put("table", flyway.getTable());
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
@@ -644,7 +644,7 @@ public abstract class MigrationTestCase {
     private void upgradeMetaDataTableTo20Format() throws Exception {
         CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(Arrays.asList(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
-        MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getSchema(dbSupport.getCurrentSchema()).getTable(flyway.getTable()), migrationResolver);
+        MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable()), migrationResolver);
         upgrader.upgrade();
     }
 
@@ -652,7 +652,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.0.2 format.
      */
     private void upgradeMetaDataTableTo202Format() throws Exception {
-        new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getSchema(dbSupport.getCurrentSchema()).getTable(flyway.getTable())).upgrade();
+        new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable())).upgrade();
     }
 
     /**
@@ -664,7 +664,7 @@ public abstract class MigrationTestCase {
      */
     private void assertIntColumnValue(String version, String column, int expected) throws Exception {
         int actual = jdbcTemplate.queryForInt("SELECT " + dbSupport.quote(column)
-                + " FROM " + dbSupport.quote(dbSupport.getCurrentSchema()) + "." + dbSupport.quote(flyway.getTable())
+                + " FROM " + dbSupport.getCurrentSchema() + "." + dbSupport.quote(flyway.getTable())
                 + " WHERE " + dbSupport.quote("version") + " = ?", version);
         assertEquals("Wrong value for column: " + column, expected, actual);
     }
@@ -678,14 +678,14 @@ public abstract class MigrationTestCase {
      */
     private void assertStringColumnValue(String version, String column, String expected) throws Exception {
         String actual = jdbcTemplate.queryForString("SELECT " + dbSupport.quote(column)
-                + " FROM " + dbSupport.quote(dbSupport.getCurrentSchema()) + "." + dbSupport.quote(flyway.getTable())
+                + " FROM " + dbSupport.getCurrentSchema() + "." + dbSupport.quote(flyway.getTable())
                 + " WHERE " + dbSupport.quote("version") + " = ?", version);
         assertEquals("Wrong value for column: " + column, expected, actual);
     }
 
     @Test
     public void schemaExists() throws SQLException {
-        assertTrue(dbSupport.getSchema(dbSupport.getCurrentSchema()).exists());
+        assertTrue(dbSupport.getCurrentSchema().exists());
         assertFalse(dbSupport.getSchema("InVaLidScHeMa").exists());
     }
 }
