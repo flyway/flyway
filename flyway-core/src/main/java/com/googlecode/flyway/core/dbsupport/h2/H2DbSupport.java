@@ -64,8 +64,8 @@ public class H2DbSupport extends DbSupport {
     }
 
     @Override
-    public void setCurrentSchema(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+    public void setCurrentSchema(Schema schema) throws SQLException {
+        jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {

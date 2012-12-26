@@ -61,8 +61,8 @@ public class DB2DbSupport extends DbSupport {
     }
 
     @Override
-    public void setCurrentSchema(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+    public void setCurrentSchema(Schema schema) throws SQLException {
+        jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 
     public String getCurrentUserFunction() {

@@ -48,8 +48,8 @@ public class MySQLDbSupport extends DbSupport {
     }
 
     @Override
-    public void setCurrentSchema(String schema) throws SQLException {
-        jdbcTemplate.execute("USE " + quote(schema));
+    public void setCurrentSchema(Schema schema) throws SQLException {
+        jdbcTemplate.execute("USE " + schema);
     }
 
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {

@@ -783,8 +783,8 @@ public class Flyway {
                 boolean schemasCreated = createSchemasIfNecessary(schemas);
 
                 try {
-                    if (!schemas[0].getName().equals(dbSupport.getCurrentSchema())) {
-                        DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0].getName());
+                    if (!schemas[0].equals(dbSupport.getCurrentSchema())) {
+                        DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
                     }
                 } catch (SQLException e) {
                     throw new FlywayException("Error setting current schema to " + schemas[0], e);

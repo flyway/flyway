@@ -49,9 +49,9 @@ public class PostgreSQLDbSupport extends DbSupport {
     }
 
     @Override
-    public void setCurrentSchema(String schema) throws SQLException {
+    public void setCurrentSchema(Schema schema) throws SQLException {
         String searchPath = jdbcTemplate.queryForString("SHOW search_path");
-        jdbcTemplate.execute("SET search_path = " + quote(schema) + "," + searchPath);
+        jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
     }
 
     public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
