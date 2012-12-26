@@ -55,6 +55,6 @@ public class PostgreSQLTable extends Table {
 
     @Override
     public void lock() throws SQLException {
-        jdbcTemplate.execute("select * from " + this + " for update");
+        jdbcTemplate.execute("LOCK TABLE " + this);
     }
 }

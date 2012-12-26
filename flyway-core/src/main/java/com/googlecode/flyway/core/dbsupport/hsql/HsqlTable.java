@@ -75,7 +75,7 @@ public class HsqlTable extends Table {
         if (version18) {
             LOG.debug("Unable to lock " + this + " as Hsql 1.8 does not support locking. No concurrent migration supported.");
         } else {
-            jdbcTemplate.execute("select * from " + this + " for update");
+            jdbcTemplate.execute("LOCK TABLE " + this + " WRITE");
         }
     }
 }
