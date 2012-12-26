@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.info.MigrationInfoImpl;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
 import com.googlecode.flyway.core.metadatatable.AppliedMigration;
@@ -65,7 +66,7 @@ public class DbMigrator {
     /**
      * The schema containing the metadata table.
      */
-    private final String schema;
+    private final Schema schema;
 
     /**
      * The migration resolver.
@@ -108,7 +109,7 @@ public class DbMigrator {
      * @param outOfOrder                  Allows migrations to be run "out of order".
      */
     public DbMigrator(Connection connection, Connection connectionForMigrations, DbSupport dbSupport,
-                      MetaDataTable metaDataTable, String schema, MigrationResolver migrationResolver,
+                      MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
                       MigrationVersion target, boolean ignoreFailedFutureMigration, boolean outOfOrder) {
         this.connection = connection;
         this.connectionForMigrations = connectionForMigrations;
@@ -145,10 +146,10 @@ public class DbMigrator {
 
                                 MigrationVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
                                 if (firstRun) {
-                                    LOG.info("Current version of schema " + dbSupport.quote(schema) + ": " + currentSchemaVersion);
+                                    LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
 
                                     if (outOfOrder) {
-                                        LOG.warn("outOfOrder mode is active. Migration of schema " + dbSupport.quote(schema) + " may not be reproducible.");
+                                        LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
                                     }
                                 }
 
@@ -156,7 +157,7 @@ public class DbMigrator {
                                 MigrationInfo[] resolved = infoService.resolved();
                                 boolean isFutureMigration = future.length < 0;
                                 if (isFutureMigration) {
-                                    LOG.warn("Schema " + dbSupport.quote(schema) + " has a version (" + currentSchemaVersion + ") that is newer than the latest available migration ("
+                                    LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion + ") that is newer than the latest available migration ("
                                             + resolved[resolved.length - 1].getVersion() + ") !");
                                 }
 
@@ -165,7 +166,7 @@ public class DbMigrator {
                                     if ((failed.length == 1)
                                             && (failed[0].getState() == MigrationState.FUTURE_FAILED)
                                             && ignoreFailedFutureMigration) {
-                                        LOG.warn("Schema " + dbSupport.quote(schema) + " contains a failed future migration to version " + failed[0].getVersion() + " !");
+                                        LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
                                     } else {
                                         return Pair.of(false, failed[0].getVersion());
                                     }
@@ -188,13 +189,13 @@ public class DbMigrator {
                 }
 
                 if (!result.getLeft()) {
-                    throw new FlywayException("Migration of schema " + dbSupport.quote(schema) + " to version " + result.getRight() + " failed! Please restore backups and roll back database and code!");
+                    throw new FlywayException("Migration of schema " + schema + " to version " + result.getRight() + " failed! Please restore backups and roll back database and code!");
                 }
 
                 migrationSuccessCount++;
             }
         } catch (SQLException e) {
-            throw new FlywayException("Migration of schema " + dbSupport.quote(schema) + " failed !", e);
+            throw new FlywayException("Migration of schema " + schema + " failed !", e);
         }
 
         stopWatch.stop();
@@ -211,16 +212,14 @@ public class DbMigrator {
      */
     private void logSummary(int migrationSuccessCount, long executionTime) {
         if (migrationSuccessCount == 0) {
-            LOG.info("Schema " + dbSupport.quote(schema) + " is up to date. No migration necessary.");
+            LOG.info("Schema " + schema + " is up to date. No migration necessary.");
             return;
         }
 
-        String executionTimeStr = " (execution time " + TimeFormat.format(executionTime) + ").";
-
         if (migrationSuccessCount == 1) {
-            LOG.info("Successfully applied 1 migration to schema " + dbSupport.quote(schema) + executionTimeStr);
+            LOG.info("Successfully applied 1 migration to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
         } else {
-            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + dbSupport.quote(schema) + executionTimeStr);
+            LOG.info("Successfully applied " + migrationSuccessCount + " migrations to schema " + schema + " (execution time " + TimeFormat.format(executionTime) + ").");
         }
     }
 
@@ -235,9 +234,9 @@ public class DbMigrator {
     private Pair<Boolean, MigrationVersion> applyMigration(final ResolvedMigration migration, boolean isOutOfOrder) throws FlywayException {
         MigrationVersion version = migration.getVersion();
         if (isOutOfOrder) {
-            LOG.info("Migrating schema " + dbSupport.quote(schema)+ " to version " + version + " (out of order)");
+            LOG.info("Migrating schema " + schema + " to version " + version + " (out of order)");
         } else {
-            LOG.info("Migrating schema " + dbSupport.quote(schema)+ " to version " + version);
+            LOG.info("Migrating schema " + schema + " to version " + version);
         }
 
         StopWatch stopWatch = new StopWatch();
@@ -252,7 +251,7 @@ public class DbMigrator {
                     return null;
                 }
             });
-            LOG.debug("Successfully completed and committed migration of schema " + dbSupport.quote(schema) + " to version " + version);
+            LOG.debug("Successfully completed and committed migration of schema " + schema + " to version " + version);
             success = true;
         } catch (Exception e) {
             LOG.error(e.toString());
@@ -268,10 +267,10 @@ public class DbMigrator {
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
         if (!success && dbSupport.supportsDdlTransactions()) {
-            throw new FlywayException("Migration of schema " + dbSupport.quote(schema) + " to version " + version + " failed! Changes successfully rolled back.");
+            throw new FlywayException("Migration of schema " + schema + " to version " + version + " failed! Changes successfully rolled back.");
         }
         LOG.debug(String.format("Finished migrating schema %s to version %s (execution time %s)",
-                dbSupport.quote(schema), version, TimeFormat.format(executionTime)));
+                schema, version, TimeFormat.format(executionTime)));
 
         AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
                 migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, success);
