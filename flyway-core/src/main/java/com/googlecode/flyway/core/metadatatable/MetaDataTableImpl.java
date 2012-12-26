@@ -18,10 +18,7 @@ package com.googlecode.flyway.core.metadatatable;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.dbsupport.*;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.util.*;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
@@ -122,13 +119,15 @@ public class MetaDataTableImpl implements MetaDataTable {
         LOG.debug("Metadata table " + table + " created.");
     }
 
-    public void createIfNotExists() {
+    private void createIfNotExists() {
         if (!exists()) {
             create();
         }
     }
 
     public void lock() {
+        createIfNotExists();
+
         try {
             dbSupport.lockTable(table.getSchema().getName(), table.getName());
         } catch (SQLException e) {
@@ -137,6 +136,8 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public void insert(AppliedMigration appliedMigration) {
+        createIfNotExists();
+
         MigrationVersion version = appliedMigration.getVersion();
         try {
             int versionRank = calculateVersionRank(version);
@@ -313,7 +314,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         }
     }
 
-    public void init(MigrationVersion initVersion, String initDescription) {
+    public void init(final MigrationVersion initVersion, final String initDescription) {
         if (getCurrentSchemaVersion() != MigrationVersion.EMPTY) {
             throw new FlywayException(
                     "Schema already initialized. Current Version: " + getCurrentSchemaVersion());
@@ -321,14 +322,11 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         createIfNotExists();
 
-        final AppliedMigration appliedMigration =
-                new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
-                        0, true);
-
         try {
             new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
-                    insert(appliedMigration);
+                    insert(new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
+                            0, true));
                     return null;
                 }
             });
@@ -363,19 +361,15 @@ public class MetaDataTableImpl implements MetaDataTable {
         LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
     }
 
-    public void schemasCreated(String[] schemas) {
-        String description = StringUtils.arrayToCommaDelimitedString(schemas);
-
+    public void schemasCreated(final Schema[] schemas) {
         createIfNotExists();
-
-        final AppliedMigration appliedMigration =
-                new AppliedMigration(new MigrationVersion("0"), "<< Flyway Schema Creation >>", MigrationType.SCHEMA,
-                        description, null, 0, true);
 
         try {
             new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
-                    insert(appliedMigration);
+                    String description = StringUtils.arrayToCommaDelimitedString(schemas);
+                    insert(new AppliedMigration(new MigrationVersion("0"), "<< Flyway Schema Creation >>", MigrationType.SCHEMA,
+                            description, null, 0, true));
                     return null;
                 }
             });

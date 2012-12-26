@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.info;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
@@ -100,9 +101,6 @@ public class MigrationInfoDumperSmallTest {
      */
     private MetaDataTable createMetaDataTable(final AppliedMigration... appliedMigrations) {
         return new MetaDataTable() {
-            public void createIfNotExists() {
-            }
-
             public void lock() {
             }
 
@@ -127,7 +125,7 @@ public class MigrationInfoDumperSmallTest {
             public void repair() {
             }
 
-            public void schemasCreated(String[] schemas) {
+            public void schemasCreated(Schema[] schemas) {
             }
         };
     }

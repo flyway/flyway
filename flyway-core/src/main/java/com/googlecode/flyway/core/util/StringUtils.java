@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.CRC32;
 
 /**
  * Various string-related utilities.
@@ -76,10 +75,7 @@ public class StringUtils {
      * @return {@code true} if only contains digits, and is non-null
      */
     public static boolean isNumeric(String str) {
-        if (str == null) {
-            return false;
-        }
-        return str.matches("\\d*");
+        return str != null && str.matches("\\d*");
     }
 
     /**
@@ -131,11 +127,7 @@ public class StringUtils {
      * @return {@code true} if it has content, {@code false} if it is {@code null} or blank.
      */
     public static boolean hasLength(String str) {
-        if (str == null) {
-            return false;
-        }
-
-        return str.trim().length() > 0;
+        return str != null && str.trim().length() > 0;
     }
 
     /**
@@ -144,7 +136,7 @@ public class StringUtils {
      * @param strings The array to process.
      * @return The new comma-delimited string. An empty string if {@code strings} is {@code null}.
      */
-    public static String arrayToCommaDelimitedString(String[] strings) {
+    public static String arrayToCommaDelimitedString(Object[] strings) {
         if (strings == null) {
             return "";
         }
@@ -154,7 +146,7 @@ public class StringUtils {
             if (i > 0) {
                 builder.append(",");
             }
-            builder.append(strings[i]);
+            builder.append(String.valueOf(strings[i]));
         }
         return builder.toString();
     }

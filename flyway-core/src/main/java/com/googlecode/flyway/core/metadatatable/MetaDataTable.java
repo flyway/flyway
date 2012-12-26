@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.metadatatable;
 
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.dbsupport.Schema;
 
 import java.util.List;
 
@@ -23,11 +24,6 @@ import java.util.List;
  * The metadata table used to track all applied migrations.
  */
 public interface MetaDataTable {
-    /**
-     * Creates the metadata table if it doesn't already exist.
-     */
-    void createIfNotExists();
-
     /**
      * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
      */
@@ -81,5 +77,5 @@ public interface MetaDataTable {
      *
      * @param schemas The schemas that were created by Flyway.
      */
-    void schemasCreated(String[] schemas);
+    void schemasCreated(Schema[] schemas);
 }

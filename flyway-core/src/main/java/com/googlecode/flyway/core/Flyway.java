@@ -810,9 +810,8 @@ public class Flyway {
                     }
 
                     if (initOnMigrate || disableInitCheck || nonEmptySchemas.isEmpty()) {
-                        metaDataTable.createIfNotExists();
                         if (schemasCreated) {
-                            metaDataTable.schemasCreated(schemaNames);
+                            metaDataTable.schemasCreated(schemas);
                         }
                         if (initOnMigrate && !nonEmptySchemas.isEmpty()) {
                             metaDataTable.init(initVersion, initDescription);
@@ -1001,7 +1000,7 @@ public class Flyway {
                 MetaDataTable metaDataTable =
                         new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), migrationResolver);
                 if (schemasCreated) {
-                    metaDataTable.schemasCreated(schemaNames);
+                    metaDataTable.schemasCreated(schemas);
                 }
                 metaDataTable.init(initVersion, initDescription);
                 return null;
