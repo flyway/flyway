@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core.clean;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
@@ -35,11 +34,6 @@ public class DbCleaner {
     private static final Log LOG = LogFactory.getLog(DbCleaner.class);
 
     /**
-     * Database-specific functionality.
-     */
-    private final DbSupport dbSupport;
-
-    /**
      * The connection to use.
      */
     private final Connection connection;
@@ -47,7 +41,7 @@ public class DbCleaner {
     /**
      * The schemas to clean.
      */
-    private final String[] schemas;
+    private final Schema[] schemas;
 
     /**
      * Whether to also drop the schemas themselves.
@@ -58,13 +52,11 @@ public class DbCleaner {
      * Creates a new database cleaner.
      *
      * @param connection  The connection to use.
-     * @param dbSupport   Database-specific functionality.
      * @param schemas     The schemas to clean.
      * @param dropSchemas Whether to also drop the schemas themselves.
      */
-    public DbCleaner(Connection connection, DbSupport dbSupport, String[] schemas, boolean dropSchemas) {
+    public DbCleaner(Connection connection, Schema[] schemas, boolean dropSchemas) {
         this.connection = connection;
-        this.dbSupport = dbSupport;
         this.schemas = schemas;
         this.dropSchemas = dropSchemas;
     }
@@ -75,8 +67,7 @@ public class DbCleaner {
      * @throws FlywayException when clean failed.
      */
     public void clean() throws FlywayException {
-        for (String schemaName : schemas) {
-            Schema schema = dbSupport.getSchema(schemaName);
+        for (Schema schema : schemas) {
             if (dropSchemas) {
                 dropSchema(schema);
             } else {

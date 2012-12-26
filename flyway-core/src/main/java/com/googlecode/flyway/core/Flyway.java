@@ -931,7 +931,7 @@ public class Flyway {
         } catch (FlywayException e) {
             LOG.error("Unable to detect if a schema migration has been applied", e);
         }
-        new DbCleaner(connectionMetaDataTable, dbSupport, schemaNames, dropSchemas).clean();
+        new DbCleaner(connectionMetaDataTable, schemas, dropSchemas).clean();
     }
 
     /**
