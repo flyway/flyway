@@ -52,25 +52,8 @@ public class DerbyDbSupport extends DbSupport {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 
-    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(null, schema, table, column);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(null, schema, table);
-    }
-
     public boolean supportsDdlTransactions() {
         return true;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("LOCK TABLE " + quote(schema) + "." + quote(table) + " IN EXCLUSIVE MODE");
     }
 
     public String getBooleanTrue() {
@@ -93,5 +76,10 @@ public class DerbyDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new DerbySchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 }

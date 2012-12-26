@@ -54,25 +54,8 @@ public class PostgreSQLDbSupport extends DbSupport {
         jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
     }
 
-    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return tableExists(null, schema.toLowerCase(), table.toLowerCase(), "TABLE");
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(null, schema, table, column);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(null, schema, table);
-    }
-
     public boolean supportsDdlTransactions() {
         return true;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -95,5 +78,10 @@ public class PostgreSQLDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new PostgreSQLSchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 }

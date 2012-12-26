@@ -52,25 +52,8 @@ public class MySQLDbSupport extends DbSupport {
         jdbcTemplate.execute("USE " + schema);
     }
 
-    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return tableExists(schema, null, table);
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(schema, null, table, column);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(schema, null, table);
-    }
-
     public boolean supportsDdlTransactions() {
         return false;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -93,5 +76,10 @@ public class MySQLDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new MySQLSchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return true;
     }
 }

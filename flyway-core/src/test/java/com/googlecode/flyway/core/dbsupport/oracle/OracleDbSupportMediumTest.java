@@ -99,7 +99,7 @@ public class OracleDbSupportMediumTest {
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
         for (int i = 0; i < 200; i++) {
-            dbSupport.tableExistsNoQuotes(dbSupport.getCurrentSchema().getName(), "schema_version");
+            dbSupport.getCurrentSchema().getTable("schema_version").exists();
         }
         connection.close();
     }

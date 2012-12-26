@@ -47,4 +47,14 @@ public class PostgreSQLTable extends Table {
     public boolean exists() throws SQLException {
         return exists(null, schema, name);
     }
+
+    @Override
+    public boolean existsNoQuotes() throws SQLException {
+        return exists(null, dbSupport.getSchema(schema.getName().toLowerCase()), name.toLowerCase(), "TABLE");
+    }
+
+    @Override
+    public void lock() throws SQLException {
+        jdbcTemplate.execute("select * from " + this + " for update");
+    }
 }

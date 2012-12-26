@@ -43,19 +43,6 @@ public class DB2DbSupport extends DbSupport {
         return "com/googlecode/flyway/core/dbsupport/db2/";
     }
 
-    public boolean tableExistsNoQuotes(String schema, String table) throws SQLException {
-        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(null, schema, table);
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(null, schema, table, column);
-    }
-
     public Schema getCurrentSchema() throws SQLException {
         return getSchema(jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim());
     }
@@ -71,10 +58,6 @@ public class DB2DbSupport extends DbSupport {
 
     public boolean supportsDdlTransactions() {
         return true;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.update("lock table " + quote(schema) + "." + quote(table) + " in exclusive mode");
     }
 
     public String getBooleanTrue() {
@@ -93,5 +76,10 @@ public class DB2DbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new DB2Schema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 }

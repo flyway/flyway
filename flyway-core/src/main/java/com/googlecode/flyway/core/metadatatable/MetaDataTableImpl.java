@@ -129,7 +129,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         createIfNotExists();
 
         try {
-            dbSupport.lockTable(table.getSchema().getName(), table.getName());
+            table.lock();
         } catch (SQLException e) {
             throw new FlywayException("Unable to lock metadata table " + table, e);
         }

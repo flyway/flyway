@@ -15,10 +15,13 @@
  */
 package com.googlecode.flyway.core.dbsupport.hsql;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.SQLException;
 
@@ -26,6 +29,13 @@ import java.sql.SQLException;
  * Hsql-specific table.
  */
 public class HsqlTable extends Table {
+    private static final Log LOG = LogFactory.getLog(HsqlDbSupport.class);
+
+    /**
+     * Flag indicating whether we are running against the old Hsql 1.8 instead of the newer 2.x.
+     */
+    private boolean version18;
+
     /**
      * Creates a new Hsql table.
      *
@@ -36,6 +46,13 @@ public class HsqlTable extends Table {
      */
     public HsqlTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
+
+        try {
+            int majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+            version18 = majorVersion < 2;
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to determine the Hsql version", e);
+        }
     }
 
     @Override
@@ -46,5 +63,19 @@ public class HsqlTable extends Table {
     @Override
     public boolean exists() throws SQLException {
         return exists(null, schema, name);
+    }
+
+    @Override
+    public boolean existsNoQuotes() throws SQLException {
+        return exists(null, dbSupport.getSchema(schema.getName().toUpperCase()), name.toUpperCase());
+    }
+
+    @Override
+    public void lock() throws SQLException {
+        if (version18) {
+            LOG.debug("Unable to lock " + this + " as Hsql 1.8 does not support locking. No concurrent migration supported.");
+        } else {
+            jdbcTemplate.execute("select * from " + this + " for update");
+        }
     }
 }

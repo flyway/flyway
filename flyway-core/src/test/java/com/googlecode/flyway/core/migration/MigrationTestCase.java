@@ -337,8 +337,8 @@ public abstract class MigrationTestCase {
     @Test
     public void columnExists() throws Exception {
         flyway.init();
-        assertTrue(dbSupport.columnExists(flyway.getSchemas()[0], flyway.getTable(), "version_rank"));
-        assertFalse(dbSupport.columnExists(flyway.getSchemas()[0], flyway.getTable(), "dummy"));
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("version_rank"));
+        assertFalse(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
     }
 
     @Test
@@ -346,8 +346,7 @@ public abstract class MigrationTestCase {
         flyway.setLocations(getQuoteLocation());
         flyway.migrate();
         assertEquals("0",
-                jdbcTemplate.queryForString(
-                        "SELECT COUNT(name) FROM " + dbSupport.quote(flyway.getSchemas()[0]) + "." + dbSupport.quote("table")));
+                jdbcTemplate.queryForString("SELECT COUNT(name) FROM " + dbSupport.quote(flyway.getSchemas()[0], "table")));
     }
 
     /**
@@ -551,7 +550,7 @@ public abstract class MigrationTestCase {
     public void format20upgrade() throws Exception {
         createMetaDataTableIn17Format();
         upgradeMetaDataTableTo20Format();
-        assertTrue(dbSupport.primaryKeyExists(flyway.getSchemas()[0], flyway.getTable()));
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasPrimaryKey());
     }
 
     @Test

@@ -103,6 +103,6 @@ public class MetaDataTableTo202FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws SQLException {
-        return table.exists() && dbSupport.primaryKeyExists(table.getSchema().getName(), table.getName());
+        return table.exists() && table.hasPrimaryKey();
     }
 }

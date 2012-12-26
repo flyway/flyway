@@ -75,6 +75,7 @@ public abstract class Table {
 
     /**
      * Drops this table from the database.
+     *
      * @throws java.sql.SQLException when the drop failed.
      */
     public abstract void drop() throws SQLException;
@@ -86,6 +87,14 @@ public abstract class Table {
      * @throws SQLException when the check failed.
      */
     public abstract boolean exists() throws SQLException;
+
+    /**
+     * Checks whether this table is already present in the database. WITHOUT quoting either the table or the schema name!
+     *
+     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     * @throws SQLException when there was an error checking whether this table exists in this schema.
+     */
+    public abstract boolean existsNoQuotes() throws SQLException;
 
     /**
      * Checks whether the database contains a table matching these criteria.
@@ -118,6 +127,60 @@ public abstract class Table {
 
         return found;
     }
+
+    /**
+     * Checks whether the table has a primary key.
+     *
+     * @return {@code true} if a primary key has been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    public boolean hasPrimaryKey() throws SQLException {
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            if (dbSupport.catalogIsSchema()) {
+                resultSet = jdbcTemplate.getMetaData().getPrimaryKeys(schema.getName(), null, name);
+            } else {
+                resultSet = jdbcTemplate.getMetaData().getPrimaryKeys(null, schema.getName(), name);
+            }
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return found;
+    }
+
+    /**
+     * Checks whether the database contains a column matching these criteria.
+     *
+     * @param column The column to look for.
+     * @return {@code true} if a matching column has been found, {@code false} if not.
+     * @throws SQLException when the check failed.
+     */
+    public boolean hasColumn(String column) throws SQLException {
+        ResultSet resultSet = null;
+        boolean found;
+        try {
+            if (dbSupport.catalogIsSchema()) {
+                resultSet = jdbcTemplate.getMetaData().getColumns(schema.getName(), null, name, column);
+            } else {
+                resultSet = jdbcTemplate.getMetaData().getColumns(null, schema.getName(), name, column);
+            }
+            found = resultSet.next();
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return found;
+    }
+
+    /**
+     * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
+     *
+     * @throws SQLException when this table in this schema could not be locked.
+     */
+    public abstract void lock() throws SQLException;
 
     @Override
     public String toString() {

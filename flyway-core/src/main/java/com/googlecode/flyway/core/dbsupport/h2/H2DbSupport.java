@@ -68,25 +68,8 @@ public class H2DbSupport extends DbSupport {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 
-    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(null, schema, table, column);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(null, schema, table);
-    }
-
     public boolean supportsDdlTransactions() {
         return false;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -109,5 +92,10 @@ public class H2DbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new H2Schema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 }

@@ -47,4 +47,14 @@ public class MySQLTable extends Table {
     public boolean exists() throws SQLException {
         return exists(schema, null, name);
     }
+
+    @Override
+    public boolean existsNoQuotes() throws SQLException {
+        return exists(schema, null, name);
+    }
+
+    @Override
+    public void lock() throws SQLException {
+        jdbcTemplate.execute("select * from " + this + " for update");
+    }
 }

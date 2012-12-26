@@ -192,7 +192,6 @@ public class MetaDataTableTo20FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws SQLException {
-        return dbSupport.tableExistsNoQuotes(table.getSchema().getName(), table.getName())
-                && !dbSupport.columnExists(table.getSchema().getName(), table.getName(), "version_rank");
+        return table.existsNoQuotes() && !table.hasColumn("version_rank");
     }
 }
