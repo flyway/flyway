@@ -40,11 +40,13 @@ public class SQLServerSchema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
                 "( " +
                 "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.TABLES " +

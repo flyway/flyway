@@ -19,7 +19,6 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
-import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerTable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,11 +39,13 @@ public class HsqlSchema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM information_schema.system_schemas WHERE table_schem=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         return allTables().length == 0;
     }
 

@@ -44,11 +44,13 @@ public class H2Schema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         return allTables().length == 0;
     }
 

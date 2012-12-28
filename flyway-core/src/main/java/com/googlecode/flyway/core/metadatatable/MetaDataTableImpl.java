@@ -77,20 +77,6 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     /**
-     * Checks whether Flyway's metadata table is already present in the database.
-     *
-     * @return {@code true} if the table exists, {@code false} if it doesn't.
-     */
-    private boolean exists() {
-        try {
-            return table.exists();
-        } catch (SQLException e) {
-            throw new FlywayException("Error checking whether metadata table " + table + " exists",
-                    e);
-        }
-    }
-
-    /**
      * Creates Flyway's metadata table.
      */
     private void create() {
@@ -120,19 +106,14 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     private void createIfNotExists() {
-        if (!exists()) {
+        if (!table.exists()) {
             create();
         }
     }
 
     public void lock() {
         createIfNotExists();
-
-        try {
-            table.lock();
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to lock metadata table " + table, e);
-        }
+        table.lock();
     }
 
     public void insert(AppliedMigration appliedMigration) {
@@ -216,7 +197,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      *         yet.
      */
     private boolean hasRows() {
-        if (!exists()) {
+        if (!table.exists()) {
             return false;
         }
 
@@ -228,7 +209,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public List<AppliedMigration> allAppliedMigrations() {
-        if (!exists()) {
+        if (!table.exists()) {
             return new ArrayList<AppliedMigration>();
         }
 
@@ -286,7 +267,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
 
     public boolean hasFailedMigration() {
-        if (!exists()) {
+        if (!table.exists()) {
             return false;
         }
 

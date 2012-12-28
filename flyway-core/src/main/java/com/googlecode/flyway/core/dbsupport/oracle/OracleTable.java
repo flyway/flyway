@@ -39,22 +39,22 @@ public class OracleTable extends Table {
     }
 
     @Override
-    public void drop() throws SQLException {
+    protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE CONSTRAINTS PURGE");
     }
 
     @Override
-    public boolean exists() throws SQLException {
+    protected boolean doExists() throws SQLException {
         return exists(null, schema, name);
     }
 
     @Override
-    public boolean existsNoQuotes() throws SQLException {
+    protected boolean doExistsNoQuotes() throws SQLException {
         return exists(null, dbSupport.getSchema(schema.getName().toUpperCase()), name.toUpperCase());
     }
 
     @Override
-    public void lock() throws SQLException {
+    protected void doLock() throws SQLException {
         jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE");
     }
 }

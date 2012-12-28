@@ -39,11 +39,13 @@ public class DB2Schema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM syscat.schemata WHERE schemaname=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("select count(*) from syscat.tables where tabschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", name);
