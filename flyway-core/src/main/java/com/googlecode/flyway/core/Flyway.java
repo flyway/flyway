@@ -801,12 +801,8 @@ public class Flyway {
                 if (metaDataTable.getCurrentSchemaVersion() == MigrationVersion.EMPTY) {
                     List<Schema> nonEmptySchemas = new ArrayList<Schema>();
                     for (Schema schema : schemas) {
-                        try {
-                            if (!schema.empty()) {
-                                nonEmptySchemas.add(schema);
-                            }
-                        } catch (SQLException e) {
-                            throw new FlywayException("Error while checking whether schema " + schema + " is empty", e);
+                        if (!schema.empty()) {
+                            nonEmptySchemas.add(schema);
                         }
                     }
 
@@ -1021,18 +1017,14 @@ public class Flyway {
     /**
      * Creates the schemas if they don't already exist.
      *
-     * @param schemas   The schemas managed by Flyway.
+     * @param schemas The schemas managed by Flyway.
      * @return {@code true} if schemas where created, {@code false if not}.
      */
     private boolean createSchemasIfNecessary(Schema[] schemas) {
         for (Schema schema : schemas) {
-            try {
-                if (schema.exists()) {
-                    LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
-                    return false;
-                }
-            } catch (SQLException e) {
-                throw new FlywayException("Failed to check if schema " + schema + " exists", e);
+            if (schema.exists()) {
+                LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
+                return false;
             }
         }
 

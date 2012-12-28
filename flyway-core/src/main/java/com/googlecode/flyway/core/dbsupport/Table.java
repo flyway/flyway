@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 
 import java.sql.ResultSet;
@@ -75,10 +76,34 @@ public abstract class Table {
 
     /**
      * Drops this table from the database.
+     */
+    public void drop() {
+        try {
+            doDrop();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to drop table " + this, e);
+        }
+    }
+
+    /**
+     * Drops this table from the database.
      *
      * @throws java.sql.SQLException when the drop failed.
      */
-    public abstract void drop() throws SQLException;
+    protected abstract void doDrop() throws SQLException;
+
+    /**
+     * Checks whether this table exists.
+     *
+     * @return {@code true} if it does, {@code false} if not.
+     */
+    public boolean exists() {
+        try {
+            return doExists();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether table " + this + " exists", e);
+        }
+    }
 
     /**
      * Checks whether this table exists.
@@ -86,7 +111,20 @@ public abstract class Table {
      * @return {@code true} if it does, {@code false} if not.
      * @throws SQLException when the check failed.
      */
-    public abstract boolean exists() throws SQLException;
+    protected abstract boolean doExists() throws SQLException;
+
+    /**
+     * Checks whether this table is already present in the database. WITHOUT quoting either the table or the schema name!
+     *
+     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     */
+    public boolean existsNoQuotes() {
+        try {
+            return doExistsNoQuotes();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether table " +  this + " exists", e);
+        }
+    }
 
     /**
      * Checks whether this table is already present in the database. WITHOUT quoting either the table or the schema name!
@@ -94,7 +132,7 @@ public abstract class Table {
      * @return {@code true} if the table exists, {@code false} if it doesn't.
      * @throws SQLException when there was an error checking whether this table exists in this schema.
      */
-    public abstract boolean existsNoQuotes() throws SQLException;
+    protected abstract boolean doExistsNoQuotes() throws SQLException;
 
     /**
      * Checks whether the database contains a table matching these criteria.
@@ -132,9 +170,8 @@ public abstract class Table {
      * Checks whether the table has a primary key.
      *
      * @return {@code true} if a primary key has been found, {@code false} if not.
-     * @throws SQLException when the check failed.
      */
-    public boolean hasPrimaryKey() throws SQLException {
+    public boolean hasPrimaryKey() {
         ResultSet resultSet = null;
         boolean found;
         try {
@@ -144,6 +181,8 @@ public abstract class Table {
                 resultSet = jdbcTemplate.getMetaData().getPrimaryKeys(null, schema.getName(), name);
             }
             found = resultSet.next();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether table " + this + " has a primary key", e);
         } finally {
             JdbcUtils.closeResultSet(resultSet);
         }
@@ -156,9 +195,8 @@ public abstract class Table {
      *
      * @param column The column to look for.
      * @return {@code true} if a matching column has been found, {@code false} if not.
-     * @throws SQLException when the check failed.
      */
-    public boolean hasColumn(String column) throws SQLException {
+    public boolean hasColumn(String column) {
         ResultSet resultSet = null;
         boolean found;
         try {
@@ -168,6 +206,8 @@ public abstract class Table {
                 resultSet = jdbcTemplate.getMetaData().getColumns(null, schema.getName(), name, column);
             }
             found = resultSet.next();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether table " + this + " has a column named " + column, e);
         } finally {
             JdbcUtils.closeResultSet(resultSet);
         }
@@ -177,10 +217,21 @@ public abstract class Table {
 
     /**
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
+     */
+    public void lock() {
+        try {
+            doLock();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to lock table " + this, e);
+        }
+    }
+
+    /**
+     * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
      *
      * @throws SQLException when this table in this schema could not be locked.
      */
-    public abstract void lock() throws SQLException;
+    protected abstract void doLock() throws SQLException;
 
     @Override
     public String toString() {

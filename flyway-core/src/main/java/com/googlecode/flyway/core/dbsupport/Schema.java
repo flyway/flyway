@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.api.FlywayException;
+
 import java.sql.SQLException;
 
 /**
@@ -60,9 +62,35 @@ public abstract class Schema {
      * Checks whether this schema exists.
      *
      * @return {@code true} if it does, {@code false} if not.
+     */
+    public boolean exists() {
+        try {
+            return doExists();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether schema " + this + " exists", e);
+        }
+    }
+
+    /**
+     * Checks whether this schema exists.
+     *
+     * @return {@code true} if it does, {@code false} if not.
      * @throws SQLException when the check failed.
      */
-    public abstract boolean exists() throws SQLException;
+    protected abstract boolean doExists() throws SQLException;
+
+    /**
+     * Checks whether this schema is empty.
+     *
+     * @return {@code true} if it is, {@code false} if isn't.
+     */
+    public boolean empty() {
+        try {
+            return doEmpty();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether schema " + this + " is empty", e);
+        }
+    }
 
     /**
      * Checks whether this schema is empty.
@@ -70,7 +98,7 @@ public abstract class Schema {
      * @return {@code true} if it is, {@code false} if isn't.
      * @throws SQLException when the check failed.
      */
-    public abstract boolean empty() throws SQLException;
+    protected abstract boolean doEmpty() throws SQLException;
 
     /**
      * Creates this schema in the database.

@@ -39,22 +39,22 @@ public class SQLServerTable extends Table {
     }
 
     @Override
-    public void drop() throws SQLException {
+    protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name));
     }
 
     @Override
-    public boolean exists() throws SQLException {
+    protected boolean doExists() throws SQLException {
         return exists(null, schema, name);
     }
 
     @Override
-    public boolean existsNoQuotes() throws SQLException {
+    protected boolean doExistsNoQuotes() throws SQLException {
         return exists(null, schema, name);
     }
 
     @Override
-    public void lock() throws SQLException {
+    protected void doLock() throws SQLException {
         jdbcTemplate.execute("select * from " + this + " WITH (TABLOCKX)");
     }
 }

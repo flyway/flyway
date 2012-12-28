@@ -19,7 +19,6 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
-import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerTable;
 import com.googlecode.flyway.core.util.StringUtils;
 
 import java.sql.SQLException;
@@ -42,11 +41,13 @@ public class DerbySchema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM sys.sysschemas WHERE schemaname=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         return allTables().length == 0;
     }
 

@@ -88,22 +88,8 @@ public class MetaDataTableImpl implements MetaDataTable {
         new MetaDataTableTo202FormatUpgrader(dbSupport, table).upgrade();
     }
 
-    /**
-     * Checks whether Flyway's metadata table is already present in the database.
-     *
-     * @return {@code true} if the table exists, {@code false} if it doesn't.
-     */
-    private boolean exists() {
-        try {
-            return table.exists();
-        } catch (SQLException e) {
-            throw new FlywayException("Error checking whether metadata table " + table + " exists",
-                    e);
-        }
-    }
-
     private void createIfNotExists() {
-        if (!exists()) {
+        if (!table.exists()) {
             LOG.info("Creating Metadata table: " + table);
 
             final String source =
@@ -132,12 +118,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     public void lock() {
         createIfNotExists();
-
-        try {
-            table.lock();
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to lock metadata table " + table, e);
-        }
+        table.lock();
     }
 
     public void addAppliedMigration(AppliedMigration appliedMigration) {
@@ -221,7 +202,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      *         yet.
      */
     private boolean hasRows() {
-        if (!exists()) {
+        if (!table.exists()) {
             return false;
         }
 
@@ -233,7 +214,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public List<AppliedMigration> allAppliedMigrations() {
-        if (!exists()) {
+        if (!table.exists()) {
             return new ArrayList<AppliedMigration>();
         }
 
@@ -330,7 +311,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public void repair() {
-        if (!exists()) {
+        if (!table.exists()) {
             LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
             return;
         }

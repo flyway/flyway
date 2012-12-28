@@ -56,22 +56,22 @@ public class HsqlTable extends Table {
     }
 
     @Override
-    public void drop() throws SQLException {
+    protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE");
     }
 
     @Override
-    public boolean exists() throws SQLException {
+    protected boolean doExists() throws SQLException {
         return exists(null, schema, name);
     }
 
     @Override
-    public boolean existsNoQuotes() throws SQLException {
+    protected boolean doExistsNoQuotes() throws SQLException {
         return exists(null, dbSupport.getSchema(schema.getName().toUpperCase()), name.toUpperCase());
     }
 
     @Override
-    public void lock() throws SQLException {
+    protected void doLock() throws SQLException {
         if (version18) {
             LOG.debug("Unable to lock " + this + " as Hsql 1.8 does not support locking. No concurrent migration supported.");
         } else {

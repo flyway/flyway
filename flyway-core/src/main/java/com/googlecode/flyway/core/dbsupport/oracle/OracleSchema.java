@@ -44,11 +44,13 @@ public class OracleSchema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", name);
         return objectCount == 0;
     }
