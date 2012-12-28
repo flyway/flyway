@@ -192,15 +192,11 @@ public class MigrationInfoServiceImplSmallTest {
             public void lock() {
             }
 
-            public void insert(AppliedMigration appliedMigration) {
+            public void addAppliedMigration(AppliedMigration appliedMigration) {
             }
 
             public List<AppliedMigration> allAppliedMigrations() {
                 return Arrays.asList(appliedMigrations);
-            }
-
-            public boolean hasFailedMigration() {
-                return false;
             }
 
             public MigrationVersion getCurrentSchemaVersion() {

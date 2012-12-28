@@ -18,9 +18,17 @@ package com.googlecode.flyway.core.metadatatable;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.dbsupport.*;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.dbsupport.Table;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
-import com.googlecode.flyway.core.util.*;
+import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.StopWatch;
+import com.googlecode.flyway.core.util.StringUtils;
+import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
@@ -30,7 +38,11 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Supports reading and writing to the metadata table.
@@ -90,38 +102,31 @@ public class MetaDataTableImpl implements MetaDataTable {
         }
     }
 
-    /**
-     * Creates Flyway's metadata table.
-     */
-    private void create() {
-        LOG.info("Creating Metadata table: " + table);
-
-        final String source =
-                new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql").loadAsString("UTF-8");
-
-        Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", table.getSchema().getName());
-        placeholders.put("table", table.getName());
-        final String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
-
-        try {
-            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() {
-                    SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-                    sqlScript.execute(jdbcTemplate);
-                    return null;
-                }
-            });
-        } catch (SQLException e) {
-            throw new FlywayException("Error while creating metadata table " + table, e);
-        }
-
-        LOG.debug("Metadata table " + table + " created.");
-    }
-
     private void createIfNotExists() {
         if (!exists()) {
-            create();
+            LOG.info("Creating Metadata table: " + table);
+
+            final String source =
+                    new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql").loadAsString("UTF-8");
+
+            Map<String, String> placeholders = new HashMap<String, String>();
+            placeholders.put("schema", table.getSchema().getName());
+            placeholders.put("table", table.getName());
+            final String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+
+            try {
+                new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+                    public Void doInTransaction() {
+                        SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                        sqlScript.execute(jdbcTemplate);
+                        return null;
+                    }
+                });
+            } catch (SQLException e) {
+                throw new FlywayException("Error while creating metadata table " + table, e);
+            }
+
+            LOG.debug("Metadata table " + table + " created.");
         }
     }
 
@@ -135,7 +140,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         }
     }
 
-    public void insert(AppliedMigration appliedMigration) {
+    public void addAppliedMigration(AppliedMigration appliedMigration) {
         createIfNotExists();
 
         MigrationVersion version = appliedMigration.getVersion();
@@ -284,21 +289,6 @@ public class MetaDataTableImpl implements MetaDataTable {
         return number.intValue();
     }
 
-
-    public boolean hasFailedMigration() {
-        if (!exists()) {
-            return false;
-        }
-
-        try {
-            int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table
-                    + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
-            return failedCount > 0;
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to check the metadata table " + table + " for failed migrations", e);
-        }
-    }
-
     public MigrationVersion getCurrentSchemaVersion() {
         if (!hasRows()) {
             return MigrationVersion.EMPTY;
@@ -315,19 +305,20 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public void init(final MigrationVersion initVersion, final String initDescription) {
-        if (getCurrentSchemaVersion() != MigrationVersion.EMPTY) {
-            throw new FlywayException(
-                    "Schema already initialized. Current Version: " + getCurrentSchemaVersion());
-        }
-
-        createIfNotExists();
-
         try {
             new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
-                    insert(new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
-                            0, true));
-                    return null;
+                    List<AppliedMigration> appliedMigrations = allAppliedMigrations();
+                    if (appliedMigrations.isEmpty()
+                            || ((appliedMigrations.size() == 1) && (appliedMigrations.get(0).getType() == MigrationType.SCHEMA))) {
+                        createIfNotExists();
+
+                        addAppliedMigration(new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
+                                0, true));
+                        return null;
+                    }
+                    throw new FlywayException(
+                            "Schema already initialized. Current Version: " + getCurrentSchemaVersion());
                 }
             });
         } catch (SQLException e) {
@@ -339,9 +330,20 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public void repair() {
-        if (!hasFailedMigration()) {
+        if (!exists()) {
             LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
             return;
+        }
+
+        try {
+            int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table
+                    + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
+            if (failedCount == 0) {
+                LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
+                return;
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check the metadata table " + table + " for failed migrations", e);
         }
 
         StopWatch stopWatch = new StopWatch();
@@ -368,7 +370,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
                     String description = StringUtils.arrayToCommaDelimitedString(schemas);
-                    insert(new AppliedMigration(new MigrationVersion("0"), "<< Flyway Schema Creation >>", MigrationType.SCHEMA,
+                    addAppliedMigration(new AppliedMigration(new MigrationVersion("0"), "<< Flyway Schema Creation >>", MigrationType.SCHEMA,
                             description, null, 0, true));
                     return null;
                 }
@@ -376,5 +378,10 @@ public class MetaDataTableImpl implements MetaDataTable {
         } catch (SQLException e) {
             throw new FlywayException("Error marking schemas as created in metadata table " + table, e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return table.toString();
     }
 }

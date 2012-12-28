@@ -34,18 +34,13 @@ public interface MetaDataTable {
      *
      * @param appliedMigration The migration that was executed.
      */
-    void insert(AppliedMigration appliedMigration);
+    void addAppliedMigration(AppliedMigration appliedMigration);
 
     /**
      * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
      *         applied so far.
      */
     List<AppliedMigration> allAppliedMigrations();
-
-    /**
-     * @return The current state of the schema. {@code false} for an empty schema.
-     */
-    boolean hasFailedMigration();
 
     /**
      * @return The current version of the schema. {@code MigrationVersion.EMPTY} for an empty schema.

@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
+import com.googlecode.flyway.core.init.DbInit;
 import com.googlecode.flyway.core.metadatatable.*;
 import com.googlecode.flyway.core.migration.DbMigrator;
 import com.googlecode.flyway.core.migration.SchemaVersion;
@@ -814,16 +815,16 @@ public class Flyway {
                             metaDataTable.schemasCreated(schemas);
                         }
                         if (initOnMigrate && !nonEmptySchemas.isEmpty()) {
-                            metaDataTable.init(initVersion, initDescription);
+                            doInit(connectionMetaDataTable, dbSupport, schemas);
                         }
                     } else {
                         if (nonEmptySchemas.size() == 1) {
-                            throw new FlywayException("Found non-empty schema '" + nonEmptySchemas.get(0)
-                                    + "' without metadata table! Use init() first to initialize the metadata table.");
+                            throw new FlywayException("Found non-empty schema " + nonEmptySchemas.get(0)
+                                    + " without metadata table! Use init() first to initialize the metadata table.");
                         } else {
-                            throw new FlywayException("Found non-empty schemas '"
+                            throw new FlywayException("Found non-empty schemas "
                                     + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                    + "' without metadata table! Use init() first to initialize the metadata table.");
+                                    + " without metadata table! Use init() first to initialize the metadata table.");
                         }
                     }
                 }
@@ -994,18 +995,27 @@ public class Flyway {
     public void init() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                boolean schemasCreated = createSchemasIfNecessary(schemas);
-
-                MigrationResolver migrationResolver = createMigrationResolver();
-                MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), migrationResolver);
-                if (schemasCreated) {
-                    metaDataTable.schemasCreated(schemas);
-                }
-                metaDataTable.init(initVersion, initDescription);
+                doInit(connectionMetaDataTable, dbSupport, schemas);
                 return null;
             }
         });
+    }
+
+    /**
+     * Creates and initializes the Flyway metadata table.
+     *
+     * @throws FlywayException when the schema initialization failed.
+     */
+    private void doInit(Connection connectionMetaDataTable, DbSupport dbSupport, Schema[] schemas) {
+        boolean schemasCreated = createSchemasIfNecessary(schemas);
+
+        MigrationResolver migrationResolver = createMigrationResolver();
+        MetaDataTable metaDataTable =
+                new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), migrationResolver);
+        if (schemasCreated) {
+            metaDataTable.schemasCreated(schemas);
+        }
+        new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription);
     }
 
     /**

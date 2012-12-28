@@ -17,5 +17,14 @@
 CREATE DATABASE flyway_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
 CREATE DATABASE flyway_cloudsql_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
 CREATE USER 'flyway' IDENTIFIED BY 'flyway';
+
+-- For MySQL 5.1 and up
 GRANT all ON *.* TO 'flyway' IDENTIFIED BY 'flyway';
+
+-- For MySQL 5.0 which still needs explicit grants
+GRANT all ON flyway_db.* TO 'flyway' IDENTIFIED BY 'flyway';
+GRANT all ON flyway_cloudsql_db.* TO 'flyway' IDENTIFIED BY 'flyway';
+GRANT all ON current_schema_test.* TO 'flyway' IDENTIFIED BY 'flyway';
+GRANT all ON concurrent_test.* TO 'flyway' IDENTIFIED BY 'flyway';
+
 FLUSH PRIVILEGES;

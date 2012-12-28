@@ -274,7 +274,7 @@ public class DbMigrator {
 
         AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
                 migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, success);
-        metaDataTable.insert(appliedMigration);
+        metaDataTable.addAppliedMigration(appliedMigration);
 
         return Pair.of(success, migration.getVersion());
     }
