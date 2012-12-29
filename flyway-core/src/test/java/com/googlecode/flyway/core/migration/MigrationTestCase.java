@@ -29,6 +29,8 @@ import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
+import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.After;
@@ -602,9 +604,14 @@ public abstract class MigrationTestCase {
 
     @Test
     public void format20upgradeOnMigrate() throws Exception {
-        createMetaDataTableIn17Format();
-        insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
-        jdbcTemplate.execute("CREATE TABLE test_user (id INT NOT NULL,name VARCHAR(25) NOT NULL,PRIMARY KEY(name))");
+        new TransactionTemplate(jdbcTemplate.getConnection()).execute(new TransactionCallback<Object>() {
+            public Object doInTransaction() throws SQLException {
+                createMetaDataTableIn17Format();
+                insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
+                jdbcTemplate.execute("CREATE TABLE test_user (id INT NOT NULL,name VARCHAR(25) NOT NULL,PRIMARY KEY(name))");
+                return null;
+            }
+        });
         flyway.setLocations(BASEDIR);
         flyway.migrate();
         assertEquals("2.0", flyway.info().current().getVersion().toString());
@@ -629,7 +636,7 @@ public abstract class MigrationTestCase {
     /**
      * Inserts a row in the old metadata table in 1.7 format.
      */
-    private void insert17Row(String version, String description, String migrationType, String script, Integer checksum, int executionTime, String state) throws Exception {
+    private void insert17Row(String version, String description, String migrationType, String script, Integer checksum, int executionTime, String state) throws SQLException {
         jdbcTemplate.update("INSERT INTO " + dbSupport.getCurrentSchema() + "." + flyway.getTable()
                 + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
                 + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "

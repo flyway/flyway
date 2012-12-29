@@ -44,6 +44,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
 
         flyway = new Flyway();
+        flyway.setSchemas("super_user_test");
         flyway.setDataSource(new DriverDataSource(null, url, "postgres", password));
         flyway.setValidationMode(ValidationMode.ALL);
         flyway.clean();

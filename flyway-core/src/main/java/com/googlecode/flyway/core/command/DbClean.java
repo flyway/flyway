@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.clean;
+package com.googlecode.flyway.core.command;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
@@ -30,8 +31,8 @@ import java.sql.SQLException;
 /**
  * Main workflow for cleaning the database.
  */
-public class DbCleaner {
-    private static final Log LOG = LogFactory.getLog(DbCleaner.class);
+public class DbClean {
+    private static final Log LOG = LogFactory.getLog(DbClean.class);
 
     /**
      * The connection to use.
@@ -39,26 +40,26 @@ public class DbCleaner {
     private final Connection connection;
 
     /**
+     * The metadata table.
+     */
+    private final MetaDataTable metaDataTable;
+
+    /**
      * The schemas to clean.
      */
     private final Schema[] schemas;
 
     /**
-     * Whether to also drop the schemas themselves.
-     */
-    private final boolean dropSchemas;
-
-    /**
      * Creates a new database cleaner.
      *
-     * @param connection  The connection to use.
-     * @param schemas     The schemas to clean.
-     * @param dropSchemas Whether to also drop the schemas themselves.
+     * @param connection    The connection to use.
+     * @param metaDataTable The metadata table.
+     * @param schemas       The schemas to clean.
      */
-    public DbCleaner(Connection connection, Schema[] schemas, boolean dropSchemas) {
+    public DbClean(Connection connection, MetaDataTable metaDataTable, Schema[] schemas) {
         this.connection = connection;
+        this.metaDataTable = metaDataTable;
         this.schemas = schemas;
-        this.dropSchemas = dropSchemas;
     }
 
     /**
@@ -67,6 +68,13 @@ public class DbCleaner {
      * @throws FlywayException when clean failed.
      */
     public void clean() throws FlywayException {
+        boolean dropSchemas = false;
+        try {
+            dropSchemas = metaDataTable.hasSchemasMarker();
+        } catch (Exception e) {
+            LOG.error("Error while checking whether the schemas should be dropped", e);
+        }
+
         for (Schema schema : schemas) {
             if (dropSchemas) {
                 dropSchema(schema);
@@ -83,7 +91,7 @@ public class DbCleaner {
      * @throws FlywayException when the drop failed.
      */
     private void dropSchema(final Schema schema) {
-        LOG.debug("Dropping schema '" + schema + "' ...");
+        LOG.debug("Dropping schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {
@@ -108,7 +116,7 @@ public class DbCleaner {
      * @throws FlywayException when clean failed.
      */
     private void cleanSchema(final Schema schema) {
-        LOG.debug("Cleaning schema '" + schema.getName() + "' ...");
+        LOG.debug("Cleaning schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         try {

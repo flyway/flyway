@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration;
+package com.googlecode.flyway.core.command;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
@@ -45,8 +45,8 @@ import java.sql.SQLException;
  *
  * @author Axel Fontaine
  */
-public class DbMigrator {
-    private static final Log LOG = LogFactory.getLog(DbMigrator.class);
+public class DbMigrate {
+    private static final Log LOG = LogFactory.getLog(DbMigrate.class);
 
     /**
      * The target version of the migration.
@@ -76,12 +76,12 @@ public class DbMigrator {
     /**
      * The connection to use.
      */
-    private final Connection connection;
+    private final Connection connectionMetaDataTable;
 
     /**
      * The connection to use to perform the actual database migrations.
      */
-    private final Connection connectionForMigrations;
+    private final Connection connectionUserObjects;
 
     /**
      * Flag whether to ignore failed future migrations or not.
@@ -99,8 +99,8 @@ public class DbMigrator {
     /**
      * Creates a new database migrator.
      *
-     * @param connection                  The connection to use.
-     * @param connectionForMigrations     The connection to use to perform the actual database migrations.
+     * @param connectionMetaDataTable     The connection to use.
+     * @param connectionUserObjects       The connection to use to perform the actual database migrations.
      * @param dbSupport                   Database-specific functionality.
      * @param metaDataTable               The database metadata table.
      * @param migrationResolver           The migration resolver.
@@ -108,11 +108,11 @@ public class DbMigrator {
      * @param ignoreFailedFutureMigration Flag whether to ignore failed future migrations or not.
      * @param outOfOrder                  Allows migrations to be run "out of order".
      */
-    public DbMigrator(Connection connection, Connection connectionForMigrations, DbSupport dbSupport,
-                      MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean ignoreFailedFutureMigration, boolean outOfOrder) {
-        this.connection = connection;
-        this.connectionForMigrations = connectionForMigrations;
+    public DbMigrate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport,
+                     MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
+                     MigrationVersion target, boolean ignoreFailedFutureMigration, boolean outOfOrder) {
+        this.connectionMetaDataTable = connectionMetaDataTable;
+        this.connectionUserObjects = connectionUserObjects;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
         this.schema = schema;
@@ -137,12 +137,13 @@ public class DbMigrator {
             while (true) {
                 final boolean firstRun = migrationSuccessCount == 0;
                 Pair<Boolean, MigrationVersion> result =
-                        new TransactionTemplate(connection).execute(new TransactionCallback<Pair<Boolean, MigrationVersion>>() {
+                        new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Boolean, MigrationVersion>>() {
                             public Pair<Boolean, MigrationVersion> doInTransaction() {
                                 metaDataTable.lock();
 
                                 MigrationInfoServiceImpl infoService =
                                         new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
+                                infoService.refresh();
 
                                 MigrationVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
                                 if (firstRun) {
@@ -244,10 +245,9 @@ public class DbMigrator {
 
         boolean success = false;
         try {
-            final JdbcTemplate jdbcTemplate = new JdbcTemplate(connectionForMigrations);
-            new TransactionTemplate(connectionForMigrations).execute(new TransactionCallback<Void>() {
+            new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
-                    migration.getExecutor().execute(jdbcTemplate, dbSupport);
+                    migration.getExecutor().execute(new JdbcTemplate(connectionUserObjects), dbSupport);
                     return null;
                 }
             });

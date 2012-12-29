@@ -37,6 +37,13 @@ public interface MetaDataTable {
     void addAppliedMigration(AppliedMigration appliedMigration);
 
     /**
+     * Checks whether the metadata table contains at least one applied migration.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't.
+     */
+    boolean hasAppliedMigrations();
+
+    /**
      * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
      *         applied so far.
      */
@@ -56,6 +63,13 @@ public interface MetaDataTable {
     void init(MigrationVersion initVersion, String initDescription);
 
     /**
+     * Checks whether the metadata table contains a marker row for schema init.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't.
+     */
+    boolean hasInitMarker();
+
+    /**
      * <p>
      * Repairs the metadata table after a failed migration.
      * This is only necessary for databases without DDL-transaction support.
@@ -72,5 +86,12 @@ public interface MetaDataTable {
      *
      * @param schemas The schemas that were created by Flyway.
      */
-    void schemasCreated(Schema[] schemas);
+    void addSchemasMarker(Schema[] schemas);
+
+    /**
+     * Checks whether the metadata table contains a marker row for schema creation.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't.
+     */
+    boolean hasSchemasMarker();
 }

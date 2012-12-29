@@ -244,7 +244,7 @@ public class FlywayMediumTest {
         private int openConnectionCount = 0;
 
         public OpenConnectionCountDriverDataSource() {
-            super(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
+            super(null, "jdbc:h2:mem:flyway_db_open_connection;DB_CLOSE_DELAY=-1", "sa", "");
         }
 
         /**

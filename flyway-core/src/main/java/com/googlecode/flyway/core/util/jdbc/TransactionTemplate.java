@@ -71,6 +71,8 @@ public class TransactionTemplate {
                 LOG.error("Unable to rollback transaction", e);
                 throw new FlywayException("Error while executing transaction. Roll back failed!", se);
             }
+        } finally {
+            connection.setAutoCommit(true);
         }
     }
 }

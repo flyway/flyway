@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
     Detailed information how to contribute: http://flywaydb.org/howToContribute.html
 
@@ -119,6 +120,12 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.10</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.9.5</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -432,8 +439,9 @@
                                 </goals>
                                 <configuration>
                                     <includes>
-                                        <include>**/O*MediumTest.java</include>
-                                        <include>**/D*MediumTest.java</include>
+                                        <include>**/DB2*MediumTest.java</include>
+                                        <include>**/Derby*MediumTest.java</include>
+                                        <include>**/Oracle*MediumTest.java</include>
                                     </includes>
                                     <excludes>
                                         <exclude>**/*SmallTest.java</exclude>
@@ -443,6 +451,34 @@
                                         <user.timezone>+00:00</user.timezone>
                                     </systemPropertyVariables>
                                     <parallel>classes</parallel>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>MediumTests-2</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>**/F*MediumTest.java</include>
+                                        <include>**/PostgreSQL*MediumTest.java</include>
+                                        <include>**/H2*MediumTest.java</include>
+                                        <include>**/Hsql*MediumTest.java</include>
+                                        <include>**/MySQL*MediumTest.java</include>
+                                        <include>**/Ms*MediumTest.java</include>
+
+                                        <include>**/Google*MediumTest.java</include>
+                                        <include>**/Jtds*MediumTest.java</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>**/*SmallTest.java</exclude>
+                                    </excludes>
+                                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                                    <systemPropertyVariables>
+                                        <user.timezone>+00:00</user.timezone>
+                                    </systemPropertyVariables>
+                                    <parallel>none</parallel>
                                 </configuration>
                             </execution>
                         </executions>

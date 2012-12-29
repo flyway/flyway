@@ -31,6 +31,6 @@ public class DerbyConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(null, "jdbc:derby:memory:flyway_db;create=true", "", "");
+        return new DriverDataSource(null, "jdbc:derby:memory:flyway_db_concurrent;create=true", "", "");
     }
 }

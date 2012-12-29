@@ -1,9 +1,22 @@
-package com.googlecode.flyway.core.init;
+/**
+ * Copyright (C) 2010-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.googlecode.flyway.core.command;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
@@ -12,7 +25,6 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Handles Flyway's init command.
@@ -60,23 +72,23 @@ public class DbInit {
      */
     public void init() {
         try {
-             new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                 public Void doInTransaction() {
-                     List<AppliedMigration> appliedMigrations = metaDataTable.allAppliedMigrations();
-                     if (appliedMigrations.isEmpty()
-                             || ((appliedMigrations.size() == 1) && (appliedMigrations.get(0).getType() == MigrationType.SCHEMA))) {
-                         metaDataTable.init(initVersion, initDescription);
-                         return null;
-                     }
-                     throw new FlywayException(
-                             "Schema already initialized. Current Version: " + metaDataTable.getCurrentSchemaVersion());
-                 }
-             });
-         } catch (SQLException e) {
-             throw new FlywayException("Error initializing metadata table " + metaDataTable, e);
+            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+                public Void doInTransaction() {
+                    if (metaDataTable.hasAppliedMigrations()) {
+                        throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it already contains migrations");
+                    }
+                    if (metaDataTable.hasInitMarker()) {
+                        throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it has already been initialized");
+                    }
+                    metaDataTable.init(initVersion, initDescription);
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            throw new FlywayException("Error initializing metadata table " + metaDataTable, e);
 
-         }
+        }
 
-         LOG.info("Schema initialized with version: " + initVersion);
+        LOG.info("Schema initialized with version: " + initVersion);
     }
 }

@@ -52,6 +52,7 @@ public class JarFileLocationScanner implements LocationScanner {
         if (con instanceof JarURLConnection) {
             // Should usually be the case for traditional JAR files.
             JarURLConnection jarCon = (JarURLConnection) con;
+            jarCon.setUseCaches(false);
             return jarCon.getJarFile();
         }
 

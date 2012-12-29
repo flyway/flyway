@@ -17,6 +17,8 @@ package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,6 +27,8 @@ import java.sql.SQLException;
  * Represents a database table within a schema.
  */
 public abstract class Table {
+    private static final Log LOG = LogFactory.getLog(Table.class);
+
     /**
      * The Jdbc Template for communicating with the DB.
      */
@@ -122,7 +126,7 @@ public abstract class Table {
         try {
             return doExistsNoQuotes();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether table " +  this + " exists", e);
+            throw new FlywayException("Unable to check whether table " + this + " exists", e);
         }
     }
 
@@ -220,7 +224,9 @@ public abstract class Table {
      */
     public void lock() {
         try {
+            LOG.debug("Locking table " + this + "...");
             doLock();
+            LOG.debug("Lock acquired for table " + this);
         } catch (SQLException e) {
             throw new FlywayException("Unable to lock table " + this, e);
         }

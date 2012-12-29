@@ -46,7 +46,7 @@ public class MavenLargeTest {
 
     @Test
     public void regular() throws Exception {
-        String stdOut = runMaven(0, "regular", "clean", "flyway:init", "flyway:status");
+        String stdOut = runMaven(0, "regular", "clean", "flyway:init", "flyway:status", "-Dflyway.initVersion=0.1");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 

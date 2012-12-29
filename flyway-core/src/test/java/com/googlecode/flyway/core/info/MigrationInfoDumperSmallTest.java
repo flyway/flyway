@@ -26,11 +26,14 @@ import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.StringUtils;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test for MigrationInfoDumper.
@@ -53,6 +56,7 @@ public class MigrationInfoDumperSmallTest {
                 new MigrationInfoServiceImpl(
                         createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
                         createMetaDataTable(), MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         String table = MigrationInfoDumper.dumpToAsciiTable(migrationInfoService.all());
         String[] lines = StringUtils.tokenizeToStringArray(table, "\n");
@@ -96,33 +100,11 @@ public class MigrationInfoDumperSmallTest {
     /**
      * Creates a metadata table for testing.
      *
-     * @param appliedMigrations The applied migrations.
      * @return The metadata table.
      */
-    private MetaDataTable createMetaDataTable(final AppliedMigration... appliedMigrations) {
-        return new MetaDataTable() {
-            public void lock() {
-            }
-
-            public void addAppliedMigration(AppliedMigration appliedMigration) {
-            }
-
-            public List<AppliedMigration> allAppliedMigrations() {
-                return Arrays.asList(appliedMigrations);
-            }
-
-            public MigrationVersion getCurrentSchemaVersion() {
-                return null;
-            }
-
-            public void init(MigrationVersion initVersion, String initDescription) {
-            }
-
-            public void repair() {
-            }
-
-            public void schemasCreated(Schema[] schemas) {
-            }
-        };
+    private MetaDataTable createMetaDataTable() {
+        MetaDataTable metaDataTable = mock(MetaDataTable.class);
+        when(metaDataTable.allAppliedMigrations()).thenReturn(new ArrayList<AppliedMigration>());
+        return metaDataTable;
     }
 }
