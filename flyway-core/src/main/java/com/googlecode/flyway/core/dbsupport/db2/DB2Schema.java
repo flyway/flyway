@@ -53,16 +53,19 @@ public class DB2Schema extends Schema {
         return objectCount == 0;
     }
 
-    public void create() throws SQLException {
+    @Override
+    protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
+    @Override
+    protected void doDrop() throws SQLException {
         clean();
         jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " RESTRICT");
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         // MQTs are dropped when the backing views or tables are dropped
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
@@ -134,7 +137,7 @@ public class DB2Schema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = ?", name);
         Table[] tables = new Table[tableNames.size()];

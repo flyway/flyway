@@ -56,15 +56,18 @@ public class MySQLSchema extends Schema {
         return objectCount == 0;
     }
 
-    public void create() throws SQLException {
+    @Override
+    protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
+    @Override
+    protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name));
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         for (String statement : cleanRoutines()) {
             jdbcTemplate.execute(statement);
         }
@@ -120,7 +123,7 @@ public class MySQLSchema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'", name);
 

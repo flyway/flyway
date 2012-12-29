@@ -15,7 +15,6 @@
  */
 package com.googlecode.flyway.core.command;
 
-import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
@@ -24,7 +23,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Handles Flyway's automatic schema creation.
@@ -64,32 +62,24 @@ public class DbSchemas {
      * Creates the schemas
      */
     public void create() {
-        try {
-            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() {
-                    for (Schema schema : schemas) {
-                        if (schema.exists()) {
-                            LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
-                            return null;
-                        }
+        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+            public Void doInTransaction() {
+                for (Schema schema : schemas) {
+                    if (schema.exists()) {
+                        LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
+                        return null;
                     }
-
-                    for (Schema schema : schemas) {
-                        try {
-                            LOG.info("Creating schema " + schema + " ...");
-                            schema.create();
-                        } catch (SQLException e) {
-                            throw new FlywayException("Failed create schema " + schema, e);
-                        }
-                    }
-
-                    metaDataTable.addSchemasMarker(schemas);
-
-                    return null;
                 }
-            });
-        } catch (SQLException e) {
-            throw new FlywayException("Error initializing metadata table " + metaDataTable, e);
-        }
+
+                for (Schema schema : schemas) {
+                    LOG.info("Creating schema " + schema + " ...");
+                    schema.create();
+                }
+
+                metaDataTable.addSchemasMarker(schemas);
+
+                return null;
+            }
+        });
     }
 }

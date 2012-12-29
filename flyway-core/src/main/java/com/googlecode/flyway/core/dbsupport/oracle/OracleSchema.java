@@ -55,16 +55,19 @@ public class OracleSchema extends Schema {
         return objectCount == 0;
     }
 
-    public void create() throws SQLException {
+    @Override
+    protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE USER " + dbSupport.quote(name) + " IDENTIFIED BY flyway");
         jdbcTemplate.execute("GRANT RESOURCE TO " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
+    @Override
+    protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP USER " + dbSupport.quote(name) + " CASCADE");
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         if ("SYSTEM".equals(name.toUpperCase())) {
             throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
         }
@@ -218,23 +221,23 @@ public class OracleSchema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM all_tables WHERE owner = ?"
-                                // Ignore Recycle bin objects
-                                + " AND table_name NOT LIKE 'BIN$%'"
-                                // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
-                                + " AND table_name NOT LIKE 'MDRT_%$'"
-                                // Ignore Materialized View Logs
-                                + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
-                                // Ignore Oracle Text Index Tables
-                                + " AND table_name NOT LIKE 'DR$%'"
-                                // Ignore Index Organized Tables
-                                + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
-                                // Ignore Nested Tables
-                                + " AND nested != 'YES'"
-                                // Ignore Nested Tables
-                                + " AND secondary != 'Y'", name);
+                        // Ignore Recycle bin objects
+                        + " AND table_name NOT LIKE 'BIN$%'"
+                        // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
+                        + " AND table_name NOT LIKE 'MDRT_%$'"
+                        // Ignore Materialized View Logs
+                        + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
+                        // Ignore Oracle Text Index Tables
+                        + " AND table_name NOT LIKE 'DR$%'"
+                        // Ignore Index Organized Tables
+                        + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
+                        // Ignore Nested Tables
+                        + " AND nested != 'YES'"
+                        // Ignore Nested Tables
+                        + " AND secondary != 'Y'", name);
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {

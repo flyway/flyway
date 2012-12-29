@@ -38,7 +38,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Main workflow for migrating the database.
@@ -133,70 +132,66 @@ public class DbMigrate {
         stopWatch.start();
 
         int migrationSuccessCount = 0;
-        try {
-            while (true) {
-                final boolean firstRun = migrationSuccessCount == 0;
-                Pair<Boolean, MigrationVersion> result =
-                        new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Boolean, MigrationVersion>>() {
-                            public Pair<Boolean, MigrationVersion> doInTransaction() {
-                                metaDataTable.lock();
+        while (true) {
+            final boolean firstRun = migrationSuccessCount == 0;
+            Pair<Boolean, MigrationVersion> result =
+                    new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Boolean, MigrationVersion>>() {
+                        public Pair<Boolean, MigrationVersion> doInTransaction() {
+                            metaDataTable.lock();
 
-                                MigrationInfoServiceImpl infoService =
-                                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
-                                infoService.refresh();
+                            MigrationInfoServiceImpl infoService =
+                                    new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
+                            infoService.refresh();
 
-                                MigrationVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
-                                if (firstRun) {
-                                    LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
+                            MigrationVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
+                            if (firstRun) {
+                                LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
 
-                                    if (outOfOrder) {
-                                        LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
-                                    }
+                                if (outOfOrder) {
+                                    LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
                                 }
-
-                                MigrationInfo[] future = infoService.future();
-                                MigrationInfo[] resolved = infoService.resolved();
-                                boolean isFutureMigration = future.length < 0;
-                                if (isFutureMigration) {
-                                    LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion + ") that is newer than the latest available migration ("
-                                            + resolved[resolved.length - 1].getVersion() + ") !");
-                                }
-
-                                MigrationInfo[] failed = infoService.failed();
-                                if (failed.length > 0) {
-                                    if ((failed.length == 1)
-                                            && (failed[0].getState() == MigrationState.FUTURE_FAILED)
-                                            && ignoreFailedFutureMigration) {
-                                        LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
-                                    } else {
-                                        return Pair.of(false, failed[0].getVersion());
-                                    }
-                                }
-
-                                MigrationInfoImpl[] pendingMigrations = infoService.pending();
-
-                                if (pendingMigrations.length == 0) {
-                                    return null;
-                                }
-
-                                boolean isOutOfOrder = pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
-                                return applyMigration(pendingMigrations[0].getResolvedMigration(), isOutOfOrder);
                             }
-                        });
 
-                if (result == null) {
-                    // No further migrations available
-                    break;
-                }
+                            MigrationInfo[] future = infoService.future();
+                            MigrationInfo[] resolved = infoService.resolved();
+                            boolean isFutureMigration = future.length < 0;
+                            if (isFutureMigration) {
+                                LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion + ") that is newer than the latest available migration ("
+                                        + resolved[resolved.length - 1].getVersion() + ") !");
+                            }
 
-                if (!result.getLeft()) {
-                    throw new FlywayException("Migration of schema " + schema + " to version " + result.getRight() + " failed! Please restore backups and roll back database and code!");
-                }
+                            MigrationInfo[] failed = infoService.failed();
+                            if (failed.length > 0) {
+                                if ((failed.length == 1)
+                                        && (failed[0].getState() == MigrationState.FUTURE_FAILED)
+                                        && ignoreFailedFutureMigration) {
+                                    LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
+                                } else {
+                                    return Pair.of(false, failed[0].getVersion());
+                                }
+                            }
 
-                migrationSuccessCount++;
+                            MigrationInfoImpl[] pendingMigrations = infoService.pending();
+
+                            if (pendingMigrations.length == 0) {
+                                return null;
+                            }
+
+                            boolean isOutOfOrder = pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
+                            return applyMigration(pendingMigrations[0].getResolvedMigration(), isOutOfOrder);
+                        }
+                    });
+
+            if (result == null) {
+                // No further migrations available
+                break;
             }
-        } catch (SQLException e) {
-            throw new FlywayException("Migration of schema " + schema + " failed !", e);
+
+            if (!result.getLeft()) {
+                throw new FlywayException("Migration of schema " + schema + " to version " + result.getRight() + " failed! Please restore backups and roll back database and code!");
+            }
+
+            migrationSuccessCount++;
         }
 
         stopWatch.stop();

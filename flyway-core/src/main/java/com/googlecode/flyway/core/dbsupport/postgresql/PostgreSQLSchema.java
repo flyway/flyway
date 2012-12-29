@@ -53,15 +53,18 @@ public class PostgreSQLSchema extends Schema {
         return objectCount == 0;
     }
 
-    public void create() throws SQLException {
+    @Override
+    protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
+    @Override
+    protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " CASCADE");
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         for (Table table : allTables()) {
             table.drop();
         }
@@ -222,7 +225,7 @@ public class PostgreSQLSchema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames =
                 jdbcTemplate.queryForStringList(
                         //Search for all the table names

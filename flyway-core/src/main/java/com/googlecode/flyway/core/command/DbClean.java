@@ -26,7 +26,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Main workflow for cleaning the database.
@@ -94,16 +93,12 @@ public class DbClean {
         LOG.debug("Dropping schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        try {
-            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() throws SQLException {
-                    schema.drop();
-                    return null;
-                }
-            });
-        } catch (SQLException e) {
-            throw new FlywayException("Error while dropping schema " + schema, e);
-        }
+        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+            public Void doInTransaction() {
+                schema.drop();
+                return null;
+            }
+        });
         stopWatch.stop();
         LOG.info(String.format("Dropped schema %s (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
@@ -119,16 +114,12 @@ public class DbClean {
         LOG.debug("Cleaning schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        try {
-            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() throws SQLException {
-                    schema.clean();
-                    return null;
-                }
-            });
-        } catch (SQLException e) {
-            throw new FlywayException("Error while cleaning schema " + schema.getName(), e);
-        }
+        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+            public Void doInTransaction() {
+                schema.clean();
+                return null;
+            }
+        });
         stopWatch.stop();
         LOG.info(String.format("Cleaned schema %s (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));

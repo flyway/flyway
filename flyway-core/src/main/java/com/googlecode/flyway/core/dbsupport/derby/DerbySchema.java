@@ -51,16 +51,19 @@ public class DerbySchema extends Schema {
         return allTables().length == 0;
     }
 
-    public void create() throws SQLException {
+    @Override
+    protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
+    @Override
+    protected void doDrop() throws SQLException {
         clean();
         jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " RESTRICT");
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         for (String statement : generateDropStatementsForConstraints()) {
             jdbcTemplate.execute(statement);
         }
@@ -122,7 +125,7 @@ public class DerbySchema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = listObjectNames("TABLE", "TABLETYPE='T'");
 
         Table[] tables = new Table[tableNames.size()];

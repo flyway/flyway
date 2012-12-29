@@ -24,7 +24,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Handles Flyway's init command.
@@ -71,23 +70,18 @@ public class DbInit {
      * Initializes the database.
      */
     public void init() {
-        try {
-            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() {
-                    if (metaDataTable.hasAppliedMigrations()) {
-                        throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it already contains migrations");
-                    }
-                    if (metaDataTable.hasInitMarker()) {
-                        throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it has already been initialized");
-                    }
-                    metaDataTable.init(initVersion, initDescription);
-                    return null;
+        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+            public Void doInTransaction() {
+                if (metaDataTable.hasAppliedMigrations()) {
+                    throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it already contains migrations");
                 }
-            });
-        } catch (SQLException e) {
-            throw new FlywayException("Error initializing metadata table " + metaDataTable, e);
-
-        }
+                if (metaDataTable.hasInitMarker()) {
+                    throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it has already been initialized");
+                }
+                metaDataTable.init(initVersion, initDescription);
+                return null;
+            }
+        });
 
         LOG.info("Schema initialized with version: " + initVersion);
     }

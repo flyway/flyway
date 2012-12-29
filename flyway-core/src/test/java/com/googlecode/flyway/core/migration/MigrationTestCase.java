@@ -20,7 +20,11 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.dbsupport.*;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
@@ -29,8 +33,6 @@ import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
-import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.After;
@@ -604,14 +606,9 @@ public abstract class MigrationTestCase {
 
     @Test
     public void format20upgradeOnMigrate() throws Exception {
-        new TransactionTemplate(jdbcTemplate.getConnection()).execute(new TransactionCallback<Object>() {
-            public Object doInTransaction() throws SQLException {
-                createMetaDataTableIn17Format();
-                insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
-                jdbcTemplate.execute("CREATE TABLE test_user (id INT NOT NULL,name VARCHAR(25) NOT NULL,PRIMARY KEY(name))");
-                return null;
-            }
-        });
+        createMetaDataTableIn17Format();
+        insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
+        jdbcTemplate.execute("CREATE TABLE test_user (id INT NOT NULL,name VARCHAR(25) NOT NULL,PRIMARY KEY(name))");
         flyway.setLocations(BASEDIR);
         flyway.migrate();
         assertEquals("2.0", flyway.info().current().getVersion().toString());

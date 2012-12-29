@@ -49,16 +49,19 @@ public class HsqlSchema extends Schema {
         return allTables().length == 0;
     }
 
-    public void create() throws SQLException {
+    @Override
+    protected void doCreate() throws SQLException {
         String user = jdbcTemplate.queryForString("SELECT USER() FROM (VALUES(0))");
         jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name) + " AUTHORIZATION " + user);
     }
 
-    public void drop() throws SQLException {
+    @Override
+    protected void doDrop() throws SQLException {
         jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " CASCADE");
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         for (Table table : allTables()) {
             table.drop();
         }
@@ -87,7 +90,7 @@ public class HsqlSchema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.SYSTEM_TABLES where TABLE_SCHEM = ? AND TABLE_TYPE = 'TABLE'", name);
 

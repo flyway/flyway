@@ -102,21 +102,70 @@ public abstract class Schema {
 
     /**
      * Creates this schema in the database.
+     */
+    public void create() {
+        try {
+            doCreate();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to create schema " + this, e);
+        }
+    }
+
+    /**
+     * Creates this schema in the database.
+     *
      * @throws SQLException when the creation failed.
      */
-    public abstract void create() throws SQLException;
+    protected abstract void doCreate() throws SQLException;
 
     /**
      * Drops this schema from the database.
+     */
+    public void drop() {
+        try {
+            doDrop();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to drop schema " + this, e);
+        }
+    }
+
+    /**
+     * Drops this schema from the database.
+     *
      * @throws SQLException when the drop failed.
      */
-    public abstract void drop() throws SQLException;
+    protected abstract void doDrop() throws SQLException;
 
     /**
      * Cleans all the objects in this schema.
+     */
+    public void clean() {
+        try {
+            doClean();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to clean schema " + this, e);
+        }
+    }
+
+    /**
+     * Cleans all the objects in this schema.
+     *
      * @throws SQLException when the clean failed.
      */
-    public abstract void clean() throws SQLException;
+    protected abstract void doClean() throws SQLException;
+
+    /**
+     * Retrieves all the tables in this schema.
+     *
+     * @return All tables in the schema.
+     */
+    public Table[] allTables() {
+        try {
+            return doAllTables();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to retrieve all tables in schema " + this, e);
+        }
+    }
 
     /**
      * Retrieves all the tables in this schema.
@@ -124,7 +173,7 @@ public abstract class Schema {
      * @return All tables in the schema.
      * @throws SQLException when the retrieval failed.
      */
-    public abstract Table[] allTables() throws SQLException;
+    protected abstract Table[] doAllTables() throws SQLException;
 
     /**
      * Retrieves the table with this name in this schema.

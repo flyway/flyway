@@ -15,20 +15,10 @@
  */
 package com.googlecode.flyway.core.command;
 
-import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
-import com.googlecode.flyway.core.dbsupport.Schema;
-import com.googlecode.flyway.core.info.MigrationInfoImpl;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
-import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
-import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
@@ -38,7 +28,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Handles the validate command.
@@ -79,11 +68,11 @@ public class DbValidate {
     /**
      * Creates a new database validator.
      *
-     * @param connectionMetaDataTable     The connection to use.
-     * @param metaDataTable               The database metadata table.
-     * @param migrationResolver           The migration resolver.
-     * @param target                      The target version of the migration.
-     * @param outOfOrder                  Allows migrations to be run "out of order".
+     * @param connectionMetaDataTable The connection to use.
+     * @param metaDataTable           The database metadata table.
+     * @param migrationResolver       The migration resolver.
+     * @param target                  The target version of the migration.
+     * @param outOfOrder              Allows migrations to be run "out of order".
      */
     public DbValidate(Connection connectionMetaDataTable,
                       MetaDataTable metaDataTable, MigrationResolver migrationResolver,
@@ -105,28 +94,23 @@ public class DbValidate {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Pair<Integer, String> result;
-        try {
-            result = new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Integer, String>>() {
-                public Pair<Integer, String> doInTransaction() throws SQLException {
-                    MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
+        Pair<Integer, String> result = new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Integer, String>>() {
+            public Pair<Integer, String> doInTransaction() {
+                MigrationInfoServiceImpl migrationInfoService =
+                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
 
-                    migrationInfoService.refresh();
+                migrationInfoService.refresh();
 
-                    if (migrationInfoService.applied().length == 0) {
-                        LOG.info("No migrations applied yet. No validation necessary.");
-                        return Pair.of(0, null);
-                    }
-
-                    int count = migrationInfoService.all().length;
-                    String validationError = migrationInfoService.validate();
-                    return Pair.of(count, validationError);
+                if (migrationInfoService.applied().length == 0) {
+                    LOG.info("No migrations applied yet. No validation necessary.");
+                    return Pair.of(0, null);
                 }
-            });
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to validate migrations", e);
-        }
+
+                int count = migrationInfoService.all().length;
+                String validationError = migrationInfoService.validate();
+                return Pair.of(count, validationError);
+            }
+        });
 
         stopWatch.stop();
 

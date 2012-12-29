@@ -27,7 +27,6 @@ public interface TransactionCallback<T> {
      * Executes this code within a transaction.
      *
      * @return The result of the transaction code.
-     * @throws SQLException when a statement failed.
      */
-    T doInTransaction() throws SQLException;
+    T doInTransaction();
 }

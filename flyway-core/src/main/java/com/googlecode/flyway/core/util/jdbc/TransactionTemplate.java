@@ -47,32 +47,29 @@ public class TransactionTemplate {
      *
      * @param transactionCallback The callback to execute.
      * @return The result of the transaction code.
-     * @throws TransactionException when the transaction execution failed.
      */
-    public <T> T execute(TransactionCallback<T> transactionCallback) throws SQLException {
+    public <T> T execute(TransactionCallback<T> transactionCallback) {
         try {
             connection.setAutoCommit(false);
             T result = transactionCallback.doInTransaction();
             connection.commit();
             return result;
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-                throw e;
-            } catch (SQLException se) {
-                LOG.error("Unable to rollback transaction", e);
-                throw new FlywayException("Error while executing transaction. Roll back failed!", se);
-            }
+            throw new FlywayException("Unable to execute transaction", e);
         } catch (RuntimeException e) {
             try {
                 connection.rollback();
                 throw e;
             } catch (SQLException se) {
-                LOG.error("Unable to rollback transaction", e);
-                throw new FlywayException("Error while executing transaction. Roll back failed!", se);
+                LOG.error("Unable to rollback transaction", se);
+                throw e;
             }
         } finally {
-            connection.setAutoCommit(true);
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                LOG.error("Unable to restore connection to autocommit", e);
+            }
         }
     }
 }
