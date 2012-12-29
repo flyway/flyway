@@ -27,6 +27,6 @@ import java.util.Properties;
 public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "", "SET LOCK_TIMEOUT 100000");
+        return new DriverDataSource(null, "jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1", "sa", "", "SET LOCK_TIMEOUT 100000");
     }
 }

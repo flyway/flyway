@@ -38,7 +38,8 @@ public class ClassUtils {
      * @throws Exception Thrown when the instantiation failed.
      */
     @SuppressWarnings({"unchecked"})
-    public static <T> T instantiate(String className) throws Exception {
+    // Must be synchronized for the Maven Parallel Junit runner to work
+    public static synchronized <T> T instantiate(String className) throws Exception {
         return (T) Class.forName(className, true, getClassLoader()).newInstance();
     }
 

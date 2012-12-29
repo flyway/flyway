@@ -14,8 +14,20 @@
 -- limitations under the License.
 --
 
-DROP DATABASE flyway_db;
+DROP DATABASE flyway_db_ms;
 GO
 
-DROP DATABASE flyway_db_case_sensitive;
+DROP DATABASE flyway_db_ms_case_sensitive;
+GO
+
+DROP DATABASE flyway_db_ms_concurrent;
+GO
+
+DROP DATABASE flyway_db_jtds;
+GO
+
+DROP DATABASE flyway_db_jtds_case_sensitive;
+GO
+
+DROP DATABASE flyway_db_jtds_concurrent;
 GO

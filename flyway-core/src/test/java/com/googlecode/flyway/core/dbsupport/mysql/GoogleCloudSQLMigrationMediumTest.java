@@ -18,8 +18,8 @@ package com.googlecode.flyway.core.dbsupport.mysql;
 import com.google.appengine.api.rdbms.dev.LocalRdbmsService;
 import com.google.appengine.tools.development.testing.LocalRdbmsServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.mysql.jdbc.Driver;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -32,14 +32,15 @@ public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
     private LocalServiceTestHelper helper;
 
     @Override
-    protected DataSource createDataSource(Properties customProperties) {
+    protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("mysql.user", "flyway");
         String password = customProperties.getProperty("mysql.password", "flyway");
         String url = customProperties.getProperty("mysql.cloudsql_url", "jdbc:mysql://localhost:3306/flyway_cloudsql_db");
 
         LocalRdbmsServiceTestConfig config = new LocalRdbmsServiceTestConfig();
         config.setServerType(LocalRdbmsService.ServerType.LOCAL);
-        config.setDriverClass(Driver.class.getName());
+        ClassUtils.instantiate("com.mysql.jdbc.Driver");
+        config.setDriverClass("com.mysql.jdbc.Driver");
         config.setJdbcConnectionStringFormat(url);
         config.setUser(user);
         config.setPassword(password);

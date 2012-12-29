@@ -84,13 +84,17 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MigrationVersion that = (MigrationVersion) o;
-        return compareTo(that) == 0;
+        MigrationVersion version1 = (MigrationVersion) o;
+
+        if (!displayText.equals(version1.displayText)) return false;
+        return !(version != null ? !version.equals(version1.version) : version1.version != null);
     }
 
     @Override
     public int hashCode() {
-        return version.hashCode();
+        int result = version != null ? version.hashCode() : 0;
+        result = 31 * result + displayText.hashCode();
+        return result;
     }
 
     public int compareTo(MigrationVersion o) {

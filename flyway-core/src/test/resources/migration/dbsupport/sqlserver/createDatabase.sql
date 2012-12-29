@@ -14,8 +14,20 @@
 -- limitations under the License.
 --
 
-CREATE DATABASE flyway_db;
+CREATE DATABASE flyway_db_ms;
 GO
 
-CREATE DATABASE flyway_db_case_sensitive COLLATE SQL_Latin1_General_CP1_CS_AS;
+CREATE DATABASE flyway_db_ms_case_sensitive COLLATE SQL_Latin1_General_CP1_CS_AS;
+GO
+
+CREATE DATABASE flyway_db_ms_concurrent;
+GO
+
+CREATE DATABASE flyway_db_jtds;
+GO
+
+CREATE DATABASE flyway_db_jtds_case_sensitive COLLATE SQL_Latin1_General_CP1_CS_AS;
+GO
+
+CREATE DATABASE flyway_db_jtds_concurrent;
 GO

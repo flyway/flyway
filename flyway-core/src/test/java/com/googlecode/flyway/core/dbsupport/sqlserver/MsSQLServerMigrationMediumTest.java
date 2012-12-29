@@ -28,7 +28,7 @@ public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("sqlserver.user", "sa");
         String password = customProperties.getProperty("sqlserver.password", "flyway");
-        String url = customProperties.getProperty("sqlserver.ms_url", "jdbc:sqlserver://localhost:1433;databaseName=flyway_db");
+        String url = customProperties.getProperty("sqlserver.ms_url", "jdbc:sqlserver://localhost:1433;databaseName=flyway_db_ms");
 
         return new DriverDataSource(null, url, user, password);
     }

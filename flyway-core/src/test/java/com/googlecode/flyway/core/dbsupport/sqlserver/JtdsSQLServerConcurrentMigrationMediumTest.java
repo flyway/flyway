@@ -29,7 +29,7 @@ public class JtdsSQLServerConcurrentMigrationMediumTest extends ConcurrentMigrat
     protected DataSource createDataSource(Properties customProperties) {
         String user = customProperties.getProperty("sqlserver.user", "sa");
         String password = customProperties.getProperty("sqlserver.password", "flyway");
-        String url = customProperties.getProperty("sqlserver.jtds_url", "jdbc:jtds:sqlserver://localhost:1433/flyway_db");
+        String url = customProperties.getProperty("sqlserver.jtds_url", "jdbc:jtds:sqlserver://localhost:1433/flyway_db_jtds_concurrent");
 
         return new DriverDataSource(null, url, user, password);
     }
