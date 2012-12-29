@@ -785,7 +785,7 @@ public class Flyway {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MigrationResolver migrationResolver = createMigrationResolver();
                 MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), migrationResolver);
+                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
 
@@ -843,7 +843,7 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MigrationResolver migrationResolver = createMigrationResolver();
                 MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), migrationResolver);
+                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
                 doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas);
                 return null;
@@ -883,7 +883,7 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTableImpl metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), createMigrationResolver());
+                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), createMigrationResolver());
                 new DbClean(connectionMetaDataTable, metaDataTable, schemas).clean();
                 return null;
             }
@@ -936,7 +936,7 @@ public class Flyway {
             public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MigrationResolver migrationResolver = createMigrationResolver();
                 MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), migrationResolver);
+                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
                 MigrationInfoServiceImpl migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
                 migrationInfoService.refresh();
@@ -955,7 +955,7 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MigrationResolver migrationResolver = createMigrationResolver();
                 MetaDataTable metaDataTable =
-                        new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), migrationResolver);
+                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
                 new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription).init();
                 return null;
@@ -972,9 +972,7 @@ public class Flyway {
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MigrationResolver migrationResolver = createMigrationResolver();
-                new MetaDataTableImpl(connectionMetaDataTable, dbSupport, schemas[0].getTable(table), migrationResolver)
-                        .repair();
+                new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), createMigrationResolver()).repair();
                 return null;
             }
         });

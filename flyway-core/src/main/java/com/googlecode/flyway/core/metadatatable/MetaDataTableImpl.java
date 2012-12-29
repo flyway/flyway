@@ -33,7 +33,6 @@ import com.googlecode.flyway.core.util.jdbc.RowMapper;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -69,11 +68,6 @@ public class MetaDataTableImpl implements MetaDataTable {
     private final MigrationResolver migrationResolver;
 
     /**
-     * Connection with ddl manipulation access to the database.
-     */
-    private final Connection connection;
-
-    /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
     private final JdbcTemplate jdbcTemplate;
@@ -81,13 +75,11 @@ public class MetaDataTableImpl implements MetaDataTable {
     /**
      * Creates a new instance of the metadata table support.
      *
-     * @param connection        Connection with ddl manipulation access to the database.
      * @param dbSupport         Database-specific functionality.
      * @param table             The metadata table used by flyway.
      * @param migrationResolver For resolving available migrations.
      */
-    public MetaDataTableImpl(Connection connection, DbSupport dbSupport, Table table, MigrationResolver migrationResolver) {
-        this.connection = connection;
+    public MetaDataTableImpl(DbSupport dbSupport, Table table, MigrationResolver migrationResolver) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;
@@ -98,7 +90,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      * Creates the metatable if it doesn't exist, upgrades it if it does.
      */
     private void createIfNotExists() {
-        if (table.existsNoQuotes() ||  table.exists()) {
+        if (table.existsNoQuotes() || table.exists()) {
             if (!upgraded) {
                 new MetaDataTableTo20FormatUpgrader(dbSupport, table, migrationResolver).upgrade();
                 new MetaDataTableTo202FormatUpgrader(dbSupport, table).upgrade();
