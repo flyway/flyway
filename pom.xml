@@ -450,6 +450,7 @@
                                     </systemPropertyVariables>
                                     <parallel>classes</parallel>
                                     <threadCount>8</threadCount>
+                                    <argLine>-XX:ReservedCodeCacheSize=128m</argLine>
                                 </configuration>
                             </execution>
                         </executions>
