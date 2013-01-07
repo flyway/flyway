@@ -204,7 +204,10 @@ public class ClassPathScanner {
             return new JBossVFSv3LocationScanner();
         }
 
-        if (FeatureDetector.isOsgiFrameworkAvailable() && "bundle".equals(protocol)) {
+        // Protocol differences
+        // eclipse: bundleresource://
+        // felix: bundle://
+        if (FeatureDetector.isOsgiFrameworkAvailable() && protocol.startsWith("bundle")) {
             return new OsgiLocationScanner();
         }
 
