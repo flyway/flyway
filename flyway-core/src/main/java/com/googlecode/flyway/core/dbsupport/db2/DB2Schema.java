@@ -50,6 +50,8 @@ public class DB2Schema extends Schema {
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", name);
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.procedures where procschema = ?", name);
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.functions where funcschema = ?", name);
         return objectCount == 0;
     }
 
@@ -88,6 +90,40 @@ public class DB2Schema extends Schema {
         for (String dropStatement : generateDropStatementsForSequences(name)) {
             jdbcTemplate.execute(dropStatement);
         }
+
+        // procedures
+        for (String dropStatement : generateDropStatementsForProcedures(name)) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
+        // functions
+        for (String dropStatement : generateDropStatementsForFunctions(name)) {
+            jdbcTemplate.execute(dropStatement);
+        }
+    }
+
+    /**
+     * Generates DROP statements for the functions in this schema.
+     *
+     * @param schema The schema of the objects.
+     * @return The drop statements.
+     * @throws SQLException when the statements could not be generated.
+     */
+    private List<String> generateDropStatementsForFunctions(String schema) throws SQLException {
+        String dropFuncGenQuery = "select rtrim(FUNCNAME) from SYSCAT.FUNCTIONS where FUNCSCHEMA = '" + schema + "'";
+        return buildDropStatements("DROP FUNCTION", dropFuncGenQuery, schema);
+    }
+
+    /**
+     * Generates DROP statements for the procedures in this schema.
+     *
+     * @param schema The schema of the objects.
+     * @return The drop statements.
+     * @throws SQLException when the statements could not be generated.
+     */
+    private List<String> generateDropStatementsForProcedures(String schema) throws SQLException {
+        String dropProcGenQuery = "select rtrim(PROCNAME) from SYSCAT.PROCEDURES where PROCSCHEMA = '" + schema + "'";
+        return buildDropStatements("DROP PROCEDURE", dropProcGenQuery, schema);
     }
 
     /**
@@ -100,7 +136,7 @@ public class DB2Schema extends Schema {
     private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
         String dropSeqGenQuery = "select rtrim(SEQNAME) from SYSCAT.SEQUENCES where SEQSCHEMA = '" + schema
                 + "' and SEQTYPE='S'";
-        return buildDropStatements("drop sequence", dropSeqGenQuery, schema);
+        return buildDropStatements("DROP SEQUENCE", dropSeqGenQuery, schema);
     }
 
     /**
