@@ -403,14 +403,14 @@
                 <version>1.0.1</version>
                 <executions>
                     <execution>
-                        <id>enforce-jdk6</id>
+                        <id>enforce-jdk6-or-later</id>
                         <goals>
                             <goal>enforce</goal>
                         </goals>
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>[1.6,1.7)</version>
+                                    <version>[1.6,)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
