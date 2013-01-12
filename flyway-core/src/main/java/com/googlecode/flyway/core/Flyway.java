@@ -30,9 +30,7 @@ import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.util.Locations;
-import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -1127,11 +1125,7 @@ public class Flyway {
             DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable);
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
             if (schemaNames.length == 0) {
-                try {
-                    setSchemas(dbSupport.getCurrentSchema().getName());
-                } catch (SQLException e) {
-                    throw new FlywayException("Error retrieving current schema", e);
-                }
+                setSchemasToCurrentSchema(dbSupport);
             }
 
             if (schemaNames.length == 1) {
@@ -1151,6 +1145,24 @@ public class Flyway {
             JdbcUtils.closeConnection(connectionMetaDataTable);
         }
         return result;
+    }
+
+    /**
+     * Sets the schemas managed by Flyway to current schema for this connection.
+     *
+     * @param dbSupport The database-specific support for this connection.
+     */
+    private void setSchemasToCurrentSchema(DbSupport dbSupport) {
+        try {
+            String currentSchema = dbSupport.getCurrentSchema().getName();
+            if (currentSchema == null) {
+                throw new FlywayException("Schemas not set! Check your configuration!");
+            }
+
+            setSchemas(currentSchema);
+        } catch (SQLException e) {
+            throw new FlywayException("Error retrieving current schema", e);
+        }
     }
 
     /**
