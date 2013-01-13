@@ -48,8 +48,15 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      *                means that this version refers to an empty schema.
      */
     public MigrationVersion(String version) {
-        this.version = version;
-        this.displayText = version;
+        String normalizedVersion = version.replace("_", ".");
+
+        if (normalizedVersion.startsWith(".")) {
+            throw new FlywayException(
+                    "Invalid version starting with a dot (.) instead of a digit: " + normalizedVersion);
+        }
+
+        this.version = normalizedVersion;
+        this.displayText = normalizedVersion;
     }
 
     /**
@@ -86,8 +93,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
 
         MigrationVersion version1 = (MigrationVersion) o;
 
-        if (!displayText.equals(version1.displayText)) return false;
-        return !(version != null ? !version.equals(version1.version) : version1.version != null);
+        return compareTo(version1) == 0;
     }
 
     @Override

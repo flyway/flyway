@@ -25,6 +25,7 @@ import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * YAGNI: The simplest DataSource implementation that works for Flyway.
@@ -226,5 +227,9 @@ public class DriverDataSource implements DataSource {
 
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return DataSource.class.equals(iface);
+    }
+
+    public Logger getParentLogger() {
+        throw new UnsupportedOperationException("getParentLogger");
     }
 }

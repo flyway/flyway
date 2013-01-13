@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.migration;
+package com.googlecode.flyway.core.resolver;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.util.Pair;
 import org.junit.Test;
 
@@ -74,5 +73,19 @@ public class MigrationInfoHelperSmallTest {
     @Test(expected = FlywayException.class)
     public void extractSchemaVersionWithLeadingUnderscore() {
         MigrationInfoHelper.extractVersionAndDescription("_8_0__Description", "", "");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void extractSchemaVersionWithLeadingUnderscoreAndPrefix() {
+        MigrationInfoHelper.extractVersionAndDescription("V_8_0__Description.sql", "V", ".sql");
+    }
+
+    @Test
+    public void extractSchemaVersionWithVUnderscorePrefix() {
+        Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription("V_8_0__Description.sql", "V_", ".sql");
+        MigrationVersion version = info.getLeft();
+        String description = info.getRight();
+        assertEquals("8.0", version.toString());
+        assertEquals("Description", description);
     }
 }

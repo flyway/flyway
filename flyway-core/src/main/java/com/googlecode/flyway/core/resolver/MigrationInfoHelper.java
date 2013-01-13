@@ -49,13 +49,8 @@ public class MigrationInfoHelper {
         if (descriptionPos < 0) {
             throw new FlywayException("Wrong migration name format: " + migrationName + "(It should look like this: " + prefix + "1_2__Description" + suffix + ")");
         } else {
-            version = cleanMigrationName.substring(0, descriptionPos).replace("_", ".");
+            version = cleanMigrationName.substring(0, descriptionPos);
             description = cleanMigrationName.substring(descriptionPos + 2).replaceAll("_", " ");
-        }
-
-        if (version.startsWith(".")) {
-            throw new FlywayException(
-                    "Invalid version starting with a dot (.) instead of a digit or a letter: " + version);
         }
 
         return Pair.of(new MigrationVersion(version), description);
