@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util.scanner.jboss;
+package com.googlecode.flyway.core.util.scanner.classpath.jboss;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.util.scanner.UrlResolver;
+import com.googlecode.flyway.core.util.scanner.classpath.UrlResolver;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

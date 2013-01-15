@@ -21,11 +21,12 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
+import com.googlecode.flyway.core.util.Resource;
+import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
+import com.googlecode.flyway.core.util.scanner.filesystem.FileSystemScanner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,15 +84,17 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        if (!location.isClassPath()) {
-            return migrations;
-        }
-
+        Resource[] resources = new Resource[0];
         try {
-            ClassPathResource[] resources =
-                    new ClassPathScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
+            if (location.isClassPath()) {
+                resources =
+                        new ClassPathScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
+            } else if (location.isFileSystem()) {
+                resources =
+                        new FileSystemScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
+            }
 
-            for (ClassPathResource resource : resources) {
+            for (Resource resource : resources) {
                 ResolvedMigration resolvedMigration = extractMigrationInfo(resource);
                 resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
                 resolvedMigration.setExecutor(new SqlMigrationExecutor(resource, placeholderReplacer, encoding));
@@ -112,7 +115,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param resource The resource to analyse.
      * @return The migration info.
      */
-    private ResolvedMigration extractMigrationInfo(ClassPathResource resource) {
+    private ResolvedMigration extractMigrationInfo(Resource resource) {
         ResolvedMigration migration = new ResolvedMigration();
 
         Pair<MigrationVersion, String> info =
@@ -133,7 +136,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param resource The resource to process.
      * @return The script name.
      */
-    /* private -> for testing */ String extractScriptName(ClassPathResource resource) {
+    /* private -> for testing */ String extractScriptName(Resource resource) {
         int start = 0;
 
         if (location.getPath().length() > 0) {

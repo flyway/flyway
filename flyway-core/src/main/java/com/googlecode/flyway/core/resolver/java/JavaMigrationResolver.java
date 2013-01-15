@@ -28,7 +28,7 @@ import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
+import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util.scanner;
+package com.googlecode.flyway.core.util.scanner.classpath;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.FeatureDetector;
+import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.util.UrlUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
-import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
-import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv3ClassPathLocationScanner;
-import com.googlecode.flyway.core.util.scanner.osgi.EquinoxCommonResourceUrlResolver;
+import com.googlecode.flyway.core.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
+import com.googlecode.flyway.core.util.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
+import com.googlecode.flyway.core.util.scanner.classpath.osgi.EquinoxCommonResourceUrlResolver;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -51,18 +52,18 @@ public class ClassPathScanner {
      * @return The resources that were found.
      * @throws IOException when the location could not be scanned.
      */
-    public ClassPathResource[] scanForResources(String path, String prefix, String suffix) throws IOException {
+    public Resource[] scanForResources(String path, String prefix, String suffix) throws IOException {
         LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
 
-        Set<ClassPathResource> classPathResources = new TreeSet<ClassPathResource>();
+        Set<Resource> resources = new TreeSet<Resource>();
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffix);
         for (String resourceName : resourceNames) {
-            classPathResources.add(new ClassPathResource(resourceName));
+            resources.add(new ClassPathResource(resourceName));
             LOG.debug("Found resource: " + resourceName);
         }
 
-        return classPathResources.toArray(new ClassPathResource[classPathResources.size()]);
+        return resources.toArray(new Resource[resources.size()]);
     }
 
     /**

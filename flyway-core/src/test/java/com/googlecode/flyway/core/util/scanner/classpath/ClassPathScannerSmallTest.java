@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util.scanner;
+package com.googlecode.flyway.core.util.scanner.classpath;
 
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.dbsupport.db2.DB2MigrationMediumTest;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.Version3dot5;
-import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
+import com.googlecode.flyway.core.util.Resource;
+import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
+import com.googlecode.flyway.core.util.scanner.classpath.UrlResolver;
+import com.googlecode.flyway.core.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.junit.Test;
 import org.mockito.MockSettings;
 import org.mockito.internal.creation.MockSettingsImpl;
@@ -37,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 public class ClassPathScannerSmallTest {
     @Test
     public void scanForResources() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration/sql", "V", ".sql");
+        Resource[] resources = new ClassPathScanner().scanForResources("migration/sql", "V", ".sql");
 
         assertEquals(4, resources.length);
 
@@ -49,7 +51,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesRoot() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "CheckValidate", ".sql");
+        Resource[] resources = new ClassPathScanner().scanForResources("", "CheckValidate", ".sql");
 
         assertEquals(1, resources.length);
 
@@ -58,7 +60,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration", "CheckValidate", ".sql");
+        Resource[] resources = new ClassPathScanner().scanForResources("migration", "CheckValidate", ".sql");
 
         assertEquals(1, resources.length);
 
@@ -67,7 +69,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesDefaultPackage() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "log4j", "");
+        Resource[] resources = new ClassPathScanner().scanForResources("", "log4j", "");
 
         assertEquals(2, resources.length);
 
@@ -77,7 +79,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSubDirectory() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration/subdir", "V", ".sql");
+        Resource[] resources = new ClassPathScanner().scanForResources("migration/subdir", "V", ".sql");
 
         assertEquals(3, resources.length);
 
@@ -88,14 +90,14 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSubDirectoryWithoutFullPath() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("subdir", "V", ".sql");
+        Resource[] resources = new ClassPathScanner().scanForResources("subdir", "V", ".sql");
 
         assertEquals(0, resources.length);
     }
 
     @Test
     public void scanForResourcesSplitDirectory() throws Exception {
-        ClassPathResource[] resources =
+        Resource[] resources =
                 new ClassPathScanner().scanForResources("com/googlecode/flyway/core/dbsupport", "create", ".sql");
 
         assertTrue(resources.length > 7);
@@ -105,7 +107,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesJarFile() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("org/junit", "Af", ".class");
+        Resource[] resources = new ClassPathScanner().scanForResources("org/junit", "Af", ".class");
 
         assertEquals(2, resources.length);
 

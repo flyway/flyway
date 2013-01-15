@@ -22,6 +22,7 @@ import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.dbsupport.Table;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
@@ -85,7 +86,7 @@ public class MetaDataTableTo202FormatUpgrader {
      * Executes the upgrade script.
      */
     private void executeScript() {
-        ClassPathResource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo202Format.sql");
+        Resource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo202Format.sql");
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util.scanner.jboss;
+package com.googlecode.flyway.core.util.scanner.classpath.jboss;
 
 import com.googlecode.flyway.core.util.UrlUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
-import com.googlecode.flyway.core.util.scanner.ClassPathLocationScanner;
+import com.googlecode.flyway.core.util.scanner.classpath.ClassPathLocationScanner;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VirtualFile;
 import org.jboss.vfs.VirtualFileFilter;

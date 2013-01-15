@@ -26,6 +26,7 @@ import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -135,7 +136,7 @@ public class MetaDataTableTo20FormatUpgrader {
      * @param num The number of the part.
      */
     private void executePart(int num) {
-        ClassPathResource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo20FormatPart" + num + ".sql");
+        Resource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo20FormatPart" + num + ".sql");
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util.scanner.osgi;
+package com.googlecode.flyway.core.util.scanner.classpath.osgi;
 
-import com.googlecode.flyway.core.util.scanner.UrlResolver;
+import com.googlecode.flyway.core.util.scanner.classpath.UrlResolver;
 import org.eclipse.core.runtime.FileLocator;
 
 import java.io.IOException;

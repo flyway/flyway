@@ -35,6 +35,7 @@ import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.Locations;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.After;
@@ -619,7 +620,7 @@ public abstract class MigrationTestCase {
      * Creates a metadata table in Flyway 1.7 format.
      */
     private void createMetaDataTableIn17Format() throws SQLException {
-        ClassPathResource resource = new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable17.sql");
+        Resource resource = new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable17.sql");
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();

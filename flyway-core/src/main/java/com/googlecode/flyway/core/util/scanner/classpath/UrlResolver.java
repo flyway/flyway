@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util.scanner;
+package com.googlecode.flyway.core.util.scanner.classpath;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Set;
 
 /**
- * Default implementation of UrlResolver.
+ * Resolves container-specific URLs into standard Java URLs.
  */
-public class DefaultUrlResolver implements UrlResolver {
-    public URL toStandardJavaUrl(URL url) throws IOException {
-        return url;
-    }
+public interface UrlResolver {
+    /**
+     * Resolves this container-specific URL into standard Java URL.
+     *
+     * @param url    The URL to resolve.
+     * @return The matching standard Java URL.
+     *
+     * @throws java.io.IOException when the scanning failed.
+     */
+    URL toStandardJavaUrl(URL url) throws IOException;
 }

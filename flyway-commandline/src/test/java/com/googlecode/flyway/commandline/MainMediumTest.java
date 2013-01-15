@@ -18,7 +18,8 @@ package com.googlecode.flyway.commandline;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
-import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
+import com.googlecode.flyway.core.util.Resource;
+import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +80,7 @@ public class MainMediumTest {
 
         assertTrue(new ClassPathResource("pkg/runtime.properties").exists());
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("pkg", "run", ".properties");
+        Resource[] resources = new ClassPathScanner().scanForResources("pkg", "run", ".properties");
         assertEquals("pkg/runtime.properties", resources[0].getLocation());
     }
 
@@ -95,7 +96,7 @@ public class MainMediumTest {
 
         assertTrue(new ClassPathResource("runtime.properties").exists());
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "run", ".properties");
+        Resource[] resources = new ClassPathScanner().scanForResources("", "run", ".properties");
         assertEquals("runtime.properties", resources[1].getLocation());
     }
 
@@ -113,7 +114,7 @@ public class MainMediumTest {
         assertTrue(new ClassPathResource("db/migration/V1.sql").exists());
         assertTrue(ClassUtils.isPresent("com.googlecode.flyway.sample.migration.V1_2__Another_user"));
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("db/migration", "V", ".sql");
+        Resource[] resources = new ClassPathScanner().scanForResources("db/migration", "V", ".sql");
         assertEquals("db/migration/V1.sql", resources[0].getLocation());
 
         Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/sample/migration", JavaMigration.class);

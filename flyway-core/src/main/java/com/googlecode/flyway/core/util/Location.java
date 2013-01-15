@@ -27,6 +27,11 @@ public class Location implements Comparable<Location> {
     private static final String CLASSPATH_PREFIX = "classpath:";
 
     /**
+     * The prefix for filesystem locations.
+     */
+    private static final String FILESYSTEM_PREFIX = "filesystem:";
+
+    /**
      * The prefix part of the location. Can be either classpath: or filesystem:.
      */
     private String prefix;
@@ -42,7 +47,7 @@ public class Location implements Comparable<Location> {
      * @param descriptor The location descriptor.
      */
     public Location(String descriptor) {
-        String normalizedDescriptor = descriptor.trim().replace(".", "/").replace("\\", "/");
+        String normalizedDescriptor = descriptor.trim().replace("\\", "/");
 
         if (normalizedDescriptor.contains(":")) {
             prefix = normalizedDescriptor.substring(0, normalizedDescriptor.indexOf(":") + 1);
@@ -53,12 +58,15 @@ public class Location implements Comparable<Location> {
         }
 
         if (isClassPath()) {
+            path = path.replace(".", "/");
             if (path.startsWith("/")) {
                 path = path.substring(1);
             }
         } else {
-            throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
-                    + normalizedDescriptor);
+            if (!isFileSystem()) {
+                throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
+                        + normalizedDescriptor);
+            }
         }
 
         if (path.endsWith("/")) {
@@ -73,6 +81,15 @@ public class Location implements Comparable<Location> {
      */
     public boolean isClassPath() {
         return CLASSPATH_PREFIX.equals(prefix);
+    }
+
+    /**
+     * Checks whether this denotes a location on the filesystem.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't.
+     */
+    public boolean isFileSystem() {
+        return FILESYSTEM_PREFIX.equals(prefix);
     }
 
     /**

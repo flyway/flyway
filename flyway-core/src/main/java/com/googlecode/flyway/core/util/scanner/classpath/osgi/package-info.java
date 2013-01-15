@@ -16,4 +16,4 @@
 /**
  * Private API. No compatibility guarantees provided.
  */
-package com.googlecode.flyway.core.util.scanner.jboss;
+package com.googlecode.flyway.core.util.scanner.classpath.osgi;
