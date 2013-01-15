@@ -55,28 +55,21 @@ public class MigrationVersionSmallTest {
 
     @Test
     public void testEquals() {
-        final MigrationVersion a1 = new MigrationVersion("1.2.3-3");
+        final MigrationVersion a1 = new MigrationVersion("1.2.3.3");
         final MigrationVersion a2 = new MigrationVersion("1.2.3.3");
         assertTrue(a1.compareTo(a2) == 0);
     }
 
     @Test
     public void testNumber() {
-        final MigrationVersion a1 = new MigrationVersion("1.2.13-3");
+        final MigrationVersion a1 = new MigrationVersion("1.2.13.3");
         final MigrationVersion a2 = new MigrationVersion("1.2.3.3");
         assertTrue(a1.compareTo(a2) > 0);
     }
 
     @Test
-    public void testAlphaNumeric() {
-        final MigrationVersion a1 = new MigrationVersion("1.2.1a-3");
-        final MigrationVersion a2 = new MigrationVersion("1.2.1b.3");
-        assertTrue(a1.compareTo(a2) < 0);
-    }
-
-    @Test
     public void testLength1() {
-        final MigrationVersion a1 = new MigrationVersion("1.2.1-3");
+        final MigrationVersion a1 = new MigrationVersion("1.2.1.3");
         final MigrationVersion a2 = new MigrationVersion("1.2.1");
         assertTrue(a1.compareTo(a2) > 0);
     }
@@ -94,6 +87,21 @@ public class MigrationVersionSmallTest {
         final MigrationVersion v2 = new MigrationVersion("001.0");
         assertTrue(v1.compareTo(v2) == 0);
         assertTrue(v1.equals(v2));
+    }
+
+    @Test(expected = FlywayException.class)
+    public void letters() {
+        new MigrationVersion("abc1.0");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void dash() {
+        new MigrationVersion("1.2.1-3");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void alphaNumeric() {
+        new MigrationVersion("1.2.1a-3");
     }
 }
 

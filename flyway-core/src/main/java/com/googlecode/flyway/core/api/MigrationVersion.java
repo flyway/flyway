@@ -55,6 +55,12 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
                     "Invalid version starting with a dot (.) instead of a digit: " + normalizedVersion);
         }
 
+        if (!normalizedVersion.matches("[\\d\\.]*")) {
+            throw new FlywayException(
+                    "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
+                            + normalizedVersion);
+        }
+
         this.version = normalizedVersion;
         this.displayText = normalizedVersion;
     }
@@ -75,7 +81,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return The individual elements this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
      */
     private String[] getElements() {
-        return tokenizeToStringArray(version, ".-");
+        return tokenizeToStringArray(version, ".");
     }
 
     /**
