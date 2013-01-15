@@ -25,6 +25,7 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv3LocationScanner;
 import com.googlecode.flyway.core.util.scanner.osgi.EquinoxCommonResourceUrlResolver;
+import com.googlecode.flyway.core.util.scanner.osgi.OsgiLocationScanner;
 
 import java.io.IOException;
 import java.net.URL;
@@ -146,11 +147,10 @@ public class ClassPathScanner {
             UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
             URL resolvedUrl = urlResolver.toStandardJavaUrl(locationUrl);
 
-            String scanRoot = UrlUtils.toFilePath(resolvedUrl);
-
             String protocol = resolvedUrl.getProtocol();
             LocationScanner locationScanner = createLocationScanner(protocol);
             if (locationScanner == null) {
+                String scanRoot = UrlUtils.toFilePath(resolvedUrl);
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
                 resourceNames.addAll(locationScanner.findResourceNames(location, resolvedUrl));
@@ -167,12 +167,8 @@ public class ClassPathScanner {
      * @return The url resolver for this protocol.
      */
     private UrlResolver createUrlResolver(String protocol) {
-        if (protocol.startsWith("bundle")) {
-            if (FeatureDetector.isEquinoxCommonAvailable()) {
-                return new EquinoxCommonResourceUrlResolver();
-            } else {
-                LOG.warn("Unable to resolve OSGi resource URL. Make sure the 'org.eclipse.equinox.common' bundle is loaded!");
-            }
+        if (FeatureDetector.isEquinoxCommonAvailable() && protocol.startsWith("bundle")) {
+            return new EquinoxCommonResourceUrlResolver();
         }
 
         if (FeatureDetector.isJBossVFSv2Available() && protocol.startsWith("vfs")) {
@@ -206,6 +202,13 @@ public class ClassPathScanner {
 
         if (FeatureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
             return new JBossVFSv3LocationScanner();
+        }
+
+        // Protocol differences
+        // eclipse: bundleresource://
+        // felix: bundle://
+        if (FeatureDetector.isOsgiFrameworkAvailable() && protocol.startsWith("bundle")) {
+            return new OsgiLocationScanner();
         }
 
         return null;

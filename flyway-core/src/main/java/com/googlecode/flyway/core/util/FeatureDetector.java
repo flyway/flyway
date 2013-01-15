@@ -57,6 +57,11 @@ public final class FeatureDetector {
     private static Boolean equinoxCommonAvailable;
 
     /**
+     * Flag indicating availability of the OSGi framework classes.
+     */
+    private static Boolean osgiFrameworkAvailable;
+
+    /**
      * Checks whether Apache Commons Logging is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
@@ -124,4 +129,19 @@ public final class FeatureDetector {
 
         return equinoxCommonAvailable;
     }
+
+    /**
+     * Checks if OSGi framework is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public static boolean isOsgiFrameworkAvailable() {
+        if (osgiFrameworkAvailable == null) {
+            osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle");
+            LOG.debug("OSGi framework available: " + osgiFrameworkAvailable);
+        }
+
+        return osgiFrameworkAvailable;
+    }
+
 }

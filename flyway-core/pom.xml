@@ -159,7 +159,6 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Require-Bundle>org.eclipse.equinox.common</Require-Bundle>
                         <Export-Package>
                             com.googlecode.flyway.core;version=${project.version},
                             com.googlecode.flyway.core.api.*;version=${project.version},
@@ -170,8 +169,10 @@
                             com.googlecode.flyway.core.validation;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            org.springframework.*;version="[2.5,3.2)";resolution=optional,
+                            org.springframework.*;version="[2.5,3.2)";resolution:=optional,
                             org.apache.commons.logging;version="[1.1,2)",
+                            org.osgi.framework;version="1.3.0";resolution:=mandatory,
+                            org.eclipse.core.runtime;resolution:=optional,
                             javax.sql
                         </Import-Package>
                     </instructions>
