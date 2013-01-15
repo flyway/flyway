@@ -83,9 +83,13 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
+        if (!location.isClassPath()) {
+            return migrations;
+        }
+
         try {
             ClassPathResource[] resources =
-                    new ClassPathScanner().scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
+                    new ClassPathScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
 
             for (ClassPathResource resource : resources) {
                 ResolvedMigration resolvedMigration = extractMigrationInfo(resource);
@@ -132,8 +136,8 @@ public class SqlMigrationResolver implements MigrationResolver {
     /* private -> for testing */ String extractScriptName(ClassPathResource resource) {
         int start = 0;
 
-        if (location.getDescriptor().length() > 0) {
-            start = location.getDescriptor().length() + "/".length();
+        if (location.getPath().length() > 0) {
+            start = location.getPath().length() + "/".length();
         }
 
         return resource.getLocation().substring(start);

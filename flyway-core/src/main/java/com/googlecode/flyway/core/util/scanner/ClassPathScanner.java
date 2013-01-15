@@ -19,12 +19,11 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.FeatureDetector;
-import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.UrlUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
-import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv3LocationScanner;
+import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv3ClassPathLocationScanner;
 import com.googlecode.flyway.core.util.scanner.osgi.EquinoxCommonResourceUrlResolver;
 
 import java.io.IOException;
@@ -46,18 +45,18 @@ public class ClassPathScanner {
      * Scans the classpath for resources under the specified location, starting with the specified prefix and ending with
      * the specified suffix.
      *
-     * @param location The location (directory) in the classpath to start searching. Subdirectories are also searched.
-     * @param prefix   The prefix of the resource names to match.
-     * @param suffix   The suffix of the resource names to match.
+     * @param path   The path in the classpath to start searching. Subdirectories are also searched.
+     * @param prefix The prefix of the resource names to match.
+     * @param suffix The suffix of the resource names to match.
      * @return The resources that were found.
      * @throws IOException when the location could not be scanned.
      */
-    public ClassPathResource[] scanForResources(Location location, String prefix, String suffix) throws IOException {
-        LOG.debug("Scanning for resources at '" + location + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
+    public ClassPathResource[] scanForResources(String path, String prefix, String suffix) throws IOException {
+        LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
 
         Set<ClassPathResource> classPathResources = new TreeSet<ClassPathResource>();
 
-        Set<String> resourceNames = findResourceNames(location, prefix, suffix);
+        Set<String> resourceNames = findResourceNames(path, prefix, suffix);
         for (String resourceName : resourceNames) {
             classPathResources.add(new ClassPathResource(resourceName));
             LOG.debug("Found resource: " + resourceName);
@@ -76,7 +75,7 @@ public class ClassPathScanner {
      * @return The non-abstract classes that were found.
      * @throws Exception when the location could not be scanned.
      */
-    public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {
+    public Class<?>[] scanForClasses(String location, Class<?> implementedInterface) throws Exception {
         LOG.debug("Scanning for classes at '" + location + "' (Implementing: '" + implementedInterface.getName() + "')");
 
         List<Class<?>> classes = new ArrayList<Class<?>>();
@@ -123,18 +122,18 @@ public class ClassPathScanner {
      * Finds the resources names present at this location and below on the classpath starting with this prefix and
      * ending with this suffix.
      *
-     * @param location The location on the classpath to scan.
-     * @param prefix   The filename prefix to match.
-     * @param suffix   The filename suffix to match.
+     * @param path   The path on the classpath to scan.
+     * @param prefix The filename prefix to match.
+     * @param suffix The filename suffix to match.
      * @return The resource names.
      * @throws IOException when scanning this location failed.
      */
-    private Set<String> findResourceNames(Location location, String prefix, String suffix) throws IOException {
+    private Set<String> findResourceNames(String path, String prefix, String suffix) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        Enumeration<URL> locationsUrls = getClassLoader().getResources(location.getDescriptor());
+        Enumeration<URL> locationsUrls = getClassLoader().getResources(path);
         if (!locationsUrls.hasMoreElements()) {
-            LOG.debug("Unable to determine URL for classpath location: " + location + " (ClassLoader: " + getClassLoader() + ")");
+            LOG.debug("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")");
         }
         while (locationsUrls.hasMoreElements()) {
             URL locationUrl = locationsUrls.nextElement();
@@ -146,11 +145,11 @@ public class ClassPathScanner {
             String scanRoot = UrlUtils.toFilePath(resolvedUrl);
 
             String protocol = resolvedUrl.getProtocol();
-            LocationScanner locationScanner = createLocationScanner(protocol);
-            if (locationScanner == null) {
+            ClassPathLocationScanner classPathLocationScanner = createLocationScanner(protocol);
+            if (classPathLocationScanner == null) {
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
-                resourceNames.addAll(locationScanner.findResourceNames(location, resolvedUrl));
+                resourceNames.addAll(classPathLocationScanner.findResourceNames(path, resolvedUrl));
             }
         }
 
@@ -185,20 +184,20 @@ public class ClassPathScanner {
      * @param protocol The protocol of the location url to scan.
      * @return The location scanner or {@code null} if it could not be created.
      */
-    private LocationScanner createLocationScanner(String protocol) {
+    private ClassPathLocationScanner createLocationScanner(String protocol) {
         if ("file".equals(protocol)) {
-            return new FileSystemLocationScanner();
+            return new FileSystemClassPathLocationScanner();
         }
 
         if ("jar".equals(protocol)
                 || "zip".equals(protocol) //WebLogic
                 || "wsjar".equals(protocol) //WebSphere
                 ) {
-            return new JarFileLocationScanner();
+            return new JarFileClassPathLocationScanner();
         }
 
         if (FeatureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
-            return new JBossVFSv3LocationScanner();
+            return new JBossVFSv3ClassPathLocationScanner();
         }
 
         return null;

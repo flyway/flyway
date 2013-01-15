@@ -15,7 +15,6 @@
  */
 package com.googlecode.flyway.core.util.scanner;
 
-import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.UrlUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -28,12 +27,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * LocationScanner for the file system.
+ * ClassPathLocationScanner for the file system.
  */
-public class FileSystemLocationScanner implements LocationScanner {
-    private static final Log LOG = LogFactory.getLog(FileSystemLocationScanner.class);
+public class FileSystemClassPathLocationScanner implements ClassPathLocationScanner {
+    private static final Log LOG = LogFactory.getLog(FileSystemClassPathLocationScanner.class);
 
-    public Set<String> findResourceNames(Location location, URL locationUrl) throws IOException {
+    public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
         String filePath = UrlUtils.toFilePath(locationUrl);
         File folder = new File(filePath);
         if (!folder.isDirectory()) {
@@ -41,7 +40,7 @@ public class FileSystemLocationScanner implements LocationScanner {
             return new TreeSet<String>();
         }
 
-        String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.getDescriptor().length());
+        String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
         if (!classPathRootOnDisk.endsWith("/")) {
             classPathRootOnDisk = classPathRootOnDisk + "/";
         }
@@ -60,7 +59,7 @@ public class FileSystemLocationScanner implements LocationScanner {
      */
     /*private -> for testing*/
     @SuppressWarnings("ConstantConditions")
-    Set<String> findResourceNamesFromFileSystem(String classPathRootOnDisk, Location scanRootLocation, File folder) throws IOException {
+    Set<String> findResourceNamesFromFileSystem(String classPathRootOnDisk, String scanRootLocation, File folder) throws IOException {
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
         Set<String> resourceNames = new TreeSet<String>();

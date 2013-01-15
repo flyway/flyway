@@ -15,12 +15,10 @@
  */
 package com.googlecode.flyway.commandline;
 
-import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.Location;
-import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import com.googlecode.flyway.core.util.ClassUtils;
+import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,13 +73,13 @@ public class MainMediumTest {
     @Test
     public void addDirectoryToClasspath() throws Exception {
         assertFalse(new ClassPathResource("pkg/runtime.properties").exists());
-        
+
         String folder = new ClassPathResource("dynamic").getLocationOnDisk();
         Main.addJarOrDirectoryToClasspath(folder);
 
         assertTrue(new ClassPathResource("pkg/runtime.properties").exists());
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("pkg"), "run", ".properties");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("pkg", "run", ".properties");
         assertEquals("pkg/runtime.properties", resources[0].getLocation());
     }
 
@@ -97,7 +95,7 @@ public class MainMediumTest {
 
         assertTrue(new ClassPathResource("runtime.properties").exists());
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location(""), "run", ".properties");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "run", ".properties");
         assertEquals("runtime.properties", resources[1].getLocation());
     }
 
@@ -115,10 +113,10 @@ public class MainMediumTest {
         assertTrue(new ClassPathResource("db/migration/V1.sql").exists());
         assertTrue(ClassUtils.isPresent("com.googlecode.flyway.sample.migration.V1_2__Another_user"));
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("db/migration"), "V", ".sql");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("db/migration", "V", ".sql");
         assertEquals("db/migration/V1.sql", resources[0].getLocation());
 
-        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("com/googlecode/flyway/sample/migration"), JavaMigration.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/sample/migration", JavaMigration.class);
         assertEquals("com.googlecode.flyway.sample.migration.V1_2__Another_user", classes[0].getName());
     }
 }

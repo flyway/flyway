@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Encaupsulation of a location list.
+ * Encapsulation of a location list.
  */
 public class Locations {
     private static final Log LOG = LogFactory.getLog(Locations.class);

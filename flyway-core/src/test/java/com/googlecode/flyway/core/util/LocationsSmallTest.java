@@ -33,9 +33,9 @@ public class LocationsSmallTest {
         List<Location> locationList = locations.getLocations();
         assertEquals(3, locationList.size());
         Iterator<Location> iterator = locationList.iterator();
-        assertEquals("db/classes", iterator.next().getDescriptor());
-        assertEquals("db/files", iterator.next().getDescriptor());
-        assertEquals("db/locations", iterator.next().getDescriptor());
+        assertEquals("db/classes", iterator.next().getPath());
+        assertEquals("db/files", iterator.next().getPath());
+        assertEquals("db/locations", iterator.next().getPath());
     }
 
     @Test
@@ -44,8 +44,8 @@ public class LocationsSmallTest {
         List<Location> locationList = locations.getLocations();
         assertEquals(2, locationList.size());
         Iterator<Location> iterator = locationList.iterator();
-        assertEquals("db/locations", iterator.next().getDescriptor());
-        assertEquals("db/migration", iterator.next().getDescriptor());
+        assertEquals("db/locations", iterator.next().getPath());
+        assertEquals("db/migration", iterator.next().getPath());
     }
 
     @Test
@@ -53,7 +53,7 @@ public class LocationsSmallTest {
         Locations locations = new Locations("db/migration/oracle", "db/migration", "db/migration");
         List<Location> locationList = locations.getLocations();
         assertEquals(1, locationList.size());
-        assertEquals("db/migration", locationList.get(0).getDescriptor());
+        assertEquals("db/migration", locationList.get(0).getPath());
     }
 
     @Test

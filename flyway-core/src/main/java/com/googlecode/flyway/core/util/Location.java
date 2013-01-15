@@ -15,14 +15,26 @@
  */
 package com.googlecode.flyway.core.util;
 
+import com.googlecode.flyway.core.api.FlywayException;
+
 /**
  * A location to load migrations from.
  */
 public class Location implements Comparable<Location> {
     /**
-     * The location descriptor.
+     * The prefix for classpath locations.
      */
-    private String descriptor;
+    private static final String CLASSPATH_PREFIX = "classpath:";
+
+    /**
+     * The prefix part of the location. Can be either classpath: or filesystem:.
+     */
+    private String prefix;
+
+    /**
+     * The path part of the location.
+     */
+    private String path;
 
     /**
      * Creates a new location.
@@ -30,49 +42,72 @@ public class Location implements Comparable<Location> {
      * @param descriptor The location descriptor.
      */
     public Location(String descriptor) {
-        this.descriptor = normalizeDescriptor(descriptor);
+        String normalizedDescriptor = descriptor.trim().replace(".", "/").replace("\\", "/");
+
+        if (normalizedDescriptor.contains(":")) {
+            prefix = normalizedDescriptor.substring(0, normalizedDescriptor.indexOf(":") + 1);
+            path = normalizedDescriptor.substring(normalizedDescriptor.indexOf(":") + 1);
+        } else {
+            prefix = CLASSPATH_PREFIX;
+            path = normalizedDescriptor;
+        }
+
+        if (isClassPath()) {
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+        } else {
+            throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
+                    + normalizedDescriptor);
+        }
+
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
     }
 
     /**
-     * Normalizes this descriptor by
-     * <ul>
-     * <li>eliminating all leading and trailing spaces</li>
-     * <li>eliminating all leading and trailing slashes</li>
-     * <li>turning all separators into slashes</li>
-     * </ul>
+     * Checks whether this denotes a location on the classpath.
      *
-     * @param descriptor The descriptor to normalize.
-     * @return The normalized descriptor.
+     * @return {@code true} if it does, {@code false} if it doesn't.
      */
-    private String normalizeDescriptor(String descriptor) {
-        String normalizedDescriptor = descriptor.trim().replace(".", "/").replace("\\", "/");
-        if (normalizedDescriptor.startsWith("/")) {
-            normalizedDescriptor = normalizedDescriptor.substring(1);
-        }
-        if (normalizedDescriptor.endsWith("/")) {
-            normalizedDescriptor = normalizedDescriptor.substring(0, normalizedDescriptor.length() - 1);
-        }
-        return normalizedDescriptor;
+    public boolean isClassPath() {
+        return CLASSPATH_PREFIX.equals(prefix);
     }
 
     /**
      * Checks whether this location is a parent of this other location.
+     *
      * @param other The other location.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
     public boolean isParentOf(Location other) {
-        return (other.descriptor + "/").startsWith(descriptor + "/");
+        return (other.getDescriptor() + "/").startsWith(getDescriptor() + "/");
+    }
+
+    /**
+     * @return The prefix part of the location. Can be either classpath: or filesystem:.
+     */
+    public String getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * @return The path part of the location.
+     */
+    public String getPath() {
+        return path;
     }
 
     /**
      * @return The location descriptor.
      */
     public String getDescriptor() {
-        return descriptor;
+        return prefix + path;
     }
 
     public int compareTo(Location o) {
-        return descriptor.compareTo(o.descriptor);
+        return getDescriptor().compareTo(o.getDescriptor());
     }
 
     @Override
@@ -82,16 +117,16 @@ public class Location implements Comparable<Location> {
 
         Location location = (Location) o;
 
-        return descriptor.equals(location.descriptor);
+        return getDescriptor().equals(location.getDescriptor());
     }
 
     @Override
     public int hashCode() {
-        return descriptor.hashCode();
+        return getDescriptor().hashCode();
     }
 
     @Override
     public String toString() {
-        return descriptor;
+        return getDescriptor();
     }
 }

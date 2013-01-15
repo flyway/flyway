@@ -15,11 +15,10 @@
  */
 package com.googlecode.flyway.core.util.scanner.jboss;
 
-import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.UrlUtils;
-import com.googlecode.flyway.core.util.scanner.LocationScanner;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
+import com.googlecode.flyway.core.util.scanner.ClassPathLocationScanner;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VirtualFile;
 import org.jboss.vfs.VirtualFileFilter;
@@ -31,14 +30,14 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * LocationScanner for JBoss VFS v3.
+ * ClassPathLocationScanner for JBoss VFS v3.
  */
-public class JBossVFSv3LocationScanner implements LocationScanner {
-    private static final Log LOG = LogFactory.getLog(JBossVFSv3LocationScanner.class);
+public class JBossVFSv3ClassPathLocationScanner implements ClassPathLocationScanner {
+    private static final Log LOG = LogFactory.getLog(JBossVFSv3ClassPathLocationScanner.class);
 
-    public Set<String> findResourceNames(Location location, URL locationUrl) throws IOException {
+    public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
         String filePath = UrlUtils.toFilePath(locationUrl);
-        String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.getDescriptor().length());
+        String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
         if (!classPathRootOnDisk.endsWith("/")) {
             classPathRootOnDisk = classPathRootOnDisk + "/";
         }

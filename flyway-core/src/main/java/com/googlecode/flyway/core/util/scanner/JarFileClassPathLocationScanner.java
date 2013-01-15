@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.util.scanner;
 
-import com.googlecode.flyway.core.util.Location;
-
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
@@ -29,10 +27,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * LocationScanner for jar files.
+ * ClassPathLocationScanner for jar files.
  */
-public class JarFileLocationScanner implements LocationScanner {
-    public Set<String> findResourceNames(Location location, URL locationUrl) throws IOException {
+public class JarFileClassPathLocationScanner implements ClassPathLocationScanner {
+    public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
         JarFile jarFile = getJarFromUrl(locationUrl);
 
         try {
@@ -89,13 +87,13 @@ public class JarFileLocationScanner implements LocationScanner {
      * @return The resource names.
      * @throws java.io.IOException when reading the jar file failed.
      */
-    private Set<String> findResourceNamesFromJarFile(JarFile jarFile, Location location) throws IOException {
+    private Set<String> findResourceNamesFromJarFile(JarFile jarFile, String location) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             String entryName = entries.nextElement().getName();
-            if (entryName.startsWith(location.getDescriptor())) {
+            if (entryName.startsWith(location)) {
                 resourceNames.add(entryName);
             }
         }

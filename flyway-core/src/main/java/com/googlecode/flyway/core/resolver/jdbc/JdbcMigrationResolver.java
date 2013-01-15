@@ -56,8 +56,12 @@ public class JdbcMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
+        if (!location.isClassPath()) {
+            return migrations;
+        }
+
         try {
-            Class<?>[] classes = new ClassPathScanner().scanForClasses(location, JdbcMigration.class);
+            Class<?>[] classes = new ClassPathScanner().scanForClasses(location.getPath(), JdbcMigration.class);
             for (Class<?> clazz : classes) {
                 JdbcMigration jdbcMigration = (JdbcMigration) ClassUtils.instantiate(clazz.getName());
 

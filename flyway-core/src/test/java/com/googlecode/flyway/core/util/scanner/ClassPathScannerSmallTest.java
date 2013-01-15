@@ -21,18 +21,10 @@ import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.Version3dot5;
 import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
-import org.hamcrest.Matcher;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestName;
-import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.mockito.MockSettings;
 import org.mockito.internal.creation.MockSettingsImpl;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 
 import java.util.Arrays;
 
@@ -45,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 public class ClassPathScannerSmallTest {
     @Test
     public void scanForResources() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("migration/sql"), "V", ".sql");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration/sql", "V", ".sql");
 
         assertEquals(4, resources.length);
 
@@ -57,7 +49,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesRoot() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location(""), "CheckValidate", ".sql");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "CheckValidate", ".sql");
 
         assertEquals(1, resources.length);
 
@@ -66,7 +58,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("migration"), "CheckValidate", ".sql");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration", "CheckValidate", ".sql");
 
         assertEquals(1, resources.length);
 
@@ -75,7 +67,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesDefaultPackage() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location(""), "log4j", "");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "log4j", "");
 
         assertEquals(2, resources.length);
 
@@ -85,7 +77,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSubDirectory() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("migration/subdir"), "V", ".sql");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("migration/subdir", "V", ".sql");
 
         assertEquals(3, resources.length);
 
@@ -96,7 +88,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSubDirectoryWithoutFullPath() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("subdir"), "V", ".sql");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("subdir", "V", ".sql");
 
         assertEquals(0, resources.length);
     }
@@ -104,7 +96,7 @@ public class ClassPathScannerSmallTest {
     @Test
     public void scanForResourcesSplitDirectory() throws Exception {
         ClassPathResource[] resources =
-                new ClassPathScanner().scanForResources(new Location("com/googlecode/flyway/core/dbsupport"), "create", ".sql");
+                new ClassPathScanner().scanForResources("com/googlecode/flyway/core/dbsupport", "create", ".sql");
 
         assertTrue(resources.length > 7);
 
@@ -113,7 +105,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesJarFile() throws Exception {
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("org/junit"), "Af", ".class");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources("org/junit", "Af", ".class");
 
         assertEquals(2, resources.length);
 
@@ -123,7 +115,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClasses() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("com/googlecode/flyway/core/resolver/jdbc/dummy"), JdbcMigration.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/resolver/jdbc/dummy", JdbcMigration.class);
 
         assertEquals(2, classes.length);
 
@@ -133,7 +125,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSubPackage() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("com/googlecode/flyway/core/dbsupport"), MigrationTestCase.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/dbsupport", MigrationTestCase.class);
 
         assertTrue(classes.length >= 10);
 
@@ -142,7 +134,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSplitPackage() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("com/googlecode/flyway/core/util"), UrlResolver.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/util", UrlResolver.class);
 
         assertTrue(classes.length >= 2);
         assertTrue(Arrays.asList(classes).contains(JBossVFSv2UrlResolver.class));
@@ -150,7 +142,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesJarFile() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("org/mockito/internal/creation"), MockSettings.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("org/mockito/internal/creation", MockSettings.class);
 
         assertTrue(Arrays.asList(classes).contains(MockSettingsImpl.class));
     }

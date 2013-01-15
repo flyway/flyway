@@ -56,8 +56,12 @@ public class JavaMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
+        if (!location.isClassPath()) {
+            return migrations;
+        }
+
         try {
-            Class<?>[] classes = new ClassPathScanner().scanForClasses(location, JavaMigration.class);
+            Class<?>[] classes = new ClassPathScanner().scanForClasses(location.getPath(), JavaMigration.class);
             for (Class<?> clazz : classes) {
                 JavaMigration javaMigration = (JavaMigration) ClassUtils.instantiate(clazz.getName());
 
