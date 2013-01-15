@@ -15,11 +15,11 @@
  */
 package com.googlecode.flyway.core.util.scanner;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.util.Location;
-import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.UrlUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -67,22 +67,17 @@ public class ClassPathScanner {
     }
 
     /**
-     * Scans the classpath for concrete classes under the specified package implementing any of these interfaces.
+     * Scans the classpath for concrete classes under the specified package implementing this interface.
      * Non-instantiable abstract classes are filtered out.
      *
-     * @param location              The location (package) in the classpath to start scanning.
-     *                              Subpackages are also scanned.
-     * @param implementedInterfaces The interfaces the matching classes should implement..
+     * @param location             The location (package) in the classpath to start scanning.
+     *                             Subpackages are also scanned.
+     * @param implementedInterface The interface the matching classes should implement.
      * @return The non-abstract classes that were found.
      * @throws Exception when the location could not be scanned.
      */
-    public Class<?>[] scanForClasses(Location location, Class<?>... implementedInterfaces) throws Exception {
-        String[] interfaceNames = new String[implementedInterfaces.length];
-        for (int i = 0; i < implementedInterfaces.length; i++) {
-            interfaceNames[i] = implementedInterfaces[i].getName();
-        }
-        LOG.debug("Scanning for classes at '" + location
-                + "' (Implementing: '" + StringUtils.arrayToCommaDelimitedString(interfaceNames) + "')");
+    public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {
+        LOG.debug("Scanning for classes at '" + location + "' (Implementing: '" + implementedInterface.getName() + "')");
 
         List<Class<?>> classes = new ArrayList<Class<?>>();
 
@@ -96,18 +91,18 @@ public class ClassPathScanner {
                 continue;
             }
 
-            if (implementedInterfaces.length == 0) {
-                classes.add(clazz);
-                LOG.debug("Found class: " + className);
-            } else {
-                for (Class<?> implementedInterface : implementedInterfaces) {
-                    if (implementedInterface.isAssignableFrom(clazz)) {
-                        classes.add(clazz);
-                        LOG.debug("Found class: " + className);
-                        break;
-                    }
-                }
+            if (!implementedInterface.isAssignableFrom(clazz)) {
+                continue;
             }
+
+            try {
+                ClassUtils.instantiate(className);
+            } catch (Exception e) {
+                throw new FlywayException("Unable to instantiate class: " + className);
+            }
+
+            classes.add(clazz);
+            LOG.debug("Found class: " + className);
         }
 
         return classes.toArray(new Class<?>[classes.size()]);
@@ -181,11 +176,7 @@ public class ClassPathScanner {
             return new JBossVFSv2UrlResolver();
         }
 
-        return new UrlResolver() {
-            public URL toStandardJavaUrl(URL url) throws IOException {
-                return url;
-            }
-        };
+        return new DefaultUrlResolver();
     }
 
     /**

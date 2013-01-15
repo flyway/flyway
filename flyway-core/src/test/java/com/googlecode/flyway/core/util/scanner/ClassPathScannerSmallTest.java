@@ -24,9 +24,17 @@ import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv2UrlResolver;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.IsAnything;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
+import org.junit.rules.MethodRule;
+import org.junit.rules.TestName;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
+import org.mockito.MockSettings;
+import org.mockito.internal.creation.MockSettingsImpl;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -137,17 +145,13 @@ public class ClassPathScannerSmallTest {
         Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("com/googlecode/flyway/core/util"), UrlResolver.class);
 
         assertTrue(classes.length >= 2);
-
-        assertEquals(JBossVFSv2UrlResolver.class, classes[0]);
+        assertTrue(Arrays.asList(classes).contains(JBossVFSv2UrlResolver.class));
     }
 
     @Test
     public void scanForClassesJarFile() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("org/hamcrest/core"), Matcher.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("org/mockito/internal/creation"), MockSettings.class);
 
-        assertEquals(2, classes.length);
-
-        assertEquals(IsAnything.class, classes[0]);
-        assertEquals(IsNull.class, classes[1]);
+        assertTrue(Arrays.asList(classes).contains(MockSettingsImpl.class));
     }
 }
