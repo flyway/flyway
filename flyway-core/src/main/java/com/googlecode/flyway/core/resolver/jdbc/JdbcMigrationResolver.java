@@ -25,6 +25,7 @@ import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassUtils;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
@@ -41,14 +42,14 @@ public class JdbcMigrationResolver implements MigrationResolver {
     /**
      * The base package on the classpath where to migrations are located.
      */
-    private final String location;
+    private final Location location;
 
     /**
      * Creates a new instance.
      *
      * @param location The base package on the classpath where to migrations are located.
      */
-    public JdbcMigrationResolver(String location) {
+    public JdbcMigrationResolver(Location location) {
         this.location = location;
     }
 

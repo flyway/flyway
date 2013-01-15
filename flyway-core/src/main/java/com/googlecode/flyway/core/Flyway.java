@@ -984,7 +984,7 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver() {
-        return new CompositeMigrationResolver(locations.getLocations(), encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        return new CompositeMigrationResolver(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
     }
 
     /**

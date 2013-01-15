@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.resolver.jdbc;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.Version3dot5;
+import com.googlecode.flyway.core.util.Location;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class JdbcMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         JdbcMigrationResolver jdbcMigrationResolver =
-                new JdbcMigrationResolver("com/googlecode/flyway/core/resolver/jdbc/dummy");
+                new JdbcMigrationResolver(new Location("com/googlecode/flyway/core/resolver/jdbc/dummy"));
         Collection<ResolvedMigration> migrations = jdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());

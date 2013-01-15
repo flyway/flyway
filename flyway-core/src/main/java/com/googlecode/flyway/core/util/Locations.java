@@ -31,7 +31,7 @@ public class Locations {
     /**
      * The backing list.
      */
-    private final List<String> locations = new ArrayList<String>();
+    private final List<Location> locations = new ArrayList<Location>();
 
     /**
      * Creates a new Locations wrapper with these raw locations.
@@ -39,19 +39,19 @@ public class Locations {
      * @param rawLocations The raw locations to process.
      */
     public Locations(String... rawLocations) {
-        List<String> normalizedLocations = new ArrayList<String>();
+        List<Location> normalizedLocations = new ArrayList<Location>();
         for (String rawLocation : rawLocations) {
-            normalizedLocations.add(normalizeLocation(rawLocation));
+            normalizedLocations.add(new Location(rawLocation));
         }
         Collections.sort(normalizedLocations);
 
-        for (String normalizedLocation : normalizedLocations) {
+        for (Location normalizedLocation : normalizedLocations) {
             if (locations.contains(normalizedLocation)) {
                 LOG.warn("Discarding duplicate location '" + normalizedLocation + "'");
                 continue;
             }
 
-            String parentLocation = getParentLocationIfExists(normalizedLocation, locations);
+            Location parentLocation = getParentLocationIfExists(normalizedLocation, locations);
             if (parentLocation != null) {
                 LOG.warn("Discarding location '" + normalizedLocation + "' as it is a sublocation of '" + parentLocation + "'");
                 continue;
@@ -64,30 +64,8 @@ public class Locations {
     /**
      * @return The locations.
      */
-    public List<String> getLocations() {
+    public List<Location> getLocations() {
         return locations;
-    }
-
-    /**
-     * Normalizes this classpath location by
-     * <ul>
-     * <li>eliminating all leading and trailing spaces</li>
-     * <li>eliminating all leading and trailing slashes</li>
-     * <li>turning all separators into slashes</li>
-     * </ul>
-     *
-     * @param location The location to normalize.
-     * @return The normalized location.
-     */
-    private String normalizeLocation(String location) {
-        String directory = location.trim().replace(".", "/").replace("\\", "/");
-        if (directory.startsWith("/")) {
-            directory = directory.substring(1);
-        }
-        if (directory.endsWith("/")) {
-            directory = directory.substring(0, directory.length() - 1);
-        }
-        return directory;
     }
 
     /**
@@ -97,9 +75,9 @@ public class Locations {
      * @param finalLocations The list to search.
      * @return The parent location. {@code null} if none.
      */
-    private String getParentLocationIfExists(String location, List<String> finalLocations) {
-        for (String finalLocation : finalLocations) {
-            if ((location + "/").startsWith(finalLocation + "/")) {
+    private Location getParentLocationIfExists(Location location, List<Location> finalLocations) {
+        for (Location finalLocation : finalLocations) {
+            if (finalLocation.isParentOf(location)) {
                 return finalLocation;
             }
         }

@@ -15,14 +15,10 @@
  */
 package com.googlecode.flyway.core.util;
 
-import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -34,47 +30,47 @@ public class LocationsSmallTest {
     @Test
     public void mergeLocations() {
         Locations locations = new Locations("db/locations", "db/files", "db/classes");
-        List<String> locationList = locations.getLocations();
+        List<Location> locationList = locations.getLocations();
         assertEquals(3, locationList.size());
-        Iterator<String> iterator = locationList.iterator();
-        assertEquals("db/classes", iterator.next());
-        assertEquals("db/files", iterator.next());
-        assertEquals("db/locations", iterator.next());
+        Iterator<Location> iterator = locationList.iterator();
+        assertEquals("db/classes", iterator.next().getDescriptor());
+        assertEquals("db/files", iterator.next().getDescriptor());
+        assertEquals("db/locations", iterator.next().getDescriptor());
     }
 
     @Test
     public void mergeLocationsDuplicate() {
         Locations locations = new Locations("db/locations", "db/migration", "db/migration");
-        List<String> locationList = locations.getLocations();
+        List<Location> locationList = locations.getLocations();
         assertEquals(2, locationList.size());
-        Iterator<String> iterator = locationList.iterator();
-        assertEquals("db/locations", iterator.next());
-        assertEquals("db/migration", iterator.next());
+        Iterator<Location> iterator = locationList.iterator();
+        assertEquals("db/locations", iterator.next().getDescriptor());
+        assertEquals("db/migration", iterator.next().getDescriptor());
     }
 
     @Test
     public void mergeLocationsOverlap() {
         Locations locations = new Locations("db/migration/oracle", "db/migration", "db/migration");
-        List<String> locationList = locations.getLocations();
+        List<Location> locationList = locations.getLocations();
         assertEquals(1, locationList.size());
-        assertEquals("db/migration", locationList.get(0));
+        assertEquals("db/migration", locationList.get(0).getDescriptor());
     }
 
     @Test
     public void mergeLocationsSimilarButNoOverlap() {
         Locations locations = new Locations("db/migration/oracle", "db/migration", "db/migrationtest");
-        List<String> locationList = locations.getLocations();
+        List<Location> locationList = locations.getLocations();
         assertEquals(2, locationList.size());
-        assertTrue(locationList.contains("db/migration"));
-        assertTrue(locationList.contains("db/migrationtest"));
+        assertTrue(locationList.contains(new Location("db/migration")));
+        assertTrue(locationList.contains(new Location("db/migrationtest")));
     }
 
     @Test
     public void mergeLocationsSimilarButNoOverlapHyphen() {
         Locations locations = new Locations("db/migration/oracle", "db/migration", "db/migration-test");
-        List<String> locationList = locations.getLocations();
+        List<Location> locationList = locations.getLocations();
         assertEquals(2, locationList.size());
-        assertTrue(locationList.contains("db/migration"));
-        assertTrue(locationList.contains("db/migration-test"));
+        assertTrue(locationList.contains(new Location("db/migration")));
+        assertTrue(locationList.contains(new Location("db/migration-test")));
     }
 }

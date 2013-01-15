@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.util.scanner;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.FeatureDetector;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.UrlUtils;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -50,7 +51,7 @@ public class ClassPathScanner {
      * @return The resources that were found.
      * @throws IOException when the location could not be scanned.
      */
-    public ClassPathResource[] scanForResources(String location, String prefix, String suffix) throws IOException {
+    public ClassPathResource[] scanForResources(Location location, String prefix, String suffix) throws IOException {
         LOG.debug("Scanning for resources at '" + location + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
 
         Set<ClassPathResource> classPathResources = new TreeSet<ClassPathResource>();
@@ -74,7 +75,7 @@ public class ClassPathScanner {
      * @return The non-abstract classes that were found.
      * @throws Exception when the location could not be scanned.
      */
-    public Class<?>[] scanForClasses(String location, Class<?>... implementedInterfaces) throws Exception {
+    public Class<?>[] scanForClasses(Location location, Class<?>... implementedInterfaces) throws Exception {
         String[] interfaceNames = new String[implementedInterfaces.length];
         for (int i = 0; i < implementedInterfaces.length; i++) {
             interfaceNames[i] = implementedInterfaces[i].getName();
@@ -132,10 +133,10 @@ public class ClassPathScanner {
      * @return The resource names.
      * @throws IOException when scanning this location failed.
      */
-    private Set<String> findResourceNames(String location, String prefix, String suffix) throws IOException {
+    private Set<String> findResourceNames(Location location, String prefix, String suffix) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        Enumeration<URL> locationsUrls = getClassLoader().getResources(location);
+        Enumeration<URL> locationsUrls = getClassLoader().getResources(location.getDescriptor());
         if (!locationsUrls.hasMoreElements()) {
             LOG.debug("Unable to determine URL for classpath location: " + location + " (ClassLoader: " + getClassLoader() + ")");
         }

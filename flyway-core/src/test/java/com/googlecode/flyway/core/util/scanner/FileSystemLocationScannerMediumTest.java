@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.util.scanner;
 
+import com.googlecode.flyway.core.util.Location;
 import org.junit.Test;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class FileSystemLocationScannerMediumTest {
         String path = URLDecoder.decode(url, "UTF-8") + "/";
 
         Set<String> resourceNames =
-                new FileSystemLocationScanner().findResourceNamesFromFileSystem(path, "sql", new File(path + "sql"));
+                new FileSystemLocationScanner().findResourceNamesFromFileSystem(path, new Location("sql"), new File(path + "sql"));
 
         assertEquals(4, resourceNames.size());
         String[] names = resourceNames.toArray(new String[4]);
@@ -50,7 +51,7 @@ public class FileSystemLocationScannerMediumTest {
         URL url = new URL("file", null, 0, "X:\\dummy\\sql");
 
         Set<String> resourceNames =
-                new FileSystemLocationScanner().findResourceNames("sql", url);
+                new FileSystemLocationScanner().findResourceNames(new Location("sql"), url);
 
         assertEquals(0, resourceNames.size());
     }

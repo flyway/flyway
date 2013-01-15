@@ -16,6 +16,7 @@
 package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
 import com.googlecode.flyway.core.util.ClassUtils;
 import org.junit.After;
@@ -78,7 +79,7 @@ public class MainMediumTest {
 
         assertTrue(new ClassPathResource("pkg/runtime.properties").exists());
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("pkg", "run", ".properties");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("pkg"), "run", ".properties");
         assertEquals("pkg/runtime.properties", resources[0].getLocation());
     }
 
@@ -94,7 +95,7 @@ public class MainMediumTest {
 
         assertTrue(new ClassPathResource("runtime.properties").exists());
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("", "run", ".properties");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location(""), "run", ".properties");
         assertEquals("runtime.properties", resources[1].getLocation());
     }
 
@@ -112,10 +113,10 @@ public class MainMediumTest {
         assertTrue(new ClassPathResource("db/migration/V1.sql").exists());
         assertTrue(ClassUtils.isPresent("com.googlecode.flyway.sample.migration.V1_2__Another_user"));
 
-        ClassPathResource[] resources = new ClassPathScanner().scanForResources("db/migration", "V", ".sql");
+        ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("db/migration"), "V", ".sql");
         assertEquals("db/migration/V1.sql", resources[0].getLocation());
 
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/sample/migration");
+        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("com/googlecode/flyway/sample/migration"));
         assertEquals("com.googlecode.flyway.sample.migration.V1_2__Another_user", classes[0].getName());
     }
 }
