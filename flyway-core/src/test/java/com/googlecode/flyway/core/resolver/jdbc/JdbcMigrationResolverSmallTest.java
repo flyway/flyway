@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.resolver.jdbc;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.Version3dot5;
@@ -33,6 +34,11 @@ import static org.junit.Assert.assertNull;
  * Test for JdbcMigrationResolver.
  */
 public class JdbcMigrationResolverSmallTest {
+    @Test(expected = FlywayException.class)
+    public void broken() {
+        new JdbcMigrationResolver(new Location("com/googlecode/flyway/core/resolver/jdbc/error")).resolveMigrations();
+    }
+
     @Test
     public void resolveMigrations() {
         JdbcMigrationResolver jdbcMigrationResolver =

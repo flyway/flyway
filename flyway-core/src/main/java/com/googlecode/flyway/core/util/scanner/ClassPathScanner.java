@@ -28,6 +28,7 @@ import com.googlecode.flyway.core.util.scanner.jboss.JBossVFSv3LocationScanner;
 import com.googlecode.flyway.core.util.scanner.osgi.EquinoxCommonResourceUrlResolver;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -90,8 +91,8 @@ public class ClassPathScanner {
             String className = toClassName(resourceName);
             Class<?> clazz = getClassLoader().loadClass(className);
 
-            if (!ClassUtils.canInstantiate(clazz)) {
-                LOG.debug("Skipping uninstantiable class: " + className);
+            if (Modifier.isAbstract(clazz.getModifiers())) {
+                LOG.debug("Skipping abstract class: " + className);
                 continue;
             }
 
