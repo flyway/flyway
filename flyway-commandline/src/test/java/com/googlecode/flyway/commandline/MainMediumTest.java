@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.commandline;
 
+import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
+import com.googlecode.flyway.core.migration.java.JavaMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
@@ -116,7 +118,7 @@ public class MainMediumTest {
         ClassPathResource[] resources = new ClassPathScanner().scanForResources(new Location("db/migration"), "V", ".sql");
         assertEquals("db/migration/V1.sql", resources[0].getLocation());
 
-        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("com/googlecode/flyway/sample/migration"));
+        Class<?>[] classes = new ClassPathScanner().scanForClasses(new Location("com/googlecode/flyway/sample/migration"), JavaMigration.class);
         assertEquals("com.googlecode.flyway.sample.migration.V1_2__Another_user", classes[0].getName());
     }
 }
