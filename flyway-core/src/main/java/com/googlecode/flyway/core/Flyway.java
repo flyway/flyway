@@ -15,24 +15,27 @@
  */
 package com.googlecode.flyway.core;
 
-import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationInfoService;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.command.DbClean;
+import com.googlecode.flyway.core.command.DbInit;
 import com.googlecode.flyway.core.command.DbMigrate;
+import com.googlecode.flyway.core.command.DbSchemas;
 import com.googlecode.flyway.core.command.DbValidate;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
-import com.googlecode.flyway.core.command.DbInit;
-import com.googlecode.flyway.core.command.DbSchemas;
-import com.googlecode.flyway.core.metadatatable.*;
+import com.googlecode.flyway.core.metadatatable.MetaDataTable;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableImpl;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.util.Locations;
-import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -42,8 +45,11 @@ import com.googlecode.flyway.core.validation.ValidationMode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -817,12 +823,8 @@ public class Flyway {
                     }
                 }
 
-                try {
-                    if (!schemas[0].equals(dbSupport.getCurrentSchema())) {
-                        DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
-                    }
-                } catch (SQLException e) {
-                    throw new FlywayException("Error setting current schema to " + schemas[0], e);
+                if (!schemas[0].equals(dbSupport.getCurrentSchema())) {
+                    DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
                 }
 
                 DbMigrate dbMigrator =
@@ -1126,12 +1128,9 @@ public class Flyway {
 
             DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable);
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
+
             if (schemaNames.length == 0) {
-                try {
-                    setSchemas(dbSupport.getCurrentSchema().getName());
-                } catch (SQLException e) {
-                    throw new FlywayException("Error retrieving current schema", e);
-                }
+                setSchemas(dbSupport.getCurrentSchema().getName());
             }
 
             if (schemaNames.length == 1) {

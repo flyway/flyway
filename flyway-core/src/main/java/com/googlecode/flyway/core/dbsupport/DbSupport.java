@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.api.FlywayException;
+
 import java.sql.SQLException;
 
 /**
@@ -68,9 +70,41 @@ public abstract class DbSupport {
      * Retrieves the current schema.
      *
      * @return The current schema for this connection.
+     */
+    public Schema getCurrentSchema() {
+        try {
+            String schema = doGetCurrentSchema();
+
+            if (schema == null) {
+                throw new FlywayException("Current schema not set for connection! Check your database configuration!");
+            }
+
+            return getSchema(schema);
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to retrieve the current schema for the connection", e);
+        }
+    }
+
+    /**
+     * Retrieves the current schema.
+     *
+     * @return The current schema for this connection.
      * @throws SQLException when the current schema could not be retrieved.
      */
-    public abstract Schema getCurrentSchema() throws SQLException;
+    protected abstract String doGetCurrentSchema() throws SQLException;
+
+    /**
+     * Sets the current schema to this schema.
+     *
+     * @param schema The new current schema for this connection.
+     */
+    public void setCurrentSchema(Schema schema) {
+        try {
+            doSetCurrentSchema(schema);
+        } catch (SQLException e) {
+            throw new FlywayException("Error setting current schema to " + schema, e);
+        }
+    }
 
     /**
      * Sets the current schema to this schema.
@@ -78,7 +112,7 @@ public abstract class DbSupport {
      * @param schema The new current schema for this connection.
      * @throws SQLException when the current schema could not be set.
      */
-    public abstract void setCurrentSchema(Schema schema) throws SQLException;
+    protected abstract void doSetCurrentSchema(Schema schema) throws SQLException;
 
     /**
      * @return The database function that returns the current user.

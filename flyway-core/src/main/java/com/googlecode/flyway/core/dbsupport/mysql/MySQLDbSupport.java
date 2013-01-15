@@ -43,12 +43,13 @@ public class MySQLDbSupport extends DbSupport {
         return "SUBSTRING_INDEX(USER(),'@',1)";
     }
 
-    public Schema getCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.getConnection().getCatalog());
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
+        return jdbcTemplate.getConnection().getCatalog();
     }
 
     @Override
-    public void setCurrentSchema(Schema schema) throws SQLException {
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
         jdbcTemplate.execute("USE " + schema);
     }
 

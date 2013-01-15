@@ -48,12 +48,13 @@ public class SQLServerDbSupport extends DbSupport {
         return "SUSER_NAME()";
     }
 
-    public Schema getCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.queryForString("SELECT SCHEMA_NAME()"));
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT SCHEMA_NAME()");
     }
 
     @Override
-    public void setCurrentSchema(Schema schema) throws SQLException {
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
         LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
         // Not currently supported.
         // See http://connect.microsoft.com/SQLServer/feedback/details/390528/t-sql-statement-for-changing-default-schema-context

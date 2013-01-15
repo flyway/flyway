@@ -43,12 +43,13 @@ public class DB2DbSupport extends DbSupport {
         return "com/googlecode/flyway/core/dbsupport/db2/";
     }
 
-    public Schema getCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim());
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
+        return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1");
     }
 
     @Override
-    public void setCurrentSchema(Schema schema) throws SQLException {
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 

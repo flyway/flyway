@@ -44,12 +44,13 @@ public class OracleDbSupport extends DbSupport {
         return "USER";
     }
 
-    public Schema getCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.queryForString("SELECT USER FROM dual"));
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT USER FROM dual");
     }
 
     @Override
-    public void setCurrentSchema(Schema schema) throws SQLException {
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
         jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + schema);
     }
 

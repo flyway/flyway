@@ -268,8 +268,12 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         createIfNotExists();
 
-        String query = "SELECT " + dbSupport.quote("version") + " FROM " + table + " WHERE " + dbSupport.quote("version_rank")
-                + "IN (SELECT MAX(" + dbSupport.quote("version_rank") + ") FROM " + table + ")";
+        // Determine the version associated with the highest version_rank
+        String query = "SELECT t1." + dbSupport.quote("version") + " FROM " + table + " t1" +
+                " LEFT OUTER JOIN " + table + " t2 ON" +
+                " (t1." + dbSupport.quote("version") + " = t2." + dbSupport.quote("version")
+                + " AND t1." + dbSupport.quote("version_rank") + " < t2." + dbSupport.quote("version_rank") + ")" +
+                " WHERE t2." + dbSupport.quote("version") + " IS NULL";
         try {
             String version = jdbcTemplate.queryForString(query);
             return new MigrationVersion(version);

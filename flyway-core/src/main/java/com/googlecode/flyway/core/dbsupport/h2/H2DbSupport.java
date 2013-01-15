@@ -45,7 +45,7 @@ public class H2DbSupport extends DbSupport {
         return "USER()";
     }
 
-    public Schema getCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchema() throws SQLException {
         ResultSet resultSet = null;
         String schema = null;
         try {
@@ -60,11 +60,11 @@ public class H2DbSupport extends DbSupport {
             JdbcUtils.closeResultSet(resultSet);
         }
 
-        return getSchema(schema);
+        return schema;
     }
 
     @Override
-    public void setCurrentSchema(Schema schema) throws SQLException {
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 

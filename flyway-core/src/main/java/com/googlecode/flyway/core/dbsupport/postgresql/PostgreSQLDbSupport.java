@@ -44,12 +44,13 @@ public class PostgreSQLDbSupport extends DbSupport {
         return "current_user";
     }
 
-    public Schema getCurrentSchema() throws SQLException {
-        return getSchema(jdbcTemplate.queryForString("SELECT current_schema()"));
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT current_schema()");
     }
 
     @Override
-    public void setCurrentSchema(Schema schema) throws SQLException {
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
         String searchPath = jdbcTemplate.queryForString("SHOW search_path");
         jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
     }
