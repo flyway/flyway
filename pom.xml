@@ -178,7 +178,7 @@
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
                 <artifactId>jtds</artifactId>
-                <version>1.3.0</version>
+                <version>1.2.7</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -442,6 +442,7 @@
                                         <include>**/*MediumTest.java</include>
                                     </includes>
                                     <excludes>
+                                        <exclude>**/Jtds*MediumTest.java</exclude>
                                         <exclude>**/*SmallTest.java</exclude>
                                     </excludes>
                                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
@@ -450,6 +451,27 @@
                                     </systemPropertyVariables>
                                     <parallel>classes</parallel>
                                     <threadCount>8</threadCount>
+                                    <argLine>-XX:ReservedCodeCacheSize=128m</argLine>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>MediumTests-NonParallel</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>**/Jtds*MediumTest.java</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>**/*SmallTest.java</exclude>
+                                    </excludes>
+                                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                                    <systemPropertyVariables>
+                                        <user.timezone>+00:00</user.timezone>
+                                    </systemPropertyVariables>
+                                    <parallel>none</parallel>
                                     <argLine>-XX:ReservedCodeCacheSize=128m</argLine>
                                 </configuration>
                             </execution>
