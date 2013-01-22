@@ -100,6 +100,8 @@ public class DriverDataSource implements DataSource {
                 driverClass = "net.sourceforge.jtds.jdbc.Driver";
             } else if (url.startsWith("jdbc:sqlserver:")) {
                 driverClass = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+            } else if (url.startsWith("jdbc:ingres:")) {
+                driverClass = "com.ingres.jdbc.IngresDriver";
             } else {
                 throw new FlywayException("Unable to autodetect Jdbc driver for url: " + url);
             }
