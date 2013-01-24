@@ -46,13 +46,13 @@ public class IngresDbSupport extends DbSupport {
 
     @Override
     protected String doGetCurrentSchema() throws SQLException {
-        // Schemas are not actually supported by Ingres. Returning the user name.
-        return jdbcTemplate.queryForString("SELECT current_user");
+        return jdbcTemplate.queryForString("SELECT current_schema()");
     }
 
     @Override
     protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        // Schemas are not actually supported by Ingres.
+        String searchPath = jdbcTemplate.queryForString("SHOW search_path");
+        jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
     }
 
     public boolean supportsDdlTransactions() {
