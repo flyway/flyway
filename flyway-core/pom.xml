@@ -71,11 +71,6 @@
             <artifactId>derby</artifactId>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>com.ingres.jdbc</groupId>
-			<artifactId>iijdbc</artifactId>
-            <scope>test</scope>
-		</dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-sdk</artifactId>

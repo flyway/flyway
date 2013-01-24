@@ -20,7 +20,6 @@ import com.googlecode.flyway.core.dbsupport.db2.DB2DbSupport;
 import com.googlecode.flyway.core.dbsupport.derby.DerbyDbSupport;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
-import com.googlecode.flyway.core.dbsupport.ingres.IngresDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
@@ -88,9 +87,6 @@ public class DbSupportFactory {
             // DB2 also returns the OS it's running on.
             //   ex.: DB2/NT
             return new DB2DbSupport(connection);
-        }
-        if (databaseProductName.startsWith("INGRES")) {
-            return new IngresDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

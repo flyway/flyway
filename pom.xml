@@ -160,13 +160,13 @@
             <dependency>
                 <groupId>com.oracle</groupId>
                 <artifactId>ojdbc5</artifactId>
-                <version>11.2.0.3</version>
+                <version>11.2.0.2.0</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>com.ibm.db2</groupId>
                 <artifactId>db2jcc</artifactId>
-                <version>10.1.0.1</version>
+                <version>3.62.56</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -175,12 +175,6 @@
                 <version>9.0-801.jdbc3</version>
                 <optional>true</optional>
             </dependency>
-			<dependency>
-				<groupId>com.ingres.jdbc</groupId>
-				<artifactId>iijdbc</artifactId>
-				<version>10.0-4.0.6</version>
-                <optional>true</optional>
-			</dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
                 <artifactId>jtds</artifactId>
@@ -190,7 +184,7 @@
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>sqljdbc4</artifactId>
-                <version>4.0.2206.100</version>
+                <version>3.0.1301.101</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
