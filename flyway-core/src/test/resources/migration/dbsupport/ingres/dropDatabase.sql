@@ -14,5 +14,4 @@
 -- limitations under the License.
 --
 
-DROP DATABASE flyway_db;
 DROP USER flyway;

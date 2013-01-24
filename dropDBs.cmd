@@ -30,6 +30,10 @@ echo PostgreSQL...
 set PGPASSWORD=flyway
 psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/dropDatabase.sql
 
+echo Ingres...
+dropdb -uflyway flyway_db
+sql -uingres < flyway-core/src/test/resources/migration/dbsupport/ingres/dropDatabase.sql
+
 echo SQL Server...
 sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources\migration\dbsupport\sqlserver\dropDatabase.sql
 
