@@ -95,14 +95,6 @@ public abstract class AntLargeTest {
     protected String runAnt(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
         String antHome = System.getenv("ANT_HOME");
 
-        if (antHome == null) {
-            // On a typical Linux system, Ant is installed to /usr/bin
-            // using a package management system, and setting ANT_HOME to /usr
-            // breaks lots of things. So, if ANT_HOME is null, we'll try /usr directory
-            // here without touching the ANT_HOME.
-            antHome = "/usr";
-        }
-        
         String extension = "";
         if (System.getProperty("os.name").startsWith("Windows")) {
             extension = ".bat";
