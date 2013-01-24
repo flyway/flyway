@@ -31,7 +31,10 @@ set PGPASSWORD=flyway
 psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
 
 echo Ingres...
-iisql flyway < flyway-core/src/test/resources/migration/dbsupport/ingres/createDatabase.sql
+sql -uingres iidbdb < flyway-core/src/test/resources/migration/dbsupport/ingres/createDatabase.sql
+@REM Note that you need flyway user in the OS user accounts.
+@REM On Linux it's done with "sudo useradd flyway", using the password flyway.
+createdb -uflyway flyway_db
 
 echo SQL Server...
 sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources\migration\dbsupport\sqlserver\createDatabase.sql
