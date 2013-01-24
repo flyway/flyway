@@ -23,7 +23,6 @@ import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
-import com.googlecode.flyway.core.dbsupport.ingres.IngresDbSupport;
 import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerDbSupport;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -83,9 +82,6 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
             return new PostgreSQLDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("INGRES")) {
-            return new IngresDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
             // DB2 also returns the OS it's running on.
