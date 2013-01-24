@@ -19,8 +19,8 @@ DROP INDEX ${table}_current_version_index;
 ALTER TABLE ${table} RENAME TO "${table}_bak";
 ALTER TABLE "${table}_bak" RENAME TO "${table}";
 
-ALTER TABLE "${table}" DROP CONSTRAINT ${table}_script_unique;
-ALTER TABLE "${table}" DROP CONSTRAINT ${table}_primary_key;
+ALTER TABLE "${table}" DROP CONSTRAINT "${table}_script_unique";
+ALTER TABLE "${table}" DROP CONSTRAINT "${table}_primary_key";
 ALTER TABLE "${table}" DROP COLUMN current_version;
 
 ALTER TABLE "${table}" ALTER COLUMN "version" SET DATA TYPE VARCHAR(50);
