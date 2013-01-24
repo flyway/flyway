@@ -95,10 +95,6 @@ public class MavenLargeTest {
      */
     private String runMaven(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
         String m2Home = System.getenv("M2_HOME");
-        if (m2Home == null) {
-            // This is for typical Linux environments.
-            m2Home = "/usr";
-        }
         String flywayVersion = System.getProperty("flywayVersion", getPomVersion());
 
         String extension = "";

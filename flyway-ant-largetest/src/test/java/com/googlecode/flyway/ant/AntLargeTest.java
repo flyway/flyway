@@ -95,11 +95,6 @@ public abstract class AntLargeTest {
     protected String runAnt(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
         String antHome = System.getenv("ANT_HOME");
 
-        if (antHome == null) {
-            // A typical Linux system.
-            antHome = "/usr";
-        }
-        
         String extension = "";
         if (System.getProperty("os.name").startsWith("Windows")) {
             extension = ".bat";
