@@ -97,6 +97,14 @@ public class MavenLargeTest {
         String m2Home = System.getenv("M2_HOME");
         String flywayVersion = System.getProperty("flywayVersion", getPomVersion());
 
+        if (m2Home == null) {
+            // On a typical Linux system, Maven is installed to /usr/bin
+            // using a package management system, and setting M2_HOME to /usr
+            // breaks lots of things. So, if M2_HOME is null, we'll try /usr directory
+            // here without touching the M2_HOME.
+            m2Home = "/usr";
+        }
+        
         String extension = "";
         if (System.getProperty("os.name").startsWith("Windows")) {
             extension = ".bat";
