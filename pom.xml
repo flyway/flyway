@@ -160,13 +160,13 @@
             <dependency>
                 <groupId>com.oracle</groupId>
                 <artifactId>ojdbc5</artifactId>
-                <version>11.2.0.2.0</version>
+                <version>11.2.0.3</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>com.ibm.db2</groupId>
                 <artifactId>db2jcc</artifactId>
-                <version>3.62.56</version>
+                <version>10.1.0.1</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -190,7 +190,7 @@
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>sqljdbc4</artifactId>
-                <version>3.0.1301.101</version>
+                <version>4.0.2206.100</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
