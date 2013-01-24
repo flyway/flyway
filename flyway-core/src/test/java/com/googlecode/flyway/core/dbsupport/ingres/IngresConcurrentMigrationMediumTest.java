@@ -27,9 +27,9 @@ import java.util.Properties;
 public class IngresConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("postgresql.user", "flyway");
-        String password = customProperties.getProperty("postgresql.password", "flyway");
-        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
+        String user = customProperties.getProperty("ingres.user", "flyway");
+        String password = customProperties.getProperty("ingres.password", "flyway");
+        String url = customProperties.getProperty("ingres.url", "jdbc:ingres://localhost:II7/flyway_db");
 
         return new DriverDataSource(null, url, user, password);
     }
