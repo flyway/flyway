@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.util.StringUtils;
 import org.junit.Test;
@@ -24,13 +24,13 @@ import static org.junit.Assert.assertTrue;
 
 
 /**
- * Test for PostgreSQLSqlStatementBuilder.
+ * Test for IngresSqlStatementBuilder.
  */
-public class PostgreSQLSqlStatementBuilderSmallTest {
+public class IngresSqlStatementBuilderSmallTest {
     @Test
     public void endsWithOpenMultilineStringLiteral() {
-        assertTrue(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
-        assertFalse(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
+        assertTrue(new IngresSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
+        assertFalse(new IngresSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
                 "2. second');"));
     }
 
@@ -40,7 +40,7 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
                 + "2. second;\n"
                 + "3. third;')";
 
-        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+        IngresSqlStatementBuilder statementBuilder = new IngresSqlStatementBuilder();
 
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         for (String line : lines) {
@@ -58,7 +58,7 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
                         "quotes;\n" +
                         "$$)";
 
-        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+        IngresSqlStatementBuilder statementBuilder = new IngresSqlStatementBuilder();
 
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         for (String line : lines) {
@@ -88,7 +88,7 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
                         "END;\n" +
                         "$$ LANGUAGE plpgsql";
 
-        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+        IngresSqlStatementBuilder statementBuilder = new IngresSqlStatementBuilder();
 
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         for (String line : lines) {
@@ -100,15 +100,15 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
 
     @Test
     public void dollarQuoteRegex() {
-        assertFalse("abc".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertFalse("abc$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertFalse("$abc".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertTrue("$$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertTrue("$abc$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertTrue("$ABC$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertTrue("$aBcDeF$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertTrue("$aBc_DeF$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertTrue("$abcDEF123$".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
-        assertTrue("$abcDEF123$xxx".matches(PostgreSQLSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertFalse("abc".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertFalse("abc$".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertFalse("$abc".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$$".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abc$".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$ABC$".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$aBcDeF$".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$aBc_DeF$".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abcDEF123$".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
+        assertTrue("$abcDEF123$xxx".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
     }
 }

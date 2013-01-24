@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
@@ -23,18 +23,18 @@ import com.googlecode.flyway.core.dbsupport.Table;
 import java.sql.SQLException;
 
 /**
- * PostgreSQL-specific table.
+ * Ingres-specific table.
  */
-public class PostgreSQLTable extends Table {
+public class IngresTable extends Table {
     /**
-     * Creates a new PostgreSQL table.
+     * Creates a new Ingres table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param dbSupport    The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public PostgreSQLTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    public IngresTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
     }
 

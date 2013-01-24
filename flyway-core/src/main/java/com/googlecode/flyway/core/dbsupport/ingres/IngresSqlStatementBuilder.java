@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * SqlStatementBuilder supporting PostgreSQL specific syntax.
+ * SqlStatementBuilder supporting Ingres specific syntax.
  */
-public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
+public class IngresSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Matches $$, $BODY$, $xyz123$, ...
      */

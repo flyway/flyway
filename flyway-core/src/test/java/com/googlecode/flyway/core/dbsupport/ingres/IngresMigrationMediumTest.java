@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -25,10 +25,10 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test to demonstrate the migration functionality using PostgreSQL.
+ * Test to demonstrate the migration functionality using Ingres.
  */
 @SuppressWarnings({"JavaDoc"})
-public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
+public class IngresMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         String user = customProperties.getProperty("postgresql.user", "flyway");
@@ -44,7 +44,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Stored Procedures.
+     * Tests clean and migrate for Ingres Stored Procedures.
      */
     @Test
     public void storedProcedure() throws Exception {
@@ -60,7 +60,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Functions.
+     * Tests clean and migrate for Ingres Functions.
      */
     @Test
     public void function() throws Exception {
@@ -74,7 +74,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Triggers.
+     * Tests clean and migrate for Ingres Triggers.
      */
     @Test
     public void trigger() throws Exception {
@@ -91,7 +91,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Views.
+     * Tests clean and migrate for Ingres Views.
      */
     @Test
     public void view() throws Exception {
@@ -107,7 +107,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL child tables.
+     * Tests clean and migrate for Ingres child tables.
      */
     @Test
     public void inheritance() throws Exception {
@@ -121,7 +121,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Domains.
+     * Tests clean and migrate for Ingres Domains.
      */
     @Test
     public void domain() throws Exception {
@@ -137,7 +137,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Enums.
+     * Tests clean and migrate for Ingres Enums.
      */
     @Test
     public void enumeration() throws Exception {
@@ -153,7 +153,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Aggregates.
+     * Tests clean and migrate for Ingres Aggregates.
      */
     @Test
     public void aggregate() throws Exception {

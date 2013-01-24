@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 
@@ -23,15 +23,15 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * PostgreSQL-specific JdbcTemplate customizations.
+ * Ingres-specific JdbcTemplate customizations.
  */
-public class PostgreSQLJdbcTemplate extends JdbcTemplate {
+public class IngresJdbcTemplate extends JdbcTemplate {
     /**
-     * Creates a new PostgreSQLJdbcTemplate.
+     * Creates a new IngresJdbcTemplate.
      *
      * @param connection The DB connection to use.
      */
-    public PostgreSQLJdbcTemplate(Connection connection) {
+    public IngresJdbcTemplate(Connection connection) {
         super(connection);
     }
 

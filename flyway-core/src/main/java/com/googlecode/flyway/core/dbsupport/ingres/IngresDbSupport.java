@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.Schema;
@@ -23,16 +23,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * PostgreSQL-specific support.
+ * Ingres-specific support.
  */
-public class PostgreSQLDbSupport extends DbSupport {
+public class IngresDbSupport extends DbSupport {
     /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
      */
-    public PostgreSQLDbSupport(Connection connection) {
-        super(new PostgreSQLJdbcTemplate(connection));
+    public IngresDbSupport(Connection connection) {
+        super(new IngresJdbcTemplate(connection));
     }
 
 
@@ -68,7 +68,7 @@ public class PostgreSQLDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new PostgreSQLSqlStatementBuilder();
+        return new IngresSqlStatementBuilder();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     public Schema getSchema(String name) {
-        return new PostgreSQLSchema(jdbcTemplate, this, name);
+        return new IngresSchema(jdbcTemplate, this, name);
     }
 
     @Override

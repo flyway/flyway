@@ -16,4 +16,4 @@
 /**
  * Private API. No compatibility guarantees provided.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;

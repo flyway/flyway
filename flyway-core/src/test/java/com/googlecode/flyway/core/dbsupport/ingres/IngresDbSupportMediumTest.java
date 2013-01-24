@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -29,16 +29,16 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test for PostgreSQLDbSupport.
+ * Test for IngresDbSupport.
  */
-public class PostgreSQLDbSupportMediumTest {
+public class IngresDbSupportMediumTest {
     /**
      * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.
      */
     @Test
     public void setCurrentSchema() throws Exception {
         Connection connection = createDataSource().getConnection();
-        PostgreSQLDbSupport dbSupport = new PostgreSQLDbSupport(connection);
+        IngresDbSupport dbSupport = new IngresDbSupport(connection);
         Schema schema = dbSupport.getSchema("search_path_test");
         schema.create();
         dbSupport.setCurrentSchema(dbSupport.getSchema("search_path_test"));

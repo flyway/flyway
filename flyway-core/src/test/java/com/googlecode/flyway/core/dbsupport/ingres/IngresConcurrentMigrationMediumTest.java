@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -22,9 +22,9 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * Test to demonstrate the migration functionality using PostgreSQL.
+ * Test to demonstrate the migration functionality using Ingres.
  */
-public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+public class IngresConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         String user = customProperties.getProperty("postgresql.user", "flyway");

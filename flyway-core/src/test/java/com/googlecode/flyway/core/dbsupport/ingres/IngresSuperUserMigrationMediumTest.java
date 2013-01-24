@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -26,10 +26,10 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 /**
- * PostgreSQL medium tests that require SuperUser permissions.
+ * Ingres medium tests that require SuperUser permissions.
  */
 @SuppressWarnings({"JavaDoc"})
-public class PostgreSQLSuperUserMigrationMediumTest {
+public class IngresSuperUserMigrationMediumTest {
     private Flyway flyway;
 
     @Before
@@ -51,7 +51,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
     }
 
     /**
-     * Tests clean and migrate for PostgreSQL Types.
+     * Tests clean and migrate for Ingres Types.
      */
     @Test
     public void type() throws Exception {

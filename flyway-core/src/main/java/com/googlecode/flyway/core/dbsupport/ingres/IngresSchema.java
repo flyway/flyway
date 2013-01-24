@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.ingres;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
@@ -26,17 +26,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * PostgreSQL implementation of Schema.
+ * Ingres implementation of Schema.
  */
-public class PostgreSQLSchema extends Schema {
+public class IngresSchema extends Schema {
     /**
-     * Creates a new PostgreSQL schema.
+     * Creates a new Ingres schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public PostgreSQLSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public IngresSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -242,13 +242,13 @@ public class PostgreSQLSchema extends Schema {
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
-            tables[i] = new PostgreSQLTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
+            tables[i] = new IngresTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
     }
 
     @Override
     public Table getTable(String tableName) {
-        return new PostgreSQLTable(jdbcTemplate, dbSupport, this, tableName);
+        return new IngresTable(jdbcTemplate, dbSupport, this, tableName);
     }
 }
