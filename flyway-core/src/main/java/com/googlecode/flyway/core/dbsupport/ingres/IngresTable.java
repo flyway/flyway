@@ -40,7 +40,7 @@ public class IngresTable extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name));
+        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE");
     }
 
     @Override
@@ -55,6 +55,6 @@ public class IngresTable extends Table {
 
     @Override
     protected void doLock() throws SQLException {
-        // Not supported by Ingres.
+        jdbcTemplate.execute("LOCK TABLE " + this);
     }
 }
