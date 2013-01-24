@@ -30,6 +30,9 @@ echo PostgreSQL...
 set PGPASSWORD=flyway
 psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
 
+echo Ingres...
+iisql flyway < flyway-core/src/test/resources/migration/dbsupport/ingres/createDatabase.sql
+
 echo SQL Server...
 sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources\migration\dbsupport\sqlserver\createDatabase.sql
 
