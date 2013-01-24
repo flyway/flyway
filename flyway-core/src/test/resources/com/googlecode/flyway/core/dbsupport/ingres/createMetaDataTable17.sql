@@ -15,17 +15,15 @@
 --
 
 CREATE TABLE ${table} (
-    "version" VARCHAR(20) NOT NULL,
+    "version" VARCHAR(20) NOT NULL PRIMARY KEY,
     description VARCHAR(100),
     "type" VARCHAR(10) NOT NULL,
-    script VARCHAR(200) NOT NULL,
+    script VARCHAR(200) NOT NULL UNIQUE,
     checksum INTEGER,
     installed_by VARCHAR(30) NOT NULL,
-    installed_on TIMESTAMP DEFAULT now(),
+    installed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     execution_time INTEGER,
     state VARCHAR(15) NOT NULL,
-    current_version BOOLEAN NOT NULL,
-    CONSTRAINT ${table}_primary_key PRIMARY KEY (version),
-    CONSTRAINT ${table}_script_unique UNIQUE (script)
+    current_version BOOLEAN NOT NULL
 );
 CREATE INDEX ${table}_current_version_index ON ${table} (current_version);

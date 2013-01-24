@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT "${table}_primary_key";
-CREATE INDEX "${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
-CREATE INDEX "${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
-CREATE INDEX "${table}_s_idx" ON "${schema}"."${table}" ("success");
+ALTER TABLE "${table}" DROP CONSTRAINT "${table}_primary_key";
+CREATE INDEX "${table}_vr_idx" ON "${table}" ("version_rank");
+CREATE INDEX "${table}_ir_idx" ON "${table}" ("installed_rank");
+CREATE INDEX "${table}_s_idx" ON "${table}" ("success");

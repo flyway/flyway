@@ -14,6 +14,6 @@
 -- limitations under the License.
 --
 
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "installed_rank" SET NOT NULL;
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version_rank" SET NOT NULL;
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_primary_key" PRIMARY KEY ("version_rank");
+ALTER TABLE "${table}" ALTER COLUMN "installed_rank" SET NOT NULL;
+ALTER TABLE "${table}" ALTER COLUMN "version_rank" SET NOT NULL;
+ALTER TABLE "${table}" ADD CONSTRAINT "${table}_primary_key" PRIMARY KEY ("version_rank");

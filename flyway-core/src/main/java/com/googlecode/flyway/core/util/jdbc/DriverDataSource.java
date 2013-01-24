@@ -192,6 +192,15 @@ public class DriverDataSource implements DataSource {
         if (password != null) {
             props.setProperty("password", password);
         }
+        if (url.startsWith("jdbc:ingres:")) {
+            if (username != null) {
+                props.setProperty("dbms_user", username);
+            }
+            if (password != null) {
+                props.setProperty("dbms_password", password);
+            }
+        }
+
         Connection connection = driver.connect(url, props);
 
         for (String initSql : initSqls) {

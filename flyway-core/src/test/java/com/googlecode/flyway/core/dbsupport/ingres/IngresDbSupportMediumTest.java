@@ -32,22 +32,6 @@ import static org.junit.Assert.assertEquals;
  * Test for IngresDbSupport.
  */
 public class IngresDbSupportMediumTest {
-    /**
-     * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.
-     */
-    @Test
-    public void setCurrentSchema() throws Exception {
-        Connection connection = createDataSource().getConnection();
-        IngresDbSupport dbSupport = new IngresDbSupport(connection);
-        Schema schema = dbSupport.getSchema("search_path_test");
-        schema.create();
-        dbSupport.setCurrentSchema(dbSupport.getSchema("search_path_test"));
-        String searchPath = dbSupport.getJdbcTemplate().queryForString("SHOW search_path");
-        assertEquals("search_path_test, \"$user\", public", searchPath);
-        schema.drop();
-        JdbcUtils.closeConnection(connection);
-    }
-
 
     /**
      * Creates a datasource for use in tests.
