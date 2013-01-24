@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE TABLE "${schema}"."${table}" (
+CREATE TABLE "${table}" (
     "version_rank" INT NOT NULL,
     "installed_rank" INT NOT NULL,
     "version" VARCHAR(50) NOT NULL,
@@ -23,12 +23,10 @@ CREATE TABLE "${schema}"."${table}" (
     "script" VARCHAR(1000) NOT NULL,
     "checksum" INTEGER,
     "installed_by" VARCHAR(30) NOT NULL,
-    "installed_on" TIMESTAMP NOT NULL DEFAULT now(),
+    "installed_on" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "execution_time" INTEGER NOT NULL,
     "success" BOOLEAN NOT NULL
-) WITH (
-  OIDS=FALSE
 );
-CREATE INDEX "${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
-CREATE INDEX "${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
-CREATE INDEX "${table}_s_idx" ON "${schema}"."${table}" ("success");
+CREATE INDEX "${table}_vr_idx" ON "${table}" ("version_rank");
+CREATE INDEX "${table}_ir_idx" ON "${table}" ("installed_rank");
+CREATE INDEX "${table}_s_idx" ON "${table}" ("success");

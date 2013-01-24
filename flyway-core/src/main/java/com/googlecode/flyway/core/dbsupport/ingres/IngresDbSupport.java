@@ -37,7 +37,7 @@ public class IngresDbSupport extends DbSupport {
 
 
     public String getScriptLocation() {
-        return "com/googlecode/flyway/core/dbsupport/postgresql/";
+        return "com/googlecode/flyway/core/dbsupport/ingres/";
     }
 
     public String getCurrentUserFunction() {
@@ -46,13 +46,13 @@ public class IngresDbSupport extends DbSupport {
 
     @Override
     protected String doGetCurrentSchema() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT current_schema()");
+        // Schemas are not actually supported by Ingres. Returning the user name.
+        return jdbcTemplate.queryForString("SELECT current_user");
     }
 
     @Override
     protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        String searchPath = jdbcTemplate.queryForString("SHOW search_path");
-        jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
+        // Schemas are not actually supported by Ingres.
     }
 
     public boolean supportsDdlTransactions() {
