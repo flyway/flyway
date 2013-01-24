@@ -96,8 +96,6 @@ public class DriverDataSource implements DataSource {
                 driverClass = "oracle.jdbc.OracleDriver";
             } else if (url.startsWith("jdbc:postgresql:")) {
                 driverClass = "org.postgresql.Driver";
-            } else if (url.startsWith("jdbc:ingres:")) {
-                driverClass = "com.ingres.jdbc.IngresDriver";
             } else if (url.startsWith("jdbc:jtds:")) {
                 driverClass = "net.sourceforge.jtds.jdbc.Driver";
             } else if (url.startsWith("jdbc:sqlserver:")) {
