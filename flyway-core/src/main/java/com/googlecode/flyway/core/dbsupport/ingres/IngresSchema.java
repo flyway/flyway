@@ -23,7 +23,6 @@ import com.googlecode.flyway.core.dbsupport.Table;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Ingres implementation of Schema.

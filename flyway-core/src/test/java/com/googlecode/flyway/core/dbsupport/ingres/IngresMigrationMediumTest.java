@@ -31,9 +31,9 @@ import static org.junit.Assert.assertEquals;
 public class IngresMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("postgresql.user", "flyway");
-        String password = customProperties.getProperty("postgresql.password", "flyway");
-        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
+        String user = customProperties.getProperty("ingres.user", "flyway");
+        String password = customProperties.getProperty("ingres.password", "flyway");
+        String url = customProperties.getProperty("ingres.url", "jdbc:ingres://localhost:II7/flyway_db");
 
         return new DriverDataSource(null, url, user, password);
     }
@@ -44,121 +44,14 @@ public class IngresMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean and migrate for Ingres Stored Procedures.
-     */
-    @Test
-    public void storedProcedure() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/procedure");
-        flyway.migrate();
-
-        assertEquals("Hello", jdbcTemplate.queryForString("SELECT value FROM test_data"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for Ingres Functions.
-     */
-    @Test
-    public void function() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/function");
-        flyway.migrate();
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for Ingres Triggers.
-     */
-    @Test
-    public void trigger() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/trigger");
-        flyway.migrate();
-
-        assertEquals(10, jdbcTemplate.queryForInt("SELECT count(*) FROM test4"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-
-    }
-
-    /**
      * Tests clean and migrate for Ingres Views.
      */
     @Test
     public void view() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/view");
+        flyway.setLocations("migration/dbsupport/ingres/sql/view");
         flyway.migrate();
 
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for Ingres child tables.
-     */
-    @Test
-    public void inheritance() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/inheritance");
-        flyway.migrate();
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for Ingres Domains.
-     */
-    @Test
-    public void domain() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/domain");
-        flyway.migrate();
-
-        assertEquals("foo", jdbcTemplate.queryForString("SELECT x FROM t"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for Ingres Enums.
-     */
-    @Test
-    public void enumeration() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/enum");
-        flyway.migrate();
-
-        assertEquals("positive", jdbcTemplate.queryForString("SELECT x FROM t"));
-
-        flyway.clean();
-
-        // Running migrate again on an unclean database, triggers duplicate object exceptions.
-        flyway.migrate();
-    }
-
-    /**
-     * Tests clean and migrate for Ingres Aggregates.
-     */
-    @Test
-    public void aggregate() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/aggregate");
-        flyway.migrate();
 
         flyway.clean();
 
@@ -171,7 +64,7 @@ public class IngresMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void dollarQuote() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/dollar");
+        flyway.setLocations("migration/dbsupport/ingres/sql/dollar");
         flyway.migrate();
         assertEquals(9, jdbcTemplate.queryForInt("select count(*) from dollar"));
     }
@@ -181,7 +74,7 @@ public class IngresMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void multiLine() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/multiline");
+        flyway.setLocations("migration/dbsupport/ingres/sql/multiline");
         flyway.migrate();
         assertEquals(1, jdbcTemplate.queryForInt("select count(*) from address"));
     }

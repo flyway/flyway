@@ -69,36 +69,6 @@ public class IngresSqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void multilineDollarNestedQuotes() {
-        final String sqlScriptSource =
-                "CREATE OR REPLACE FUNCTION upperFunc()\n" +
-                        "RETURNS void AS $$\n" +
-                        "DECLARE\n" +
-                        "var varchar = 'abc';\n" +
-                        "BEGIN\n" +
-                        "raise info 'upperFunc';\n" +
-                        "CREATE OR REPLACE FUNCTION internalFunc()\n" +
-                        "RETURNS void AS $BODY$\n" +
-                        "DECLARE\n" +
-                        "var varchar1 = 'abc';\n" +
-                        "BEGIN\n" +
-                        "raise info 'internalFunc'\n" +
-                        "END;\n" +
-                        "$BODY$ LANGUAGE plpgsql;\n" +
-                        "END;\n" +
-                        "$$ LANGUAGE plpgsql";
-
-        IngresSqlStatementBuilder statementBuilder = new IngresSqlStatementBuilder();
-
-        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
-        for (String line : lines) {
-            statementBuilder.addLine(line);
-        }
-
-        assertEquals(sqlScriptSource, statementBuilder.getSqlStatement().getSql());
-    }
-
-    @Test
     public void dollarQuoteRegex() {
         assertFalse("abc".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
         assertFalse("abc$".matches(IngresSqlStatementBuilder.DOLLAR_QUOTE_REGEX));
