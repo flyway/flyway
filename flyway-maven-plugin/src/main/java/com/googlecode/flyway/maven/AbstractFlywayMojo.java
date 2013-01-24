@@ -159,6 +159,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     protected MavenProject mavenProject;
 
     /**
+     * Disables the plugin execution.
+     * 
+     * @parameter default-value="false"
+     */
+    private boolean skip;
+
+    /**
      * Load username password from settings
      *
      * @throws FlywayException when the credentials could not be loaded.
@@ -186,44 +193,49 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         LogFactory.setLogCreator(new MavenLogCreator(this));
         log = LogFactory.getLog(getClass());
-        try {
-            loadCredentialsFromSettings();
+        if (skip) {
+            log.info("Skipping Flyway processing");
+        } else {
 
-            Flyway flyway = new Flyway();
-            flyway.setDataSource(createDataSource());
+            try {
+                loadCredentialsFromSettings();
 
-            String schemasProperty = mavenProject.getProperties().getProperty("flyway.schemas");
-            if (schemasProperty != null) {
-                flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasProperty, ","));
-            } else if (schemas != null) {
-                flyway.setSchemas(schemas);
-            }
-            if (table != null) {
-                flyway.setTable(table);
-            }
-            if (initialVersion != null) {
-                flyway.setInitialVersion(initialVersion);
-            }
-            if (initialDescription != null) {
-                flyway.setInitialDescription(initialDescription);
-            }
-            if (initVersion != null) {
-                flyway.setInitVersion(initVersion);
-            }
-            if (initDescription != null) {
-                flyway.setInitDescription(initDescription);
-            }
+                Flyway flyway = new Flyway();
+                flyway.setDataSource(createDataSource());
 
-            doExecute(flyway);
-        } catch (Exception e) {
-            log.error(e.toString());
+                String schemasProperty = mavenProject.getProperties().getProperty("flyway.schemas");
+                if (schemasProperty != null) {
+                    flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasProperty, ","));
+                } else if (schemas != null) {
+                    flyway.setSchemas(schemas);
+                }
+                if (table != null) {
+                    flyway.setTable(table);
+                }
+                if (initialVersion != null) {
+                    flyway.setInitialVersion(initialVersion);
+                }
+                if (initialDescription != null) {
+                    flyway.setInitialDescription(initialDescription);
+                }
+                if (initVersion != null) {
+                    flyway.setInitVersion(initVersion);
+                }
+                if (initDescription != null) {
+                    flyway.setInitDescription(initDescription);
+                }
 
-            @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if (rootCause != null) {
-                log.error("Caused by " + rootCause.toString());
+                doExecute(flyway);
+            } catch (Exception e) {
+                log.error(e.toString());
+
+                @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                if (rootCause != null) {
+                    log.error("Caused by " + rootCause.toString());
+                }
+                throw new MojoExecutionException("Flyway Error: " + e.toString(), e);
             }
-            throw new MojoExecutionException("Flyway Error: " + e.toString(), e);
         }
     }
 
