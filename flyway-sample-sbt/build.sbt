@@ -12,7 +12,3 @@ libraryDependencies ++= Seq(
   "org.hsqldb" % "hsqldb" % "2.2.8"
 )
 
-
-// FlywayPlugin.newSettings
-
-// newSetting := "light"
