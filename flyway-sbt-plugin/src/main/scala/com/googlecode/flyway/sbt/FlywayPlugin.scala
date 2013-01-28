@@ -13,22 +13,17 @@ import javax.sql.DataSource
 
 object FlywayPlugin extends Plugin {
 
-  object FlywayKeys {
-    val flywayDriver = SettingKey[Option[String]]("flyway-driver", "The fully qualified classname of the jdbc driver to use to connect to the database.\nBy default, the driver is autodetected based on the url.")
-    val flywayUrl = SettingKey[String]("flyway-url", "The jdbc url to use to connect to the database.")
-    val flywayUser = SettingKey[String]("flyway-user", "The user to use to connect to the database. (default: blank)")
-    val flywayPassword = SettingKey[String]("flyway-password", "The password to use to connect to the database. (default: blank)")
-    val flywayLocations = SettingKey[Seq[String]]("flyway-locations", "Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
+  val flywayDriver = SettingKey[Option[String]]("flyway-driver", "The fully qualified classname of the jdbc driver to use to connect to the database.\nBy default, the driver is autodetected based on the url.")
+  val flywayUrl = SettingKey[String]("flyway-url", "The jdbc url to use to connect to the database.")
+  val flywayUser = SettingKey[String]("flyway-user", "The user to use to connect to the database. (default: blank)")
+  val flywayPassword = SettingKey[String]("flyway-password", "The password to use to connect to the database. (default: blank)")
+  val flywayLocations = SettingKey[Seq[String]]("flyway-locations", "Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
 
-    lazy val flywayUpdateCl = TaskKey[Unit]("flyway-update-cl", "Update context classloader to runtime classpath")
-    lazy val flywayDataSource = TaskKey[DataSource]("flyway-datasource", "the flyway datasource")
-    lazy val flyway = TaskKey[Flyway]("flyway", "flyway object")
+  lazy val flywayUpdateCl = TaskKey[Unit]("flyway-update-cl", "Update context classloader to runtime classpath")
+  lazy val flywayDataSource = TaskKey[DataSource]("flyway-datasource", "the flyway datasource")
+  lazy val flyway = TaskKey[Flyway]("flyway", "flyway object")
 
-    val flywayMigrate = TaskKey[Unit]("flyway-migrate", "Migrates the database")
-
-  }
-
-  import FlywayKeys._
+  val flywayMigrate = TaskKey[Unit]("flyway-migrate", "Migrates the database")
 
   lazy val flywaySettings :Seq[Setting[_]] = Seq[Setting[_]](
     flywayDriver := None,
@@ -47,9 +42,9 @@ object FlywayPlugin extends Plugin {
         flyway.setLocations(locations:_*)
         flyway
     },
-    flywayMigrate <<= (flywayUpdateCl, flyway) map {
-      (cl, flyway) =>
-      flyway.migrate()
+    flywayMigrate <<= (flywayUpdateCl, flyway, streams) map {
+      (cl, flyway, s) =>
+        flyway.migrate()
     }
   )
 

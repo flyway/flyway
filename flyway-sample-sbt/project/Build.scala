@@ -1,5 +1,4 @@
 import com.googlecode.flyway.sbt.FlywayPlugin._
-import com.googlecode.flyway.sbt.FlywayPlugin.FlywayKeys._
 import sbt._
 import scala._
 
