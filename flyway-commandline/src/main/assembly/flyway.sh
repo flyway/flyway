@@ -18,8 +18,21 @@
 # Save current directory
 OLDDIR=`pwd`
 
+# resolve links - $0 may be a softlink
+PRG="$0"
+
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
 # Set the current directory to the installation directory
-INSTALLDIR=`dirname $0`
+INSTALLDIR=`dirname $PRG`
 cd "$INSTALLDIR"
 
 # Use JAVA_HOME if it is set
