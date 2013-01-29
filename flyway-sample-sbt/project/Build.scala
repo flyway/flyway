@@ -8,10 +8,10 @@ object FlywaySampleSbt extends Build {
     "project",
     file ("."),
     settings = Defaults.defaultSettings ++ flywaySettings ++ Seq (
-      flywayUrl := "jdbc:hsqldb:mem:sample;shutdown=true",
+      flywayUrl := "jdbc:hsqldb:file:target/flyway_sample;shutdown=true",
       flywayUser := "SA",
       flywayPassword := "",
-      flywayLocations := Seq("com/googlecode/flyway/sample/migration/sbt")
+      flywayLocations := Some(Seq("com/googlecode/flyway/sample/migration/sbt"))
     )
   )
 }
