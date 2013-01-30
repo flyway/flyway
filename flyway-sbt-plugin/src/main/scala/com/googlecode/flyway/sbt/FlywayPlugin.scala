@@ -9,6 +9,7 @@ import com.googlecode.flyway.core.Flyway
 import javax.sql.DataSource
 import com.googlecode.flyway.core.info.MigrationInfoDumper
 import scala.collection.JavaConversions._
+import com.googlecode.flyway.core.util.logging.{LogFactory, LogCreator}
 
 object FlywayPlugin extends Plugin {
 
@@ -67,6 +68,9 @@ object FlywayPlugin extends Plugin {
   val flywayValidate = TaskKey[Unit]("flyway-validate", "Validates the applied migrations in the database against the available classpath migrations in order to\ndetect accidental migration changes.")
   val flywayInfo = TaskKey[Unit]("flyway-info", "retrieve the complete information about the migrations including applied, pending and current migrations with\ndetails and status.")
   val flywayClean = TaskKey[Unit]("flyway-clean", "Drops all database objects.")
+  val flywayInit = TaskKey[Unit]("flyway-init", "Initializes the metadata table in an existing schema.")
+  val flywayRepair = TaskKey[Unit]("flyway-repair", "Repairs the metadata table after a failed migration on a database without DDL transactions.")
+  val flywayLog = TaskKey[Unit]("flyway-log", "Repairs the metadata table after a failed migration on a database without DDL transactions.")
 
   //*********************
   // flyway defaults
@@ -92,7 +96,9 @@ object FlywayPlugin extends Plugin {
     flywayPlaceholderSuffix := None,
     flywayInitOnMigrate := None,
     flywayValidateOnMigrate := None,
+
     flywayUpdateCl <<= (fullClasspath in Runtime, copyResources in Runtime) map { (cp, r) =>
+      // todo execute in dedicated thread to avoid classloader issues with calling thread
       Thread.currentThread().setContextClassLoader(ClasspathUtilities.toLoader(cp.map(_.data), getClass.getClassLoader))
     },
     flywayDataSource <<= (flywayUpdateCl, flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
@@ -102,25 +108,24 @@ object FlywayPlugin extends Plugin {
     flyway <<= (flywayDataSource, flywaySchemas, flywayTable, flywayInitVersion, flywayInitDescription,
       flywayLocations, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder) map {
       (dataSource, schemas, table, initVersion, initDescription,
-        locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
-      val flyway = new Flyway()
+       locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
+        val flyway = new Flyway()
         flyway.setDataSource(dataSource)
-        schemas map (flyway.setSchemas(_:_*))
-        table map  (flyway.setTable(_))
+        schemas map (flyway.setSchemas(_: _*))
+        table map (flyway.setTable(_))
         initVersion map (flyway.setInitVersion(_))
         initDescription map (flyway.setInitDescription(_))
-
-        locations map (flyway.setLocations(_:_*))
+        locations map (flyway.setLocations(_: _*))
         encoding map (flyway.setEncoding(_))
         sqlMigrationPrefix map (flyway.setSqlMigrationPrefix(_))
         sqlMigrationSuffix map (flyway.setSqlMigrationSuffix(_))
         cleanOnValidationError map (flyway.setCleanOnValidationError(_))
         target map (flyway.setTarget(_))
-
         flyway
     },
-    flywayMigrate <<= (flyway, flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
-      (flyway, ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
+    flywayMigrate <<= (flyway, streams, flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
+      (flyway, s, ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
+        redirectLogger(s)
         ignoreFailedFutureMigration map (flyway.setIgnoreFailedFutureMigration(_))
         flyway.setPlaceholders(placeholders)
         placeholderPrefix map (flyway.setPlaceholderPrefix(_))
@@ -129,9 +134,26 @@ object FlywayPlugin extends Plugin {
         validateOnMigrate map (flyway.setValidateOnMigrate(_))
         flyway.migrate()
     },
-    flywayValidate <<= flyway map { _.validate() },
-    flywayInfo <<= (flyway, streams) map { (flyway, s) => s.log.info(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all())) },
-    flywayClean <<= flyway map { _.clean() }
+    flywayValidate <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); flyway.validate() },
+    flywayInfo <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); s.log.info(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all())) },
+    flywayRepair <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); flyway.repair() },
+    flywayClean <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); flyway.clean() },
+    flywayInit <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); flyway.init() }
   )
 
+  def redirectLogger(streams: TaskStreams) {
+    LogFactory.setLogCreator(new SbtLogCreator(streams))
+  }
+}
+
+class SbtLogCreator(streams: TaskStreams) extends LogCreator {
+  def createLogger(clazz: Class[_]) = new SbtLog(streams.log)
+}
+
+class SbtLog(log: Logger) extends com.googlecode.flyway.core.util.logging.Log {
+  def debug(message: String) { log.debug(message) }
+  def info(message: String) { log.info(message) }
+  def warn(message: String) { log.warn(message) }
+  def error(message: String) { log.error(message) }
+  def error(message: String, e: Exception) { log.error(message); log.trace(e) }
 }
