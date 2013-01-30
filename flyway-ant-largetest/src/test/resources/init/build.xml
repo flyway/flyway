@@ -24,7 +24,7 @@
 
     <property name="flyway.url" value="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
     <property name="flyway.user" value="sa"/>
-    <property name="flyway.locations" value="org.hsqldb"/>
+    <property name="flyway.locations" value="org.hsqldb.sample"/>
 
     <path id="flyway.classpath">
         <fileset dir="${installDir}/jars" includes="hsqldb-*.jar"/>
