@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.ant;
+package com.googlecode.flyway.core.util.scanner.filesystem;
 
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.info.MigrationInfoDumper;
+import com.googlecode.flyway.core.api.FlywayException;
+import org.junit.Test;
 
 /**
- * Ant task that shows the history (all applied migrations) of the database.
+ * Test for FileSystemScanner.
  */
-@SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
-public class HistoryTask extends AbstractMigrationLoadingTask {
-    @Override
-    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
-        log.warn("<flyway:history/> is deprecated. Use <flyway:info/> instead.");
-        log.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied()));
+public class FileSystemScannerMediumTest {
+    @Test(expected = FlywayException.class)
+    public void nonExistentDirectory() throws Exception {
+        new FileSystemScanner().scanForResources("/invalid-path", "", "");
     }
 }

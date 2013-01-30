@@ -36,14 +36,15 @@ public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(
-                new Locations("migration/subdir/dir2", "db.migration", "migration/subdir/dir1"),
+                new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
                 "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         List<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
 
-        assertEquals(2, migrations.size());
+        assertEquals(3, migrations.size());
         assertEquals("First", migrations.get(0).getDescription());
-        assertEquals("Add foreign key", migrations.get(1).getDescription());
+        assertEquals("Late arrivals", migrations.get(1).getDescription());
+        assertEquals("Add foreign key", migrations.get(2).getDescription());
     }
 
     /**

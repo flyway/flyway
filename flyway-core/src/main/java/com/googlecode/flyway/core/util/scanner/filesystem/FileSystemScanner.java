@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.util.scanner.filesystem;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.FileSystemResource;
 import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -35,7 +36,7 @@ public class FileSystemScanner {
      * Scans the FileSystem for resources under the specified location, starting with the specified prefix and ending with
      * the specified suffix.
      *
-     * @param path   The path in the classpath to start searching. Subdirectories are also searched.
+     * @param path   The path in the filesystem to start searching. Subdirectories are also searched.
      * @param prefix The prefix of the resource names to match.
      * @param suffix The suffix of the resource names to match.
      * @return The resources that were found.
@@ -43,6 +44,10 @@ public class FileSystemScanner {
      */
     public Resource[] scanForResources(String path, String prefix, String suffix) throws IOException {
         LOG.debug("Scanning for filesystem resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
+
+        if (!new File(path).isDirectory()) {
+            throw new FlywayException("Invalid filesystem path: " + path);
+        }
 
         Set<Resource> resources = new TreeSet<Resource>();
 
@@ -56,6 +61,21 @@ public class FileSystemScanner {
     }
 
     /**
+     * Finds the resources names present at this location and below on the classpath starting with this prefix and
+     * ending with this suffix.
+     *
+     * @param path   The path on the classpath to scan.
+     * @param prefix The filename prefix to match.
+     * @param suffix The filename suffix to match.
+     * @return The resource names.
+     * @throws java.io.IOException when scanning this location failed.
+     */
+    private Set<String> findResourceNames(String path, String prefix, String suffix) throws IOException {
+        Set<String> resourceNames = findResourceNamesFromFileSystem(path, new File(path));
+        return filterResourceNames(resourceNames, prefix, suffix);
+    }
+
+    /**
      * Finds all the resource names contained in this file system folder.
      *
      * @param scanRootLocation The root location of the scan on disk.
@@ -63,9 +83,8 @@ public class FileSystemScanner {
      * @return The resource names;
      * @throws IOException when the folder could not be read.
      */
-    /*private -> for testing*/
     @SuppressWarnings("ConstantConditions")
-    Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) throws IOException {
+    private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) throws IOException {
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
         Set<String> resourceNames = new TreeSet<String>();
@@ -82,21 +101,6 @@ public class FileSystemScanner {
         }
 
         return resourceNames;
-    }
-
-    /**
-     * Finds the resources names present at this location and below on the classpath starting with this prefix and
-     * ending with this suffix.
-     *
-     * @param path   The path on the classpath to scan.
-     * @param prefix The filename prefix to match.
-     * @param suffix The filename suffix to match.
-     * @return The resource names.
-     * @throws java.io.IOException when scanning this location failed.
-     */
-    private Set<String> findResourceNames(String path, String prefix, String suffix) throws IOException {
-        Set<String> resourceNames = findResourceNamesFromFileSystem(path, new File(path));
-        return filterResourceNames(resourceNames, prefix, suffix);
     }
 
     /**

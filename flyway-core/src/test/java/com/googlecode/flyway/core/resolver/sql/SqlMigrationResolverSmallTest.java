@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.resolver.sql;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.Location;
@@ -70,12 +71,12 @@ public class SqlMigrationResolverSmallTest {
         assertEquals(1, sqlMigrationResolver.resolveMigrations().size());
     }
 
-    @Test
+    @Test(expected = FlywayException.class)
     public void resolveMigrationsNonExisting() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(new Location("non/existing"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
 
-        assertTrue(sqlMigrationResolver.resolveMigrations().isEmpty());
+        sqlMigrationResolver.resolveMigrations();
     }
 
     @Test

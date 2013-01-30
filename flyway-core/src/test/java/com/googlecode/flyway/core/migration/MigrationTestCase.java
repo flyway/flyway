@@ -108,9 +108,6 @@ public abstract class MigrationTestCase {
 
     @Test
     public void repair() throws Exception {
-        assertNull(flyway.info().current());
-        assertEquals(0, flyway.info().all().length);
-
         flyway.setLocations("migration/future_failed");
         assertEquals(4, flyway.info().all().length);
 
@@ -494,8 +491,6 @@ public abstract class MigrationTestCase {
     public void migrateMultipleSchemas() throws Exception {
         flyway.setSchemas("flyway_1", "flyway_2", "flyway_3");
         flyway.clean();
-
-        assertNull(flyway.status());
 
         flyway.setLocations("migration/multi");
         Map<String, String> placeholders = new HashMap<String, String>();

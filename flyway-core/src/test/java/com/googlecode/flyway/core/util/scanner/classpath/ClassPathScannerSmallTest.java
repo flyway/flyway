@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.util.scanner.classpath;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.dbsupport.db2.DB2MigrationMediumTest;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
@@ -88,11 +89,9 @@ public class ClassPathScannerSmallTest {
         assertEquals("migration/subdir/dir2/V2_0__Add_foreign_key.sql", resources[2].getLocation());
     }
 
-    @Test
-    public void scanForResourcesSubDirectoryWithoutFullPath() throws Exception {
-        Resource[] resources = new ClassPathScanner().scanForResources("subdir", "V", ".sql");
-
-        assertEquals(0, resources.length);
+    @Test(expected = FlywayException.class)
+    public void scanForResourcesInvalidPath() throws Exception {
+        new ClassPathScanner().scanForResources("invalid", "V", ".sql");
     }
 
     @Test

@@ -58,11 +58,9 @@ public class FlywayMediumTest {
         assertTrue(schema2.empty());
 
         Flyway flyway = new Flyway();
-        flyway.setDataSource(dataSource1);
-        assertNull(flyway.status());
 
+        flyway.setDataSource(dataSource1);
         flyway.setDataSource(dataSource2);
-        assertNull(flyway.status());
 
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -81,9 +79,6 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        assertNull(flyway.info().current());
-        assertEquals(0, flyway.info().all().length);
-        assertEquals(0, flyway.info().pending().length);
 
         flyway.setLocations("migration/sql");
         assertEquals(4, flyway.info().all().length);
@@ -119,8 +114,6 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        assertNull(flyway.info().current());
-        assertEquals(0, flyway.info().all().length);
 
         flyway.setLocations("migration/failed");
         assertEquals(1, flyway.info().all().length);
@@ -146,6 +139,7 @@ public class FlywayMediumTest {
         flyway.setDataSource(dataSource);
         flyway.init();
 
+        flyway.setLocations();
         assertEquals(1, flyway.info().all().length);
         assertEquals("1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());

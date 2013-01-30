@@ -22,9 +22,10 @@
     </path>
     <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml" classpathref="lib.path"/>
 
-    <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
     <property name="flyway.url" value="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
     <property name="flyway.user" value="sa"/>
+    <property name="flyway.locations" value=""/>
+
     <path id="flyway.classpath">
         <fileset dir="${installDir}/jars" includes="hsqldb-*.jar"/>
     </path>

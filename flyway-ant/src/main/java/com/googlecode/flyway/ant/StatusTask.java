@@ -22,9 +22,9 @@ import com.googlecode.flyway.core.info.MigrationInfoDumper;
 /**
  * Flyway status task.
  */
-public class StatusTask extends AbstractFlywayTask {
+public class StatusTask extends AbstractMigrationLoadingTask {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
+    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
         log.warn("<flyway:status/> is deprecated. Use <flyway:info/> instead.");
         MigrationInfo current = flyway.info().current();
 

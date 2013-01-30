@@ -20,7 +20,8 @@
     <path id="lib.path">
         <fileset dir="${installDir}/flyway-ant-${pomVersion}" includes="*.jar"/>
     </path>
-    <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml" classpathref="lib.path"/>
+    <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml"
+             classpathref="lib.path"/>
 
     <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
     <property name="flyway.url" value="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
@@ -47,6 +48,10 @@
                 <location path="sql"/>
             </locations>
         </flyway:migrate>
-        <flyway:history />
+        <flyway:history>
+            <locations>
+                <location path="sql"/>
+            </locations>
+        </flyway:history>
     </target>
 </project>
