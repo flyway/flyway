@@ -6,6 +6,8 @@ name := "flyway-sbt-plugin"
 
 version := "2.0.4-SNAPSHOT"
 
+crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
+
 libraryDependencies += "com.googlecode.flyway" % "flyway-core" % "2.0.4-SNAPSHOT"
 
 resolvers += (
