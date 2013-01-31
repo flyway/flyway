@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import com.googlecode.flyway.core.info.MigrationInfoDumper;
 /**
  * Flyway status task.
  */
-public class StatusTask extends AbstractFlywayTask {
+public class StatusTask extends AbstractMigrationLoadingTask {
     @Override
-    protected void doExecute(Flyway flyway) throws Exception {
+    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
         log.warn("<flyway:status/> is deprecated. Use <flyway:info/> instead.");
         MigrationInfo current = flyway.info().current();
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,19 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -32,15 +39,17 @@ import static org.junit.Assert.assertFalse;
  */
 @SuppressWarnings({"JavaDoc"})
 public abstract class ConcurrentMigrationTestCase {
+    private static final Log LOG = LogFactory.getLog(ConcurrentMigrationTestCase.class);
+
     /**
      * The number of threads to use in this test.
      */
     private static final int NUM_THREADS = 10;
 
     /**
-     * The directory containing the migrations for the tests.
+     * The quoted schema placeholder for the tests.
      */
-    private static final String BASE_DIR = "migration/sql";
+    private String schemaQuoted;
 
     /**
      * Flag to indicate the concurrent test has failed.
@@ -66,10 +75,11 @@ public abstract class ConcurrentMigrationTestCase {
         }
         concurrentMigrationDataSource = createDataSource(customProperties);
 
-        flyway = new Flyway();
-        flyway.setDataSource(concurrentMigrationDataSource);
-        flyway.setLocations(BASE_DIR);
-        flyway.setInitVersion("0");
+        Connection connection = concurrentMigrationDataSource.getConnection();
+        schemaQuoted = DbSupportFactory.createDbSupport(connection).quote("concurrent_test");
+        connection.close();
+
+        flyway = createFlyway();
         flyway.clean();
         flyway.init();
     }
@@ -87,12 +97,9 @@ public abstract class ConcurrentMigrationTestCase {
         Runnable runnable = new Runnable() {
             public void run() {
                 try {
-                    Flyway flyway2 = new Flyway();
-                    flyway2.setDataSource(concurrentMigrationDataSource);
-                    flyway2.setLocations(BASE_DIR);
-                    flyway2.migrate();
+                    createFlyway().migrate();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOG.error("Migrate failed", e);
                     failed = true;
                 }
             }
@@ -110,9 +117,23 @@ public abstract class ConcurrentMigrationTestCase {
         }
 
         assertFalse(failed);
-        assertEquals(5, flyway.history().size());
+        assertEquals(6, flyway.history().size());
         SchemaVersion schemaVersion = flyway.status().getVersion();
         assertEquals("2.0", schemaVersion.toString());
         assertEquals(0, flyway.migrate());
+    }
+
+    private Flyway createFlyway() throws SQLException {
+        Flyway newFlyway = new Flyway();
+        newFlyway.setDataSource(concurrentMigrationDataSource);
+        newFlyway.setLocations("migration/concurrent");
+        newFlyway.setSchemas("concurrent_test");
+
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("schema", schemaQuoted);
+
+        newFlyway.setPlaceholders(placeholders);
+        newFlyway.setInitVersion("0.1");
+        return newFlyway;
     }
 }

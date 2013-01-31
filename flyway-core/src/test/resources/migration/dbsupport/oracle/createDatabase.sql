@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2012 the original author or authors.
+-- Copyright (C) 2010-2013 the original author or authors.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -15,13 +15,7 @@
 --
 
 CREATE USER "FLYWAY" IDENTIFIED BY flyway;
-CREATE USER "flyway_1" IDENTIFIED BY flyway;
-CREATE USER "flyway_2" IDENTIFIED BY flyway;
-CREATE USER "flyway_3" IDENTIFIED BY flyway;
 CREATE USER "flyway_proxy" IDENTIFIED BY flyway;
-GRANT RESOURCE TO "flyway_1";
-GRANT RESOURCE TO "flyway_2";
-GRANT RESOURCE TO "flyway_3";
 GRANT all privileges TO "FLYWAY";
 GRANT all privileges TO "flyway_proxy";
 GRANT create session TO "FLYWAY";

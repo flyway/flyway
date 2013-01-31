@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +30,6 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using Hsql.
  */
 public class HsqlMigrationMediumTest extends MigrationTestCase {
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
-        jdbcTemplate.execute("DROP SCHEMA \"flyway_1\" IF EXISTS CASCADE");
-        jdbcTemplate.execute("DROP SCHEMA \"flyway_2\" IF EXISTS CASCADE");
-        jdbcTemplate.execute("DROP SCHEMA \"flyway_3\" IF EXISTS CASCADE");
-
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_1\" AUTHORIZATION DBA");
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_2\" AUTHORIZATION DBA");
-        jdbcTemplate.execute("CREATE SCHEMA \"flyway_3\" AUTHORIZATION DBA");
-    }
-
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(null, "jdbc:hsqldb:mem:flyway_db", "SA", "");

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 
-    Copyright (C) 2010-2012 the original author or authors.
+    Copyright (C) 2010-2013 the original author or authors.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
     <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml" classpathref="lib.path"/>
 
     <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
+    <property name="flyway.locations" value="org.hsqldb.sample"/>
 
     <path id="flyway.classpath">
         <fileset dir="${installDir}/jars" includes="hsqldb-*.jar"/>

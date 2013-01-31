@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import com.googlecode.flyway.core.resolver.jdbc.JdbcMigrationResolver;
 import com.googlecode.flyway.core.resolver.spring.SpringJdbcMigrationResolver;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.FeatureDetector;
+import com.googlecode.flyway.core.util.Location;
+import com.googlecode.flyway.core.util.Locations;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * The locations where the migrations are located.
      */
-    private final List<String> locations;
+    private final Locations locations;
 
     /**
      * The encoding of Sql migrations.
@@ -88,7 +90,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param placeholderPrefix  The prefix of every placeholder.
      * @param placeholderSuffix  The suffix of every placeholder.
      */
-    public CompositeMigrationResolver(List<String> locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+    public CompositeMigrationResolver(Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
         this.locations = locations;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
@@ -125,7 +127,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 
-        for (String location : locations) {
+        for (Location location : locations.getLocations()) {
             migrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
             migrationResolvers.add(new JdbcMigrationResolver(location));
 

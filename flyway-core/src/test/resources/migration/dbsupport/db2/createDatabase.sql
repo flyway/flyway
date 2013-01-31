@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2012 the original author or authors.
+-- Copyright (C) 2010-2013 the original author or authors.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
 --
 
 CREATE DATABASE flyway;
-
-CREATE SCHEMA 'flYwAY_1' AUTHORIZATION db2admin;
-CREATE SCHEMA flyway_2 AUTHORIZATION db2admin;
-CREATE SCHEMA flyway_3 AUTHORIZATION db2admin;
-
-grant ALTERIN,CREATEIN,DROPIN ON SCHEMA Flyway_1 To user db2admin;
-grant ALTERIN,CREATEIN,DROPIN ON SCHEMA Flyway_2 To user db2admin;
-grant ALTERIN,CREATEIN,DROPIN ON SCHEMA Flyway_3 To user db2admin;
+CONNECT TO flyway;
+GRANT DBADM ON DATABASE TO db2admin;
+CREATE SCHEMA db2admin;
+TERMINATE;

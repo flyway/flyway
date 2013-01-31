@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  */
 package com.googlecode.flyway.core.resolver.sql;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
@@ -44,7 +46,7 @@ public class SqlMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver("migration/subdir", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
+                new SqlMigrationResolver(new Location("migration/subdir"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
@@ -64,23 +66,23 @@ public class SqlMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsRoot() {
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver("", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
+                new SqlMigrationResolver(new Location(""), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
 
         assertEquals(1, sqlMigrationResolver.resolveMigrations().size());
     }
 
-    @Test
+    @Test(expected = FlywayException.class)
     public void resolveMigrationsNonExisting() {
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver("non/existing", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
+                new SqlMigrationResolver(new Location("non/existing"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", ".sql");
 
-        assertTrue(sqlMigrationResolver.resolveMigrations().isEmpty());
+        sqlMigrationResolver.resolveMigrations();
     }
 
     @Test
     public void extractScriptName() {
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver("db/migration", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", ".sql");
+                new SqlMigrationResolver(new Location("db/migration"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", ".sql");
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(new ClassPathResource("db/migration/db_0__init.sql")));
     }
@@ -88,7 +90,7 @@ public class SqlMigrationResolverSmallTest {
     @Test
     public void extractScriptNameRootLocation() {
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver("", PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", ".sql");
+                new SqlMigrationResolver(new Location(""), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", ".sql");
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(new ClassPathResource("db_0__init.sql")));
     }

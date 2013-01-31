@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Copyright (C) 2010-2011 the original author or authors.
 #
@@ -18,8 +18,21 @@
 # Save current directory
 OLDDIR=`pwd`
 
+# resolve links - $0 may be a softlink
+PRG="$0"
+
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
 # Set the current directory to the installation directory
-INSTALLDIR=`dirname $0`
+INSTALLDIR=`dirname $PRG`
 cd "$INSTALLDIR"
 
 # Use JAVA_HOME if it is set
@@ -29,7 +42,7 @@ else
  JAVA_CMD=$JAVA_HOME/bin/java
 fi
 
-$JAVA_CMD -cp bin/flyway-commandline-${project.version}.jar:bin/flyway-core-${project.version}.jar:bin/spring-jdbc-2.5.6.jar:bin/commons-logging-1.1.1.jar:bin/spring-beans-2.5.6.jar:bin/spring-core-2.5.6.jar:bin/spring-context-2.5.6.jar:bin/aopalliance-1.0.jar:bin/spring-tx-2.5.6.jar:bin/log4j-1.2.16.jar:sql com.googlecode.flyway.commandline.Main $@
+$JAVA_CMD -cp bin/flyway-commandline-${project.version}.jar:bin/flyway-core-${project.version}.jar:bin/spring-jdbc-2.5.6.jar:bin/commons-logging-1.1.1.jar:bin/spring-beans-2.5.6.jar:bin/spring-core-2.5.6.jar:bin/spring-context-2.5.6.jar:bin/aopalliance-1.0.jar:bin/spring-tx-2.5.6.jar com.googlecode.flyway.commandline.Main $@
 
 # Save the exit code
 JAVA_EXIT_CODE=$?

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,10 @@ public class HsqlSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String line) {
+        if (line.trim().startsWith("--")) {
+            return (numQuotes % 2) != 0;
+        }
+
         // Hsql only supports single quotes (') as delimiters
         // A single quote inside a string literal is represented as two single quotes ('')
         // An even number of single quotes thus means the string literal is closed.

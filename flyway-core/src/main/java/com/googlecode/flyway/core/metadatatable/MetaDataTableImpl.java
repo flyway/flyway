@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,19 @@ import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.StopWatch;
+import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
-import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
-import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,10 +45,12 @@ import java.util.Map;
  * Supports reading and writing to the metadata table.
  */
 public class MetaDataTableImpl implements MetaDataTable {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(MetaDataTableImpl.class);
+
+    /**
+     * Flag indicating whether the upgrade has already been executed.
+     */
+    private boolean upgraded;
 
     /**
      * Database-specific functionality.
@@ -55,19 +58,14 @@ public class MetaDataTableImpl implements MetaDataTable {
     private final DbSupport dbSupport;
 
     /**
-     * The schema in which the metadata table belongs.
+     * The metadata table used by flyway.
      */
-    private final String schema;
+    private final Table table;
 
     /**
-     * The name of the schema metadata table used by flyway.
+     * The migration resolver.
      */
-    private final String table;
-
-    /**
-     * Connection with ddl manipulation access to the database.
-     */
-    private final Connection connection;
+    private final MigrationResolver migrationResolver;
 
     /**
      * JdbcTemplate with ddl manipulation access to the database.
@@ -77,81 +75,62 @@ public class MetaDataTableImpl implements MetaDataTable {
     /**
      * Creates a new instance of the metadata table support.
      *
-     * @param connection Connection with ddl manipulation access to the database.
-     * @param dbSupport  Database-specific functionality.
-     * @param schema     The schema in which the metadata table belongs.
-     * @param table      The name of the schema metadata table used by flyway.
+     * @param dbSupport         Database-specific functionality.
+     * @param table             The metadata table used by flyway.
+     * @param migrationResolver For resolving available migrations.
      */
-    public MetaDataTableImpl(Connection connection, DbSupport dbSupport, String schema, String table) {
-        this.connection = connection;
+    public MetaDataTableImpl(DbSupport dbSupport, Table table, MigrationResolver migrationResolver) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
-        this.schema = schema;
         this.table = table;
+        this.migrationResolver = migrationResolver;
     }
 
     /**
-     * Checks whether Flyway's metadata table is already present in the database.
-     *
-     * @return {@code true} if the table exists, {@code false} if it doesn't.
+     * Creates the metatable if it doesn't exist, upgrades it if it does.
      */
-    private boolean exists() {
-        try {
-            return dbSupport.tableExists(schema, table);
-        } catch (SQLException e) {
-            throw new FlywayException("Error checking whether metadata table " + fullyQualifiedMetadataTableName() + " exists",
-                    e);
+    private void createIfNotExists() {
+        if (table.existsNoQuotes() || table.exists()) {
+            if (!upgraded) {
+                new MetaDataTableTo20FormatUpgrader(dbSupport, table, migrationResolver).upgrade();
+                new MetaDataTableTo202FormatUpgrader(dbSupport, table).upgrade();
+                upgraded = true;
+            }
+            return;
         }
-    }
 
-    /**
-     * Creates Flyway's metadata table.
-     */
-    private void create() {
-        LOG.info("Creating Metadata table: " + fullyQualifiedMetadataTableName());
+        LOG.info("Creating Metadata table: " + table);
 
         final String source =
                 new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable.sql").loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", schema);
-        placeholders.put("table", table);
+        placeholders.put("schema", table.getSchema().getName());
+        placeholders.put("table", table.getName());
         final String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-            public Void doInTransaction() {
-                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-                sqlScript.execute(jdbcTemplate);
-                return null;
-            }
-        });
+        SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+        sqlScript.execute(jdbcTemplate);
 
-        LOG.debug("Metadata table " + fullyQualifiedMetadataTableName() + " created.");
-    }
-
-    public void createIfNotExists() {
-        if (!exists()) {
-            create();
-        }
+        LOG.debug("Metadata table " + table + " created.");
     }
 
     public void lock() {
-        try {
-            dbSupport.lockTable(schema, table);
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to lock metadata table " + fullyQualifiedMetadataTableName(), e);
-        }
+        createIfNotExists();
+        table.lock();
     }
 
-    public void insert(AppliedMigration appliedMigration) {
+    public void addAppliedMigration(AppliedMigration appliedMigration) {
+        createIfNotExists();
+
         MigrationVersion version = appliedMigration.getVersion();
         try {
             int versionRank = calculateVersionRank(version);
 
-            jdbcTemplate.update("UPDATE " + fullyQualifiedMetadataTableName()
+            jdbcTemplate.update("UPDATE " + table
                     + " SET " + dbSupport.quote("version_rank") + " = " + dbSupport.quote("version_rank")
                     + " + 1 WHERE " + dbSupport.quote("version_rank") + " >= ?", versionRank);
-            jdbcTemplate.update("INSERT INTO " + fullyQualifiedMetadataTableName()
+            jdbcTemplate.update("INSERT INTO " + table
                     + " (" + dbSupport.quote("version_rank")
                     + "," + dbSupport.quote("installed_rank")
                     + "," + dbSupport.quote("version")
@@ -173,9 +152,9 @@ public class MetaDataTableImpl implements MetaDataTable {
                     appliedMigration.getChecksum(),
                     appliedMigration.getExecutionTime(),
                     appliedMigration.isSuccess());
-            LOG.debug("MetaData table " + fullyQualifiedMetadataTableName() + " successfully updated to reflect changes");
+            LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
-            throw new FlywayException("Unable to insert row for version '" + version + "' in metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Unable to insert row for version '" + version + "' in metadata table " + table, e);
         }
     }
 
@@ -186,7 +165,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      */
     private int calculateInstalledRank() throws SQLException {
         int currentMax = jdbcTemplate.queryForInt("SELECT MAX(" + dbSupport.quote("installed_rank") + ")"
-                + " FROM " + fullyQualifiedMetadataTableName());
+                + " FROM " + table);
         return currentMax + 1;
     }
 
@@ -197,7 +176,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      * @return The rank.
      */
     private int calculateVersionRank(MigrationVersion version) throws SQLException {
-        List<String> versions = jdbcTemplate.queryForStringList("select " + dbSupport.quote("version") + " from " + fullyQualifiedMetadataTableName());
+        List<String> versions = jdbcTemplate.queryForStringList("select " + dbSupport.quote("version") + " from " + table);
 
         List<MigrationVersion> migrationVersions = new ArrayList<MigrationVersion>();
         for (String versionStr : versions) {
@@ -215,28 +194,12 @@ public class MetaDataTableImpl implements MetaDataTable {
         return migrationVersions.size() + 1;
     }
 
-    /**
-     * Checks whether the metadata table contains at least one row.
-     *
-     * @return {@code true} if the metadata table has at least one row. {@code false} if it is empty or it doesn't exist
-     *         yet.
-     */
-    private boolean hasRows() {
-        if (!exists()) {
-            return false;
-        }
-
-        try {
-            return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + fullyQualifiedMetadataTableName()) > 0;
-        } catch (SQLException e) {
-            throw new FlywayException("Error checking if the metadata table " + fullyQualifiedMetadataTableName() + " has at least one row", e);
-        }
-    }
-
     public List<AppliedMigration> allAppliedMigrations() {
-        if (!exists()) {
+        if (!table.existsNoQuotes() && !table.exists()) {
             return new ArrayList<AppliedMigration>();
         }
+
+        createIfNotExists();
 
         String query = "SELECT " + dbSupport.quote("version_rank")
                 + "," + dbSupport.quote("installed_rank")
@@ -249,7 +212,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 + "," + dbSupport.quote("installed_by")
                 + "," + dbSupport.quote("execution_time")
                 + "," + dbSupport.quote("success")
-                + " FROM " + fullyQualifiedMetadataTableName()
+                + " FROM " + table
                 + " ORDER BY " + dbSupport.quote("version_rank");
 
         try {
@@ -272,7 +235,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             });
         } catch (SQLException e) {
             throw new FlywayException("Error while retrieving the list of applied migrations from metadata table "
-                    + fullyQualifiedMetadataTableName(), e);
+                    + table, e);
         }
     }
 
@@ -290,85 +253,133 @@ public class MetaDataTableImpl implements MetaDataTable {
         return number.intValue();
     }
 
-
-    public boolean hasFailedMigration() {
-        if (!exists()) {
-            return false;
-        }
-
-        try {
-            int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + fullyQualifiedMetadataTableName()
-                    + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
-            return failedCount > 0;
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to check the metadata table " + fullyQualifiedMetadataTableName() + " for failed migrations", e);
-        }
-    }
-
-    /**
-     * @return The fully qualified name of the metadata table, including the schema it is contained in.
-     */
-    private String fullyQualifiedMetadataTableName() {
-        return dbSupport.quote(schema, table);
-    }
-
     public MigrationVersion getCurrentSchemaVersion() {
-        if (!hasRows()) {
+        if (!table.existsNoQuotes() && !table.exists()) {
             return MigrationVersion.EMPTY;
         }
 
-        String query = "SELECT " + dbSupport.quote("version") + " FROM " + fullyQualifiedMetadataTableName() + " WHERE " + dbSupport.quote("version_rank")
-                + "IN (SELECT MAX(" + dbSupport.quote("version_rank") + ") FROM " + fullyQualifiedMetadataTableName() + ")";
         try {
-            String version = jdbcTemplate.queryForString(query);
-            return new MigrationVersion(version);
+            if (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table) == 0) {
+                return MigrationVersion.EMPTY;
+            }
         } catch (SQLException e) {
-            throw new FlywayException("Error determining current schema version from metadata table " + fullyQualifiedMetadataTableName(), e);
-        }
-    }
-
-    public void init(MigrationVersion initVersion, String initDescription) {
-        if (getCurrentSchemaVersion() != MigrationVersion.EMPTY) {
-            throw new FlywayException(
-                    "Schema already initialized. Current Version: " + getCurrentSchemaVersion());
+            throw new FlywayException("Error checking if the metadata table " + table + " has at least one row", e);
         }
 
         createIfNotExists();
 
-        final AppliedMigration appliedMigration =
-                new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
-                        0, true);
+        // Determine the version associated with the highest version_rank
+        String query = "SELECT t1." + dbSupport.quote("version") + " FROM " + table + " t1" +
+                " LEFT OUTER JOIN " + table + " t2 ON" +
+                " (t1." + dbSupport.quote("version") + " = t2." + dbSupport.quote("version")
+                + " AND t1." + dbSupport.quote("version_rank") + " < t2." + dbSupport.quote("version_rank") + ")" +
+                " WHERE t2." + dbSupport.quote("version") + " IS NULL";
+        try {
+            String version = jdbcTemplate.queryForString(query);
+            return new MigrationVersion(version);
+        } catch (SQLException e) {
+            throw new FlywayException("Error determining current schema version from metadata table " + table, e);
+        }
+    }
 
-        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-            public Void doInTransaction() {
-                insert(appliedMigration);
-                return null;
-            }
-        });
-
-        LOG.info("Schema initialized with version: " + initVersion);
+    public void init(final MigrationVersion initVersion, final String initDescription) {
+        addAppliedMigration(new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
+                0, true));
     }
 
     public void repair() {
-        if (!hasFailedMigration()) {
-            LOG.info("Repair of metadata table " + fullyQualifiedMetadataTableName() + " not necessary. No failed migration detected.");
+        if (!table.existsNoQuotes() && !table.exists()) {
+            LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
             return;
+        }
+
+        createIfNotExists();
+
+        try {
+            int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table
+                    + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
+            if (failedCount == 0) {
+                LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
+                return;
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check the metadata table " + table + " for failed migrations", e);
         }
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         try {
-            jdbcTemplate.execute("DELETE FROM " + fullyQualifiedMetadataTableName()
+            jdbcTemplate.execute("DELETE FROM " + table
                     + " WHERE " + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse());
         } catch (SQLException e) {
-            throw new FlywayException("Unable to repair metadata table " + fullyQualifiedMetadataTableName(), e);
+            throw new FlywayException("Unable to repair metadata table " + table, e);
         }
 
         stopWatch.stop();
 
-        LOG.info("Metadata table " + fullyQualifiedMetadataTableName() +" successfully repaired (execution time "
+        LOG.info("Metadata table " + table + " successfully repaired (execution time "
                 + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
         LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+    }
+
+    public void addSchemasMarker(final Schema[] schemas) {
+        createIfNotExists();
+
+        addAppliedMigration(new AppliedMigration(new MigrationVersion("0"), "<< Flyway Schema Creation >>",
+                MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));
+    }
+
+    public boolean hasSchemasMarker() {
+        if (!table.existsNoQuotes() && !table.exists()) {
+            return false;
+        }
+
+        createIfNotExists();
+
+        try {
+            int count = jdbcTemplate.queryForInt(
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='SCHEMA'");
+            return count > 0;
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether the metadata table " + table + " has a schema marker migration", e);
+        }
+    }
+
+    public boolean hasInitMarker() {
+        if (!table.existsNoQuotes() && !table.exists()) {
+            return false;
+        }
+
+        createIfNotExists();
+
+        try {
+            int count = jdbcTemplate.queryForInt(
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='INIT'");
+            return count > 0;
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether the metadata table " + table + " has an init marker migration", e);
+        }
+    }
+
+    public boolean hasAppliedMigrations() {
+        if (!table.existsNoQuotes() && !table.exists()) {
+            return false;
+        }
+
+        createIfNotExists();
+
+        try {
+            int count = jdbcTemplate.queryForInt(
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + " NOT IN ('SCHEMA', 'INIT')");
+            return count > 0;
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether the metadata table " + table + " has applied migrations", e);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return table.toString();
     }
 }

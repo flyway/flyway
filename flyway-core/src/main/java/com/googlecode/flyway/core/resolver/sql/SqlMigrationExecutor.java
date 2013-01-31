@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.googlecode.flyway.core.resolver.sql;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.resolver.MigrationExecutor;
-import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.Resource;
 
 /**
  * Database migration based on a sql file.
@@ -36,7 +36,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * The complete sql script is not held as a member field here because this would use the total size of all
      * sql migrations files in heap space during db migration, see issue 184.
      */
-    private final ClassPathResource sqlScriptResource;
+    private final Resource sqlScriptResource;
 
     /**
      * The encoding of the sql script.
@@ -50,7 +50,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of this Sql migration.
      */
-    public SqlMigrationExecutor(ClassPathResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
+    public SqlMigrationExecutor(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
         this.sqlScriptResource = sqlScriptResource;
         this.encoding = encoding;
         this.placeholderReplacer = placeholderReplacer;

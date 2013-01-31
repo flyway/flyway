@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,21 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      *                means that this version refers to an empty schema.
      */
     public MigrationVersion(String version) {
-        this.version = version;
-        this.displayText = version;
+        String normalizedVersion = version.replace("_", ".");
+
+        if (normalizedVersion.startsWith(".")) {
+            throw new FlywayException(
+                    "Invalid version starting with a dot (.) instead of a digit: " + normalizedVersion);
+        }
+
+        if (!normalizedVersion.matches("[\\d\\.]*")) {
+            throw new FlywayException(
+                    "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
+                            + normalizedVersion);
+        }
+
+        this.version = normalizedVersion;
+        this.displayText = normalizedVersion;
     }
 
     /**
@@ -68,7 +81,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return The individual elements this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
      */
     private String[] getElements() {
-        return tokenizeToStringArray(version, ".-");
+        return tokenizeToStringArray(version, ".");
     }
 
     /**
@@ -84,13 +97,16 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MigrationVersion that = (MigrationVersion) o;
-        return compareTo(that) == 0;
+        MigrationVersion version1 = (MigrationVersion) o;
+
+        return compareTo(version1) == 0;
     }
 
     @Override
     public int hashCode() {
-        return version.hashCode();
+        int result = version != null ? version.hashCode() : 0;
+        result = 31 * result + displayText.hashCode();
+        return result;
     }
 
     public int compareTo(MigrationVersion o) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 package com.googlecode.flyway.core.resolver.jdbc;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.Version3dot5;
+import com.googlecode.flyway.core.util.Location;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -32,10 +34,15 @@ import static org.junit.Assert.assertNull;
  * Test for JdbcMigrationResolver.
  */
 public class JdbcMigrationResolverSmallTest {
+    @Test(expected = FlywayException.class)
+    public void broken() {
+        new JdbcMigrationResolver(new Location("com/googlecode/flyway/core/resolver/jdbc/error")).resolveMigrations();
+    }
+
     @Test
     public void resolveMigrations() {
         JdbcMigrationResolver jdbcMigrationResolver =
-                new JdbcMigrationResolver("com/googlecode/flyway/core/resolver/jdbc/dummy");
+                new JdbcMigrationResolver(new Location("com/googlecode/flyway/core/resolver/jdbc/dummy"));
         Collection<ResolvedMigration> migrations = jdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());

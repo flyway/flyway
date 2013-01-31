@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,8 @@ public class MigrationInfoHelper {
         if (descriptionPos < 0) {
             throw new FlywayException("Wrong migration name format: " + migrationName + "(It should look like this: " + prefix + "1_2__Description" + suffix + ")");
         } else {
-            version = cleanMigrationName.substring(0, descriptionPos).replace("_", ".");
+            version = cleanMigrationName.substring(0, descriptionPos);
             description = cleanMigrationName.substring(descriptionPos + 2).replaceAll("_", " ");
-        }
-
-        if (version.startsWith(".")) {
-            throw new FlywayException(
-                    "Invalid version starting with a dot (.) instead of a digit or a letter: " + version);
         }
 
         return Pair.of(new MigrationVersion(version), description);

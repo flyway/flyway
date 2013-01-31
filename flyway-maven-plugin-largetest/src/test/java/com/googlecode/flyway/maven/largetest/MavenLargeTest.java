@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class MavenLargeTest {
 
     @Test
     public void regular() throws Exception {
-        String stdOut = runMaven(0, "regular", "clean", "flyway:init", "flyway:status");
+        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:init", "flyway:status", "-Dflyway.initVersion=0.1");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
@@ -59,7 +59,7 @@ public class MavenLargeTest {
 
     @Test
     public void settings() throws Exception {
-        String stdOut = runMaven(0, "settings", "clean", "flyway:init", "flyway:status", "-s", installDir + "/settings/settings.xml");
+        String stdOut = runMaven(0, "settings", "clean", "compile", "flyway:init", "flyway:status", "-s", installDir + "/settings/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
@@ -68,7 +68,7 @@ public class MavenLargeTest {
      */
     @Test
     public void settingsDefault() throws Exception {
-        String stdOut = runMaven(0, "settings-default", "clean", "flyway:init", "flyway:status", "-s", installDir + "/settings-default/settings.xml");
+        String stdOut = runMaven(0, "settings-default", "clean", "compile", "flyway:init", "flyway:status", "-s", installDir + "/settings-default/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 

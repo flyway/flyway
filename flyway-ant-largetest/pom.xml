@@ -74,6 +74,7 @@
                         <installDirDistWithSpring>${unpackDirDistWithSpring}</installDirDistWithSpring>
                         <pomVersion>${project.version}</pomVersion>
                     </systemPropertyVariables>
+                    <parallel>none</parallel>
                 </configuration>
             </plugin>
             <plugin>

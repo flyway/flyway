@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,20 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.dbsupport.Table;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Upgrade the metadata table to Flyway 2.0's format.
@@ -53,14 +51,9 @@ public class MetaDataTableTo20FormatUpgrader {
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * The schema containing the metadata table.
-     */
-    private final String schema;
-
-    /**
      * The metadata table.
      */
-    private final String table;
+    private final Table table;
 
     /**
      * The migration resolver.
@@ -71,15 +64,12 @@ public class MetaDataTableTo20FormatUpgrader {
      * Creates a new upgrader.
      *
      * @param dbSupport         Database-specific support.
-     * @param schema            The schema containing the metadata table.
      * @param table             The metadata table.
      * @param migrationResolver The migration resolver.
      */
-    public MetaDataTableTo20FormatUpgrader(DbSupport dbSupport, String schema, String table,
-                                           MigrationResolver migrationResolver) {
+    public MetaDataTableTo20FormatUpgrader(DbSupport dbSupport, Table table, MigrationResolver migrationResolver) {
         this.dbSupport = dbSupport;
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
-        this.schema = schema;
         this.table = table;
         this.migrationResolver = migrationResolver;
     }
@@ -92,11 +82,11 @@ public class MetaDataTableTo20FormatUpgrader {
     public void upgrade() throws FlywayException {
         try {
             if (!needsUpgrade()) {
-                LOG.debug("No metadata table upgrade to the Flyway 2.0 format necessary");
+                LOG.debug("No upgrade to the Flyway 2.0 format necessary for metadata table " + table);
                 return;
             }
 
-            LOG.info("Upgrading the metadata table (" + schema + "." + table + ") to the Flyway 2.0 format...");
+            LOG.info("Upgrading the metadata table " + table + " to the Flyway 2.0 format...");
 
             LOG.info("Checking prerequisites...");
             checkPrerequisites();
@@ -113,8 +103,7 @@ public class MetaDataTableTo20FormatUpgrader {
             LOG.info("Step 4/4: Fixing checksums...");
             fixChecksums();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to upgrade the metadata table " + dbSupport.quote(schema, table)
-                    + " to the Flyway 2.0 format", e);
+            throw new FlywayException("Unable to upgrade the metadata table " + table + " to the Flyway 2.0 format", e);
         }
     }
 
@@ -133,7 +122,7 @@ public class MetaDataTableTo20FormatUpgrader {
         }
 
         for (MigrationVersion version : correctedChecksums.keySet()) {
-            jdbcTemplate.execute("UPDATE " + dbSupport.quote(schema) + "." + dbSupport.quote(table)
+            jdbcTemplate.execute("UPDATE " + table
                     + " SET " + dbSupport.quote("checksum") + " = ?"
                     + " WHERE " + dbSupport.quote("version") + " = ?",
                     correctedChecksums.get(version), version.toString());
@@ -147,12 +136,12 @@ public class MetaDataTableTo20FormatUpgrader {
      * @param num The number of the part.
      */
     private void executePart(int num) {
-        ClassPathResource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo20FormatPart" + num + ".sql");
+        Resource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo20FormatPart" + num + ".sql");
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", schema);
-        placeholders.put("table", table);
+        placeholders.put("schema", table.getSchema().getName());
+        placeholders.put("table", table.getName());
         String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
         SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
@@ -163,8 +152,8 @@ public class MetaDataTableTo20FormatUpgrader {
      * Adds the values to the rank columns.
      */
     private void addRanks() throws SQLException {
-        List<String> versions = jdbcTemplate.queryForStringList("SELECT " + dbSupport.quote("version")
-                + " FROM " + dbSupport.quote(schema) + "." + dbSupport.quote(table));
+        List<String> versions =
+                jdbcTemplate.queryForStringList("SELECT " + dbSupport.quote("version") + " FROM " + table);
 
         List<MigrationVersion> migrationVersions = new ArrayList<MigrationVersion>(versions.size());
         for (String version : versions) {
@@ -176,7 +165,7 @@ public class MetaDataTableTo20FormatUpgrader {
         for (int i = 0; i < migrationVersions.size(); i++) {
             int rank = i + 1;
             String version = migrationVersions.get(i).toString();
-            jdbcTemplate.execute("UPDATE " + dbSupport.quote(schema) + "." + dbSupport.quote(table)
+            jdbcTemplate.execute("UPDATE " + table
                     + " SET " + dbSupport.quote("version_rank") + " = ?, " + dbSupport.quote("installed_rank")
                     + " = ? WHERE " + dbSupport.quote("version") + " = ?", rank, rank, version);
         }
@@ -186,7 +175,9 @@ public class MetaDataTableTo20FormatUpgrader {
      * Checks whether all prerequisites are met for upgrading the table.
      */
     private void checkPrerequisites() throws SQLException {
-        List<String> versions = jdbcTemplate.queryForStringList("select version from " + schema + "." + table + " where description is null");
+        List<String> versions =
+                jdbcTemplate.queryForStringList(
+                        "select version from " + table.getSchema().getName() + "." + table.getName() + " where description is null");
 
         if (!versions.isEmpty()) {
             throw new FlywayException(
@@ -202,10 +193,6 @@ public class MetaDataTableTo20FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws SQLException {
-        if (!dbSupport.tableExistsNoQuotes(schema, table)) {
-            return false;
-        }
-
-        return !dbSupport.columnExists(schema, table, "version_rank");
+        return table.existsNoQuotes() && !table.hasColumn("version_rank");
     }
 }

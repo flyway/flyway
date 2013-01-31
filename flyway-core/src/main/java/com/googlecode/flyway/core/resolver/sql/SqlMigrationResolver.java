@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,12 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
+import com.googlecode.flyway.core.util.Resource;
+import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
+import com.googlecode.flyway.core.util.scanner.filesystem.FileSystemScanner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +42,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * The base directory on the classpath where to migrations are located.
      */
-    private final String location;
+    private final Location location;
 
     /**
      * The placeholder replacer to apply to sql migration scripts.
@@ -71,7 +73,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param sqlMigrationPrefix  The prefix for sql migrations
      * @param sqlMigrationSuffix  The suffix for sql migrations
      */
-    public SqlMigrationResolver(String location, PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix) {
+    public SqlMigrationResolver(Location location, PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix) {
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
@@ -82,11 +84,17 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
+        Resource[] resources = new Resource[0];
         try {
-            ClassPathResource[] resources =
-                    new ClassPathScanner().scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
+            if (location.isClassPath()) {
+                resources =
+                        new ClassPathScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
+            } else if (location.isFileSystem()) {
+                resources =
+                        new FileSystemScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
+            }
 
-            for (ClassPathResource resource : resources) {
+            for (Resource resource : resources) {
                 ResolvedMigration resolvedMigration = extractMigrationInfo(resource);
                 resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
                 resolvedMigration.setExecutor(new SqlMigrationExecutor(resource, placeholderReplacer, encoding));
@@ -107,7 +115,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param resource The resource to analyse.
      * @return The migration info.
      */
-    private ResolvedMigration extractMigrationInfo(ClassPathResource resource) {
+    private ResolvedMigration extractMigrationInfo(Resource resource) {
         ResolvedMigration migration = new ResolvedMigration();
 
         Pair<MigrationVersion, String> info =
@@ -128,11 +136,11 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param resource The resource to process.
      * @return The script name.
      */
-    /* private -> for testing */ String extractScriptName(ClassPathResource resource) {
+    /* private -> for testing */ String extractScriptName(Resource resource) {
         int start = 0;
 
-        if (location.length() > 0) {
-            start = location.length() + "/".length();
+        if (location.getPath().length() > 0) {
+            start = location.getPath().length() + "/".length();
         }
 
         return resource.getLocation().substring(start);

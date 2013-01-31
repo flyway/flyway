@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,43 +43,14 @@ public class DB2DbSupport extends DbSupport {
         return "com/googlecode/flyway/core/dbsupport/db2/";
     }
 
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("select count(*) from syscat.tables where tabschema = ?", schema);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", schema);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", schema);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", schema);
-        return objectCount == 0;
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
+        return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1");
     }
 
     @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM syscat.schemata WHERE schemaname=?", schema) > 0;
-    }
-
-    public boolean tableExistsNoQuotes(String schema, String table) throws SQLException {
-        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
-    }
-
-    public boolean tableExists(String schema, String table) throws SQLException {
-        return tableExists(null, schema, table);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(null, schema, table);
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(null, schema, table, column);
-    }
-
-    public String getCurrentSchema() throws SQLException {
-        return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1").trim();
-    }
-
-    @Override
-    public void setCurrentSchema(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+        jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 
     public String getCurrentUserFunction() {
@@ -88,10 +59,6 @@ public class DB2DbSupport extends DbSupport {
 
     public boolean supportsDdlTransactions() {
         return true;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.update("lock table " + quote(schema) + "." + quote(table) + " in exclusive mode");
     }
 
     public String getBooleanTrue() {
@@ -110,5 +77,10 @@ public class DB2DbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new DB2Schema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 }

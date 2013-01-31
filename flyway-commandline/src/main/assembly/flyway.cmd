@@ -1,5 +1,5 @@
 @REM
-@REM Copyright (C) 2010-2012 the original author or authors.
+@REM Copyright (C) 2010-2013 the original author or authors.
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ if "%JAVA_HOME%"=="" (
  set JAVA_CMD="%JAVA_HOME%\bin\java.exe"
 )
 
-%JAVA_CMD% -cp bin\flyway-commandline-${project.version}.jar;bin\flyway-core-${project.version}.jar;bin\spring-jdbc-2.5.6.jar;bin\commons-logging-1.1.1.jar;bin\spring-beans-2.5.6.jar;bin\spring-core-2.5.6.jar;bin\spring-context-2.5.6.jar;bin\aopalliance-1.0.jar;bin\spring-tx-2.5.6.jar;bin\log4j-1.2.16.jar;sql com.googlecode.flyway.commandline.Main %*
+%JAVA_CMD% -cp bin\flyway-commandline-${project.version}.jar;bin\flyway-core-${project.version}.jar;bin\spring-jdbc-2.5.6.jar;bin\commons-logging-1.1.1.jar;bin\spring-beans-2.5.6.jar;bin\spring-core-2.5.6.jar;bin\spring-context-2.5.6.jar;bin\aopalliance-1.0.jar;bin\spring-tx-2.5.6.jar com.googlecode.flyway.commandline.Main %*
 
 @REM Save the exit code
 set JAVA_EXIT_CODE=%ERRORLEVEL%

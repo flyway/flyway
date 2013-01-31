@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,48 +44,18 @@ public class OracleDbSupport extends DbSupport {
         return "USER";
     }
 
-    public String getCurrentSchema() throws SQLException {
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
         return jdbcTemplate.queryForString("SELECT USER FROM dual");
     }
 
     @Override
-    public void setCurrentSchema(String schema) throws SQLException {
-        jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + quote(schema));
-    }
-
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", schema);
-        return objectCount == 0;
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username=?", schema) > 0;
-    }
-
-    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
-    }
-
-    public boolean tableExists(String schema, String table) throws SQLException {
-        return tableExists(null, schema, table);
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(null, schema, table, column);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(null, schema, table);
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+        jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + schema);
     }
 
     public boolean supportsDdlTransactions() {
         return false;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + quote(schema, table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -108,5 +78,10 @@ public class OracleDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new OracleSchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 }

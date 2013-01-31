@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,11 +40,13 @@ public class MySQLSchema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("Select "
                 + "(Select count(*) from information_schema.TABLES Where TABLE_SCHEMA=?) + "
                 + "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
@@ -54,15 +56,18 @@ public class MySQLSchema extends Schema {
         return objectCount == 0;
     }
 
-    public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+    @Override
+    protected void doCreate() throws SQLException {
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA ?", name);
+    @Override
+    protected void doDrop() throws SQLException {
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name));
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         for (String statement : cleanRoutines()) {
             jdbcTemplate.execute(statement);
         }
@@ -118,7 +123,7 @@ public class MySQLSchema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'", name);
 
@@ -127,5 +132,10 @@ public class MySQLSchema extends Schema {
             tables[i] = new MySQLTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new MySQLTable(jdbcTemplate, dbSupport, this, tableName);
     }
 }

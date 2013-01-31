@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package com.googlecode.flyway.core.resolver;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.util.Locations;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -35,13 +35,16 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(Arrays.asList("migration/subdir/dir2", "db.migration", "migration/subdir/dir1"), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(
+                new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
+                "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         List<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
 
-        assertEquals(2, migrations.size());
+        assertEquals(3, migrations.size());
         assertEquals("First", migrations.get(0).getDescription());
-        assertEquals("Add foreign key", migrations.get(1).getDescription());
+        assertEquals("Late arrivals", migrations.get(1).getDescription());
+        assertEquals("Add foreign key", migrations.get(2).getDescription());
     }
 
     /**

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
 
         flyway = new Flyway();
+        flyway.setSchemas("super_user_test");
         flyway.setDataSource(new DriverDataSource(null, url, "postgres", password));
         flyway.setValidationMode(ValidationMode.ALL);
         flyway.clean();

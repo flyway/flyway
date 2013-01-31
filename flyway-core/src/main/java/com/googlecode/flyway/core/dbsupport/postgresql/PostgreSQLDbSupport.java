@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,51 +44,19 @@ public class PostgreSQLDbSupport extends DbSupport {
         return "current_user";
     }
 
-    public String getCurrentSchema() throws SQLException {
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
         return jdbcTemplate.queryForString("SELECT current_schema()");
     }
 
     @Override
-    public void setCurrentSchema(String schema) throws SQLException {
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
         String searchPath = jdbcTemplate.queryForString("SHOW search_path");
-        jdbcTemplate.execute("SET search_path = " + quote(schema) + "," + searchPath);
-    }
-
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt(
-                "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                schema);
-        return objectCount == 0;
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM pg_namespace WHERE nspname=?", schema) > 0;
-    }
-
-    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return tableExists(null, schema.toLowerCase(), table.toLowerCase(), "TABLE");
-    }
-
-    public boolean tableExists(String schema, String table) throws SQLException {
-        return tableExists(null, schema, table);
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(null, schema, table, column);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(null, schema, table);
+        jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
     }
 
     public boolean supportsDdlTransactions() {
         return true;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -111,5 +79,10 @@ public class PostgreSQLDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new PostgreSQLSchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 }

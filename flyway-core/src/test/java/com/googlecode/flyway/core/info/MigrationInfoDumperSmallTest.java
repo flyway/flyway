@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.info;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
@@ -25,11 +26,14 @@ import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.StringUtils;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test for MigrationInfoDumper.
@@ -52,6 +56,7 @@ public class MigrationInfoDumperSmallTest {
                 new MigrationInfoServiceImpl(
                         createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
                         createMetaDataTable(), MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         String table = MigrationInfoDumper.dumpToAsciiTable(migrationInfoService.all());
         String[] lines = StringUtils.tokenizeToStringArray(table, "\n");
@@ -95,37 +100,11 @@ public class MigrationInfoDumperSmallTest {
     /**
      * Creates a metadata table for testing.
      *
-     * @param appliedMigrations The applied migrations.
      * @return The metadata table.
      */
-    private MetaDataTable createMetaDataTable(final AppliedMigration... appliedMigrations) {
-        return new MetaDataTable() {
-            public void createIfNotExists() {
-            }
-
-            public void lock() {
-            }
-
-            public void insert(AppliedMigration appliedMigration) {
-            }
-
-            public List<AppliedMigration> allAppliedMigrations() {
-                return Arrays.asList(appliedMigrations);
-            }
-
-            public boolean hasFailedMigration() {
-                return false;
-            }
-
-            public MigrationVersion getCurrentSchemaVersion() {
-                return null;
-            }
-
-            public void init(MigrationVersion initVersion, String initDescription) {
-            }
-
-            public void repair() {
-            }
-        };
+    private MetaDataTable createMetaDataTable() {
+        MetaDataTable metaDataTable = mock(MetaDataTable.class);
+        when(metaDataTable.allAppliedMigrations()).thenReturn(new ArrayList<AppliedMigration>());
+        return metaDataTable;
     }
 }

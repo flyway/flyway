@@ -48,6 +48,7 @@
                         <installDir>${project.build.directory}/test-classes</installDir>
                         <flywayVersion>${project.version}</flywayVersion>
                     </systemPropertyVariables>
+                    <parallel>none</parallel>
                 </configuration>
             </plugin>
         </plugins>

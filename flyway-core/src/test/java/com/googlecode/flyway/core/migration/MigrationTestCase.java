@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
@@ -31,7 +32,10 @@ import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.Location;
+import com.googlecode.flyway.core.util.Locations;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.After;
@@ -43,7 +47,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,9 +108,6 @@ public abstract class MigrationTestCase {
 
     @Test
     public void repair() throws Exception {
-        assertNull(flyway.info().current());
-        assertEquals(0, flyway.info().all().length);
-
         flyway.setLocations("migration/future_failed");
         assertEquals(4, flyway.info().all().length);
 
@@ -188,7 +188,7 @@ public abstract class MigrationTestCase {
      */
     private void assertChecksum(MetaDataTableRow appliedMigration) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                BASEDIR,
+                new Location(BASEDIR),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",
                 "V",
@@ -333,15 +333,15 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-        assertTrue(dbSupport.tableExists(dbSupport.getCurrentSchema(), "schema_version"));
-        assertTrue(dbSupport.tableExists(flyway.getSchemas()[0], flyway.getTable()));
+        assertTrue(dbSupport.getCurrentSchema().getTable("schema_version").exists());
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 
     @Test
     public void columnExists() throws Exception {
         flyway.init();
-        assertTrue(dbSupport.columnExists(flyway.getSchemas()[0], flyway.getTable(), "version_rank"));
-        assertFalse(dbSupport.columnExists(flyway.getSchemas()[0], flyway.getTable(), "dummy"));
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("version_rank"));
+        assertFalse(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
     }
 
     @Test
@@ -349,8 +349,7 @@ public abstract class MigrationTestCase {
         flyway.setLocations(getQuoteLocation());
         flyway.migrate();
         assertEquals("0",
-                jdbcTemplate.queryForString(
-                        "SELECT COUNT(name) FROM " + dbSupport.quote(flyway.getSchemas()[0]) + "." + dbSupport.quote("table")));
+                jdbcTemplate.queryForString("SELECT COUNT(name) FROM " + dbSupport.quote(flyway.getSchemas()[0], "table")));
     }
 
     /**
@@ -376,18 +375,18 @@ public abstract class MigrationTestCase {
 
     @Test
     public void isSchemaEmpty() throws Exception {
-        String schema = dbSupport.getCurrentSchema();
+        Schema schema = dbSupport.getCurrentSchema();
 
-        assertTrue(dbSupport.isSchemaEmpty(schema));
+        assertTrue(schema.empty());
 
         flyway.setLocations(BASEDIR);
         flyway.migrate();
 
-        assertFalse(dbSupport.isSchemaEmpty(schema));
+        assertFalse(schema.empty());
 
         flyway.clean();
 
-        assertTrue(dbSupport.isSchemaEmpty(schema));
+        assertTrue(schema.empty());
     }
 
     @Test(expected = FlywayException.class)
@@ -493,8 +492,6 @@ public abstract class MigrationTestCase {
         flyway.setSchemas("flyway_1", "flyway_2", "flyway_3");
         flyway.clean();
 
-        assertNull(flyway.status());
-
         flyway.setLocations("migration/multi");
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema1", dbSupport.quote("flyway_1"));
@@ -507,27 +504,29 @@ public abstract class MigrationTestCase {
         assertEquals("Add foreign key", flyway.status().getDescription());
         assertEquals(0, flyway.migrate());
 
-        assertEquals(3, flyway.history().size());
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1", "schema_version")));
-
+        assertEquals(4, flyway.info().applied().length);
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1") + ".test_user1"));
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_2") + ".test_user2"));
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_3") + ".test_user3"));
 
         flyway.clean();
-        flyway.migrate();
     }
 
     @Test
     public void setCurrentSchema() throws Exception {
-        flyway.setSchemas("flyway_1");
+        Schema schema = dbSupport.getSchema("current_schema_test");
+        schema.create();
+
+        flyway.setSchemas("current_schema_test");
         flyway.clean();
 
         flyway.setLocations("migration/current_schema");
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema1", dbSupport.quote("flyway_1"));
+        placeholders.put("schema1", dbSupport.quote("current_schema_test"));
         flyway.setPlaceholders(placeholders);
         flyway.migrate();
+
+        schema.drop();
     }
 
     @Test
@@ -552,7 +551,7 @@ public abstract class MigrationTestCase {
     public void format20upgrade() throws Exception {
         createMetaDataTableIn17Format();
         upgradeMetaDataTableTo20Format();
-        assertTrue(dbSupport.primaryKeyExists(flyway.getSchemas()[0], flyway.getTable()));
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasPrimaryKey());
     }
 
     @Test
@@ -616,11 +615,11 @@ public abstract class MigrationTestCase {
      * Creates a metadata table in Flyway 1.7 format.
      */
     private void createMetaDataTableIn17Format() throws SQLException {
-        ClassPathResource resource = new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable17.sql");
+        Resource resource = new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable17.sql");
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", dbSupport.getCurrentSchema());
+        placeholders.put("schema", dbSupport.getCurrentSchema().getName());
         placeholders.put("table", flyway.getTable());
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
@@ -631,7 +630,7 @@ public abstract class MigrationTestCase {
     /**
      * Inserts a row in the old metadata table in 1.7 format.
      */
-    private void insert17Row(String version, String description, String migrationType, String script, Integer checksum, int executionTime, String state) throws Exception {
+    private void insert17Row(String version, String description, String migrationType, String script, Integer checksum, int executionTime, String state) throws SQLException {
         jdbcTemplate.update("INSERT INTO " + dbSupport.getCurrentSchema() + "." + flyway.getTable()
                 + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
                 + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
@@ -643,9 +642,9 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 1.7 format metadata table to the Flyway 2.0 format.
      */
     private void upgradeMetaDataTableTo20Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(Arrays.asList(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new Locations(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
-        MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
+        MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable()), migrationResolver);
         upgrader.upgrade();
     }
 
@@ -653,10 +652,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.0.2 format.
      */
     private void upgradeMetaDataTableTo202Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(Arrays.asList(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
-
-        MetaDataTableTo202FormatUpgrader upgrader = new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema(), flyway.getTable(), migrationResolver);
-        upgrader.upgrade();
+        new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable())).upgrade();
     }
 
     /**
@@ -668,7 +664,7 @@ public abstract class MigrationTestCase {
      */
     private void assertIntColumnValue(String version, String column, int expected) throws Exception {
         int actual = jdbcTemplate.queryForInt("SELECT " + dbSupport.quote(column)
-                + " FROM " + dbSupport.quote(dbSupport.getCurrentSchema()) + "." + dbSupport.quote(flyway.getTable())
+                + " FROM " + dbSupport.getCurrentSchema() + "." + dbSupport.quote(flyway.getTable())
                 + " WHERE " + dbSupport.quote("version") + " = ?", version);
         assertEquals("Wrong value for column: " + column, expected, actual);
     }
@@ -682,14 +678,14 @@ public abstract class MigrationTestCase {
      */
     private void assertStringColumnValue(String version, String column, String expected) throws Exception {
         String actual = jdbcTemplate.queryForString("SELECT " + dbSupport.quote(column)
-                + " FROM " + dbSupport.quote(dbSupport.getCurrentSchema()) + "." + dbSupport.quote(flyway.getTable())
+                + " FROM " + dbSupport.getCurrentSchema() + "." + dbSupport.quote(flyway.getTable())
                 + " WHERE " + dbSupport.quote("version") + " = ?", version);
         assertEquals("Wrong value for column: " + column, expected, actual);
     }
 
     @Test
     public void schemaExists() throws SQLException {
-        assertTrue(dbSupport.schemaExists(dbSupport.getCurrentSchema()));
-        assertFalse(dbSupport.schemaExists("InVaLidScHeMa"));
+        assertTrue(dbSupport.getCurrentSchema().exists());
+        assertFalse(dbSupport.getSchema("InVaLidScHeMa").exists());
     }
 }

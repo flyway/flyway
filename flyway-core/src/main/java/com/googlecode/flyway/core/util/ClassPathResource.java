@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import java.nio.charset.Charset;
 /**
  * A resource on the classpath.
  */
-public class ClassPathResource implements Comparable<ClassPathResource> {
+public class ClassPathResource implements Comparable<ClassPathResource>, Resource {
     /**
      * The location of the resource on the classpath.
      */
@@ -44,18 +44,10 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
         this.location = location;
     }
 
-    /**
-     * @return The location of the resource on the classpath.
-     */
     public String getLocation() {
         return location;
     }
 
-    /**
-     * Retrieves the location of this resource on disk.
-     *
-     * @return The location of this resource on disk.
-     */
     public String getLocationOnDisk() {
         URL url = getUrl();
         if (url == null) {
@@ -82,12 +74,6 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
         return Thread.currentThread().getContextClassLoader();
     }
 
-    /**
-     * Loads this resource as a string.
-     *
-     * @param encoding The encoding to use.
-     * @return The string contents of the resource.
-     */
     public String loadAsString(String encoding) {
         try {
             InputStream inputStream = getClassLoader().getResourceAsStream(location);
@@ -102,11 +88,6 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
         }
     }
 
-    /**
-     * Loads this resource as a byte array.
-     *
-     * @return The contents of the resource.
-     */
     public byte[] loadAsBytes() {
         try {
             InputStream inputStream = getClassLoader().getResourceAsStream(location);
@@ -119,18 +100,10 @@ public class ClassPathResource implements Comparable<ClassPathResource> {
         }
     }
 
-    /**
-     * @return The filename of this resource, without the path.
-     */
     public String getFilename() {
         return location.substring(location.lastIndexOf("/") + 1);
     }
 
-    /**
-     * Checks whether this resource exists.
-     *
-     * @return {@code true} if it exists, {@code false} if not.
-     */
     public boolean exists() {
         return getUrl() != null;
     }

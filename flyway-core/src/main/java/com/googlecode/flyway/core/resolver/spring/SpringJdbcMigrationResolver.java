@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,10 @@ import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassUtils;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.StringUtils;
-import com.googlecode.flyway.core.util.scanner.ClassPathScanner;
+import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,22 +42,26 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
     /**
      * The base package on the classpath where to migrations are located.
      */
-    private final String location;
+    private final Location location;
 
     /**
      * Creates a new instance.
      *
      * @param location The base package on the classpath where to migrations are located.
      */
-    public SpringJdbcMigrationResolver(String location) {
+    public SpringJdbcMigrationResolver(Location location) {
         this.location = location;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
+        if (!location.isClassPath()) {
+            return migrations;
+        }
+
         try {
-            Class<?>[] classes = new ClassPathScanner().scanForClasses(location, SpringJdbcMigration.class);
+            Class<?>[] classes = new ClassPathScanner().scanForClasses(location.getPath(), SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
                 SpringJdbcMigration springJdbcMigration = (SpringJdbcMigration) ClassUtils.instantiate(clazz.getName());
 

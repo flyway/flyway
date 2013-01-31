@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,11 +40,13 @@ public class SQLServerSchema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", name) > 0;
+    @Override
+    protected boolean doExists() throws SQLException {
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("Select count(*) FROM " +
                 "( " +
                 "Select TABLE_NAME as OBJECT_NAME, TABLE_SCHEMA as OBJECT_SCHEMA from INFORMATION_SCHEMA.TABLES " +
@@ -58,16 +60,19 @@ public class SQLServerSchema extends Schema {
         return objectCount == 0;
     }
 
-    public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+    @Override
+    protected void doCreate() throws SQLException {
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
+    @Override
+    protected void doDrop() throws SQLException {
         clean();
-        jdbcTemplate.execute("DROP SCHEMA ?", name);
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name));
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         for (String statement : cleanForeignKeys()) {
             jdbcTemplate.execute(statement);
         }
@@ -173,7 +178,7 @@ public class SQLServerSchema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE table_type='BASE TABLE' and table_schema=?",
                 name);
@@ -184,5 +189,10 @@ public class SQLServerSchema extends Schema {
             tables[i] = new SQLServerTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new SQLServerTable(jdbcTemplate, dbSupport, this, tableName);
     }
 }

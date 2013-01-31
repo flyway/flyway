@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,11 +39,13 @@ public class DB2Schema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM syscat.schemata WHERE schemaname=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("select count(*) from syscat.tables where tabschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.views where viewschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.sequences where seqschema = ?", name);
@@ -51,16 +53,19 @@ public class DB2Schema extends Schema {
         return objectCount == 0;
     }
 
-    public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+    @Override
+    protected void doCreate() throws SQLException {
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
+    @Override
+    protected void doDrop() throws SQLException {
         clean();
-        jdbcTemplate.execute("DROP SCHEMA ? RESTRICT", name);
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " RESTRICT");
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         // MQTs are dropped when the backing views or tables are dropped
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
@@ -132,7 +137,7 @@ public class DB2Schema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = ?", name);
         Table[] tables = new Table[tableNames.size()];
@@ -140,5 +145,10 @@ public class DB2Schema extends Schema {
             tables[i] = new DB2Table(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new DB2Table(jdbcTemplate, dbSupport, this, tableName);
     }
 }

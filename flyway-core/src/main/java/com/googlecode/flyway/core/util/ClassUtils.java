@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,23 +38,9 @@ public class ClassUtils {
      * @throws Exception Thrown when the instantiation failed.
      */
     @SuppressWarnings({"unchecked"})
-    public static <T> T instantiate(String className) throws Exception {
+    // Must be synchronized for the Maven Parallel Junit runner to work
+    public static synchronized <T> T instantiate(String className) throws Exception {
         return (T) Class.forName(className, true, getClassLoader()).newInstance();
-    }
-
-    /**
-     * Checks whether this class can be instantiated or not (abstract, no default constructor, ...).
-     *
-     * @param clazz The class to check.
-     * @return {@code true} if it can, {@code false} if it can't.
-     */
-    public static boolean canInstantiate(Class<?> clazz) {
-        try {
-            clazz.newInstance();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     /**

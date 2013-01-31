@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.resolver.java;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.java.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.resolver.java.dummy.Version3dot5;
+import com.googlecode.flyway.core.util.Location;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class JavaMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         JavaMigrationResolver javaMigrationResolver =
-                new JavaMigrationResolver("com/googlecode/flyway/core/resolver/java/dummy");
+                new JavaMigrationResolver(new Location("com/googlecode/flyway/core/resolver/java/dummy"));
         Collection<ResolvedMigration> migrations = javaMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());

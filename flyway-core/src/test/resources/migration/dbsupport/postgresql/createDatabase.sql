@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2012 the original author or authors.
+-- Copyright (C) 2010-2013 the original author or authors.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -17,7 +17,3 @@
 CREATE ROLE flyway LOGIN UNENCRYPTED PASSWORD 'flyway';
 CREATE DATABASE flyway_db
   WITH OWNER = flyway ENCODING = 'UTF8' TABLESPACE = pg_default;
-\connect flyway_db;
-CREATE SCHEMA flyway_1 AUTHORIZATION flyway;
-CREATE SCHEMA flyway_2 AUTHORIZATION flyway;
-CREATE SCHEMA flyway_3 AUTHORIZATION flyway;

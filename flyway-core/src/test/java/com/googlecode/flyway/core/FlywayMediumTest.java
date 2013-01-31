@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.googlecode.flyway.core;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
@@ -50,21 +51,22 @@ public class FlywayMediumTest {
         Connection connection1 = dataSource1.getConnection();
         Connection connection2 = dataSource2.getConnection();
 
-        assertTrue(new H2DbSupport(connection1).isSchemaEmpty("PUBLIC"));
-        assertTrue(new H2DbSupport(connection2).isSchemaEmpty("PUBLIC"));
+        Schema schema1 = new H2DbSupport(connection1).getSchema("PUBLIC");
+        Schema schema2 = new H2DbSupport(connection2).getSchema("PUBLIC");
+
+        assertTrue(schema1.empty());
+        assertTrue(schema2.empty());
 
         Flyway flyway = new Flyway();
-        flyway.setDataSource(dataSource1);
-        assertNull(flyway.status());
 
+        flyway.setDataSource(dataSource1);
         flyway.setDataSource(dataSource2);
-        assertNull(flyway.status());
 
         flyway.setLocations("migration/sql");
         flyway.migrate();
 
-        assertTrue(new H2DbSupport(connection1).isSchemaEmpty("PUBLIC"));
-        assertFalse(new H2DbSupport(connection2).isSchemaEmpty("PUBLIC"));
+        assertTrue(schema1.empty());
+        assertFalse(schema2.empty());
 
         connection1.close();
         connection2.close();
@@ -77,9 +79,6 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        assertNull(flyway.info().current());
-        assertEquals(0, flyway.info().all().length);
-        assertEquals(0, flyway.info().pending().length);
 
         flyway.setLocations("migration/sql");
         assertEquals(4, flyway.info().all().length);
@@ -115,8 +114,6 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        assertNull(flyway.info().current());
-        assertEquals(0, flyway.info().all().length);
 
         flyway.setLocations("migration/failed");
         assertEquals(1, flyway.info().all().length);
@@ -136,12 +133,13 @@ public class FlywayMediumTest {
     @Test
     public void infoInit() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_info_init;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.init();
 
+        flyway.setLocations();
         assertEquals(1, flyway.info().all().length);
         assertEquals("1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
@@ -240,7 +238,7 @@ public class FlywayMediumTest {
         private int openConnectionCount = 0;
 
         public OpenConnectionCountDriverDataSource() {
-            super(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
+            super(null, "jdbc:h2:mem:flyway_db_open_connection;DB_CLOSE_DELAY=-1", "sa", "");
         }
 
         /**

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,15 @@
  */
 package com.googlecode.flyway.core.info;
 
-import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationInfoService;
+import com.googlecode.flyway.core.api.MigrationState;
+import com.googlecode.flyway.core.api.MigrationType;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.util.DateUtils;
-import com.googlecode.flyway.core.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,13 +78,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         this.metaDataTable = metaDataTable;
         this.target = target;
         this.outOfOrder = outOfOrder;
-        refresh();
     }
 
     /**
      * Refreshes the info about all known migrations from both the classpath and the DB.
      */
-    private void refresh() {
+    public void refresh() {
         List<ResolvedMigration> availableMigrations = migrationResolver.resolveMigrations();
         List<AppliedMigration> appliedMigrations = metaDataTable.allAppliedMigrations();
 
@@ -93,7 +94,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * Merges the available and the applied migrations to produce one fully aggregated and consolidated list.
      *
      * @param resolvedMigrations The available migrations.
-     * @param appliedMigrations   The applied migrations.
+     * @param appliedMigrations  The applied migrations.
      * @return The complete list of migrations.
      */
     /* private -> testing */

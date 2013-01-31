@@ -73,6 +73,7 @@
                         <installDirDist>${unpackDirDist}/flyway-commandline-${project.version}</installDirDist>
                         <installDirDistWithSpring>${unpackDirDistWithSpring}/flyway-commandline-${project.version}</installDirDistWithSpring>
                     </systemPropertyVariables>
+                    <parallel>none</parallel>
                 </configuration>
             </plugin>
             <plugin>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * YAGNI: The simplest DataSource implementation that works for Flyway.
@@ -226,5 +227,9 @@ public class DriverDataSource implements DataSource {
 
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return DataSource.class.equals(iface);
+    }
+
+    public Logger getParentLogger() {
+        throw new UnsupportedOperationException("getParentLogger");
     }
 }

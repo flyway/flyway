@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
+import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
@@ -48,10 +49,10 @@ public class OracleDbSupportMediumTest {
         DataSource dataSource = new DriverDataSource(null, url, dataSourceUser, password);
 
         Connection connection = dataSource.getConnection();
-        String currentSchema = new OracleDbSupport(connection).getCurrentSchema();
+        Schema currentSchema = new OracleDbSupport(connection).getCurrentSchema();
         connection.close();
 
-        assertEquals(user.toUpperCase(), currentSchema);
+        assertEquals(user.toUpperCase(), currentSchema.getName());
     }
 
     private Properties getConnectionProperties() throws IOException {
@@ -98,7 +99,7 @@ public class OracleDbSupportMediumTest {
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
         for (int i = 0; i < 200; i++) {
-            dbSupport.tableExistsNoQuotes(dbSupport.getCurrentSchema(), "schema_version");
+            dbSupport.getCurrentSchema().getTable("schema_version").exists();
         }
         connection.close();
     }
@@ -113,7 +114,7 @@ public class OracleDbSupportMediumTest {
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
         for (int i = 0; i < 200; i++) {
-            dbSupport.isSchemaEmpty(dbSupport.getCurrentSchema());
+            dbSupport.getCurrentSchema().empty();
         }
         connection.close();
     }

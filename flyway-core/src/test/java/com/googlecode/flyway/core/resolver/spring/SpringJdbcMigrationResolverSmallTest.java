@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.resolver.spring;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.spring.dummy.V2__InterfaceBasedMigration;
 import com.googlecode.flyway.core.resolver.spring.dummy.Version3dot5;
+import com.googlecode.flyway.core.util.Location;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class SpringJdbcMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         SpringJdbcMigrationResolver springJdbcMigrationResolver =
-                new SpringJdbcMigrationResolver("com/googlecode/flyway/core/resolver/spring/dummy");
+                new SpringJdbcMigrationResolver(new Location("com/googlecode/flyway/core/resolver/spring/dummy"));
         Collection<ResolvedMigration> migrations = springJdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());

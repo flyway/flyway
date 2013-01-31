@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,47 +43,18 @@ public class DerbyDbSupport extends DbSupport {
         return "CURRENT_USER";
     }
 
-    public String getCurrentSchema() throws SQLException {
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
         return jdbcTemplate.queryForString("SELECT CURRENT SCHEMA FROM SYSIBM.SYSDUMMY1");
     }
 
     @Override
-    public void setCurrentSchema(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
-    }
-
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        return !tableExists(null, schema.toUpperCase(), null);
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT (*) FROM sys.sysschemas WHERE schemaname=?", schema) > 0;
-    }
-
-    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return tableExists(null, schema.toUpperCase(), table.toUpperCase());
-    }
-
-    public boolean tableExists(String schema, String table) throws SQLException {
-        return tableExists(null, schema, table);
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(null, schema, table, column);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(null, schema, table);
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+        jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 
     public boolean supportsDdlTransactions() {
         return true;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("LOCK TABLE " + quote(schema) + "." + quote(table) + " IN EXCLUSIVE MODE");
     }
 
     public String getBooleanTrue() {
@@ -106,5 +77,10 @@ public class DerbyDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new DerbySchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 }

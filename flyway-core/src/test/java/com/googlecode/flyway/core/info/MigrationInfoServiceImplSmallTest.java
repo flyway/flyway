@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.util.StringUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -31,6 +30,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test for MigrationInfoServiceImpl.
@@ -42,6 +43,7 @@ public class MigrationInfoServiceImplSmallTest {
                 new MigrationInfoServiceImpl(
                         createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
                         createMetaDataTable(), MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         assertNull(migrationInfoService.current());
         assertEquals(2, migrationInfoService.all().length);
@@ -55,6 +57,7 @@ public class MigrationInfoServiceImplSmallTest {
                         createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
                         createMetaDataTable(createAppliedMigration(1), createAppliedMigration(2)),
                         MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
         assertEquals(2, migrationInfoService.all().length);
@@ -68,6 +71,7 @@ public class MigrationInfoServiceImplSmallTest {
                         createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
                         createMetaDataTable(createAppliedMigration(1)),
                         MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         assertEquals("1", migrationInfoService.current().getVersion().toString());
         assertEquals(2, migrationInfoService.all().length);
@@ -81,6 +85,7 @@ public class MigrationInfoServiceImplSmallTest {
                         createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
                         createMetaDataTable(createAppliedMigration(2)),
                         MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
         assertEquals(MigrationState.IGNORED, migrationInfoService.all()[0].getState());
@@ -95,6 +100,7 @@ public class MigrationInfoServiceImplSmallTest {
                         createMigrationResolver(createAvailableMigration(1)),
                         createMetaDataTable(createAppliedMigration(1), createAppliedMigration(2)),
                         MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
         assertEquals(MigrationState.FUTURE_SUCCESS, migrationInfoService.current().getState());
@@ -109,6 +115,7 @@ public class MigrationInfoServiceImplSmallTest {
                         createMigrationResolver(createAvailableMigration(1)),
                         createMetaDataTable(createAppliedInitMigration(2)),
                         MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
         assertEquals(MigrationState.PREINIT, migrationInfoService.all()[0].getState());
@@ -123,6 +130,7 @@ public class MigrationInfoServiceImplSmallTest {
                         createMigrationResolver(createAvailableMigration(2)),
                         createMetaDataTable(createAppliedMigration(1), createAppliedMigration(2)),
                         MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
         assertEquals(MigrationState.MISSING_SUCCESS, migrationInfoService.all()[0].getState());
@@ -188,33 +196,8 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The metadata table.
      */
     private MetaDataTable createMetaDataTable(final AppliedMigration... appliedMigrations) {
-        return new MetaDataTable() {
-            public void createIfNotExists() {
-            }
-
-            public void lock() {
-            }
-
-            public void insert(AppliedMigration appliedMigration) {
-            }
-
-            public List<AppliedMigration> allAppliedMigrations() {
-                return Arrays.asList(appliedMigrations);
-            }
-
-            public boolean hasFailedMigration() {
-                return false;
-            }
-
-            public MigrationVersion getCurrentSchemaVersion() {
-                return null;
-            }
-
-            public void init(MigrationVersion initVersion, String initDescription) {
-            }
-
-            public void repair() {
-            }
-        };
+        MetaDataTable metaDataTable = mock(MetaDataTable.class);
+        when(metaDataTable.allAppliedMigrations()).thenReturn(Arrays.asList(appliedMigrations));
+        return metaDataTable;
     }
 }

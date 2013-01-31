@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.util.jdbc;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
@@ -46,29 +47,28 @@ public class TransactionTemplate {
      *
      * @param transactionCallback The callback to execute.
      * @return The result of the transaction code.
-     * @throws TransactionException when the transaction execution failed.
      */
-    public <T> T execute(TransactionCallback<T> transactionCallback) throws TransactionException {
+    public <T> T execute(TransactionCallback<T> transactionCallback) {
         try {
             connection.setAutoCommit(false);
             T result = transactionCallback.doInTransaction();
             connection.commit();
             return result;
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-                throw new TransactionException("Transaction failed!", e);
-            } catch (SQLException se) {
-                LOG.error("Unable to rollback transaction", e);
-                throw new TransactionException("Error while executing transaction. Roll back failed!", se);
-            }
+            throw new FlywayException("Unable to execute transaction", e);
         } catch (RuntimeException e) {
             try {
                 connection.rollback();
                 throw e;
             } catch (SQLException se) {
-                LOG.error("Unable to rollback transaction", e);
-                throw new TransactionException("Error while executing transaction. Roll back failed!", se);
+                LOG.error("Unable to rollback transaction", se);
+                throw e;
+            }
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                LOG.error("Unable to restore connection to autocommit", e);
             }
         }
     }

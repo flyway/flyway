@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,53 +43,18 @@ public class MySQLDbSupport extends DbSupport {
         return "SUBSTRING_INDEX(USER(),'@',1)";
     }
 
-    public String getCurrentSchema() throws SQLException {
+    @Override
+    protected String doGetCurrentSchema() throws SQLException {
         return jdbcTemplate.getConnection().getCatalog();
     }
 
     @Override
-    public void setCurrentSchema(String schema) throws SQLException {
-        jdbcTemplate.execute("USE " + quote(schema));
-    }
-
-    public boolean isSchemaEmpty(String schema) throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("Select "
-                + "(Select count(*) from information_schema.TABLES Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.TABLE_CONSTRAINTS Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.ROUTINES Where ROUTINE_SCHEMA=?)", schema,
-                schema, schema, schema);
-        return objectCount == 0;
-    }
-
-    @Override
-    public boolean schemaExists(String schema) throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", schema) > 0;
-    }
-
-    public boolean tableExistsNoQuotes(final String schema, final String table) throws SQLException {
-        return tableExists(schema, null, table);
-    }
-
-    public boolean tableExists(String schema, String table) throws SQLException {
-        return tableExists(schema, null, table);
-    }
-
-    public boolean columnExists(String schema, String table, String column) throws SQLException {
-        return columnExists(schema, null, table, column);
-    }
-
-    @Override
-    public boolean primaryKeyExists(String schema, String table) throws SQLException {
-        return primaryKeyExists(schema, null, table);
+    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+        jdbcTemplate.execute("USE " + schema);
     }
 
     public boolean supportsDdlTransactions() {
         return false;
-    }
-
-    public void lockTable(String schema, String table) throws SQLException {
-        jdbcTemplate.execute("select * from " + quote(schema) + "." + quote(table) + " for update");
     }
 
     public String getBooleanTrue() {
@@ -112,5 +77,10 @@ public class MySQLDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new MySQLSchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return true;
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,12 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
-import com.googlecode.flyway.core.dbsupport.h2.H2Table;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Oracle implementation of Schema.
@@ -46,25 +44,30 @@ public class OracleSchema extends Schema {
         super(jdbcTemplate, dbSupport, name);
     }
 
-    public boolean exists() throws SQLException {
+    @Override
+    protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username=?", name) > 0;
     }
 
-    public boolean empty() throws SQLException {
+    @Override
+    protected boolean doEmpty() throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", name);
         return objectCount == 0;
     }
 
-    public void create() throws SQLException {
-        jdbcTemplate.execute("CREATE USER ? IDENTIFIED BY flyway", name);
-        jdbcTemplate.execute("GRANT RESOURCE TO ?", name);
+    @Override
+    protected void doCreate() throws SQLException {
+        jdbcTemplate.execute("CREATE USER " + dbSupport.quote(name) + " IDENTIFIED BY flyway");
+        jdbcTemplate.execute("GRANT RESOURCE TO " + dbSupport.quote(name));
     }
 
-    public void drop() throws SQLException {
-        jdbcTemplate.execute("DROP USER ? CASCADE", name);
+    @Override
+    protected void doDrop() throws SQLException {
+        jdbcTemplate.execute("DROP USER " + dbSupport.quote(name) + " CASCADE");
     }
 
-    public void clean() throws SQLException {
+    @Override
+    protected void doClean() throws SQLException {
         if ("SYSTEM".equals(name.toUpperCase())) {
             throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
         }
@@ -187,7 +190,7 @@ public class OracleSchema extends Schema {
             LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
             return statements;
         }
-        if (!dbSupport.getCurrentSchema().equalsIgnoreCase(name)) {
+        if (!dbSupport.getCurrentSchema().getName().equalsIgnoreCase(name)) {
             int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", name);
             count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", name);
             if (count > 0) {
@@ -218,28 +221,33 @@ public class OracleSchema extends Schema {
     }
 
     @Override
-    public Table[] allTables() throws SQLException {
+    protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
                 "SELECT table_name FROM all_tables WHERE owner = ?"
-                                // Ignore Recycle bin objects
-                                + " AND table_name NOT LIKE 'BIN$%'"
-                                // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
-                                + " AND table_name NOT LIKE 'MDRT_%$'"
-                                // Ignore Materialized View Logs
-                                + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
-                                // Ignore Oracle Text Index Tables
-                                + " AND table_name NOT LIKE 'DR$%'"
-                                // Ignore Index Organized Tables
-                                + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
-                                // Ignore Nested Tables
-                                + " AND nested != 'YES'"
-                                // Ignore Nested Tables
-                                + " AND secondary != 'Y'", name);
+                        // Ignore Recycle bin objects
+                        + " AND table_name NOT LIKE 'BIN$%'"
+                        // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
+                        + " AND table_name NOT LIKE 'MDRT_%$'"
+                        // Ignore Materialized View Logs
+                        + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
+                        // Ignore Oracle Text Index Tables
+                        + " AND table_name NOT LIKE 'DR$%'"
+                        // Ignore Index Organized Tables
+                        + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
+                        // Ignore Nested Tables
+                        + " AND nested != 'YES'"
+                        // Ignore Nested Tables
+                        + " AND secondary != 'Y'", name);
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new OracleTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        return new OracleTable(jdbcTemplate, dbSupport, this, tableName);
     }
 }

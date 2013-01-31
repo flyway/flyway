@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2012 the original author or authors.
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
+import com.googlecode.flyway.core.api.FlywayException;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -63,9 +62,35 @@ public abstract class Schema {
      * Checks whether this schema exists.
      *
      * @return {@code true} if it does, {@code false} if not.
+     */
+    public boolean exists() {
+        try {
+            return doExists();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether schema " + this + " exists", e);
+        }
+    }
+
+    /**
+     * Checks whether this schema exists.
+     *
+     * @return {@code true} if it does, {@code false} if not.
      * @throws SQLException when the check failed.
      */
-    public abstract boolean exists() throws SQLException;
+    protected abstract boolean doExists() throws SQLException;
+
+    /**
+     * Checks whether this schema is empty.
+     *
+     * @return {@code true} if it is, {@code false} if isn't.
+     */
+    public boolean empty() {
+        try {
+            return doEmpty();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check whether schema " + this + " is empty", e);
+        }
+    }
 
     /**
      * Checks whether this schema is empty.
@@ -73,25 +98,74 @@ public abstract class Schema {
      * @return {@code true} if it is, {@code false} if isn't.
      * @throws SQLException when the check failed.
      */
-    public abstract boolean empty() throws SQLException;
+    protected abstract boolean doEmpty() throws SQLException;
 
     /**
      * Creates this schema in the database.
+     */
+    public void create() {
+        try {
+            doCreate();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to create schema " + this, e);
+        }
+    }
+
+    /**
+     * Creates this schema in the database.
+     *
      * @throws SQLException when the creation failed.
      */
-    public abstract void create() throws SQLException;
+    protected abstract void doCreate() throws SQLException;
 
     /**
      * Drops this schema from the database.
+     */
+    public void drop() {
+        try {
+            doDrop();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to drop schema " + this, e);
+        }
+    }
+
+    /**
+     * Drops this schema from the database.
+     *
      * @throws SQLException when the drop failed.
      */
-    public abstract void drop() throws SQLException;
+    protected abstract void doDrop() throws SQLException;
 
     /**
      * Cleans all the objects in this schema.
+     */
+    public void clean() {
+        try {
+            doClean();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to clean schema " + this, e);
+        }
+    }
+
+    /**
+     * Cleans all the objects in this schema.
+     *
      * @throws SQLException when the clean failed.
      */
-    public abstract void clean() throws SQLException;
+    protected abstract void doClean() throws SQLException;
+
+    /**
+     * Retrieves all the tables in this schema.
+     *
+     * @return All tables in the schema.
+     */
+    public Table[] allTables() {
+        try {
+            return doAllTables();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to retrieve all tables in schema " + this, e);
+        }
+    }
 
     /**
      * Retrieves all the tables in this schema.
@@ -99,5 +173,32 @@ public abstract class Schema {
      * @return All tables in the schema.
      * @throws SQLException when the retrieval failed.
      */
-    public abstract Table[] allTables() throws SQLException;
+    protected abstract Table[] doAllTables() throws SQLException;
+
+    /**
+     * Retrieves the table with this name in this schema.
+     *
+     * @param tableName The name of the table.
+     * @return The table.
+     */
+    public abstract Table getTable(String tableName);
+
+    @Override
+    public String toString() {
+        return dbSupport.quote(name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Schema schema = (Schema) o;
+        return name.equals(schema.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }
