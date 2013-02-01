@@ -2,7 +2,7 @@ sbtPlugin := true
 
 organization := "com.googlecode.flyway"
 
-name := "flyway-sbt-plugin"
+name := "sbt-flyway"
 
 version := "2.0.4-SNAPSHOT"
 
