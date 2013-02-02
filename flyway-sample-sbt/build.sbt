@@ -2,13 +2,10 @@ organization := "com.googlecode.flyway"
 
 name := "flyway-sample-sbt"
 
-version := "2.0.4-SNAPSHOT"
-
-resolvers += (
-    "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
-)
+crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
 
 libraryDependencies ++= Seq(
   "org.hsqldb" % "hsqldb" % "2.2.8"
 )
+
 

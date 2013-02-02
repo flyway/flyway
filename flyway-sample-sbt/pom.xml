@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.googlecode.flyway</groupId>
@@ -6,63 +7,36 @@
         <version>2.0.4-SNAPSHOT</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
-    <artifactId>flyway-sample-sbt</artifactId>
+    <artifactId>flyway-sample-sbt-version</artifactId>
     <version>2.0.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <properties>
-        <scala.version>2.9.1</scala.version>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>3.0.5.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-        </dependency>
-    </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/config</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <args>
-                        <arg>-unchecked</arg>
-                        <arg>-deprecation</arg>
-                        <arg>-explaintypes</arg>
-                    </args>
-                    <jvmArgs>
-                        <jvmArg>-Xms256m</jvmArg>
-                        <jvmArg>-Xmx1024m</jvmArg>
-                    </jvmArgs>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
                 <executions>
                     <execution>
-                        <id>scala-compile-first</id>
-                        <phase>process-resources</phase>
+                        <phase>install</phase>
                         <goals>
-                            <!--suppress MavenModelInspection -->
-                            <goal>add-source</goal>
-                            <!--suppress MavenModelInspection -->
-                            <goal>compile</goal>
+                            <goal>exec</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <executable>sbt</executable>
+                    <arguments>
+                        <argument>+publish-local</argument>
+                    </arguments>
+                </configuration>
             </plugin>
         </plugins>
     </build>

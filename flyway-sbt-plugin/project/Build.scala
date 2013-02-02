@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.googlecode.flyway.sbt.FlywayPlugin._
 import sbt._
-import sbt.Keys._
 import scala._
-import scala.Some
+import Keys._
 
-object FlywaySampleSbt extends Build {
+object FlywayPlugin extends Build {
 
   val flywayVersion = IO.readLines(new File("target/classes/version.txt")).head
 
-  lazy val project = Project(
+  lazy val project = Project (
     "project",
-    file("."),
-    settings = Defaults.defaultSettings ++ flywaySettings ++ Seq(
+    file ("."),
+    settings = Defaults.defaultSettings ++ Seq(
       version := flywayVersion,
-      flywayUrl := "jdbc:hsqldb:file:target/flyway_sample;shutdown=true",
-      flywayUser := "SA",
-      flywayPassword := "",
-      flywayLocations := Some(Seq("com/googlecode/flyway/sample/migration/sbt"))
+      libraryDependencies += "com.googlecode.flyway" % "flyway-core" % flywayVersion
     )
   )
 }

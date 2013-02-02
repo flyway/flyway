@@ -61,6 +61,8 @@
         <module>flyway-commandline-largetest</module>
         <module>flyway-ant</module>
         <module>flyway-ant-largetest</module>
+        <module>flyway-sbt-plugin</module>
+        <module>flyway-sample-sbt</module>
     </modules>
 
     <distributionManagement>
@@ -371,6 +373,7 @@
                         <exclude>**/*.txt</exclude>
                         <exclude>**/*.cnf</exclude>
                         <exclude>**/*.releaseBackup</exclude>
+                        <exclude>*/.idea/**</exclude>
                     </excludes>
                     <strictCheck>true</strictCheck>
                 </configuration>
