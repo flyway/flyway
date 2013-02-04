@@ -253,36 +253,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         return number.intValue();
     }
 
-    public MigrationVersion getCurrentSchemaVersion() {
-        if (!table.existsNoQuotes() && !table.exists()) {
-            return MigrationVersion.EMPTY;
-        }
-
-        try {
-            if (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table) == 0) {
-                return MigrationVersion.EMPTY;
-            }
-        } catch (SQLException e) {
-            throw new FlywayException("Error checking if the metadata table " + table + " has at least one row", e);
-        }
-
-        createIfNotExists();
-
-        // Determine the version associated with the highest version_rank
-        String query = "SELECT t1." + dbSupport.quote("version") + " FROM " + table + " t1" +
-                " LEFT OUTER JOIN " + table + " t2 ON" +
-                " (t1." + dbSupport.quote("version") + " = t2." + dbSupport.quote("version")
-                + " AND t1." + dbSupport.quote("version_rank") + " < t2." + dbSupport.quote("version_rank") + ")" +
-                " WHERE t2." + dbSupport.quote("version") + " IS NULL";
-        try {
-            String version = jdbcTemplate.queryForString(query);
-            return new MigrationVersion(version);
-        } catch (SQLException e) {
-            throw new FlywayException("Error determining current schema version from metadata table " + table, e);
-        }
-    }
-
-    public void init(final MigrationVersion initVersion, final String initDescription) {
+    public void addInitMarker(final MigrationVersion initVersion, final String initDescription) {
         addAppliedMigration(new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
                 0, true));
     }

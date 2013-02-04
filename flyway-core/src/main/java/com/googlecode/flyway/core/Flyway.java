@@ -799,7 +799,7 @@ public class Flyway {
                     doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas);
                 }
 
-                if (metaDataTable.getCurrentSchemaVersion() == MigrationVersion.EMPTY) {
+                if (!metaDataTable.hasSchemasMarker() && !metaDataTable.hasInitMarker() && !metaDataTable.hasAppliedMigrations()) {
                     List<Schema> nonEmptySchemas = new ArrayList<Schema>();
                     for (Schema schema : schemas) {
                         if (!schema.empty()) {

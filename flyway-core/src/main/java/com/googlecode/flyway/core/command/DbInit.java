@@ -81,7 +81,7 @@ public class DbInit {
                 if (metaDataTable.hasSchemasMarker() && initVersion.equals(new MigrationVersion("0"))) {
                     throw new FlywayException("Unable to init metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
                 }
-                metaDataTable.init(initVersion, initDescription);
+                metaDataTable.addInitMarker(initVersion, initDescription);
                 return null;
             }
         });

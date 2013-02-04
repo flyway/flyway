@@ -50,17 +50,12 @@ public interface MetaDataTable {
     List<AppliedMigration> allAppliedMigrations();
 
     /**
-     * @return The current version of the schema. {@code MigrationVersion.EMPTY} for an empty schema.
-     */
-    MigrationVersion getCurrentSchemaVersion();
-
-    /**
      * Creates and initializes the Flyway metadata table.
      *
      * @param initVersion             The version to tag an existing schema with when executing init.
      * @param initDescription         The description to tag an existing schema with when executing init.
      */
-    void init(MigrationVersion initVersion, String initDescription);
+    void addInitMarker(MigrationVersion initVersion, String initDescription);
 
     /**
      * Checks whether the metadata table contains a marker row for schema init.

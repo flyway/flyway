@@ -143,7 +143,10 @@ public class DbMigrate {
                                     new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
                             infoService.refresh();
 
-                            MigrationVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
+                            MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
+                            if (infoService.current() != null) {
+                                currentSchemaVersion = infoService.current().getVersion();
+                            }
                             if (firstRun) {
                                 LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
 
