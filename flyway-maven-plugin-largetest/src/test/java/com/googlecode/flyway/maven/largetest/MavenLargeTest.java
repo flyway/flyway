@@ -72,6 +72,18 @@ public class MavenLargeTest {
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
+    /**
+     * Tests the use of settings.xml with an encrypted password.
+     */
+    @Test
+    public void settingsEncrypted() throws Exception {
+        String dir = installDir + "/settings-encrypted";
+        String stdOut = runMaven(0, "settings-encrypted", "clean", "sql:execute", "flyway:init",
+                "-s=" + dir + "/settings.xml",
+                "-Dsettings.security=" + dir + "/settings-security.xml");
+        assertTrue(stdOut.contains("Schema initialized with version: 1"));
+    }
+
     @Test
     public void locationsElements() throws Exception {
         String stdOut = runMaven(0, "locations-elements", "clean", "compile", "flyway:migrate");

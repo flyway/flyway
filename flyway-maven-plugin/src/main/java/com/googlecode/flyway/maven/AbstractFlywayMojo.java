@@ -28,6 +28,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
+import org.sonatype.plexus.components.cipher.PlexusCipherException;
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 import javax.sql.DataSource;
 
@@ -181,7 +186,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             final Server server = settings.getServer(serverId);
             if (server != null) {
                 user = server.getUsername();
-                password = server.getPassword();
+                try {
+                    SecDispatcher secDispatcher = new DefaultSecDispatcher() {{
+                        _cipher = new DefaultPlexusCipher();
+                    }};
+                    password = secDispatcher.decrypt(server.getPassword());
+                } catch (SecDispatcherException e) {
+                    throw new FlywayException("Unable to decrypt password", e);
+                } catch (PlexusCipherException e) {
+                    throw new FlywayException("Unable to initialized password decryption", e);
+                }
             }
         }
     }
