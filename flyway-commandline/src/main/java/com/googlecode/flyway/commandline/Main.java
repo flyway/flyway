@@ -212,9 +212,9 @@ public class Main {
         LOG.info("");
         LOG.info("Commands");
         LOG.info("========");
-        LOG.info("clean    : Drops all objects in the schema without dropping the schema itself");
-        LOG.info("init     : Creates and initializes the metadata table in the schema");
-        LOG.info("migrate  : Migrates the schema to the latest version");
+        LOG.info("clean    : Drops all objects in the configured schemas");
+        LOG.info("init     : Creates and initializes the metadata table");
+        LOG.info("migrate  : Migrates the database");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("repair   : Repairs the metadata table after a failed migration");

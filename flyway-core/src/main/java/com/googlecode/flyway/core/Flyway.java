@@ -76,9 +76,13 @@ public class Flyway {
     private String encoding = "UTF-8";
 
     /**
-     * The schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
-     * (default: The default schema for the datasource connection)
+     * The schemas managed by Flyway.  These schema names are case-sensitive. (default: The default schema for the datasource connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
      */
     private String[] schemaNames = new String[0];
 
@@ -224,8 +228,13 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
+     * Retrieves the schemas managed by Flyway.  These schema names are case-sensitive.
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
      *
      * @return The schemas managed by Flyway. (default: The default schema for the datasource connection)
      */
@@ -549,8 +558,13 @@ public class Flyway {
     }
 
     /**
-     * Sets the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the datasource connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
      */
@@ -878,6 +892,7 @@ public class Flyway {
 
     /**
      * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
+     * The schemas are cleaned in the order specified by the {@code schemas} property.
      *
      * @throws FlywayException when the clean fails.
      */

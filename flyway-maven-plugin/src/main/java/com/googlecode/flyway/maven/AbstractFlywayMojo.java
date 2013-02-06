@@ -76,9 +76,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String password;
 
     /**
-     * List of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
-     * (default: The default schema for the datasource connection)<br>
+     * List of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
+     * (default: The default schema for the datasource connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
      * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
      *
      * @parameter expression="${flyway.schemas}"
