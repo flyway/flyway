@@ -42,6 +42,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     protected Log log;
 
     /**
+     * Whether to skip the execution of the Maven Plugin for this module.<br/>
+     * <p>Also configurable with Maven or System Property: ${flyway.skip}</p>
+     *
+     * @parameter expression="${flyway.skip}"
+     */
+    /* private -> for testing */ boolean skip;
+
+    /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
      * By default, the driver is autodetected based on the url.<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.driver}</p>
@@ -191,6 +199,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         LogFactory.setLogCreator(new MavenLogCreator(this));
         log = LogFactory.getLog(getClass());
+
+        if (skip) {
+            log.info("Skipping Flyway execution");
+            return;
+        }
+
         try {
             loadCredentialsFromSettings();
 
