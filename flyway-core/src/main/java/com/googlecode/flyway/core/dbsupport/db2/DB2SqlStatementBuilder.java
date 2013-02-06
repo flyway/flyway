@@ -31,21 +31,38 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     private int numQuotes;
 
     /**
-     * Are we currently inside a BEGIN ATOMIC block?
+     * Are we currently inside a BEGIN END; block?
      */
-    private boolean insideAtomicBlock;
+    private boolean insideBeginEndBlock;
+
+    /**
+     * Holds the beginning of the statement.
+     */
+    private String statementStart = "";
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (line.contains("BEGIN ATOMIC")) {
-            insideAtomicBlock = true;
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
+            statementStart += line;
+            statementStart += " ";
         }
 
-        if (line.endsWith("END;")) {
-            insideAtomicBlock = false;
+        if (statementStart.startsWith("CREATE FUNCTION")
+                || statementStart.startsWith("CREATE PROCEDURE")
+                || statementStart.startsWith("CREATE TRIGGER")
+                || statementStart.startsWith("CREATE OR REPLACE FUNCTION")
+                || statementStart.startsWith("CREATE OR REPLACE PROCEDURE")
+                || statementStart.startsWith("CREATE OR REPLACE TRIGGER")) {
+            if (line.startsWith("BEGIN")) {
+                insideBeginEndBlock = true;
+            }
+
+            if (line.endsWith("END;")) {
+                insideBeginEndBlock = false;
+            }
         }
 
-        if (insideAtomicBlock) {
+        if (insideBeginEndBlock) {
             return null;
         }
         return getDefaultDelimiter();
