@@ -104,16 +104,20 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
             }
 
             if ((dollarQuote == null) && cleanToken.matches(DOLLAR_QUOTE_REGEX)) {
-                dollarQuote = cleanToken.substring(0, cleanToken.substring(1).indexOf("$") + 2);
-                if ((cleanToken.length() > dollarQuote.length()) && cleanToken.endsWith(dollarQuote)) {
-                    // Ignore. $$ string literal is opened and closed inside the same token.
-                    dollarQuote = null;
-                    continue;
+                if ("$$".equals(cleanToken)) {
+                    dollarQuote = cleanToken;
+                } else {
+                    dollarQuote = cleanToken.substring(0, cleanToken.substring(1).indexOf("$") + 2);
+                    if ((cleanToken.length() > dollarQuote.length()) && cleanToken.endsWith(dollarQuote)) {
+                        // Ignore. $$ string literal is opened and closed inside the same token.
+                        dollarQuote = null;
+                        continue;
+                    }
                 }
                 tokenTypes.add(TokenType.DOLLAR_OPEN);
-            }
-
-            if ((dollarQuote != null) && !cleanToken.startsWith(dollarQuote) && cleanToken.endsWith(dollarQuote)) {
+            } else if ((dollarQuote != null) && (
+                    cleanToken.equals(dollarQuote)
+                            || (!cleanToken.startsWith(dollarQuote) && cleanToken.endsWith(dollarQuote)))) {
                 tokenTypes.add(TokenType.DOLLAR_CLOSE);
                 dollarQuote = null;
             }
