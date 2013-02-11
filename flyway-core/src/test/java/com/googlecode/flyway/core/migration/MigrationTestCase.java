@@ -536,6 +536,12 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void comment() {
+        flyway.setLocations("migration/comment");
+        assertEquals(1, flyway.migrate());
+    }
+
+    @Test
     public void outOfOrderMultipleRankIncrease() {
         flyway.setLocations("migration/sql");
         flyway.migrate();

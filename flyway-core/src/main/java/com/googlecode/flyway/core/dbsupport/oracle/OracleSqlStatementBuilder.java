@@ -42,6 +42,11 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     private boolean insideQStringLiteral = false;
 
     /**
+     * Are we inside a multi-line /*  *&#47; comment.
+     */
+    private boolean insideMultiLineComment = false;
+
+    /**
      * Q-Quote close token to look for.
      */
     private String qCloseToken = "]'";
@@ -88,31 +93,45 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
 
         for (Token delimitingToken : delimitingTokens) {
-            boolean moreTokensApplicable = true;
+            boolean moreTokenTypesApplicable = true;
             for (TokenType tokenType : delimitingToken.tokenTypes) {
-                if (!moreTokensApplicable) {
+                if (!moreTokenTypesApplicable) {
                     continue;
                 }
 
-                if (!insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.QUOTE_OPEN)) {
+                if (!insideQuoteStringLiteral && !insideQStringLiteral && (tokenType == TokenType.MULTI_LINE_COMMENT_OPEN)) {
+                    insideMultiLineComment = true;
+                    moreTokenTypesApplicable = false;
+                }
+
+                if (insideMultiLineComment && TokenType.MULTI_LINE_COMMENT_CLOSE.equals(tokenType)) {
+                    insideMultiLineComment = false;
+                    moreTokenTypesApplicable = false;
+                }
+
+                if (!insideQuoteStringLiteral && !insideQStringLiteral && (tokenType == TokenType.SINGLE_LINE_COMMENT)) {
+                    return false;
+                }
+
+                if (!insideMultiLineComment && !insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.QUOTE_OPEN)) {
                     insideQuoteStringLiteral = true;
                     if (delimitingToken.singleTypeApplicable) {
-                        moreTokensApplicable = false;
+                        moreTokenTypesApplicable = false;
                     }
                     continue;
                 }
                 if (insideQuoteStringLiteral && (tokenType == TokenType.QUOTE_CLOSE)) {
                     insideQuoteStringLiteral = false;
-                    moreTokensApplicable = false;
+                    moreTokenTypesApplicable = false;
                     continue;
                 }
-                if (!insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.Q_OPEN)) {
+                if (!insideMultiLineComment && !insideQStringLiteral && !insideQuoteStringLiteral && (tokenType == TokenType.Q_OPEN)) {
                     insideQStringLiteral = true;
                     continue;
                 }
                 if (insideQStringLiteral && (tokenType == TokenType.Q_CLOSE)) {
                     insideQStringLiteral = false;
-                    moreTokensApplicable = false;
+                    moreTokenTypesApplicable = false;
                 }
             }
         }
@@ -136,6 +155,10 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
             List<TokenType> tokenTypes = new ArrayList<TokenType>();
 
+            if (cleanToken.startsWith("--")) {
+                tokenTypes.add(TokenType.SINGLE_LINE_COMMENT);
+            }
+
             if (cleanToken.startsWith("'")) {
                 tokenTypes.add(TokenType.QUOTE_OPEN);
             }
@@ -153,6 +176,14 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
             if (cleanToken.endsWith(qCloseToken)) {
                 tokenTypes.add(TokenType.Q_CLOSE);
+            }
+
+            if (cleanToken.startsWith("/*")) {
+                tokenTypes.add(TokenType.MULTI_LINE_COMMENT_OPEN);
+            }
+
+            if (cleanToken.startsWith("*/")) {
+                tokenTypes.add(TokenType.MULTI_LINE_COMMENT_CLOSE);
             }
 
             if (!tokenTypes.isEmpty()) {
@@ -225,6 +256,21 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         /**
          * Token closes q' string literal
          */
-        Q_CLOSE
+        Q_CLOSE,
+
+        /**
+         * Token starts end of line comment --
+         */
+        SINGLE_LINE_COMMENT,
+
+        /**
+         * Token opens multi-line comment /*
+         */
+        MULTI_LINE_COMMENT_OPEN,
+
+        /**
+         * Token closes multi-line comment *&#47;
+         */
+        MULTI_LINE_COMMENT_CLOSE
     }
 }

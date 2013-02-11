@@ -37,6 +37,11 @@ public class DerbySqlStatementBuilder extends SqlStatementBuilder {
      */
     boolean insideDollarStringLiteral = false;
 
+    /**
+     * Are we inside a multi-line /*  *&#47; comment.
+     */
+    private boolean insideMultiLineComment = false;
+
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String line) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
@@ -45,7 +50,22 @@ public class DerbySqlStatementBuilder extends SqlStatementBuilder {
         List<Set<TokenType>> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 
         for (Set<TokenType> delimitingToken : delimitingTokens) {
-            if (!insideDollarStringLiteral && !insideQuoteStringLiteral && delimitingToken.contains(TokenType.QUOTE_OPEN)) {
+            if (!insideQuoteStringLiteral && !insideDollarStringLiteral && delimitingToken.contains(TokenType.MULTI_LINE_COMMENT_OPEN)) {
+                insideMultiLineComment = true;
+                continue;
+            }
+
+            if (insideMultiLineComment && delimitingToken.contains(TokenType.MULTI_LINE_COMMENT_CLOSE)) {
+                insideMultiLineComment = false;
+                continue;
+            }
+
+            if (!insideQuoteStringLiteral && !insideDollarStringLiteral && !insideMultiLineComment &&
+                    delimitingToken.contains(TokenType.SINGLE_LINE_COMMENT)) {
+                return false;
+            }
+
+            if (!insideMultiLineComment && !insideDollarStringLiteral && !insideQuoteStringLiteral && delimitingToken.contains(TokenType.QUOTE_OPEN)) {
                 insideQuoteStringLiteral = true;
                 continue;
             }
@@ -53,7 +73,7 @@ public class DerbySqlStatementBuilder extends SqlStatementBuilder {
                 insideQuoteStringLiteral = false;
                 continue;
             }
-            if (!insideDollarStringLiteral && !insideQuoteStringLiteral && delimitingToken.contains(TokenType.DOLLAR_OPEN)) {
+            if (!insideMultiLineComment && !insideDollarStringLiteral && !insideQuoteStringLiteral && delimitingToken.contains(TokenType.DOLLAR_OPEN)) {
                 insideDollarStringLiteral = true;
                 continue;
             }
@@ -75,33 +95,38 @@ public class DerbySqlStatementBuilder extends SqlStatementBuilder {
     private List<Set<TokenType>> extractStringLiteralDelimitingTokens(String[] tokens) {
         List<Set<TokenType>> delimitingTokens = new ArrayList<Set<TokenType>>();
         for (String token : tokens) {
-            //Remove escaped quotes as they do not form a string literal delimiter
-            String cleanToken = StringUtils.replace(token, "''", "");
-
             Set<TokenType> tokenTypes = new HashSet<TokenType>();
 
-            if (cleanToken.startsWith("'")) {
-                if ((cleanToken.length() > 1) && cleanToken.endsWith("'")) {
+            if (token.startsWith("'")) {
+                if ((token.length() > 1) && token.endsWith("'")) {
                     // Ignore. ' string literal is opened and closed inside the same token.
                     continue;
                 }
                 tokenTypes.add(TokenType.QUOTE_OPEN);
             }
 
-            if (cleanToken.endsWith("'")) {
+            if (token.endsWith("'")) {
                 tokenTypes.add(TokenType.QUOTE_CLOSE);
             }
 
-            if (cleanToken.startsWith("$$")) {
-                if ((cleanToken.length() > 2) && cleanToken.endsWith("$$")) {
+            if (token.startsWith("$$")) {
+                if ((token.length() >= 4) && token.endsWith("$$")) {
                     // Ignore. $$ string literal is opened and closed inside the same token.
                     continue;
                 }
                 tokenTypes.add(TokenType.DOLLAR_OPEN);
             }
 
-            if (cleanToken.endsWith("$$")) {
+            if (token.endsWith("$$")) {
                 tokenTypes.add(TokenType.DOLLAR_CLOSE);
+            }
+
+            if (token.startsWith("--")) {
+                tokenTypes.add(TokenType.SINGLE_LINE_COMMENT);
+            } else if (token.startsWith("/*")) {
+                tokenTypes.add(TokenType.MULTI_LINE_COMMENT_OPEN);
+            } else if (token.startsWith("*/")) {
+                tokenTypes.add(TokenType.MULTI_LINE_COMMENT_CLOSE);
             }
 
             if (!tokenTypes.isEmpty()) {
@@ -134,6 +159,21 @@ public class DerbySqlStatementBuilder extends SqlStatementBuilder {
         /**
          * Token closes $$ string literal
          */
-        DOLLAR_CLOSE
+        DOLLAR_CLOSE,
+
+        /**
+         * Token starts end of line comment --
+         */
+        SINGLE_LINE_COMMENT,
+
+        /**
+         * Token opens multi-line comment /*
+         */
+        MULTI_LINE_COMMENT_OPEN,
+
+        /**
+         * Token closes multi-line comment *&#47;
+         */
+        MULTI_LINE_COMMENT_CLOSE
     }
 }

@@ -14,8 +14,26 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test_user (
-  id INT NOT NULL,
-  name VARCHAR(25) NOT NULL,  -- this is a valid ' comment
-  PRIMARY KEY(name)  /* and so is this ! */
+/*
+   First ' comment
+ */
+CREATE TABLE user1 (
+  name VARCHAR(25) NOT NULL,
+  -- second '
+  PRIMARY KEY(name)
+);
+
+CREATE TABLE group1 (
+/*
+  third '
+ */
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+);
+
+-- 'fourth'
+CREATE TABLE table1 (
+-- ' fifth
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
 );

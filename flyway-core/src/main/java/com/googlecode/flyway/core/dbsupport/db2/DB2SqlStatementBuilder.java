@@ -19,21 +19,27 @@ import com.googlecode.flyway.core.dbsupport.Delimiter;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * SqlStatementBuilder supporting DB2-specific delimiter changes.
- * <p/>
- * TODO Support for Procedures.
  */
 public class DB2SqlStatementBuilder extends SqlStatementBuilder {
-    /**
-     * The number of quotes encountered so far.
-     */
-    private int numQuotes;
-
     /**
      * Are we currently inside a BEGIN END; block?
      */
     private boolean insideBeginEndBlock;
+
+    /**
+     * Are we inside a ' multi-line string literal
+     */
+    private boolean insideQuoteStringLiteral = false;
+
+    /**
+     * Are we inside a multi-line /*  *&#47; comment.
+     */
+    private boolean insideMultiLineComment = false;
 
     /**
      * Holds the beginning of the statement.
@@ -70,11 +76,86 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected boolean endsWithOpenMultilineStringLiteral(String line) {
-        // DB2 only supports single quotes (') as delimiters
-        // A single quote inside a string literal is represented as two single quotes ('')
-        // An even number of single quotes thus means the string literal is closed.
-        // An uneven number means we are still waiting for the closing delimiter on a following line
-        numQuotes += StringUtils.countOccurrencesOf(line, "'");
-        return (numQuotes % 2) != 0;
+        //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
+        String[] tokens = StringUtils.tokenizeToStringArray(line, " ;=|(),");
+
+        List<TokenType> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
+
+        for (TokenType delimitingToken : delimitingTokens) {
+            if (!insideQuoteStringLiteral && (delimitingToken == TokenType.MULTI_LINE_COMMENT_OPEN)) {
+                insideMultiLineComment = true;
+            }
+
+            if (insideMultiLineComment && TokenType.MULTI_LINE_COMMENT_CLOSE.equals(delimitingToken)) {
+                insideMultiLineComment = false;
+            }
+
+            if (!insideQuoteStringLiteral && !insideMultiLineComment && (delimitingToken == TokenType.SINGLE_LINE_COMMENT)) {
+                return false;
+            }
+
+            if (!insideMultiLineComment && (delimitingToken == TokenType.QUOTE)) {
+                insideQuoteStringLiteral = !insideQuoteStringLiteral;
+            }
+        }
+
+        return insideQuoteStringLiteral;
+    }
+
+    /**
+     * Extract the type of all tokens that potentially delimit string literals.
+     *
+     * @param tokens The tokens to analyse.
+     * @return The list of potentially delimiting string literals token types per token. Tokens that do not have any
+     *         impact on string delimiting are discarded.
+     */
+    private List<TokenType> extractStringLiteralDelimitingTokens(String[] tokens) {
+
+        List<TokenType> delimitingTokens = new ArrayList<TokenType>();
+        for (String token : tokens) {
+            if ((token.length() > 1) && token.startsWith("'") && token.endsWith("'")) {
+                //Skip '', 'abc', ...
+                continue;
+            }
+
+            if (token.startsWith("--")) {
+                delimitingTokens.add(TokenType.SINGLE_LINE_COMMENT);
+            } else if (token.startsWith("'") || token.endsWith("'")) {
+                delimitingTokens.add(TokenType.QUOTE);
+            } else if (token.startsWith("--")) {
+                delimitingTokens.add(TokenType.SINGLE_LINE_COMMENT);
+            } else if (token.startsWith("/*")) {
+                delimitingTokens.add(TokenType.MULTI_LINE_COMMENT_OPEN);
+            } else if (token.startsWith("*/")) {
+                delimitingTokens.add(TokenType.MULTI_LINE_COMMENT_CLOSE);
+            }
+        }
+
+        return delimitingTokens;
+    }
+
+    /**
+     * The types of tokens relevant for string delimiter related parsing.
+     */
+    private static enum TokenType {
+        /**
+         * Token opens or closes ' string literal
+         */
+        QUOTE,
+
+        /**
+         * Token starts end of line comment --
+         */
+        SINGLE_LINE_COMMENT,
+
+        /**
+         * Token opens multi-line comment /*
+         */
+        MULTI_LINE_COMMENT_OPEN,
+
+        /**
+         * Token closes multi-line comment *&#47;
+         */
+        MULTI_LINE_COMMENT_CLOSE
     }
 }
