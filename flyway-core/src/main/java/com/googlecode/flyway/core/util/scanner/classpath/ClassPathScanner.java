@@ -143,11 +143,10 @@ public class ClassPathScanner {
             UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
             URL resolvedUrl = urlResolver.toStandardJavaUrl(locationUrl);
 
-            String scanRoot = UrlUtils.toFilePath(resolvedUrl);
-
             String protocol = resolvedUrl.getProtocol();
             ClassPathLocationScanner classPathLocationScanner = createLocationScanner(protocol);
             if (classPathLocationScanner == null) {
+                String scanRoot = UrlUtils.toFilePath(resolvedUrl);
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
                 resourceNames.addAll(classPathLocationScanner.findResourceNames(path, resolvedUrl));
