@@ -29,6 +29,7 @@ import com.googlecode.flyway.core.util.scanner.classpath.jboss.JBossVFSv3ClassPa
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -131,12 +132,8 @@ public class ClassPathScanner {
     private Set<String> findResourceNames(String path, String prefix, String suffix) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        Enumeration<URL> locationsUrls = getClassLoader().getResources(path);
-        if (!locationsUrls.hasMoreElements()) {
-            throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")");
-        }
-        while (locationsUrls.hasMoreElements()) {
-            URL locationUrl = locationsUrls.nextElement();
+        List<URL> locationsUrls = getLocationUrlsForPath(path);
+        for (URL locationUrl : locationsUrls) {
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
             UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
@@ -153,6 +150,41 @@ public class ClassPathScanner {
         }
 
         return filterResourceNames(resourceNames, prefix, suffix);
+    }
+
+    /**
+     * Gets the physical location urls for this logical path on the classpath.
+     *
+     * @param path The path on the classpath.
+     * @return The underlying physical URLs.
+     * @throws IOException when the lookup fails.
+     */
+    private List<URL> getLocationUrlsForPath(String path) throws IOException {
+        List<URL> locationUrls = new ArrayList<URL>();
+
+        if (getClassLoader().getClass().getName().startsWith("com.ibm")) {
+            // WebSphere
+            Enumeration<URL> urls = getClassLoader().getResources(path + "/flyway.location");
+            if (!urls.hasMoreElements()) {
+                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")"
+                        + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+            }
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                locationUrls.add(new URL(URLDecoder.decode(url.toExternalForm(), "UTF-8").replace("/flyway.location", "")));
+            }
+        } else {
+            Enumeration<URL> urls = getClassLoader().getResources(path);
+            if (!urls.hasMoreElements()) {
+                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")");
+            }
+
+            while (urls.hasMoreElements()) {
+                locationUrls.add(urls.nextElement());
+            }
+        }
+
+        return locationUrls;
     }
 
     /**
@@ -191,8 +223,10 @@ public class ClassPathScanner {
             return new JBossVFSv3ClassPathLocationScanner();
         }
 
-        if (FeatureDetector.isOsgiFrameworkAvailable() &&
-                ("bundle".equals(protocol) || "bundleresource".equals(protocol))) {
+        if (FeatureDetector.isOsgiFrameworkAvailable() && (
+                "bundle".equals(protocol) // Felix
+                        || "bundleresource".equals(protocol)) //Equinox
+                ) {
             return new OsgiClassPathLocationScanner();
         }
 
