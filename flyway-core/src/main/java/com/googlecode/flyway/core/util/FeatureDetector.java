@@ -52,9 +52,9 @@ public final class FeatureDetector {
     private static Boolean jbossVFSv3Available;
 
     /**
-     * Flag indicating availability of the Equinox Common OSGi Bundle.
+     * Flag indicating availability of the OSGi framework classes.
      */
-    private static Boolean equinoxCommonAvailable;
+    private static Boolean osgiFrameworkAvailable;
 
     /**
      * Checks whether Apache Commons Logging is available.
@@ -112,16 +112,16 @@ public final class FeatureDetector {
     }
 
     /**
-     * Checks whether the Equinox Common OSGi Bundle is available.
+     * Checks if OSGi framework is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
-    public static boolean isEquinoxCommonAvailable() {
-        if (equinoxCommonAvailable == null) {
-            equinoxCommonAvailable = ClassUtils.isPresent("org.eclipse.core.runtime.FileLocator");
-            LOG.debug("Equinox Common OSGi Bundle available: " + equinoxCommonAvailable);
+    public static boolean isOsgiFrameworkAvailable() {
+        if (osgiFrameworkAvailable == null) {
+            osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle");
+            LOG.debug("OSGi framework available: " + osgiFrameworkAvailable);
         }
 
-        return equinoxCommonAvailable;
+        return osgiFrameworkAvailable;
     }
 }

@@ -25,7 +25,6 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 import com.googlecode.flyway.core.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import com.googlecode.flyway.core.util.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
-import com.googlecode.flyway.core.util.scanner.classpath.osgi.EquinoxCommonResourceUrlResolver;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -163,14 +162,6 @@ public class ClassPathScanner {
      * @return The url resolver for this protocol.
      */
     private UrlResolver createUrlResolver(String protocol) {
-        if (protocol.startsWith("bundle")) {
-            if (FeatureDetector.isEquinoxCommonAvailable()) {
-                return new EquinoxCommonResourceUrlResolver();
-            } else {
-                LOG.warn("Unable to resolve OSGi resource URL. Make sure the 'org.eclipse.equinox.common' bundle is loaded!");
-            }
-        }
-
         if (FeatureDetector.isJBossVFSv2Available() && protocol.startsWith("vfs")) {
             return new JBossVFSv2UrlResolver();
         }
@@ -198,6 +189,11 @@ public class ClassPathScanner {
 
         if (FeatureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
             return new JBossVFSv3ClassPathLocationScanner();
+        }
+
+        if (FeatureDetector.isOsgiFrameworkAvailable() &&
+                ("bundle".equals(protocol) || "bundleresource".equals(protocol))) {
+            return new OsgiClassPathLocationScanner();
         }
 
         return null;
