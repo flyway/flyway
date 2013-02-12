@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -24,6 +25,7 @@ import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * SQLServer-specific support.
@@ -37,7 +39,7 @@ public class SQLServerDbSupport extends DbSupport {
      * @param connection The connection to use.
      */
     public SQLServerDbSupport(Connection connection) {
-        super(new SQLServerJdbcTemplate(connection));
+        super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
     public String getScriptLocation() {

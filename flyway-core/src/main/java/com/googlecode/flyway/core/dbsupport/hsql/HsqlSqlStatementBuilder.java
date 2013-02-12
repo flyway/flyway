@@ -19,7 +19,7 @@ import com.googlecode.flyway.core.dbsupport.Delimiter;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 
 /**
- * SqlStamentBuilder supporting Hsql-specific delimiter changes.
+ * SqlStatementBuilder supporting Hsql-specific delimiter changes.
  */
 public class HsqlSqlStatementBuilder extends SqlStatementBuilder {
     /**

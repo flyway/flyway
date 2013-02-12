@@ -16,11 +16,13 @@
 package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * DB2 Support.
@@ -32,7 +34,7 @@ public class DB2DbSupport extends DbSupport {
      * @param connection The connection to use.
      */
     public DB2DbSupport(Connection connection) {
-        super(new DB2JdbcTemplate(connection));
+        super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
