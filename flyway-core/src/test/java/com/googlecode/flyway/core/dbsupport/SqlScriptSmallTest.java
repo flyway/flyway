@@ -142,7 +142,7 @@ public class SqlScriptSmallTest {
         assertEquals("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */", sqlStatement.getSql());
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 3000)
     public void linesToStatementsSuperLongStatement() {
         lines.add("INSERT INTO T1 (A, B, C, D) VALUES");
         for (int i = 0; i < 10000; i++) {

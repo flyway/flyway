@@ -28,13 +28,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class PostgreSQLSqlStatementBuilderSmallTest {
     @Test
-    public void endsWithOpenMultilineStringLiteral() {
-        assertTrue(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
-        assertFalse(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
-                "2. second');"));
-    }
-
-    @Test
     public void multilineStringLiteralWithSemicolons() {
         String sqlScriptSource = "INSERT INTO address VALUES (1, '1. first;\n"
                 + "2. second;\n"
