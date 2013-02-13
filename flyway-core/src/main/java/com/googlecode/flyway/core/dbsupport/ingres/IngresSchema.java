@@ -63,6 +63,7 @@ public class IngresSchema extends Schema {
     @Override
     protected void doDrop() throws SQLException {
         // Schemas not supported by Ingres
+    	doClean();
     }
 
     @Override
