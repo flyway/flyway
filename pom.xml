@@ -175,6 +175,12 @@
                 <version>9.0-801.jdbc3</version>
                 <optional>true</optional>
             </dependency>
+			<dependency>
+				<groupId>com.ingres.jdbc</groupId>
+				<artifactId>iijdbc</artifactId>
+				<version>10.0-4.0.6</version>
+                <optional>true</optional>
+			</dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
                 <artifactId>jtds</artifactId>
