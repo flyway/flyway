@@ -141,4 +141,12 @@ public class FlywaySmallTest {
 
         assertEquals(dataSource, flyway.getDataSource());
     }
+
+    @Test
+    public void dataSourceWithSeparateParams() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+
+        assertNotNull(flyway.getDataSource());
+    }
 }
