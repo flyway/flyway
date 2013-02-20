@@ -24,6 +24,11 @@ import com.googlecode.flyway.core.util.StringUtils;
  */
 public class MigrationInfoDumper {
     /**
+     * The minimum width (in chars) of the console we want to print the ascii table on.
+     */
+    private static final int MINIMUM_CONSOLE_WIDTH = 80;
+
+    /**
      * Prevent instantiation.
      */
     private MigrationInfoDumper() {
@@ -37,25 +42,38 @@ public class MigrationInfoDumper {
      * @return The ascii table, as one big multi-line string.
      */
     public static String dumpToAsciiTable(MigrationInfo[] migrationInfos) {
+        return dumpToAsciiTable(migrationInfos, MINIMUM_CONSOLE_WIDTH);
+    }
+
+    /**
+     * Dumps the info about all migrations into an ascii table.
+     *
+     * @param migrationInfos The list of migrationInfos to dump.
+     * @param consoleWidth   The width of the console (80 or greater).
+     * @return The ascii table, as one big multi-line string.
+     */
+    public static String dumpToAsciiTable(MigrationInfo[] migrationInfos, int consoleWidth) {
+        int descriptionWidth = Math.max(consoleWidth, MINIMUM_CONSOLE_WIDTH) - 54;
+
         StringBuilder table = new StringBuilder();
 
-        table.append("+----------------+----------------------------+---------------------+---------+\n");
-        table.append("| Version        | Description                | Installed on        | State   |\n");
-        table.append("+----------------+----------------------------+---------------------+---------+\n");
+        table.append("+----------------+-").append(StringUtils.trimOrPad("", descriptionWidth, '-')).append("-+---------------------+---------+\n");
+        table.append("| Version        | ").append(StringUtils.trimOrPad("Description", descriptionWidth)).append(" | Installed on        | State   |\n");
+        table.append("+----------------+-").append(StringUtils.trimOrPad("", descriptionWidth, '-')).append("-+---------------------+---------+\n");
 
         if (migrationInfos.length == 0) {
             table.append("| No migrations found                                                         |\n");
         } else {
             for (MigrationInfo migrationInfo : migrationInfos) {
                 table.append("| ").append(StringUtils.trimOrPad(migrationInfo.getVersion().toString(), 14));
-                table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getDescription(), 26));
+                table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getDescription(), descriptionWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()), 19));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getState().getDisplayName(), 7));
                 table.append(" |\n");
             }
         }
 
-        table.append("+----------------+----------------------------+---------------------+---------+");
+        table.append("+----------------+-").append(StringUtils.trimOrPad("", descriptionWidth, '-')).append("-+---------------------+---------+");
         return table.toString();
     }
 }

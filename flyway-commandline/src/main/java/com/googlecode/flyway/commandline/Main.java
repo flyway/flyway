@@ -86,7 +86,9 @@ public class Main {
             Flyway flyway = new Flyway();
             flyway.configure(properties);
 
-            executeOperation(flyway, operation);
+            int consoleWidth = Integer.parseInt(properties.getProperty("flyway.consoleWidth"));
+
+            executeOperation(flyway, operation, consoleWidth);
         } catch (Exception e) {
             if (debug) {
                 LOG.error("Unexpected error", e);
@@ -110,8 +112,9 @@ public class Main {
      *
      * @param flyway    The Flyway instance.
      * @param operation The operation to execute.
+     * @param consoleWidth The width of the console (in chars).
      */
-    private static void executeOperation(Flyway flyway, String operation) {
+    private static void executeOperation(Flyway flyway, String operation, int consoleWidth) {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("init".equals(operation)) {
@@ -125,15 +128,15 @@ public class Main {
             MigrationInfo current = flyway.info().current();
 
             if (current == null) {
-                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[0]));
+                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[0], consoleWidth));
             } else {
-                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[]{current}));
+                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[]{current}, consoleWidth));
             }
         } else if ("history".equals(operation)) {
             LOG.warn("history is deprecated. Use info instead.");
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied()));
+            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied(), consoleWidth));
         } else if ("info".equals(operation)) {
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
+            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all(), consoleWidth));
         } else if ("repair".equals(operation)) {
             flyway.repair();
         } else {

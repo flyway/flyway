@@ -16,12 +16,6 @@
 package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
-import com.googlecode.flyway.core.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * SqlStatementBuilder supporting Derby-specific delimiter changes.

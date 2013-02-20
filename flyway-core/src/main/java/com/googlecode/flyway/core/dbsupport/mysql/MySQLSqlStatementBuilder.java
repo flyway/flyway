@@ -19,9 +19,6 @@ import com.googlecode.flyway.core.dbsupport.Delimiter;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * SqlStatementBuilder supporting MySQL-specific delimiter changes.
  */
