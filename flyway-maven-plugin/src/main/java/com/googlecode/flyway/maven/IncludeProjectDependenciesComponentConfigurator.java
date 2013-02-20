@@ -34,12 +34,10 @@ import java.util.List;
 /**
  * A custom ComponentConfigurator which adds the project's runtime classpath elements to the
  *
- * @author Brian Jackson
  * @plexus.component role="org.codehaus.plexus.component.configurator.ComponentConfigurator"
  * role-hint="include-project-dependencies"
  * @plexus.requirement role="org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup"
  * role-hint="default"
- * @since Aug 1, 2008 3:04:17 PM
  */
 @SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
 public class IncludeProjectDependenciesComponentConfigurator extends AbstractComponentConfigurator {
@@ -61,24 +59,24 @@ public class IncludeProjectDependenciesComponentConfigurator extends AbstractCom
 
     @SuppressWarnings({"unchecked"})
     private void addProjectDependenciesToClassRealm(ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm) throws ComponentConfigurationException {
-        List<String> runtimeClasspathElements;
+        List<String> classpathElements;
         try {
-            runtimeClasspathElements = (List<String>) expressionEvaluator.evaluate("${project.runtimeClasspathElements}");
+            classpathElements = (List<String>) expressionEvaluator.evaluate("${project.testClasspathElements}");
         } catch (ExpressionEvaluationException e) {
-            throw new ComponentConfigurationException("There was a problem evaluating: ${project.runtimeClasspathElements}", e);
+            throw new ComponentConfigurationException("There was a problem evaluating: ${project.testClasspathElements}", e);
         }
 
         // Add the project dependencies to the ClassRealm
-        final URL[] urls = buildURLs(runtimeClasspathElements);
+        final URL[] urls = buildURLs(classpathElements);
         for (URL url : urls) {
             containerRealm.addConstituent(url);
         }
     }
 
-    private URL[] buildURLs(List<String> runtimeClasspathElements) throws ComponentConfigurationException {
+    private URL[] buildURLs(List<String> classpathElements) throws ComponentConfigurationException {
         // Add the projects classes and dependencies
-        List<URL> urls = new ArrayList<URL>(runtimeClasspathElements.size());
-        for (String element : runtimeClasspathElements) {
+        List<URL> urls = new ArrayList<URL>(classpathElements.size());
+        for (String element : classpathElements) {
             try {
                 final URL url = new File(element).toURI().toURL();
                 urls.add(url);
