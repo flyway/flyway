@@ -675,6 +675,17 @@ public class Flyway {
     }
 
     /**
+     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
+     *
+     * @param url      The JDBC URL of the database.
+     * @param user     The user of the database.
+     * @param password The password of the database.
+     */
+    public void setDataSource(String url, String user, String password) {
+        this.dataSource = new DriverDataSource(null, url, user, password);
+    }
+
+    /**
      * Sets the version to tag an existing schema with when executing init. (default: 1)
      *
      * @param initialVersion The version to tag an existing schema with when executing init. (default: 1)
