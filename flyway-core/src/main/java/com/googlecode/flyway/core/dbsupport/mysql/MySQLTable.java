@@ -55,6 +55,6 @@ public class MySQLTable extends Table {
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.execute("select * from " + this + " for update");
+        jdbcTemplate.execute("LOCK TABLES " + this + " WRITE");
     }
 }
