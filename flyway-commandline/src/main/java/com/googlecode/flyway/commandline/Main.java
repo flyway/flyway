@@ -78,12 +78,6 @@ public class Main {
 
             loadJdbcDriversAndJavaMigrations(properties);
 
-            String driverClassName = properties.getProperty("flyway.driver");
-            if (!ClassUtils.isPresent(driverClassName)) {
-                LOG.error("JDBC Driver (" + driverClassName + ") not found! Put the JDBC Driver Jar in the /jars folder, for Flyway Command-Line to find it.");
-                System.exit(1);
-            }
-
             Flyway flyway = new Flyway();
             flyway.configure(properties);
 
