@@ -220,6 +220,32 @@ public abstract class Table {
     }
 
     /**
+     * Determines the size (in characters) of this column.
+     *
+     * @param column The column to look for.
+     * @return The size (in characters).
+     */
+    public int getColumnSize(String column) {
+        ResultSet resultSet = null;
+        int columnSize;
+        try {
+            if (dbSupport.catalogIsSchema()) {
+                resultSet = jdbcTemplate.getMetaData().getColumns(schema.getName(), null, name, column);
+            } else {
+                resultSet = jdbcTemplate.getMetaData().getColumns(null, schema.getName(), name, column);
+            }
+            resultSet.next();
+            columnSize = resultSet.getInt("COLUMN_SIZE");
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to check the size of column " + column + " in table " + this, e);
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+
+        return columnSize;
+    }
+
+    /**
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
      */
     public void lock() {

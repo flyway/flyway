@@ -94,6 +94,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             if (!upgraded) {
                 new MetaDataTableTo20FormatUpgrader(dbSupport, table, migrationResolver).upgrade();
                 new MetaDataTableTo202FormatUpgrader(dbSupport, table).upgrade();
+                new MetaDataTableTo21FormatUpgrader(dbSupport, table).upgrade();
                 upgraded = true;
             }
             return;

@@ -31,10 +31,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Upgrade the metadata table to Flyway 2.0.2's format.
+ * Upgrade the metadata table to Flyway 2.1's format.
  */
-public class MetaDataTableTo202FormatUpgrader {
-    private static final Log LOG = LogFactory.getLog(MetaDataTableTo202FormatUpgrader.class);
+public class MetaDataTableTo21FormatUpgrader {
+    private static final Log LOG = LogFactory.getLog(MetaDataTableTo21FormatUpgrader.class);
 
     /**
      * Database-specific support.
@@ -57,7 +57,7 @@ public class MetaDataTableTo202FormatUpgrader {
      * @param dbSupport Database-specific support.
      * @param table     The metadata table.
      */
-    public MetaDataTableTo202FormatUpgrader(DbSupport dbSupport, Table table) {
+    public MetaDataTableTo21FormatUpgrader(DbSupport dbSupport, Table table) {
         this.dbSupport = dbSupport;
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.table = table;
@@ -66,19 +66,19 @@ public class MetaDataTableTo202FormatUpgrader {
     /**
      * Performs the actual upgrade.
      *
-     * @throws FlywayException when the upgrade failed.
+     * @throws com.googlecode.flyway.core.api.FlywayException when the upgrade failed.
      */
     public void upgrade() throws FlywayException {
         try {
             if (!needsUpgrade()) {
-                LOG.debug("No metadata table upgrade to the Flyway 2.0.2 format necessary");
+                LOG.debug("No metadata table upgrade to the Flyway 2.1 format necessary");
                 return;
             }
 
-            LOG.info("Upgrading the metadata table " + table + " to the Flyway 2.0.2 format...");
+            LOG.info("Upgrading the metadata table " + table + " to the Flyway 2.1 format...");
             executeScript();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to upgrade the metadata table " + table + " to the Flyway 2.0.2 format", e);
+            throw new FlywayException("Unable to upgrade the metadata table " + table + " to the Flyway 2.1 format", e);
         }
     }
 
@@ -86,7 +86,7 @@ public class MetaDataTableTo202FormatUpgrader {
      * Executes the upgrade script.
      */
     private void executeScript() {
-        Resource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo202Format.sql");
+        Resource resource = new ClassPathResource(dbSupport.getScriptLocation() + "upgradeTo21Format.sql");
         String source = resource.loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
@@ -104,6 +104,6 @@ public class MetaDataTableTo202FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws SQLException {
-        return table.exists() && table.hasPrimaryKey() && (table.getColumnSize("installed_by") == 30);
+        return table.exists() && !table.hasPrimaryKey() && (table.getColumnSize("installed_by") == 30);
     }
 }

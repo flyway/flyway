@@ -14,21 +14,6 @@
 -- limitations under the License.
 --
 
-CREATE TABLE "${schema}"."${table}" (
-    "version_rank" INT NOT NULL,
-    "installed_rank" INT NOT NULL,
-    "version" VARCHAR(50) NOT NULL,
-    "description" VARCHAR(200) NOT NULL,
-    "type" VARCHAR(20) NOT NULL,
-    "script" VARCHAR(1000) NOT NULL,
-    "checksum" INT,
-    "installed_by" VARCHAR(100) NOT NULL,
-    "installed_on" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "execution_time" INT NOT NULL,
-    "success" BIT NOT NULL
-);
+ALTER TABLE "${schema}"."${table}" ALTER COLUMN "installed_by" SET DATA TYPE VARCHAR(100);
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("version");
 
-CREATE INDEX "${schema}"."${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
-CREATE INDEX "${schema}"."${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
-CREATE INDEX "${schema}"."${table}_s_idx" ON "${schema}"."${table}" ("success");

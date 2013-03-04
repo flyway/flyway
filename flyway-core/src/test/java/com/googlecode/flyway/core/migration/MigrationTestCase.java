@@ -28,6 +28,7 @@ import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableTo21FormatUpgrader;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
@@ -568,6 +569,14 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void format21upgrade() throws Exception {
+        createMetaDataTableIn17Format();
+        upgradeMetaDataTableTo20Format();
+        upgradeMetaDataTableTo202Format();
+        upgradeMetaDataTableTo21Format();
+    }
+
+    @Test
     public void format20upgradeMixedCase() throws Exception {
         flyway.setTable("MiXeD_CaSe");
         createMetaDataTableIn17Format();
@@ -608,7 +617,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void format20upgradeOnMigrate() throws Exception {
+    public void formatUpgradeOnMigrate() throws Exception {
         createMetaDataTableIn17Format();
         insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
         jdbcTemplate.execute("CREATE TABLE test_user (id INT NOT NULL,name VARCHAR(25) NOT NULL,PRIMARY KEY(name))");
@@ -659,6 +668,13 @@ public abstract class MigrationTestCase {
      */
     private void upgradeMetaDataTableTo202Format() throws Exception {
         new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable())).upgrade();
+    }
+
+    /**
+     * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.1 format.
+     */
+    private void upgradeMetaDataTableTo21Format() throws Exception {
+        new MetaDataTableTo21FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable())).upgrade();
     }
 
     /**
