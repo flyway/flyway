@@ -71,16 +71,17 @@ public class Main {
                 return;
             }
 
-            loadJdbcDriversAndJavaMigrations();
-
             Properties properties = new Properties();
             initializeDefaults(properties);
             loadConfigurationFile(properties, args);
             overrideConfiguration(properties, args);
 
+            loadJdbcDriversAndJavaMigrations(properties);
+
             String driverClassName = properties.getProperty("flyway.driver");
             if (!ClassUtils.isPresent(driverClassName)) {
                 LOG.error("JDBC Driver (" + driverClassName + ") not found! Put the JDBC Driver Jar in the /jars folder, for Flyway Command-Line to find it.");
+                System.exit(1);
             }
 
             Flyway flyway = new Flyway();
@@ -180,6 +181,7 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.locations", "filesystem:"+getInstallationDir()+"/sql");
+        properties.put("flyway.jarDir", getInstallationDir()+"/jars");
     }
 
     /**
@@ -246,6 +248,7 @@ public class Main {
         LOG.info("initOnMigrate          : Init on migrate against uninitialized non-empty schema");
         LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
+        LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
@@ -266,10 +269,12 @@ public class Main {
     /**
      * Loads all the jars contained in the jars folder. (For Jdbc drivers and Java Migrations)
      *
+     * @param properties The configured properties.
+     *
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJdbcDriversAndJavaMigrations() throws Exception {
-        final String directoryForJdbcDriversAndJavaMigrations = getInstallationDir() + "/jars";
+    private static void loadJdbcDriversAndJavaMigrations(Properties properties) throws IOException {
+        String directoryForJdbcDriversAndJavaMigrations = properties.getProperty("flyway.jarDir");
         File dir = new File(directoryForJdbcDriversAndJavaMigrations);
         File[] files = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -279,9 +284,9 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.warn("Directory for JDBC drivers and JavaMigrations not found: "
+            LOG.error("Directory for JDBC drivers and JavaMigrations not found: "
                     + directoryForJdbcDriversAndJavaMigrations);
-            return;
+            System.exit(1);
         }
 
         for (File file : files) {
@@ -296,7 +301,7 @@ public class Main {
      * @throws IOException when the jar or directory could not be found.
      */
     /* private -> for testing */
-    static void addJarOrDirectoryToClasspath(String name) throws Exception {
+    static void addJarOrDirectoryToClasspath(String name) throws IOException {
         LOG.debug("Adding location to classpath: " + name);
 
         // Add the jar or dir to the classpath

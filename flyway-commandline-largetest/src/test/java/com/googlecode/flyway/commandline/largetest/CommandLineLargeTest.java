@@ -110,8 +110,8 @@ public abstract class CommandLineLargeTest {
      * @return returns cmd for windows systems, sh for other systems
      */
     private String flywayCmdLineExtensionForCurrentSystem() {
-        String osname = System.getProperty("os.name", "generic").toLowerCase();
-        if (osname.startsWith("windows")) {
+        String osName = System.getProperty("os.name", "generic").toLowerCase();
+        if (osName.startsWith("windows")) {
             return "cmd";
         }
         return "sh";
