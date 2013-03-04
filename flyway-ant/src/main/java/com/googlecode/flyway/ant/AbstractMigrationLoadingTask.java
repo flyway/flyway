@@ -228,8 +228,6 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
     @Override
     protected final void doExecute(Flyway flyway) throws Exception {
         String locationsProperty = getProject().getProperty("flyway.locations");
-        log.info("locationsProperty: " + locationsProperty);
-        log.info("locations: " + StringUtils.arrayToCommaDelimitedString(locations));
         if (locationsProperty != null) {
             flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
         } else if (locations != null) {
