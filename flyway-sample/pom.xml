@@ -48,33 +48,6 @@
                     </locations>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.googlecode.maven-gcu-plugin</groupId>
-                <artifactId>maven-gcu-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>upload</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failsOnError>true</failsOnError>
-                    <projectName>flyway</projectName>
-                    <uploads>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
-                            <summary>Flyway sample application (sources)</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-Source</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                    </uploads>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>

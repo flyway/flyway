@@ -111,42 +111,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.googlecode.maven-gcu-plugin</groupId>
-                <artifactId>maven-gcu-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>upload</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failsOnError>true</failsOnError>
-                    <projectName>flyway</projectName>
-                    <uploads>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
-                            <summary>Flyway database migration framework</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-Jar</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
-                            <summary>Flyway database migration framework (sources)</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-Source</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                    </uploads>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
