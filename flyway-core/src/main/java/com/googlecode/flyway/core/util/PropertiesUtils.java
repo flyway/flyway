@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.core.util;
 
+import com.googlecode.flyway.core.util.logging.LogFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -103,5 +105,21 @@ public final class PropertiesUtils {
             outBuffer.append(c);
         }
         return outBuffer.toString();
+    }
+
+    public static int getIntProperty(Properties properties, String key, int defaultValue, boolean useDefaultOnError) {
+        final String value = properties.getProperty(key);
+        if (value != null) {
+            try {
+                return Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                if (useDefaultOnError) {
+                    LogFactory.getLog(PropertiesUtils.class).debug(e.toString());
+                } else {
+                    throw e;
+                }
+            }
+        }
+        return defaultValue;
     }
 }
