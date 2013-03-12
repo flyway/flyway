@@ -97,6 +97,17 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for SQL Server unicode strings.
+     */
+    @Test
+    public void nvarchar() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/nvarchar");
+        flyway.migrate();
+
+        flyway.clean();
+    }
+
+    /**
      * Tests a large migration that has been reported to hang on SqlServer 2005.
      */
     @Ignore("Axel: Fails due to nested transaction being opened in script, causing outer transaction not to receive COMMIT statement")
