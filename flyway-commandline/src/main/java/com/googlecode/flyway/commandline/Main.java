@@ -244,6 +244,8 @@ public class Main {
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
         LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
+        LOG.info("Add -X to print debug output");
+        LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
         LOG.info("flyway." + extension + " -target=1.5 -placeholder.user=my_user info");
