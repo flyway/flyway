@@ -41,18 +41,14 @@ import java.util.List;
  */
 @SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
 public class IncludeProjectDependenciesComponentConfigurator extends AbstractComponentConfigurator {
-
     public void configureComponent(Object component, PlexusConfiguration configuration,
                                    ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm,
                                    ConfigurationListener listener)
             throws ComponentConfigurationException {
 
         addProjectDependenciesToClassRealm(expressionEvaluator, containerRealm);
-
         converterLookup.registerConverter(new ClassRealmConverter(containerRealm));
-
         ObjectWithFieldsConverter converter = new ObjectWithFieldsConverter();
-
         converter.processConfiguration(converterLookup, component, containerRealm.getClassLoader(), configuration,
                 expressionEvaluator, listener);
     }

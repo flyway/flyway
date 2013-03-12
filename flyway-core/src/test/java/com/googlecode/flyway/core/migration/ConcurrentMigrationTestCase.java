@@ -17,10 +17,13 @@ package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.jdbc.datasource.JdbcTransactionObjectSupport;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -117,10 +120,18 @@ public abstract class ConcurrentMigrationTestCase {
         }
 
         assertFalse(failed);
-        assertEquals(6, flyway.history().size());
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("2.0", schemaVersion.toString());
+        assertEquals(6, flyway.info().applied().length);
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
         assertEquals(0, flyway.migrate());
+
+        Connection connection = null;
+        try {
+            connection = concurrentMigrationDataSource.getConnection();
+            assertEquals(2, new JdbcTemplate(connection, 0).queryForInt(
+                    "SELECT COUNT(*) FROM " +schemaQuoted + ".test_user"));
+        } finally {
+            JdbcUtils.closeConnection(connection);
+        }
     }
 
     private Flyway createFlyway() throws SQLException {

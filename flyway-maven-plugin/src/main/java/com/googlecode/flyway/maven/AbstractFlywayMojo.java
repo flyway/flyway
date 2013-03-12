@@ -68,6 +68,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.url}</p>
      *
      * @parameter expression="${flyway.url}"
+     * @required
      */
     /* private -> for testing */ String url;
 
