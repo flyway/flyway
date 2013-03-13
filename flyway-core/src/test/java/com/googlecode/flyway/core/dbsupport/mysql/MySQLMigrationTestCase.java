@@ -25,6 +25,7 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -192,6 +193,10 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
 
         public Connection getConnection(String username, String password) throws SQLException {
             return null;
+        }
+
+        public Logger getParentLogger() {
+            throw new UnsupportedOperationException("getParentLogger");
         }
     }
 }
