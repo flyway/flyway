@@ -81,7 +81,7 @@ public class Main {
             Flyway flyway = new Flyway();
             flyway.configure(properties);
 
-            int consoleWidth = PropertiesUtils.getIntProperty(properties, "flyway.consoleWidth", 80, true);
+            int consoleWidth = PropertiesUtils.getIntProperty(properties, "flyway.consoleWidth", 80);
 
             executeOperation(flyway, operation, consoleWidth);
         } catch (Exception e) {
