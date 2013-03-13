@@ -89,6 +89,15 @@ public class SqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void oracleEndsWithOpenMultilineStringLiteralAngularBrackets() {
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("ALTER TABLE VALUATION_PROPERTY_FORMATTING ADD (\n" +
+                "CONSTRAINT VAL_PROPERTY_FORMAT_CURR_CK\n" +
+                "CHECK ((NUMBER_DISPLAY_CONVERSION='FX_RATE' AND CURRENCY IS NOT NULL) OR (NUMBER_DISPLAY_CONVERSION<>'FX_RATE' AND CURRENCY IS NULL))\n" +
+                "ENABLE VALIDATE);"));
+
+    }
+
+    @Test
     public void stripDelimiter() {
         assertEquals("SELECT * FROM t WHERE a = 'Straßenpaß'",
                 SqlStatementBuilder.stripDelimiter("SELECT * FROM t WHERE a = 'Straßenpaß';", new Delimiter(";", false)));
