@@ -19,10 +19,10 @@ import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Test;
+import org.springframework.jdbc.datasource.AbstractDataSource;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import javax.sql.DataSource;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -175,7 +175,7 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
         assertEquals(2, new JdbcTemplate(connection2, 0).queryForInt("SELECT COUNT(*) FROM test_user"));
     }
 
-    private static class TwoConnectionsDataSource implements DataSource {
+    private static class TwoConnectionsDataSource extends AbstractDataSource {
         private final DataSource[] dataSources;
         private int count;
 
@@ -192,28 +192,6 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
 
         public Connection getConnection(String username, String password) throws SQLException {
             return null;
-        }
-
-        public PrintWriter getLogWriter() throws SQLException {
-            return null;
-        }
-
-        public void setLogWriter(PrintWriter out) throws SQLException {
-        }
-
-        public void setLoginTimeout(int seconds) throws SQLException {
-        }
-
-        public int getLoginTimeout() throws SQLException {
-            return 0;
-        }
-
-        public <T> T unwrap(Class<T> iface) throws SQLException {
-            return null;
-        }
-
-        public boolean isWrapperFor(Class<?> iface) throws SQLException {
-            return false;
         }
     }
 }
