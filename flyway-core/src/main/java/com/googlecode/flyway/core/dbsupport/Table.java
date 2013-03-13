@@ -265,6 +265,26 @@ public abstract class Table {
      */
     protected abstract void doLock() throws SQLException;
 
+    /**
+     * Unlocks this table in this schema after the end of the current transaction.
+     */
+    public void unlock() {
+        try {
+            LOG.debug("Unlocking table " + this + "...");
+            doUnlock();
+            LOG.debug("Lock released for table " + this);
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to unlock table " + this, e);
+        }
+    }
+
+    /**
+     * Unlocks this table in this schema after the end of the current transaction.
+     *
+     * @throws SQLException when this table in this schema could not be unlocked.
+     */
+    protected void doUnlock() throws SQLException {}
+
     @Override
     public String toString() {
         return dbSupport.quote(schema.getName(), name);

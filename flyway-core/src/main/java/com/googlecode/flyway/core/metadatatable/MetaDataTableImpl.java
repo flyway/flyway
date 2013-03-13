@@ -121,6 +121,11 @@ public class MetaDataTableImpl implements MetaDataTable {
         table.lock();
     }
 
+    public void unlock() {
+        createIfNotExists();
+        table.unlock();
+    }
+
     public void addAppliedMigration(AppliedMigration appliedMigration) {
         createIfNotExists();
 

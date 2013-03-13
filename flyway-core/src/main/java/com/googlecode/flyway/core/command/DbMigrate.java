@@ -185,6 +185,8 @@ public class DbMigrate {
                         }
                     });
 
+            metaDataTable.unlock();
+
             if (result == null) {
                 // No further migrations available
                 break;

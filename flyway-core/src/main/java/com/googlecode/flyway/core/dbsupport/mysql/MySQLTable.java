@@ -57,4 +57,9 @@ public class MySQLTable extends Table {
     protected void doLock() throws SQLException {
         jdbcTemplate.execute("LOCK TABLES " + this + " WRITE");
     }
+
+    @Override
+    protected void doUnlock() throws SQLException {
+        jdbcTemplate.execute("UNLOCK TABLES");
+    }
 }
