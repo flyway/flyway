@@ -1,0 +1,95 @@
+apply plugin: 'groovy'
+apply plugin: 'nexus'
+
+def mavenPom = file("${projectDir}/pom.xml").getText('UTF-8')
+def mavenXml = new XmlParser().parseText(mavenPom)
+
+group = mavenXml.groupId.text()
+version = mavenXml.parent.version.text()
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.2'
+  }
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
+
+dependencies {
+  compile gradleApi()
+  groovy localGroovy()
+  compile localGroovy()
+  compile "${group}:flyway-core:${version}"
+}
+
+jar {
+  manifest {
+      attributes 'Implementation-Title': 'Flyway Gradle plugin',
+                 'Implementation-Version': version,
+                 'Built-By': System.getProperty('user.name'),
+                 'Built-Date': new Date(),
+                 'Built-JDK': System.getProperty('java.version'),
+                 'Built-Gradle': gradle.gradleVersion
+  }
+}
+
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+  classifier = 'javadoc'
+  from groovydoc.destinationDir
+}
+
+artifacts {
+  archives groovydocJar
+}
+
+task copyLibs(type: Copy, dependsOn: [jar, javadocJar, sourcesJar]) {
+  outputs.upToDateWhen { false }
+  from 'build/libs'
+  into 'target'
+}
+
+modifyPom {
+  project {
+    name 'Gradle Flyway plugin'
+    description 'Flyway migration tasks for Gradle.'
+    url 'https://github.com/flyway/flyway'
+  
+    scm {
+      url 'https://github.com/flyway/flyway'
+      developerConnection 'scm:git://github.com/flyway/flyway.git'
+    }
+  
+    licenses {
+      license {
+        name 'The Apache Software License, Version 2.0'
+        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        distribution 'repo'
+      }
+    }
+  
+    developers {
+      developer {
+        id 'ben-manes'
+        name 'Ben Manes'
+        email 'ben.manes@gmail.com'
+      }
+      developer {
+        id 'alkamo'
+        name 'Allan Morstein'
+        email 'alkamo@gmail.com'
+      }
+    }
+  }
+}
+
+task wrapper(type: Wrapper, description: 'Generates the gradle wrapper.') {
+  gradleVersion = '1.6'
+}
