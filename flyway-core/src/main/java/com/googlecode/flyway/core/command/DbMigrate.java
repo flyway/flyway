@@ -156,9 +156,8 @@ public class DbMigrate {
                             }
 
                             MigrationInfo[] future = infoService.future();
-                            MigrationInfo[] resolved = infoService.resolved();
-                            boolean isFutureMigration = future.length < 0;
-                            if (isFutureMigration) {
+                            if (future.length > 0) {
+                                MigrationInfo[] resolved = infoService.resolved();
                                 LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion + ") that is newer than the latest available migration ("
                                         + resolved[resolved.length - 1].getVersion() + ") !");
                             }
