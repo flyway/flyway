@@ -178,11 +178,22 @@ public class FlywayMediumTest {
     @Test
     public void emptyLocations() {
         Flyway flyway = new Flyway();
-        flyway.setDataSource("jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setDataSource("jdbc:h2:mem:flyway_empty;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/empty");
         assertEquals(0, flyway.migrate());
         // Used to fail with exception due to non-empty schema and empty metadata table.
         assertEquals(0, flyway.migrate());
+    }
+
+    @Test
+    public void futureMigrations() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_future;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+
+        flyway.setLocations("migration/empty");
+        assertEquals(MigrationState.FUTURE_SUCCESS, flyway.info().applied()[0].getState());
     }
 
     @Test

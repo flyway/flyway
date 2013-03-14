@@ -104,6 +104,7 @@ public class MigrationInfoServiceImplSmallTest {
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
         assertEquals(MigrationState.FUTURE_SUCCESS, migrationInfoService.current().getState());
+        assertEquals(MigrationState.FUTURE_SUCCESS, migrationInfoService.future()[0].getState());
         assertEquals(2, migrationInfoService.all().length);
         assertEquals(0, migrationInfoService.pending().length);
     }
