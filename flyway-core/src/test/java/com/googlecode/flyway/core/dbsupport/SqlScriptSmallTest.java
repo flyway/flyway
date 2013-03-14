@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -268,5 +269,14 @@ public class SqlScriptSmallTest {
         SqlStatement sqlStatement = sqlStatements.get(0);
         assertEquals(1, sqlStatement.getLineNumber());
         assertEquals(source, sqlStatement.getSql());
+    }
+
+    @Ignore("Currently broken")
+    @Test
+    public void parseWithTrailingComment() {
+        String sql = "ALTER TABLE A RENAME TO B; -- trailing comment\r\n" +
+                "ALTER TABLE B RENAME TO C;";
+        List<SqlStatement> statements = sqlScript.parse(sql);
+        assertEquals(2, statements.size());
     }
 }
