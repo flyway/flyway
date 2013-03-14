@@ -838,8 +838,11 @@ public class Flyway {
                         }
                     } else {
                         if (nonEmptySchemas.size() == 1) {
-                            throw new FlywayException("Found non-empty schema " + nonEmptySchemas.get(0)
-                                    + " without metadata table! Use init() first to initialize the metadata table.");
+                            Schema schema = nonEmptySchemas.get(0);
+                            if (schema.allTables().length != 1 || !schema.getTable(table).exists()) {
+                                throw new FlywayException("Found non-empty schema " + schema
+                                        + " without metadata table! Use init() first to initialize the metadata table.");
+                            }
                         } else {
                             throw new FlywayException("Found non-empty schemas "
                                     + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
