@@ -159,8 +159,8 @@ public class DbMigrate {
                             if (future.length > 0) {
                                 MigrationInfo[] resolved = infoService.resolved();
                                 if (resolved.length == 0) {
-                                    LOG.warn("Schema " + schema + " has version (" + currentSchemaVersion
-                                            + "), but no migration could be resolved in the configured locations !");
+                                    LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
+                                            + ", but no migration could be resolved in the configured locations !");
                                 } else {
                                     LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
                                             + ") that is newer than the latest available migration ("
