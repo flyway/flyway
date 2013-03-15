@@ -149,4 +149,14 @@ public class FlywaySmallTest {
 
         assertNotNull(flyway.getDataSource());
     }
+
+    @Test
+    public void getLocations() {
+        Flyway flyway = new Flyway();
+        flyway.setLocations("db/migrations1", "filesystem:db/migrations2");
+        String[] locations = flyway.getLocations();
+        assertEquals(2, locations.length);
+        assertEquals("classpath:db/migrations1", locations[0]);
+        assertEquals("filesystem:db/migrations2", locations[1]);
+    }
 }

@@ -142,6 +142,9 @@ public class Location implements Comparable<Location> {
         return getDescriptor().hashCode();
     }
 
+    /**
+     * @return The location descriptor.
+     */
     @Override
     public String toString() {
         return getDescriptor();

@@ -215,7 +215,11 @@ public class Flyway {
      *         and java-based migrations. (default: db/migration)
      */
     public String[] getLocations() {
-        return locations.getLocations().toArray(new String[locations.getLocations().size()]);
+        String[] result = new String[locations.getLocations().size()];
+        for (int i = 0; i < locations.getLocations().size(); i++) {
+            result[i] = locations.getLocations().get(i).toString();
+        }
+        return result;
     }
 
     /**
