@@ -32,7 +32,6 @@ import static org.junit.Assert.assertNotNull;
  * Test for SqlScript.
  */
 public class SqlScriptSmallTest {
-
     /**
      * Class under test.
      */
@@ -269,6 +268,18 @@ public class SqlScriptSmallTest {
         SqlStatement sqlStatement = sqlStatements.get(0);
         assertEquals(1, sqlStatement.getLineNumber());
         assertEquals(source, sqlStatement.getSql());
+    }
+
+    @Test
+    public void mysqlPoundSymbol() {
+        String source = "INSERT INTO `bonlayout` (`vertriebslinie`, `lang`, `position`, `layout`) VALUES ('CH01RE', 'en', 'EC_BLZ_1_0', '<RIGHT>Bank code: \n" +
+                "___________________________</RIGHT>');\n" +
+                "INSERT INTO `bonlayout` (`vertriebslinie`, `lang`, `position`, `layout`) VALUES ('CH01RE', 'en', 'EC_KNR_1_0', '<RIGHT>Account #: \n" +
+                "___________________________</RIGHT>');";
+
+        List<SqlStatement> sqlStatements = sqlScript.parse(source);
+        assertNotNull(sqlStatements);
+        assertEquals(2, sqlStatements.size());
     }
 
     @Ignore("Currently broken")
