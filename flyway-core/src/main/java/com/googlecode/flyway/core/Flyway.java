@@ -1164,7 +1164,10 @@ public class Flyway {
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
             if (schemaNames.length == 0) {
-                setSchemas(dbSupport.getCurrentSchema().getName());
+                Schema currentSchema = dbSupport.getCurrentSchema();
+                if (currentSchema != null) {
+                    setSchemas(currentSchema.getName());
+                }
             }
 
             if (schemaNames.length == 1) {
