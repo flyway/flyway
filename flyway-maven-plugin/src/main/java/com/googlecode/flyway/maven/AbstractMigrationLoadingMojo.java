@@ -17,8 +17,12 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
+
+import java.io.File;
+import java.util.Arrays;
 
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
@@ -34,7 +38,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      *
      * @parameter
      */
-    private String[] locations;
+    private File[] locations;
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
@@ -114,7 +118,14 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
         if (locationsProperty != null) {
             flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
         } else if (locations != null) {
-            flyway.setLocations(locations);
+            String[] actualLocations = new String[locations.length];
+            for (int i = 0; i < locations.length; i++) {
+                File location = locations[i];
+                if (location.getAbsolutePath().contains(Location.FILESYSTEM_PREFIX)) {
+                    actualLocations[i] = Location.FILESYSTEM_PREFIX + location.getAbsolutePath().replace(Location.FILESYSTEM_PREFIX, "");
+                }
+            }
+            flyway.setLocations(actualLocations);
         }
         if (encoding != null) {
             flyway.setEncoding(encoding);
