@@ -117,20 +117,20 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     protected final void doExecute(Flyway flyway) throws Exception {
         String locationsProperty = getProperty("flyway.locations");
         if (locationsProperty != null) {
-            flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
-        } else if (locations != null) {
-            String[] actualLocations = new String[locations.length];
+            locations = StringUtils.tokenizeToStringArray(locationsProperty, ",");
+        }
+        if (locations != null) {
             for (int i = 0; i < locations.length; i++) {
-                if (locations[i].contains(Location.FILESYSTEM_PREFIX)) {
-                    String newLocation = locations[i].replace(Location.FILESYSTEM_PREFIX, "");
+                if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
+                    String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
                     File file = new File(newLocation);
                     if (!file.isAbsolute()) {
                         file = new File(mavenProject.getBasedir(), newLocation);
                     }
-                    actualLocations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
+                    locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
                 }
             }
-            flyway.setLocations(actualLocations);
+            flyway.setLocations(locations);
         }
         if (encoding != null) {
             flyway.setEncoding(encoding);
