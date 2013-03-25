@@ -29,7 +29,7 @@ public class Location implements Comparable<Location> {
     /**
      * The prefix for filesystem locations.
      */
-    private static final String FILESYSTEM_PREFIX = "filesystem:";
+    public static final String FILESYSTEM_PREFIX = "filesystem:";
 
     /**
      * The prefix part of the location. Can be either classpath: or filesystem:.
