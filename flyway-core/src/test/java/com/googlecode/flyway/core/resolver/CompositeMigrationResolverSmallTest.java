@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(
+        MigrationResolver migrationResolver = CompositeMigrationResolver.newDefaultInstance(
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
                 "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
