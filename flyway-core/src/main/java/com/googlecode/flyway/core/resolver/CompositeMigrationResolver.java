@@ -16,21 +16,12 @@
 package com.googlecode.flyway.core.resolver;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.resolver.java.JavaMigrationResolver;
-import com.googlecode.flyway.core.resolver.jdbc.JdbcMigrationResolver;
-import com.googlecode.flyway.core.resolver.spring.SpringJdbcMigrationResolver;
-import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.util.FeatureDetector;
-import com.googlecode.flyway.core.util.Location;
-import com.googlecode.flyway.core.util.Locations;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -56,36 +47,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     public CompositeMigrationResolver(final Collection<MigrationResolver> migrationResolvers) {
         this.migrationResolvers = migrationResolvers;
-    }
-
-    /**
-     * Factory method which creates the default CompositeMigrationResolver which supports SQL and Java migrations
-     *
-     * @param locations          The locations where migrations are located.
-     * @param encoding           The encoding of Sql migrations.
-     * @param sqlMigrationPrefix The file name prefix for sql migrations.
-     * @param sqlMigrationSuffix The file name suffix for sql migrations.
-     * @param placeholders       A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     * @param placeholderPrefix  The prefix of every placeholder.
-     * @param placeholderSuffix  The suffix of every placeholder.
-     * @return The default CompositeMigrationResolver which supports SQL and Java migrations
-     */
-    public static CompositeMigrationResolver newDefaultInstance(Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
-
-        Collection<MigrationResolver> defaultMigrationResolvers = new ArrayList<MigrationResolver>();
-
-        for (Location location : locations.getLocations()) {
-            defaultMigrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
-            defaultMigrationResolvers.add(new JdbcMigrationResolver(location));
-
-            if (FeatureDetector.isSpringJdbcAvailable()) {
-                defaultMigrationResolvers.add(new SpringJdbcMigrationResolver(location));
-                defaultMigrationResolvers.add(new JavaMigrationResolver(location));
-            }
-        }
-
-        return new CompositeMigrationResolver(defaultMigrationResolvers);
     }
 
     /**
