@@ -34,7 +34,14 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
+import com.googlecode.flyway.core.resolver.java.JavaMigrationResolver;
+import com.googlecode.flyway.core.resolver.jdbc.JdbcMigrationResolver;
+import com.googlecode.flyway.core.resolver.spring.SpringJdbcMigrationResolver;
+import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
+import com.googlecode.flyway.core.util.FeatureDetector;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.Locations;
+import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
@@ -46,6 +53,7 @@ import com.googlecode.flyway.core.validation.ValidationMode;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,6 +165,11 @@ public class Flyway {
     private MigrationVersion initVersion = new MigrationVersion("1");
 
     /**
+     * The MigrationResolver use to find migrations. (default finds SQL and Java migrations)
+     */
+    private Collection<MigrationResolver> migrationResolvers;
+
+    /**
      * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)
      */
     private String initDescription = "<< Flyway Init >>";
@@ -205,6 +218,36 @@ public class Flyway {
      */
     public Flyway() {
         // Do nothing
+    }
+
+    /**
+     * Factory method which creates the default CompositeMigrationResolver which supports SQL and Java migrations
+     *
+     * @param locations          The locations where migrations are located.
+     * @param encoding           The encoding of Sql migrations.
+     * @param sqlMigrationPrefix The file name prefix for sql migrations.
+     * @param sqlMigrationSuffix The file name suffix for sql migrations.
+     * @param placeholders       A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+     * @param placeholderPrefix  The prefix of every placeholder.
+     * @param placeholderSuffix  The suffix of every placeholder.
+     * @return The default CompositeMigrationResolver which supports SQL and Java migrations
+     */
+    public static CompositeMigrationResolver newDefaultMigrationResolver(Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+
+        Collection<MigrationResolver> defaultMigrationResolvers = new ArrayList<MigrationResolver>();
+
+        for (Location location : locations.getLocations()) {
+            defaultMigrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
+            defaultMigrationResolvers.add(new JdbcMigrationResolver(location));
+
+            if (FeatureDetector.isSpringJdbcAvailable()) {
+                defaultMigrationResolvers.add(new SpringJdbcMigrationResolver(location));
+                defaultMigrationResolvers.add(new JavaMigrationResolver(location));
+            }
+        }
+
+        return new CompositeMigrationResolver(defaultMigrationResolvers);
     }
 
     /**
@@ -765,6 +808,15 @@ public class Flyway {
     }
 
     /**
+     * Sets the MigrationResolvers used to find migrations
+     *
+     * @param migrationResolvers The MigrationResolvers used to find migrations. (default finds SQL and Java migrations)
+     */
+    public void setMigrationResolvers(Collection<MigrationResolver> migrationResolvers) {
+        this.migrationResolvers = migrationResolvers;
+    }
+
+    /**
      * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
      * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
      * this!
@@ -1018,7 +1070,10 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver() {
-        return new CompositeMigrationResolver(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        if (migrationResolvers != null) {
+            return new CompositeMigrationResolver(migrationResolvers);
+        }
+        return newDefaultMigrationResolver(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
     }
 
     /**

@@ -16,21 +16,12 @@
 package com.googlecode.flyway.core.resolver;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.resolver.java.JavaMigrationResolver;
-import com.googlecode.flyway.core.resolver.jdbc.JdbcMigrationResolver;
-import com.googlecode.flyway.core.resolver.spring.SpringJdbcMigrationResolver;
-import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.util.FeatureDetector;
-import com.googlecode.flyway.core.util.Location;
-import com.googlecode.flyway.core.util.Locations;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -39,39 +30,9 @@ import java.util.Set;
  */
 public class CompositeMigrationResolver implements MigrationResolver {
     /**
-     * The locations where the migrations are located.
+     * The collection of MigrationResolvers to delegate to
      */
-    private final Locations locations;
-
-    /**
-     * The encoding of Sql migrations.
-     */
-    private final String encoding;
-
-    /**
-     * The file name prefix for sql migrations.
-     */
-    private final String sqlMigrationPrefix;
-
-    /**
-     * The file name suffix for sql migrations.
-     */
-    private final String sqlMigrationSuffix;
-
-    /**
-     * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     */
-    private final Map<String, String> placeholders;
-
-    /**
-     * The prefix of every placeholder.
-     */
-    private final String placeholderPrefix;
-
-    /**
-     * The suffix of every placeholder.
-     */
-    private final String placeholderSuffix;
+    private final Collection<MigrationResolver> migrationResolvers;
 
     /**
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
@@ -80,24 +41,12 @@ public class CompositeMigrationResolver implements MigrationResolver {
     private List<ResolvedMigration> availableMigrations;
 
     /**
-     * Creates a new CompositeMigrationResolver.
+     * Creates a new RealCompositeMigrationResolver
      *
-     * @param locations          The locations where migrations are located.
-     * @param encoding           The encoding of Sql migrations.
-     * @param sqlMigrationPrefix The file name prefix for sql migrations.
-     * @param sqlMigrationSuffix The file name suffix for sql migrations.
-     * @param placeholders       A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     * @param placeholderPrefix  The prefix of every placeholder.
-     * @param placeholderSuffix  The suffix of every placeholder.
+     * @param migrationResolvers The collection of MigrationResolvers to delegate to
      */
-    public CompositeMigrationResolver(Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
-        this.locations = locations;
-        this.encoding = encoding;
-        this.sqlMigrationPrefix = sqlMigrationPrefix;
-        this.sqlMigrationSuffix = sqlMigrationSuffix;
-        this.placeholders = placeholders;
-        this.placeholderPrefix = placeholderPrefix;
-        this.placeholderSuffix = placeholderSuffix;
+    public CompositeMigrationResolver(final Collection<MigrationResolver> migrationResolvers) {
+        this.migrationResolvers = migrationResolvers;
     }
 
     /**
@@ -116,6 +65,16 @@ public class CompositeMigrationResolver implements MigrationResolver {
     }
 
     /**
+     * Get all MigrationResolver being delegated to. This is useful for building a new CompositeMigrationResolver from
+     * an existing one and a collection of additional MigrationResolvers.
+     *
+     * @return MigrationResolver being delegated to.
+     */
+    public Collection<MigrationResolver> getMigrationResolvers() {
+        return migrationResolvers;
+    }
+
+    /**
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
      * @return The available migrations, sorted by version, oldest first. An empty list is returned when no migrations
@@ -123,20 +82,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
-
-        Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-
-        for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
-            migrationResolvers.add(new JdbcMigrationResolver(location));
-
-            if (FeatureDetector.isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(location));
-                migrationResolvers.add(new JavaMigrationResolver(location));
-            }
-        }
-
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>(collectMigrations(migrationResolvers));
         Collections.sort(migrations);
 

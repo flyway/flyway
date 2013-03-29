@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.resolver;
 
+import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
@@ -35,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(
+        MigrationResolver migrationResolver = Flyway.newDefaultMigrationResolver(
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
                 "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
