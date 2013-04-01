@@ -26,28 +26,8 @@ import java.sql.SQLException;
 /**
  * Represents a database table within a schema.
  */
-public abstract class Table {
+public abstract class Table extends SchemaObject {
     private static final Log LOG = LogFactory.getLog(Table.class);
-
-    /**
-     * The Jdbc Template for communicating with the DB.
-     */
-    protected final JdbcTemplate jdbcTemplate;
-
-    /**
-     * The database-specific support.
-     */
-    protected final DbSupport dbSupport;
-
-    /**
-     * The schema this table lives in.
-     */
-    protected final Schema schema;
-
-    /**
-     * The name of the table.
-     */
-    protected final String name;
 
     /**
      * Creates a new table.
@@ -58,43 +38,8 @@ public abstract class Table {
      * @param name         The name of the table.
      */
     public Table(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.dbSupport = dbSupport;
-        this.schema = schema;
-        this.name = name;
+        super(jdbcTemplate, dbSupport, schema, name);
     }
-
-    /**
-     * @return The schema this table lives in.
-     */
-    public Schema getSchema() {
-        return schema;
-    }
-
-    /**
-     * @return The name of the table.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Drops this table from the database.
-     */
-    public void drop() {
-        try {
-            doDrop();
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to drop table " + this, e);
-        }
-    }
-
-    /**
-     * Drops this table from the database.
-     *
-     * @throws java.sql.SQLException when the drop failed.
-     */
-    protected abstract void doDrop() throws SQLException;
 
     /**
      * Checks whether this table exists.
@@ -284,9 +229,4 @@ public abstract class Table {
      * @throws SQLException when this table in this schema could not be unlocked.
      */
     protected void doUnlock() throws SQLException {}
-
-    @Override
-    public String toString() {
-        return dbSupport.quote(schema.getName(), name);
-    }
 }

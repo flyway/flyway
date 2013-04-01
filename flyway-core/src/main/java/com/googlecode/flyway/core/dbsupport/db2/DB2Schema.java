@@ -15,10 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
-import com.googlecode.flyway.core.dbsupport.Schema;
-import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.dbsupport.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -89,6 +86,11 @@ public class DB2Schema extends Schema {
         // sequences
         for (String dropStatement : generateDropStatementsForSequences(name)) {
             jdbcTemplate.execute(dropStatement);
+        }
+
+        // tables
+        for (Type type : allTypes()) {
+            type.drop();
         }
 
         // procedures
@@ -186,5 +188,10 @@ public class DB2Schema extends Schema {
     @Override
     public Table getTable(String tableName) {
         return new DB2Table(jdbcTemplate, dbSupport, this, tableName);
+    }
+
+    @Override
+    protected Type getType(String typeName) {
+        return new DB2Type(jdbcTemplate, dbSupport, this, typeName);
     }
 }

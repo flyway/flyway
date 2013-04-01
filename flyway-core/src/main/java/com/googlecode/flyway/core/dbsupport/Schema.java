@@ -16,8 +16,12 @@
 package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a database schema.
@@ -174,6 +178,39 @@ public abstract class Schema {
      * @throws SQLException when the retrieval failed.
      */
     protected abstract Table[] doAllTables() throws SQLException;
+
+    /**
+     * Retrieves all the types in this schema.
+     *
+     * @return All types in the schema.
+     */
+    public final Type[] allTypes() {
+        ResultSet resultSet = null;
+        try {
+            resultSet = jdbcTemplate.getMetaData().getUDTs(null, name, null, null);
+
+            List<Type> types = new ArrayList<Type>();
+            while (resultSet.next()) {
+                types.add(getType(resultSet.getString("TYPE_NAME")));
+            }
+
+            return types.toArray(new Type[types.size()]);
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to retrieve all types in schema " + this, e);
+        } finally {
+            JdbcUtils.closeResultSet(resultSet);
+        }
+    }
+
+    /**
+     * Retrieves the type with this name in this schema.
+     *
+     * @param typeName The name of the type.
+     * @return The type.
+     */
+    protected Type getType(String typeName) {
+        return null;
+    }
 
     /**
      * Retrieves the table with this name in this schema.
