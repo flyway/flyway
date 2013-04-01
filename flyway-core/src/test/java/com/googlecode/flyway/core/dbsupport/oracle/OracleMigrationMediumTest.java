@@ -257,4 +257,16 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    /**
+     * Tests support for reference partitioned tables.
+     */
+    @Ignore("Disabled due to missing functionality in Oracle XE.")
+    @Test
+    public void referencePartitionedTable() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/refpart");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
 }
