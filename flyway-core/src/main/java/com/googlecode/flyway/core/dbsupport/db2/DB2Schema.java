@@ -16,10 +16,12 @@
 package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.dbsupport.*;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * DB2 implementation of Schema.
@@ -78,7 +80,6 @@ public class DB2Schema extends Schema {
             jdbcTemplate.execute(dropStatement);
         }
 
-        // tables
         for (Table table : allTables()) {
             table.drop();
         }
@@ -88,32 +89,18 @@ public class DB2Schema extends Schema {
             jdbcTemplate.execute(dropStatement);
         }
 
-        // tables
-        for (Type type : allTypes()) {
-            type.drop();
-        }
-
         // procedures
         for (String dropStatement : generateDropStatementsForProcedures(name)) {
             jdbcTemplate.execute(dropStatement);
         }
 
-        // functions
-        for (String dropStatement : generateDropStatementsForFunctions(name)) {
-            jdbcTemplate.execute(dropStatement);
+        for (Function function : allFunctions()) {
+            function.drop();
         }
-    }
 
-    /**
-     * Generates DROP statements for the functions in this schema.
-     *
-     * @param schema The schema of the objects.
-     * @return The drop statements.
-     * @throws SQLException when the statements could not be generated.
-     */
-    private List<String> generateDropStatementsForFunctions(String schema) throws SQLException {
-        String dropFuncGenQuery = "select rtrim(FUNCNAME) from SYSCAT.FUNCTIONS where FUNCSCHEMA = '" + schema + "'";
-        return buildDropStatements("DROP FUNCTION", dropFuncGenQuery, schema);
+        for (Type type : allTypes()) {
+            type.drop();
+        }
     }
 
     /**
@@ -186,6 +173,26 @@ public class DB2Schema extends Schema {
     }
 
     @Override
+    protected Function[] doAllFunctions() throws SQLException {
+        List<Map<String, String>> rows = jdbcTemplate.queryForList(
+                "select p.SPECIFICNAME, p.FUNCNAME," +
+                        " substr( xmlserialize( xmlagg( xmltext( concat( ', ', TYPENAME ) ) ) as varchar( 1024 ) ), 3 ) as PARAMS" +
+                        " from SYSCAT.FUNCTIONS f inner join SYSCAT.FUNCPARMS p on f.SPECIFICNAME = p.SPECIFICNAME" +
+                        " where f.ORIGIN = 'Q' and p.FUNCSCHEMA = ? and p.ROWTYPE = 'P'" +
+                        " group by p.SPECIFICNAME, p.FUNCNAME" +
+                        " order by p.SPECIFICNAME", name);
+
+        List<Function> functions = new ArrayList<Function>();
+        for (Map<String, String> row : rows) {
+            functions.add(getFunction(
+                    row.get("FUNCNAME"),
+                    StringUtils.tokenizeToStringArray(row.get("PARAMS"), ",")));
+        }
+
+        return functions.toArray(new Function[functions.size()]);
+    }
+
+    @Override
     public Table getTable(String tableName) {
         return new DB2Table(jdbcTemplate, dbSupport, this, tableName);
     }
@@ -193,5 +200,10 @@ public class DB2Schema extends Schema {
     @Override
     protected Type getType(String typeName) {
         return new DB2Type(jdbcTemplate, dbSupport, this, typeName);
+    }
+
+    @Override
+    public Function getFunction(String functionName, String... args) {
+        return new DB2Function(jdbcTemplate, dbSupport, this, functionName, args);
     }
 }

@@ -220,6 +220,39 @@ public abstract class Schema {
      */
     public abstract Table getTable(String tableName);
 
+    /**
+     * Retrieves the function with this name in this schema.
+     *
+     * @param functionName The name of the function.
+     * @return The function.
+     */
+    public Function getFunction(String functionName, String... args) {
+        throw new UnsupportedOperationException("getFunction()");
+    }
+
+    /**
+     * Retrieves all the types in this schema.
+     *
+     * @return All types in the schema.
+     */
+    public final Function[] allFunctions() {
+        try {
+            return doAllFunctions();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to retrieve all functions in schema " + this, e);
+        }
+    }
+
+    /**
+     * Retrieves all the functions in this schema.
+     *
+     * @return All functions in the schema.
+     * @throws SQLException when the retrieval failed.
+     */
+    protected Function[] doAllFunctions() throws SQLException {
+        return new Function[0];
+    }
+
     @Override
     public String toString() {
         return dbSupport.quote(name);

@@ -114,4 +114,13 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    @Test
+    public void function() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/function");
+        flyway.migrate();
+
+        flyway.clean();
+        flyway.migrate();
+    }
 }

@@ -76,7 +76,7 @@ public abstract class SchemaObject {
     protected abstract void doDrop() throws SQLException;
 
     @Override
-    public final String toString() {
+    public String toString() {
         return dbSupport.quote(schema.getName(), name);
     }
 }
