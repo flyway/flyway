@@ -96,6 +96,10 @@ public class SQLServerSchema extends Schema {
         for (String statement : cleanTypes()) {
             jdbcTemplate.execute(statement);
         }
+
+        for (String statement : cleanSynonyms()) {
+            jdbcTemplate.execute(statement);
+        }
     }
 
     /**
@@ -203,6 +207,26 @@ public class SQLServerSchema extends Schema {
         List<String> statements = new ArrayList<String>();
         for (String typeName : typeNames) {
             statements.add("DROP TYPE " + dbSupport.quote(name, typeName));
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the synonyms in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanSynonyms() throws SQLException {
+        List<String> synonymNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT sn.name FROM sys.synonyms sn INNER JOIN sys.schemas s ON sn.schema_id = s.schema_id" +
+                                " WHERE s.name = ?",
+                        name);
+
+        List<String> statements = new ArrayList<String>();
+        for (String synonymName : synonymNames) {
+            statements.add("DROP SYNONYM " + dbSupport.quote(name, synonymName));
         }
         return statements;
     }

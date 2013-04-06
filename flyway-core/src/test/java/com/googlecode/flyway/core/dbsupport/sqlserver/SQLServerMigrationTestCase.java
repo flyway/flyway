@@ -116,6 +116,17 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         flyway.migrate();
 
         flyway.clean();
+    }
+
+    /**
+     * Tests clean and migrate for synonyms.
+     */
+    @Test
+    public void synonym() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/synonym");
+        flyway.migrate();
+
+        flyway.clean();
         flyway.migrate();
     }
 
