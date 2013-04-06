@@ -243,6 +243,18 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
+
+    /**
+     * Tests support for clean together with Nested Tables.
+     */
+    @Test
+    public void queueTable() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/queue");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
+
     /**
      * Tests support for clean together with XML Type.
      */
