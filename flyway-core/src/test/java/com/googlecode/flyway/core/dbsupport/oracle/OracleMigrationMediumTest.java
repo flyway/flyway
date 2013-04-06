@@ -245,7 +245,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
 
     /**
-     * Tests support for clean together with Nested Tables.
+     * Tests support for clean together with queue Tables.
      */
     @Test
     public void queueTable() throws FlywayException {

@@ -51,8 +51,7 @@ public class OracleSchema extends Schema {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", name);
-        return objectCount == 0;
+        return jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", name) == 0;
     }
 
     @Override
