@@ -77,6 +77,10 @@ public class SQLServerSchema extends Schema {
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : cleanDefaultConstraints()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : cleanRoutines()) {
             jdbcTemplate.execute(statement);
         }
@@ -106,6 +110,32 @@ public class SQLServerSchema extends Schema {
                 jdbcTemplate.queryForList(
                         "SELECT table_name, constraint_name FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS" +
                                 " WHERE constraint_type = 'FOREIGN KEY' and table_schema=?",
+                        name);
+
+        List<String> statements = new ArrayList<String>();
+        for (Map<String, String> row : constraintNames) {
+            String tableName = row.get("table_name");
+            String constraintName = row.get("constraint_name");
+            statements.add("ALTER TABLE " + dbSupport.quote(name, tableName) + " DROP CONSTRAINT " + dbSupport.quote(constraintName));
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the default constraints in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanDefaultConstraints() throws SQLException {
+        @SuppressWarnings({"unchecked"})
+        List<Map<String, String>> constraintNames =
+                jdbcTemplate.queryForList(
+                        "select t.name as table_name, d.name as constraint_name" +
+                                " from sys.tables t" +
+                                " inner join sys.default_constraints d on d.parent_object_id = t.object_id\n" +
+                                " inner join sys.schemas s on s.schema_id = t.schema_id\n" +
+                                " where s.name = ?",
                         name);
 
         List<String> statements = new ArrayList<String>();

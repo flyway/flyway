@@ -108,6 +108,18 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for default constraints with functions.
+     */
+    @Test
+    public void defaultConstraints() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/default");
+        flyway.migrate();
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    /**
      * Tests a large migration that has been reported to hang on SqlServer 2005.
      */
     @Ignore("Axel: Fails due to nested transaction being opened in script, causing outer transaction not to receive COMMIT statement")
