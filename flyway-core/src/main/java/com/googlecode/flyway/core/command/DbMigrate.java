@@ -137,60 +137,56 @@ public class DbMigrate {
             Pair<Boolean, MigrationVersion> result =
                     new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Boolean, MigrationVersion>>() {
                         public Pair<Boolean, MigrationVersion> doInTransaction() {
-                            try {
-                                metaDataTable.lock();
+                            metaDataTable.lock();
 
-                                MigrationInfoServiceImpl infoService =
-                                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
-                                infoService.refresh();
+                            MigrationInfoServiceImpl infoService =
+                                    new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
+                            infoService.refresh();
 
-                                MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
-                                if (infoService.current() != null) {
-                                    currentSchemaVersion = infoService.current().getVersion();
-                                }
-                                if (firstRun) {
-                                    LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
-
-                                    if (outOfOrder) {
-                                        LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
-                                    }
-                                }
-
-                                MigrationInfo[] future = infoService.future();
-                                if (future.length > 0) {
-                                    MigrationInfo[] resolved = infoService.resolved();
-                                    if (resolved.length == 0) {
-                                        LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
-                                                + ", but no migration could be resolved in the configured locations !");
-                                    } else {
-                                        LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
-                                                + ") that is newer than the latest available migration ("
-                                                + resolved[resolved.length - 1].getVersion() + ") !");
-                                    }
-                                }
-
-                                MigrationInfo[] failed = infoService.failed();
-                                if (failed.length > 0) {
-                                    if ((failed.length == 1)
-                                            && (failed[0].getState() == MigrationState.FUTURE_FAILED)
-                                            && ignoreFailedFutureMigration) {
-                                        LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
-                                    } else {
-                                        return Pair.of(false, failed[0].getVersion());
-                                    }
-                                }
-
-                                MigrationInfoImpl[] pendingMigrations = infoService.pending();
-
-                                if (pendingMigrations.length == 0) {
-                                    return null;
-                                }
-
-                                boolean isOutOfOrder = pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
-                                return applyMigration(pendingMigrations[0].getResolvedMigration(), isOutOfOrder);
-                            } finally {
-                                metaDataTable.unlock();
+                            MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
+                            if (infoService.current() != null) {
+                                currentSchemaVersion = infoService.current().getVersion();
                             }
+                            if (firstRun) {
+                                LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
+
+                                if (outOfOrder) {
+                                    LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
+                                }
+                            }
+
+                            MigrationInfo[] future = infoService.future();
+                            if (future.length > 0) {
+                                MigrationInfo[] resolved = infoService.resolved();
+                                if (resolved.length == 0) {
+                                    LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
+                                            + ", but no migration could be resolved in the configured locations !");
+                                } else {
+                                    LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
+                                            + ") that is newer than the latest available migration ("
+                                            + resolved[resolved.length - 1].getVersion() + ") !");
+                                }
+                            }
+
+                            MigrationInfo[] failed = infoService.failed();
+                            if (failed.length > 0) {
+                                if ((failed.length == 1)
+                                        && (failed[0].getState() == MigrationState.FUTURE_FAILED)
+                                        && ignoreFailedFutureMigration) {
+                                    LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
+                                } else {
+                                    return Pair.of(false, failed[0].getVersion());
+                                }
+                            }
+
+                            MigrationInfoImpl[] pendingMigrations = infoService.pending();
+
+                            if (pendingMigrations.length == 0) {
+                                return null;
+                            }
+
+                            boolean isOutOfOrder = pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
+                            return applyMigration(pendingMigrations[0].getResolvedMigration(), isOutOfOrder);
                         }
                     });
 

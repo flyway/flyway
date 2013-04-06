@@ -30,11 +30,6 @@ public interface MetaDataTable {
     void lock();
 
     /**
-     * Unlock the metadata table after the changes are done.
-     */
-    void unlock();
-
-    /**
      * Adds this migration as executed to the metadata table.
      *
      * @param appliedMigration The migration that was executed.
