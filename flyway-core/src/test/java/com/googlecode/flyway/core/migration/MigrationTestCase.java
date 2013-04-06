@@ -16,10 +16,8 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationType;
-import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
@@ -243,7 +241,12 @@ public abstract class MigrationTestCase {
 
     @Test
     public void failedMigration() throws Exception {
+        String tableName = "before_the_error";
+
         flyway.setLocations("migration/failed");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("tableName", dbSupport.quote(tableName));
+        flyway.setPlaceholders(placeholders);
 
         try {
             flyway.migrate();
@@ -252,15 +255,18 @@ public abstract class MigrationTestCase {
             //Expected
         }
 
-        MetaDataTableRow migration = flyway.status();
+        MigrationInfo migration = flyway.info().current();
+        assertEquals(
+                dbSupport.supportsDdlTransactions(),
+                !dbSupport.getCurrentSchema().getTable(tableName).exists());
         if (dbSupport.supportsDdlTransactions()) {
             assertNull(migration);
         } else {
-            SchemaVersion version = migration.getVersion();
+            MigrationVersion version = migration.getVersion();
             assertEquals("1", version.toString());
             assertEquals("Should Fail", migration.getDescription());
             assertEquals(MigrationState.FAILED, migration.getState());
-            assertEquals(1, flyway.history().size());
+            assertEquals(1, flyway.info().applied().length);
         }
     }
 

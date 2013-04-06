@@ -55,15 +55,16 @@ public class TransactionTemplate {
             connection.commit();
             return result;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to execute transaction", e);
+            throw new FlywayException("Unable to commit transaction", e);
         } catch (RuntimeException e) {
             try {
+                LOG.debug("Rolling back transaction...");
                 connection.rollback();
-                throw e;
+                LOG.debug("Transaction rolled back");
             } catch (SQLException se) {
                 LOG.error("Unable to rollback transaction", se);
-                throw e;
             }
+            throw e;
         } finally {
             try {
                 connection.setAutoCommit(true);
