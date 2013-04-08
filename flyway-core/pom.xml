@@ -12,11 +12,11 @@
     <parent>
         <groupId>com.googlecode.flyway</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>2.0.4-SNAPSHOT</version>
+        <version>2.2-SNAPSHOT</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-core</artifactId>
-    <version>2.0.4-SNAPSHOT</version>
+    <version>2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
@@ -111,42 +111,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.googlecode.maven-gcu-plugin</groupId>
-                <artifactId>maven-gcu-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>upload</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failsOnError>true</failsOnError>
-                    <projectName>flyway</projectName>
-                    <uploads>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}.jar</file>
-                            <summary>Flyway database migration framework</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-Jar</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
-                            <summary>Flyway database migration framework (sources)</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-Source</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                    </uploads>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
@@ -159,7 +123,6 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Require-Bundle>org.eclipse.equinox.common</Require-Bundle>
                         <Export-Package>
                             com.googlecode.flyway.core;version=${project.version},
                             com.googlecode.flyway.core.api.*;version=${project.version},
@@ -170,8 +133,9 @@
                             com.googlecode.flyway.core.validation;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            org.springframework.*;version="[2.5,3.2)";resolution=optional,
-                            org.apache.commons.logging;version="[1.1,2)",
+                            org.springframework.*;version="[2.5,4.0)";resolution:=optional,
+                            org.apache.commons.logging;version="[1.1,2)";resolution:=optional,
+                            org.osgi.framework;version="1.3.0";resolution:=mandatory,
                             javax.sql
                         </Import-Package>
                     </instructions>

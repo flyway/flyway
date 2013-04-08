@@ -18,7 +18,8 @@ package com.googlecode.flyway.ant;
 import com.googlecode.flyway.core.Flyway;
 
 /**
- * Ant task that drops all database objects.
+ * Ant task that drops all (tables, views, procedures, triggers, ...) in the configured schemas.
+ * The schemas are cleaned in the order specified by the {@code schemas} property.
  */
 @SuppressWarnings({"JavaDoc", "UnusedDeclaration"})
 public class CleanTask extends AbstractFlywayTask {

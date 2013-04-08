@@ -36,15 +36,22 @@ public class JdbcTemplate {
     /**
      * The DB connection to use.
      */
-    private Connection connection;
+    private final Connection connection;
+
+    /**
+     * The type to assign to a null value.
+     */
+    private final int nullType;
 
     /**
      * Creates a new JdbcTemplate.
      *
      * @param connection The DB connection to use.
+     * @param nullType   The type to assign to a null value.
      */
-    public JdbcTemplate(Connection connection) {
+    public JdbcTemplate(Connection connection, int nullType) {
         this.connection = connection;
+        this.nullType = nullType;
     }
 
     /**
@@ -255,7 +262,7 @@ public class JdbcTemplate {
         PreparedStatement statement = connection.prepareStatement(sql);
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null) {
-                setNull(statement, i + 1);
+                statement.setNull(i + 1, nullType);
             } else if (params[i] instanceof Integer) {
                 statement.setInt(i + 1, (Integer) params[i]);
             } else if (params[i] instanceof Boolean) {
@@ -265,17 +272,6 @@ public class JdbcTemplate {
             }
         }
         return statement;
-    }
-
-    /**
-     * Sets the value of the parameter with this index to {@code null} in this PreparedStatement.
-     *
-     * @param preparedStatement The prepared statement whose parameter to set.
-     * @param parameterIndex    The index of the parameter to set.
-     * @throws SQLException when the value could not be set.
-     */
-    protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
-        // Do nothing by default.
     }
 
     /**

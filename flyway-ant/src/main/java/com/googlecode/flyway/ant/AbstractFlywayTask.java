@@ -67,10 +67,15 @@ public abstract class AbstractFlywayTask extends Task {
     private String password;
 
     /**
-     * Comma-separated list of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
-     * (default: The default schema for the datasource connection)<br/>Also configurable with Ant Property:
-     * ${flyway.schemas}
+     * Comma-separated list of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
+     * (default: The default schema for the datasource connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
+     * Also configurable with Ant Property: ${flyway.schemas}
      */
     private String schemas;
 
@@ -159,9 +164,14 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param schemas Comma-separated list of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     *                the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
-     *                (default: The default schema for the datasource connection)<br/>Also configurable with Ant Property:
+     * @param schemas Comma-separated list of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
+     *                (default: The default schema for the datasource connection)
+     *                <p>Consequences:</p>
+     *                <ul>
+     *                <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     *                <li>The first schema in the list will also be the one containing the metadata table.</li>
+     *                <li>The schemas will be cleaned in the order of this list.</li>
+     *                </ul>Also configurable with Ant Property:
      *                ${flyway.schemas}
      */
     public void setSchemas(String schemas) {

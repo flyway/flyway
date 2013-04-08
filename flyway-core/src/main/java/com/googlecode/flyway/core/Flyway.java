@@ -76,9 +76,13 @@ public class Flyway {
     private String encoding = "UTF-8";
 
     /**
-     * The schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
-     * (default: The default schema for the datasource connection)
+     * The schemas managed by Flyway.  These schema names are case-sensitive. (default: The default schema for the datasource connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
      */
     private String[] schemaNames = new String[0];
 
@@ -211,7 +215,11 @@ public class Flyway {
      *         and java-based migrations. (default: db/migration)
      */
     public String[] getLocations() {
-        return locations.getLocations().toArray(new String[locations.getLocations().size()]);
+        String[] result = new String[locations.getLocations().size()];
+        for (int i = 0; i < locations.getLocations().size(); i++) {
+            result[i] = locations.getLocations().get(i).toString();
+        }
+        return result;
     }
 
     /**
@@ -224,8 +232,13 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
+     * Retrieves the schemas managed by Flyway.  These schema names are case-sensitive.
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
      *
      * @return The schemas managed by Flyway. (default: The default schema for the datasource connection)
      */
@@ -549,8 +562,13 @@ public class Flyway {
     }
 
     /**
-     * Sets the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
+     * Sets the schemas managed by Flyway. These schema names are case-sensitive. (default: The default schema for the datasource connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
      *
      * @param schemas The schemas managed by Flyway. May not be {@code null}. Must contain at least one element.
      */
@@ -658,6 +676,17 @@ public class Flyway {
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    /**
+     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
+     *
+     * @param url      The JDBC URL of the database.
+     * @param user     The user of the database.
+     * @param password The password of the database.
+     */
+    public void setDataSource(String url, String user, String password) {
+        this.dataSource = new DriverDataSource(null, url, user, password);
     }
 
     /**
@@ -799,7 +828,7 @@ public class Flyway {
                     doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas);
                 }
 
-                if (metaDataTable.getCurrentSchemaVersion() == MigrationVersion.EMPTY) {
+                if (!metaDataTable.hasSchemasMarker() && !metaDataTable.hasInitMarker() && !metaDataTable.hasAppliedMigrations()) {
                     List<Schema> nonEmptySchemas = new ArrayList<Schema>();
                     for (Schema schema : schemas) {
                         if (!schema.empty()) {
@@ -813,8 +842,12 @@ public class Flyway {
                         }
                     } else {
                         if (nonEmptySchemas.size() == 1) {
-                            throw new FlywayException("Found non-empty schema " + nonEmptySchemas.get(0)
-                                    + " without metadata table! Use init() first to initialize the metadata table.");
+                            Schema schema = nonEmptySchemas.get(0);
+                            //Check whether we only have an empty metadata table in an otherwise empty schema
+                            if (schema.allTables().length != 1 || !schema.getTable(table).exists()) {
+                                throw new FlywayException("Found non-empty schema " + schema
+                                        + " without metadata table! Use init() first to initialize the metadata table.");
+                            }
                         } else {
                             throw new FlywayException("Found non-empty schemas "
                                     + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
@@ -878,6 +911,7 @@ public class Flyway {
 
     /**
      * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
+     * The schemas are cleaned in the order specified by the {@code schemas} property.
      *
      * @throws FlywayException when the clean fails.
      */
@@ -1130,7 +1164,10 @@ public class Flyway {
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
             if (schemaNames.length == 0) {
-                setSchemas(dbSupport.getCurrentSchema().getName());
+                Schema currentSchema = dbSupport.getCurrentSchema();
+                if (currentSchema != null) {
+                    setSchemas(currentSchema.getName());
+                }
             }
 
             if (schemaNames.length == 1) {

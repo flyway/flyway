@@ -3,11 +3,11 @@
     <parent>
         <groupId>com.googlecode.flyway</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>2.0.4-SNAPSHOT</version>
+        <version>2.2-SNAPSHOT</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-sample</artifactId>
-    <version>2.0.4-SNAPSHOT</version>
+    <version>2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
@@ -46,33 +46,6 @@
                     <locations>
                         <location>com.googlecode.flyway.sample.migration</location>
                     </locations>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.googlecode.maven-gcu-plugin</groupId>
-                <artifactId>maven-gcu-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>upload</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failsOnError>true</failsOnError>
-                    <projectName>flyway</projectName>
-                    <uploads>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-sources.jar</file>
-                            <summary>Flyway sample application (sources)</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-Source</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                    </uploads>
                 </configuration>
             </plugin>
         </plugins>

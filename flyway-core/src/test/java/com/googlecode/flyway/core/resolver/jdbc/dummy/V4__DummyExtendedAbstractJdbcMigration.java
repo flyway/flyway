@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.googlecode.flyway.core.resolver.jdbc.dummy;
+
+import java.sql.Connection;
+
 /**
- * Private API. No compatibility guarantees provided.
+ * Test class that extends and abstract class instead of implementing JdbcMigration directly.
  */
-package com.googlecode.flyway.core.util.scanner.classpath.osgi;
+public class V4__DummyExtendedAbstractJdbcMigration extends DummyAbstractJdbcMigration {
+    @Override
+    public void doMigrate(Connection connection) throws Exception {
+        // DO nothing
+    }
+}

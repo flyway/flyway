@@ -25,11 +25,11 @@ import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 import com.googlecode.flyway.core.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import com.googlecode.flyway.core.util.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
-import com.googlecode.flyway.core.util.scanner.classpath.osgi.EquinoxCommonResourceUrlResolver;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -132,22 +132,17 @@ public class ClassPathScanner {
     private Set<String> findResourceNames(String path, String prefix, String suffix) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        Enumeration<URL> locationsUrls = getClassLoader().getResources(path);
-        if (!locationsUrls.hasMoreElements()) {
-            throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")");
-        }
-        while (locationsUrls.hasMoreElements()) {
-            URL locationUrl = locationsUrls.nextElement();
+        List<URL> locationsUrls = getLocationUrlsForPath(path);
+        for (URL locationUrl : locationsUrls) {
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
             UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
             URL resolvedUrl = urlResolver.toStandardJavaUrl(locationUrl);
 
-            String scanRoot = UrlUtils.toFilePath(resolvedUrl);
-
             String protocol = resolvedUrl.getProtocol();
             ClassPathLocationScanner classPathLocationScanner = createLocationScanner(protocol);
             if (classPathLocationScanner == null) {
+                String scanRoot = UrlUtils.toFilePath(resolvedUrl);
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
                 resourceNames.addAll(classPathLocationScanner.findResourceNames(path, resolvedUrl));
@@ -158,20 +153,47 @@ public class ClassPathScanner {
     }
 
     /**
+     * Gets the physical location urls for this logical path on the classpath.
+     *
+     * @param path The path on the classpath.
+     * @return The underlying physical URLs.
+     * @throws IOException when the lookup fails.
+     */
+    private List<URL> getLocationUrlsForPath(String path) throws IOException {
+        List<URL> locationUrls = new ArrayList<URL>();
+
+        if (getClassLoader().getClass().getName().startsWith("com.ibm")) {
+            // WebSphere
+            Enumeration<URL> urls = getClassLoader().getResources(path + "/flyway.location");
+            if (!urls.hasMoreElements()) {
+                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")"
+                        + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+            }
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                locationUrls.add(new URL(URLDecoder.decode(url.toExternalForm(), "UTF-8").replace("/flyway.location", "")));
+            }
+        } else {
+            Enumeration<URL> urls = getClassLoader().getResources(path);
+            if (!urls.hasMoreElements()) {
+                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")");
+            }
+
+            while (urls.hasMoreElements()) {
+                locationUrls.add(urls.nextElement());
+            }
+        }
+
+        return locationUrls;
+    }
+
+    /**
      * Creates an appropriate URL resolver scanner for this url protocol.
      *
      * @param protocol The protocol of the location url to scan.
      * @return The url resolver for this protocol.
      */
     private UrlResolver createUrlResolver(String protocol) {
-        if (protocol.startsWith("bundle")) {
-            if (FeatureDetector.isEquinoxCommonAvailable()) {
-                return new EquinoxCommonResourceUrlResolver();
-            } else {
-                LOG.warn("Unable to resolve OSGi resource URL. Make sure the 'org.eclipse.equinox.common' bundle is loaded!");
-            }
-        }
-
         if (FeatureDetector.isJBossVFSv2Available() && protocol.startsWith("vfs")) {
             return new JBossVFSv2UrlResolver();
         }
@@ -199,6 +221,13 @@ public class ClassPathScanner {
 
         if (FeatureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
             return new JBossVFSv3ClassPathLocationScanner();
+        }
+
+        if (FeatureDetector.isOsgiFrameworkAvailable() && (
+                "bundle".equals(protocol) // Felix
+                        || "bundleresource".equals(protocol)) //Equinox
+                ) {
+            return new OsgiClassPathLocationScanner();
         }
 
         return null;

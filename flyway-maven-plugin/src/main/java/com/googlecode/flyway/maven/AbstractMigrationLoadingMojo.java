@@ -15,10 +15,15 @@
  */
 package com.googlecode.flyway.maven;
 
+import java.io.File;
+
+import org.apache.maven.project.MavenProject;
+
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
+import com.googlecode.flyway.core.util.Location;
 
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
@@ -112,8 +117,19 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
     protected final void doExecute(Flyway flyway) throws Exception {
         String locationsProperty = getProperty("flyway.locations");
         if (locationsProperty != null) {
-            flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
-        } else if (locations != null) {
+            locations = StringUtils.tokenizeToStringArray(locationsProperty, ",");
+        }
+        if (locations != null) {
+            for (int i = 0; i < locations.length; i++) {
+                if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
+                    String newLocation = locations[i].substring(Location.FILESYSTEM_PREFIX.length());
+                    File file = new File(newLocation);
+                    if (!file.isAbsolute()) {
+                        file = new File(mavenProject.getBasedir(), newLocation);
+                    }
+                    locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
+                }
+            }
             flyway.setLocations(locations);
         }
         if (encoding != null) {

@@ -21,43 +21,43 @@ import com.googlecode.flyway.core.util.StringUtils;
 
 /**
  * SqlStatementBuilder supporting DB2-specific delimiter changes.
- * <p/>
- * TODO Support for Procedures.
  */
 public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     /**
-     * The number of quotes encountered so far.
+     * Are we currently inside a BEGIN END; block?
      */
-    private int numQuotes;
+    private boolean insideBeginEndBlock;
 
     /**
-     * Are we currently inside a BEGIN ATOMIC block?
+     * Holds the beginning of the statement.
      */
-    private boolean insideAtomicBlock;
+    private String statementStart = "";
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (line.contains("BEGIN ATOMIC")) {
-            insideAtomicBlock = true;
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
+            statementStart += line;
+            statementStart += " ";
         }
 
-        if (line.endsWith("END;")) {
-            insideAtomicBlock = false;
+        if (statementStart.startsWith("CREATE FUNCTION")
+                || statementStart.startsWith("CREATE PROCEDURE")
+                || statementStart.startsWith("CREATE TRIGGER")
+                || statementStart.startsWith("CREATE OR REPLACE FUNCTION")
+                || statementStart.startsWith("CREATE OR REPLACE PROCEDURE")
+                || statementStart.startsWith("CREATE OR REPLACE TRIGGER")) {
+            if (line.startsWith("BEGIN")) {
+                insideBeginEndBlock = true;
+            }
+
+            if (line.endsWith("END;")) {
+                insideBeginEndBlock = false;
+            }
         }
 
-        if (insideAtomicBlock) {
+        if (insideBeginEndBlock) {
             return null;
         }
         return getDefaultDelimiter();
-    }
-
-    @Override
-    protected boolean endsWithOpenMultilineStringLiteral(String line) {
-        // DB2 only supports single quotes (') as delimiters
-        // A single quote inside a string literal is represented as two single quotes ('')
-        // An even number of single quotes thus means the string literal is closed.
-        // An uneven number means we are still waiting for the closing delimiter on a following line
-        numQuotes += StringUtils.countOccurrencesOf(line, "'");
-        return (numQuotes % 2) != 0;
     }
 }

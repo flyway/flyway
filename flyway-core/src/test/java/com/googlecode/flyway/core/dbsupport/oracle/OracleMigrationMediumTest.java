@@ -16,22 +16,19 @@
 package com.googlecode.flyway.core.dbsupport.oracle;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test to demonstrate the migration functionality using Oracle.
@@ -65,9 +62,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/oracle/sql/placeholders");
 
         flyway.migrate();
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1.1", schemaVersion.toString());
-        assertEquals("Populate table", flyway.status().getDescription());
+        MigrationVersion version = flyway.info().current().getVersion();
+        assertEquals("1.1", version.toString());
+        assertEquals("Populate table", flyway.info().current().getDescription());
 
         assertEquals("Mr. T triggered", jdbcTemplate.queryForString("select name from test_user"));
 
@@ -76,9 +73,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         int countUserObjects2 = jdbcTemplate.queryForInt("SELECT count(*) FROM user_objects");
         assertEquals(countUserObjects1, countUserObjects2);
 
-        final List<MetaDataTableRow> metaDataTableRows = flyway.history();
-        for (MetaDataTableRow metaDataTableRow : metaDataTableRows) {
-            assertNotNull(metaDataTableRow.getScript() + " has no checksum", metaDataTableRow.getChecksum());
+        MigrationInfo[] migrationInfos = flyway.info().applied();
+        for (MigrationInfo migrationInfo : migrationInfos) {
+            assertNotNull(migrationInfo.getScript() + " has no checksum", migrationInfo.getChecksum());
         }
     }
 
@@ -246,6 +243,18 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
+
+    /**
+     * Tests support for clean together with queue Tables.
+     */
+    @Test
+    public void queueTable() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/queue");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
+
     /**
      * Tests support for clean together with XML Type.
      */
@@ -253,6 +262,18 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Test
     public void xml() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/xml");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    /**
+     * Tests support for reference partitioned tables.
+     */
+    @Ignore("Disabled due to missing functionality in Oracle XE.")
+    @Test
+    public void referencePartitionedTable() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/refpart");
         flyway.migrate();
         flyway.clean();
         flyway.migrate();

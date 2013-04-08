@@ -29,7 +29,7 @@ public class Location implements Comparable<Location> {
     /**
      * The prefix for filesystem locations.
      */
-    private static final String FILESYSTEM_PREFIX = "filesystem:";
+    public static final String FILESYSTEM_PREFIX = "filesystem:";
 
     /**
      * The prefix part of the location. Can be either classpath: or filesystem:.
@@ -142,6 +142,9 @@ public class Location implements Comparable<Location> {
         return getDescriptor().hashCode();
     }
 
+    /**
+     * @return The location descriptor.
+     */
     @Override
     public String toString() {
         return getDescriptor();

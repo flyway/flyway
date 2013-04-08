@@ -71,22 +71,19 @@ public class Main {
                 return;
             }
 
-            loadJdbcDriversAndJavaMigrations();
-
             Properties properties = new Properties();
             initializeDefaults(properties);
             loadConfigurationFile(properties, args);
             overrideConfiguration(properties, args);
 
-            String driverClassName = properties.getProperty("flyway.driver");
-            if (!ClassUtils.isPresent(driverClassName)) {
-                LOG.error("JDBC Driver (" + driverClassName + ") not found! Put the JDBC Driver Jar in the /jars folder, for Flyway Command-Line to find it.");
-            }
+            loadJdbcDriversAndJavaMigrations(properties);
 
             Flyway flyway = new Flyway();
             flyway.configure(properties);
 
-            executeOperation(flyway, operation);
+            int consoleWidth = PropertiesUtils.getIntProperty(properties, "flyway.consoleWidth", 80);
+
+            executeOperation(flyway, operation, consoleWidth);
         } catch (Exception e) {
             if (debug) {
                 LOG.error("Unexpected error", e);
@@ -110,8 +107,9 @@ public class Main {
      *
      * @param flyway    The Flyway instance.
      * @param operation The operation to execute.
+     * @param consoleWidth The width of the console (in chars).
      */
-    private static void executeOperation(Flyway flyway, String operation) {
+    private static void executeOperation(Flyway flyway, String operation, int consoleWidth) {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("init".equals(operation)) {
@@ -125,15 +123,15 @@ public class Main {
             MigrationInfo current = flyway.info().current();
 
             if (current == null) {
-                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[0]));
+                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[0], consoleWidth));
             } else {
-                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[]{current}));
+                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[]{current}, consoleWidth));
             }
         } else if ("history".equals(operation)) {
             LOG.warn("history is deprecated. Use info instead.");
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied()));
+            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied(), consoleWidth));
         } else if ("info".equals(operation)) {
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
+            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all(), consoleWidth));
         } else if ("repair".equals(operation)) {
             flyway.repair();
         } else {
@@ -177,6 +175,7 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.locations", "filesystem:"+getInstallationDir()+"/sql");
+        properties.put("flyway.jarDir", getInstallationDir()+"/jars");
     }
 
     /**
@@ -212,9 +211,9 @@ public class Main {
         LOG.info("");
         LOG.info("Commands");
         LOG.info("========");
-        LOG.info("clean    : Drops all objects in the schema without dropping the schema itself");
-        LOG.info("init     : Creates and initializes the metadata table in the schema");
-        LOG.info("migrate  : Migrates the schema to the latest version");
+        LOG.info("clean    : Drops all objects in the configured schemas");
+        LOG.info("init     : Creates and initializes the metadata table");
+        LOG.info("migrate  : Migrates the database");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("repair   : Repairs the metadata table after a failed migration");
@@ -243,6 +242,9 @@ public class Main {
         LOG.info("initOnMigrate          : Init on migrate against uninitialized non-empty schema");
         LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
+        LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");
+        LOG.info("");
+        LOG.info("Add -X to print debug output");
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
@@ -263,10 +265,12 @@ public class Main {
     /**
      * Loads all the jars contained in the jars folder. (For Jdbc drivers and Java Migrations)
      *
+     * @param properties The configured properties.
+     *
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJdbcDriversAndJavaMigrations() throws Exception {
-        final String directoryForJdbcDriversAndJavaMigrations = getInstallationDir() + "/jars";
+    private static void loadJdbcDriversAndJavaMigrations(Properties properties) throws IOException {
+        String directoryForJdbcDriversAndJavaMigrations = properties.getProperty("flyway.jarDir");
         File dir = new File(directoryForJdbcDriversAndJavaMigrations);
         File[] files = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -276,9 +280,9 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.warn("Directory for JDBC drivers and JavaMigrations not found: "
+            LOG.error("Directory for JDBC drivers and JavaMigrations not found: "
                     + directoryForJdbcDriversAndJavaMigrations);
-            return;
+            System.exit(1);
         }
 
         for (File file : files) {
@@ -293,7 +297,7 @@ public class Main {
      * @throws IOException when the jar or directory could not be found.
      */
     /* private -> for testing */
-    static void addJarOrDirectoryToClasspath(String name) throws Exception {
+    static void addJarOrDirectoryToClasspath(String name) throws IOException {
         LOG.debug("Adding location to classpath: " + name);
 
         // Add the jar or dir to the classpath

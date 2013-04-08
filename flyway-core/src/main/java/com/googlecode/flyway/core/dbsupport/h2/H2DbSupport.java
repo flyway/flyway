@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
@@ -23,6 +24,7 @@ import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * H2 database specific support
@@ -34,7 +36,7 @@ public class H2DbSupport extends DbSupport {
      * @param connection The connection to use.
      */
     public H2DbSupport(Connection connection) {
-        super(new H2JdbcTemplate(connection));
+        super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
     public String getScriptLocation() {

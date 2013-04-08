@@ -42,7 +42,10 @@ else
  JAVA_CMD=$JAVA_HOME/bin/java
 fi
 
-$JAVA_CMD -cp bin/flyway-commandline-${project.version}.jar:bin/flyway-core-${project.version}.jar:bin/spring-jdbc-2.5.6.jar:bin/commons-logging-1.1.1.jar:bin/spring-beans-2.5.6.jar:bin/spring-core-2.5.6.jar:bin/spring-context-2.5.6.jar:bin/aopalliance-1.0.jar:bin/spring-tx-2.5.6.jar com.googlecode.flyway.commandline.Main $@
+# Detect the width of the console
+CONSOLE_WIDTH=`tput cols`
+
+$JAVA_CMD -cp bin/flyway-commandline-${project.version}.jar:bin/flyway-core-${project.version}.jar:bin/spring-jdbc-2.5.6.jar:bin/commons-logging-1.1.1.jar:bin/spring-beans-2.5.6.jar:bin/spring-core-2.5.6.jar:bin/spring-context-2.5.6.jar:bin/aopalliance-1.0.jar:bin/spring-tx-2.5.6.jar com.googlecode.flyway.commandline.Main $@ -consoleWidth=$CONSOLE_WIDTH
 
 # Save the exit code
 JAVA_EXIT_CODE=$?

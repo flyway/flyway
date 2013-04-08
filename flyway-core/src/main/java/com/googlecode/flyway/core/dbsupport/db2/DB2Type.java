@@ -15,28 +15,31 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.Type;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 
 /**
- * DB2-specific JdbcTemplate customizations.
+ * Db2-specific type.
  */
-public class DB2JdbcTemplate extends JdbcTemplate {
+public class DB2Type extends Type {
     /**
-     * Creates a new DB2JdbcTemplate.
+     * Creates a new Db2 type.
      *
-     * @param connection The DB connection to use.
+     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
+     * @param dbSupport    The database-specific support.
+     * @param schema       The schema this type lives in.
+     * @param name         The name of the type.
      */
-    public DB2JdbcTemplate(Connection connection) {
-        super(connection);
+    public DB2Type(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+        super(jdbcTemplate, dbSupport, schema, name);
     }
 
     @Override
-    protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
-        preparedStatement.setNull(parameterIndex, Types.VARCHAR);
+    protected void doDrop() throws SQLException {
+        jdbcTemplate.execute("DROP TYPE " + dbSupport.quote(schema.getName(), name));
     }
 }

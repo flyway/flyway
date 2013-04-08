@@ -28,3 +28,9 @@ CREATE TRIGGER uniqueidx_trigger BEFORE INSERT ON usertable
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'duplicate name';
       END IF;
     END;
+
+CREATE TRIGGER TESTTRIGGER
+  NO CASCADE BEFORE INSERT
+  ON usertable
+  FOR EACH ROW
+SELECT * FROM usertable;

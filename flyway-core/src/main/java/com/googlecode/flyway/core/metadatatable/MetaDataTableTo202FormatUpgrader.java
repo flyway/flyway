@@ -104,6 +104,6 @@ public class MetaDataTableTo202FormatUpgrader {
      * @return {@code true} if the table need to be upgraded, {@code false} if not.
      */
     private boolean needsUpgrade() throws SQLException {
-        return table.exists() && table.hasPrimaryKey();
+        return table.exists() && table.hasPrimaryKey() && (table.getColumnSize("installed_by") == 30);
     }
 }

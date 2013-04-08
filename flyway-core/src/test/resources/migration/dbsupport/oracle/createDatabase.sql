@@ -22,3 +22,6 @@ GRANT create session TO "FLYWAY";
 GRANT create session TO "flyway_proxy";
 
 ALTER USER "FLYWAY" GRANT CONNECT THROUGH "flyway_proxy";
+
+-- grants for administering queue tables
+GRANT EXECUTE ON DBMS_AQADM TO flyway;

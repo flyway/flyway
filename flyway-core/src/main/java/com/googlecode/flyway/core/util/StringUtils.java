@@ -39,6 +39,18 @@ public class StringUtils {
      * @return The adjusted string.
      */
     public static String trimOrPad(String str, int length) {
+        return trimOrPad(str, length, ' ');
+    }
+
+    /**
+     * Trims or pads this string, so it has this exact length.
+     *
+     * @param str     The string to adjust. {@code null} is treated as an empty string.
+     * @param length  The exact length to reach.
+     * @param padChar The padding character.
+     * @return The adjusted string.
+     */
+    public static String trimOrPad(String str, int length, char padChar) {
         String result;
         if (str == null) {
             result = "";
@@ -51,7 +63,7 @@ public class StringUtils {
         }
 
         while (result.length() < length) {
-            result += " ";
+            result += padChar;
         }
         return result;
     }

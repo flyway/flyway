@@ -16,11 +16,13 @@
 package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Derby database specific support
@@ -32,7 +34,7 @@ public class DerbyDbSupport extends DbSupport {
      * @param connection The connection to use.
      */
     public DerbyDbSupport(Connection connection) {
-        super(new DerbyJdbcTemplate(connection));
+        super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
     public String getScriptLocation() {

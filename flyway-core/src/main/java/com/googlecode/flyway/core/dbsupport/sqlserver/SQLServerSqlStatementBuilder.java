@@ -26,4 +26,17 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
     protected Delimiter getDefaultDelimiter() {
         return new Delimiter("GO", true);
     }
+
+    @Override
+    protected String extractAlternateOpenQuote(String token) {
+        if (token.startsWith("N'")) {
+            return "N'";
+        }
+        return null;
+    }
+
+    @Override
+    protected String computeAlternateCloseQuote(String openQuote) {
+        return "'";
+    }
 }

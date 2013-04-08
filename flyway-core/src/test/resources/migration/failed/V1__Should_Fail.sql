@@ -14,5 +14,9 @@
 -- limitations under the License.
 --
 
+CREATE TABLE ${tableName} (
+  id int
+);
+
 THIS IS NOT VALID SQL;
 THIS MIGRATION SHOULD FAIL;

@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ import static org.junit.Assert.assertNotNull;
  * Test for SqlScript.
  */
 public class SqlScriptSmallTest {
-
     /**
      * Class under test.
      */
@@ -142,7 +142,7 @@ public class SqlScriptSmallTest {
         assertEquals("/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */", sqlStatement.getSql());
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 3000)
     public void linesToStatementsSuperLongStatement() {
         lines.add("INSERT INTO T1 (A, B, C, D) VALUES");
         for (int i = 0; i < 10000; i++) {
@@ -268,5 +268,26 @@ public class SqlScriptSmallTest {
         SqlStatement sqlStatement = sqlStatements.get(0);
         assertEquals(1, sqlStatement.getLineNumber());
         assertEquals(source, sqlStatement.getSql());
+    }
+
+    @Test
+    public void mysqlPoundSymbol() {
+        String source = "INSERT INTO `bonlayout` (`vertriebslinie`, `lang`, `position`, `layout`) VALUES ('CH01RE', 'en', 'EC_BLZ_1_0', '<RIGHT>Bank code: \n" +
+                "___________________________</RIGHT>');\n" +
+                "INSERT INTO `bonlayout` (`vertriebslinie`, `lang`, `position`, `layout`) VALUES ('CH01RE', 'en', 'EC_KNR_1_0', '<RIGHT>Account #: \n" +
+                "___________________________</RIGHT>');";
+
+        List<SqlStatement> sqlStatements = sqlScript.parse(source);
+        assertNotNull(sqlStatements);
+        assertEquals(2, sqlStatements.size());
+    }
+
+    @Ignore("Currently broken")
+    @Test
+    public void parseWithTrailingComment() {
+        String sql = "ALTER TABLE A RENAME TO B; -- trailing comment\r\n" +
+                "ALTER TABLE B RENAME TO C;";
+        List<SqlStatement> statements = sqlScript.parse(sql);
+        assertEquals(2, statements.size());
     }
 }

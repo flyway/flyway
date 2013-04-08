@@ -15,27 +15,20 @@
  */
 package com.googlecode.flyway.core.dbsupport.oracle;
 
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import org.junit.Test;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
- * Oracle-specific JdbcTemplate customizations.
+ * Test for OracleSqlStatementBuilder.
  */
-public class OracleJdbcTemplate extends JdbcTemplate {
-    /**
-     * Creates a new OracleJdbcTemplate.
-     *
-     * @param connection The DB connection to use.
-     */
-    public OracleJdbcTemplate(Connection connection) {
-        super(connection);
-    }
-
-    @Override
-    protected void setNull(PreparedStatement preparedStatement, int parameterIndex) throws SQLException {
-        preparedStatement.setString(parameterIndex, null);
+public class OracleSqlStatementBuilderSmallTest {
+    @Test
+    public void changeDelimiterRegEx() {
+        final OracleSqlStatementBuilder statementBuilder = new OracleSqlStatementBuilder();
+        assertNull(statementBuilder.changeDelimiterIfNecessary("BEGIN_DATE", null));
+        assertEquals("/", statementBuilder.changeDelimiterIfNecessary("BEGIN DATE", null).getDelimiter());
+        assertEquals("/", statementBuilder.changeDelimiterIfNecessary("BEGIN", null).getDelimiter());
     }
 }

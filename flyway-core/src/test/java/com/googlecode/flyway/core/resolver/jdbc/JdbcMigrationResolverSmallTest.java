@@ -45,7 +45,7 @@ public class JdbcMigrationResolverSmallTest {
                 new JdbcMigrationResolver(new Location("com/googlecode/flyway/core/resolver/jdbc/dummy"));
         Collection<ResolvedMigration> migrations = jdbcMigrationResolver.resolveMigrations();
 
-        assertEquals(2, migrations.size());
+        assertEquals(3, migrations.size());
 
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
         Collections.sort(migrationList);
@@ -59,6 +59,9 @@ public class JdbcMigrationResolverSmallTest {
         assertEquals("3.5", migrationInfo1.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo1.getDescription());
         assertEquals(35, migrationInfo1.getChecksum().intValue());
+
+        ResolvedMigration migrationInfo2 = migrationList.get(2);
+        assertEquals("4", migrationInfo2.getVersion().toString());
     }
 
     @Test

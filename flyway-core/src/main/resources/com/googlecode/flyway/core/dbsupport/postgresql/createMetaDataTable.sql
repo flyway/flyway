@@ -22,13 +22,15 @@ CREATE TABLE "${schema}"."${table}" (
     "type" VARCHAR(20) NOT NULL,
     "script" VARCHAR(1000) NOT NULL,
     "checksum" INTEGER,
-    "installed_by" VARCHAR(30) NOT NULL,
+    "installed_by" VARCHAR(100) NOT NULL,
     "installed_on" TIMESTAMP NOT NULL DEFAULT now(),
     "execution_time" INTEGER NOT NULL,
     "success" BOOLEAN NOT NULL
 ) WITH (
   OIDS=FALSE
 );
+ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("version");
+
 CREATE INDEX "${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
 CREATE INDEX "${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
 CREATE INDEX "${table}_s_idx" ON "${schema}"."${table}" ("success");

@@ -85,7 +85,7 @@ public final class PropertiesUtils {
     }
 
     private static String unescape(String str) {
-        StringBuffer outBuffer = new StringBuffer(str.length());
+        StringBuilder outBuffer = new StringBuilder(str.length());
         for (int index = 0; index < str.length(); ) {
             char c = str.charAt(index++);
             if (c == '\\') {
@@ -103,5 +103,21 @@ public final class PropertiesUtils {
             outBuffer.append(c);
         }
         return outBuffer.toString();
+    }
+
+    /**
+     * Retrieves this int property from these properties.
+     *
+     * @param properties   The properties.
+     * @param key          The key of the property.
+     * @param defaultValue The default value of the property.
+     * @return The value of the property or the default value if it wasn't found.
+     */
+    public static int getIntProperty(Properties properties, String key, int defaultValue) {
+        final String value = properties.getProperty(key);
+        if (value != null) {
+            return Integer.parseInt(value);
+        }
+        return defaultValue;
     }
 }

@@ -16,10 +16,8 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationType;
-import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
@@ -28,6 +26,7 @@ import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableTo21FormatUpgrader;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
@@ -242,7 +241,12 @@ public abstract class MigrationTestCase {
 
     @Test
     public void failedMigration() throws Exception {
+        String tableName = "before_the_error";
+
         flyway.setLocations("migration/failed");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("tableName", dbSupport.quote(tableName));
+        flyway.setPlaceholders(placeholders);
 
         try {
             flyway.migrate();
@@ -251,15 +255,18 @@ public abstract class MigrationTestCase {
             //Expected
         }
 
-        MetaDataTableRow migration = flyway.status();
+        MigrationInfo migration = flyway.info().current();
+        assertEquals(
+                dbSupport.supportsDdlTransactions(),
+                !dbSupport.getCurrentSchema().getTable(tableName).exists());
         if (dbSupport.supportsDdlTransactions()) {
             assertNull(migration);
         } else {
-            SchemaVersion version = migration.getVersion();
+            MigrationVersion version = migration.getVersion();
             assertEquals("1", version.toString());
             assertEquals("Should Fail", migration.getDescription());
             assertEquals(MigrationState.FAILED, migration.getState());
-            assertEquals(1, flyway.history().size());
+            assertEquals(1, flyway.info().applied().length);
         }
     }
 
@@ -536,6 +543,12 @@ public abstract class MigrationTestCase {
     }
 
     @Test
+    public void comment() {
+        flyway.setLocations("migration/comment");
+        assertEquals(1, flyway.migrate());
+    }
+
+    @Test
     public void outOfOrderMultipleRankIncrease() {
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -559,6 +572,14 @@ public abstract class MigrationTestCase {
         createMetaDataTableIn17Format();
         upgradeMetaDataTableTo20Format();
         upgradeMetaDataTableTo202Format();
+    }
+
+    @Test
+    public void format21upgrade() throws Exception {
+        createMetaDataTableIn17Format();
+        upgradeMetaDataTableTo20Format();
+        upgradeMetaDataTableTo202Format();
+        upgradeMetaDataTableTo21Format();
     }
 
     @Test
@@ -602,7 +623,7 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void format20upgradeOnMigrate() throws Exception {
+    public void formatUpgradeOnMigrate() throws Exception {
         createMetaDataTableIn17Format();
         insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
         jdbcTemplate.execute("CREATE TABLE test_user (id INT NOT NULL,name VARCHAR(25) NOT NULL,PRIMARY KEY(name))");
@@ -653,6 +674,13 @@ public abstract class MigrationTestCase {
      */
     private void upgradeMetaDataTableTo202Format() throws Exception {
         new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable())).upgrade();
+    }
+
+    /**
+     * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.1 format.
+     */
+    private void upgradeMetaDataTableTo21Format() throws Exception {
+        new MetaDataTableTo21FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable())).upgrade();
     }
 
     /**

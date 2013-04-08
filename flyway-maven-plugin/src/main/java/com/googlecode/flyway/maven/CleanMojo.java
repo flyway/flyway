@@ -18,7 +18,8 @@ package com.googlecode.flyway.maven;
 import com.googlecode.flyway.core.Flyway;
 
 /**
- * Maven goal that drops all database objects.
+ * Maven goal that drops all database objects (tables, views, procedures, triggers, ...) in the configured schemas.
+ * The schemas are cleaned in the order specified by the {@code schemas} property..
  *
  * @phase pre-integration-test
  * @goal clean

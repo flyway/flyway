@@ -3,11 +3,11 @@
     <parent>
         <groupId>com.googlecode.flyway</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>2.0.4-SNAPSHOT</version>
+        <version>2.2-SNAPSHOT</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-ant</artifactId>
-    <version>2.0.4-SNAPSHOT</version>
+    <version>2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
@@ -45,60 +45,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.googlecode.maven-gcu-plugin</groupId>
-                <artifactId>maven-gcu-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>upload</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failsOnError>true</failsOnError>
-                    <projectName>flyway</projectName>
-                    <uploads>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-dist.zip</file>
-                            <summary>Flyway Ant tasks</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-AntTasks</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-dist.tar.gz</file>
-                            <summary>Flyway Ant tasks</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-AntTasks</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-dist-with-spring.zip</file>
-                            <summary>Flyway Ant tasks (with Spring dependencies)</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-AntTasks</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                        <upload>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-dist-with-spring.tar.gz</file>
-                            <summary>Flyway Ant tasks (with Spring dependencies)</summary>
-                            <labels>
-                                <label>Featured</label>
-                                <label>Type-AntTasks</label>
-                                <label>OpSys-All</label>
-                            </labels>
-                        </upload>
-                    </uploads>
-                </configuration>
             </plugin>
         </plugins>
     </build>

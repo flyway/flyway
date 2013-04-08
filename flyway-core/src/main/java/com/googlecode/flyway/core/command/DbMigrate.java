@@ -143,7 +143,10 @@ public class DbMigrate {
                                     new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
                             infoService.refresh();
 
-                            MigrationVersion currentSchemaVersion = metaDataTable.getCurrentSchemaVersion();
+                            MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
+                            if (infoService.current() != null) {
+                                currentSchemaVersion = infoService.current().getVersion();
+                            }
                             if (firstRun) {
                                 LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
 
@@ -153,11 +156,16 @@ public class DbMigrate {
                             }
 
                             MigrationInfo[] future = infoService.future();
-                            MigrationInfo[] resolved = infoService.resolved();
-                            boolean isFutureMigration = future.length < 0;
-                            if (isFutureMigration) {
-                                LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion + ") that is newer than the latest available migration ("
-                                        + resolved[resolved.length - 1].getVersion() + ") !");
+                            if (future.length > 0) {
+                                MigrationInfo[] resolved = infoService.resolved();
+                                if (resolved.length == 0) {
+                                    LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
+                                            + ", but no migration could be resolved in the configured locations !");
+                                } else {
+                                    LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
+                                            + ") that is newer than the latest available migration ("
+                                            + resolved[resolved.length - 1].getVersion() + ") !");
+                                }
                             }
 
                             MigrationInfo[] failed = infoService.failed();
@@ -242,7 +250,7 @@ public class DbMigrate {
         try {
             new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
-                    migration.getExecutor().execute(new JdbcTemplate(connectionUserObjects), dbSupport);
+                    migration.getExecutor().execute(new JdbcTemplate(connectionUserObjects, 0), dbSupport);
                     return null;
                 }
             });

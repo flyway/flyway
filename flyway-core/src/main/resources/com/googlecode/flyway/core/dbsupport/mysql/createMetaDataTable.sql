@@ -22,11 +22,13 @@ CREATE TABLE `${schema}`.`${table}` (
     `type` VARCHAR(20) NOT NULL,
     `script` VARCHAR(1000) NOT NULL,
     `checksum` INT,
-    `installed_by` VARCHAR(30) NOT NULL,
+    `installed_by` VARCHAR(100) NOT NULL,
     `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `execution_time` INT NOT NULL,
     `success` BOOL NOT NULL
 ) ENGINE=InnoDB;
+ALTER TABLE `${schema}`.`${table}` ADD CONSTRAINT `${table}_pk` PRIMARY KEY (`version`);
+
 CREATE INDEX `${table}_vr_idx` ON `${schema}`.`${table}` (`version_rank`);
 CREATE INDEX `${table}_ir_idx` ON `${schema}`.`${table}` (`installed_rank`);
 CREATE INDEX `${table}_s_idx` ON `${schema}`.`${table}` (`success`);

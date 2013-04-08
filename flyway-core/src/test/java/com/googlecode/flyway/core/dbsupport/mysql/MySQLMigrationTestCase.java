@@ -16,8 +16,16 @@
 package com.googlecode.flyway.core.dbsupport.mysql;
 
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Test;
+import org.springframework.jdbc.datasource.AbstractDataSource;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 
@@ -150,5 +158,45 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
     public void escapeSingleQuote() throws FlywayException {
         flyway.setLocations("migration/dbsupport/mysql/sql/escape");
         flyway.migrate();
+    }
+
+    /**
+     * Tests whether locking problems occur when Flyway's DB connection gets reused.
+     */
+    @Test
+    public void lockOnConnectionReUse() throws SQLException {
+        DataSource twoConnectionsDataSource = new TwoConnectionsDataSource(flyway.getDataSource());
+        flyway.setDataSource(twoConnectionsDataSource);
+        flyway.setLocations(BASEDIR);
+        flyway.migrate();
+
+        Connection connection1 = twoConnectionsDataSource.getConnection();
+        Connection connection2 = twoConnectionsDataSource.getConnection();
+        assertEquals(2, new JdbcTemplate(connection1, 0).queryForInt("SELECT COUNT(*) FROM test_user"));
+        assertEquals(2, new JdbcTemplate(connection2, 0).queryForInt("SELECT COUNT(*) FROM test_user"));
+    }
+
+    private static class TwoConnectionsDataSource extends AbstractDataSource {
+        private final DataSource[] dataSources;
+        private int count;
+
+        public TwoConnectionsDataSource(DataSource dataSource) throws SQLException {
+            dataSources = new DataSource[] {
+                    new SingleConnectionDataSource(dataSource.getConnection(), true),
+                    new SingleConnectionDataSource(dataSource.getConnection(), true)
+            };
+        }
+
+        public Connection getConnection() throws SQLException {
+            return dataSources[count++ % dataSources.length].getConnection();
+        }
+
+        public Connection getConnection(String username, String password) throws SQLException {
+            return null;
+        }
+
+        public Logger getParentLogger() {
+            throw new UnsupportedOperationException("getParentLogger");
+        }
     }
 }

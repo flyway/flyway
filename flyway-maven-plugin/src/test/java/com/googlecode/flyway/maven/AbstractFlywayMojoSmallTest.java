@@ -21,6 +21,7 @@ import org.h2.Driver;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test for AbstractFlywayMojo.
@@ -42,6 +43,21 @@ public class AbstractFlywayMojoSmallTest {
         mojo.user = "sa";
         mojo.mavenProject = new MavenProject();
         mojo.mavenProject.getProperties().setProperty("flyway.schemas", "first,second");
+        mojo.execute();
+    }
+
+    @Test
+    public void skipExecute() throws Exception {
+        AbstractFlywayMojo mojo = new AbstractFlywayMojo() {
+            @Override
+            protected void doExecute(Flyway flyway) throws Exception {
+                assertNull(flyway.getDataSource());
+            }
+        };
+
+        mojo.skip = true;
+        mojo.url = "jdbc:h2:mem:dummy";
+        mojo.mavenProject = new MavenProject();
         mojo.execute();
     }
 }

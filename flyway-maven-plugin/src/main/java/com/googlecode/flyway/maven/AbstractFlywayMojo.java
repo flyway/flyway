@@ -28,6 +28,11 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
+import org.sonatype.plexus.components.cipher.PlexusCipherException;
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 import javax.sql.DataSource;
 
@@ -40,6 +45,14 @@ import javax.sql.DataSource;
 @SuppressWarnings({"JavaDoc", "FieldCanBeLocal", "UnusedDeclaration"})
 abstract class AbstractFlywayMojo extends AbstractMojo {
     protected Log log;
+
+    /**
+     * Whether to skip the execution of the Maven Plugin for this module.<br/>
+     * <p>Also configurable with Maven or System Property: ${flyway.skip}</p>
+     *
+     * @parameter expression="${flyway.skip}"
+     */
+    /* private -> for testing */ boolean skip;
 
     /**
      * The fully qualified classname of the jdbc driver to use to connect to the database.<br>
@@ -55,6 +68,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.url}</p>
      *
      * @parameter expression="${flyway.url}"
+     * @required
      */
     /* private -> for testing */ String url;
 
@@ -76,9 +90,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String password;
 
     /**
-     * List of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during
-     * the migration. It will also be the one containing the metadata table. These schema names are case-sensitive.
-     * (default: The default schema for the datasource connection)<br>
+     * List of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
+     * (default: The default schema for the datasource connection)
+     * <p>Consequences:</p>
+     * <ul>
+     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
+     * <li>The first schema in the list will also be the one containing the metadata table.</li>
+     * <li>The schemas will be cleaned in the order of this list.</li>
+     * </ul>
      * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
      *
      * @parameter expression="${flyway.schemas}"
@@ -168,7 +187,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             final Server server = settings.getServer(serverId);
             if (server != null) {
                 user = server.getUsername();
-                password = server.getPassword();
+                try {
+                    SecDispatcher secDispatcher = new DefaultSecDispatcher() {{
+                        _cipher = new DefaultPlexusCipher();
+                    }};
+                    password = secDispatcher.decrypt(server.getPassword());
+                } catch (SecDispatcherException e) {
+                    throw new FlywayException("Unable to decrypt password", e);
+                } catch (PlexusCipherException e) {
+                    throw new FlywayException("Unable to initialized password decryption", e);
+                }
             }
         }
     }
@@ -186,6 +214,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     public final void execute() throws MojoExecutionException, MojoFailureException {
         LogFactory.setLogCreator(new MavenLogCreator(this));
         log = LogFactory.getLog(getClass());
+
+        if (skip) {
+            log.info("Skipping Flyway execution");
+            return;
+        }
+
         try {
             loadCredentialsFromSettings();
 

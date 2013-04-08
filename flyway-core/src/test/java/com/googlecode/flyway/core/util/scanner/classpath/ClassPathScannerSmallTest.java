@@ -20,6 +20,7 @@ import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
 import com.googlecode.flyway.core.dbsupport.db2.DB2MigrationMediumTest;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
+import com.googlecode.flyway.core.resolver.jdbc.dummy.V4__DummyExtendedAbstractJdbcMigration;
 import com.googlecode.flyway.core.resolver.jdbc.dummy.Version3dot5;
 import com.googlecode.flyway.core.util.Resource;
 import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
@@ -118,10 +119,11 @@ public class ClassPathScannerSmallTest {
     public void scanForClasses() throws Exception {
         Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/core/resolver/jdbc/dummy", JdbcMigration.class);
 
-        assertEquals(2, classes.length);
+        assertEquals(3, classes.length);
 
         assertEquals(V2__InterfaceBasedMigration.class, classes[0]);
-        assertEquals(Version3dot5.class, classes[1]);
+        assertEquals(Version3dot5.class, classes[2]);
+        assertEquals(V4__DummyExtendedAbstractJdbcMigration.class, classes[1]);
     }
 
     @Test

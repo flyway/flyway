@@ -15,6 +15,11 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Builds a SQL statement, one line at a time.
  */
@@ -38,6 +43,26 @@ public class SqlStatementBuilder {
      * Flag indicating whether the current statement is properly terminated.
      */
     private boolean terminated;
+
+    /**
+     * Are we currently inside a ' multi-line string literal.
+     */
+    private boolean insideQuoteStringLiteral = false;
+
+    /**
+     * Are we currently inside an alternate multi-line string literal.
+     */
+    private boolean insideAlternateQuoteStringLiteral = false;
+
+    /**
+     * The alternate quote that is expected to close the string literal.
+     */
+    private String alternateQuote;
+
+    /**
+     * Are we inside a multi-line /*  *&#47; comment.
+     */
+    private boolean insideMultiLineComment = false;
 
     /**
      * The current delimiter to look for to terminate the statement.
@@ -133,7 +158,7 @@ public class SqlStatementBuilder {
             statement.append("\n");
         }
 
-        String lineSimplified = line.replaceAll("\\s+", " ").trim().toUpperCase();
+        String lineSimplified = simplifyLine(line);
 
         if (endsWithOpenMultilineStringLiteral(lineSimplified)) {
             statement.append(line);
@@ -152,15 +177,13 @@ public class SqlStatementBuilder {
     }
 
     /**
-     * Checks whether this line ends the statement with an open multi-line string literal (which will be
-     * continued on the next line).
+     * Simplifies this line to make it easier to parse.
      *
-     * @param line The line that was just added to the statement.
-     * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
-     *         literal. {@code false} if not.
+     * @param line The line to simplify.
+     * @return The simplified line.
      */
-    protected boolean endsWithOpenMultilineStringLiteral(String line) {
-        return false;
+    protected String simplifyLine(String line) {
+        return line.replaceAll("\\s+", " ").trim().toUpperCase();
     }
 
     /**
@@ -207,5 +230,154 @@ public class SqlStatementBuilder {
     /* private -> testing */
     static String stripDelimiter(String sql, Delimiter delimiter) {
         return sql.substring(0, sql.toLowerCase().lastIndexOf(delimiter.getDelimiter().toLowerCase()));
+    }
+
+    /**
+     * Extracts the alternate open quote from this token (if any).
+     *
+     * @param token The token to check.
+     * @return The alternate open quote. {@code null} if none.
+     */
+    protected String extractAlternateOpenQuote(String token) {
+        return null;
+    }
+
+    /**
+     * Computes the alternate closing quote for this open quote.
+     *
+     * @param openQuote The alternate open quote.
+     * @return The close quote.
+     */
+    protected String computeAlternateCloseQuote(String openQuote) {
+        return openQuote;
+    }
+
+    /**
+     * Checks whether this line ends the statement with an open multi-line string literal (which will be
+     * continued on the next line).
+     *
+     * @param line The line that was just added to the statement.
+     * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
+     *         literal. {@code false} if not.
+     */
+    protected boolean endsWithOpenMultilineStringLiteral(String line) {
+        //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
+        String[] tokens = StringUtils.tokenizeToStringArray(line, " <>;=|(),");
+
+        List<TokenType> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
+
+        for (TokenType delimitingToken : delimitingTokens) {
+            if (!insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral
+                    && TokenType.MULTI_LINE_COMMENT.equals(delimitingToken)) {
+                insideMultiLineComment = !insideMultiLineComment;
+            }
+
+            if (!insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral && !insideMultiLineComment
+                    && TokenType.SINGLE_LINE_COMMENT.equals(delimitingToken)) {
+                return false;
+            }
+
+            if (!insideMultiLineComment && !insideQuoteStringLiteral &&
+                    TokenType.ALTERNATE_QUOTE.equals(delimitingToken)) {
+                insideAlternateQuoteStringLiteral = !insideAlternateQuoteStringLiteral;
+            }
+
+            if (!insideMultiLineComment && !insideAlternateQuoteStringLiteral &&
+                    TokenType.QUOTE.equals(delimitingToken)) {
+                insideQuoteStringLiteral = !insideQuoteStringLiteral;
+            }
+        }
+
+        return insideQuoteStringLiteral || insideAlternateQuoteStringLiteral;
+    }
+
+    /**
+     * Extract the type of all tokens that potentially delimit string literals.
+     *
+     * @param tokens The tokens to analyse.
+     * @return The list of potentially delimiting string literals token types per token. Tokens that do not have any
+     *         impact on string delimiting are discarded.
+     */
+    private List<TokenType> extractStringLiteralDelimitingTokens(String[] tokens) {
+        List<TokenType> delimitingTokens = new ArrayList<TokenType>();
+        for (String token : tokens) {
+            String cleanToken = removeEscapedQuotes(token);
+
+            if (alternateQuote == null) {
+                String alternateQuoteFromToken = extractAlternateOpenQuote(cleanToken);
+                if (alternateQuoteFromToken != null) {
+                    String closeQuote = computeAlternateCloseQuote(alternateQuoteFromToken);
+                    if (cleanToken.length() >= (alternateQuoteFromToken.length() + closeQuote.length())
+                            && cleanToken.startsWith(alternateQuoteFromToken) && cleanToken.endsWith(closeQuote)) {
+                        //Skip $$abc$$, ...
+                        continue;
+                    }
+                    alternateQuote = closeQuote;
+                    delimitingTokens.add(TokenType.ALTERNATE_QUOTE);
+                    continue;
+                }
+            }
+            if ((alternateQuote != null) && cleanToken.endsWith(alternateQuote)) {
+                alternateQuote = null;
+                delimitingTokens.add(TokenType.ALTERNATE_QUOTE);
+                continue;
+            }
+
+            if ((cleanToken.length() >= 2) && cleanToken.startsWith("'") && cleanToken.endsWith("'")) {
+                //Skip '', 'abc', ...
+                continue;
+            }
+            if (cleanToken.startsWith("'") || cleanToken.endsWith("'")) {
+                delimitingTokens.add(TokenType.QUOTE);
+            }
+
+            if (isSingleLineComment(cleanToken)) {
+                delimitingTokens.add(TokenType.SINGLE_LINE_COMMENT);
+            }
+
+            if ((cleanToken.length() >= 4) && cleanToken.startsWith("/*") && cleanToken.endsWith("*/")) {
+                //Skip /**/, /*comment*/, ...
+                continue;
+            }
+            if (cleanToken.startsWith("/*") || cleanToken.endsWith("*/")) {
+                delimitingTokens.add(TokenType.MULTI_LINE_COMMENT);
+            }
+        }
+
+        return delimitingTokens;
+    }
+
+    /**
+     * Removes escaped quotes from this token.
+     * @param token The token to parse.
+     * @return The cleaned token.
+     */
+    protected String removeEscapedQuotes(String token) {
+        return StringUtils.replaceAll(token, "''", "");
+    }
+
+    /**
+     * The types of tokens relevant for string delimiter related parsing.
+     */
+    private static enum TokenType {
+        /**
+         * Token opens or closes a ' string literal
+         */
+        QUOTE,
+
+        /**
+         * Token opens or closes an alternate string literal
+         */
+        ALTERNATE_QUOTE,
+
+        /**
+         * Token starts end of line comment
+         */
+        SINGLE_LINE_COMMENT,
+
+        /**
+         * Token opens or closes multi-line comment
+         */
+        MULTI_LINE_COMMENT
     }
 }

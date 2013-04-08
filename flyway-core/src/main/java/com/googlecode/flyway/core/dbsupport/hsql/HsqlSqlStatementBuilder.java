@@ -17,17 +17,11 @@ package com.googlecode.flyway.core.dbsupport.hsql;
 
 import com.googlecode.flyway.core.dbsupport.Delimiter;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
-import com.googlecode.flyway.core.util.StringUtils;
 
 /**
- * SqlStamentBuilder supporting Hsql-specific delimiter changes.
+ * SqlStatementBuilder supporting Hsql-specific delimiter changes.
  */
 public class HsqlSqlStatementBuilder extends SqlStatementBuilder {
-    /**
-     * The number of quotes encountered so far.
-     */
-    private int numQuotes;
-
     /**
      * Are we inside a BEGIN ATOMIC block.
      */
@@ -47,19 +41,5 @@ public class HsqlSqlStatementBuilder extends SqlStatementBuilder {
             return null;
         }
         return getDefaultDelimiter();
-    }
-
-    @Override
-    protected boolean endsWithOpenMultilineStringLiteral(String line) {
-        if (line.trim().startsWith("--")) {
-            return (numQuotes % 2) != 0;
-        }
-
-        // Hsql only supports single quotes (') as delimiters
-        // A single quote inside a string literal is represented as two single quotes ('')
-        // An even number of single quotes thus means the string literal is closed.
-        // An uneven number means we are still waiting for the closing delimiter on a following line
-        numQuotes += StringUtils.countOccurrencesOf(line, "'");
-        return (numQuotes % 2) != 0;
     }
 }
