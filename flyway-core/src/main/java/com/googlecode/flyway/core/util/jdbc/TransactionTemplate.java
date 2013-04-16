@@ -49,7 +49,9 @@ public class TransactionTemplate {
      * @return The result of the transaction code.
      */
     public <T> T execute(TransactionCallback<T> transactionCallback) {
+        boolean oldAutocommit = true;
         try {
+            oldAutocommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
             T result = transactionCallback.doInTransaction();
             connection.commit();
@@ -67,9 +69,9 @@ public class TransactionTemplate {
             throw e;
         } finally {
             try {
-                connection.setAutoCommit(true);
+                connection.setAutoCommit(oldAutocommit);
             } catch (SQLException e) {
-                LOG.error("Unable to restore connection to autocommit", e);
+                LOG.error("Unable to restore autocommit to original value for connection", e);
             }
         }
     }
