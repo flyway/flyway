@@ -69,9 +69,8 @@ object FlywayPlugin extends Plugin {
   // convenience settings
   //*********************
 
-  lazy val flywayUpdateCl = TaskKey[Unit]("flyway-update-cl", "Update context classloader to runtime classpath.")
-  lazy val flywayDataSource = TaskKey[DataSource]("flyway-datasource", "The flyway datasource.")
-  lazy val flyway = TaskKey[Flyway]("flyway", "The flyway object")
+  private lazy val flywayDataSource = TaskKey[DataSource]("flyway-datasource", "The flyway datasource.")
+  private lazy val flyway = TaskKey[Flyway]("flyway", "The flyway object")
 
   //*********************
   // flyway tasks
@@ -109,62 +108,82 @@ object FlywayPlugin extends Plugin {
     flywayPlaceholderSuffix := None,
     flywayInitOnMigrate := None,
     flywayValidateOnMigrate := None,
-
-    flywayUpdateCl <<= (fullClasspath in Runtime, copyResources in Runtime) map { (cp, r) =>
-      Thread.currentThread().setContextClassLoader(ClasspathUtilities.toLoader(cp.map(_.data), getClass.getClassLoader))
-    },
-    flywayDataSource <<= (flywayUpdateCl, flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
-      (cl, driver, url, user, password) =>
-        new DriverDataSource(if (driver.isEmpty) null else driver.get, url, user, password)
+    flywayDataSource <<= (fullClasspath in Runtime, flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
+      (cp, driver, url, user, password) =>
+        withContextClassLoader(cp) {
+          new DriverDataSource(if (driver.isEmpty) null else driver.get, url, user, password)
+        }
       },
-    flyway <<= (streams, flywayDataSource, flywaySchemas, flywayTable, flywayInitVersion, flywayInitDescription,
-      flywayLocations, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder) map {
-      (s, dataSource, schemas, table, initVersion, initDescription,
-       locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
-        LogFactory.setLogCreator(SbtLogCreator)
-        redirectLogger(s)
-        val flyway = new Flyway()
-        flyway.setDataSource(dataSource)
-        schemas map (flyway.setSchemas(_: _*))
-        table map (flyway.setTable(_))
-        initVersion map (flyway.setInitVersion(_))
-        initDescription map (flyway.setInitDescription(_))
-        locations map (flyway.setLocations(_: _*))
-        encoding map (flyway.setEncoding(_))
-        sqlMigrationPrefix map (flyway.setSqlMigrationPrefix(_))
-        sqlMigrationSuffix map (flyway.setSqlMigrationSuffix(_))
-        cleanOnValidationError map (flyway.setCleanOnValidationError(_))
-        target map (flyway.setTarget(_))
-        flyway
+    flyway <<= (fullClasspath in Runtime, streams, flywayDataSource, flywaySchemas, flywayTable, flywayInitVersion, flywayInitDescription,
+      flywayLocations, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder, copyResources in Runtime) map {
+      (cp, s, dataSource, schemas, table, initVersion, initDescription,
+       locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, r) =>
+        withContextClassLoader(cp) {
+          LogFactory.setLogCreator(SbtLogCreator)
+          redirectLogger(s)
+          val flyway = new Flyway()
+          flyway.setDataSource(dataSource)
+          schemas map (flyway.setSchemas(_: _*))
+          table map (flyway.setTable(_))
+          initVersion map (flyway.setInitVersion(_))
+          initDescription map (flyway.setInitDescription(_))
+          locations map (flyway.setLocations(_: _*))
+          encoding map (flyway.setEncoding(_))
+          sqlMigrationPrefix map (flyway.setSqlMigrationPrefix(_))
+          sqlMigrationSuffix map (flyway.setSqlMigrationSuffix(_))
+          cleanOnValidationError map (flyway.setCleanOnValidationError(_))
+          target map (flyway.setTarget(_))
+          flyway
+        }
     },
-    flywayMigrate <<= (flyway, streams, flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
-      (flyway, s, ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
-        redirectLogger(s)
-        ignoreFailedFutureMigration map (flyway.setIgnoreFailedFutureMigration(_))
-        flyway.setPlaceholders(placeholders)
-        placeholderPrefix map (flyway.setPlaceholderPrefix(_))
-        placeholderSuffix map (flyway.setPlaceholderSuffix(_))
-        initOnMigrate map (flyway.setInitOnMigrate(_))
-        validateOnMigrate map (flyway.setValidateOnMigrate(_))
-        flyway.migrate()
+    flywayMigrate <<= (fullClasspath in Runtime, flyway, streams, flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
+      (cp, flyway, s, ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
+        withContextClassLoader(cp) {
+          redirectLogger(s)
+          ignoreFailedFutureMigration map (flyway.setIgnoreFailedFutureMigration(_))
+          flyway.setPlaceholders(placeholders)
+          placeholderPrefix map (flyway.setPlaceholderPrefix(_))
+          placeholderSuffix map (flyway.setPlaceholderSuffix(_))
+          initOnMigrate map (flyway.setInitOnMigrate(_))
+          validateOnMigrate map (flyway.setValidateOnMigrate(_))
+          flyway.migrate()
+        }
     },
-    flywayValidate <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); flyway.validate() },
-    flywayInfo <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); s.log.info(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all())) },
-    flywayRepair <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); flyway.repair() },
-    flywayClean <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); flyway.clean() },
-    flywayInit <<= (flyway, streams) map { (flyway, s) => redirectLogger(s); flyway.init() }
+    flywayValidate <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); flyway.validate() } },
+    flywayInfo <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); s.log.info(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all())) } },
+    flywayRepair <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); flyway.repair() } },
+    flywayClean <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); flyway.clean() } },
+    flywayInit <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); flyway.init() } }
   )
 
-  def redirectLogger(streams: TaskStreams) {
+  private def redirectLogger(streams: TaskStreams) {
     FlywaySbtLog.streams = Some(streams)
+  }
+
+  private def withContextClassLoader[T](cp: Types.Id[Keys.Classpath])(f: => T): T = {
+    val classloader = ClasspathUtilities.toLoader(cp.map(_.data), getClass.getClassLoader)
+    Threads.withContextClassLoader(classloader)(f)
   }
 }
 
-object SbtLogCreator extends LogCreator {
+private[this] object Threads {
+  def withContextClassLoader[T](classloader: ClassLoader)(b: => T): T = {
+    val thread = Thread.currentThread
+    val oldLoader = thread.getContextClassLoader
+    try {
+      thread.setContextClassLoader(classloader)
+      b
+    } finally {
+      thread.setContextClassLoader(oldLoader)
+    }
+  }
+}
+
+private[this] object SbtLogCreator extends LogCreator {
   def createLogger(clazz: Class[_]) = FlywaySbtLog
 }
 
-object FlywaySbtLog extends com.googlecode.flyway.core.util.logging.Log {
+private[this] object FlywaySbtLog extends com.googlecode.flyway.core.util.logging.Log {
   var streams: Option[TaskStreams] = None
   def debug(message: String) { streams map (_.log.debug(message)) }
   def info(message: String) { streams map (_.log.info(message)) }

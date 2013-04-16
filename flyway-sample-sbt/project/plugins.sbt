@@ -1,4 +1,4 @@
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.2.0")
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.3.0")
 
 addSbtPlugin("com.googlecode.flyway" % "sbt-flyway" % IO.readLines(new File("target/classes/version.txt")).head)
 
