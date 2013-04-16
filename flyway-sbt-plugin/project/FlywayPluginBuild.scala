@@ -17,7 +17,7 @@ import sbt._
 import scala._
 import Keys._
 
-object FlywayPlugin extends Build {
+object FlywayPluginBuild extends Build {
 
   val flywayVersion = IO.readLines(new File("target/classes/version.txt")).head
 
@@ -25,7 +25,14 @@ object FlywayPlugin extends Build {
     "project",
     file ("."),
     settings = Defaults.defaultSettings ++ Seq(
+      sbtPlugin := true,
+      name := "sbt-flyway",
+      organization := "com.googlecode.flyway",
       version := flywayVersion,
+      crossScalaVersions := Seq("2.9.1", "2.9.2", "2.9.3", "2.10.0", "2.10.1"),
+      resolvers += (
+        "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+        ),
       libraryDependencies += "com.googlecode.flyway" % "flyway-core" % flywayVersion
     )
   )
