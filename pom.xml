@@ -366,6 +366,14 @@
                         <exclude>**/*.txt</exclude>
                         <exclude>**/*.cnf</exclude>
                         <exclude>**/*.releaseBackup</exclude>
+                        <exclude>**/*.nofilter</exclude>
+                        <exclude>**/*.ini</exclude>
+                        <exclude>**/*.md</exclude>
+                        <exclude>**/*.ids</exclude>
+                        <exclude>**/*.ipr</exclude>
+                        <exclude>**/*.iws</exclude>
+                        <exclude>.gitignore</exclude>
+                        <exclude>.gitattributes</exclude>
                     </excludes>
                     <strictCheck>true</strictCheck>
                 </configuration>
