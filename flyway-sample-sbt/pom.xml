@@ -7,7 +7,7 @@
         <version>2.0.4-SNAPSHOT</version>
     </parent>
     <groupId>com.googlecode.flyway</groupId>
-    <artifactId>flyway-sample-sbt-version</artifactId>
+    <artifactId>flyway-sample-sbt</artifactId>
     <version>2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
