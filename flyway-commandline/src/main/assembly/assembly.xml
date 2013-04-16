@@ -37,7 +37,7 @@
             <directory>src/main/assembly</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>flyway.sh</include>
+                <include>flyway</include>
             </includes>
             <fileMode>744</fileMode>
             <lineEnding>unix</lineEnding>

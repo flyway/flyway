@@ -75,7 +75,7 @@ public abstract class CommandLineLargeTest {
         List<String> args = new ArrayList<String>();
 
         String installDir = new File(getInstallDir()).getAbsolutePath();
-        args.add(installDir + "/flyway." + flywayCmdLineExtensionForCurrentSystem());
+        args.add(installDir + "/flyway" + flywayCmdLineExtensionForCurrentSystem());
 
         if (operation != null) {
             args.add(operation);
@@ -112,9 +112,9 @@ public abstract class CommandLineLargeTest {
     private String flywayCmdLineExtensionForCurrentSystem() {
         String osName = System.getProperty("os.name", "generic").toLowerCase();
         if (osName.startsWith("windows")) {
-            return "cmd";
+            return ".cmd";
         }
-        return "sh";
+        return "";
     }
 
     /**
