@@ -26,10 +26,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <executable>sbt</executable>
-                    <arguments>
-                        <argument>+publish-local</argument>
-                    </arguments>
+                    <executable>java</executable>
+                    <commandlineArgs>-Xmx512M -XX:MaxPermSize=256M -jar sbt-launch.jar +publish-local</commandlineArgs>
                 </configuration>
             </plugin>
         </plugins>
