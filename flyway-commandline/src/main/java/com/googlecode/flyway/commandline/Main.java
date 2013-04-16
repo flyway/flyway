@@ -193,18 +193,11 @@ public class Main {
      * Prints the usage instructions on the console.
      */
     private static void printUsage() {
-        String extension;
-        if (isWindows()) {
-            extension = "cmd";
-        } else {
-            extension = "sh";
-        }
-
         LOG.info("********");
         LOG.info("* Usage");
         LOG.info("********");
         LOG.info("");
-        LOG.info("flyway." + extension + " [options] command");
+        LOG.info("flyway [options] command");
         LOG.info("");
         LOG.info("By default, the configuration will be read from conf/flyway.properties.");
         LOG.info("Options passed from the command-line override the configuration.");
@@ -248,18 +241,9 @@ public class Main {
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
-        LOG.info("flyway." + extension + " -target=1.5 -placeholder.user=my_user info");
+        LOG.info("flyway -target=1.5 -placeholder.user=my_user info");
         LOG.info("");
         LOG.info("More info at http://flywaydb.org/documentation/commandline");
-    }
-
-    /**
-     * Checks whether we are running on Windows or not.
-     *
-     * @return {@code true} if we are, {@code false} if not.
-     */
-    private static boolean isWindows() {
-        return System.getProperty("os.name").startsWith("Windows");
     }
 
     /**
