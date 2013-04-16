@@ -5,29 +5,18 @@
         <artifactId>flyway-parent</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-ant-largetest</artifactId>
     <version>2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <properties>
-        <unpackDirDist>${project.build.directory}/install/dist</unpackDirDist>
-        <unpackDirDistWithSpring>${project.build.directory}/install/dist with spring</unpackDirDistWithSpring>
+        <unpackDir>${project.build.directory}/install dir</unpackDir>
     </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-ant</artifactId>
             <version>${project.version}</version>
-            <classifier>dist</classifier>
-            <type>zip</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>flyway-ant</artifactId>
-            <version>${project.version}</version>
-            <classifier>dist-with-spring</classifier>
             <type>zip</type>
             <scope>test</scope>
         </dependency>
@@ -70,8 +59,7 @@
                     </excludes>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
-                        <installDirDist>${unpackDirDist}</installDirDist>
-                        <installDirDistWithSpring>${unpackDirDistWithSpring}</installDirDistWithSpring>
+                        <installDir>${unpackDir}</installDir>
                         <pomVersion>${project.version}</pomVersion>
                     </systemPropertyVariables>
                     <parallel>none</parallel>
@@ -82,49 +70,25 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>pre-largetest-dist-unpack</id>
+                        <id>pre-largetest-unpack</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
                             <includeArtifactIds>flyway-ant</includeArtifactIds>
-                            <includeClassifiers>dist</includeClassifiers>
-                            <outputDirectory>${unpackDirDist}</outputDirectory>
+                            <outputDirectory>${unpackDir}</outputDirectory>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>pre-largetest-dist-addJars</id>
+                        <id>pre-largetest-addJars</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
                             <includeArtifactIds>hsqldb,flyway-sample</includeArtifactIds>
-                            <outputDirectory>${unpackDirDist}/jars</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>pre-largetest-distWithSpring-unpack</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>flyway-ant</includeArtifactIds>
-                            <includeClassifiers>dist-with-spring</includeClassifiers>
-                            <outputDirectory>${unpackDirDistWithSpring}</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>pre-largetest-distWithSpring-addJars</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>hsqldb,flyway-sample</includeArtifactIds>
-                            <outputDirectory>${unpackDirDistWithSpring}/jars</outputDirectory>
+                            <outputDirectory>${unpackDir}/jars</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -134,7 +98,7 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>pre-largetest-dist-addSql</id>
+                        <id>pre-largetest-addSql</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -145,22 +109,7 @@
                                     <directory>${basedir}/src/test/resources</directory>
                                 </resource>
                             </resources>
-                            <outputDirectory>${unpackDirDist}/tests</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>pre-largetest-distWithSpring-addSql</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/test/resources</directory>
-                                </resource>
-                            </resources>
-                            <outputDirectory>${unpackDirDistWithSpring}/tests</outputDirectory>
+                            <outputDirectory>${unpackDir}/tests</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

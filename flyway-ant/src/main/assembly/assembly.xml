@@ -26,9 +26,6 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>/</outputDirectory>
-            <excludes>
-                <exclude>*:spring-jdbc</exclude>
-            </excludes>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <scope>runtime</scope>
         </dependencySet>

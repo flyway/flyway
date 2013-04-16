@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  * Large Test for the Ant tasks.
  */
 @SuppressWarnings({"JavaDoc"})
-public abstract class AntLargeTest {
+public class AntLargeTest {
     @Test
     public void init() throws Exception {
         String stdOut = runAnt(0, "init");
@@ -128,7 +128,18 @@ public abstract class AntLargeTest {
     /**
      * @return The installation directory of the Flyway Command Line instance to test.
      */
-    protected abstract String getInstallDir();
+    private String getInstallDir() {
+        return System.getProperty("installDir", "flyway-ant-largetest/target/install dir");
+    }
+
+    /**
+     * Execute 1 (SQL), 1.1 (SQL) & 1.3 (Jdbc). 1.2 (Spring Jdbc) is not picked up.
+     */
+    @Test
+    public void sample() throws Exception {
+        String stdOut = runAnt(0, "sample");
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+    }
 
     /**
      * Retrieves the version embedded in the project pom. Useful for running these tests in IntelliJ.
