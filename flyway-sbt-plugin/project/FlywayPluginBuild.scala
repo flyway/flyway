@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import sbt._
 import scala._
 import Keys._
+import scala.xml.{XML, Source}
 
 object FlywayPluginBuild extends Build {
 
-  val flywayVersion = IO.readLines(new File("target/classes/version.txt")).head
+  val pom = XML.load(Source.fromFile(new File("../pom.xml")))
+  val flywayVersion = (pom \ "version").text
 
   lazy val project = Project (
     "project",
@@ -29,7 +32,7 @@ object FlywayPluginBuild extends Build {
       name := "sbt-flyway",
       organization := "com.googlecode.flyway",
       version := flywayVersion,
-      crossScalaVersions := Seq("2.9.1", "2.9.2", "2.9.3", "2.10.0", "2.10.1"),
+      crossScalaVersions := Seq("2.9.1", "2.9.2", "2.9.3", "2.10.1"),
       resolvers += (
         "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
         ),
