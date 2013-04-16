@@ -23,6 +23,7 @@
         <format>tar.gz</format>
         <format>zip</format>
     </formats>
+    <baseDirectory>flyway-${project.version}</baseDirectory>
     <fileSets>
         <fileSet>
             <directory>src/main/assembly</directory>

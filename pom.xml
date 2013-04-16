@@ -374,6 +374,7 @@
                         <exclude>**/*.iws</exclude>
                         <exclude>.gitignore</exclude>
                         <exclude>.gitattributes</exclude>
+                        <exclude>**/flyway</exclude>
                     </excludes>
                     <strictCheck>true</strictCheck>
                 </configuration>

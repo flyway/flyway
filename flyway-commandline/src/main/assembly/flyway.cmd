@@ -34,7 +34,7 @@ if "%JAVA_HOME%"=="" (
 @REM Detect the width of the console
 for /F "usebackq tokens=2* delims=: " %%W in (`mode con ^| findstr Columns`) do set CONSOLE_WIDTH=%%W
 
-%JAVA_CMD% -cp bin\flyway-commandline-${project.version}.jar;bin\flyway-core-${project.version}.jar;bin\spring-jdbc-2.5.6.jar;bin\commons-logging-1.1.1.jar;bin\spring-beans-2.5.6.jar;bin\spring-core-2.5.6.jar;bin\spring-context-2.5.6.jar;bin\aopalliance-1.0.jar;bin\spring-tx-2.5.6.jar com.googlecode.flyway.commandline.Main %* -consoleWidth=%CONSOLE_WIDTH%
+%JAVA_CMD% -cp bin\flyway-commandline-${project.version}.jar;bin\flyway-core-${project.version}.jar com.googlecode.flyway.commandline.Main %* -consoleWidth=%CONSOLE_WIDTH%
 
 @REM Save the exit code
 set JAVA_EXIT_CODE=%ERRORLEVEL%

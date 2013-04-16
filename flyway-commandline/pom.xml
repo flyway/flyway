@@ -46,6 +46,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptorSourceDirectory>src/main/assembly</descriptorSourceDirectory>
                             <encoding>UTF-8</encoding>
                         </configuration>

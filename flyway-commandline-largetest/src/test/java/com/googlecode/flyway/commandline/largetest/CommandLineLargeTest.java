@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Large Test for the Flyway Command-Line Tool.
  */
-public abstract class CommandLineLargeTest {
+public class CommandLineLargeTest {
     @Test
     public void showUsage() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null);
@@ -120,7 +120,19 @@ public abstract class CommandLineLargeTest {
     /**
      * @return The installation directory of the Flyway Command Line instance to test.
      */
-    protected abstract String getInstallDir();
+    private String getInstallDir() {
+        return System.getProperty("installDir",
+                "flyway-commandline-largetest/target/install dir/flyway-" + getPomVersion());
+    }
+
+    /**
+     * Execute 1 (SQL), 1.1 (SQL) & 1.3 (Jdbc). 1.2 (Spring Jdbc) is not picked up.
+     */
+    @Test
+    public void migrate() throws Exception {
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+    }
 
     /**
      * Retrieves the version embedded in the project pom. Useful for running these tests in IntelliJ.
