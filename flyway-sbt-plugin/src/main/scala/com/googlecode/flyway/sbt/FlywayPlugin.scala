@@ -48,9 +48,9 @@ object FlywayPlugin extends Plugin {
 
   val flywayLocations = SettingKey[Seq[String]]("flyway-locations", "Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
   val flywayEncoding = SettingKey[Option[String]]("flyway-encoding", "The encoding of Sql migrations. (default: UTF-8)")
-  val flywaySqlMigrationPrefix = SettingKey[Option[String]]("flyway-sqlMigrationPrefix", "The file name prefix for Sql migrations (default: V) ")
-  val flywaySqlMigrationSuffix = SettingKey[Option[String]]("flyway-sqlMigrationSuffix", "The file name suffix for Sql migrations (default: .sql)")
-  val flywayCleanOnValidationError = SettingKey[Option[Boolean]]("flyway-cleanOnValidationError", "Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/> This is exclusively intended as a convenience for development. Even tough we strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you back to the state checked into SCM. Warning ! Do not enable in production !")
+  val flywaySqlMigrationPrefix = SettingKey[Option[String]]("flyway-sql-migration-prefix", "The file name prefix for Sql migrations (default: V) ")
+  val flywaySqlMigrationSuffix = SettingKey[Option[String]]("flyway-sql-migration-suffix", "The file name suffix for Sql migrations (default: .sql)")
+  val flywayCleanOnValidationError = SettingKey[Option[Boolean]]("flyway-clean-on-validation-error", "Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/> This is exclusively intended as a convenience for development. Even tough we strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you back to the state checked into SCM. Warning ! Do not enable in production !")
   val flywayTarget = SettingKey[Option[String]]("flyway-target", "The target version up to which Flyway should run migrations. Migrations with a higher version number will not be  applied. (default: the latest version)")
   val flywayOutOfOrder = SettingKey[Option[String]]("flyway-outOfOrder", "Allows migrations to be run \"out of order\" (default: {@code false}). If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.")
 
@@ -138,7 +138,6 @@ object FlywayPlugin extends Plugin {
     },
     flywayMigrate <<= (fullClasspath in Runtime, flyway, streams, flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
       (cp, flyway, s, ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
-        cp.foreach(e => s.log.info("cp entry %s" format(e)))
         withContextClassLoader(cp) {
           redirectLogger(s)
           ignoreFailedFutureMigration map (flyway.setIgnoreFailedFutureMigration(_))
