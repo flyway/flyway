@@ -62,7 +62,6 @@
         <module>flyway-ant</module>
         <module>flyway-ant-largetest</module>
         <module>flyway-sbt-plugin</module>
-        <module>flyway-sample-sbt</module>
     </modules>
 
     <distributionManagement>

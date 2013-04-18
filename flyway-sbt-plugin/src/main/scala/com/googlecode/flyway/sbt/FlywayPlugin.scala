@@ -46,7 +46,7 @@ object FlywayPlugin extends Plugin {
   // common settings for migration loading tasks (used by migrate, validate, info)
   //*********************
 
-  val flywayLocations = SettingKey[Option[Seq[String]]]("flyway-locations", "Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
+  val flywayLocations = SettingKey[Seq[String]]("flyway-locations", "Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
   val flywayEncoding = SettingKey[Option[String]]("flyway-encoding", "The encoding of Sql migrations. (default: UTF-8)")
   val flywaySqlMigrationPrefix = SettingKey[Option[String]]("flyway-sqlMigrationPrefix", "The file name prefix for Sql migrations (default: V) ")
   val flywaySqlMigrationSuffix = SettingKey[Option[String]]("flyway-sqlMigrationSuffix", "The file name suffix for Sql migrations (default: .sql)")
@@ -90,12 +90,12 @@ object FlywayPlugin extends Plugin {
 
   lazy val flywaySettings :Seq[Setting[_]] = Seq[Setting[_]](
     flywayDriver := None,
-    flywayLocations := None,
+    flywayLocations := Seq("db/migration"),
     flywaySchemas := None,
     flywayTable := None,
     flywayInitVersion := None,
     flywayInitDescription := None,
-    flywayLocations := None,
+    flywayLocations := Seq("db/migration"),
     flywayEncoding := None,
     flywaySqlMigrationPrefix := None,
     flywaySqlMigrationSuffix := None,
@@ -127,7 +127,7 @@ object FlywayPlugin extends Plugin {
           table map (flyway.setTable(_))
           initVersion map (flyway.setInitVersion(_))
           initDescription map (flyway.setInitDescription(_))
-          locations map (flyway.setLocations(_: _*))
+          flyway.setLocations(locations: _*)
           encoding map (flyway.setEncoding(_))
           sqlMigrationPrefix map (flyway.setSqlMigrationPrefix(_))
           sqlMigrationSuffix map (flyway.setSqlMigrationSuffix(_))
@@ -138,6 +138,7 @@ object FlywayPlugin extends Plugin {
     },
     flywayMigrate <<= (fullClasspath in Runtime, flyway, streams, flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
       (cp, flyway, s, ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
+        cp.foreach(e => s.log.info("cp entry %s" format(e)))
         withContextClassLoader(cp) {
           redirectLogger(s)
           ignoreFailedFutureMigration map (flyway.setIgnoreFailedFutureMigration(_))
