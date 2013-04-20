@@ -164,7 +164,7 @@ public class StringUtils {
     }
 
     /**
-     * Checks whether this string contains at least one non-blank character.
+     * Checks whether this string isn't {@code null} and contains at least one non-blank character.
      *
      * @param s The string to check.
      * @return {@code true} if it has text, {@code false} if not.
