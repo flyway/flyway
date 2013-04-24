@@ -196,6 +196,16 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public List<AppliedMigration> allAppliedMigrations() {
+        return findAppliedMigrations();
+    }
+
+    /**
+     * Retrieve the applied migrations from the metadata table.
+     *
+     * @param migrationTypes The specific migration types to look for. (Optional) None means find all migrations.
+     * @return The applied migrations.
+     */
+    private List<AppliedMigration> findAppliedMigrations(MigrationType... migrationTypes) {
         if (!table.existsNoQuotes() && !table.exists()) {
             return new ArrayList<AppliedMigration>();
         }
@@ -213,8 +223,20 @@ public class MetaDataTableImpl implements MetaDataTable {
                 + "," + dbSupport.quote("installed_by")
                 + "," + dbSupport.quote("execution_time")
                 + "," + dbSupport.quote("success")
-                + " FROM " + table
-                + " ORDER BY " + dbSupport.quote("version_rank");
+                + " FROM " + table;
+
+        if (migrationTypes.length > 0) {
+            query += " WHERE " + dbSupport.quote("type") + " IN (";
+            for (int i = 0; i < migrationTypes.length; i++) {
+                if (i > 0) {
+                    query += ",";
+                }
+                query += "'" + migrationTypes[i] + "'";
+            }
+            query += ")";
+        }
+
+        query += " ORDER BY " + dbSupport.quote("version_rank");
 
         try {
             return jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
@@ -332,6 +354,11 @@ public class MetaDataTableImpl implements MetaDataTable {
         } catch (SQLException e) {
             throw new FlywayException("Unable to check whether the metadata table " + table + " has an init marker migration", e);
         }
+    }
+
+    public AppliedMigration getInitMarker() {
+        List<AppliedMigration> appliedMigrations = findAppliedMigrations(MigrationType.INIT);
+        return appliedMigrations.isEmpty() ? null : appliedMigrations.get(0);
     }
 
     public boolean hasAppliedMigrations() {

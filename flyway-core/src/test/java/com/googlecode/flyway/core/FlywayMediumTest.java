@@ -15,9 +15,7 @@
  */
 package com.googlecode.flyway.core;
 
-import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationState;
-import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.api.*;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -143,6 +141,57 @@ public class FlywayMediumTest {
         assertEquals(1, flyway.info().all().length);
         assertEquals("1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+    }
+
+    @Test
+    public void initAgainWithSameVersion() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_init_same;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql");
+        flyway.setInitVersion("0.5");
+        flyway.init();
+        flyway.init();
+
+        assertEquals(1, flyway.info().applied().length);
+        MigrationInfo current = flyway.info().current();
+        assertEquals("0.5", current.getVersion().toString());
+        assertEquals(MigrationType.INIT, current.getType());
+        assertEquals(MigrationState.SUCCESS, current.getState());
+    }
+
+    @Test(expected = FlywayException.class)
+    public void initAgainWithDifferentVersion() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_init_different;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.init();
+
+        flyway.setInitVersion("2");
+        flyway.init();
+    }
+
+    @Test
+    public void initOnMigrateOnCleanOnValidate() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_init_validate;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setSchemas("new1");
+        flyway.setLocations("migration/validate");
+        flyway.migrate();
+
+        flyway.setCleanOnValidationError(true);
+        flyway.setValidateOnMigrate(true);
+        flyway.setSqlMigrationPrefix("CheckValidate");
+        flyway.migrate();
+
+        assertEquals("1", flyway.info().current().getVersion().toString());
     }
 
     @Test
