@@ -5,7 +5,6 @@
         <artifactId>flyway-parent</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-maven-plugin</artifactId>
     <version>2.2-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>

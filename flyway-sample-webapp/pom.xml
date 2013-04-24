@@ -5,7 +5,6 @@
         <artifactId>flyway-parent</artifactId>
         <version>2.2-SNAPSHOT</version>
     </parent>
-    <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-sample-webapp</artifactId>
     <version>2.2-SNAPSHOT</version>
     <packaging>war</packaging>
