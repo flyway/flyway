@@ -24,7 +24,7 @@ CREATE PROCEDURE AddData()
   BEGIN
     INSERT INTO test_data (value) VALUES ('Hello');
   END //
-DELIMITER;
+DELIMITER ;
 
 CALL AddData();
 
