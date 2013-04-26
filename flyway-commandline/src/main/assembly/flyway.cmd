@@ -32,7 +32,11 @@ if "%JAVA_HOME%"=="" (
 )
 
 @REM Detect the width of the console
-for /F "usebackq tokens=2* delims=: " %%W in (`mode con ^| findstr Columns`) do set CONSOLE_WIDTH=%%W
+for /F "usebackq tokens=2* skip=4 delims=: " %%A in (`mode con`) do (
+  set CONSOLE_WIDTH=%%A
+  goto ExitLoop
+)
+:ExitLoop
 
 %JAVA_CMD% -cp bin\flyway-commandline-${project.version}.jar;bin\flyway-core-${project.version}.jar com.googlecode.flyway.commandline.Main %* -consoleWidth=%CONSOLE_WIDTH%
 
