@@ -84,7 +84,6 @@
         <path id="flyway.classpath">
             <fileset dir="target/jar" includes="flyway-sample.jar"/>
         </path>
-        <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
         <property name="flyway.url" value="jdbc:hsqldb:file:target/db/flyway_sample;shutdown=true"/>
         <property name="flyway.user" value="SA"/>
         <property name="flyway.locations" value="db/migration,com.googlecode.flyway.sample.migration"/>

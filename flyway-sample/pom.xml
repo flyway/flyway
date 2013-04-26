@@ -39,10 +39,10 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <configuration>
-                    <driver>org.hsqldb.jdbcDriver</driver>
                     <url>jdbc:hsqldb:file:${project.build.directory}/db/flyway_sample;shutdown=true</url>
                     <user>SA</user>
                     <locations>
+                        <location>db/migration</location>
                         <location>com.googlecode.flyway.sample.migration</location>
                     </locations>
                 </configuration>
