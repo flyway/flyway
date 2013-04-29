@@ -39,22 +39,22 @@ public class AntLog implements Log {
 
     public void debug(String message) {
         Task task = antProject.getThreadTask(Thread.currentThread());
-        antProject.log(task, message, null, Project.MSG_VERBOSE);
+        antProject.log(task, message, Project.MSG_VERBOSE);
     }
 
     public void info(String message) {
         Task task = antProject.getThreadTask(Thread.currentThread());
-        antProject.log(task, message, null, Project.MSG_INFO);
+        antProject.log(task, message, Project.MSG_INFO);
     }
 
     public void warn(String message) {
         Task task = antProject.getThreadTask(Thread.currentThread());
-        antProject.log(task, message, null, Project.MSG_WARN);
+        antProject.log(task, message, Project.MSG_WARN);
     }
 
     public void error(String message) {
         Task task = antProject.getThreadTask(Thread.currentThread());
-        antProject.log(task, message, null, Project.MSG_ERR);
+        antProject.log(task, message, Project.MSG_ERR);
     }
 
     public void error(String message, Exception e) {
