@@ -1,4 +1,4 @@
-flyway
+flyway [![Build Status](https://travis-ci.org/flyway/flyway.png)](https://travis-ci.org/flyway/flyway)
 ======
 
 Flyway - The Agile Database Migration Framework for Java
