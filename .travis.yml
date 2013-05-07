@@ -1,4 +1,5 @@
 language: java
-jdk: oraclejdk7
+jdk:
+  - oraclejdk7
 before_script: "chmod +x flyway-osgi-largetest/target/install/run.sh"
 script: "mvn test -P-MediumTests"
