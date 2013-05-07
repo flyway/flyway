@@ -32,7 +32,7 @@ while [ -h "$PRG" ] ; do
 done
 
 # Set the current directory to the installation directory
-INSTALLDIR=`dirname $PRG`
+INSTALLDIR=`dirname "$PRG"`
 cd "$INSTALLDIR"
 
 # Use JAVA_HOME if it is set
