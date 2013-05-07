@@ -47,7 +47,7 @@ public class SQLServerDbSupport extends DbSupport {
     }
 
     public String getCurrentUserFunction() {
-        return "SUSER_NAME()";
+        return "SUSER_SNAME()";
     }
 
     @Override

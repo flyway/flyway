@@ -44,13 +44,13 @@ public class CommandLineLargeTest {
 
     @Test
     public void migrateWithCustomLocations() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=filesystem:" + new File(getInstallDir()).getAbsolutePath() + "/sql/migrations");
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=filesystem:" + getInstallDir() + "/sql/migrations");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 
     @Test
     public void exitCodeForFailedMigration() throws Exception {
-        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=filesystem:" + new File(getInstallDir()).getAbsolutePath() + "/sql/invalid");
+        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=filesystem:" + getInstallDir() + "/sql/invalid");
         assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 failed!"));
     }
 
