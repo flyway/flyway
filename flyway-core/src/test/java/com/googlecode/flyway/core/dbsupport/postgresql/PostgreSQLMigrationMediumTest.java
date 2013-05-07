@@ -185,4 +185,15 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         assertEquals(1, jdbcTemplate.queryForInt("select count(*) from address"));
     }
+
+    /**
+     * Tests that the lock on SCHEMA_VERSION is not blocking SQL commands in migrations. This test won't fail if there's
+     * a too restrictive lock - it would just hang endlessly.
+     */
+    @Test
+    public void lock() {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/lock");
+        flyway.migrate();
+    }
+
 }

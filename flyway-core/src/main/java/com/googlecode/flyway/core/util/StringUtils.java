@@ -192,11 +192,11 @@ public class StringUtils {
     }
 
     /**
-     * Counts the number of occurances of this token in this string.
+     * Counts the number of occurrences of this token in this string.
      *
      * @param str   The string to analyse.
      * @param token The token to look for.
-     * @return The number of occurances.
+     * @return The number of occurrences.
      */
     public static int countOccurrencesOf(String str, String token) {
         if (str == null || token == null || str.length() == 0 || token.length() == 0) {
