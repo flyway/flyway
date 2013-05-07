@@ -93,15 +93,12 @@ public class AntLargeTest {
      * @throws Exception When the execution failed.
      */
     protected String runAnt(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
-        String antHome = System.getenv("ANT_HOME");
-
-        String extension = "";
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            extension = ".bat";
-        }
-
         List<String> args = new ArrayList<String>();
-        args.add(antHome + "/bin/ant" + extension);
+        args.add("java");
+        args.add("-Dant.home=" + getInstallDir() + "/ant");
+        args.add("-cp");
+        args.add(getInstallDir() + "/ant/*");
+        args.add("org.apache.tools.ant.launch.Launcher");
         // enable for debug
         // args.add("-d");
         args.add("clean");
