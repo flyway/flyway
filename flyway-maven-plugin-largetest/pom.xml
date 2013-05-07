@@ -21,18 +21,48 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>apache-maven</artifactId>
+            <version>2.2.1</version>
+            <classifier>bin</classifier>
+            <type>zip</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>apache-maven</artifactId>
+            <version>3.0.5</version>
+            <classifier>bin</classifier>
+            <type>tar.gz</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pre-largetest-unpack</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>apache-maven</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/install</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <includes>
@@ -44,7 +74,7 @@
                     </excludes>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
-                        <installDir>${project.build.directory}/test-classes</installDir>
+                        <installDir>${project.build.directory}</installDir>
                         <flywayVersion>${project.version}</flywayVersion>
                     </systemPropertyVariables>
                     <parallel>none</parallel>

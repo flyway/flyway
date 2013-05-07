@@ -36,13 +36,13 @@ import static org.junit.Assert.assertTrue;
  * Large Test for the Flyway Maven Plugin.
  */
 @SuppressWarnings({"JavaDoc"})
-public class MavenLargeTest {
+public abstract class MavenTestCase {
+    private String installDir = System.getProperty("installDir", "flyway-maven-plugin-largetest/target");
+
     /**
      * The installation directory for the test POMs.
      */
-    private String installDir =
-            new File(System.getProperty("installDir",
-                    "flyway-maven-plugin-largetest/target/test-classes")).getAbsolutePath();
+    private String pomInstallDir = new File(installDir + "/test-classes").getAbsolutePath();
 
     @Test
     public void regular() throws Exception {
@@ -59,7 +59,7 @@ public class MavenLargeTest {
 
     @Test
     public void settings() throws Exception {
-        String stdOut = runMaven(0, "settings", "clean", "compile", "flyway:init", "flyway:status", "-s", installDir + "/settings/settings.xml");
+        String stdOut = runMaven(0, "settings", "clean", "compile", "flyway:init", "flyway:status", "-s", pomInstallDir + "/settings/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
@@ -68,7 +68,7 @@ public class MavenLargeTest {
      */
     @Test
     public void settingsDefault() throws Exception {
-        String stdOut = runMaven(0, "settings-default", "clean", "compile", "flyway:init", "flyway:status", "-s", installDir + "/settings-default/settings.xml");
+        String stdOut = runMaven(0, "settings-default", "clean", "compile", "flyway:init", "flyway:status", "-s", pomInstallDir + "/settings-default/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
@@ -77,7 +77,7 @@ public class MavenLargeTest {
      */
     @Test
     public void settingsEncrypted() throws Exception {
-        String dir = installDir + "/settings-encrypted";
+        String dir = pomInstallDir + "/settings-encrypted";
         String stdOut = runMaven(0, "settings-encrypted", "clean", "sql:execute", "flyway:init",
                 "-s=" + dir + "/settings.xml",
                 "-Dsettings.security=" + dir + "/settings-security.xml");
@@ -106,7 +106,6 @@ public class MavenLargeTest {
      * @throws Exception When the execution failed.
      */
     private String runMaven(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
-        String m2Home = System.getenv("M2_HOME");
         String flywayVersion = System.getProperty("flywayVersion", getPomVersion());
 
         String extension = "";
@@ -114,15 +113,18 @@ public class MavenLargeTest {
             extension = ".bat";
         }
 
+        String mavenHome = installDir + "/install/apache-maven-" + getMavenVersion();
+
         List<String> args = new ArrayList<String>();
-        args.add(m2Home + "/bin/mvn" + extension);
+        args.add(mavenHome + "/bin/mvn" + extension);
         args.add("-Dflyway.version=" + flywayVersion);
         //args.add("-X");
         args.addAll(Arrays.asList(extraArgs));
 
         ProcessBuilder builder = new ProcessBuilder(args);
-        builder.directory(new File(installDir + "/" + dir));
+        builder.directory(new File(pomInstallDir + "/" + dir));
         builder.redirectErrorStream(true);
+        builder.environment().put("M2_HOME", mavenHome);
 
         Process process = builder.start();
         String stdOut = FileCopyUtils.copyToString(new InputStreamReader(process.getInputStream(), "UTF-8"));
@@ -156,4 +158,9 @@ public class MavenLargeTest {
             throw new IllegalStateException("Unable to read POM version", e);
         }
     }
+
+    /**
+     * @return The Maven version to test against.
+     */
+    protected abstract String getMavenVersion();
 }
