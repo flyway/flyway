@@ -15,8 +15,14 @@
  */
 package com.googlecode.flyway.core.util;
 
+import com.googlecode.flyway.core.api.FlywayException;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Tool for replacing placeholders.
@@ -43,6 +49,11 @@ public class PlaceholderReplacer {
     private final String placeholderSuffix;
 
     /**
+     * The regexp which is used to find placeholder expressions.
+     */
+    private final Pattern placeHolderRegexp;
+
+    /**
      * Creates a new PlaceholderReplacer.
      *
      * @param placeholders      A map of <placeholder, replacementValue> to apply to sql migration scripts.
@@ -53,6 +64,8 @@ public class PlaceholderReplacer {
         this.placeholders = placeholders;
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
+        this.placeHolderRegexp = Pattern.compile(Pattern.quote(placeholderPrefix) + "(.*?)" +
+                Pattern.quote(placeholderSuffix));
     }
 
     /**
@@ -65,11 +78,62 @@ public class PlaceholderReplacer {
     public String replacePlaceholders(String input) {
         String noPlaceholders = input;
 
+        checkForUnmatchedPlaceholderExpression(input);
         for (String placeholder : placeholders.keySet()) {
             String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
             noPlaceholders = StringUtils.replaceAll(noPlaceholders, searchTerm, placeholders.get(placeholder));
         }
 
         return noPlaceholders;
+    }
+
+    /**
+     * Check for unmatched placeholder expressions in the input string and throw
+     * a FlywayException if they do not have corresponding values.
+     *
+     * @param input The input string.
+     *
+     * @throws FlywayException An exception listing the unmatched expressions.
+     */
+    private void checkForUnmatchedPlaceholderExpression(String input){
+        List<String> placeHolderExpressions = findPlaceholdersExpressions(input);
+        placeHolderExpressions.removeAll(placeholders.keySet());
+        if(!placeHolderExpressions.isEmpty()){
+            String msg = buildUnmatchedPlaceholdersErrorMsg(placeHolderExpressions);
+            throw new FlywayException(msg);
+        }
+
+    }
+
+    /**
+     * Finds all placeholder expressions in a given input string.
+     *
+     * @param input The input to search.
+     *
+     * @return The list of placeholders (without the enclosing prefix or suffix).
+     */
+    private List<String> findPlaceholdersExpressions(String input) {
+        List<String> matches = new ArrayList();
+        Matcher matcher = placeHolderRegexp.matcher(input);
+        while(matcher.find()){
+            matches.add(matcher.group(1));
+        }
+        return matches;
+    }
+
+
+    /**
+     * Build the error message when unmatched placeholder expressions exist.
+     *
+     * @param placeHolderExpressions The placeholder expressions found in the script.
+     *
+     * @return The error message.
+     */
+    private String buildUnmatchedPlaceholdersErrorMsg(List<String> placeHolderExpressions) {
+        String msg = "No value provided for placeholder expressions: ";
+        for(String placeHolderExpression:placeHolderExpressions) {
+            msg = msg + placeholderPrefix + placeHolderExpression + placeholderSuffix + ", ";
+        }
+        return msg.replaceAll(", $","") + ".  Check your configuration!";
     }
 }

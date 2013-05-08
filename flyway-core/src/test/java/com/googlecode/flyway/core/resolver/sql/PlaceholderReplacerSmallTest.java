@@ -15,9 +15,13 @@
  */
 package com.googlecode.flyway.core.resolver.sql;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +31,9 @@ import static org.junit.Assert.assertEquals;
  * Testcase for PlaceholderReplacer.
  */
 public class PlaceholderReplacerSmallTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     /**
      * Test string to check functionality.
      */
@@ -54,5 +61,16 @@ public class PlaceholderReplacerSmallTest {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "#[", "]");
 
         assertEquals("No ${placeholder} right to ${replace}", placeholderReplacer.replacePlaceholders(TEST_STR));
+    }
+
+
+
+    @Test
+    public void unmatchedPlaceholders() throws FlywayException {
+        thrown.expect(FlywayException.class);
+        thrown.expectMessage("No value provided for placeholder expressions: ${placeholder}, ${replace}.  Check your configuration!");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        placeholderReplacer.replacePlaceholders(TEST_STR);
     }
 }
