@@ -17,10 +17,7 @@ package com.googlecode.flyway.core.util;
 
 import com.googlecode.flyway.core.api.FlywayException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,7 +93,7 @@ public class PlaceholderReplacer {
      * @throws FlywayException An exception listing the unmatched expressions.
      */
     private void checkForUnmatchedPlaceholderExpression(String input){
-        List<String> placeHolderExpressions = findPlaceholdersExpressions(input);
+        List<String> placeHolderExpressions = findPlaceholderExpressions(input);
         placeHolderExpressions.removeAll(placeholders.keySet());
         if(!placeHolderExpressions.isEmpty()){
             String msg = buildUnmatchedPlaceholdersErrorMsg(placeHolderExpressions);
@@ -106,19 +103,21 @@ public class PlaceholderReplacer {
     }
 
     /**
-     * Finds all placeholder expressions in a given input string.
+     * Finds all placeholders referenced in placeholder expressions in a given input string.
      *
      * @param input The input to search.
      *
-     * @return The list of placeholders (without the enclosing prefix or suffix).
+     * @return The sorted list of unique placeholder names referenced in the input.
      */
-    private List<String> findPlaceholdersExpressions(String input) {
+    private List<String> findPlaceholderExpressions(String input) {
         List<String> matches = new ArrayList();
         Matcher matcher = placeHolderRegexp.matcher(input);
         while(matcher.find()){
             matches.add(matcher.group(1));
         }
-        return matches;
+        List unmatched = new ArrayList<String>(new HashSet<String>(matches));
+        Collections.sort(unmatched);
+        return unmatched;
     }
 
 

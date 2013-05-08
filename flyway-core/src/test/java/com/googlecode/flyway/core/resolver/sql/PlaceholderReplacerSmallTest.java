@@ -73,4 +73,13 @@ public class PlaceholderReplacerSmallTest {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
         placeholderReplacer.replacePlaceholders(TEST_STR);
     }
+
+    @Test
+    public void unmatchedPlaceholdersWithMultipleOccurences() throws FlywayException {
+        thrown.expect(FlywayException.class);
+        thrown.expectMessage("No value provided for placeholder expressions: ${placeholder}, ${replace}.  Check your configuration!");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        placeholderReplacer.replacePlaceholders(TEST_STR + TEST_STR);
+    }
 }
