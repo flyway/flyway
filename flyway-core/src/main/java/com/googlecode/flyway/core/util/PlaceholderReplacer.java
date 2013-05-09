@@ -61,7 +61,7 @@ public class PlaceholderReplacer {
         this.placeholders = placeholders;
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
-        this.placeHolderRegexp = Pattern.compile(Pattern.quote(placeholderPrefix) + "(.*?)" +
+        this.placeHolderRegexp = Pattern.compile(Pattern.quote(placeholderPrefix) + "(.+?)" +
                 Pattern.quote(placeholderSuffix));
     }
 
@@ -93,11 +93,13 @@ public class PlaceholderReplacer {
      * @throws FlywayException An exception listing the unmatched expressions.
      */
     private void checkForUnmatchedPlaceholderExpression(String input){
-        List<String> placeHolderExpressions = findPlaceholderExpressions(input);
-        placeHolderExpressions.removeAll(placeholders.keySet());
-        if(!placeHolderExpressions.isEmpty()){
-            String msg = buildUnmatchedPlaceholdersErrorMsg(placeHolderExpressions);
-            throw new FlywayException(msg);
+        if(! (this == NO_PLACEHOLDERS)){
+            List<String> placeHolderExpressions = findPlaceholderExpressions(input);
+            placeHolderExpressions.removeAll(placeholders.keySet());
+            if(!placeHolderExpressions.isEmpty()){
+                String msg = buildUnmatchedPlaceholdersErrorMsg(placeHolderExpressions);
+                throw new FlywayException(msg);
+            }
         }
 
     }
@@ -112,12 +114,14 @@ public class PlaceholderReplacer {
     private List<String> findPlaceholderExpressions(String input) {
         List<String> matches = new ArrayList();
         Matcher matcher = placeHolderRegexp.matcher(input);
+
         while(matcher.find()){
-            matches.add(matcher.group(1));
+            if(!matches.contains(matcher.group(1)))
+                matches.add(matcher.group(1));
         }
-        List unmatched = new ArrayList<String>(new HashSet<String>(matches));
-        Collections.sort(unmatched);
-        return unmatched;
+
+        Collections.sort(matches);
+        return matches;
     }
 
 

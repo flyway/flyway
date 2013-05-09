@@ -48,10 +48,11 @@ public class PlaceholderReplacerSmallTest {
     public void antStylePlaceholders() {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("placeholder", "value");
+        placeholders.put("replace", "be replaced");
         placeholders.put("dummy", "shouldNotAppear");
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
-        assertEquals("No value #[left] to ${replace}", placeholderReplacer.replacePlaceholders(TEST_STR));
+        assertEquals("No value #[left] to be replaced", placeholderReplacer.replacePlaceholders(TEST_STR));
     }
 
     @Test
