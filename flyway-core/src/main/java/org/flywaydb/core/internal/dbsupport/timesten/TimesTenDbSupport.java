@@ -19,7 +19,6 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
-import org.flywaydb.core.internal.dbsupport.oracle.OracleSqlStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -38,9 +37,13 @@ public class TimesTenDbSupport extends DbSupport {
         super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
+	@Override
+	public String getDbName() {
+		return "timesten";
+	}
 
-    public String getDbName() {
-        return "timesten";
+    public String getScriptLocation() {
+        return "org/flywaydb/core/internal/dbsupport/timesten";
     }
 
     public String getCurrentUserFunction() {
@@ -70,7 +73,7 @@ public class TimesTenDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new OracleSqlStatementBuilder();
+        return new TimesTenSqlStatementBuilder();
     }
 
     @Override

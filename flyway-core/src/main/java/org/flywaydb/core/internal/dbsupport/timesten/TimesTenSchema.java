@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.timesten;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -29,7 +30,7 @@ import java.util.List;
 /**
  * TimesTen implementation of Schema.
  */
-public class TimesTenSchema extends Schema<TimesTenDbSupport> {
+public class TimesTenSchema extends Schema {
     private static final Log LOG = LogFactory.getLog(TimesTenSchema.class);
 
     /**
@@ -39,7 +40,7 @@ public class TimesTenSchema extends Schema<TimesTenDbSupport> {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public TimesTenSchema(JdbcTemplate jdbcTemplate, TimesTenDbSupport dbSupport, String name) {
+    public TimesTenSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -66,9 +67,19 @@ public class TimesTenSchema extends Schema<TimesTenDbSupport> {
 
     @Override
     protected void doClean() throws SQLException {
+        if ("SYSTEM".equals(name.toUpperCase())) {
+            throw new FlywayException("Clean not supported on TimesTen for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
+        }
 
+        jdbcTemplate.execute("PURGE RECYCLEBIN");
 
-        for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
+        for (String statement : generateDropStatementsForSpatialExtensions()) {
+            jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : generateDropStatementsForQueueTables()) {
+            //for dropping queue tables, a special grant is required:
+            //GRANT EXECUTE ON DBMS_AQADM TO flyway;
             jdbcTemplate.execute(statement);
         }
 
@@ -96,12 +107,20 @@ public class TimesTenSchema extends Schema<TimesTenDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : generateDropStatementsForObjectType("VIEW", "CASCADE")) {
+        for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
+            jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS")) {
             jdbcTemplate.execute(statement);
         }
 
         for (Table table : allTables()) {
             table.drop();
+        }
+
+        for (String statement : generateDropStatementsForXmlTables()) {
+            jdbcTemplate.execute(statement);
         }
 
         for (String statement : generateDropStatementsForObjectType("TYPE", "FORCE")) {
@@ -110,15 +129,50 @@ public class TimesTenSchema extends Schema<TimesTenDbSupport> {
     }
 
     /**
+     * Generates the drop statements for all xml tables.
+     *
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForXmlTables() throws SQLException {
+        List<String> dropStatements = new ArrayList<String>();
+
+        if (!xmlDBExtensionsAvailable()) {
+            LOG.debug("TimesTen XML DB Extensions are not available. No cleaning of XML tables.");
+            return dropStatements;
+        }
+
+        List<String> objectNames =
+                jdbcTemplate.queryForStringList("SELECT table_name FROM all_xml_tables WHERE owner = ?", name);
+        for (String objectName : objectNames) {
+            dropStatements.add("DROP TABLE " + dbSupport.quote(name, objectName) + " PURGE");
+        }
+        return dropStatements;
+    }
+
+    /**
+     * Checks whether TimesTen XML DB extensions are available or not.
+     *
+     * @return {@code true} if they are available, {@code false} if not.
+     * @throws SQLException when checking availability of the extensions failed.
+     */
+    private boolean xmlDBExtensionsAvailable() throws SQLException {
+        return (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username = 'XDB'") > 0)
+                && (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE view_name = 'RESOURCE_VIEW'") > 0);
+    }
+
+    /**
      * Generates the drop statements for all database objects of this type.
      *
      * @param objectType     The type of database object to drop.
      * @param extraArguments The extra arguments to add to the drop statement.
      * @return The complete drop statements, ready to execute.
-     * @throws java.sql.SQLException when the drop statements could not be generated.
+     * @throws SQLException when the drop statements could not be generated.
      */
     private List<String> generateDropStatementsForObjectType(String objectType, String extraArguments) throws SQLException {
-        String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?";
+        String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?"
+                // Ignore Spatial Index Sequences as they get dropped automatically when the index gets dropped.
+                + " AND object_name NOT LIKE 'MDRS_%$'";
 
         List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, name);
         List<String> dropStatements = new ArrayList<String>();
@@ -128,12 +182,84 @@ public class TimesTenSchema extends Schema<TimesTenDbSupport> {
         return dropStatements;
     }
 
+    /**
+     * Generates the drop statements for TimesTen Spatial Extensions-related database objects.
+     *
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForSpatialExtensions() throws SQLException {
+        List<String> statements = new ArrayList<String>();
 
+        if (!spatialExtensionsAvailable()) {
+            LOG.debug("TimesTen Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
+            return statements;
+        }
+        if (!dbSupport.getCurrentSchema().getName().equalsIgnoreCase(name)) {
+            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", name);
+            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", name);
+            if (count > 0) {
+                LOG.warn("Unable to clean TimesTen Spatial objects for schema '" + name + "' as they do not belong to the default schema for this connection!");
+            }
+            return statements;
+        }
+
+
+        statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
+
+        List<String> indexNames = jdbcTemplate.queryForStringList("select INDEX_NAME from USER_SDO_INDEX_INFO");
+        for (String indexName : indexNames) {
+            statements.add("DROP INDEX \"" + indexName + "\"");
+        }
+
+        return statements;
+    }
+
+    /**
+     * Generates the drop statements for queue tables.
+     *
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForQueueTables() throws SQLException {
+        List<String> statements = new ArrayList<String>();
+
+        List<String> queueTblNames = jdbcTemplate.queryForStringList("select QUEUE_TABLE from USER_QUEUE_TABLES");
+        for (String queueTblName : queueTblNames) {
+            statements.add("begin DBMS_AQADM.drop_queue_table (queue_table=> '" + queueTblName + "', FORCE => TRUE); end;");
+        }
+
+        return statements;
+    }
+
+    /**
+     * Checks whether TimesTen Spatial extensions are available or not.
+     *
+     * @return {@code true} if they are available, {@code false} if not.
+     * @throws SQLException when checking availability of the spatial extensions failed.
+     */
+    private boolean spatialExtensionsAvailable() throws SQLException {
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE owner = 'MDSYS' AND view_name = 'USER_SDO_GEOM_METADATA'") > 0;
+    }
 
     @Override
     protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
-                "SELECT table_name FROM all_tables WHERE owner = ?", name);
+                "SELECT table_name FROM all_tables WHERE owner = ?"
+                        // Ignore Recycle bin objects
+                        + " AND table_name NOT LIKE 'BIN$%'"
+                        // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
+                        + " AND table_name NOT LIKE 'MDRT_%$'"
+                        // Ignore Materialized View Logs
+                        + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
+                        // Ignore TimesTen Text Index Tables
+                        + " AND table_name NOT LIKE 'DR$%'"
+                        // Ignore Index Organized Tables
+                        + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
+                        // Ignore Nested Tables
+                        + " AND nested != 'YES'"
+                        // Ignore Nested Tables
+                        + " AND secondary != 'Y'", name);
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {

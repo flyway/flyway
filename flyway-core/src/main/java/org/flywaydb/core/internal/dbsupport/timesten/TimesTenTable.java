@@ -40,7 +40,7 @@ public class TimesTenTable extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE");
+        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE CONSTRAINTS PURGE");
     }
 
     @Override
@@ -50,6 +50,6 @@ public class TimesTenTable extends Table {
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.execute("SELECT * FROM " + this + " FOR UPDATE");
+		jdbcTemplate.execute("SELECT * FROM " + this + " FOR UPDATE");
     }
 }
