@@ -15,6 +15,10 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
@@ -31,10 +35,6 @@ import org.flywaydb.core.internal.dbsupport.timesten.TimesTenDbSupport;
 import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
-
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 
 /**
  * Factory for obtaining the correct DbSupport instance for the current connection.
@@ -103,15 +103,18 @@ public class DbSupportFactory {
                 return redshift;
             }
         }
+        if (databaseProductName.startsWith("TimesTen")) {
+        	return new TimesTenDbSupport(connection);
+        }
         if (databaseProductName.startsWith("PostgreSQL")) {
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-			if (getDatabaseProductVersion(connection).startsWith("DSN")){
-				return new DB2zosDbSupport(connection);
-			} else {
-				return new DB2DbSupport(connection);
-			}
+            if (getDatabaseProductVersion(connection).startsWith("DSN")){
+                return new DB2zosDbSupport(connection);
+            } else {
+                return new DB2DbSupport(connection);
+            }
         }
         if (databaseProductName.startsWith("Vertica")) {
             return new VerticaDbSupport(connection);
@@ -126,7 +129,6 @@ public class DbSupportFactory {
      * @param connection The Jdbc connection.
      * @return The Jdbc Url.
      */
-
     private static String getJdbcUrl(Connection connection) {
         try {
             return connection.getMetaData().getURL();
