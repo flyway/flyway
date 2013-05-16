@@ -80,6 +80,9 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
         }
+        if (databaseProductName.startsWith("TimesTen")) {
+        	return new TimesTenDbSupport(connection);
+        }
         if (databaseProductName.startsWith("PostgreSQL")) {
             return new PostgreSQLDbSupport(connection);
         }
