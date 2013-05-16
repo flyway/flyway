@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.postgresql;
+package com.googlecode.flyway.core.dbsupport.timesten;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.Table;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.Table;
 
 import java.sql.SQLException;
 
 /**
- * PostgreSQL-specific table.
+ * TimesTen-specific table.
  */
-public class PostgreSQLTable extends Table {
+public class TimesTenTable extends Table {
     /**
-     * Creates a new PostgreSQL table.
+     * Creates a new TimesTen table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param dbSupport    The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public PostgreSQLTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    public TimesTenTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
     }
 
@@ -46,6 +46,11 @@ public class PostgreSQLTable extends Table {
     @Override
     protected boolean doExists() throws SQLException {
         return exists(null, schema, name);
+    }
+
+    @Override
+    protected boolean doExistsNoQuotes() throws SQLException {
+        return exists(null, dbSupport.getSchema(schema.getName().toUpperCase()), name.toUpperCase());
     }
 
     @Override

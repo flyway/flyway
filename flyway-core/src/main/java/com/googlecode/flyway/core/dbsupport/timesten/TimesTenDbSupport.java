@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright (C) 2010-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,37 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.oracle;
+package com.googlecode.flyway.core.dbsupport.timesten;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * Oracle-specific support.
+ * TimesTen-specific support.
  */
-public class OracleDbSupport extends DbSupport {
+public class TimesTenDbSupport extends DbSupport {
     /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
      */
-    public OracleDbSupport(Connection connection) {
+    public TimesTenDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
-	@Override
-	public String getDbName() {
-		return "timesten";
-	}
 
-    public String getDbName() {
-        return "oracle";
+    public String getScriptLocation() {
+        return "com/googlecode/flyway/core/dbsupport/timesten/";
     }
 
     public String getCurrentUserFunction() {
@@ -83,7 +79,7 @@ public class OracleDbSupport extends DbSupport {
 
     @Override
     public Schema getSchema(String name) {
-        return new OracleSchema(jdbcTemplate, this, name);
+        return new TimesTenSchema(jdbcTemplate, this, name);
     }
 
     @Override

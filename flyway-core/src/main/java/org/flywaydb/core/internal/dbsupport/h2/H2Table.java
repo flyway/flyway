@@ -40,7 +40,7 @@ public class H2Table extends Table {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE");
+        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE CONSTRAINTS PURGE");
     }
 
     @Override
