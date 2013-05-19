@@ -50,7 +50,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Whether to skip the execution of the Maven Plugin for this module.<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.skip}</p>
      *
-     * @parameter expression="${flyway.skip}"
+     * @parameter property="flyway.skip"
      */
     /* private -> for testing */ boolean skip;
 
@@ -59,7 +59,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * By default, the driver is autodetected based on the url.<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.driver}</p>
      *
-     * @parameter expression="${flyway.driver}"
+     * @parameter property="flyway.driver"
      */
     /* private -> for testing */ String driver;
 
@@ -67,7 +67,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The jdbc url to use to connect to the database.<br>
      * <p>Also configurable with Maven or System Property: ${flyway.url}</p>
      *
-     * @parameter expression="${flyway.url}"
+     * @parameter property="flyway.url"
      * @required
      */
     /* private -> for testing */ String url;
@@ -77,7 +77,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The credentials can be specified by user/password or {@code serverId} from settings.xml
      * <p>Also configurable with Maven or System Property: ${flyway.user}</p>
      *
-     * @parameter expression="${flyway.user}"
+     * @parameter property="flyway.user"
      */
     /* private -> for testing */ String user;
 
@@ -85,7 +85,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The password to use to connect to the database. (default: <i>blank</i>)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.password}</p>
      *
-     * @parameter expression="${flyway.password}"
+     * @parameter property="flyway.password"
      */
     private String password;
 
@@ -100,7 +100,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * </ul>
      * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
      *
-     * @parameter expression="${flyway.schemas}"
+     * @parameter property="flyway.schemas"
      */
     private String[] schemas;
 
@@ -112,7 +112,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * the list. </p>
      * <p>Also configurable with Maven or System Property: ${flyway.table}</p>
      *
-     * @parameter expression="${flyway.table}"
+     * @parameter property="flyway.table"
      */
     private String table;
 
@@ -120,7 +120,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The version to tag an existing schema with when executing init. (default: 1)<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.initialVersion}</p>
      *
-     * @parameter expression="${flyway.initialVersion}"
+     * @parameter property="flyway.initialVersion"
      * @deprecated Use initVersion instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
@@ -130,7 +130,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.initialDescription}</p>
      *
-     * @parameter expression="${flyway.initialDescription}"
+     * @parameter property="flyway.initialDescription"
      * @deprecated Use initDescription instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
@@ -140,7 +140,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The version to tag an existing schema with when executing init. (default: 1)<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.initVersion}</p>
      *
-     * @parameter expression="${flyway.initVersion}"
+     * @parameter property="flyway.initVersion"
      */
     private String initVersion;
 
@@ -148,7 +148,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.initDescription}</p>
      *
-     * @parameter expression="${flyway.initDescription}"
+     * @parameter property="flyway.initDescription"
      */
     private String initDescription;
 
@@ -157,14 +157,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The credentials can be specified by user/password or {@code serverId} from settings.xml<br>
      * <p>Also configurable with Maven or System Property: ${flyway.serverId}</p>
      *
-     * @parameter expression="${flyway.serverId}"
+     * @parameter property="flyway.serverId"
      */
     private String serverId = "flyway-db";
 
     /**
      * The link to the settings.xml
      *
-     * @parameter expression="${settings}"
+     * @parameter property="settings"
      * @required
      * @readonly
      */
@@ -173,7 +173,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Reference to the current project that includes the Flyway Maven plugin.
      *
-     * @parameter expression="${project}" required="true"
+     * @parameter property="project" required="true"
      */
     protected MavenProject mavenProject;
 

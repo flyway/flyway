@@ -44,12 +44,12 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * bad migration. (default: false)
      * <p>Also configurable with Maven or System Property: ${flyway.ignoreFailedFutureMigration}</p>
      *
-     * @parameter expression="${flyway.ignoreFailedFutureMigration}"
+     * @parameter property="flyway.ignoreFailedFutureMigration"
      */
     private boolean ignoreFailedFutureMigration;
 
     /**
-     * A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      *
      * <p>Also configurable with Maven or System Properties like ${flyway.placeholders.myplaceholder} or ${flyway.placeholders.otherone}</p>
      *
@@ -61,7 +61,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * The prefix of every placeholder. (default: ${ )<br>
      *     <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
      *
-     * @parameter expression="${flyway.placeholderPrefix}"
+     * @parameter property="flyway.placeholderPrefix"
      */
     private String placeholderPrefix;
 
@@ -69,7 +69,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * The suffix of every placeholder. (default: } )<br>
      *     <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
      *
-     * @parameter expression="${flyway.placeholderSuffix}"
+     * @parameter property="flyway.placeholderSuffix"
      */
     private String placeholderSuffix;
 
@@ -79,7 +79,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * this! (default: false)<br/><p>Also configurable with Maven or System Property:
      * ${flyway.disableInitCheck}</p>
      *
-     * @parameter expression="${flyway.disableInitCheck}"
+     * @parameter property="flyway.disableInitCheck"
      * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
@@ -100,7 +100,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * </p>
      * <p>Also configurable with Maven or System Property: ${flyway.initOnMigrate}</p>
      *
-     * @parameter expression="${flyway.initOnMigrate}"
+     * @parameter property="flyway.initOnMigrate"
      */
     private boolean initOnMigrate;
 
@@ -111,7 +111,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * still has the same checksum as the sql migration already executed in the database.<br/> <p>Also configurable
      * with Maven or System Property: ${flyway.validationMode}</p>
      *
-     * @parameter expression="${flyway.validationMode}"
+     * @parameter property="flyway.validationMode"
      * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
@@ -121,7 +121,7 @@ public class MigrateMojo extends AbstractMigrationLoadingMojo {
      * Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.validationErrorMode}</p>
      *
-     * @parameter expression="${flyway.validateOnMigrate}"
+     * @parameter property="flyway.validateOnMigrate"
      */
     private boolean validateOnMigrate;
 

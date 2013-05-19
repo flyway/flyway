@@ -247,24 +247,16 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>2.3</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>2.7</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.4</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.9</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
@@ -272,14 +264,21 @@
                     <version>2.3.7</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.14.1</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.7</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>3.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-maven-plugin</artifactId>
+                    <version>1.3.8</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -306,7 +305,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
@@ -316,7 +314,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
@@ -327,7 +324,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1.2</version>
                 <executions>
@@ -361,7 +357,6 @@
                     <failIfMissing>true</failIfMissing>
                     <encoding>UTF-8</encoding>
                     <excludes>
-                        <exclude>.hg*</exclude>
                         <exclude>**/*.sh</exclude>
                         <exclude>**/*.txt</exclude>
                         <exclude>**/*.cnf</exclude>
@@ -374,6 +369,7 @@
                         <exclude>**/*.iws</exclude>
                         <exclude>.gitignore</exclude>
                         <exclude>.gitattributes</exclude>
+                        <exclude>.travis.yml</exclude>
                         <exclude>**/flyway</exclude>
                     </excludes>
                     <strictCheck>true</strictCheck>
@@ -388,7 +384,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <includes>
@@ -402,7 +397,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>
                 <executions>
@@ -432,7 +426,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <executions>
                             <execution>
@@ -496,7 +489,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.2</version>
                         <executions>
