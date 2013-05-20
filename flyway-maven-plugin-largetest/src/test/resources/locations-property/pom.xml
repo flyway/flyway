@@ -30,6 +30,9 @@
                     <driver>org.hsqldb.jdbcDriver</driver>
                     <url>jdbc:hsqldb:file:${project.build.directory}/db/flyway_sample;shutdown=true</url>
                     <user>SA</user>
+                    <placeholders>
+                        <name>Joe TestUser</name>
+                    </placeholders>
                 </configuration>
             </plugin>
             <plugin>
