@@ -156,6 +156,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${version.plugin.javadoc}</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <sourceFileIncludes>
