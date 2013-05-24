@@ -48,10 +48,12 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
                 || statementStart.startsWith("CREATE PROCEDURE")
                 || statementStart.startsWith("CREATE PACKAGE")
                 || statementStart.startsWith("CREATE TYPE")
+                || statementStart.startsWith("CREATE TRIGGER")
                 || statementStart.startsWith("CREATE OR REPLACE FUNCTION")
                 || statementStart.startsWith("CREATE OR REPLACE PROCEDURE")
                 || statementStart.startsWith("CREATE OR REPLACE PACKAGE")
-                || statementStart.startsWith("CREATE OR REPLACE TYPE")) {
+                || statementStart.startsWith("CREATE OR REPLACE TYPE")
+                || statementStart.startsWith("CREATE OR REPLACE TRIGGER")){
             return PLSQL_DELIMITER;
         }
 
