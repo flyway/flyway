@@ -46,6 +46,9 @@
                 <configuration>
                     <driver>org.h2.Driver</driver>
                     <url>jdbc:h2:file:${project.build.directory}/db/flyway_sample</url>
+                    <placeholders>
+                        <name>Joe TestUser</name>
+                    </placeholders>
                 </configuration>
             </plugin>
         </plugins>

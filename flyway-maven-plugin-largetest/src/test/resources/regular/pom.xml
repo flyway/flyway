@@ -30,6 +30,9 @@
                     <schemas>
                         <schema>PUBLIC</schema>
                     </schemas>
+                    <placeholders>
+                        <name>Joe TestUser</name>
+                    </placeholders>
                 </configuration>
             </plugin>
             <plugin>
