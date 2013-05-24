@@ -27,13 +27,30 @@ import static org.junit.Assert.assertTrue;
  * Test for PostgreSQLSqlStatementBuilder.
  */
 public class PostgreSQLSqlStatementBuilderSmallTest {
+    /**
+     * Class under test.
+     */
+    private PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+
+    @Test
+    public void regclass() {
+        String sqlScriptSource = "CREATE TABLE base_table (\n" +
+                "base_table_id integer DEFAULT nextval('base_table_seq'::regclass) NOT NULL\n" +
+                ");";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
+
     @Test
     public void multilineStringLiteralWithSemicolons() {
         String sqlScriptSource = "INSERT INTO address VALUES (1, '1. first;\n"
                 + "2. second;\n"
                 + "3. third;')";
-
-        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
 
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         for (String line : lines) {
@@ -50,8 +67,6 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
                         "multi-line\n" +
                         "quotes;\n" +
                         "$$)";
-
-        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
 
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         for (String line : lines) {
@@ -80,8 +95,6 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
                         "$BODY$ LANGUAGE plpgsql;\n" +
                         "END;\n" +
                         "$$ LANGUAGE plpgsql";
-
-        PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
 
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         for (String line : lines) {
