@@ -257,7 +257,7 @@ public class StringUtils {
         while (it.hasNext()) {
             sb.append(it.next());
             if (it.hasNext()) {
-                sb.append(",");
+                sb.append(", ");
             }
         }
         return sb.toString();
