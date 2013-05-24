@@ -16,8 +16,13 @@
 package com.googlecode.flyway.core.dbsupport.mysql;
 
 import com.googlecode.flyway.core.dbsupport.Delimiter;
+import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.dbsupport.SqlStatement;
 import org.junit.Test;
 
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -48,6 +53,13 @@ public class MySQLSqlStatementBuilderSmallTest {
         builder.addLine("    EXECUTE testStmt;");
         builder.addLine("    DEALLOCATE PREPARE testStmt;");
         builder.addLine("END $$");
+
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void hexLiteral() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (x'5B1A5933964C4AA59F3013D3B3F3414D');");
 
         assertTrue(builder.isTerminated());
     }

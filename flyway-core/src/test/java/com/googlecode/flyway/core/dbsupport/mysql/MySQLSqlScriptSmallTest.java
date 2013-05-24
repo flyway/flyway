@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test for OracleSqlScript.
+ * Test for MySQL SqlScript.
  */
 public class MySQLSqlScriptSmallTest {
     @Test
