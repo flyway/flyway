@@ -19,6 +19,8 @@ import com.googlecode.flyway.core.dbsupport.Delimiter;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
+import java.util.regex.Pattern;
+
 /**
  * SqlStatementBuilder supporting MySQL-specific delimiter changes.
  */
@@ -48,7 +50,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     public boolean isCommentDirective(String line) {
-        return line.startsWith("/*!") && line.endsWith("*/;");
+        return line.matches("^" + Pattern.quote("/*!") + "\\d{5} .*" + Pattern.quote("*/") + ";?");
     }
 
     @Override
