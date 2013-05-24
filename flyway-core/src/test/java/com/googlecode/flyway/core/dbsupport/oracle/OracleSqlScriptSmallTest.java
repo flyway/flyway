@@ -74,4 +74,41 @@ public class OracleSqlScriptSmallTest {
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(10, sqlStatements.size());
     }
+
+    @Test
+    public void parseCompoundTrigger() throws Exception {
+        String source = "CREATE OR REPLACE TRIGGER triggername\n" +
+                "  FOR insert ON tablename\n" +
+                "    COMPOUND TRIGGER\n" +
+                "\n" +
+                "  -- Global declaration.\n" +
+                "  g_global_variable VARCHAR2(10);\n" +
+                "\n" +
+                "  BEFORE STATEMENT IS\n" +
+                "  BEGIN\n" +
+                "    NULL; -- Do something here.\n" +
+                "  END BEFORE STATEMENT;\n" +
+                "\n" +
+                "  BEFORE EACH ROW IS\n" +
+                "  BEGIN\n" +
+                "    NULL; -- Do something here.\n" +
+                "  END BEFORE EACH ROW;\n" +
+                "\n" +
+                "  AFTER EACH ROW IS\n" +
+                "  BEGIN\n" +
+                "    NULL; -- Do something here.\n" +
+                "  END AFTER EACH ROW;\n" +
+                "\n" +
+                "  AFTER STATEMENT IS\n" +
+                "  BEGIN\n" +
+                "    NULL; -- Do something here.\n" +
+                "  END AFTER STATEMENT;\n" +
+                "\n" +
+                "END <trigger-name>;\n" +
+                "/";
+
+        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        assertEquals(1, sqlStatements.size());
+    }
 }
