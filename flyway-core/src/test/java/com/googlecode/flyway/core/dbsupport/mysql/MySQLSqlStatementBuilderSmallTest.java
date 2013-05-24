@@ -15,24 +15,40 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
-import com.googlecode.flyway.core.dbsupport.oracle.OracleSqlStatementBuilder;
+import com.googlecode.flyway.core.dbsupport.Delimiter;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Test for MySQLSqlStatementBuilder.
  */
 public class MySQLSqlStatementBuilderSmallTest {
+    private MySQLSqlStatementBuilder builder = new MySQLSqlStatementBuilder();
+
     @Test
     public void isCommentDirective() {
-        final MySQLSqlStatementBuilder statementBuilder = new MySQLSqlStatementBuilder();
-        assertFalse(statementBuilder.isCommentDirective("SELECT * FROM TABLE;"));
-        assertFalse(statementBuilder.isCommentDirective("/*SELECT * FROM TABLE*/;"));
-        assertTrue(statementBuilder.isCommentDirective("/*!12345 SELECT * FROM TABLE*/"));
-        assertTrue(statementBuilder.isCommentDirective("/*!12345 SELECT * FROM TABLE*/;"));
+        assertFalse(builder.isCommentDirective("SELECT * FROM TABLE;"));
+        assertFalse(builder.isCommentDirective("/*SELECT * FROM TABLE*/;"));
+        assertTrue(builder.isCommentDirective("/*!12345 SELECT * FROM TABLE*/"));
+        assertTrue(builder.isCommentDirective("/*!12345 SELECT * FROM TABLE*/;"));
+    }
+
+    @Test
+    public void escapedSingleQuotes() {
+        builder.setDelimiter(new Delimiter("$$", false));
+
+        builder.addLine("CREATE PROCEDURE test_proc(testDate CHAR(10))");
+        builder.addLine("BEGIN");
+        builder.addLine("    SET @testSQL = CONCAT(");
+        builder.addLine("        'INSERT INTO test_table (test_id, test_date) ',");
+        builder.addLine("        ' VALUE (1, DATE(\\'', testDate, '\\'));');");
+        builder.addLine("    PREPARE testStmt FROM @testSQL;");
+        builder.addLine("    EXECUTE testStmt;");
+        builder.addLine("    DEALLOCATE PREPARE testStmt;");
+        builder.addLine("END $$");
+
+        assertTrue(builder.isTerminated());
     }
 }

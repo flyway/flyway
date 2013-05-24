@@ -60,7 +60,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected String removeEscapedQuotes(String token) {
-        return StringUtils.replaceAll(StringUtils.replaceAll(token, "''", ""), "\\'", "");
+        return StringUtils.replaceAll(StringUtils.replaceAll(token, "\\'", ""), "''", "");
     }
 
     @Override
