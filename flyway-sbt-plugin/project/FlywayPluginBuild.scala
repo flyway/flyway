@@ -34,7 +34,7 @@ object FlywayPluginBuild extends Build {
       version := flywayVersion,
       crossScalaVersions := Seq("2.9.1", "2.9.2", "2.9.3", "2.10.1"),
       resolvers += (
-        "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+        "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + ".m2/repository"
         ),
       libraryDependencies += "com.googlecode.flyway" % "flyway-core" % flywayVersion
     )

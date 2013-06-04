@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
 )
 
 resolvers += (
-    "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+    "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + ".m2/repository"
 )
 
 seq(flywaySettings: _*)
