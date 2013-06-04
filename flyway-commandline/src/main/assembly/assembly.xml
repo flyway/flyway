@@ -23,6 +23,7 @@
         <format>tar.gz</format>
         <format>zip</format>
     </formats>
+    <baseDirectory>flyway-${project.version}</baseDirectory>
     <fileSets>
         <fileSet>
             <directory>src/main/assembly</directory>
@@ -37,7 +38,7 @@
             <directory>src/main/assembly</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>flyway.sh</include>
+                <include>flyway</include>
             </includes>
             <fileMode>744</fileMode>
             <lineEnding>unix</lineEnding>
@@ -71,9 +72,6 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>bin</outputDirectory>
-            <excludes>
-                <exclude>*:spring-jdbc</exclude>
-            </excludes>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <scope>runtime</scope>
         </dependencySet>

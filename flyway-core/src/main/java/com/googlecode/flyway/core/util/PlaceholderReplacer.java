@@ -15,8 +15,14 @@
  */
 package com.googlecode.flyway.core.util;
 
+import com.googlecode.flyway.core.api.FlywayException;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Tool for replacing placeholders.
@@ -59,7 +65,6 @@ public class PlaceholderReplacer {
      * Replaces the placeholders in this input string with their corresponding values.
      *
      * @param input The input to process.
-     *
      * @return The input string with all placeholders replaced.
      */
     public String replacePlaceholders(String input) {
@@ -69,7 +74,31 @@ public class PlaceholderReplacer {
             String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
             noPlaceholders = StringUtils.replaceAll(noPlaceholders, searchTerm, placeholders.get(placeholder));
         }
+        checkForUnmatchedPlaceholderExpression(noPlaceholders);
 
         return noPlaceholders;
+    }
+
+    /**
+     * Check for unmatched placeholder expressions in the input string and throw
+     * a FlywayException if they do not have corresponding values.
+     *
+     * @param input The input string.
+     * @throws FlywayException An exception listing the unmatched expressions.
+     */
+    private void checkForUnmatchedPlaceholderExpression(String input) {
+        String regex = Pattern.quote(placeholderPrefix) + "(.+?)" + Pattern.quote(placeholderSuffix);
+        Matcher matcher = Pattern.compile(regex).matcher(input);
+
+        Set<String> unmatchedPlaceHolderExpressions = new TreeSet<String>();
+        while (matcher.find()) {
+            unmatchedPlaceHolderExpressions.add(matcher.group());
+        }
+
+        if (!unmatchedPlaceHolderExpressions.isEmpty()) {
+            throw new FlywayException("No value provided for placeholder expressions: "
+                    + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions)
+                    + ".  Check your configuration!");
+        }
     }
 }

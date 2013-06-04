@@ -822,11 +822,11 @@ public class Flyway {
                 MetaDataTable metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
-                new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
-
                 if (validateOnMigrate) {
                     doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas);
                 }
+
+                new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
 
                 if (!metaDataTable.hasSchemasMarker() && !metaDataTable.hasInitMarker() && !metaDataTable.hasAppliedMigrations()) {
                     List<Schema> nonEmptySchemas = new ArrayList<Schema>();

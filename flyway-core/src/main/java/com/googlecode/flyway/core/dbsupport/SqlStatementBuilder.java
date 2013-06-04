@@ -262,7 +262,7 @@ public class SqlStatementBuilder {
      */
     protected boolean endsWithOpenMultilineStringLiteral(String line) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
-        String[] tokens = StringUtils.tokenizeToStringArray(line, " <>;=|(),");
+        String[] tokens = StringUtils.tokenizeToStringArray(line, " <>;:=|(),");
 
         List<TokenType> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 

@@ -15,15 +15,13 @@
  */
 package com.googlecode.flyway.maven;
 
-import java.io.File;
-
-import org.apache.maven.project.MavenProject;
-
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import com.googlecode.flyway.core.util.Location;
+
+import java.io.File;
 
 /**
  * Base class for mojos that rely on loading migrations from the classpath.
@@ -45,7 +43,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
      * ${flyway.encoding}</p>
      *
-     * @parameter expression="${flyway.encoding}"
+     * @parameter property="flyway.encoding"
      */
     private String encoding;
 
@@ -53,7 +51,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * The file name prefix for Sql migrations (default: V) <p>Also configurable with Maven or System Property:
      * ${flyway.sqlMigrationPrefix}</p>
      *
-     * @parameter expression="${flyway.sqlMigrationPrefix}"
+     * @parameter property="flyway.sqlMigrationPrefix"
      */
     private String sqlMigrationPrefix;
 
@@ -61,7 +59,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * The file name suffix for Sql migrations (default: .sql) <p>Also configurable with Maven or System Property:
      * ${flyway.sqlMigrationSuffix}</p>
      *
-     * @parameter expression="${flyway.sqlMigrationSuffix}"
+     * @parameter property="flyway.sqlMigrationSuffix"
      */
     private String sqlMigrationSuffix;
 
@@ -75,7 +73,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/> <p>Also configurable with Maven or System Property:
      * ${flyway.validationErrorMode}</p>
      *
-     * @parameter expression="${flyway.validationErrorMode}"
+     * @parameter property="flyway.validationErrorMode"
      * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 3.0.
      */
     @Deprecated
@@ -90,7 +88,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * <p><b>Warning ! Do not enable in production !</b></p><br/>
      * <p>Also configurable with Maven or System Property: ${flyway.cleanOnValidationError}</p>
      *
-     * @parameter expression="${flyway.cleanOnValidationError}"
+     * @parameter property="flyway.cleanOnValidationError"
      */
     private boolean cleanOnValidationError;
 
@@ -99,7 +97,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * applied. (default: the latest version)
      * <p>Also configurable with Maven or System Property: ${flyway.target}</p>
      *
-     * @parameter expression="${flyway.target}"
+     * @parameter property="flyway.target"
      */
     private String target;
 
@@ -109,7 +107,7 @@ abstract class AbstractMigrationLoadingMojo extends AbstractFlywayMojo {
      * it will be applied too instead of being ignored.</p>
      * <p>Also configurable with Maven or System Property: ${flyway.outOfOrder}</p>
      *
-     * @parameter expression="${flyway.outOfOrder}"
+     * @parameter property="flyway.outOfOrder"
      */
     private boolean outOfOrder;
 

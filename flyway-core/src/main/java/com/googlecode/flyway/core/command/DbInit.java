@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.command;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
 import com.googlecode.flyway.core.util.jdbc.TransactionTemplate;
@@ -76,7 +77,18 @@ public class DbInit {
                     throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it already contains migrations");
                 }
                 if (metaDataTable.hasInitMarker()) {
-                    throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it has already been initialized");
+                    AppliedMigration initMarker = metaDataTable.getInitMarker();
+                    if (initVersion.equals(initMarker.getVersion())
+                            && initDescription.equals(initMarker.getDescription())) {
+                        LOG.info("Metadata table " + metaDataTable + " already initialized with ("
+                                + initVersion + "," + initDescription + "). Skipping.");
+                        return null;
+                    } else {
+                        throw new FlywayException("Unable to init metadata table " + metaDataTable + " with ("
+                                + initVersion + "," + initDescription
+                                + ") as it has already been initialized with ("
+                                + initMarker.getVersion() + "," + initMarker.getDescription() + ")");
+                    }
                 }
                 if (metaDataTable.hasSchemasMarker() && initVersion.equals(new MigrationVersion("0"))) {
                     throw new FlywayException("Unable to init metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");

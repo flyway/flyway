@@ -19,6 +19,8 @@ import com.googlecode.flyway.core.dbsupport.Delimiter;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
+import java.util.regex.Pattern;
+
 /**
  * SqlStatementBuilder supporting MySQL-specific delimiter changes.
  */
@@ -48,7 +50,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     public boolean isCommentDirective(String line) {
-        return line.startsWith("/*!") && line.endsWith("*/;");
+        return line.matches("^" + Pattern.quote("/*!") + "\\d{5} .*" + Pattern.quote("*/") + ";?");
     }
 
     @Override
@@ -58,7 +60,8 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected String removeEscapedQuotes(String token) {
-        return StringUtils.replaceAll(StringUtils.replaceAll(token, "''", ""), "\\'", "");
+        String noBackslashEscapes = StringUtils.replaceAll(StringUtils.replaceAll(token, "\\'", ""), "\\\"", "");
+        return StringUtils.replaceAll(noBackslashEscapes, "''", "");
     }
 
     @Override
@@ -66,6 +69,20 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
         if (token.startsWith("\"")) {
             return "\"";
         }
+        if (token.startsWith("B'")) {
+            return "B'";
+        }
+        if (token.startsWith("X'")) {
+            return "X'";
+        }
         return null;
+    }
+
+    @Override
+    protected String computeAlternateCloseQuote(String openQuote) {
+        if ("B'".equals(openQuote) || "X'".equals(openQuote)) {
+            return "'";
+        }
+        return openQuote;
     }
 }

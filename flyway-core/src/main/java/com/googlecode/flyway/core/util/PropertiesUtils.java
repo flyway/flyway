@@ -115,7 +115,7 @@ public final class PropertiesUtils {
      */
     public static int getIntProperty(Properties properties, String key, int defaultValue) {
         final String value = properties.getProperty(key);
-        if (value != null) {
+        if (StringUtils.hasText(value)) {
             return Integer.parseInt(value);
         }
         return defaultValue;

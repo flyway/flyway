@@ -36,6 +36,7 @@
                         <location>migrations2</location>
                     </locations>
                     <placeholders>
+                        <name>Joe TestUser</name>
                         <name2>Dr. Jones</name2>
                     </placeholders>
                 </configuration>

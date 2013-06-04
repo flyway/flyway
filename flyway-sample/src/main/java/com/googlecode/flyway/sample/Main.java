@@ -17,9 +17,7 @@ package com.googlecode.flyway.sample;
 
 import com.googlecode.flyway.core.Flyway;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +31,12 @@ public class Main {
      * @param args None supported.
      */
     public static void main(String[] args) throws Exception {
-        DataSource dataSource =
-                new SimpleDriverDataSource(new org.hsqldb.jdbcDriver(), "jdbc:hsqldb:file:db/flyway_sample;shutdown=true", "SA", "");
         Flyway flyway = new Flyway();
-        flyway.setDataSource(dataSource);
-        flyway.setLocations("com.googlecode.flyway.sample.migration");
+        flyway.setDataSource("jdbc:hsqldb:file:db/flyway_sample;shutdown=true", "SA", "");
+        flyway.setLocations("db/migration", "com.googlecode.flyway.sample.migration");
         flyway.migrate();
 
-        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(dataSource);
+        SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(flyway.getDataSource());
         List<Map<String, Object>> results = jdbcTemplate.queryForList("select name from test_user");
         for (Map<String, Object> result : results) {
             System.out.println("Name: " + result.get("NAME"));

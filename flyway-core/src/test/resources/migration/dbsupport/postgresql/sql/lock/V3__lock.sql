@@ -14,35 +14,11 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test_data (
-  value VARCHAR(25) NOT NULL,
-  PRIMARY KEY(value)
-);
+ANALYZE;
 
-DELIMITER //
-CREATE PROCEDURE AddData()
-  BEGIN
-    INSERT INTO test_data (value) VALUES ('Hello');
-  END //
-DELIMITER ;
-
-CALL AddData();
-
-DELIMITER $$
-
-CREATE PROCEDURE callMe()
-BEGIN
-  SELECT "CALL ME" as message,
-         "ANYTIME" as anytime;
-END
-$$
-
-CREATE PROCEDURE callMe2()
-BEGIN
-  SELECT "CALL ME" as message, -- this is a valid comment
-         "ANYTIME" as anytime;
-END
-$$
-
-DELIMITER ;
-
+/*
+  ANALYZE is just an example. Depending on the LOCK MODE other SQL commands trying to access
+  SCHEMA_VERSION can also create the problem. Other example:
+  SELECT * FROM SCHEMA_VERSION;
+  hangs when lock mode is ACCESS EXCLUSIVE (the most restrictive one)
+*/

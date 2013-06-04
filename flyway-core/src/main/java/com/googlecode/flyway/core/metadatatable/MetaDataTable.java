@@ -65,6 +65,13 @@ public interface MetaDataTable {
     boolean hasInitMarker();
 
     /**
+     * Retrieves the init marker from the metadata table.
+     *
+     * @return The init marker or {@code null} if none could be found.
+     */
+    AppliedMigration getInitMarker();
+
+    /**
      * <p>
      * Repairs the metadata table after a failed migration.
      * This is only necessary for databases without DDL-transaction support.

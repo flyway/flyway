@@ -14,35 +14,8 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test_data (
-  value VARCHAR(25) NOT NULL,
-  PRIMARY KEY(value)
-);
-
-DELIMITER //
-CREATE PROCEDURE AddData()
-  BEGIN
-    INSERT INTO test_data (value) VALUES ('Hello');
-  END //
-DELIMITER ;
-
-CALL AddData();
-
-DELIMITER $$
-
-CREATE PROCEDURE callMe()
-BEGIN
-  SELECT "CALL ME" as message,
-         "ANYTIME" as anytime;
-END
-$$
-
-CREATE PROCEDURE callMe2()
-BEGIN
-  SELECT "CALL ME" as message, -- this is a valid comment
-         "ANYTIME" as anytime;
-END
-$$
-
-DELIMITER ;
-
+/*
+  We need this dummy migration for the test because it ensures that table SCHEMA_VERSION has been created and committed
+  when the lock test is done in next migration file
+*/
+SELECT 1;

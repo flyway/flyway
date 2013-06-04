@@ -164,7 +164,7 @@ public class StringUtils {
     }
 
     /**
-     * Checks whether this string contains at least one non-blank character.
+     * Checks whether this string isn't {@code null} and contains at least one non-blank character.
      *
      * @param s The string to check.
      * @return {@code true} if it has text, {@code false} if not.
@@ -192,11 +192,11 @@ public class StringUtils {
     }
 
     /**
-     * Counts the number of occurances of this token in this string.
+     * Counts the number of occurrences of this token in this string.
      *
      * @param str   The string to analyse.
      * @param token The token to look for.
-     * @return The number of occurances.
+     * @return The number of occurrences.
      */
     public static int countOccurrencesOf(String str, String token) {
         if (str == null || token == null || str.length() == 0 || token.length() == 0) {
@@ -257,7 +257,7 @@ public class StringUtils {
         while (it.hasNext()) {
             sb.append(it.next());
             if (it.hasNext()) {
-                sb.append(",");
+                sb.append(", ");
             }
         }
         return sb.toString();

@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Large Test for the Flyway Command-Line Tool.
  */
-public abstract class CommandLineLargeTest {
+public class CommandLineLargeTest {
     @Test
     public void showUsage() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null);
@@ -44,13 +44,13 @@ public abstract class CommandLineLargeTest {
 
     @Test
     public void migrateWithCustomLocations() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=filesystem:" + new File(getInstallDir()).getAbsolutePath() + "/sql/migrations");
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=filesystem:sql/migrations");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 
     @Test
     public void exitCodeForFailedMigration() throws Exception {
-        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=filesystem:" + new File(getInstallDir()).getAbsolutePath() + "/sql/invalid");
+        String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=filesystem:sql/invalid");
         assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 failed!"));
     }
 
@@ -75,7 +75,7 @@ public abstract class CommandLineLargeTest {
         List<String> args = new ArrayList<String>();
 
         String installDir = new File(getInstallDir()).getAbsolutePath();
-        args.add(installDir + "/flyway." + flywayCmdLineExtensionForCurrentSystem());
+        args.add(installDir + "/flyway" + flywayCmdLineExtensionForCurrentSystem());
 
         if (operation != null) {
             args.add(operation);
@@ -112,15 +112,27 @@ public abstract class CommandLineLargeTest {
     private String flywayCmdLineExtensionForCurrentSystem() {
         String osName = System.getProperty("os.name", "generic").toLowerCase();
         if (osName.startsWith("windows")) {
-            return "cmd";
+            return ".cmd";
         }
-        return "sh";
+        return "";
     }
 
     /**
      * @return The installation directory of the Flyway Command Line instance to test.
      */
-    protected abstract String getInstallDir();
+    private String getInstallDir() {
+        return System.getProperty("installDir",
+                "flyway-commandline-largetest/target/install dir/flyway-" + getPomVersion());
+    }
+
+    /**
+     * Execute 1 (SQL), 1.1 (SQL) & 1.3 (Jdbc). 1.2 (Spring Jdbc) is not picked up.
+     */
+    @Test
+    public void migrate() throws Exception {
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+    }
 
     /**
      * Retrieves the version embedded in the project pom. Useful for running these tests in IntelliJ.
