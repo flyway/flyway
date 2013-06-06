@@ -71,12 +71,6 @@ public class TimesTenSchema extends Schema {
             throw new FlywayException("Clean not supported on TimesTen for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
         }
 
-        for (String statement : generateDropStatementsForQueueTables()) {
-            //for dropping queue tables, a special grant is required:
-            //GRANT EXECUTE ON DBMS_AQADM TO flyway;
-            jdbcTemplate.execute(statement);
-        }
-
         for (String statement : generateDropStatementsForObjectType("SEQUENCE", "")) {
             jdbcTemplate.execute(statement);
         }
@@ -174,23 +168,6 @@ public class TimesTenSchema extends Schema {
         return dropStatements;
     }
 
-
-    /**
-     * Generates the drop statements for queue tables.
-     *
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForQueueTables() throws SQLException {
-        List<String> statements = new ArrayList<String>();
-
-        List<String> queueTblNames = jdbcTemplate.queryForStringList("select QUEUE_TABLE from USER_QUEUE_TABLES");
-        for (String queueTblName : queueTblNames) {
-            statements.add("begin DBMS_AQADM.drop_queue_table (queue_table=> '" + queueTblName + "', FORCE => TRUE); end;");
-        }
-
-        return statements;
-    }
 
     @Override
     protected Table[] doAllTables() throws SQLException {
