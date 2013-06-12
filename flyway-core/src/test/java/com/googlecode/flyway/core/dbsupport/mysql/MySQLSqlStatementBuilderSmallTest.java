@@ -63,4 +63,11 @@ public class MySQLSqlStatementBuilderSmallTest {
 
         assertTrue(builder.isTerminated());
     }
+
+    @Test
+    public void binaryLiteral() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (b'10110011');");
+
+        assertTrue(builder.isTerminated());
+    }
 }
