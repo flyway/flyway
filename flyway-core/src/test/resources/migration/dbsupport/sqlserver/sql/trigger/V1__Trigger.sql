@@ -18,17 +18,23 @@ CREATE TABLE Customers (
  CustomerId smallint identity(1,1),
  Name nvarchar(255),
  Priority tinyint
-)
+   CONSTRAINT [PK_Source] PRIMARY KEY CLUSTERED
+     (
+       [CustomerId] ASC
+     ));
 CREATE TABLE Sales (
  TransactionId smallint identity(1,1),
  CustomerId smallint,
  [Net Amount] int,
  Completed bit
-)
+   CONSTRAINT [PK_Source1] PRIMARY KEY CLUSTERED
+     (
+       [TransactionId] ASC
+     ));
 go
 
 CREATE TRIGGER dbo.Update_Customer_Priority
-  ON dbo.Sales
+  ON Sales
 AFTER INSERT, UPDATE, DELETE
 AS
 WITH CTE AS (

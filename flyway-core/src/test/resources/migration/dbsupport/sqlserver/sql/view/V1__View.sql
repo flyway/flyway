@@ -14,7 +14,11 @@
 -- limitations under the License.
 --
 
-CREATE TABLE t (qty INT, price INT);
-INSERT INTO t VALUES(3, 50);
+CREATE TABLE tab (id int NOT NULL IDENTITY, qty INT, price INT
+CONSTRAINT [PK_Source] PRIMARY KEY CLUSTERED
+(
+[id] ASC
+));
+INSERT INTO tab VALUES (3, 50);
 GO
-CREATE VIEW v AS SELECT qty, price, qty*price AS value FROM t;
+CREATE VIEW v AS SELECT id, qty, price, qty*price AS value FROM tab;
