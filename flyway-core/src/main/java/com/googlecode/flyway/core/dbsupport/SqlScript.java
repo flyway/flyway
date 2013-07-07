@@ -48,7 +48,7 @@ public class SqlScript {
     /**
      * Creates a new sql script from this source with these placeholders to replace.
      *
-     * @param sqlScriptSource The sql script as a text block with all placeholders still present.
+     * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
      * @param dbSupport       The database-specific support.
      */
     public SqlScript(String sqlScriptSource, DbSupport dbSupport) {
