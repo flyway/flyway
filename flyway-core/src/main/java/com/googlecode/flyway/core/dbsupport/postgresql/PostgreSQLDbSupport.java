@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -75,7 +76,7 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     public String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
+        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
     }
 
     @Override

@@ -98,7 +98,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/postgresql/sql/view");
         flyway.migrate();
 
-        assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM v"));
+        assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM \"\"\"v\"\"\""));
 
         flyway.clean();
 
