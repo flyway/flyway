@@ -1,0 +1,45 @@
+apply from: 'dependencies.gradle'
+apply plugin: 'flyway'
+apply plugin: 'java'
+
+group = mavenGroup
+version = mavenVersion
+
+buildscript {
+  apply from: 'dependencies.gradle'
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath hsqldb
+    classpath springJdbc
+    classpath "${mavenGroup}:flyway-gradle-plugin:${mavenVersion}"
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile hsqldb
+  compile springJdbc
+  compile "${group}:flyway-core:${version}"
+}
+
+flyway {
+  dependsOnTasks(compileJava)
+
+  databases {
+    main {
+      url = "jdbc:hsqldb:file:${buildDir}/db/flyway_sample;shutdown=true"
+      locations = [
+        'classpath:com.googlecode.flyway.sample.migration', 
+        "filesystem:${project.sourceSets.main.output.resourcesDir.path}"
+      ]
+    }
+  }
+}
