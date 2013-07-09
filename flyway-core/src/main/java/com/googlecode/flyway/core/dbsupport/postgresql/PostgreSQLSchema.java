@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.dbsupport.Type;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -95,6 +96,10 @@ public class PostgreSQLSchema extends Schema {
 
         for (String statement : generateDropStatementsForBaseTypes(false)) {
             jdbcTemplate.execute(statement);
+        }
+
+        for (Type type : allTypes()) {
+            type.drop();
         }
     }
 
@@ -250,5 +255,10 @@ public class PostgreSQLSchema extends Schema {
     @Override
     public Table getTable(String tableName) {
         return new PostgreSQLTable(jdbcTemplate, dbSupport, this, tableName);
+    }
+
+    @Override
+    protected Type getType(String typeName) {
+        return new PostgreSQLType(jdbcTemplate, dbSupport, this, typeName);
     }
 }

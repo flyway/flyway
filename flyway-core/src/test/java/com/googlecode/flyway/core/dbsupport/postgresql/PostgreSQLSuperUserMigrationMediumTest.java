@@ -54,8 +54,8 @@ public class PostgreSQLSuperUserMigrationMediumTest {
      * Tests clean and migrate for PostgreSQL Types.
      */
     @Test
-    public void type() throws Exception {
-        flyway.setLocations("migration/dbsupport/postgresql/sql/type");
+    public void basetype() throws Exception {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/basetype");
         flyway.migrate();
 
         flyway.clean();

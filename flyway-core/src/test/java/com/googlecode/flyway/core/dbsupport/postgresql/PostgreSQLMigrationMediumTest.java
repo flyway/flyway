@@ -44,6 +44,23 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for PostgreSQL Types.
+     */
+    @Test
+    public void type() throws Exception {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/type");
+        flyway.migrate();
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+
+        // Clean again, to prevent tests with non superuser rights to fail.
+        flyway.clean();
+    }
+
+    /**
      * Tests clean and migrate for PostgreSQL Stored Procedures.
      */
     @Test

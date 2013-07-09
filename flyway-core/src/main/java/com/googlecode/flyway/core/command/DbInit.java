@@ -83,12 +83,11 @@ public class DbInit {
                         LOG.info("Metadata table " + metaDataTable + " already initialized with ("
                                 + initVersion + "," + initDescription + "). Skipping.");
                         return null;
-                    } else {
-                        throw new FlywayException("Unable to init metadata table " + metaDataTable + " with ("
-                                + initVersion + "," + initDescription
-                                + ") as it has already been initialized with ("
-                                + initMarker.getVersion() + "," + initMarker.getDescription() + ")");
                     }
+                    throw new FlywayException("Unable to init metadata table " + metaDataTable + " with ("
+                            + initVersion + "," + initDescription
+                            + ") as it has already been initialized with ("
+                            + initMarker.getVersion() + "," + initMarker.getDescription() + ")");
                 }
                 if (metaDataTable.hasSchemasMarker() && initVersion.equals(new MigrationVersion("0"))) {
                     throw new FlywayException("Unable to init metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");

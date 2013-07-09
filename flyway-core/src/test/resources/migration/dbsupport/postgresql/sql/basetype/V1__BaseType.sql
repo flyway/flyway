@@ -14,8 +14,13 @@
 -- limitations under the License.
 --
 
-CREATE TYPE my_type AS (my_type_id integer);
+CREATE TYPE test_type;
 
-CREATE TYPE bug_status AS ENUM ('new', 'open', 'closed');
+CREATE FUNCTION test_type_in(cstring) RETURNS test_type AS
+'record_in'
+LANGUAGE internal STABLE STRICT COST 1;
 
+CREATE FUNCTION test_type_out(test_type) RETURNS cstring AS
+'record_out' LANGUAGE internal STABLE STRICT COST 1;
 
+CREATE TYPE test_type(INPUT=test_type_in, OUTPUT=test_type_out);
