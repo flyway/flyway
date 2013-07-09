@@ -66,6 +66,15 @@ public class LocationsSmallTest {
     }
 
     @Test
+    public void mergeLocationsSimilarButNoOverlapCamelCase() {
+        Locations locations = new Locations("/com/xxx/Star/", "/com/xxx/StarTrack/");
+        List<Location> locationList = locations.getLocations();
+        assertEquals(2, locationList.size());
+        assertTrue(locationList.contains(new Location("com/xxx/Star")));
+        assertTrue(locationList.contains(new Location("com/xxx/StarTrack")));
+    }
+
+    @Test
     public void mergeLocationsSimilarButNoOverlapHyphen() {
         Locations locations = new Locations("db/migration/oracle", "db/migration", "db/migration-test");
         List<Location> locationList = locations.getLocations();
