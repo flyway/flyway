@@ -260,6 +260,17 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void testMutliDirs() {
+        OpenConnectionCountDriverDataSource dataSource = new OpenConnectionCountDriverDataSource();
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql2");
+        flyway.clean();
+        assertEquals(1, flyway.migrate());
+    }
+
+    @Test
     public void noConnectionLeakWithException() {
         OpenConnectionCountDriverDataSource dataSource = new OpenConnectionCountDriverDataSource();
 
