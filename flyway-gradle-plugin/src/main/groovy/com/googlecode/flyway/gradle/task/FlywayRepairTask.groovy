@@ -26,7 +26,7 @@ class FlywayRepairTask extends AbstractFlywayTask {
     description = 'Repairs the Flyway metadata table after a failed migration.'
   }
 
-  def run(String name, Flyway flyway) {
+  def run(Flyway flyway) {
     flyway.repair()
   }
 }

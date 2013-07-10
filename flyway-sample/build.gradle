@@ -8,7 +8,6 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.springframework:spring-jdbc:3.0.5.RELEASE'
         classpath 'org.hsqldb:hsqldb:2.2.8'
         classpath "${group}:flyway-gradle-plugin:${version}"
     }
@@ -33,15 +32,9 @@ dependencies {
 }
 
 flyway {
-    dependsOnTasks(compileJava)
-
-    databases {
-        main {
-            url = "jdbc:hsqldb:file:${buildDir}/db/flyway_sample;shutdown=true"
-            locations = [
-                    'classpath:com.googlecode.flyway.sample.migration',
-                    "filesystem:${project.sourceSets.main.output.resourcesDir.path}"
-            ]
-        }
-    }
+    url = "jdbc:hsqldb:file:${buildDir}/db/flyway_sample;shutdown=true"
+    locations = [
+            'classpath:com.googlecode.flyway.sample.migration',
+            "filesystem:${project.sourceSets.main.output.resourcesDir.path}"
+    ]
 }

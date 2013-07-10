@@ -22,91 +22,77 @@ package com.googlecode.flyway.gradle
  * @see http://flywaydb.org/documentation/commandline
  */
 public class FlywayExtension {
+    /** The fully qualified classname of the jdbc driver to use to connect to the database */
+    String driver
 
-  String name
+    /** The jdbc url to use to connect to the database */
+    String url
 
-  /** The fully qualified classname of the jdbc driver to use to connect to the database */
-  String driver
+    /** The user to use to connect to the database */
+    String user
 
-  /** The jdbc url to use to connect to the database */
-  String url
+    /** The password to use to connect to the database */
+    String password
 
-  /** The user to use to connect to the database */
-  String user
+    /** The name of Flyway's metadata table */
+    String table
 
-  /** The password to use to connect to the database */
-  String password
+    /** The case-sensitive list of schemas managed by Flyway */
+    String[] schemas
 
-  /** The name of Flyway's metadata table */
-  String table
+    /** The initial version to put in the database */
+    String initVersion
 
-  /** The case-sensitive list of schemas managed by Flyway */
-  public List<String> schemas = []
+    /** The description of the initial version */
+    String initDescription
 
-  /** The initial version to put in the database */
-  String initVersion
+    /**
+     * Locations to scan recursively for migrations. The location type is determined by its prefix.
+     *
+     * <tt>Unprefixed locations or locations starting with classpath:</tt>
+     * point to a package on the classpath and may contain both sql and java-based migrations.
+     *
+     * <tt>Locations starting with filesystem:</tt>
+     * point to a directory on the filesystem and may only contain sql migrations.
+     */
+    String[] locations
 
-  /** The description of the initial version */
-  String initDescription
+    /** The file name prefix for Sql migrations */
+    String sqlMigrationPrefix
 
-  /**
-   * Locations to scan recursively for migrations. The location type is determined by its prefix.
-   *
-   * <tt>Unprefixed locations or locations starting with classpath:</tt>
-   * point to a package on the classpath and may contain both sql and java-based migrations.
-   *
-   * <tt>Locations starting with filesystem:</tt>
-   * point to a directory on the filesystem and may only contain sql migrations.
-   */
-  List<String> locations
+    /** The file name suffix for Sql migrations */
+    String sqlMigrationSuffix
 
-  /** The file name prefix for Sql migrations */
-  String sqlMigrationPrefix
+    /** The encoding of Sql migrations */
+    String encoding
 
-  /** The file name suffix for Sql migrations */
-  String sqlMigrationSuffix
+    /** Placeholders to replace in Sql migrations */
+    Map<String, String> placeholders
 
-  /** The encoding of Sql migrations */
-  String encoding
+    /** The prefix of every placeholder */
+    String placeholderPrefix
 
-  /** Placeholders to replace in Sql migrations */
-  Map<String,String> placeholders
+    /** The suffix of every placeholder */
+    String placeholderSuffix
 
-  /** The prefix of every placeholder */
-  String placeholderPrefix
+    /**
+     * The target version up to which Flyway should run migrations. Migrations with a higher version
+     * number will not be applied.
+     */
+    String target
 
-  /** The suffix of every placeholder */
-  String placeholderSuffix
+    /** Allows migrations to be run "out of order" */
+    Boolean outOfOrder
 
-  /**
-   * The target version up to which Flyway should run migrations. Migrations with a higher version
-   * number will not be applied.
-   */
-  String target
+    /** Whether to automatically call validate or not when running migrate */
+    Boolean validateOnMigrate
 
-  /** Allows migrations to be run "out of order" */
-  Boolean outOfOrder
+    /** Whether to automatically call clean or not when a validation error occurs */
+    Boolean cleanOnValidationError
 
-  /** Whether to automatically call validate or not when running migrate */
-  Boolean validateOnMigrate
-
-  /** Whether to automatically call clean or not when a validation error occurs */
-  Boolean cleanOnValidationError
-
-  /**
-   * Whether to automatically call init when migrate is executed against a non-empty schema
-   * with no metadata table.
-   */
-  Boolean initOnMigrate
-
-  public FlywayExtension() {
-    schemas = []
-    locations = []
-    placeholders = [:]
-  }
-
-  public FlywayExtension(String name) {
-    this()
-    this.name = name
-  }
+    /**
+     * Whether to automatically call init when migrate is executed against a non-empty schema
+     * with no metadata table.
+     */
+    Boolean initOnMigrate
 }
