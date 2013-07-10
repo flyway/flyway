@@ -61,6 +61,13 @@ public class CommandLineLargeTest {
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 
+    @Test
+    public void jarFile() throws Exception {
+        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db",
+                "-driver=org.hsqldb.jdbcDriver", "-locations=db/migration,com/googlecode/flyway/sample/migration");
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+    }
+
     /**
      * Runs the Flyway Command Line tool.
      *
