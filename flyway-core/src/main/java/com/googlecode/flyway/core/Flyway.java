@@ -856,14 +856,22 @@ public class Flyway {
                     }
                 }
 
-                if (!schemas[0].equals(dbSupport.getCurrentSchema())) {
-                    DbSupportFactory.createDbSupport(connectionUserObjects).setCurrentSchema(schemas[0]);
+                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects);
+                Schema schemaUserObjects = dbSupport.getCurrentSchema();
+                if (!schemas[0].equals(schemaUserObjects)) {
+                    dbSupportUserObjects.setCurrentSchema(schemas[0]);
                 }
 
                 DbMigrate dbMigrator =
                         new DbMigrate(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable,
                                 schemas[0], migrationResolver, target, ignoreFailedFutureMigration, outOfOrder);
-                return dbMigrator.migrate();
+                try {
+                    return dbMigrator.migrate();
+                } finally {
+                    if (!schemaUserObjects.equals(dbSupportUserObjects.getCurrentSchema())) {
+                        dbSupportUserObjects.setCurrentSchema(schemaUserObjects);
+                    }
+                }
             }
         });
     }

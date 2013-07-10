@@ -40,6 +40,12 @@
     <build>
         <plugins>
             <plugin>
+                <!-- Added to force correct build order in parallel builds -->
+                <groupId>com.googlecode.flyway</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>${project.version}</version>
+            </plugin>
+            <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
