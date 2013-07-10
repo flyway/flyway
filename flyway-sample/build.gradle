@@ -1,45 +1,47 @@
-apply from: 'dependencies.gradle'
-apply plugin: 'flyway'
-apply plugin: 'java'
-
-group = mavenGroup
-version = mavenVersion
-
 buildscript {
-  apply from: 'dependencies.gradle'
+    def mavenXml = new XmlParser().parseText(file("${projectDir}/pom.xml").getText('UTF-8'))
+    group = mavenXml.parent.groupId.text()
+    version = mavenXml.parent.version.text()
 
-  repositories {
-    mavenLocal()
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath hsqldb
-    classpath springJdbc
-    classpath "${mavenGroup}:flyway-gradle-plugin:${mavenVersion}"
-  }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.springframework:spring-jdbc:3.0.5.RELEASE'
+        classpath 'org.hsqldb:hsqldb:2.2.8'
+        classpath "${group}:flyway-gradle-plugin:${version}"
+    }
 }
 
+apply plugin: 'flyway'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+def mavenXml = new XmlParser().parseText(file("${projectDir}/pom.xml").getText('UTF-8'))
+group = mavenXml.parent.groupId.text()
+version = mavenXml.parent.version.text()
+
 repositories {
-  mavenCentral()
+    mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
-  compile hsqldb
-  compile springJdbc
-  compile "${group}:flyway-core:${version}"
+    compile 'org.springframework:spring-jdbc:3.0.5.RELEASE'
+    compile "${group}:flyway-core:${version}"
 }
 
 flyway {
-  dependsOnTasks(compileJava)
+    dependsOnTasks(compileJava)
 
-  databases {
-    main {
-      url = "jdbc:hsqldb:file:${buildDir}/db/flyway_sample;shutdown=true"
-      locations = [
-        'classpath:com.googlecode.flyway.sample.migration', 
-        "filesystem:${project.sourceSets.main.output.resourcesDir.path}"
-      ]
+    databases {
+        main {
+            url = "jdbc:hsqldb:file:${buildDir}/db/flyway_sample;shutdown=true"
+            locations = [
+                    'classpath:com.googlecode.flyway.sample.migration',
+                    "filesystem:${project.sourceSets.main.output.resourcesDir.path}"
+            ]
+        }
     }
-  }
 }

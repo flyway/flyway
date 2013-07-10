@@ -14,89 +14,54 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>1.8.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-core</artifactId>
+            <version>${version.gradle}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-base-services</artifactId>
+            <version>${version.gradle}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.gradle</groupId>
+            <artifactId>gradle-base-services-groovy</artifactId>
+            <version>${version.gradle}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
+        <sourceDirectory>src/main/groovy</sourceDirectory>
         <plugins>
             <plugin>
-                <groupId>org.fortasoft</groupId>
-                <artifactId>gradle-maven-plugin</artifactId>
-                <version>1.0.1</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerId>groovy-eclipse-compiler</compilerId>
+                </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>org.gradle</groupId>
-                        <artifactId>gradle-tooling-api</artifactId>
-                        <version>1.6</version>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-compiler</artifactId>
+                        <version>2.8.0-01</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-batch</artifactId>
+                        <version>1.8.6-01</version>
                     </dependency>
                 </dependencies>
-                <executions>
-                    <execution>
-                        <id>clean</id>
-                        <phase>clean</phase>
-                        <configuration>
-                            <tasks>
-                                <task>clean</task>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>invoke</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <configuration>
-                            <tasks>
-                                <task>compileGroovy</task>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>invoke</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test</id>
-                        <phase>test</phase>
-                        <configuration>
-                            <tasks>
-                                <task>test</task>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>invoke</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>package</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <tasks>
-                                <task>copyLibs</task>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>invoke</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
-    <repositories>
-        <repository>
-            <id>gradle</id>
-            <url>http://repo.gradle.org/gradle/libs-releases-local/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>gradle-maven-plugin-release</id>
-            <name>gradle-maven-plugin-release</name>
-            <url>http://dl.bintray.com/content/robschoening/gradle-maven-plugin</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>

@@ -10,6 +10,14 @@
     <version>2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
+    <dependencies>
+        <!-- Add dependency to force correct module build order -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

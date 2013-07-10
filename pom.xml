@@ -38,14 +38,6 @@
             <id>axel</id>
             <name>Axel Fontaine</name>
         </developer>
-        <developer>
-            <id>christian</id>
-            <name>Christian Dedie</name>
-        </developer>
-        <developer>
-            <id>chris</id>
-            <name>Chris Wewerka</name>
-        </developer>
     </developers>
 
     <modules>
@@ -78,10 +70,26 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>maven-central</id>
+            <url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>gradle</id>
+            <url>http://repo.gradle.org/gradle/libs-releases-local</url>
+        </repository>
+        <repository>
+            <id>gradle-workaround</id>
+            <url>http://flywaydb.org/repo</url>
+        </repository>
+    </repositories>
+
     <properties>
         <version.spring>2.5.6</version.spring>
         <version.appengine>1.7.0</version.appengine>
         <version.maven>2.2.1</version.maven>
+        <version.gradle>1.6</version.gradle>
         <version.h2>1.3.170</version.h2>
         <version.equinox>3.6.0.v20100517</version.equinox>
         <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
@@ -253,6 +261,10 @@
                     <version>2.3</version>
                 </plugin>
                 <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                </plugin>
+                <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>2.7</version>
                 </plugin>
@@ -308,7 +320,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
@@ -359,6 +370,7 @@
                     <failIfMissing>true</failIfMissing>
                     <encoding>UTF-8</encoding>
                     <excludes>
+                        <exclude>.idea/**</exclude>
                         <exclude>**/*.sh</exclude>
                         <exclude>**/*.txt</exclude>
                         <exclude>**/*.cnf</exclude>
@@ -369,6 +381,8 @@
                         <exclude>**/*.ids</exclude>
                         <exclude>**/*.ipr</exclude>
                         <exclude>**/*.iws</exclude>
+                        <exclude>**/*.bin</exclude>
+                        <exclude>**/*.lock</exclude>
                         <exclude>.gitignore</exclude>
                         <exclude>.gitattributes</exclude>
                         <exclude>.travis.yml</exclude>
