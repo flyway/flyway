@@ -823,7 +823,7 @@ public class Flyway {
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
                 if (validateOnMigrate) {
-                    doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas);
+                    doValidate(connectionMetaDataTable, migrationResolver, metaDataTable, schemas);
                 }
 
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
@@ -888,7 +888,7 @@ public class Flyway {
                 MetaDataTable metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
-                doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas);
+                doValidate(connectionMetaDataTable, migrationResolver, metaDataTable, schemas);
                 return null;
             }
         });
@@ -898,12 +898,11 @@ public class Flyway {
      * Performs the actual validation. All set up must have taken place beforehand.
      *
      * @param connectionMetaDataTable The database connection for the metadata table.
-     * @param dbSupport               The database-specific support for these connections.
      * @param migrationResolver       The migration resolver;
      * @param metaDataTable           The metadata table.
      * @param schemas                 The schemas managed by Flyway.
      */
-    private void doValidate(Connection connectionMetaDataTable, DbSupport dbSupport, MigrationResolver migrationResolver,
+    private void doValidate(Connection connectionMetaDataTable, MigrationResolver migrationResolver,
                             MetaDataTable metaDataTable, Schema[] schemas) {
         String validationError =
                 new DbValidate(connectionMetaDataTable, metaDataTable, migrationResolver, target, outOfOrder).validate();
