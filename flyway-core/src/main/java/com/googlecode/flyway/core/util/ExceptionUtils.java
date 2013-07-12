@@ -30,7 +30,6 @@ public class ExceptionUtils {
      * Returns the root cause of this throwable.
      *
      * @param throwable The throwable to inspect.
-     *
      * @return The root cause or {@code null} if the throwable is null or doesn't have a cause.
      */
     public static Throwable getRootCause(Throwable throwable) {
@@ -46,5 +45,23 @@ public class ExceptionUtils {
         }
 
         return rootCause;
+    }
+
+    /**
+     * Returns the StackTrace of this throwable as a string. Each lines are separated by a newline (\n) character.
+     *
+     * @param throwable The throwable to create StackTrace for.
+     * @return String representation of the StackTrace
+     */
+    public static String getStackTrace(Throwable throwable) {
+        StringBuilder sb = new StringBuilder(2000);
+        StackTraceElement[] stackTrace = throwable.getStackTrace();
+        boolean first = true;
+        for (StackTraceElement ste : stackTrace) {
+            if (!first) sb.append("\n\t at ");
+            sb.append(ste.toString());
+            first = false;
+        }
+        return sb.toString();
     }
 }
