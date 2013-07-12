@@ -36,7 +36,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
     private static final String PLACEHOLDERS_PROPERTY_SUFFIX = "flyway.placeholders."
 
     /**
-     * The flyway { } block in the build script.
+     * The flyway {} block in the build script.
      */
     private FlywayExtension extension
 
@@ -102,6 +102,8 @@ abstract class AbstractFlywayTask extends DefaultTask {
         def sysSchemas = System.getProperty("flyway.schemas")
         if (sysSchemas != null) {
             flyway.schemas = StringUtils.tokenizeToStringArray(sysSchemas, ",")
+        } else if (project.hasProperty("flyway.schemas")) {
+            flyway.schemas = StringUtils.tokenizeToStringArray(project["flyway.schemas"].toString(), ",")
         } else if (extension.schemas != null) {
             flyway.schemas = extension.schemas
         }
@@ -109,6 +111,8 @@ abstract class AbstractFlywayTask extends DefaultTask {
         def sysLocations = System.getProperty("flyway.locations")
         if (sysLocations != null) {
             flyway.locations = StringUtils.tokenizeToStringArray(sysLocations, ",")
+        } else if (project.hasProperty("flyway.locations")) {
+            flyway.schemas = StringUtils.tokenizeToStringArray(project["flyway.locations"].toString(), ",")
         } else if (extension.locations != null) {
             flyway.locations = extension.locations
         }
@@ -117,6 +121,13 @@ abstract class AbstractFlywayTask extends DefaultTask {
         System.getProperties().each { String key, String value ->
             if (key.startsWith(PLACEHOLDERS_PROPERTY_SUFFIX)) {
                 placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_SUFFIX), value)
+            }
+        }
+        if (placeholders.isEmpty()) {
+            project.properties.each { String key, String value ->
+                if (key.startsWith(PLACEHOLDERS_PROPERTY_SUFFIX)) {
+                    placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_SUFFIX), value)
+                }
             }
         }
         if (placeholders.isEmpty() && (extension.placeholders != null)) {
@@ -140,12 +151,13 @@ abstract class AbstractFlywayTask extends DefaultTask {
     }
 
     /**
-     * Retrieves the value of this property, either from the System Properties or if not found from the Flyway extension.
+     * Retrieves the value of this property, first trying System Properties, then Gradle properties and finally the Flyway extension.
      * @param property The property whose value to get.
      * @return The value. {@code null} if not found.
      */
     private String prop(String property) {
-        System.getProperty("flyway.${property}") ?: extension[property]
+        String propertyName = "flyway.${property}"
+        System.getProperty(propertyName) ?: project.hasProperty(propertyName) ? project[propertyName] : extension[property]
     }
 
     protected boolean isJavaProject() {
