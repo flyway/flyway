@@ -39,7 +39,7 @@ import javax.sql.DataSource;
 /**
  * Common base class for all mojos with all common attributes.<br>
  *
- * @requiresDependencyResolution compile
+ * @requiresDependencyResolution test
  * @configurator include-project-dependencies
  */
 @SuppressWarnings({"JavaDoc", "FieldCanBeLocal", "UnusedDeclaration"})
