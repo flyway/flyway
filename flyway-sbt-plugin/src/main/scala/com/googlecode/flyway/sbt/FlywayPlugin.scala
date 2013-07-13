@@ -95,7 +95,6 @@ object FlywayPlugin extends Plugin {
     flywayTable := None,
     flywayInitVersion := None,
     flywayInitDescription := None,
-    flywayLocations := Seq("db/migration"),
     flywayEncoding := None,
     flywaySqlMigrationPrefix := None,
     flywaySqlMigrationSuffix := None,

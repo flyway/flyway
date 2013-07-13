@@ -5,7 +5,7 @@ organization := "com.googlecode.flyway"
 
 name := "flyway-sample"
 
-crossScalaVersions := Seq("2.9.1", "2.9.2", "2.9.3", "2.10.1")
+crossScalaVersions := Seq("2.9.2")
 
 libraryDependencies ++= Seq(
   "org.springframework" % "spring-jdbc" % "3.0.5.RELEASE",
