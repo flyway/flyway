@@ -177,7 +177,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
                 if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
                     return String.format("Migration Checksum mismatch for migration %s: DB=%s, Classpath=%s",
-                            appliedMigration.getScript(), appliedMigration.getType(), resolvedMigration.getType());
+                            appliedMigration.getScript(), appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                 }
             }
         }
