@@ -33,7 +33,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Property name prefix for placeholders that are configured through System properties.
      */
-    private static final String PLACEHOLDERS_PROPERTY_SUFFIX = "flyway.placeholders."
+    private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders."
 
     /**
      * The flyway {} block in the build script.
@@ -119,14 +119,14 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         Map<String, String> placeholders = [:]
         System.getProperties().each { String key, String value ->
-            if (key.startsWith(PLACEHOLDERS_PROPERTY_SUFFIX)) {
-                placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_SUFFIX), value)
+            if (key.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)) {
+                placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_PREFIX), value)
             }
         }
         if (placeholders.isEmpty()) {
-            project.properties.each { String key, String value ->
-                if (key.startsWith(PLACEHOLDERS_PROPERTY_SUFFIX)) {
-                    placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_SUFFIX), value)
+            project.properties.keySet().each { String key ->
+                if (key.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)) {
+                    placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_PREFIX), project.properties[key])
                 }
             }
         }
