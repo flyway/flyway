@@ -3,10 +3,10 @@
     <parent>
         <groupId>com.googlecode.flyway</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>2.2</version>
     </parent>
     <artifactId>flyway-sample-webapp</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>2.2</version>
     <packaging>war</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
