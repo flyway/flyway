@@ -17,7 +17,6 @@ package com.googlecode.flyway.core.command;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.resolver.MigrationResult;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
@@ -28,6 +27,7 @@ import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
 import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
+import com.googlecode.flyway.core.resolver.MigrationResult;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.StopWatch;
@@ -256,21 +256,15 @@ public class DbMigrate {
             LOG.debug("Successfully completed and committed migration of schema " + schema + " to version " + version);
             migrationResult = MigrationResult.createSuccess(version);
         } catch (Exception e) {
-            LOG.error(e.toString());
-
-            @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if (rootCause != null) {
-                LOG.error("Caused by " + rootCause.toString());
-            }
-            migrationResult = MigrationResult.createFailed(version, rootCause);
+            migrationResult = MigrationResult.createFailed(version, ExceptionUtils.getRootCause(e));
         }
 
         stopWatch.stop();
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-        if (migrationResult.isSuccess() && dbSupport.supportsDdlTransactions()) {
-            throw new FlywayException("Migration of schema " + schema + " to version " + version + " failed! Changes successfully rolled back.");
+        if (!migrationResult.isSuccess() && dbSupport.supportsDdlTransactions()) {
+            throw new FlywayException("Migration of schema " + schema + " to version " + version + " failed!" +
+                    " Changes successfully rolled back.", migrationResult.getErrorCause());
         }
         LOG.debug(String.format("Finished migrating schema %s to version %s (execution time %s)",
                 schema, version, TimeFormat.format(executionTime)));

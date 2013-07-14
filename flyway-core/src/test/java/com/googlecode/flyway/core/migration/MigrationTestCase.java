@@ -16,8 +16,11 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationState;
+import com.googlecode.flyway.core.api.MigrationType;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
@@ -51,12 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Test to demonstrate the migration functionality.
@@ -255,7 +253,6 @@ public abstract class MigrationTestCase {
         } catch (FlywayException e) {
             // root cause of exception must be defined
             assertNotNull(e.getCause());
-            assertTrue(e.getCause() instanceof SQLException);
         }
 
         MigrationInfo migration = flyway.info().current();
@@ -525,18 +522,20 @@ public abstract class MigrationTestCase {
     @Test
     public void setCurrentSchema() throws Exception {
         Schema schema = dbSupport.getSchema("current_schema_test");
-        schema.create();
+        try {
+            schema.create();
 
-        flyway.setSchemas("current_schema_test");
-        flyway.clean();
+            flyway.setSchemas("current_schema_test");
+            flyway.clean();
 
-        flyway.setLocations("migration/current_schema");
-        Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema1", dbSupport.quote("current_schema_test"));
-        flyway.setPlaceholders(placeholders);
-        flyway.migrate();
-
-        schema.drop();
+            flyway.setLocations("migration/current_schema");
+            Map<String, String> placeholders = new HashMap<String, String>();
+            placeholders.put("schema1", dbSupport.quote("current_schema_test"));
+            flyway.setPlaceholders(placeholders);
+            flyway.migrate();
+        } finally {
+            schema.drop();
+        }
     }
 
     @Test
