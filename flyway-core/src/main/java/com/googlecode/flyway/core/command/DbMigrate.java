@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.command;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationResult;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
@@ -29,7 +30,6 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ExceptionUtils;
-import com.googlecode.flyway.core.util.Pair;
 import com.googlecode.flyway.core.util.StopWatch;
 import com.googlecode.flyway.core.util.TimeFormat;
 import com.googlecode.flyway.core.util.jdbc.TransactionCallback;
@@ -134,9 +134,9 @@ public class DbMigrate {
         int migrationSuccessCount = 0;
         while (true) {
             final boolean firstRun = migrationSuccessCount == 0;
-            Pair<Boolean, MigrationVersion> result =
-                    new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Boolean, MigrationVersion>>() {
-                        public Pair<Boolean, MigrationVersion> doInTransaction() {
+            final MigrationResult result =
+                    new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<MigrationResult>() {
+                        public MigrationResult doInTransaction() {
                             metaDataTable.lock();
 
                             MigrationInfoServiceImpl infoService =
@@ -175,7 +175,7 @@ public class DbMigrate {
                                         && ignoreFailedFutureMigration) {
                                     LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
                                 } else {
-                                    return Pair.of(false, failed[0].getVersion());
+                                    return MigrationResult.createFailed(failed[0].getVersion(), null);
                                 }
                             }
 
@@ -195,8 +195,8 @@ public class DbMigrate {
                 break;
             }
 
-            if (!result.getLeft()) {
-                throw new FlywayException("Migration of schema " + schema + " to version " + result.getRight() + " failed! Please restore backups and roll back database and code!");
+            if (!result.isSuccess()) {
+                throw new FlywayException("Migration of schema " + schema + " to version " + result.getMigrationVersion() + " failed! Please restore backups and roll back database and code!", result.getErrorCause());
             }
 
             migrationSuccessCount++;
@@ -232,10 +232,9 @@ public class DbMigrate {
      *
      * @param migration    The migration to apply.
      * @param isOutOfOrder If this migration is being applied out of order.
-     * @return Pair of success flag and version.
-     * @throws FlywayException when the migration failed.
+     * @return The result of the migration.
      */
-    private Pair<Boolean, MigrationVersion> applyMigration(final ResolvedMigration migration, boolean isOutOfOrder) throws FlywayException {
+    private MigrationResult applyMigration(final ResolvedMigration migration, boolean isOutOfOrder) {
         MigrationVersion version = migration.getVersion();
         if (isOutOfOrder) {
             LOG.info("Migrating schema " + schema + " to version " + version + " (out of order)");
@@ -246,7 +245,7 @@ public class DbMigrate {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        boolean success = false;
+        MigrationResult migrationResult;
         try {
             new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
@@ -255,7 +254,7 @@ public class DbMigrate {
                 }
             });
             LOG.debug("Successfully completed and committed migration of schema " + schema + " to version " + version);
-            success = true;
+            migrationResult = MigrationResult.createSuccess(version);
         } catch (Exception e) {
             LOG.error(e.toString());
 
@@ -264,21 +263,22 @@ public class DbMigrate {
             if (rootCause != null) {
                 LOG.error("Caused by " + rootCause.toString());
             }
+            migrationResult = MigrationResult.createFailed(version, rootCause);
         }
 
         stopWatch.stop();
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-        if (!success && dbSupport.supportsDdlTransactions()) {
+        if (migrationResult.isSuccess() && dbSupport.supportsDdlTransactions()) {
             throw new FlywayException("Migration of schema " + schema + " to version " + version + " failed! Changes successfully rolled back.");
         }
         LOG.debug(String.format("Finished migrating schema %s to version %s (execution time %s)",
                 schema, version, TimeFormat.format(executionTime)));
 
         AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, success);
+                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, migrationResult.isSuccess());
         metaDataTable.addAppliedMigration(appliedMigration);
 
-        return Pair.of(success, migration.getVersion());
+        return migrationResult;
     }
 }
