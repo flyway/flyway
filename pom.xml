@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>2.3-SNAPSHOT</version>
+    <version>2.2</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>
@@ -30,7 +30,7 @@
         <url>https://github.com/flyway/flyway</url>
         <connection>scm:git:https://github.com/flyway/flyway.git</connection>
         <developerConnection>scm:git:https://github.com/flyway/flyway.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>flyway-2.2</tag>
     </scm>
     <developers>
         <developer>
