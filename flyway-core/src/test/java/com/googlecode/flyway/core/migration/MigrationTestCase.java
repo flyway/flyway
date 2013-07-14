@@ -53,6 +53,7 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -252,7 +253,9 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            //Expected
+            // Expected
+            // root cause of exception must be defined
+            assertNotNull(e.getCause());
         }
 
         MigrationInfo migration = flyway.info().current();
