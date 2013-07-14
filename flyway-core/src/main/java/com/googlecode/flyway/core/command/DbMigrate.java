@@ -17,7 +17,7 @@ package com.googlecode.flyway.core.command;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationResult;
+import com.googlecode.flyway.core.resolver.MigrationResult;
 import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.DbSupport;

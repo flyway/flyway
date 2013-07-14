@@ -253,9 +253,9 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            // Expected
             // root cause of exception must be defined
             assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof SQLException);
         }
 
         MigrationInfo migration = flyway.info().current();
