@@ -261,7 +261,7 @@ public class DbMigrate {
             @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause != null) {
-                LOG.error("Caused by " + rootCause.toString());
+                LOG.error("Caused by " + ExceptionUtils.getStackTrace(rootCause));
             }
             migrationResult = MigrationResult.createFailed(version, rootCause);
         }
