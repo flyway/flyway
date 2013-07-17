@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.dbsupport.h2;
+package com.googlecode.flyway.core.util;
 
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.FlywayException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-public class H2TriggerExceptionSmallTest {
+public class ExceptionUtilsSmallTest {
     @Test
-    public void triggerException() {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource("jdbc:h2:mem:flyway_db_trigger;DB_CLOSE_DELAY=-1", "sa", "");
-        flyway.setLocations("com.googlecode.flyway.core.dbsupport.h2");
+    public void rootCause() {
+        Exception cause = new Exception();
+        Exception e = new Exception(cause);
+        assertEquals(cause, ExceptionUtils.getRootCause(e));
+    }
 
-        try {
-            flyway.migrate();
-            fail();
-        } catch (FlywayException e) {
-            assertEquals("Expected", e.getCause().getMessage());
-        }
+    @Test
+    public void rootCauseIsExceptionItself() {
+        Exception e = new Exception();
+        assertEquals(e, ExceptionUtils.getRootCause(e));
     }
 }

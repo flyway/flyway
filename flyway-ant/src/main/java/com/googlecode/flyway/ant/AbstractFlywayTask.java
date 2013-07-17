@@ -328,14 +328,7 @@ public abstract class AbstractFlywayTask extends Task {
 
             doExecute(flyway);
         } catch (Exception e) {
-            log.error(e.toString());
-
-            @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if (rootCause != null) {
-                log.error("Caused by " + rootCause.toString());
-            }
-            throw new BuildException("Flyway Error: " + e.toString(), e);
+            throw new BuildException("Flyway Error: " + e.toString(), ExceptionUtils.getRootCause(e));
         }
     }
 

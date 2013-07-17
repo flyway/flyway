@@ -88,15 +88,10 @@ public class Main {
             if (debug) {
                 LOG.error("Unexpected error", e);
             } else {
-                LOG.error(ClassUtils.getShortName(e.getClass()) + ": " + e.getMessage());
-                outputFirstStackTraceElement(e);
-
-                @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
-                Throwable rootCause = ExceptionUtils.getRootCause(e);
-                if (rootCause != null) {
-                    LOG.error("Caused by " + rootCause.toString());
-                    outputFirstStackTraceElement(rootCause);
-                }
+                LOG.error(e.toString());
+                Throwable cause = ExceptionUtils.getRootCause(e);
+                LOG.error("Caused by: " + cause.toString());
+                outputFirstStackTraceElement(cause);
             }
             System.exit(1);
         }
