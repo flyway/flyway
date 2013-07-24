@@ -15,6 +15,10 @@
  */
 package com.googlecode.flyway.core.api;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * A version of a migration.
  *
@@ -25,17 +29,22 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Version for an empty schema.
      */
     public static final MigrationVersion EMPTY = new MigrationVersion(null, "<< Empty Schema >>");
-
     /**
      * Latest version.
      */
-    public static final MigrationVersion LATEST = new MigrationVersion(Long.toString(Long.MAX_VALUE), "<< Latest Version >>");
-
+    public static final MigrationVersion LATEST = new MigrationVersion(Long.MAX_VALUE, "<< Latest Version >>");
+    /**
+     * Compiled pattern for matching proper version format
+     */
+    private static Pattern versionPattern = Pattern.compile("\\d[\\d\\.]*");
+    /**
+     * Compiled pattern for matching proper version format
+     */
+    private static Pattern splitPattern = Pattern.compile("\\.");
     /**
      * The version.
      */
-    private final String version;
-
+    private final List<Long> version;
     /**
      * The printable text to represent the version.
      */
@@ -48,40 +57,36 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      *                means that this version refers to an empty schema.
      */
     public MigrationVersion(String version) {
-        String normalizedVersion = version.replace("_", ".");
+        String normalizedVersion = version.replace('_', '.');
 
-        if (normalizedVersion.startsWith(".")) {
-            throw new FlywayException(
-                    "Invalid version starting with a dot (.) instead of a digit: " + normalizedVersion);
-        }
-
-        if (!normalizedVersion.matches("[\\d\\.]*")) {
+        if (!versionPattern.matcher(normalizedVersion).matches()) {
             throw new FlywayException(
                     "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
                             + normalizedVersion);
         }
 
-        this.version = normalizedVersion;
+        this.version = tokenizeToLongArray(normalizedVersion);
         this.displayText = normalizedVersion;
     }
 
     /**
      * Creates a Version using this version string.
      *
-     * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                means that this version refers to an empty schema.
+     * @param version     The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
+     *                    means that this version refers to an empty schema.
      * @param displayText The alternative text to display instead of the version number.
      */
-    private MigrationVersion(String version, String displayText) {
-        this.version = version;
+    private MigrationVersion(Long version, String displayText) {
+        this.version = new ArrayList<Long>();
+        this.version.add(version);
         this.displayText = displayText;
     }
 
     /**
      * @return The individual elements this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
      */
-    private String[] getElements() {
-        return tokenizeToStringArray(version, ".");
+    private List<Long> getElements() {
+        return version;
     }
 
     /**
@@ -129,24 +134,19 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         if (o == LATEST) {
             return Integer.MIN_VALUE;
         }
-        final String[] elements1 = getElements();
-        final String[] elements2 = o.getElements();
-        int smallestNumberOfElements = Math.min(elements1.length, elements2.length);
+        final List<Long> elements1 = getElements();
+        final List<Long> elements2 = o.getElements();
+        int smallestNumberOfElements = Math.min(elements1.size(), elements2.size());
         for (int i = 0; i < smallestNumberOfElements; i++) {
-            String element1 = elements1[i];
-            String element2 = elements2[i];
-            final int compared;
-            if (isNumeric(element1) && isNumeric(element2)) {
-                compared = Long.valueOf(element1).compareTo(Long.valueOf(element2));
-            } else {
-                compared = element1.compareTo(element2);
-            }
+            Long element1 = elements1.get(i);
+            Long element2 = elements2.get(i);
+            final int compared = element1.compareTo(element2);
             if (compared != 0) {
                 return compared;
             }
         }
 
-        final int lengthDifference = elements1.length - elements2.length;
+        final int lengthDifference = elements1.size() - elements2.size();
         if (lengthDifference > 0 && onlyTrailingZeroes(elements1, smallestNumberOfElements)) {
             return 0;
         }
@@ -161,13 +161,12 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      *
      * @param elements The elements to check.
      * @param position The position where to start checking.
-     *
      * @return {@code true} if they are all zeroes, {@code false} if not.
      */
-    private boolean onlyTrailingZeroes(String[] elements, int position) {
-        for (int i = position; i < elements.length; i++) {
-            String element = elements[i];
-            if (!isNumeric(element) || !Long.valueOf(element).equals(0L)) {
+    private boolean onlyTrailingZeroes(List<Long> elements, int position) {
+        for (int i = position; i < elements.size(); i++) {
+            Long element = elements.get(i);
+            if (!element.equals(Long.valueOf(0))) {
                 return false;
             }
         }
@@ -175,45 +174,19 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
-     * Splits this string into an array using these delimiters.
+     * Splits this string into list of Long
      *
      * @param str        The string to split.
-     * @param delimiters The delimiters to use.
      * @return The resulting array.
      */
-    private String[] tokenizeToStringArray(String str, String delimiters) {
+    private List<Long> tokenizeToLongArray(String str) {
         if (str == null) {
             return null;
         }
-        String[] tokens = str.split("[" + delimiters + "]");
-        for (int i = 0; i < tokens.length; i++) {
-            tokens[i] = tokens[i].trim();
+        ArrayList<Long> numbers = new ArrayList<Long>();
+        for (String number : splitPattern.split(str)) {
+            numbers.add(Long.valueOf(number));
         }
-        return tokens;
-    }
-
-    /**
-     * <p>Checks if the String contains only unicode digits. A decimal point is not a unicode digit and returns
-     * false.</p> <p/> <p>{@code null} will return {@code false}. An empty String ("") will return {@code true}.</p>
-     * <p/>
-     * <pre>
-     * StringUtils.isNumeric(null)   = false
-     * StringUtils.isNumeric("")     = true
-     * StringUtils.isNumeric("  ")   = false
-     * StringUtils.isNumeric("123")  = true
-     * StringUtils.isNumeric("12 3") = false
-     * StringUtils.isNumeric("ab2c") = false
-     * StringUtils.isNumeric("12-3") = false
-     * StringUtils.isNumeric("12.3") = false
-     * </pre>
-     *
-     * @param str the String to check, may be null
-     * @return {@code true} if only contains digits, and is non-null
-     */
-    private boolean isNumeric(String str) {
-        if (str == null) {
-            return false;
-        }
-        return str.matches("\\d*");
+        return numbers;
     }
 }
