@@ -66,6 +66,7 @@ public abstract class MigrationTestCase {
      */
     protected static final String BASEDIR = "migration/sql";
 
+    protected DataSource dataSource;
     private Connection connection;
     protected DbSupport dbSupport;
 
@@ -79,14 +80,14 @@ public abstract class MigrationTestCase {
         if (customPropertiesFile.canRead()) {
             customProperties.load(new FileInputStream(customPropertiesFile));
         }
-        DataSource migrationDataSource = createDataSource(customProperties);
+        dataSource = createDataSource(customProperties);
 
-        connection = migrationDataSource.getConnection();
+        connection = dataSource.getConnection();
         dbSupport = DbSupportFactory.createDbSupport(connection);
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
         flyway = new Flyway();
-        flyway.setDataSource(migrationDataSource);
+        flyway.setDataSource(dataSource);
         flyway.setValidationMode(ValidationMode.ALL);
         flyway.clean();
     }

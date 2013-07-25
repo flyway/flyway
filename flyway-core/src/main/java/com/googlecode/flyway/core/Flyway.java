@@ -859,8 +859,9 @@ public class Flyway {
                 }
 
                 DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects);
-                Schema schemaUserObjects = dbSupport.getCurrentSchema();
-                if (!schemas[0].equals(schemaUserObjects)) {
+                Schema originalSchemaUserObjects = dbSupport.getCurrentSchema();
+                boolean schemaChange = !schemas[0].equals(originalSchemaUserObjects);
+                if (schemaChange) {
                     dbSupportUserObjects.setCurrentSchema(schemas[0]);
                 }
 
@@ -870,8 +871,8 @@ public class Flyway {
                 try {
                     return dbMigrator.migrate();
                 } finally {
-                    if (!schemaUserObjects.equals(dbSupportUserObjects.getCurrentSchema())) {
-                        dbSupportUserObjects.setCurrentSchema(schemaUserObjects);
+                    if (schemaChange) {
+                        dbSupportUserObjects.setCurrentSchema(originalSchemaUserObjects);
                     }
                 }
             }
@@ -1174,9 +1175,11 @@ public class Flyway {
 
             if (schemaNames.length == 0) {
                 Schema currentSchema = dbSupport.getCurrentSchema();
-                if (currentSchema != null) {
-                    setSchemas(currentSchema.getName());
+                if (currentSchema == null) {
+                    throw new FlywayException("Unable to determine schema for the metadata table." +
+                            " Set a default schema for the connection or specify one using the schemas property!");
                 }
+                setSchemas(currentSchema.getName());
             }
 
             if (schemaNames.length == 1) {

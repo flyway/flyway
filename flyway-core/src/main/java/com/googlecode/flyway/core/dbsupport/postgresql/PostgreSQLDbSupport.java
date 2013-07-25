@@ -54,8 +54,17 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     protected void doSetCurrentSchema(Schema schema) throws SQLException {
+        if (schema == null) {
+            jdbcTemplate.execute("SELECT set_config('search_path', '', false)");
+            return;
+        }
+
         String searchPath = jdbcTemplate.queryForString("SHOW search_path");
-        jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
+        if (StringUtils.hasText(searchPath)) {
+            jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
+        } else {
+            jdbcTemplate.execute("SET search_path = " + schema);
+        }
     }
 
     public boolean supportsDdlTransactions() {

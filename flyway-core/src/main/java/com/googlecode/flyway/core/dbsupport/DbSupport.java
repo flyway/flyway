@@ -73,7 +73,12 @@ public abstract class DbSupport {
      */
     public Schema getCurrentSchema() {
         try {
-            return getSchema(doGetCurrentSchema());
+            String schemaName = doGetCurrentSchema();
+            if (schemaName == null) {
+                return null;
+            }
+
+            return getSchema(schemaName);
         } catch (SQLException e) {
             throw new FlywayException("Unable to retrieve the current schema for the connection", e);
         }

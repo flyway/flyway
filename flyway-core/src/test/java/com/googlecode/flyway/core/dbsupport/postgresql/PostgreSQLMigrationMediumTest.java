@@ -15,11 +15,16 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
+import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -213,4 +218,27 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
+    @Test
+    public void emptySearchPath() {
+        Flyway flyway1 = new Flyway();
+        DriverDataSource driverDataSource = (DriverDataSource) dataSource;
+        flyway1.setDataSource(new DriverDataSource(
+                null, driverDataSource.getUrl(), driverDataSource.getUser(), driverDataSource.getPassword()) {
+            @Override
+            public Connection getConnection() throws SQLException {
+                Connection connection = super.getConnection();
+                Statement statement = null;
+                try {
+                    statement = connection.createStatement();
+                    statement.execute("SELECT set_config('search_path', '', false)");
+                } finally {
+                    JdbcUtils.closeStatement(statement);
+                }
+                return connection;
+            }
+        });
+        flyway1.setLocations(BASEDIR);
+        flyway1.setSchemas("public");
+        flyway1.migrate();
+    }
 }
