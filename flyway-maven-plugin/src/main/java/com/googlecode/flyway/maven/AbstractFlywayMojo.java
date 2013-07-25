@@ -250,7 +250,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             doExecute(flyway);
         } catch (Exception e) {
-            throw new MojoExecutionException("Flyway Error: " + e.toString(), ExceptionUtils.getRootCause(e));
+            throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
         }
     }
 

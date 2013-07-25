@@ -846,12 +846,14 @@ public class Flyway {
                             //Check whether we only have an empty metadata table in an otherwise empty schema
                             if (schema.allTables().length != 1 || !schema.getTable(table).exists()) {
                                 throw new FlywayException("Found non-empty schema " + schema
-                                        + " without metadata table! Use init() first to initialize the metadata table.");
+                                        + " without metadata table! Use init()"
+                                        + " or set initOnMigrate to true to initialize the metadata table.");
                             }
                         } else {
                             throw new FlywayException("Found non-empty schemas "
                                     + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                    + " without metadata table! Use init() first to initialize the metadata table.");
+                                    + " without metadata table! Use init()"
+                                    + " or set initOnMigrate to true to initialize the metadata table.");
                         }
                     }
                 }
