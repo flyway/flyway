@@ -29,22 +29,27 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Version for an empty schema.
      */
     public static final MigrationVersion EMPTY = new MigrationVersion(null, "<< Empty Schema >>");
+
     /**
      * Latest version.
      */
     public static final MigrationVersion LATEST = new MigrationVersion(Long.MAX_VALUE, "<< Latest Version >>");
+
     /**
      * Compiled pattern for matching proper version format
      */
     private static Pattern versionPattern = Pattern.compile("\\d[\\d\\.]*");
+
     /**
      * Compiled pattern for matching proper version format
      */
     private static Pattern splitPattern = Pattern.compile("\\.");
+
     /**
      * The version.
      */
     private final List<Long> version;
+
     /**
      * The printable text to represent the version.
      */
@@ -65,7 +70,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
                             + normalizedVersion);
         }
 
-        this.version = tokenizeToLongArray(normalizedVersion);
+        this.version = tokenizeToLongs(normalizedVersion);
         this.displayText = normalizedVersion;
     }
 
@@ -179,11 +184,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @param str        The string to split.
      * @return The resulting array.
      */
-    private List<Long> tokenizeToLongArray(String str) {
+    private List<Long> tokenizeToLongs(String str) {
         if (str == null) {
             return null;
         }
-        ArrayList<Long> numbers = new ArrayList<Long>();
+        List<Long> numbers = new ArrayList<Long>();
         for (String number : splitPattern.split(str)) {
             numbers.add(Long.valueOf(number));
         }
