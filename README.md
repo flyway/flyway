@@ -9,7 +9,7 @@ http://flywaydb.org
 
 How to contribute
 =================
-http://flywaydb.org/contribute/howToContribute.html
+http://flywaydb.org/contribute/
 
 License
 =======
