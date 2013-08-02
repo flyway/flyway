@@ -58,6 +58,12 @@ public abstract class MavenTestCase {
     }
 
     @Test
+    public void sample() throws Exception {
+        String stdOut = runMaven(0, "sample", "clean", "compile", "flyway:migrate");
+        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
+    }
+
+    @Test
     public void settings() throws Exception {
         String stdOut = runMaven(0, "settings", "clean", "compile", "flyway:init", "flyway:status", "-s", pomInstallDir + "/settings/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));

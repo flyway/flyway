@@ -47,7 +47,6 @@ public class IncludeProjectDependenciesComponentConfigurator extends AbstractCom
             throws ComponentConfigurationException {
 
         addProjectDependenciesToClassRealm(expressionEvaluator, containerRealm);
-        converterLookup.registerConverter(new ClassRealmConverter(containerRealm));
         ObjectWithFieldsConverter converter = new ObjectWithFieldsConverter();
         converter.processConfiguration(converterLookup, component, containerRealm.getClassLoader(), configuration,
                 expressionEvaluator, listener);
