@@ -125,11 +125,11 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
 
         if (this == EMPTY) {
-            return Integer.MIN_VALUE;
+            return o == EMPTY ? 0 : Integer.MIN_VALUE;
         }
 
         if (this == LATEST) {
-            return Integer.MAX_VALUE;
+            return o == LATEST ? 0 : Integer.MAX_VALUE;
         }
 
         if (o == EMPTY) {
@@ -141,41 +141,18 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
         final List<Long> elements1 = getElements();
         final List<Long> elements2 = o.getElements();
-        int smallestNumberOfElements = Math.min(elements1.size(), elements2.size());
-        for (int i = 0; i < smallestNumberOfElements; i++) {
-            Long element1 = elements1.get(i);
-            Long element2 = elements2.get(i);
-            final int compared = element1.compareTo(element2);
+        int largestNumberOfElements = Math.max(elements1.size(), elements2.size());
+        for (int i = 0; i < largestNumberOfElements; i++) {
+            final int compared = getOrZero(elements1, i).compareTo(getOrZero(elements2, i));
             if (compared != 0) {
                 return compared;
             }
         }
-
-        final int lengthDifference = elements1.size() - elements2.size();
-        if (lengthDifference > 0 && onlyTrailingZeroes(elements1, smallestNumberOfElements)) {
-            return 0;
-        }
-        if (lengthDifference < 0 && onlyTrailingZeroes(elements2, smallestNumberOfElements)) {
-            return 0;
-        }
-        return lengthDifference;
+        return 0;
     }
 
-    /**
-     * Checks whether the elements at this position and beyond are only zeroes or not.
-     *
-     * @param elements The elements to check.
-     * @param position The position where to start checking.
-     * @return {@code true} if they are all zeroes, {@code false} if not.
-     */
-    private boolean onlyTrailingZeroes(List<Long> elements, int position) {
-        for (int i = position; i < elements.size(); i++) {
-            Long element = elements.get(i);
-            if (!element.equals(Long.valueOf(0))) {
-                return false;
-            }
-        }
-        return true;
+    private Long getOrZero(List<Long> elements, int i) {
+        return i < elements.size() ? elements.get(i) : 0;
     }
 
     /**
@@ -190,7 +167,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
         List<Long> numbers = new ArrayList<Long>();
         for (String number : splitPattern.split(str)) {
-            numbers.add(Long.valueOf(number));
+            numbers.add(number.length() == 0 ? 0 : Long.valueOf(number));
         }
         return numbers;
     }

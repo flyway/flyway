@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.api;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -87,6 +88,42 @@ public class MigrationVersionSmallTest {
         final MigrationVersion v2 = new MigrationVersion("001.0");
         assertTrue(v1.compareTo(v2) == 0);
         assertTrue(v1.equals(v2));
+    }
+
+    @Test
+    public void trailingZeroes() {
+        final MigrationVersion v1 = new MigrationVersion("1.00");
+        final MigrationVersion v2 = new MigrationVersion("1");
+        assertTrue(v1.compareTo(v2) == 0);
+        assertTrue(v1.equals(v2));
+    }
+
+    @Test
+    public void empty() {
+        assertEquals(MigrationVersion.EMPTY, MigrationVersion.EMPTY);
+        assertTrue(MigrationVersion.EMPTY.compareTo(MigrationVersion.EMPTY) == 0);
+    }
+
+    @Test
+    public void latest() {
+        assertEquals(MigrationVersion.LATEST, MigrationVersion.LATEST);
+        assertTrue(MigrationVersion.LATEST.compareTo(MigrationVersion.LATEST) == 0);
+    }
+
+    @Test
+    public void zeros() {
+        final MigrationVersion v1 = new MigrationVersion("0.0");
+        final MigrationVersion v2 = new MigrationVersion("0");
+        assertTrue(v1.compareTo(v2) == 0);
+        assertTrue(v1.equals(v2));
+    }
+
+    @Test
+    public void lenientVersionFormat() {
+        assertEquals(new MigrationVersion("1..1"), new MigrationVersion("1.0.1"));
+        assertTrue(0 == new MigrationVersion("1..1").compareTo(new MigrationVersion("1.0.1")));
+        assertEquals(new MigrationVersion("1__1"), new MigrationVersion("1.0.1"));
+        assertTrue(0 == new MigrationVersion("1__1").compareTo(new MigrationVersion("1.0.1")));
     }
 
     @Test(expected = FlywayException.class)
