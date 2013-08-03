@@ -17,9 +17,9 @@ package com.googlecode.flyway.core.resolver.jdbc;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.resolver.MigrationExecutor;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+
+import java.sql.Connection;
 
 /**
  * Adapter for executing migrations implementing JdbcMigration.
@@ -39,9 +39,9 @@ public class JdbcMigrationExecutor implements MigrationExecutor {
         this.jdbcMigration = jdbcMigration;
     }
 
-    public void execute(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+    public void execute(Connection connection) {
         try {
-            jdbcMigration.migrate(jdbcTemplate.getConnection());
+            jdbcMigration.migrate(connection);
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }

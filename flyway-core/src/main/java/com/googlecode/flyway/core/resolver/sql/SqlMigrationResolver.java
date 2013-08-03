@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.resolver.sql;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
@@ -39,6 +40,11 @@ import java.util.zip.CRC32;
  * V1__Description.sql or V1_1__Description.sql.
  */
 public class SqlMigrationResolver implements MigrationResolver {
+    /**
+     * Database-specific support.
+     */
+    private final DbSupport dbSupport;
+
     /**
      * The base directory on the classpath where to migrations are located.
      */
@@ -67,13 +73,15 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
+     * @param dbSupport           The database-specific support.
      * @param location            The location on the classpath where to migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of Sql migrations.
      * @param sqlMigrationPrefix  The prefix for sql migrations
      * @param sqlMigrationSuffix  The suffix for sql migrations
      */
-    public SqlMigrationResolver(Location location, PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix) {
+    public SqlMigrationResolver(DbSupport dbSupport, Location location, PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix) {
+        this.dbSupport = dbSupport;
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
@@ -97,7 +105,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             for (Resource resource : resources) {
                 ResolvedMigration resolvedMigration = extractMigrationInfo(resource);
                 resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
-                resolvedMigration.setExecutor(new SqlMigrationExecutor(resource, placeholderReplacer, encoding));
+                resolvedMigration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
 
                 migrations.add(resolvedMigration);
             }

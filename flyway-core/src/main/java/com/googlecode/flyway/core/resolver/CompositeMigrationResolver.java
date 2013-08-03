@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.resolver;
 
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.resolver.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.resolver.jdbc.JdbcMigrationResolver;
 import com.googlecode.flyway.core.resolver.spring.SpringJdbcMigrationResolver;
@@ -38,6 +39,11 @@ import java.util.Set;
  * resolvers.
  */
 public class CompositeMigrationResolver implements MigrationResolver {
+    /**
+     * Database-specific support.
+     */
+    private final DbSupport dbSupport;
+
     /**
      * The locations where the migrations are located.
      */
@@ -82,6 +88,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
+     * @param dbSupport           The database-specific support.
      * @param locations          The locations where migrations are located.
      * @param encoding           The encoding of Sql migrations.
      * @param sqlMigrationPrefix The file name prefix for sql migrations.
@@ -90,7 +97,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param placeholderPrefix  The prefix of every placeholder.
      * @param placeholderSuffix  The suffix of every placeholder.
      */
-    public CompositeMigrationResolver(Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+    public CompositeMigrationResolver(DbSupport dbSupport, Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+        this.dbSupport = dbSupport;
         this.locations = locations;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
@@ -128,7 +136,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 
         for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
+            migrationResolvers.add(new SqlMigrationResolver(dbSupport, location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
             migrationResolvers.add(new JdbcMigrationResolver(location));
 
             if (FeatureDetector.isSpringJdbcAvailable()) {

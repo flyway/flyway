@@ -22,10 +22,17 @@ import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.Resource;
 
+import java.sql.Connection;
+
 /**
  * Database migration based on a sql file.
  */
 public class SqlMigrationExecutor implements MigrationExecutor {
+    /**
+     * Database-specific support.
+     */
+    private final DbSupport dbSupport;
+
     /**
      * The placeholder replacer to apply to sql migration scripts.
      */
@@ -46,20 +53,22 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     /**
      * Creates a new sql script migration based on this sql script.
      *
+     * @param dbSupport           The database-specific support.
      * @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of this Sql migration.
      */
-    public SqlMigrationExecutor(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
+    public SqlMigrationExecutor(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
+        this.dbSupport = dbSupport;
         this.sqlScriptResource = sqlScriptResource;
         this.encoding = encoding;
         this.placeholderReplacer = placeholderReplacer;
     }
 
-    public void execute(JdbcTemplate jdbcTemplate, DbSupport dbSupport) {
+    public void execute(Connection connection) {
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         String sqlScriptSourceNoPlaceholders = placeholderReplacer.replacePlaceholders(sqlScriptSource);
         SqlScript sqlScript = new SqlScript(sqlScriptSourceNoPlaceholders, dbSupport);
-        sqlScript.execute(jdbcTemplate);
+        sqlScript.execute(new JdbcTemplate(connection, 0));
     }
 }

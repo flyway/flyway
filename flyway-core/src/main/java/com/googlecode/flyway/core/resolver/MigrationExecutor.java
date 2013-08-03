@@ -15,8 +15,7 @@
  */
 package com.googlecode.flyway.core.resolver;
 
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import java.sql.Connection;
 
 /**
  * Executes a migration.
@@ -25,8 +24,7 @@ public interface MigrationExecutor {
     /**
      * Executes the migration this executor is associated with.
      *
-     * @param jdbcTemplate The jdbcTemplate to use to execute the migration against the DB.
-     * @param dbSupport    The database-specific support.
+     * @param connection The connection to use to execute the migration against the DB.
      */
-    void execute(JdbcTemplate jdbcTemplate, DbSupport dbSupport);
+    void execute(Connection connection);
 }

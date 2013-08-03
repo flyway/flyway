@@ -818,7 +818,7 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MigrationResolver migrationResolver = createMigrationResolver();
+                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 MetaDataTable metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
@@ -887,7 +887,7 @@ public class Flyway {
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MigrationResolver migrationResolver = createMigrationResolver();
+                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 MetaDataTable metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
@@ -929,7 +929,7 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTableImpl metaDataTable =
-                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), createMigrationResolver());
+                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), createMigrationResolver(dbSupport));
                 new DbClean(connectionMetaDataTable, metaDataTable, schemas).clean();
                 return null;
             }
@@ -980,7 +980,7 @@ public class Flyway {
     public MigrationInfoService info() {
         return execute(new Command<MigrationInfoService>() {
             public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MigrationResolver migrationResolver = createMigrationResolver();
+                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 MetaDataTable metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
 
@@ -999,7 +999,7 @@ public class Flyway {
     public void init() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MigrationResolver migrationResolver = createMigrationResolver();
+                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 MetaDataTable metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), migrationResolver);
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
@@ -1018,17 +1018,21 @@ public class Flyway {
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), createMigrationResolver()).repair();
+                new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), createMigrationResolver(dbSupport)).repair();
                 return null;
             }
         });
     }
 
     /**
+     * Creates the MigrationResolver.
+     *
+     * @param dbSupport The database-specific support.
+     *
      * @return A new, fully configured, MigrationResolver instance.
      */
-    private MigrationResolver createMigrationResolver() {
-        return new CompositeMigrationResolver(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+    private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
+        return new CompositeMigrationResolver(dbSupport, locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
     }
 
     /**

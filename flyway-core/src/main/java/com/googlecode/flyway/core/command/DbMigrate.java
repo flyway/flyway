@@ -249,7 +249,7 @@ public class DbMigrate {
         try {
             new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
-                    migration.getExecutor().execute(new JdbcTemplate(connectionUserObjects, 0), dbSupport);
+                    migration.getExecutor().execute(connectionUserObjects);
                     return null;
                 }
             });

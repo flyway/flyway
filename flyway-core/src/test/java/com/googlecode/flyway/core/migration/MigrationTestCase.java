@@ -187,6 +187,7 @@ public abstract class MigrationTestCase {
      */
     private void assertChecksum(MetaDataTableRow appliedMigration) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
+                dbSupport,
                 new Location(BASEDIR),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",
@@ -666,7 +667,7 @@ public abstract class MigrationTestCase {
      * Upgrade a Flyway 1.7 format metadata table to the Flyway 2.0 format.
      */
     private void upgradeMetaDataTableTo20Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(new Locations(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(dbSupport, new Locations(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
 
         MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable()), migrationResolver);
         upgrader.upgrade();
