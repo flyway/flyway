@@ -118,12 +118,24 @@ public class MigrationVersionSmallTest {
         assertTrue(v1.equals(v2));
     }
 
-    @Test
-    public void lenientVersionFormat() {
-        assertEquals(new MigrationVersion("1..1"), new MigrationVersion("1.0.1"));
-        assertTrue(0 == new MigrationVersion("1..1").compareTo(new MigrationVersion("1.0.1")));
-        assertEquals(new MigrationVersion("1__1"), new MigrationVersion("1.0.1"));
-        assertTrue(0 == new MigrationVersion("1__1").compareTo(new MigrationVersion("1.0.1")));
+    @Test(expected = FlywayException.class)
+    public void missingNumber() {
+        new MigrationVersion("1..1");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void dot() {
+        new MigrationVersion(".");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void startDot() {
+        new MigrationVersion(".1");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void endDot() {
+        new MigrationVersion("1.");
     }
 
     @Test(expected = FlywayException.class)

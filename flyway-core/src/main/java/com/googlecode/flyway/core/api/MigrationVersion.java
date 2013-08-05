@@ -38,12 +38,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Compiled pattern for matching proper version format
      */
-    private static Pattern versionPattern = Pattern.compile("\\d[\\d\\.]*");
-
-    /**
-     * Compiled pattern for matching proper version format
-     */
-    private static Pattern splitPattern = Pattern.compile("\\.");
+    private static Pattern splitPattern = Pattern.compile("\\.(?=\\d)");
 
     /**
      * The version.
@@ -63,13 +58,6 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      */
     public MigrationVersion(String version) {
         String normalizedVersion = version.replace('_', '.');
-
-        if (!versionPattern.matcher(normalizedVersion).matches()) {
-            throw new FlywayException(
-                    "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
-                            + normalizedVersion);
-        }
-
         this.version = tokenizeToLongs(normalizedVersion);
         this.displayText = normalizedVersion;
     }
@@ -167,7 +155,13 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         }
         List<Long> numbers = new ArrayList<Long>();
         for (String number : splitPattern.split(str)) {
-            numbers.add(number.length() == 0 ? 0 : Long.valueOf(number));
+            try {
+                numbers.add(Long.valueOf(number));
+            } catch (NumberFormatException e) {
+                throw new FlywayException(
+                    "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
+                    + str);
+            }
         }
         return numbers;
     }
