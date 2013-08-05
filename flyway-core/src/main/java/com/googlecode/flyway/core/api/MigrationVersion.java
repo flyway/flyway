@@ -102,9 +102,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
 
     @Override
     public int hashCode() {
-        int result = version != null ? version.hashCode() : 0;
-        result = 31 * result + displayText.hashCode();
-        return result;
+        return version == null ? 0 : version.hashCode();
     }
 
     public int compareTo(MigrationVersion o) {
@@ -162,6 +160,10 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
                     "Invalid version containing non-numeric characters. Only 0..9 and . are allowed. Invalid version: "
                     + str);
             }
+        }
+        for (int i = numbers.size() - 1; i > 0; i--) {
+            if (numbers.get(i) != 0) break;
+            numbers.remove(i);
         }
         return numbers;
     }

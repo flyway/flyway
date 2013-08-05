@@ -59,6 +59,7 @@ public class MigrationVersionSmallTest {
         final MigrationVersion a1 = new MigrationVersion("1.2.3.3");
         final MigrationVersion a2 = new MigrationVersion("1.2.3.3");
         assertTrue(a1.compareTo(a2) == 0);
+        assertEquals(a1.hashCode(), a2.hashCode());
     }
 
     @Test
@@ -88,6 +89,7 @@ public class MigrationVersionSmallTest {
         final MigrationVersion v2 = new MigrationVersion("001.0");
         assertTrue(v1.compareTo(v2) == 0);
         assertTrue(v1.equals(v2));
+        assertEquals(v1.hashCode(), v2.hashCode());
     }
 
     @Test
@@ -96,6 +98,7 @@ public class MigrationVersionSmallTest {
         final MigrationVersion v2 = new MigrationVersion("1");
         assertTrue(v1.compareTo(v2) == 0);
         assertTrue(v1.equals(v2));
+        assertEquals(v1.hashCode(), v2.hashCode());
     }
 
     @Test
@@ -116,6 +119,7 @@ public class MigrationVersionSmallTest {
         final MigrationVersion v2 = new MigrationVersion("0");
         assertTrue(v1.compareTo(v2) == 0);
         assertTrue(v1.equals(v2));
+        assertEquals(v1.hashCode(), v2.hashCode());
     }
 
     @Test(expected = FlywayException.class)
