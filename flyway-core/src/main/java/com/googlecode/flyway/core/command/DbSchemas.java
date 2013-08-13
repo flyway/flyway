@@ -67,13 +67,13 @@ public class DbSchemas {
                 for (Schema schema : schemas) {
                     if (schema.exists()) {
                         LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
-                        return null;
+                        if (!schema.empty()) {
+                            return null;
+                        }
+                    } else {
+                        LOG.info("Creating schema " + schema + " ...");
+                        schema.create();
                     }
-                }
-
-                for (Schema schema : schemas) {
-                    LOG.info("Creating schema " + schema + " ...");
-                    schema.create();
                 }
 
                 metaDataTable.addSchemasMarker(schemas);
