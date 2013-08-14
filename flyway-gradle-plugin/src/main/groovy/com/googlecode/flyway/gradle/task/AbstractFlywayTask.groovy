@@ -94,10 +94,10 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSet(flyway, 'placeholderPrefix')
         propSet(flyway, 'placeholderSuffix')
         propSet(flyway, 'target')
-        propSet(flyway, 'outOfOrder')
-        propSet(flyway, 'validateOnMigrate')
-        propSet(flyway, 'cleanOnValidationError')
-        propSet(flyway, 'initOnMigrate')
+        propSetAsBoolean(flyway, 'outOfOrder')
+        propSetAsBoolean(flyway, 'validateOnMigrate')
+        propSetAsBoolean(flyway, 'cleanOnValidationError')
+        propSetAsBoolean(flyway, 'initOnMigrate')
 
         def sysSchemas = System.getProperty("flyway.schemas")
         if (sysSchemas != null) {
@@ -112,7 +112,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         if (sysLocations != null) {
             flyway.locations = StringUtils.tokenizeToStringArray(sysLocations, ",")
         } else if (project.hasProperty("flyway.locations")) {
-            flyway.schemas = StringUtils.tokenizeToStringArray(project["flyway.locations"].toString(), ",")
+            flyway.locations = StringUtils.tokenizeToStringArray(project["flyway.locations"].toString(), ",")
         } else if (extension.locations != null) {
             flyway.locations = extension.locations
         }
@@ -144,9 +144,21 @@ abstract class AbstractFlywayTask extends DefaultTask {
      * @param property The property to set.
      */
     private void propSet(Flyway flyway, String property) {
-        def value = prop(property);
+        String value = prop(property);
         if (value != null) {
-            flyway[property] = value;
+            // use method call instead of property as it does not work nice with overload GROOVY-6084
+            flyway."set${property.capitalize()}"(value)
+        }
+    }
+    /**
+     * Sets this property on this Flyway instance if a value has been defined.
+     * @param flyway The Flyway instance.
+     * @param property The property to set.
+     */
+    private void propSetAsBoolean(Flyway flyway, String property) {
+        String value = prop(property);
+        if (value != null) {
+            flyway."set${property.capitalize()}"(value.toBoolean())
         }
     }
 
