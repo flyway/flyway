@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.api;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -58,6 +59,7 @@ public class MigrationVersionSmallTest {
         final MigrationVersion a1 = new MigrationVersion("1.2.3.3");
         final MigrationVersion a2 = new MigrationVersion("1.2.3.3");
         assertTrue(a1.compareTo(a2) == 0);
+        assertEquals(a1.hashCode(), a2.hashCode());
     }
 
     @Test
@@ -87,6 +89,57 @@ public class MigrationVersionSmallTest {
         final MigrationVersion v2 = new MigrationVersion("001.0");
         assertTrue(v1.compareTo(v2) == 0);
         assertTrue(v1.equals(v2));
+        assertEquals(v1.hashCode(), v2.hashCode());
+    }
+
+    @Test
+    public void trailingZeroes() {
+        final MigrationVersion v1 = new MigrationVersion("1.00");
+        final MigrationVersion v2 = new MigrationVersion("1");
+        assertTrue(v1.compareTo(v2) == 0);
+        assertTrue(v1.equals(v2));
+        assertEquals(v1.hashCode(), v2.hashCode());
+    }
+
+    @Test
+    public void empty() {
+        assertEquals(MigrationVersion.EMPTY, MigrationVersion.EMPTY);
+        assertTrue(MigrationVersion.EMPTY.compareTo(MigrationVersion.EMPTY) == 0);
+    }
+
+    @Test
+    public void latest() {
+        assertEquals(MigrationVersion.LATEST, MigrationVersion.LATEST);
+        assertTrue(MigrationVersion.LATEST.compareTo(MigrationVersion.LATEST) == 0);
+    }
+
+    @Test
+    public void zeros() {
+        final MigrationVersion v1 = new MigrationVersion("0.0");
+        final MigrationVersion v2 = new MigrationVersion("0");
+        assertTrue(v1.compareTo(v2) == 0);
+        assertTrue(v1.equals(v2));
+        assertEquals(v1.hashCode(), v2.hashCode());
+    }
+
+    @Test(expected = FlywayException.class)
+    public void missingNumber() {
+        new MigrationVersion("1..1");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void dot() {
+        new MigrationVersion(".");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void startDot() {
+        new MigrationVersion(".1");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void endDot() {
+        new MigrationVersion("1.");
     }
 
     @Test(expected = FlywayException.class)
