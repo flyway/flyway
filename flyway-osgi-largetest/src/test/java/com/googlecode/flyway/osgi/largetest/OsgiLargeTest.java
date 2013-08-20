@@ -47,6 +47,7 @@ public class OsgiLargeTest {
         List<String> args = new ArrayList<String>();
 
         String installDir = new File(getInstallDir()).getAbsolutePath();
+        addShellIfNeeded(args);
         args.add(installDir + "/run." + batchFileExtensionForCurrentSystem());
 
         ProcessBuilder builder = new ProcessBuilder(args);
@@ -64,17 +65,28 @@ public class OsgiLargeTest {
         return stdOut;
     }
 
+    private void addShellIfNeeded(List<String> args) {
+        if (!isWindowsOs()) {
+            args.add("sh");
+        }
+    }
+
     /**
      * Extension for the current systems batch file.
      *
      * @return returns cmd for windows systems, sh for other systems
      */
     private String batchFileExtensionForCurrentSystem() {
-        String osname = System.getProperty("os.name", "generic").toLowerCase();
-        if (osname.startsWith("windows")) {
-            return "cmd";
-        }
-        return "sh";
+        return isWindowsOs() ? "cmd" : "sh";
+    }
+
+    /**
+     * Check if we are running on Windows OS
+     *
+     * @return true for windows, otherwise false
+     */
+    private boolean isWindowsOs() {
+        return System.getProperty("os.name", "generic").toLowerCase().startsWith("windows");
     }
 
     /**
