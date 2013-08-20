@@ -120,13 +120,13 @@ abstract class AbstractFlywayTask extends DefaultTask {
         Map<String, String> placeholders = [:]
         System.getProperties().each { String key, String value ->
             if (key.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)) {
-                placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_PREFIX), value)
+                placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_PREFIX.length()), value)
             }
         }
         if (placeholders.isEmpty()) {
             project.properties.keySet().each { String key ->
                 if (key.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)) {
-                    placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_PREFIX), project.properties[key])
+                    placeholders.put(key.substring(PLACEHOLDERS_PROPERTY_PREFIX.length()), project.properties[key])
                 }
             }
         }
