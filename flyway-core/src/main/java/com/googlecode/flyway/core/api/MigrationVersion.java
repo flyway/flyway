@@ -41,9 +41,9 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     private static Pattern splitPattern = Pattern.compile("\\.(?=\\d)");
 
     /**
-     * The version.
+     * The individual parts this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
      */
-    private final List<Long> version;
+    private final List<Long> versionParts;
 
     /**
      * The printable text to represent the version.
@@ -58,7 +58,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      */
     public MigrationVersion(String version) {
         String normalizedVersion = version.replace('_', '.');
-        this.version = tokenizeToLongs(normalizedVersion);
+        this.versionParts = tokenizeToLongs(normalizedVersion);
         this.displayText = normalizedVersion;
     }
 
@@ -70,16 +70,9 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @param displayText The alternative text to display instead of the version number.
      */
     private MigrationVersion(Long version, String displayText) {
-        this.version = new ArrayList<Long>();
-        this.version.add(version);
+        this.versionParts = new ArrayList<Long>();
+        this.versionParts.add(version);
         this.displayText = displayText;
-    }
-
-    /**
-     * @return The individual elements this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
-     */
-    private List<Long> getElements() {
-        return version;
     }
 
     /**
@@ -102,7 +95,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
 
     @Override
     public int hashCode() {
-        return version == null ? 0 : version.hashCode();
+        return versionParts == null ? 0 : versionParts.hashCode();
     }
 
     public int compareTo(MigrationVersion o) {
@@ -125,8 +118,8 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         if (o == LATEST) {
             return Integer.MIN_VALUE;
         }
-        final List<Long> elements1 = getElements();
-        final List<Long> elements2 = o.getElements();
+        final List<Long> elements1 = versionParts;
+        final List<Long> elements2 = o.versionParts;
         int largestNumberOfElements = Math.max(elements1.size(), elements2.size());
         for (int i = 0; i < largestNumberOfElements; i++) {
             final int compared = getOrZero(elements1, i).compareTo(getOrZero(elements2, i));
@@ -148,9 +141,6 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return The resulting array.
      */
     private List<Long> tokenizeToLongs(String str) {
-        if (str == null) {
-            return null;
-        }
         List<Long> numbers = new ArrayList<Long>();
         for (String number : splitPattern.split(str)) {
             try {
