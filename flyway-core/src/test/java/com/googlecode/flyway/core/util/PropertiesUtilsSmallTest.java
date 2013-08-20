@@ -31,4 +31,18 @@ public class PropertiesUtilsSmallTest {
         properties.setProperty("consoleWidth", "");
         assertEquals(80, PropertiesUtils.getIntProperty(properties, "consoleWidth", 80));
     }
+
+    @Test
+    public void getIntPropertyBlank() {
+        Properties properties = new Properties();
+        properties.setProperty("consoleWidth", "    ");
+        assertEquals(80, PropertiesUtils.getIntProperty(properties, "consoleWidth", 80));
+    }
+
+    @Test
+    public void getIntPropertyTab() {
+        Properties properties = new Properties();
+        properties.setProperty("consoleWidth", "\t");
+        assertEquals(80, PropertiesUtils.getIntProperty(properties, "consoleWidth", 80));
+    }
 }
