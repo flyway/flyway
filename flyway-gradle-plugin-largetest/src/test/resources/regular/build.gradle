@@ -28,5 +28,7 @@ flyway {
     locations = [
             'classpath:db.migration'
     ]
+    initVersion = 0
+    target = '7'
 }
 
