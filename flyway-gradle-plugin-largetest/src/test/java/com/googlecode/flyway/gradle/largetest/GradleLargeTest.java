@@ -65,6 +65,7 @@ public class GradleLargeTest {
         }
 
         List<String> args = new ArrayList<String>();
+        addShellIfNeeded(args);
         args.add(root + "/gradlew" + extension);
         args.add("-PflywayVersion=" + flywayVersion);
         args.add("--info");
@@ -84,6 +85,21 @@ public class GradleLargeTest {
         assertEquals("Unexpected return code", expectedReturnCode, returnCode);
 
         return stdOut;
+    }
+
+    private void addShellIfNeeded(List<String> args) {
+        if (!isWindowsOs()) {
+            args.add("sh");
+        }
+    }
+
+    /**
+     * Check if we are running on Windows OS
+     *
+     * @return true for windows, otherwise false
+     */
+    private boolean isWindowsOs() {
+        return System.getProperty("os.name", "generic").toLowerCase().startsWith("windows");
     }
 
     /**
