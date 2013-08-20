@@ -2,4 +2,5 @@ language: java
 jdk:
   - oraclejdk7
 install: "mvn install -P-MediumTests -DskipTests=true"
+before_script: "chmod +x flyway-gradle-plugin-largetest/target/test-classes/regular/gradlew.sh"
 script: "mvn test -P-MediumTests"
