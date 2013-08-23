@@ -89,7 +89,7 @@ public class GradleLargeTest {
 
     private void addShellIfNeeded(List<String> args) {
         if (!isWindowsOs()) {
-            args.add("sh");
+            args.add("bash");
         }
     }
 
