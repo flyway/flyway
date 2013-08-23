@@ -65,7 +65,7 @@ public class GradleLargeTest {
         }
 
         List<String> args = new ArrayList<String>();
-        //addShellIfNeeded(args);
+        addShellIfNeeded(args);
         args.add(root + "/gradlew" + extension);
         args.add("-PflywayVersion=" + flywayVersion);
         args.add("--info");
@@ -89,7 +89,7 @@ public class GradleLargeTest {
 
     private void addShellIfNeeded(List<String> args) {
         if (!isWindowsOs()) {
-            args.add("sh");
+            args.add("bash");
         }
     }
 
