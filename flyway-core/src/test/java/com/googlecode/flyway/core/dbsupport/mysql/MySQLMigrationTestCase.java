@@ -63,7 +63,7 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
 
     @Test
     public void hashComment() throws Exception {
-        flyway.setLocations("migration/dbsupport/mysql/sql/hashComment");
+        flyway.setLocations("migration/dbsupport/mysql/sql/hashcomment");
         flyway.migrate();
     }
 
