@@ -565,13 +565,26 @@
             </build>
         </profile-->
         <profile>
-            <id>EmbeededDBTestOnly</id>
+            <id>EmbeddedDBTestOnly</id>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <excludedGroups>test.DbCategory$InstallableDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>NoCommercialDBTest</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>test.DbCategory$CommercialDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
