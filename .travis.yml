@@ -2,4 +2,4 @@ language: java
 jdk:
   - oraclejdk7
 install: "mvn install -P-MediumTests -DskipTests=true"
-script: "mvn test -P-MediumTests"
+script: "mvn verify -P-MediumTests -PEmbeededDBTestOnly"
