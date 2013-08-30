@@ -7,5 +7,5 @@ services:
 install: "mvn install -P-MediumTests -DskipTests=true"
 before_script:
   - psql -U postgres < ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
-  - mysql -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
+  - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
 script: "mvn verify -P-MediumTests -PNoCommercialDBTest"
