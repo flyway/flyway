@@ -282,6 +282,10 @@
                     <version>2.14.1</version>
                 </plugin>
                 <plugin>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.14.1</version>
+                </plugin>
+                <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.7</version>
                 </plugin>
@@ -419,6 +423,53 @@
                 </configuration>
             </plugin>
             <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>MediumTests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*MediumTest.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/Jtds*MediumTest.java</exclude>
+                            </excludes>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                            <systemPropertyVariables>
+                                <user.timezone>+00:00</user.timezone>
+                            </systemPropertyVariables>
+                            <parallel>classes</parallel>
+                            <threadCount>2</threadCount>
+                            <perCoreThreadCount>true</perCoreThreadCount>
+                            <argLine>-XX:ReservedCodeCacheSize=128m -Xmx1536m</argLine>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>MediumTests-NonParallel</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/Jtds*MediumTest.java</include>
+                            </includes>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                            <systemPropertyVariables>
+                                <user.timezone>+00:00</user.timezone>
+                            </systemPropertyVariables>
+                            <parallel>none</parallel>
+                            <argLine>-XX:ReservedCodeCacheSize=128m</argLine>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>
                 <executions>
@@ -453,7 +504,7 @@
     </reporting>
 
     <profiles>
-        <profile>
+        <!--profile>
             <id>MediumTests</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -509,6 +560,19 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile-->
+        <profile>
+            <id>EmbeededDBTestOnly</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>test.DbCategory$InstallableDB</excludedGroups>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
