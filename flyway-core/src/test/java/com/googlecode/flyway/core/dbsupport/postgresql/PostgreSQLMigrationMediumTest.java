@@ -20,6 +20,8 @@ import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -33,6 +35,7 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using PostgreSQL.
  */
 @SuppressWarnings({"JavaDoc"})
+@Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {

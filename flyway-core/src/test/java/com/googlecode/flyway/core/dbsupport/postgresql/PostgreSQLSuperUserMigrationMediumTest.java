@@ -20,6 +20,8 @@ import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +31,7 @@ import java.util.Properties;
  * PostgreSQL medium tests that require SuperUser permissions.
  */
 @SuppressWarnings({"JavaDoc"})
+@Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLSuperUserMigrationMediumTest {
     private Flyway flyway;
 

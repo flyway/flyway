@@ -18,6 +18,8 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -32,6 +34,7 @@ import static org.junit.Assert.assertEquals;
  * Test for the Oracle-specific DB support.
  */
 @SuppressWarnings({"JavaDoc"})
+@Category(DbCategory.Oracle.class)
 public class OracleDbSupportMediumTest {
     /**
      * Checks the result of the getCurrentSchema call.

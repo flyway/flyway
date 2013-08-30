@@ -18,10 +18,13 @@ package com.googlecode.flyway.core.dbsupport.h2;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 /**
  * Test for H2 in case-sensitive (DATABASE_TO_UPPER=FALSE) mode.
  */
+@Category(DbCategory.H2.class)
 public class H2CaseSensitiveMigrationMediumTest {
     @Test
     public void migrate() {
