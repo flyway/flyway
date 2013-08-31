@@ -46,13 +46,13 @@ public abstract class MavenTestCase {
 
     @Test
     public void regular() throws Exception {
-        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:init", "flyway:status", "-Dflyway.initVersion=0.1");
+        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:init", "flyway:status", "-Dflyway.initVersion=0.1", "-Dflyway.user=SA");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
     @Test
     public void migrate() throws Exception {
-        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:migrate");
+        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:migrate", "-Dflyway.user=SA");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
         assertFalse(stdOut.contains("deprecated"));
     }

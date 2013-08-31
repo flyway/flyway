@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.util.jdbc;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.ClassUtils;
+import com.googlecode.flyway.core.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
@@ -67,15 +68,18 @@ public class DriverDataSource implements DataSource {
      * Creates a new DriverDataSource.
      *
      * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
-     * @param url         The JDBC URL to use for connecting through the Driver.
+     * @param url         The JDBC URL to use for connecting through the Driver. (required)
      * @param user        The JDBC user to use for connecting through the Driver.
      * @param password    The JDBC password to use for connecting through the Driver.
      * @param initSqls    The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(String driverClass, String url, String user, String password, String... initSqls) throws FlywayException {
+        if (!StringUtils.hasText(url)) {
+            throw new FlywayException("Missing required JDBC URL. Unable to create DataSource!");
+        }
         if (!url.toLowerCase().startsWith("jdbc:")) {
-            throw new FlywayException("Invalid jdbc url (should start with jdbc:) : " + url);
+            throw new FlywayException("Invalid JDBC URL (should start with jdbc:) : " + url);
         }
         this.url = url;
 

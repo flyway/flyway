@@ -25,9 +25,9 @@ import com.googlecode.flyway.core.info.MigrationInfoDumper;
  * @goal info
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
-public class InfoMojo extends AbstractMigrationLoadingMojo {
+public class InfoMojo extends AbstractFlywayMojo {
     @Override
-    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
+    protected void doExecute(Flyway flyway) throws Exception {
         log.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
     }
 }
