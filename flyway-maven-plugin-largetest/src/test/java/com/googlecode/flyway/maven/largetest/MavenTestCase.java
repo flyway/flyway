@@ -102,6 +102,12 @@ public abstract class MavenTestCase {
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
     }
 
+    @Test
+    public void skip() throws Exception {
+        String stdOut = runMaven(0, "skip", "flyway:migrate");
+        assertTrue(stdOut.contains("Skipping Flyway execution"));
+    }
+
     /**
      * Runs Maven in this directory with these extra arguments.
      *
