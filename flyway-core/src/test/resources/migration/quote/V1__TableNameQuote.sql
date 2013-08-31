@@ -28,3 +28,8 @@ CREATE TABLE "table" (
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
 );
+
+CREATE TABLE "dol$lar" (
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+);
