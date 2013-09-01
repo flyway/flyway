@@ -1,0 +1,27 @@
+apply plugin: 'groovy'
+
+def pomProject = new XmlSlurper().parse(file('pom.xml'))
+
+group = 'com.googlecode.flyway'
+
+version = pomProject.parent.version
+
+repositories {
+     mavenLocal()
+}
+
+dependencies {
+	compile "com.googlecode.flyway:flyway-core:${version}"
+    compile gradleApi()
+    compile localGroovy()
+	testCompile 'junit:junit:4.11'
+    testCompile 'org.hsqldb:hsqldb:2.2.8'
+}
+
+test.dependsOn cleanTest
+
+test {
+	beforeTest { descriptor ->
+    	 println("Running: " + descriptor)
+    }
+}
