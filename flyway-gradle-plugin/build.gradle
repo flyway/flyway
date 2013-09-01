@@ -1,0 +1,24 @@
+apply plugin: 'groovy'
+
+group = 'com.googlecode.flyway'
+version = '0-SNAPSHOT'
+
+repositories {
+     mavenLocal()
+}
+
+dependencies {
+	compile 'com.googlecode.flyway:flyway-core:0-SNAPSHOT'
+    compile gradleApi()
+    compile localGroovy()
+	testCompile 'junit:junit:4.11'
+    testCompile 'org.hsqldb:hsqldb:2.2.8'
+}
+
+test.dependsOn cleanTest
+
+test {
+	beforeTest { descriptor ->
+    	 println("Running: " + descriptor)
+    }
+}
