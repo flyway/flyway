@@ -1,6 +1,6 @@
 apply plugin: 'groovy'
 
-def pomProject = new XmlSlurper().parse('pom.xml' as File)
+def pomProject = new XmlSlurper().parse(file('pom.xml'))
 
 group = 'com.googlecode.flyway'
 
