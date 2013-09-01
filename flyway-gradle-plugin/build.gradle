@@ -1,14 +1,17 @@
 apply plugin: 'groovy'
 
+def pomProject = new XmlSlurper().parse('pom.xml' as File)
+
 group = 'com.googlecode.flyway'
-version = '0-SNAPSHOT'
+
+version = pomProject.parent.version
 
 repositories {
      mavenLocal()
 }
 
 dependencies {
-	compile 'com.googlecode.flyway:flyway-core:0-SNAPSHOT'
+	compile "com.googlecode.flyway:flyway-core:${version}"
     compile gradleApi()
     compile localGroovy()
 	testCompile 'junit:junit:4.11'
