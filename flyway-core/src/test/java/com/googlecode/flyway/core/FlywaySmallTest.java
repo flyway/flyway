@@ -34,29 +34,49 @@ import static org.junit.Assert.assertNotNull;
 public class FlywaySmallTest {
     @Test
     public void configure() {
-        Properties properties = new Properties();
-        properties.setProperty("flyway.user", "sa");
-        properties.setProperty("flyway.password", "");
-        properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1");
-        properties.setProperty("flyway.driver", "org.h2.Driver");
-
-        final Flyway flyway = new Flyway();
-        flyway.configure(properties);
+        final Flyway flyway = getFlyway();
 
         assertNotNull(flyway.getDataSource());
 
         flyway.execute(new Flyway.Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                assertEquals("PUBLIC", flyway.getSchemas()[0]);
+                assertEquals("SCHEMA1", flyway.getSchemas()[0]);
                 return null;
             }
         });
     }
 
+    private Flyway getFlyway(){
+        Properties properties = new Properties();
+        properties.setProperty("flyway.user", "dba.manager");
+        properties.setProperty("flyway.password", "Today006!");
+        properties.setProperty("flyway.url", "jdbc:t4sqlmx://10.221.221.161:18650/:serverDataSource=PRISMDS;catalog=flywayTestCatalog;schema=schema1");
+        properties.setProperty("flyway.driver", "com.tandem.t4jdbc.SQLMXDriver");
+
+        final Flyway flyway = new Flyway();
+        flyway.configure(properties);
+        return flyway;
+    }
+    
+    @Test
+    public void schemaExists() {
+        Flyway flyway = getFlyway();
+
+        flyway.execute(new Flyway.Command<Void>() {
+            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
+                //assertEquals("NRT", flyway.getSchemas()[0]);
+                assert schemas[0].exists();
+                assert !schemas[0].empty();
+                assertNotNull(schemas[0].allTables());
+                return null;
+            }
+        });
+    }
+    
     /**
      * This must be possible to enable NTLM authentication on SQL Server.
      */
-    @Test
+    /*@Test
     public void configureNoUserNoPassword() {
         Properties properties = new Properties();
         properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1");
@@ -66,9 +86,9 @@ public class FlywaySmallTest {
         flyway.configure(properties);
 
         assertNotNull(flyway.getDataSource());
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void configureTarget() {
         Properties properties = new Properties();
         properties.setProperty("flyway.target", "666");
@@ -77,9 +97,9 @@ public class FlywaySmallTest {
         flyway.configure(properties);
 
         assertEquals("666", flyway.getTarget().toString());
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void configureOutOfOrder() {
         Properties properties = new Properties();
         properties.setProperty("flyway.outOfOrder", "true");
@@ -158,5 +178,10 @@ public class FlywaySmallTest {
         assertEquals(2, locations.length);
         assertEquals("classpath:db/migrations1", locations[0]);
         assertEquals("filesystem:db/migrations2", locations[1]);
+    }*/
+    
+    public static void main(String[] args) {
+        FlywaySmallTest test = new FlywaySmallTest();
+        test.configure();
     }
 }

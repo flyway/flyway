@@ -21,6 +21,7 @@ import com.googlecode.flyway.core.dbsupport.derby.DerbyDbSupport;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
+import com.googlecode.flyway.core.dbsupport.nonstop.NonStopDbSupport;
 import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
 import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
 import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerDbSupport;
@@ -88,7 +89,11 @@ public class DbSupportFactory {
             //   ex.: DB2/NT
             return new DB2DbSupport(connection);
         }
-
+        //Support for HP Non Stop - START
+        if (databaseProductName.startsWith("NonStop")) {
+            return new NonStopDbSupport(connection);
+        }
+        //Support for HP Non Stop - END
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
