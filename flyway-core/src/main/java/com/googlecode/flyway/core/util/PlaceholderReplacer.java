@@ -31,7 +31,12 @@ public class PlaceholderReplacer {
     /**
      * PlaceholderReplacer that doesn't replace any placeholders.
      */
-    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<String, String>(), "", "");
+    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<String, String>(), "", "", false);
+
+    /**
+     * Enforce check for unmatched placeholders.
+     */
+    private boolean placeholderStrict;
 
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.
@@ -59,6 +64,22 @@ public class PlaceholderReplacer {
         this.placeholders = placeholders;
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
+        this.placeholderStrict = true; // default to true (this constructor primarily used in metadata impl classes)
+    }
+
+    /**
+     * Creates a new PlaceholderReplacer.
+     *
+     * @param placeholders      A map of <placeholder, replacementValue> to apply to sql migration scripts.
+     * @param placeholderPrefix The prefix of every placeholder. Usually ${
+     * @param placeholderSuffix The suffix of every placeholder. Usually }
+     * @param placeholderStrict Enforce unmatched placeholder checks.
+     */
+    public PlaceholderReplacer(Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix, boolean placeholderStrict) {
+        this.placeholders = placeholders;
+        this.placeholderPrefix = placeholderPrefix;
+        this.placeholderSuffix = placeholderSuffix;
+        this.placeholderStrict = placeholderStrict;
     }
 
     /**
@@ -74,8 +95,11 @@ public class PlaceholderReplacer {
             String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
             noPlaceholders = StringUtils.replaceAll(noPlaceholders, searchTerm, placeholders.get(placeholder));
         }
-        checkForUnmatchedPlaceholderExpression(noPlaceholders);
-
+        
+        if(placeholderStrict) {
+            checkForUnmatchedPlaceholderExpression(noPlaceholders);
+        }
+        
         return noPlaceholders;
     }
 
