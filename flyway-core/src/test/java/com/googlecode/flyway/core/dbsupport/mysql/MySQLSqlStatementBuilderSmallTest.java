@@ -58,6 +58,20 @@ public class MySQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void stringEndingInX() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (' x');");
+
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void stringEndingInB() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (' b');");
+
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
     public void hexLiteral() throws Exception {
         builder.addLine("INSERT INTO Tablename (id) VALUES (x'5B1A5933964C4AA59F3013D3B3F3414D');");
 
