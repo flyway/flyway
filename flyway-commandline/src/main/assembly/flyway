@@ -36,7 +36,7 @@ INSTALLDIR=`dirname "$PRG"`
 cd "$INSTALLDIR"
 
 # Use JAVA_HOME if it is set
-if [ -z $JAVA_HOME ]; then
+if [ -z "$JAVA_HOME" ]; then
  JAVA_CMD=java
 else
  JAVA_CMD=$JAVA_HOME/bin/java
@@ -45,7 +45,7 @@ fi
 # Detect the width of the console
 CONSOLE_WIDTH=`tput cols`
 
-$JAVA_CMD -cp bin/flyway-commandline-${project.version}.jar:bin/flyway-core-${project.version}.jar com.googlecode.flyway.commandline.Main $@ -consoleWidth=$CONSOLE_WIDTH
+"$JAVA_CMD" -cp ./bin/flyway-commandline-${project.version}.jar:./bin/flyway-core-${project.version}.jar com.googlecode.flyway.commandline.Main $@ -consoleWidth=$CONSOLE_WIDTH
 
 # Save the exit code
 JAVA_EXIT_CODE=$?
