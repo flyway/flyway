@@ -642,7 +642,7 @@ public class Flyway {
     /**
      * Sets strict validation on unmatched placeholders.
      *
-     * @param placeholderStrict The flag for checking unmatched placeholders. (default: false )
+     * @param placeholderStrict Flag for checking for unmatched placeholders. (default: false )
      */
     public void setPlaceholderStrict(boolean placeholderStrict) {
         this.placeholderStrict = placeholderStrict;
