@@ -113,7 +113,7 @@ public class PlaceholderReplacer {
                         + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions)
                         + ".  Check your configuration!");
             } else {
-                LOG.debug("Unmached placeholders found: " + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions));
+                LOG.debug("Unmatched placeholders found: " + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions));
             }
         }
     }

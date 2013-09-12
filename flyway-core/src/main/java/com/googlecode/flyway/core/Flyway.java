@@ -640,9 +640,9 @@ public class Flyway {
     }
 
     /**
-     * Sets the prefix of every placeholder.
+     * Sets strict validation on unmatched placeholders.
      *
-     * @param placeholderPrefix The prefix of every placeholder. (default: ${ )
+     * @param placeholderStrict The flag for checking unmatched placeholders. (default: false )
      */
     public void setPlaceholderStrict(boolean placeholderStrict) {
         this.placeholderStrict = placeholderStrict;
