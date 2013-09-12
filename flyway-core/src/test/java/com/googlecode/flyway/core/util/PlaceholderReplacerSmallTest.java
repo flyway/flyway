@@ -45,7 +45,7 @@ public class PlaceholderReplacerSmallTest {
         placeholders.put("placeholder", "value");
         placeholders.put("replace", "be replaced");
         placeholders.put("dummy", "shouldNotAppear");
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}", true);
 
         assertEquals("No value #[left] to be replaced", placeholderReplacer.replacePlaceholders(TEST_STR));
     }
@@ -54,28 +54,52 @@ public class PlaceholderReplacerSmallTest {
     public void exoticPlaceholders() {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("left", "right");
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "#[", "]");
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "#[", "]", true);
 
         assertEquals("No ${placeholder} right to ${replace}", placeholderReplacer.replacePlaceholders(TEST_STR));
     }
 
+    @Test
+    public void unmatchedPlaceholdersNotStrict() {
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("placeholder", "value");
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}", false);
 
+        assertEquals("No value #[left] to ${replace}", placeholderReplacer.replacePlaceholders(TEST_STR));
+    }
 
     @Test
-    public void unmatchedPlaceholders() throws FlywayException {
+    public void unmatchedPlaceholdersStrict() throws FlywayException {
         thrown.expect(FlywayException.class);
         thrown.expectMessage("No value provided for placeholder expressions: #[left].  Check your configuration!");
         Map<String, String> placeholders = new HashMap<String, String>();
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "#[", "]");
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "#[", "]", true);
         placeholderReplacer.replacePlaceholders(TEST_STR);
     }
 
     @Test
-    public void unmatchedPlaceholdersWithMultipleOccurences() throws FlywayException {
+    public void unmatchedPlaceholdersWithMultipleOccurencesNotStrict() {
+        Map<String, String> placeholders = new HashMap<String, String>();
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}", false);
+
+        assertEquals("No ${placeholder} #[left] to ${replace}", placeholderReplacer.replacePlaceholders(TEST_STR));
+    }
+
+    @Test
+    public void unmatchedPlaceholdersWithMultipleOccurencesStrict() throws FlywayException {
         thrown.expect(FlywayException.class);
         thrown.expectMessage("No value provided for placeholder expressions: ${placeholder}, ${replace}.  Check your configuration!");
         Map<String, String> placeholders = new HashMap<String, String>();
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}", true);
         placeholderReplacer.replacePlaceholders(TEST_STR + TEST_STR);
+    }
+
+    @Test
+    public void mixedUnmatchedPlaceholdersWithPlaceholdersNotStrict() {
+        Map<String, String> placeholders = new HashMap<String, String>();
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}", false);
+        placeholders.put("placeholder", "value");
+
+        assertEquals("No value #[left] to ${replace}", placeholderReplacer.replacePlaceholders(TEST_STR));
     }
 }

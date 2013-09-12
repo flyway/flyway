@@ -226,7 +226,7 @@ public class SqlScriptSmallTest {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("drop_view", "--");
         placeholders.put("or_replace", "OR REPLACE");
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}", true);
 
         List<SqlStatement> sqlStatements = sqlScript.parse(placeholderReplacer.replacePlaceholders(source));
         assertNotNull(sqlStatements);
