@@ -70,10 +70,12 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
         if (token.startsWith("\"")) {
             return "\"";
         }
-        if (token.startsWith("B'")) {
+        // to be a valid bitfield or hex literal the token must be at leas three characters in length
+        // i.e. b'' otherwise token may be string literal ending in [space]b'
+        if (token.startsWith("B'") && token.length() > 2) {
             return "B'";
         }
-        if (token.startsWith("X'")) {
+        if (token.startsWith("X'") && token.length() > 2) {
             return "X'";
         }
         return null;
