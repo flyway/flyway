@@ -43,7 +43,11 @@ else
 fi
 
 # Detect the width of the console
-CONSOLE_WIDTH=`tput cols`
+if command -v tput 2>/dev/null; then
+	CONSOLE_WIDTH=`tput cols`
+else
+	CONSOLE_WIDTH=80
+fi
 
 "$JAVA_CMD" -cp ./bin/flyway-commandline-${project.version}.jar:./bin/flyway-core-${project.version}.jar com.googlecode.flyway.commandline.Main $@ -consoleWidth=$CONSOLE_WIDTH
 
