@@ -113,7 +113,7 @@ public class SQLServerSchema extends Schema {
         List<Map<String, String>> constraintNames =
                 jdbcTemplate.queryForList(
                         "SELECT table_name, constraint_name FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS" +
-                                " WHERE constraint_type = 'FOREIGN KEY' and table_schema=?",
+                                " WHERE constraint_type in ('FOREIGN KEY','CHECK') and table_schema=?",
                         name);
 
         List<String> statements = new ArrayList<String>();

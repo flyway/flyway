@@ -130,6 +130,20 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         flyway.migrate();
     }
 
+    @Test
+    public void itShouldCleanCheckConstraint() throws Exception {
+        // given
+        flyway.setLocations( "migration/dbsupport/sqlserver/sql/checkConstraint" );
+        flyway.migrate();
+
+        // when
+        flyway.clean();
+
+        // then
+        int pendingMigrations = flyway.info().pending().length;
+        assertEquals( 3, pendingMigrations );
+    }
+
     /**
      * Tests a large migration that has been reported to hang on SqlServer 2005.
      */
