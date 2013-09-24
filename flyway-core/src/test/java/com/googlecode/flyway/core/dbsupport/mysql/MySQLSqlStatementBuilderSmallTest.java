@@ -72,6 +72,13 @@ public class MySQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void stringEndingInDoubleQuote() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (' \"');");
+
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
     public void hexLiteral() throws Exception {
         builder.addLine("INSERT INTO Tablename (id) VALUES (x'5B1A5933964C4AA59F3013D3B3F3414D');");
 
@@ -88,6 +95,20 @@ public class MySQLSqlStatementBuilderSmallTest {
     @Test
     public void trailingEscapedBackSlash() throws Exception {
         builder.addLine("INSERT INTO Tablename (id) VALUES ('\\\\');");
+
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void singleQuotesInDoubleQuotedStringLiteral() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (\",'a'a\"),(\" 'a'a\"),(\" ''\"),(\"' ''\"),(\" ' \"),(\" '\"),(\"' \");");
+
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void doubleQuotesInSingleQuotedStringLiteral() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (',\"a\"a'),(' \"a\"a'),(' \"\"'),('\" \"\"'),(' \" '),(' \"'),('\" ');");
 
         assertTrue(builder.isTerminated());
     }
