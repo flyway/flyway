@@ -16,7 +16,9 @@
 package com.googlecode.flyway.core;
 
 import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Test;
@@ -158,5 +160,21 @@ public class FlywaySmallTest {
         assertEquals(2, locations.length);
         assertEquals("classpath:db/migrations1", locations[0]);
         assertEquals("filesystem:db/migrations2", locations[1]);
+    }
+
+    @Test
+    public void configureCustomDbSupport(){
+        Flyway flyway = new Flyway();
+        Properties properties = new Properties();
+        properties.setProperty("flyway.dbsupport.H2", CustomH2DbSupport.class.getName());
+        flyway.configure(properties);
+        assertEquals(CustomH2DbSupport.class, DbSupportFactory.getCustomDbSupport(H2DbSupport.class));
+    }
+
+    // Just for testing.
+    public static class CustomH2DbSupport extends H2DbSupport {
+        public CustomH2DbSupport(Connection conn) {
+            super(conn);
+        }
     }
 }

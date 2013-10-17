@@ -60,6 +60,11 @@ public class Flyway {
     private static final Log LOG = LogFactory.getLog(Flyway.class);
 
     /**
+     * Property name prefix for custom DbSupport implementations.
+     */
+    private static final String CUSTOM_DB_SUPPORT_PROPERTY_PREFIX = "flyway.dbsupport.";
+
+    /**
      * Property name prefix for placeholders that are configured through properties.
      */
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
@@ -1151,6 +1156,7 @@ public class Flyway {
             }
         }
         setPlaceholders(placeholdersFromProps);
+        configureCustomDbSupport(properties);
     }
 
     /**
@@ -1221,5 +1227,17 @@ public class Flyway {
          * @return The result of the operation.
          */
         T execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas);
+    }
+
+    private void configureCustomDbSupport(Properties properties) {
+        for (Object property : properties.keySet()) {
+            String propertyName = (String) property;
+            if (propertyName.startsWith(CUSTOM_DB_SUPPORT_PROPERTY_PREFIX)
+                    && propertyName.length() > CUSTOM_DB_SUPPORT_PROPERTY_PREFIX.length()) {
+                String dbName = propertyName.substring(CUSTOM_DB_SUPPORT_PROPERTY_PREFIX.length());
+                String dbSupportClassName = properties.getProperty(propertyName);
+                DbSupportFactory.registerCustomDbSupport(dbName, dbSupportClassName);
+            }
+        }
     }
 }
