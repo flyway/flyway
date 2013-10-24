@@ -83,6 +83,12 @@ public class AntLargeTest {
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
     }
 
+    @Test
+    public void migrate() throws Exception {
+        String stdOut = runAnt(0, "", "-f", "migrate/build.xml");
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+    }
+
     /**
      * Runs Ant in this directory with these extra arguments.
      *
