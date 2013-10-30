@@ -45,7 +45,7 @@ public class NonStopSqlStatementBuilder extends SqlStatementBuilder {
             statementStart += " ";
         }
 
-        if (statementStart.startsWith("CREATE FUNCTION")
+        /*if (statementStart.startsWith("CREATE FUNCTION")
                 || statementStart.startsWith("CREATE PROCEDURE")
                 || statementStart.startsWith("CREATE PACKAGE")
                 || statementStart.startsWith("CREATE TYPE")
@@ -56,7 +56,7 @@ public class NonStopSqlStatementBuilder extends SqlStatementBuilder {
                 || statementStart.startsWith("CREATE OR REPLACE TYPE")
                 || statementStart.startsWith("CREATE OR REPLACE TRIGGER")){
             return PLSQL_DELIMITER;
-        }
+        }*/
 
         return delimiter;
     }
