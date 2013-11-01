@@ -17,10 +17,12 @@ package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import org.apache.tools.ant.Project;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -227,11 +229,9 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
 
     @Override
     protected final void doExecute(Flyway flyway) throws Exception {
-        String locationsProperty = getProject().getProperty("flyway.locations");
-        if (locationsProperty != null) {
-            flyway.setLocations(StringUtils.tokenizeToStringArray(locationsProperty, ","));
-        } else if (locations != null) {
-            flyway.setLocations(locations);
+        String[] locationsValue = getLocations();
+        if (locationsValue != null) {
+            flyway.setLocations(locationsValue);
         }
         String encodingValue = useValueIfPropertyNotSet(encoding, "encoding");
         if (encodingValue != null) {
@@ -269,6 +269,44 @@ public abstract class AbstractMigrationLoadingTask extends AbstractFlywayTask {
         }
 
         doExecuteWithMigrationConfig(flyway);
+    }
+
+    /**
+     * @return The locations configured through Ant.
+     */
+    private String[] getLocations() {
+        String locationsProperty = getProject().getProperty("flyway.locations");
+        String[] locationsVal = null;
+        if (locationsProperty != null) {
+            locationsVal = StringUtils.tokenizeToStringArray(locationsProperty, ",");
+        } else if (locations != null) {
+            locationsVal = locations;
+        }
+
+        if (locationsVal != null) {
+            //Adjust relative locations to be relative from Ant's basedir.
+            File baseDir = getProject().getBaseDir();
+            for (int i = 0; i < locationsVal.length; i++) {
+                locationsVal[i] = adjustRelativeFileSystemLocationToBaseDir(baseDir, locationsVal[i]);
+            }
+        }
+
+        return locationsVal;
+    }
+
+    /**
+     * Adjusts a relative filesystem location to Ant's basedir. All other locations are left untouched.
+     *
+     * @param baseDir  Ant's basedir.
+     * @param locationStr The location to adjust.
+     * @return The adjusted location.
+     */
+    /* private -> testing */ static String adjustRelativeFileSystemLocationToBaseDir(File baseDir, String locationStr) {
+        Location location = new Location(locationStr);
+        if (location.isFileSystem() && !new File(location.getPath()).isAbsolute()) {
+            return Location.FILESYSTEM_PREFIX + baseDir.getAbsolutePath() + "/" + location.getPath();
+        }
+        return locationStr;
     }
 
     /**
