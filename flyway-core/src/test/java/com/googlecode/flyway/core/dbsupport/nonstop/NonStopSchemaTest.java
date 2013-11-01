@@ -1,11 +1,11 @@
-/*
- * Copyright 2013 SKullal.
+/**
+ * Copyright 2010-2013 Axel Fontaine and the many contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,22 +44,22 @@ public class NonStopSchemaTest {
     public NonStopSchemaTest() {
     }
 
-    @BeforeClass
+    //@BeforeClass
     public static void setUpClass() {
     }
 
-    @AfterClass
+    //@AfterClass
     public static void tearDownClass() {
     }
 
-    @Before
+    //@Before
     public void setUp() {
 
         if (flyway == null) {
             properties = new Properties();
-            properties.setProperty("flyway.user", "dba.manager");
-            properties.setProperty("flyway.password", "Today006!");
-            properties.setProperty("flyway.url", "jdbc:t4sqlmx://10.221.221.161:18650/:serverDataSource=PRISMDS;catalog=flywayTestCatalog;schema=schema1");
+            properties.setProperty("flyway.user", "UserName");
+            properties.setProperty("flyway.password", "Password");
+            properties.setProperty("flyway.url", "jdbc:t4sqlmx://IP:PORT/:serverDataSource=;catalog=;schema=schema1");
             properties.setProperty("flyway.driver", "com.tandem.t4jdbc.SQLMXDriver");
             
             flyway = new Flyway();
@@ -67,7 +67,7 @@ public class NonStopSchemaTest {
         }
     }
 
-    @After
+    //@After
     public void tearDown() {
         if (connection != null) {
             try {
@@ -81,7 +81,7 @@ public class NonStopSchemaTest {
     /**
      * Test of doExists method, of class NonStopSchema.
      */
-    @Test
+    //@Test
     public void testDoExists() throws Exception {
         connection = JdbcUtils.openConnection(flyway.getDataSource());
         DbSupport dbSupport = DbSupportFactory.createDbSupport(connection);
@@ -92,7 +92,7 @@ public class NonStopSchemaTest {
     /**
      * Test of doEmpty method, of class NonStopSchema.
      */
-    @Test
+    //@Test
     public void testDoEmpty() throws Exception {
         connection = JdbcUtils.openConnection(flyway.getDataSource());
         DbSupport dbSupport = DbSupportFactory.createDbSupport(connection);
@@ -103,10 +103,10 @@ public class NonStopSchemaTest {
     /**
      * Test of doCreate method, of class NonStopSchema.
      */
-    @Test
+    //@Test
     public void testDoCreate() throws Exception {
         Properties newProperties = new Properties(properties);
-        newProperties.setProperty("flyway.url", "jdbc:t4sqlmx://10.221.221.161:18650/:serverDataSource=PRISMDS;catalog=flywayTestCatalog;schema=schema3");
+        newProperties.setProperty("flyway.url", "jdbc:t4sqlmx://IP:PORT/:serverDataSource=;catalog=;schema=schema3");
         Flyway newFlyway = new Flyway();
         newFlyway.configure(newProperties);
         connection = JdbcUtils.openConnection(newFlyway.getDataSource());
@@ -119,10 +119,10 @@ public class NonStopSchemaTest {
     /**
      * Test of doDrop method, of class NonStopSchema.
      */
-    @Test
+    //@Test
     public void testDoDrop() throws Exception {
         Properties newProperties = new Properties(properties);
-        newProperties.setProperty("flyway.url", "jdbc:t4sqlmx://10.221.221.161:18650/:serverDataSource=PRISMDS;catalog=flywayTestCatalog;schema=schema3");
+        newProperties.setProperty("flyway.url", "jdbc:t4sqlmx://IP:PORT/:serverDataSource=;catalog=;schema=schema3");
         Flyway newFlyway = new Flyway();
         newFlyway.configure(newProperties);
         connection = JdbcUtils.openConnection(newFlyway.getDataSource());
@@ -135,10 +135,10 @@ public class NonStopSchemaTest {
     /**
      * Test of doClean method, of class NonStopSchema.
      */
-    @Test
+    //@Test
     public void testDoClean() throws Exception {
         Properties newProperties = new Properties(properties);
-        newProperties.setProperty("flyway.url", "jdbc:t4sqlmx://10.221.221.161:18650/:serverDataSource=PRISMDS;catalog=flywayTestCatalog;schema=schema2");
+        newProperties.setProperty("flyway.url", "jdbc:t4sqlmx://IP:PORT/:serverDataSource=;catalog=;schema=schema2");
         Flyway newFlyway = new Flyway();
         newFlyway.configure(newProperties);
         connection = JdbcUtils.openConnection(newFlyway.getDataSource());
@@ -151,7 +151,7 @@ public class NonStopSchemaTest {
     /**
      * Test of doAllTables method, of class NonStopSchema.
      */
-    @Test
+    //@Test
     public void testDoAllTables() throws Exception {
         connection = JdbcUtils.openConnection(flyway.getDataSource());
         DbSupport dbSupport = DbSupportFactory.createDbSupport(connection);
@@ -162,7 +162,7 @@ public class NonStopSchemaTest {
     /**
      * Test of getTable method, of class NonStopSchema.
      */
-    @Test
+    //@Test
     public void testGetTable() {
         connection = JdbcUtils.openConnection(flyway.getDataSource());
         DbSupport dbSupport = DbSupportFactory.createDbSupport(connection);
