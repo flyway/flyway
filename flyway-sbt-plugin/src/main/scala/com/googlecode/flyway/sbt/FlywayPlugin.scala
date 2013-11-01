@@ -16,7 +16,7 @@
 package com.googlecode.flyway.sbt
 
 import sbt._
-import classpath._
+import sbt.classpath._
 import Keys._
 
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource
@@ -25,6 +25,7 @@ import javax.sql.DataSource
 import com.googlecode.flyway.core.info.MigrationInfoDumper
 import scala.collection.JavaConversions._
 import com.googlecode.flyway.core.util.logging.{LogFactory, LogCreator}
+import scala.Some
 
 object FlywayPlugin extends Plugin {
 
@@ -52,7 +53,7 @@ object FlywayPlugin extends Plugin {
   val flywaySqlMigrationSuffix = SettingKey[Option[String]]("flyway-sql-migration-suffix", "The file name suffix for Sql migrations (default: .sql)")
   val flywayCleanOnValidationError = SettingKey[Option[Boolean]]("flyway-clean-on-validation-error", "Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/> This is exclusively intended as a convenience for development. Even tough we strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you back to the state checked into SCM. Warning ! Do not enable in production !")
   val flywayTarget = SettingKey[Option[String]]("flyway-target", "The target version up to which Flyway should run migrations. Migrations with a higher version number will not be  applied. (default: the latest version)")
-  val flywayOutOfOrder = SettingKey[Option[String]]("flyway-outOfOrder", "Allows migrations to be run \"out of order\" (default: {@code false}). If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.")
+  val flywayOutOfOrder = SettingKey[Option[Boolean]]("flyway-outOfOrder", "Allows migrations to be run \"out of order\" (default: {@code false}). If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.")
 
   //*********************
   // settings for migrate
@@ -69,7 +70,13 @@ object FlywayPlugin extends Plugin {
   // convenience settings
   //*********************
 
+  private case class FlywayConfigBase(schemas: Option[Seq[String]], table: Option[String], initVersion: Option[String], initDescription: Option[String])
+  private case class FlywayConfigMigrationLoading(locations: Seq[String], encoding: Option[String], sqlMigrationPrefix: Option[String], sqlMigrationSuffix: Option[String],
+                                           cleanOnValidationError: Option[Boolean], target: Option[String], outOfOrder: Option[Boolean])
+
   private lazy val flywayDataSource = TaskKey[DataSource]("flyway-datasource", "The flyway datasource.")
+  private lazy val flywayConfigBase = TaskKey[FlywayConfigBase]("flyway-config-base", "The flyway base configuration.")
+  private lazy val flywayConfigMigrationLoading = TaskKey[FlywayConfigMigrationLoading]("flyway-config-migration-loading", "The flyway migration loading configuration.")
   private lazy val flyway = TaskKey[Flyway]("flyway", "The flyway object")
 
   //*********************
@@ -113,25 +120,32 @@ object FlywayPlugin extends Plugin {
           new DriverDataSource(if (driver.isEmpty) null else driver.get, url, user, password)
         }
       },
-    flyway <<= (fullClasspath in Runtime, streams, flywayDataSource, flywaySchemas, flywayTable, flywayInitVersion, flywayInitDescription,
-      flywayLocations, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder, copyResources in Runtime) map {
-      (cp, s, dataSource, schemas, table, initVersion, initDescription,
-       locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, r) =>
+    flywayConfigBase <<= (flywaySchemas, flywayTable, flywayInitVersion, flywayInitDescription) map {
+      (schemas, table, initVersion, initDescription) =>
+        FlywayConfigBase(schemas, table, initVersion, initDescription)
+    },
+    flywayConfigMigrationLoading <<= (flywayLocations, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder) map {
+      (locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
+        FlywayConfigMigrationLoading(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder)
+    },
+    flyway <<= (fullClasspath in Runtime, streams, flywayDataSource, flywayConfigBase, flywayConfigMigrationLoading, copyResources in Runtime) map {
+      (cp, s, dataSource, configBase, configMigrationLoading, r) =>
         withContextClassLoader(cp) {
           LogFactory.setLogCreator(SbtLogCreator)
           redirectLogger(s)
           val flyway = new Flyway()
           flyway.setDataSource(dataSource)
-          schemas map (flyway.setSchemas(_: _*))
-          table map (flyway.setTable(_))
-          initVersion map (flyway.setInitVersion(_))
-          initDescription map (flyway.setInitDescription(_))
-          flyway.setLocations(locations: _*)
-          encoding map (flyway.setEncoding(_))
-          sqlMigrationPrefix map (flyway.setSqlMigrationPrefix(_))
-          sqlMigrationSuffix map (flyway.setSqlMigrationSuffix(_))
-          cleanOnValidationError map (flyway.setCleanOnValidationError(_))
-          target map (flyway.setTarget(_))
+          configBase.schemas map (flyway.setSchemas(_: _*))
+          configBase.table map flyway.setTable
+          configBase.initVersion map flyway.setInitVersion
+          configBase.initDescription map flyway.setInitDescription
+          flyway.setLocations(configMigrationLoading.locations: _*)
+          configMigrationLoading.encoding map flyway.setEncoding
+          configMigrationLoading.sqlMigrationPrefix map flyway.setSqlMigrationPrefix
+          configMigrationLoading.sqlMigrationSuffix map flyway.setSqlMigrationSuffix
+          configMigrationLoading.cleanOnValidationError map flyway.setCleanOnValidationError
+          configMigrationLoading.target map flyway.setTarget
+          configMigrationLoading.outOfOrder map flyway.setOutOfOrder
           flyway
         }
     },
@@ -139,12 +153,12 @@ object FlywayPlugin extends Plugin {
       (cp, flyway, s, ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
         withContextClassLoader(cp) {
           redirectLogger(s)
-          ignoreFailedFutureMigration map (flyway.setIgnoreFailedFutureMigration(_))
+          ignoreFailedFutureMigration map flyway.setIgnoreFailedFutureMigration
           flyway.setPlaceholders(placeholders)
-          placeholderPrefix map (flyway.setPlaceholderPrefix(_))
-          placeholderSuffix map (flyway.setPlaceholderSuffix(_))
-          initOnMigrate map (flyway.setInitOnMigrate(_))
-          validateOnMigrate map (flyway.setValidateOnMigrate(_))
+          placeholderPrefix map flyway.setPlaceholderPrefix
+          placeholderSuffix map flyway.setPlaceholderSuffix
+          initOnMigrate map flyway.setInitOnMigrate
+          validateOnMigrate map flyway.setValidateOnMigrate
           flyway.migrate()
         }
     },
