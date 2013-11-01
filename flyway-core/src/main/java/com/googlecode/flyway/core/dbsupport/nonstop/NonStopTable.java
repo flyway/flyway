@@ -23,11 +23,11 @@ import com.googlecode.flyway.core.dbsupport.Table;
 import java.sql.SQLException;
 
 /**
- * Oracle-specific table.
+ * NonStop-specific table.
  */
 public class NonStopTable extends Table {
     /**
-     * Creates a new Oracle table.
+     * Creates a new NonStop table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param dbSupport    The database-specific support.
