@@ -21,12 +21,16 @@ import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import com.tandem.t4jdbc.SQLMXConnection;
+//import com.tandem.t4jdbc.SQLMXConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * NonStop-specific support.
@@ -56,10 +60,27 @@ public class NonStopDbSupport extends DbSupport {
         String schema = "";
         Connection conn = jdbcTemplate.getConnection();
         LOG.info("Connection Class"+conn.getClass());
-        if(conn instanceof SQLMXConnection){
+        /*if(conn instanceof SQLMXConnection){
             LOG.info("instane of SQLMXConnection");
             SQLMXConnection con = (SQLMXConnection)conn;
             schema = con.getSchema();
+        }*/
+        //Get Schema Using Reflection without importing SQLMXConnection
+        Class sqlMxConnectionClass = conn.getClass();
+        Method method;
+        try {
+            method = sqlMxConnectionClass.getMethod("getSchema", null);
+            schema = (String)method.invoke(conn, null);
+        } catch (NoSuchMethodException ex) {
+            Logger.getLogger(NonStopDbSupport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(NonStopDbSupport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(NonStopDbSupport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(NonStopDbSupport.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
+            Logger.getLogger(NonStopDbSupport.class.getName()).log(Level.SEVERE, null, ex);
         }
         return schema;
     }
