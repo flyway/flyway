@@ -19,6 +19,7 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.Table;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import java.sql.Connection;
 import java.sql.SQLException;

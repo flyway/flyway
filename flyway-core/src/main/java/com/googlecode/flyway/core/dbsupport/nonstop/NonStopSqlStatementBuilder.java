@@ -15,13 +15,12 @@
  */
 package com.googlecode.flyway.core.dbsupport.nonstop;
 
-import com.googlecode.flyway.core.dbsupport.oracle.*;
 import com.googlecode.flyway.core.dbsupport.Delimiter;
 import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import com.googlecode.flyway.core.util.StringUtils;
 
 /**
- * SqlStatementBuilder supporting Oracle-specific PL/SQL constructs.
+ * SqlStatementBuilder supporting NonStop-specific PL/SQL constructs.
  */
 public class NonStopSqlStatementBuilder extends SqlStatementBuilder {
     /**
@@ -44,7 +43,8 @@ public class NonStopSqlStatementBuilder extends SqlStatementBuilder {
             statementStart += line;
             statementStart += " ";
         }
-
+        
+        //NonStop Doesn't use Special Delimeters for these (i.e. Functions, Procedures, Triggers etc)
         /*if (statementStart.startsWith("CREATE FUNCTION")
                 || statementStart.startsWith("CREATE PROCEDURE")
                 || statementStart.startsWith("CREATE PACKAGE")
