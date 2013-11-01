@@ -48,9 +48,9 @@ public class FlywaySmallTest {
 
     private Flyway getFlyway(){
         Properties properties = new Properties();
-        properties.setProperty("flyway.user", "dba.manager");
-        properties.setProperty("flyway.password", "Today006!");
-        properties.setProperty("flyway.url", "jdbc:t4sqlmx://10.221.221.161:18650/:serverDataSource=PRISMDS;catalog=flywayTestCatalog;schema=schema1");
+        properties.setProperty("flyway.user", "UserName");
+        properties.setProperty("flyway.password", "Pasword");
+        properties.setProperty("flyway.url", "JdbcURL");
         properties.setProperty("flyway.driver", "com.tandem.t4jdbc.SQLMXDriver");
 
         final Flyway flyway = new Flyway();
@@ -60,17 +60,16 @@ public class FlywaySmallTest {
     
     @Test
     public void schemaExists() {
-        Flyway flyway = getFlyway();
-
-        flyway.execute(new Flyway.Command<Void>() {
-            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                //assertEquals("NRT", flyway.getSchemas()[0]);
-                assert schemas[0].exists();
-                assert !schemas[0].empty();
-                assertNotNull(schemas[0].allTables());
-                return null;
-            }
-        });
+//        Flyway flyway = getFlyway();
+//
+//        flyway.execute(new Flyway.Command<Void>() {
+//            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
+//                assert schemas[0].exists();
+//                assert !schemas[0].empty();
+//                assertNotNull(schemas[0].allTables());
+//                return null;
+//            }
+//        });
     }
     
     /**
