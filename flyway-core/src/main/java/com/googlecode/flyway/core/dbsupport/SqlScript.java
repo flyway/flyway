@@ -24,7 +24,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.sql.BatchUpdateException;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,17 +83,26 @@ public class SqlScript {
      * @param jdbcTemplate The jdbc template to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
-        for (SqlStatement sqlStatement : sqlStatements) {
-            String sql = sqlStatement.getSql();
-            LOG.debug("Executing SQL: " + sql);
-
-            try {
-                jdbcTemplate.executeStatement(sql);
-            } catch (SQLException e) {
-                throw new FlywayException("Error executing statement at line " + sqlStatement.getLineNumber()
-                        + ": " + sql, e);
-            }
-        }
+    	
+    	List<String> sqls = new ArrayList<String>(sqlStatements.size());
+    	String logBuilder =  "Executing SQL: \n";
+    	for (SqlStatement stmt : this.sqlStatements) {
+			sqls.add(stmt.getSql());
+			logBuilder+=stmt.getSql()+"\n";
+		}
+    	LOG.debug(logBuilder);
+        try {
+			jdbcTemplate.executeStatement(sqls);
+        } catch (BatchUpdateException e) {
+        	for (int i = 0; i < e.getUpdateCounts().length; i++) {
+    			if (e.getUpdateCounts()[i] == Statement.EXECUTE_FAILED) {
+                    throw new FlywayException("Error executing statement at line " + sqlStatements.get(i).getLineNumber()
+                            + ": " + sqlStatements.get(i).getSql(), e);
+    			}
+    		}
+    	} catch (SQLException e) {
+    		throw new FlywayException("Error executing statements  " + sqls, e);
+		}
     }
 
     /**
