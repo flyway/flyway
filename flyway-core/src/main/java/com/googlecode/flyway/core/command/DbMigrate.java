@@ -15,12 +15,8 @@
  */
 package com.googlecode.flyway.core.command;
 
-import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
-import com.googlecode.flyway.core.api.MigrationState;
-import com.googlecode.flyway.core.api.MigrationVersion;
+import com.googlecode.flyway.core.api.*;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.info.MigrationInfoImpl;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
@@ -45,6 +41,7 @@ import java.sql.Connection;
  * @author Axel Fontaine
  */
 public class DbMigrate {
+
     private static final Log LOG = LogFactory.getLog(DbMigrate.class);
 
     /**
@@ -196,7 +193,8 @@ public class DbMigrate {
             }
 
             if (!result.isSuccess()) {
-                throw new FlywayException("Migration of schema " + schema + " to version " + result.getMigrationVersion() + " failed! Please restore backups and roll back database and code!", result.getErrorCause());
+                throw new FlywayException("Migration of schema " + schema + " to version " + result.getMigrationVersion() + " failed!" +
+                        " Please restore backups and roll back database and code!", result.getErrorCause());
             }
 
             migrationSuccessCount++;
@@ -255,6 +253,8 @@ public class DbMigrate {
             });
             LOG.debug("Successfully completed and committed migration of schema " + schema + " to version " + version);
             migrationResult = MigrationResult.createSuccess(version);
+        } catch (FlywaySqlScriptException ex) {
+            migrationResult = MigrationResult.createFailed(version, ex);
         } catch (Exception e) {
             migrationResult = MigrationResult.createFailed(version, ExceptionUtils.getRootCause(e));
         }

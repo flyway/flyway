@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.FlywaySqlScriptException;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -33,6 +33,7 @@ import java.util.List;
  * comments are stripped and ignored.
  */
 public class SqlScript {
+
     private static final Log LOG = LogFactory.getLog(SqlScript.class);
 
     /**
@@ -88,8 +89,7 @@ public class SqlScript {
             try {
                 jdbcTemplate.executeStatement(sql);
             } catch (SQLException e) {
-                throw new FlywayException("Error executing statement at line " + sqlStatement.getLineNumber()
-                        + ": " + sql, e);
+                throw new FlywaySqlScriptException(sqlStatement.getLineNumber(), sql, e);
             }
         }
     }
