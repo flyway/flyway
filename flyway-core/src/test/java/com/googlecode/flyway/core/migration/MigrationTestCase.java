@@ -16,16 +16,9 @@
 package com.googlecode.flyway.core.migration;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.*;
 import com.googlecode.flyway.core.api.MigrationState;
-import com.googlecode.flyway.core.api.MigrationType;
-import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
-import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
-import com.googlecode.flyway.core.dbsupport.Schema;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
+import com.googlecode.flyway.core.dbsupport.*;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
@@ -33,11 +26,7 @@ import com.googlecode.flyway.core.metadatatable.MetaDataTableTo21FormatUpgrader;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.util.ClassPathResource;
-import com.googlecode.flyway.core.util.Location;
-import com.googlecode.flyway.core.util.Locations;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.util.Resource;
+import com.googlecode.flyway.core.util.*;
 import com.googlecode.flyway.core.validation.ValidationErrorMode;
 import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.After;
@@ -61,6 +50,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"JavaDoc"})
 public abstract class MigrationTestCase {
+
     /**
      * The base directory for the regular test migrations.
      */
@@ -253,8 +243,13 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            // root cause of exception must be defined
+            // root cause of exception must be defined, and it should be FlywaySqlScriptException
             assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof FlywaySqlScriptException);
+            // and make sure the failed statement was properly recorded
+            FlywaySqlScriptException cause = (FlywaySqlScriptException) e.getCause();
+            assertEquals(21, cause.getLineNumber());
+            assertEquals("THIS IS NOT VALID SQL", cause.getStatement());
         }
 
         MigrationInfo migration = flyway.info().current();
