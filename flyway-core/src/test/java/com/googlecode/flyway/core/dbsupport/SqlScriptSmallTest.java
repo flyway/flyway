@@ -17,6 +17,8 @@ package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
+import com.googlecode.flyway.core.util.StringUtils;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -45,14 +47,18 @@ public class SqlScriptSmallTest {
     @Test
     public void stripSqlCommentsNoComment() {
         lines.add("select * from table;");
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertEquals("select * from table", sqlStatements.get(0).getSql());
+    }
+
+    private String join(List<String> lines) {
+        return StringUtils.join(lines, "\n");
     }
 
     @Test
     public void stripSqlCommentsSingleLineComment() {
         lines.add("--select * from table;");
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertEquals(0, sqlStatements.size());
     }
 
@@ -60,7 +66,7 @@ public class SqlScriptSmallTest {
     public void stripSqlCommentsMultiLineCommentSingleLine() {
         lines.add("/*comment line*/");
         lines.add("select * from table;");
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertEquals("select * from table", sqlStatements.get(0).getSql());
     }
 
@@ -68,7 +74,7 @@ public class SqlScriptSmallTest {
     public void stripSqlCommentsMultiLineCommentMultipleLines() {
         lines.add("/*comment line");
         lines.add("more comment text*/");
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertEquals(0, sqlStatements.size());
     }
 
@@ -78,7 +84,7 @@ public class SqlScriptSmallTest {
         lines.add("from mytable");
         lines.add("where col1 > 10;");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -99,7 +105,7 @@ public class SqlScriptSmallTest {
         lines.add("DELIMITER ;");
         lines.add("*/");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertEquals(1, sqlStatements.size());
 
         SqlStatement sqlStatement = sqlStatements.get(0);
@@ -118,7 +124,7 @@ public class SqlScriptSmallTest {
         lines.add("select 4;");
         lines.add("$$");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertEquals(4, sqlStatements.size());
 
         assertEquals("select 1", sqlStatements.get(0).getSql());
@@ -133,7 +139,7 @@ public class SqlScriptSmallTest {
         lines.add("DROP TABLE IF EXISTS account;");
         lines.add("/*!40101 SET character_set_client = utf8 */;");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertNotNull(sqlStatements);
         assertEquals(3, sqlStatements.size());
 
@@ -150,7 +156,7 @@ public class SqlScriptSmallTest {
         }
         lines.add("(1, '2', '3', '4');");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -165,7 +171,7 @@ public class SqlScriptSmallTest {
         lines.add("-----------------------------------------*/");
         lines.add("SELECT 1;");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -182,7 +188,7 @@ public class SqlScriptSmallTest {
         lines.add("Please find your quote attached in PDF format.'");
         lines.add("where templatename = 'quote_template';");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -205,7 +211,7 @@ public class SqlScriptSmallTest {
         lines.add("");
         lines.add("update emailtemplate set body = 'Howdy';");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.parse(join(lines));
         assertNotNull(sqlStatements);
         assertEquals(3, sqlStatements.size());
 

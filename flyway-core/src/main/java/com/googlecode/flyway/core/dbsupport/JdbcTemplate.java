@@ -233,12 +233,11 @@ public class JdbcTemplate {
             JdbcUtils.closeStatement(statement);
         }
     }
-    
-    
+
     /**
      * Executes this sql statement using an ordinary Statement.
      *
-     * @param sql The statement to execute.
+     * @param sqls The statement to execute.
      * @throws SQLException when the execution failed.
      */
     public void executeStatement(List<String> sqls) throws BatchUpdateException,SQLException {
@@ -246,14 +245,14 @@ public class JdbcTemplate {
         try {
             statement = connection.createStatement();
             for (String sql : sqls) {
-            	statement.addBatch(sql);
-			}
+                statement.addBatch(sql);
+            }
             statement.executeBatch();
         } finally {
             JdbcUtils.closeStatement(statement);
         }
     }
-    
+
     /**
      * Executes this update sql statement.
      *

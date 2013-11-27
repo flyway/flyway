@@ -15,6 +15,8 @@
  */
 package com.googlecode.flyway.core.util;
 
+import java.io.Reader;
+
 /**
  * A loadable resource.
  */
@@ -57,4 +59,6 @@ public interface Resource {
      * @return {@code true} if it exists, {@code false} if not.
      */
     boolean exists();
+
+	Reader getReader(String encoding);
 }
