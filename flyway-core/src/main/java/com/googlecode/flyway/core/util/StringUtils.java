@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.util;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -310,4 +311,5 @@ public class StringUtils {
         }
         return buf.toString();
     }
+
 }

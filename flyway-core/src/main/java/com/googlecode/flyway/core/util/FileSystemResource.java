@@ -81,6 +81,21 @@ public class FileSystemResource implements Resource, Comparable<FileSystemResour
     }
 
     /**
+     * Loads this resource as a string.
+     *
+     * @param encoding The encoding to use.
+     * @return The string contents of the resource.
+     */
+    public Reader getReader(String encoding) {
+        try {
+            InputStream inputStream = new FileInputStream(location);
+            return new InputStreamReader(inputStream, Charset.forName(encoding));
+        } catch (IOException e) {
+            throw new FlywayException("Unable to load filesystem resource: " + location.getPath() + " (encoding: " + encoding + ")", e);
+        }
+    }
+
+    /**
      * Loads this resource as a byte array.
      *
      * @return The contents of the resource.
