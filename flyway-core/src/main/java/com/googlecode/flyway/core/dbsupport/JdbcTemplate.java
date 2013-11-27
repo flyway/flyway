@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.dbsupport;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.jdbc.RowMapper;
 
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -228,6 +229,25 @@ public class JdbcTemplate {
         try {
             statement = connection.createStatement();
             statement.execute(sql);
+        } finally {
+            JdbcUtils.closeStatement(statement);
+        }
+    }
+
+    /**
+     * Executes this sql statement using an ordinary Statement.
+     *
+     * @param sqls The statement to execute.
+     * @throws SQLException when the execution failed.
+     */
+    public void executeStatement(List<String> sqls) throws BatchUpdateException,SQLException {
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            for (String sql : sqls) {
+                statement.addBatch(sql);
+            }
+            statement.executeBatch();
         } finally {
             JdbcUtils.closeStatement(statement);
         }

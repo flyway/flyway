@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.util;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -296,6 +297,19 @@ public class StringUtils {
         while (buf.length() > 0 && Character.isWhitespace(buf.charAt(buf.length() - 1))) {
             buf.deleteCharAt(buf.length() - 1);
         }
+        return buf.toString();
+    }
+
+    public static <T> String join(Collection<T> lines, String sep) {
+        StringBuilder buf = new StringBuilder();
+        for (T t : lines) {
+            buf.append(t).append(sep);
+        }
+
+        if (!lines.isEmpty()) {
+            buf.delete(buf.length() - sep.length(), buf.length());
+        }
+
         return buf.toString();
     }
 }

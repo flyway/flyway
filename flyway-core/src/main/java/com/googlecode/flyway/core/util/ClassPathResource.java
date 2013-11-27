@@ -74,6 +74,15 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Resourc
         return Thread.currentThread().getContextClassLoader();
     }
 
+    public Reader getReader(String encoding) {
+        InputStream inputStream = getClassLoader().getResourceAsStream(location);
+        if (inputStream == null) {
+            throw new FlywayException("Unable to obtain inputstream for resource: " + location);
+        }
+        return new InputStreamReader(inputStream, Charset.forName(encoding));
+    }
+
+
     public String loadAsString(String encoding) {
         try {
             InputStream inputStream = getClassLoader().getResourceAsStream(location);

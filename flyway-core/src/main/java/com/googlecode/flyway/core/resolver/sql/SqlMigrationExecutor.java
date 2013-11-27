@@ -22,12 +22,17 @@ import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.Resource;
 
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
 import java.sql.Connection;
 
 /**
  * Database migration based on a sql file.
  */
 public class SqlMigrationExecutor implements MigrationExecutor {
+    private static final int CHUNK_SIZE = 25;
+
     /**
      * Database-specific support.
      */
@@ -66,9 +71,13 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     }
 
     public void execute(Connection connection) {
-        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
-        String sqlScriptSourceNoPlaceholders = placeholderReplacer.replacePlaceholders(sqlScriptSource);
-        SqlScript sqlScript = new SqlScript(sqlScriptSourceNoPlaceholders, dbSupport);
-        sqlScript.execute(new JdbcTemplate(connection, 0));
+        LineNumberReader sqlScriptReader = new LineNumberReader(sqlScriptResource.getReader(encoding)) {
+            @Override
+            public String readLine() throws IOException {
+                return placeholderReplacer.replacePlaceholders(super.readLine());
+            }
+        };
+        SqlScript sqlScript = new SqlScript(sqlScriptReader, dbSupport);
+        sqlScript.executeBatch(new JdbcTemplate(connection, 0), CHUNK_SIZE);
     }
 }
