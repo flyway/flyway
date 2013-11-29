@@ -80,6 +80,15 @@ public class FileSystemResource implements Resource, Comparable<FileSystemResour
         }
     }
 
+
+    public InputStream getInputStream() {
+        try {
+            return new FileInputStream(location);
+        } catch (IOException e) {
+            throw new FlywayException("Unable to load filesystem resource: " + location.getPath(), e);
+        }
+    }
+
     /**
      * Loads this resource as a string.
      *
@@ -87,12 +96,7 @@ public class FileSystemResource implements Resource, Comparable<FileSystemResour
      * @return The string contents of the resource.
      */
     public Reader getReader(String encoding) {
-        try {
-            InputStream inputStream = new FileInputStream(location);
-            return new InputStreamReader(inputStream, Charset.forName(encoding));
-        } catch (IOException e) {
-            throw new FlywayException("Unable to load filesystem resource: " + location.getPath() + " (encoding: " + encoding + ")", e);
-        }
+        return new InputStreamReader(getInputStream(), Charset.forName(encoding));
     }
 
     /**
