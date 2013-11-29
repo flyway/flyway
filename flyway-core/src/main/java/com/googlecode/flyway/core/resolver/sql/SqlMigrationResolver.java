@@ -22,10 +22,7 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.resolver.MigrationInfoHelper;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
-import com.googlecode.flyway.core.util.Location;
-import com.googlecode.flyway.core.util.Pair;
-import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.util.Resource;
+import com.googlecode.flyway.core.util.*;
 import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
 import com.googlecode.flyway.core.util.scanner.filesystem.FileSystemScanner;
 
@@ -133,7 +130,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
         migration.setScript(extractScriptName(resource));
 
-        migration.setChecksum(calculateChecksum(resource.loadAsBytes()));
+        migration.setChecksum(ChecksumUtils.calculateChecksum(resource));
         migration.setType(MigrationType.SQL);
         return migration;
     }
@@ -173,15 +170,4 @@ public class SqlMigrationResolver implements MigrationResolver {
         return withoutPathAndSuffix;
     }
 
-    /**
-     * Calculates the checksum of these bytes.
-     *
-     * @param bytes The bytes to calculate the checksum for.
-     * @return The crc-32 checksum of the bytes.
-     */
-    private static int calculateChecksum(byte[] bytes) {
-        final CRC32 crc32 = new CRC32();
-        crc32.update(bytes);
-        return (int) crc32.getValue();
-    }
 }

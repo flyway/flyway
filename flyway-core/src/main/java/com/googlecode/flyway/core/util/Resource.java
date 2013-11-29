@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.util;
 
+import java.io.InputStream;
 import java.io.Reader;
 
 /**
@@ -61,4 +62,6 @@ public interface Resource {
     boolean exists();
 
 	Reader getReader(String encoding);
+
+    InputStream getInputStream();
 }
