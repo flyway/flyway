@@ -16,6 +16,7 @@
 package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.FlywaySqlScriptException;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
@@ -36,6 +37,7 @@ import java.util.List;
  * comments are stripped and ignored.
  */
 public class SqlScript {
+
     private static final Log LOG = LogFactory.getLog(SqlScript.class);
 
     /**
@@ -97,6 +99,7 @@ public class SqlScript {
      * @param jdbcTemplate The jdbc template to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
+
         if (this.sqlStatements == null) {
             throw new FlywayException("sqlStatements not initialise");
         }
@@ -130,20 +133,20 @@ public class SqlScript {
             sqls.add(stmt.getSql());
         }
 
-        LOG.debug("Executing SQL:\n" + StringUtils.join(sqls, "\n"));
+        LOG.debug("Executing SQL:\n" + StringUtils.collectionToDelimitedString(sqls, "\n"));
         try {
             jdbcTemplate.executeStatement(sqls);
         } catch (BatchUpdateException e) {
             for (int i = 0; i < e.getUpdateCounts().length; i++) {
                 if (e.getUpdateCounts()[i] == Statement.EXECUTE_FAILED) {
-                    throw new FlywayException("Error executing statement at line " + sqlStmts.get(i).getLineNumber()
-                            + ": " + sqlStmts.get(i).getSql(), e);
+                    throw new FlywaySqlScriptException( sqlStmts.get(i).getLineNumber(),sqlStmts.get(i).getSql(), e);
                 }
             }
-            throw new FlywayException("Error executing statement:\n" + StringUtils.join(sqls, "\n"), e);
+            int errorIndex = e.getUpdateCounts().length;
+            throw new FlywaySqlScriptException(sqlStmts.get(errorIndex).getLineNumber(), sqlStmts.get(errorIndex).getSql(), e);
 
         } catch (SQLException e) {
-            throw new FlywayException("Error executing statement:\n" + StringUtils.join(sqls, "\n"), e);
+            throw new FlywaySqlScriptException(-1, StringUtils.collectionToDelimitedString(sqls, "\n"), e);
         }
     }
 

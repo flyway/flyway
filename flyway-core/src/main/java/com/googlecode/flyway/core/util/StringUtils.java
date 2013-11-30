@@ -250,6 +250,18 @@ public class StringUtils {
      * @return The comma-delimited String.
      */
     public static String collectionToCommaDelimitedString(Collection<?> collection) {
+        return collectionToDelimitedString(collection, ", ");
+    }
+
+    /**
+     * Convenience method to return a Collection as a delimited
+     * String. E.g. useful for {@code toString()} implementations.
+     *
+     * @param collection the Collection to analyse
+     * @param delimiter  The delimiter.
+     * @return The delimited String.
+     */
+    public static String collectionToDelimitedString(Collection<?> collection, String delimiter) {
         if (collection == null) {
             return "";
         }
@@ -258,7 +270,7 @@ public class StringUtils {
         while (it.hasNext()) {
             sb.append(it.next());
             if (it.hasNext()) {
-                sb.append(", ");
+                sb.append(delimiter);
             }
         }
         return sb.toString();

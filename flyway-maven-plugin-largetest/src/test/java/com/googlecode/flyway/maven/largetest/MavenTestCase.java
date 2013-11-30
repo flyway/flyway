@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.maven.largetest;
 
+import com.googlecode.flyway.core.util.StringUtils;
 import org.junit.Test;
 import com.googlecode.flyway.core.util.FileCopyUtils;
 import org.w3c.dom.Document;
@@ -137,6 +138,8 @@ public abstract class MavenTestCase {
         builder.directory(new File(pomInstallDir + "/" + dir));
         builder.redirectErrorStream(true);
         builder.environment().put("M2_HOME", mavenHome);
+
+        System.out.println("Executing: " + StringUtils.collectionToDelimitedString(builder.command(), " "));
 
         Process process = builder.start();
         String stdOut = FileCopyUtils.copyToString(new InputStreamReader(process.getInputStream(), "UTF-8"));

@@ -52,7 +52,7 @@ public class SqlScriptSmallTest {
     }
 
     private String join(List<String> lines) {
-        return StringUtils.join(lines, "\n");
+        return StringUtils.collectionToDelimitedString(lines, "\n");
     }
 
     @Test

@@ -28,7 +28,7 @@ object FlywayPluginBuild extends Build {
     file ("."),
     settings = Defaults.defaultSettings ++ Seq(
       sbtPlugin := true,
-      name := "sbt-flyway",
+      name := "flyway-sbt",
       organization := "com.googlecode.flyway",
       version := flywayVersion,
       resolvers += (
