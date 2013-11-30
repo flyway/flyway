@@ -78,6 +78,10 @@ public class SqlMigrationExecutor implements MigrationExecutor {
             }
         };
         SqlScript sqlScript = new SqlScript(sqlScriptReader, dbSupport);
-        sqlScript.executeBatch(new JdbcTemplate(connection, 0), CHUNK_SIZE);
+        sqlScript.executeBatch(newJdbcTemplate(connection), CHUNK_SIZE);
+    }
+
+    protected JdbcTemplate newJdbcTemplate(Connection connection) {
+        return new JdbcTemplate(connection, 0);
     }
 }
