@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.dbsupport.h2;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.util.ExceptionUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -33,7 +34,7 @@ public class H2TriggerExceptionSmallTest {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            assertEquals("Expected", e.getCause().getMessage());
+            assertEquals("Expected", ExceptionUtils.getRootCause(e).getMessage());
         }
     }
 }

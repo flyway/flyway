@@ -88,7 +88,11 @@ public class Main {
             if (debug) {
                 LOG.error("Unexpected error", e);
             } else {
-                LOG.error(e.toString());
+                if (e instanceof FlywayException) {
+                    LOG.error(e.getMessage());
+                } else {
+                    LOG.error(e.toString());
+                }
                 Throwable cause = ExceptionUtils.getRootCause(e);
                 LOG.error("Caused by: " + cause.toString());
                 outputFirstStackTraceElement(cause);
@@ -100,8 +104,8 @@ public class Main {
     /**
      * Executes this operation on this Flyway instance.
      *
-     * @param flyway    The Flyway instance.
-     * @param operation The operation to execute.
+     * @param flyway       The Flyway instance.
+     * @param operation    The operation to execute.
      * @param consoleWidth The width of the console (in chars).
      */
     private static void executeOperation(Flyway flyway, String operation, int consoleWidth) {
@@ -169,8 +173,8 @@ public class Main {
      * @param properties The properties object to initialize.
      */
     private static void initializeDefaults(Properties properties) {
-        properties.put("flyway.locations", "filesystem:"+getInstallationDir()+"/sql");
-        properties.put("flyway.jarDir", getInstallationDir()+"/jars");
+        properties.put("flyway.locations", "filesystem:" + getInstallationDir() + "/sql");
+        properties.put("flyway.jarDir", getInstallationDir() + "/jars");
     }
 
     /**
@@ -245,7 +249,6 @@ public class Main {
      * Loads all the jars contained in the jars folder. (For Jdbc drivers and Java Migrations)
      *
      * @param properties The configured properties.
-     *
      * @throws IOException When the jars could not be loaded.
      */
     private static void loadJdbcDriversAndJavaMigrations(Properties properties) throws IOException {

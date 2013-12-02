@@ -15,14 +15,19 @@
  */
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
+import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.command.FlywaySqlScriptException;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  * Test to demonstrate the migration functionality using SQL Server.
@@ -32,6 +37,29 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
+    }
+
+    @Test
+    public void failedMigration() throws Exception {
+        String tableName = "before_the_error";
+
+        flyway.setLocations("migration/failed");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("tableName", dbSupport.quote(tableName));
+        flyway.setPlaceholders(placeholders);
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (FlywaySqlScriptException e) {
+            // root cause of exception must be defined, and it should be FlywaySqlScriptException
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof SQLException);
+            // and make sure the failed statement was properly recorded
+            // Normal DB should fail at line 21. SqlServer fails at line 17 as statements are executed in batches.
+            assertEquals(17, e.getLineNumber());
+            assertTrue(e.getStatement().contains("THIS IS NOT VALID SQL"));
+        }
     }
 
     /**
@@ -133,7 +161,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     @Test
     public void itShouldCleanCheckConstraint() throws Exception {
         // given
-        flyway.setLocations( "migration/dbsupport/sqlserver/sql/checkConstraint" );
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/checkConstraint");
         flyway.migrate();
 
         // when
@@ -141,7 +169,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
 
         // then
         int pendingMigrations = flyway.info().pending().length;
-        assertEquals( 3, pendingMigrations );
+        assertEquals(3, pendingMigrations);
     }
 
     /**

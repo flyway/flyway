@@ -36,6 +36,15 @@ import static org.junit.Assert.assertTrue;
  * Large Test for the Flyway Command-Line Tool.
  */
 public class CommandLineLargeTest {
+    /**
+     * Execute 1 (SQL), 1.1 (SQL) & 1.3 (Jdbc). 1.2 (Spring Jdbc) is not picked up.
+     */
+    @Test
+    public void migrate() throws Exception {
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
+        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+    }
+
     @Test
     public void showUsage() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null);
@@ -94,7 +103,7 @@ public class CommandLineLargeTest {
         args.addAll(Arrays.asList(extraArgs));
 
         //Debug mode
-        args.add("-X");
+        //args.add("-X");
 
         ProcessBuilder builder = new ProcessBuilder(args);
         builder.directory(new File(installDir));
@@ -130,15 +139,6 @@ public class CommandLineLargeTest {
     private String getInstallDir() {
         return System.getProperty("installDir",
                 "flyway-commandline-largetest/target/install dir/flyway-" + getPomVersion());
-    }
-
-    /**
-     * Execute 1 (SQL), 1.1 (SQL) & 1.3 (Jdbc). 1.2 (Spring Jdbc) is not picked up.
-     */
-    @Test
-    public void migrate() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
-        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 
     /**

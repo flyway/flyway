@@ -84,7 +84,7 @@
                         <exclude>**/*SmallTest.java</exclude>
                         <exclude>**/*MediumTest.java</exclude>
                     </excludes>
-                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
                         <installDir>${project.build.directory}</installDir>
                         <flywayVersion>${project.version}</flywayVersion>

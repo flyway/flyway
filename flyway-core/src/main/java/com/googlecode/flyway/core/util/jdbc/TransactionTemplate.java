@@ -34,12 +34,28 @@ public class TransactionTemplate {
     private final Connection connection;
 
     /**
+     * Whether to roll back the transaction when an exception is thrown.
+     */
+    private final boolean rollbackOnException;
+
+    /**
      * Creates a new transaction template for this connection.
      *
      * @param connection The connection for the transaction.
      */
     public TransactionTemplate(Connection connection) {
+        this(connection, true);
+    }
+
+    /**
+     * Creates a new transaction template for this connection.
+     *
+     * @param connection          The connection for the transaction.
+     * @param rollbackOnException Whether to roll back the transaction when an exception is thrown.
+     */
+    public TransactionTemplate(Connection connection, boolean rollbackOnException) {
         this.connection = connection;
+        this.rollbackOnException = rollbackOnException;
     }
 
     /**
@@ -59,12 +75,20 @@ public class TransactionTemplate {
         } catch (SQLException e) {
             throw new FlywayException("Unable to commit transaction", e);
         } catch (RuntimeException e) {
-            try {
-                LOG.debug("Rolling back transaction...");
-                connection.rollback();
-                LOG.debug("Transaction rolled back");
-            } catch (SQLException se) {
-                LOG.error("Unable to rollback transaction", se);
+            if (rollbackOnException) {
+                try {
+                    LOG.debug("Rolling back transaction...");
+                    connection.rollback();
+                    LOG.debug("Transaction rolled back");
+                } catch (SQLException se) {
+                    LOG.error("Unable to rollback transaction", se);
+                }
+            } else {
+                try {
+                    connection.commit();
+                } catch (SQLException se) {
+                    LOG.error("Unable to commit transaction", se);
+                }
             }
             throw e;
         } finally {

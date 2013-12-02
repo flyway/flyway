@@ -15,10 +15,17 @@
  */
 package com.googlecode.flyway.core;
 
-import com.googlecode.flyway.core.api.*;
+import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.MigrationInfo;
+import com.googlecode.flyway.core.api.MigrationState;
+import com.googlecode.flyway.core.api.MigrationType;
+import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import com.googlecode.flyway.core.util.logging.LogCreator;
+import com.googlecode.flyway.core.util.logging.LogFactory;
+import com.googlecode.flyway.core.util.logging.StringLogCreator;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationHandler;
@@ -27,11 +34,7 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Medium tests for the main Flyway class.
@@ -243,6 +246,24 @@ public class FlywayMediumTest {
 
         flyway.setLocations("migration/empty");
         assertEquals(MigrationState.FUTURE_SUCCESS, flyway.info().applied()[0].getState());
+    }
+
+    @Test
+    public void failed() {
+        StringLogCreator logCreator = new StringLogCreator();
+        LogFactory.setLogCreator(logCreator);
+
+        try {
+            Flyway flyway = new Flyway();
+            flyway.setDataSource("jdbc:h2:mem:flyway_failed;DB_CLOSE_DELAY=-1", "sa", "");
+            flyway.setLocations("migration/failed");
+            flyway.migrate();
+            fail();
+        } catch (FlywayException e) {
+            System.out.println(logCreator.getOutput());
+        } finally {
+            LogFactory.setLogCreator(null);
+        }
     }
 
     @Test

@@ -17,6 +17,7 @@ package com.googlecode.flyway.core.util.logging;
 
 import com.googlecode.flyway.core.util.FeatureDetector;
 import com.googlecode.flyway.core.util.logging.apachecommons.ApacheCommonsLogCreator;
+import com.googlecode.flyway.core.util.logging.javautil.JavaUtilLogCreator;
 
 /**
  * Factory for loggers.

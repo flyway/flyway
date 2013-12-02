@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util.logging;
+package com.googlecode.flyway.core.util.logging.slf4j;
 
-import java.util.logging.Logger;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogCreator;
+import org.apache.commons.logging.LogFactory;
 
 /**
- * Log Creator for java.util.logging.
+ * Log Creator for Apache Commons Logging.
  */
-public class JavaUtilLogCreator implements LogCreator {
+public class Slf4jLogCreator implements LogCreator {
     public Log createLogger(Class<?> clazz) {
-        return new JavaUtilLog(Logger.getLogger(clazz.getName()));
+        return new Slf4jLog(LogFactory.getLog(clazz));
     }
 }

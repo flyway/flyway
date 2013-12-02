@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.googlecode.flyway.core.util.jdbc;
+package com.googlecode.flyway.core.util.logging;
 
 /**
- * Callback for TransactionTemplate.
- *
- * @param <T> The type of the transaction code result.
+ * Log creator for capturing the output as a string.
  */
-public interface TransactionCallback<T> {
-    /**
-     * Executes this code within a transaction.
-     *
-     * @return The result of the transaction code.
-     */
-    T doInTransaction();
+public class StringLogCreator implements LogCreator {
+    private final StringBuilder output = new StringBuilder();
+
+    public Log createLogger(Class<?> clazz) {
+        return new StringLog(output, false);
+    }
+
+    public String getOutput() {
+        return output.toString();
+    }
 }
