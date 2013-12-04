@@ -138,6 +138,25 @@ public class Flyway {
     private String sqlMigrationSuffix = ".sql";
 
     /**
+     * The file name prefix for groovy migrations. (default: V)
+     */
+    private String groovyMigrationPrefix = "V";
+
+
+    /**
+     * The file name separator for groovy migrations. (default: __)
+     * <p/>
+     * <p>Groovy migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.groovy</p>
+     */
+    private String groovyMigrationSeparator = "__";
+
+    /**
+     * The file name suffix for groovy migrations. (default: .groovy)
+     */
+    private String groovyMigrationSuffix = ".groovy";
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -364,7 +383,21 @@ public class Flyway {
     public String getSqlMigrationSuffix() {
         return sqlMigrationSuffix;
     }
+    public String getGroovyMigrationPrefix() {
+        return groovyMigrationPrefix;
+    }
 
+    public void setGroovyMigrationPrefix(String groovyMigrationPrefix) {
+        this.groovyMigrationPrefix = groovyMigrationPrefix;
+    }
+
+    public String getGroovyMigrationSuffix() {
+        return groovyMigrationSuffix;
+    }
+
+    public void setGroovyMigrationSuffix(String groovyMigrationSuffix) {
+        this.groovyMigrationSuffix = groovyMigrationSuffix;
+    }
     /**
      * Whether to ignore failed future migrations when reading the metadata table. These are migrations that
      * were performed by a newer deployment of the application that are not yet available in this version. For example:
@@ -1004,11 +1037,14 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
+
         PlaceholderReplacer placeholderReplacer =
                 new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
         return new CompositeMigrationResolver(dbSupport, classLoader, locations,
-                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, placeholderReplacer, resolvers);
-    }
+                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix,
+                groovyMigrationPrefix, groovyMigrationSeparator, groovyMigrationSuffix, placeholderReplacer, resolvers);
+
+}
 
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are

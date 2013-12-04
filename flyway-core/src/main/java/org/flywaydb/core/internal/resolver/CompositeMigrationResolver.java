@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.resolver.groovy.GroovyMigrationResolver;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
@@ -27,13 +28,7 @@ import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -67,15 +62,23 @@ public class CompositeMigrationResolver implements MigrationResolver {
     public CompositeMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Locations locations,
                                       String encoding,
                                       String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
+                                      String groovyMigrationPrefix,String  groovyMigrationSeparator,String groovyMigrationSuffix,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
+
+
+        FeatureDetector featureDetector = new FeatureDetector(classLoader);
         for (Location location : locations.getLocations()) {
             migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer,
                     encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
             migrationResolvers.add(new JdbcMigrationResolver(classLoader, location));
 
-            if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {
+            if (featureDetector.isSpringJdbcAvailable()) {
                 migrationResolvers.add(new SpringJdbcMigrationResolver(classLoader, location));
+            }
+            if (featureDetector.isGroovyAvailable()) {
+                migrationResolvers.add(new GroovyMigrationResolver(classLoader, location, placeholderReplacer,
+                        encoding, groovyMigrationPrefix, groovyMigrationSeparator, groovyMigrationSuffix));
             }
         }
 
