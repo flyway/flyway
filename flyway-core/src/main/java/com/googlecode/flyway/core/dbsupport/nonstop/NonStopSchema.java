@@ -94,7 +94,7 @@ public class NonStopSchema extends Schema {
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name));
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) +" CASCADE");//Delete All Tables within this Schema
     }
 
     @Override
