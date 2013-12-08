@@ -2,5 +2,5 @@ language: java
 jdk:
   - oraclejdk7
 before_install: sudo rm /etc/mavenrc
-install: "mvn install -P-MediumTests -DskipTests=true"
-script: "mvn test -P-MediumTests"
+install: "mvn install -P-MediumTests,+MediumTests-Memory -DskipTests=true"
+script: "mvn test -P-MediumTests,+MediumTests-Memory"
