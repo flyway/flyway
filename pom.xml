@@ -463,6 +463,48 @@
     </reporting>
 
     <profiles>
+		 <profile>
+            <id>MediumTests-Memory</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>MediumTests</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>**/*MediumTest.java</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>**/Jtds*MediumTest.java</exclude>
+                                        <exclude>**/*SmallTest.java</exclude>
+										<exclude>**/mysql/*MediumTest.java</exclude>
+										<exclude>**/sqlserver/*MediumTest.java</exclude>
+										<exclude>**/oracle/*MediumTest.java</exclude>
+										<exclude>**/db2/*MediumTest.java</exclude>
+										<exclude>**/postgresql/*MediumTest.java</exclude>
+                                    </excludes>
+                                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                                    <systemPropertyVariables>
+                                        <user.timezone>+00:00</user.timezone>
+                                    </systemPropertyVariables>
+                                    <parallel>classes</parallel>
+                                    <threadCount>2</threadCount>
+                                    <perCoreThreadCount>true</perCoreThreadCount>
+                                    <argLine>-XX:ReservedCodeCacheSize=128m -Xmx1536m</argLine>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+	
         <profile>
             <id>MediumTests</id>
             <activation>
