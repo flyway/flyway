@@ -65,6 +65,12 @@ public class MySQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void stringEndingInCapitalB() throws Exception {
+        builder.addLine("INSERT INTO `injured_situation` VALUES(null, now(), now(), 'Test ending with B');");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
     public void charsetCastedString() throws Exception {
         builder.addLine("INSERT INTO Tablename (id) VALUES (_utf8'hello');");
         assertTrue(builder.isTerminated());
