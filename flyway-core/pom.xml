@@ -179,12 +179,9 @@
 
     <profiles>
         <profile>
-            <id>CommercialDBTest</id>
+            <id>CommercialDBJars</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
-                <property>
-                    <name>!NoCommercialDBTest</name>
-                </property>
             </activation>
             <dependencies>
                 <dependency>
