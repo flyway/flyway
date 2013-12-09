@@ -71,11 +71,16 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         if (token.startsWith("Q'") && (token.length() >= 3)) {
             return token.substring(0, 3);
         }
+        if (token.startsWith("N'")) {
+            return "N'";
+        }
         return null;
     }
 
     @Override
     protected String computeAlternateCloseQuote(String openQuote) {
+        if (openQuote.equals("N'")) return "'";
+
         char specialChar = openQuote.charAt(2);
         switch (specialChar) {
             case '[':

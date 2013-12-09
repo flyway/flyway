@@ -17,18 +17,24 @@ package com.googlecode.flyway.core.dbsupport.oracle;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * Test for OracleSqlStatementBuilder.
  */
 public class OracleSqlStatementBuilderSmallTest {
+    private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder();
+
     @Test
     public void changeDelimiterRegEx() {
-        final OracleSqlStatementBuilder statementBuilder = new OracleSqlStatementBuilder();
-        assertNull(statementBuilder.changeDelimiterIfNecessary("BEGIN_DATE", null));
-        assertEquals("/", statementBuilder.changeDelimiterIfNecessary("BEGIN DATE", null).getDelimiter());
-        assertEquals("/", statementBuilder.changeDelimiterIfNecessary("BEGIN", null).getDelimiter());
+        assertNull(builder.changeDelimiterIfNecessary("BEGIN_DATE", null));
+        assertEquals("/", builder.changeDelimiterIfNecessary("BEGIN DATE", null).getDelimiter());
+        assertEquals("/", builder.changeDelimiterIfNecessary("BEGIN", null).getDelimiter());
+    }
+
+    @Test
+    public void nvarchar() {
+        builder.addLine("INSERT INTO nvarchar2_test VALUES ( N'qwerty' );");
+        assertTrue(builder.isTerminated());
     }
 }
