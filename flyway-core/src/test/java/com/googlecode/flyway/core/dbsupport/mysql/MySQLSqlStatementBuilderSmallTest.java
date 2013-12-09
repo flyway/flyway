@@ -89,6 +89,13 @@ public class MySQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void stringEndingInDoubleQuoteMultiple() throws Exception {
+        builder.addLine("insert into sample_table_a(id, string)\n" +
+                "values (1, '[\"GIF\", \"JPG\", \"PNG\"]');");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
     public void stringEndingInDoubleQuoteComplex() throws Exception {
         builder.addLine("UPDATE TABLE_A SET entity_version = 2, last_updated_timestamp = '2013-04-20 13:55:17', " +
                 "paragraph_text = 'Inauspicious. Isn\\'t that a great word? Let it roll off the tongue: in -awespish-us." +
