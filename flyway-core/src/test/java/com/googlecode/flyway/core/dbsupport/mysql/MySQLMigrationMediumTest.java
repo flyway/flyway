@@ -15,12 +15,16 @@
  */
 package com.googlecode.flyway.core.dbsupport.mysql;
 
-import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import org.junit.experimental.categories.Category;
 import com.googlecode.flyway.core.DbCategory;
+import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
 import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
@@ -35,5 +39,15 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
         String url = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
 
         return new DriverDataSource(null, url, user, password);
+    }
+
+    @Test
+    public void migrateWithSchemaSetInPropertyButNotInUrl() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:mysql://localhost/", "flyway", "flyway");
+        flyway.setSchemas("non-existant-schema");
+        flyway.setLocations(BASEDIR);
+        flyway.clean();
+        assertEquals(4, flyway.migrate());
     }
 }
