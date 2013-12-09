@@ -872,10 +872,7 @@ public class Flyway {
                     return dbMigrator.migrate();
                 } finally {
                     if (schemaChange) {
-                        // switch back to original schema only if one was defined in datasource url else keep schema[0]
-                        if(!originalSchemaUserObjects.getName().equals("")) {
-                            dbSupportUserObjects.setCurrentSchema(originalSchemaUserObjects);
-                        }
+                        dbSupportUserObjects.setCurrentSchema(originalSchemaUserObjects);
                     }
                 }
             }
