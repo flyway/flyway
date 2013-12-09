@@ -179,9 +179,12 @@
 
     <profiles>
         <profile>
-            <id>MediumTests</id>
+            <id>CommercialDBTest</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!NoCommercialDBTest</name>
+                </property>
             </activation>
             <dependencies>
                 <dependency>

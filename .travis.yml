@@ -1,12 +1,12 @@
 language: java
 jdk:
   - oraclejdk7
-before_install: sudo rm /etc/mavenrc
 services:
   - mysql
   - postgresql
-install: "mvn install -P-MediumTests -DskipTests=true"
+before_install:
+  - sudo rm /etc/mavenrc
 before_script:
   - psql -U postgres < ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
-script: "mvn verify -P-MediumTests -PNoCommercialDBTest"
+script: "mvn install -PNoCommercialDBTest"
