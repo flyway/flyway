@@ -17,6 +17,8 @@ package com.googlecode.flyway.core.dbsupport.db2;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -24,6 +26,7 @@ import java.util.Properties;
 /**
  * Test to demonstrate the migration functionality using DB2.
  */
+@Category(DbCategory.DB2.class)
 public class DB2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {

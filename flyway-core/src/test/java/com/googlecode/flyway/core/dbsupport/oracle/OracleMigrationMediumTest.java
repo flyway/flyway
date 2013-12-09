@@ -22,6 +22,8 @@ import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import static org.junit.Assert.*;
  * Test to demonstrate the migration functionality using Oracle.
  */
 @SuppressWarnings({"JavaDoc"})
+@Category(DbCategory.Oracle.class)
 public class OracleMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {

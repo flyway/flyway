@@ -19,6 +19,8 @@ import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -31,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test for PostgreSQLDbSupport.
  */
+@Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLDbSupportMediumTest {
     /**
      * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.

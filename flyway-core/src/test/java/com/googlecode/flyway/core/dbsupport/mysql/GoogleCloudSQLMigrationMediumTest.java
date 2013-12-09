@@ -20,6 +20,8 @@ import com.google.appengine.tools.development.testing.LocalRdbmsServiceTestConfi
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -28,6 +30,7 @@ import java.util.Properties;
  * Test to demonstrate the migration functionality using Google Cloud SQL.
  */
 @SuppressWarnings({"JavaDoc"})
+@Category(DbCategory.MySQL.class)
 public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
     private LocalServiceTestHelper helper;
 

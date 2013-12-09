@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  * Medium Test for Main.
  */
 @SuppressWarnings({"JavaDoc"})
-public class MainMediumTest {
+public class MainClassLoaderSmallTest {
     /**
      * The old classloader, to be restored after a test completes.
      */

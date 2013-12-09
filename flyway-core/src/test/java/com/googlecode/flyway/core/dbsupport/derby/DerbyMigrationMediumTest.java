@@ -17,6 +17,8 @@ package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -25,6 +27,7 @@ import java.util.Properties;
 /**
  * Test to demonstrate the migration functionality using Derby.
  */
+@Category(DbCategory.Derby.class)
 public class DerbyMigrationMediumTest extends MigrationTestCase {
     static {
         System.setProperty("derby.stream.error.field", "java.lang.System.err");

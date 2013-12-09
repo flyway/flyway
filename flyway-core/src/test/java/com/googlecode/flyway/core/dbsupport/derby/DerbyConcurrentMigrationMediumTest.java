@@ -17,6 +17,8 @@ package com.googlecode.flyway.core.dbsupport.derby;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -24,6 +26,7 @@ import java.util.Properties;
 /**
  * Test to demonstrate the concurrent migration functionality using Derby.
  */
+@Category(DbCategory.Derby.class)
 public class DerbyConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     static {
         System.setProperty("derby.stream.error.field", "java.lang.System.err");

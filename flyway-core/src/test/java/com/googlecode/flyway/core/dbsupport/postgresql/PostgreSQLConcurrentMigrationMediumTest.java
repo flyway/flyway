@@ -17,6 +17,8 @@ package com.googlecode.flyway.core.dbsupport.postgresql;
 
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -24,6 +26,7 @@ import java.util.Properties;
 /**
  * Test to demonstrate the migration functionality using PostgreSQL.
  */
+@Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {

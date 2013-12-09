@@ -19,6 +19,8 @@ import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import test.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -28,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Test to demonstrate the migration functionality using H2.
  */
+@Category(DbCategory.H2.class)
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
