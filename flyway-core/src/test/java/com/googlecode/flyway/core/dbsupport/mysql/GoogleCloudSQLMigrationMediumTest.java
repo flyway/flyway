@@ -21,7 +21,7 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.experimental.categories.Category;
-import test.DbCategory;
+import com.googlecode.flyway.core.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;

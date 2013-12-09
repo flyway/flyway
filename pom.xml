@@ -581,7 +581,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>test.DbCategory$InstallableDB</excludedGroups>
+                            <excludedGroups>com.googlecode.flyway.core.DbCategory$InstallableDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -594,7 +594,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>test.DbCategory$CommercialDB</excludedGroups>
+                            <excludedGroups>com.googlecode.flyway.core.DbCategory$CommercialDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>

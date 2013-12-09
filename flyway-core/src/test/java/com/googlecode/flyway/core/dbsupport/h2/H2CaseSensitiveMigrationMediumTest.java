@@ -19,7 +19,7 @@ import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import test.DbCategory;
+import com.googlecode.flyway.core.DbCategory;
 
 /**
  * Test for H2 in case-sensitive (DATABASE_TO_UPPER=FALSE) mode.

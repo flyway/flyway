@@ -18,7 +18,7 @@ package com.googlecode.flyway.core.dbsupport.sqlserver;
 import com.googlecode.flyway.core.migration.ConcurrentMigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.experimental.categories.Category;
-import test.DbCategory;
+import com.googlecode.flyway.core.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;

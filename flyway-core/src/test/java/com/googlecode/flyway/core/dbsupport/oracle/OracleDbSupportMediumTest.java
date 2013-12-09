@@ -19,7 +19,7 @@ import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import test.DbCategory;
+import com.googlecode.flyway.core.DbCategory;
 
 import javax.sql.DataSource;
 import java.io.File;
