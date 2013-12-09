@@ -47,7 +47,7 @@ object FlywayPlugin extends Plugin {
   // common settings for migration loading tasks (used by migrate, validate, info)
   //*********************
 
-  val flywayLocations = settingKey[Seq[String]]("Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
+  val flywayLocations = settingKey[Option[Seq[String]]]("Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
   val flywayEncoding = settingKey[Option[String]]("The encoding of Sql migrations. (default: UTF-8)")
   val flywaySqlMigrationPrefix = settingKey[Option[String]]("The file name prefix for Sql migrations (default: V) ")
   val flywaySqlMigrationSuffix = settingKey[Option[String]]("The file name suffix for Sql migrations (default: .sql)")
@@ -71,7 +71,7 @@ object FlywayPlugin extends Plugin {
   //*********************
 
   private case class FlywayConfigBase(schemas: Option[Seq[String]], table: Option[String], initVersion: Option[String], initDescription: Option[String])
-  private case class FlywayConfigMigrationLoading(locations: Seq[String], encoding: Option[String], sqlMigrationPrefix: Option[String], sqlMigrationSuffix: Option[String],
+  private case class FlywayConfigMigrationLoading(locations: Option[Seq[String]], encoding: Option[String], sqlMigrationPrefix: Option[String], sqlMigrationSuffix: Option[String],
                                            cleanOnValidationError: Option[Boolean], target: Option[String], outOfOrder: Option[Boolean])
 
   private lazy val flywayDataSource = taskKey[DataSource]("The flyway datasource.")
@@ -97,7 +97,7 @@ object FlywayPlugin extends Plugin {
 
   lazy val flywaySettings :Seq[Setting[_]] = Seq[Setting[_]](
     flywayDriver := None,
-    flywayLocations := Seq("db/migration"),
+    flywayLocations := None,
     flywaySchemas := None,
     flywayTable := None,
     flywayInitVersion := None,
@@ -139,7 +139,7 @@ object FlywayPlugin extends Plugin {
           configBase.table map flyway.setTable
           configBase.initVersion map flyway.setInitVersion
           configBase.initDescription map flyway.setInitDescription
-          flyway.setLocations(configMigrationLoading.locations: _*)
+          configMigrationLoading.locations map(l => flyway.setLocations(l: _*))
           configMigrationLoading.encoding map flyway.setEncoding
           configMigrationLoading.sqlMigrationPrefix map flyway.setSqlMigrationPrefix
           configMigrationLoading.sqlMigrationSuffix map flyway.setSqlMigrationSuffix
