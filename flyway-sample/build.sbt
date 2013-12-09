@@ -19,9 +19,9 @@ seq(flywaySettings: _*)
 
 flywayUrl := "jdbc:hsqldb:file:target/flyway_sample;shutdown=true"
 
-flywayUser := "SA"
+flywayUser := Some("SA")
 
-flywayPassword := ""
+flywayPassword := Some("")
 
 flywayLocations += "com.googlecode.flyway.sample.migration"
 

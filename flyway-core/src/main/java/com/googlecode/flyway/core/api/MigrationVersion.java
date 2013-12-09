@@ -51,11 +51,23 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     private final String displayText;
 
     /**
+     * Factory for creating a MigrationVersion from a version String
+     * @param version The version String
+     * @return The MigrationVersion
+     */
+    public static MigrationVersion fromVersion(String version) {
+        if (LATEST.getVersion().equals(version)) return LATEST;
+        if (version == null) return EMPTY;
+        return new MigrationVersion(version);
+    }
+    /**
      * Creates a Version using this version string.
      *
      * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
      *                means that this version refers to an empty schema.
+     * @deprecated Will be removed in Flyway 3.0. Please use MigrationVersion.fromVersion() instead
      */
+    @Deprecated
     public MigrationVersion(String version) {
         String normalizedVersion = version.replace('_', '.');
         this.versionParts = tokenizeToLongs(normalizedVersion);
@@ -80,6 +92,15 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      */
     @Override
     public String toString() {
+        return displayText;
+    }
+
+    /**
+     * @return Numeric version as String
+     */
+    public String getVersion() {
+        if (this.equals(EMPTY)) return null;
+        if (this.equals(LATEST)) return Long.toString(Long.MAX_VALUE);
         return displayText;
     }
 

@@ -102,10 +102,18 @@ public class MigrationVersionSmallTest {
     }
 
     @Test
+    public void fromVersionFactory() {
+        assertEquals(MigrationVersion.LATEST, MigrationVersion.fromVersion(MigrationVersion.LATEST.getVersion()));
+        assertEquals(MigrationVersion.EMPTY, MigrationVersion.fromVersion(MigrationVersion.EMPTY.getVersion()));
+        assertEquals("1.2.3", MigrationVersion.fromVersion("1.2.3").getVersion());
+    }
+
+    @Test
     public void empty() {
         assertEquals(MigrationVersion.EMPTY, MigrationVersion.EMPTY);
         assertTrue(MigrationVersion.EMPTY.compareTo(MigrationVersion.EMPTY) == 0);
     }
+
 
     @Test
     public void latest() {
