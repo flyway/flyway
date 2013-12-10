@@ -23,6 +23,16 @@ AS
  END;
 /
 
+create or replace procedure selectdata is
+  v_number number;
+  begin
+    select 1 into v_number from dual;
+    dbms_output.put_line('var>'||v_number);
+  end;
+/
+
+CALL selectdata();
+
 CREATE PROCEDURE remove_emp (employee_id NUMBER) AS
    tot_emps NUMBER;
    BEGIN
