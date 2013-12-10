@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport.h2;
 
+import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
@@ -40,6 +41,14 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
+    }
+
+    @Test
+    public void mysqlMode() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:mysql_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setSchemas("mysql_schema");
+        flyway.init();
     }
 
     @Test
