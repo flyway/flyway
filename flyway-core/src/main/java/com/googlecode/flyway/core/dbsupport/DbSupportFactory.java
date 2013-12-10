@@ -55,7 +55,9 @@ public class DbSupportFactory {
      */
     public static DbSupport createDbSupport(Connection connection) {
         String databaseProductName = getDatabaseProductName(connection);
+        String url = getJdbcUrl(connection);
 
+        LOG.debug("Jdbc Url: " + url);
         LOG.debug("Database: " + databaseProductName);
 
         if (databaseProductName.startsWith("Apache Derby")) {
@@ -90,6 +92,20 @@ public class DbSupportFactory {
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
+    }
+
+    /**
+     * Retrieves the Jdbc Url for this connection.
+     *
+     * @param connection The Jdbc connection.
+     * @return The Jdbc Url.
+     */
+    private static String getJdbcUrl(Connection connection) {
+        try {
+            return connection.getMetaData().getURL();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to retrieve the Jdbc connection Url!", e);
+        }
     }
 
     /**

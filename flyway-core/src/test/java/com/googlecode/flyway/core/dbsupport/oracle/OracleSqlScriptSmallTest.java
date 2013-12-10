@@ -59,11 +59,13 @@ public class OracleSqlScriptSmallTest {
 
         SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(3, sqlStatements.size());
+        assertEquals(5, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(26, sqlStatements.get(1).getLineNumber());
         assertEquals(34, sqlStatements.get(2).getLineNumber());
-        assertEquals("COMMIT", sqlStatements.get(2).getSql());
+        assertEquals(36, sqlStatements.get(3).getLineNumber());
+        assertEquals(44, sqlStatements.get(4).getLineNumber());
+        assertEquals("COMMIT", sqlStatements.get(4).getSql());
     }
 
     @Test
