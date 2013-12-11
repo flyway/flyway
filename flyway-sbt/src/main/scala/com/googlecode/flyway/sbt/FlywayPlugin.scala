@@ -21,7 +21,6 @@ import Keys._
 
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource
 import com.googlecode.flyway.core.Flyway
-import javax.sql.DataSource
 import com.googlecode.flyway.core.info.MigrationInfoDumper
 import com.googlecode.flyway.core.util.logging.{LogFactory, LogCreator}
 import scala.Some
@@ -71,14 +70,19 @@ object FlywayPlugin extends Plugin {
   // convenience settings
   //*********************
 
-  private case class FlywayConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String)
-  private case class FlywayConfigMigrationLoading(locations: Seq[String], encoding: String, sqlMigrationPrefix: String, sqlMigrationSuffix: String,
+  private case class ConfigDataSource(driver: Option[String], url: String, user: Option[String], password: Option[String])
+  private case class ConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String)
+  private case class ConfigMigrationLoading(locations: Seq[String], encoding: String, sqlMigrationPrefix: String, sqlMigrationSuffix: String,
                                            cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean)
+  private case class ConfigMigrate(ignoreFailedFutureMigration: Boolean, placeholders: Map[String, String],
+                                         placeholderPrefix: String, placeholderSuffix: String, initOnMigrate: Boolean, validateOnMigrate: Boolean)
+  private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading, migrate: ConfigMigrate)
 
-  private lazy val flywayDataSource = taskKey[DataSource]("The flyway datasource.")
-  private lazy val flywayConfigBase = taskKey[FlywayConfigBase]("The flyway base configuration.")
-  private lazy val flywayConfigMigrationLoading = taskKey[FlywayConfigMigrationLoading]("The flyway migration loading configuration.")
-  private lazy val flyway = taskKey[Flyway]("The flyway object")
+  private lazy val flywayConfigDataSource = taskKey[ConfigDataSource]("The flyway data source configuration.")
+  private lazy val flywayConfigBase = taskKey[ConfigBase]("The flyway base configuration.")
+  private lazy val flywayConfigMigrationLoading = taskKey[ConfigMigrationLoading]("The flyway migration loading configuration.")
+  private lazy val flywayConfigMigrate = taskKey[ConfigMigrate]("The flyway migrate configuration.")
+  private lazy val flywayConfig = taskKey[Config]("The flyway configuration.")
 
   //*********************
   // flyway tasks
@@ -95,8 +99,6 @@ object FlywayPlugin extends Plugin {
   //*********************
   // flyway defaults
   //*********************
-
-
 
   lazy val flywaySettings :Seq[Setting[_]] = {
     val defaults = new Flyway()
@@ -121,94 +123,133 @@ object FlywayPlugin extends Plugin {
       flywayPlaceholderSuffix := defaults.getPlaceholderSuffix,
       flywayInitOnMigrate := defaults.isInitOnMigrate,
       flywayValidateOnMigrate := defaults.isValidateOnMigrate,
-      flywayDataSource <<= (fullClasspath in Runtime, flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
-        (cp, driver, url, user, password) =>
-          withContextClassLoader(cp) {
-            new DriverDataSource(driver.getOrElse(null), url, user.getOrElse(null), password.getOrElse(null))
-          }
+      flywayConfigDataSource <<= (flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
+        (driver, url, user, password) => ConfigDataSource(driver, url, user, password)
       },
       flywayConfigBase <<= (flywaySchemas, flywayTable, flywayInitVersion, flywayInitDescription) map {
         (schemas, table, initVersion, initDescription) =>
-          FlywayConfigBase(schemas, table, initVersion, initDescription)
+          ConfigBase(schemas, table, initVersion, initDescription)
       },
       flywayConfigMigrationLoading <<= (flywayLocations, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder) map {
         (locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
-          FlywayConfigMigrationLoading(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder)
+          ConfigMigrationLoading(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder)
       },
-      flyway <<= (fullClasspath in Runtime, streams, flywayDataSource, flywayConfigBase, flywayConfigMigrationLoading, copyResources in Runtime) map {
-        (cp, s, dataSource, configBase, configMigrationLoading, r) =>
-          withContextClassLoader(cp) {
-            LogFactory.setLogCreator(SbtLogCreator)
-            redirectLogger(s)
-            val flyway = new Flyway()
-            flyway.setDataSource(dataSource)
-            flyway.setSchemas(configBase.schemas: _*)
-            flyway.setTable(configBase.table)
-            flyway.setInitVersion(configBase.initVersion)
-            flyway.setInitDescription(configBase.initDescription)
-            flyway.setLocations(configMigrationLoading.locations: _*)
-            flyway.setEncoding(configMigrationLoading.encoding)
-            flyway.setSqlMigrationPrefix(configMigrationLoading.sqlMigrationPrefix)
-            flyway.setSqlMigrationSuffix(configMigrationLoading.sqlMigrationSuffix)
-            flyway.setCleanOnValidationError(configMigrationLoading.cleanOnValidationError)
-            flyway.setTarget(configMigrationLoading.target)
-            flyway.setOutOfOrder(configMigrationLoading.outOfOrder)
-            flyway
-          }
+      flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
+        (ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
+          ConfigMigrate(ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate)
       },
-      flywayMigrate <<= (fullClasspath in Runtime, flyway, streams, flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
-        (cp, flyway, s, ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
-          withContextClassLoader(cp) {
-            redirectLogger(s)
-            flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration)
-            flyway.setPlaceholders(placeholders)
-            flyway.setPlaceholderPrefix(placeholderPrefix)
-            flyway.setPlaceholderSuffix(placeholderSuffix)
-            flyway.setInitOnMigrate(initOnMigrate)
-            flyway.setValidateOnMigrate(validateOnMigrate)
-            flyway.migrate()
-          }
+      flywayConfig <<= (flywayConfigDataSource, flywayConfigBase, flywayConfigMigrationLoading, flywayConfigMigrate) map {
+        (dataSource, base, migrationLoading, migrate) => Config(dataSource, base, migrationLoading, migrate)
       },
-      flywayValidate <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); flyway.validate() } },
-      flywayInfo <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); s.log.info(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all())) } },
-      flywayRepair <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); flyway.repair() } },
-      flywayClean <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); flyway.clean() } },
-      flywayInit <<= (fullClasspath in Runtime, flyway, streams) map { (cp, flyway, s) => withContextClassLoader(cp) { redirectLogger(s); flyway.init() } }
+      flywayMigrate <<= (fullClasspath in Runtime, flywayConfig, streams) map {
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().migrate() }
+      },
+      flywayValidate <<= (fullClasspath in Runtime, flywayConfig, streams) map {
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().validate() }
+      },
+      flywayInfo <<= (fullClasspath in Runtime, flywayConfig, streams) map {
+        (cp, config, s) => withPrepared(cp, s) { s.log.info(MigrationInfoDumper.dumpToAsciiTable(Flyway(config).configureSysProps().info().all())) }
+      },
+      flywayRepair <<= (fullClasspath in Runtime, flywayConfig, streams) map {
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().repair() }
+      },
+      flywayClean <<= (fullClasspath in Runtime, flywayConfig, streams) map {
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().clean() }
+      },
+      flywayInit <<= (fullClasspath in Runtime, flywayConfig, streams) map {
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().init() }
+      }
     )
   }
 
-  private def redirectLogger(streams: TaskStreams) {
+  private def withPrepared[T](cp: Types.Id[Keys.Classpath], streams: TaskStreams)(f: => T): T = {
+    registerAsFlywayLogger(streams)
+    withContextClassLoader(cp)(f)
+  }
+
+  /**
+   * registers sbt log as a static logger for Flyway
+   */
+  private def registerAsFlywayLogger(streams: TaskStreams) {
+    LogFactory.setLogCreator(SbtLogCreator)
     FlywaySbtLog.streams = Some(streams)
   }
 
   private def withContextClassLoader[T](cp: Types.Id[Keys.Classpath])(f: => T): T = {
     val classloader = ClasspathUtilities.toLoader(cp.map(_.data), getClass.getClassLoader)
-    Threads.withContextClassLoader(classloader)(f)
-  }
-}
-
-private[this] object Threads {
-  def withContextClassLoader[T](classloader: ClassLoader)(b: => T): T = {
     val thread = Thread.currentThread
     val oldLoader = thread.getContextClassLoader
     try {
       thread.setContextClassLoader(classloader)
-      b
+      f
     } finally {
       thread.setContextClassLoader(oldLoader)
     }
   }
+
+  private object Flyway {
+    def apply(config: Config): Flyway = {
+      val flyway = new Flyway()
+      flyway.configure(config)
+      flyway
+    }
+  }
+  
+  private implicit class FlywayOps(val flyway: Flyway) extends AnyVal {
+    def configure(config: Config): Flyway = {
+      flyway.configure(config.dataSource)
+      .configure(config.base)
+      .configure(config.migrationLoading)
+      .configure(config.migrate)
+    }
+    def configure(config: ConfigDataSource): Flyway = {
+      flyway.setDataSource(new DriverDataSource(config.driver.getOrElse(null), config.url, config.user.getOrElse(null), config.password.getOrElse(null)))
+      flyway
+    }
+    def configure(config: ConfigBase): Flyway = {
+      flyway.setSchemas(config.schemas: _*)
+      flyway.setTable(config.table)
+      flyway.setInitVersion(config.initVersion)
+      flyway.setInitDescription(config.initDescription)
+      flyway
+    }
+    def configure(config: ConfigMigrationLoading): Flyway = {
+      flyway.setLocations(config.locations: _*)
+      flyway.setEncoding(config.encoding)
+      flyway.setSqlMigrationPrefix(config.sqlMigrationPrefix)
+      flyway.setSqlMigrationSuffix(config.sqlMigrationSuffix)
+      flyway.setCleanOnValidationError(config.cleanOnValidationError)
+      flyway.setTarget(config.target)
+      flyway.setOutOfOrder(config.outOfOrder)
+      flyway
+    }
+    def configure(config: ConfigMigrate): Flyway = {
+      flyway.setIgnoreFailedFutureMigration(config.ignoreFailedFutureMigration)
+      flyway.setPlaceholders(config.placeholders)
+      flyway.setPlaceholderPrefix(config.placeholderPrefix)
+      flyway.setPlaceholderSuffix(config.placeholderSuffix)
+      flyway.setInitOnMigrate(config.initOnMigrate)
+      flyway.setValidateOnMigrate(config.validateOnMigrate)
+      flyway
+    }
+    def configureSysProps(): Flyway = {
+      flyway.configure(System.getProperties)
+      flyway
+    }
+  }
+
+  private object SbtLogCreator extends LogCreator {
+    def createLogger(clazz: Class[_]) = FlywaySbtLog
+  }
+
+  private object FlywaySbtLog extends com.googlecode.flyway.core.util.logging.Log {
+    var streams: Option[TaskStreams] = None
+    def debug(message: String) { streams map (_.log.debug(message)) }
+    def info(message: String) { streams map (_.log.info(message)) }
+    def warn(message: String) { streams map (_.log.warn(message)) }
+    def error(message: String) { streams map (_.log.error(message)) }
+    def error(message: String, e: Exception) { streams map (_.log.error(message)); streams map (_.log.trace(e)) }
+  }
 }
 
-private[this] object SbtLogCreator extends LogCreator {
-  def createLogger(clazz: Class[_]) = FlywaySbtLog
-}
 
-private[this] object FlywaySbtLog extends com.googlecode.flyway.core.util.logging.Log {
-  var streams: Option[TaskStreams] = None
-  def debug(message: String) { streams map (_.log.debug(message)) }
-  def info(message: String) { streams map (_.log.info(message)) }
-  def warn(message: String) { streams map (_.log.warn(message)) }
-  def error(message: String) { streams map (_.log.error(message)) }
-  def error(message: String, e: Exception) { streams map (_.log.error(message)); streams map (_.log.trace(e)) }
-}
