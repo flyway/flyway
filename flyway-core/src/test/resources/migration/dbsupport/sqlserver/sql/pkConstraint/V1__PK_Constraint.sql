@@ -14,31 +14,20 @@
 -- limitations under the License.
 --
 
-  CREATE OR REPLACE FUNCTION "EVAL" (EXPR VARCHAR2) RETURN VARCHAR2
-AS
- RET VARCHAR2(4000);
- BEGIN
-  EXECUTE IMMEDIATE 'BEGIN :RESULT := ' || EXPR || '; END;' USING OUT RET;
-  RETURN RET;
- END;
-/
+CREATE TABLE test_1 (
+  id VARCHAR(255) NOT NULL,
+  value VARCHAR(255)
+);
 
-create or replace procedure selectdata is
-  v_number number;
-  begin
-    select 1 into v_number from dual;
-    dbms_output.put_line('var>'||v_number);
-  end;
-/
+CREATE TABLE test_2 (
+  id VARCHAR(255) NOT NULL,
+  dt DATETIME,
+  value VARCHAR(255)
+);
 
-CALL selectdata();
+ALTER TABLE test_2 ADD CONSTRAINT pk_test_2 PRIMARY KEY (id,dt);
 
-CREATE PROCEDURE remove_emp (employee_id NUMBER) AS
-   tot_emps NUMBER;
-   BEGIN
-      DELETE FROM employees
-      WHERE employees.employee_id = remove_emp.employee_id;
-   tot_emps := tot_emps - 1;
-   END;
-/
-COMMIT;
+CREATE TABLE test_3 (
+  id VARCHAR(255) NOT NULL,
+  value VARCHAR(255)
+);

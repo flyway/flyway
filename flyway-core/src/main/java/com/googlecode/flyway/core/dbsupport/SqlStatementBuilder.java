@@ -312,8 +312,15 @@ public class SqlStatementBuilder {
                         //Skip $$abc$$, ...
                         continue;
                     }
+
                     alternateQuote = closeQuote;
                     delimitingTokens.add(TokenType.ALTERNATE_QUOTE);
+
+                    if (cleanToken.startsWith("\"") && cleanToken.endsWith("'")) {
+                        // add QUOTE token for cases where token starts with a " and ends with a '
+                        delimitingTokens.add(TokenType.QUOTE);
+                    }
+
                     continue;
                 }
             }

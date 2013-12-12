@@ -147,6 +147,15 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     }
 
     /**
+     * Tests migrate error for pk constraints.
+     */
+    @Test(expected = FlywayException.class)
+    public void pkConstraints() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/pkConstraint");
+        flyway.migrate();
+    }
+
+    /**
      * Tests clean and migrate for synonyms.
      */
     @Test

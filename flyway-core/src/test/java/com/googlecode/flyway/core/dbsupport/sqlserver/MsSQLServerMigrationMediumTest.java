@@ -15,7 +15,10 @@
  */
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import com.googlecode.flyway.core.DbCategory;
 
@@ -34,5 +37,15 @@ public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
         String url = customProperties.getProperty("sqlserver.ms_url", "jdbc:sqlserver://localhost:1433;databaseName=flyway_db_ms");
 
         return new DriverDataSource(null, url, user, password);
+    }
+
+    /**
+     * Tests migrate error for pk constraints.
+     */
+    @Ignore("Seems to be a bug in the Microsoft driver as Jtds works fine")
+    @Test(expected = FlywayException.class)
+    public void pkConstraints() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/pkConstraint");
+        flyway.migrate();
     }
 }

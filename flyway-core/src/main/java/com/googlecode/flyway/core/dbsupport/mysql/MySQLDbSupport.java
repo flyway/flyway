@@ -23,6 +23,7 @@ import com.googlecode.flyway.core.dbsupport.SqlStatementBuilder;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.UUID;
 
 /**
  * Mysql-specific support.
@@ -52,7 +53,15 @@ public class MySQLDbSupport extends DbSupport {
 
     @Override
     protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        jdbcTemplate.execute("USE " + schema);
+        if ("".equals(schema.getName())) {
+            // Weird hack to switch back to no database selected...
+            String newDb = quote(UUID.randomUUID().toString());
+            jdbcTemplate.execute("CREATE SCHEMA " + newDb);
+            jdbcTemplate.execute("USE " + newDb);
+            jdbcTemplate.execute("DROP SCHEMA " + newDb);
+        } else {
+            jdbcTemplate.execute("USE " + schema);
+        }
     }
 
     public boolean supportsDdlTransactions() {
