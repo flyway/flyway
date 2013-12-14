@@ -41,4 +41,20 @@ public class MySQLSqlScriptSmallTest {
         assertEquals(1, sqlStatements.size());
         assertEquals(1, sqlStatements.get(0).getLineNumber());
     }
+
+    @Test
+    public void unquotedMultiLineCommentDirective() throws Exception {
+        String source = "INSERT INTO tablename VALUES ('a','b');\n" +
+                "/*!50001 CREATE TABLE `viewname` (\n" +
+                "`id` int(10) unsigned,\n" +
+                "`name` varchar(10)\n" +
+                ") ENGINE=MyISAM */;\n" +                
+                "INSERT INTO tablename VALUES ('a','b');";
+        SqlScript sqlScript = new SqlScript(source, new MySQLDbSupport(null));
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        assertEquals(3, sqlStatements.size());
+        assertEquals(1, sqlStatements.get(0).getLineNumber());
+        assertEquals(2, sqlStatements.get(1).getLineNumber());
+        assertEquals(6, sqlStatements.get(2).getLineNumber());
+    }
 }
