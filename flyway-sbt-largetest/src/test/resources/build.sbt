@@ -19,9 +19,7 @@ seq(flywaySettings: _*)
 
 flywayUrl := "jdbc:hsqldb:file:target/flyway_sample;shutdown=true"
 
-flywayUser := Some("SA")
-
-flywayPassword := Some("")
+flywayUser := "SA"
 
 flywayLocations += "db/sbt"
 

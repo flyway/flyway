@@ -33,10 +33,10 @@ object FlywayPlugin extends Plugin {
   // common migration settings for all tasks
   //*********************
 
-  val flywayDriver = settingKey[Option[String]]("The fully qualified classname of the jdbc driver to use to connect to the database. By default, the driver is autodetected based on the url.")
+  val flywayDriver = settingKey[String]("The fully qualified classname of the jdbc driver to use to connect to the database. By default, the driver is autodetected based on the url.")
   val flywayUrl = settingKey[String]("The jdbc url to use to connect to the database.")
-  val flywayUser = settingKey[Option[String]]("The user to use to connect to the database.")
-  val flywayPassword = settingKey[Option[String]]("The password to use to connect to the database.")
+  val flywayUser = settingKey[String]("The user to use to connect to the database.")
+  val flywayPassword = settingKey[String]("The password to use to connect to the database.")
 
   val flywaySchemas = settingKey[Seq[String]]("List of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during the migration. It will also be the one containing the metadata table. These schema names are case-sensitive. (default: The default schema for the datasource connection)")
   val flywayTable = settingKey[String]("The name of the metadata table that will be used by Flyway. (default: schema_version) By default (single-schema mode) the metadata table is placed in the default schema for the connection provided by the datasource. When the flyway.schemas property is set (multi-schema mode), the metadata table is placed in the first schema of the list.")
@@ -70,7 +70,7 @@ object FlywayPlugin extends Plugin {
   // convenience settings
   //*********************
 
-  private case class ConfigDataSource(driver: Option[String], url: String, user: Option[String], password: Option[String])
+  private case class ConfigDataSource(driver: String, url: String, user: String, password: String)
   private case class ConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String)
   private case class ConfigMigrationLoading(locations: Seq[String], encoding: String, sqlMigrationPrefix: String, sqlMigrationSuffix: String,
                                            cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean)
@@ -103,9 +103,9 @@ object FlywayPlugin extends Plugin {
   lazy val flywaySettings :Seq[Setting[_]] = {
     val defaults = new Flyway()
     Seq[Setting[_]](
-      flywayDriver := None,
-      flywayUser := None,
-      flywayPassword := None,
+      flywayDriver := "",
+      flywayUser := "",
+      flywayPassword := "",
       flywayLocations := defaults.getLocations.toSeq,
       flywaySchemas := defaults.getSchemas.toSeq,
       flywayTable := defaults.getTable,
@@ -194,7 +194,14 @@ object FlywayPlugin extends Plugin {
       flyway
     }
   }
-  
+
+  private implicit class StringOps(val s: String) extends AnyVal {
+    def emptyToNull(): String = s match {
+      case ss if ss.isEmpty => null
+      case _ => s
+    }
+  }
+
   private implicit class FlywayOps(val flyway: Flyway) extends AnyVal {
     def configure(config: Config): Flyway = {
       flyway.configure(config.dataSource)
@@ -202,8 +209,9 @@ object FlywayPlugin extends Plugin {
       .configure(config.migrationLoading)
       .configure(config.migrate)
     }
+
     def configure(config: ConfigDataSource): Flyway = {
-      flyway.setDataSource(new DriverDataSource(config.driver.getOrElse(null), config.url, config.user.getOrElse(null), config.password.getOrElse(null)))
+      flyway.setDataSource(new DriverDataSource(config.driver.emptyToNull(), config.url, config.user, config.password))
       flyway
     }
     def configure(config: ConfigBase): Flyway = {
