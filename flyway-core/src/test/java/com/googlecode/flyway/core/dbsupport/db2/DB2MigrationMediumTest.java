@@ -15,17 +15,16 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
-import com.googlecode.flyway.core.migration.MigrationTestCase;
-import com.googlecode.flyway.core.migration.SchemaVersion;
-import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import static org.junit.Assert.assertEquals;
+import java.util.Properties;
+import javax.sql.DataSource;
+
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import com.googlecode.flyway.core.DbCategory;
-
-import javax.sql.DataSource;
-import java.util.Properties;
-
-import static org.junit.Assert.assertEquals;
+import com.googlecode.flyway.core.migration.MigrationTestCase;
+import com.googlecode.flyway.core.migration.SchemaVersion;
+import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 
 /**
  * Test to demonstrate the migration functionality using DB2.
@@ -121,6 +120,15 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     @Test
     public void function() throws Exception {
         flyway.setLocations("migration/dbsupport/db2/sql/function");
+        flyway.migrate();
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
+    public void versioned() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/versioned");
         flyway.migrate();
 
         flyway.clean();
