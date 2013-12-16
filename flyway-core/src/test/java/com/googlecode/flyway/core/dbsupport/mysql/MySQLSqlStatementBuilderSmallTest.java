@@ -36,6 +36,15 @@ public class MySQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void isUnquotedMultiLineCommentDirective() {
+        assertFalse(builder.isCommentDirective("SELECT * FROM TABLE;"));
+        assertTrue(builder.isCommentDirective("/*!12345 CREATE TABLE tbl ("));
+        assertTrue(builder.isCommentDirective("foo varchar(5)"));
+        assertTrue(builder.isCommentDirective(") ENGINE=MyISAM*/;"));
+        assertFalse(builder.isCommentDirective("SELECT * FROM TABLE;"));
+    }
+
+    @Test
     public void escapedSingleQuotes() {
         builder.setDelimiter(new Delimiter("$$", false));
 
