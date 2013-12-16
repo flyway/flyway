@@ -621,7 +621,7 @@ public class Flyway {
      *               number will not be applied. (default: the latest version)
      */
     public void setTarget(String target) {
-        this.target = new MigrationVersion(target);
+        this.target = MigrationVersion.fromVersion(target);
     }
 
     /**
@@ -698,7 +698,7 @@ public class Flyway {
     @Deprecated
     public void setInitialVersion(SchemaVersion initialVersion) {
         LOG.warn("Flyway.setInitialVersion(SchemaVersion) has been deprecated. Use setInitVersion(MigrationVersion) instead. Will be removed in Flyway 3.0.");
-        this.initVersion = new MigrationVersion(initialVersion.toString());
+        this.initVersion = MigrationVersion.fromVersion(initialVersion.toString());
     }
 
     /**
