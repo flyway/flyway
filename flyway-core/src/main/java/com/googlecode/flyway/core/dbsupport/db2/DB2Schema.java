@@ -15,13 +15,18 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
-import com.googlecode.flyway.core.dbsupport.*;
-import com.googlecode.flyway.core.util.StringUtils;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.googlecode.flyway.core.dbsupport.DbSupport;
+import com.googlecode.flyway.core.dbsupport.Function;
+import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
+import com.googlecode.flyway.core.dbsupport.Schema;
+import com.googlecode.flyway.core.dbsupport.Table;
+import com.googlecode.flyway.core.dbsupport.Type;
+import com.googlecode.flyway.core.util.StringUtils;
 
 /**
  * DB2 implementation of Schema.
@@ -70,6 +75,11 @@ public class DB2Schema extends Schema {
         // MQTs are dropped when the backing views or tables are dropped
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
+        // drop versioned table link
+        for (String dropVersioningStatement : generateDropVersioningStatement()) {
+            jdbcTemplate.execute(dropVersioningStatement);
+        }
+
         // views
         for (String dropStatement : generateDropStatements(name, "V", "VIEW")) {
             jdbcTemplate.execute(dropStatement);
@@ -102,6 +112,8 @@ public class DB2Schema extends Schema {
             type.drop();
         }
     }
+
+
 
     /**
      * Generates DROP statements for the procedures in this schema.
@@ -161,15 +173,34 @@ public class DB2Schema extends Schema {
         return dropStatements;
     }
 
-    @Override
-    protected Table[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(
-                "select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = ?", name);
+    /**
+     * Returns all tables that have versioning associated with them.
+     *
+     * @return
+     * @throws SQLException
+     */
+    private List<String> generateDropVersioningStatement() throws SQLException {
+        List<String> dropVersioningStatements = new ArrayList<String>();
+        Table[] versioningTables = findTables("select rtrim(TABNAME) from SYSCAT.TABLES where TEMPORALTYPE <> 'N' and TABSCHEMA = ?", name);
+        for(Table table : versioningTables) {
+            dropVersioningStatements.add("ALTER TABLE " + table.toString() + " DROP VERSIONING");
+        }
+
+        return dropVersioningStatements;
+    }
+
+    private Table[] findTables(String sqlQuery, String ... params) throws SQLException {
+        List<String> tableNames = jdbcTemplate.queryForStringList(sqlQuery, params);
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new DB2Table(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    protected Table[] doAllTables() throws SQLException {
+        return findTables("select rtrim(TABNAME) from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = ?", name);
     }
 
     @Override
