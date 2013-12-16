@@ -83,6 +83,10 @@ public class OracleSchema extends Schema {
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : generateDropStatementsForObjectType("SEQUENCE", "")) {
             jdbcTemplate.execute(statement);
         }
@@ -104,10 +108,6 @@ public class OracleSchema extends Schema {
         }
 
         for (String statement : generateDropStatementsForObjectType("SYNONYM", "")) {
-            jdbcTemplate.execute(statement);
-        }
-
-        for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
             jdbcTemplate.execute(statement);
         }
 
