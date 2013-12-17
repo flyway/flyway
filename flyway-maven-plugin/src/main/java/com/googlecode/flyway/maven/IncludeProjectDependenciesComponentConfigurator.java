@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A custom ComponentConfigurator which adds the project's runtime classpath elements to the
+ * A custom ComponentConfigurator which adds the project's runtime classpath elements to the plugin's classpath.
  *
  * @plexus.component role="org.codehaus.plexus.component.configurator.ComponentConfigurator"
  * role-hint="include-project-dependencies"
