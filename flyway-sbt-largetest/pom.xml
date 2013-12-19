@@ -12,7 +12,7 @@
         <!-- Add Flyway dependencies to force order in reaction -->
         <dependency>
             <groupId>com.googlecode.flyway</groupId>
-            <artifactId>flyway-sbt</artifactId>
+            <artifactId>flyway-sbt_2.10_0.13</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
