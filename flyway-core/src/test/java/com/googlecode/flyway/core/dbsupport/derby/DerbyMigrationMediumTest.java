@@ -15,13 +15,13 @@
  */
 package com.googlecode.flyway.core.dbsupport.derby;
 
+import com.googlecode.flyway.core.DbCategory;
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.experimental.categories.Category;
-import com.googlecode.flyway.core.DbCategory;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -37,7 +37,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     public void tearDown() throws Exception {
         try {
             new DriverDataSource(null, "jdbc:derby:memory:flyway_db;drop=true", "", "").getConnection();
-        } catch (SQLException e) {
+        } catch (FlywayException e) {
             //OK, expected error 08006. See http://db.apache.org/derby/docs/dev/devguide/cdevdvlpinmemdb.html
         }
 

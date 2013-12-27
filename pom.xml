@@ -391,6 +391,8 @@
                     <failIfMissing>true</failIfMissing>
                     <encoding>UTF-8</encoding>
                     <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>**/build/**</exclude>
                         <exclude>.idea/**</exclude>
                         <exclude>**/*.sh</exclude>
                         <exclude>**/*.txt</exclude>
@@ -404,6 +406,9 @@
                         <exclude>**/*.iws</exclude>
                         <exclude>**/*.bin</exclude>
                         <exclude>**/*.lock</exclude>
+                        <exclude>**/*.gradle</exclude>
+                        <exclude>**/*.sbt</exclude>
+                        <exclude>**/gradlew</exclude>
                         <exclude>.gitignore</exclude>
                         <exclude>.gitattributes</exclude>
                         <exclude>.travis.yml</exclude>
@@ -435,6 +440,9 @@
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
                 <executions>
                     <execution>
                         <id>MediumTests</id>

@@ -194,7 +194,13 @@ public class DriverDataSource implements DataSource {
         if (password != null) {
             props.setProperty("password", password);
         }
-        Connection connection = driver.connect(url, props);
+        Connection connection;
+        try {
+            connection = driver.connect(url, props);
+        } catch (SQLException e) {
+            throw new FlywayException(
+                    "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "'", e);
+        }
 
         for (String initSql : initSqls) {
             Statement statement = null;
