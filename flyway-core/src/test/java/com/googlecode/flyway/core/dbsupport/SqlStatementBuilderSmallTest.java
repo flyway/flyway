@@ -116,4 +116,12 @@ public class SqlStatementBuilderSmallTest {
         assertEquals("SELECT * FROM t WHERE a = 'Straßenpaß'",
                 SqlStatementBuilder.stripDelimiter("SELECT * FROM t WHERE a = 'Straßenpaß'$ßß$", new Delimiter("$ßß$", false)));
     }
+
+
+    @Test
+    public void stripDelimiterWithAnotherSpecialCharacters() {
+        assertEquals("SELECT * FROM t WHERE a = 'BİRİNİ'",
+                SqlStatementBuilder.stripDelimiter("SELECT * FROM t WHERE a = 'BİRİNİ';", new Delimiter(";", false)));
+    }
+
 }
