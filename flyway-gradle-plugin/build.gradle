@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 
 def pomProject = new XmlSlurper().parse(file('pom.xml'))
 
-group = 'com.googlecode.flyway'
+group = pomProject.parent.groupId
 
 version = pomProject.parent.version
 
@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-	compile "com.googlecode.flyway:flyway-core:${version}"
+	compile "${group}:flyway-core:${version}"
     compile gradleApi()
     compile localGroovy()
 	testCompile 'junit:junit:4.11'
@@ -24,4 +24,9 @@ test {
 	beforeTest { descriptor ->
     	 println("Running: " + descriptor)
     }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
 }
