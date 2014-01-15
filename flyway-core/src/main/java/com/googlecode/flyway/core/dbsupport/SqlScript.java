@@ -15,6 +15,7 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
+import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.command.FlywaySqlScriptException;
 import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.logging.Log;
@@ -201,7 +202,7 @@ public class SqlScript {
                 lines.add(line);
             }
         } catch (IOException e) {
-            throw new IllegalStateException("Cannot parse lines", e);
+            throw new FlywayException("Cannot parse lines", e);
         }
 
         return lines;

@@ -102,4 +102,18 @@ public class SqlStatementBuilderSmallTest {
         assertEquals("SELECT * FROM t WHERE a = 'Straßenpaß'",
                 SqlStatementBuilder.stripDelimiter("SELECT * FROM t WHERE a = 'Straßenpaß';", new Delimiter(";", false)));
     }
+
+    @Test
+    public void stripDelimiterGo() {
+        assertEquals("SELECT * FROM t WHERE a = 'Straßenpaß'\n",
+                SqlStatementBuilder.stripDelimiter("SELECT * FROM t WHERE a = 'Straßenpaß'\nGO", new Delimiter("GO", true)));
+        assertEquals("SELECT * FROM t WHERE a = 'Straßenpaß'\n",
+                SqlStatementBuilder.stripDelimiter("SELECT * FROM t WHERE a = 'Straßenpaß'\ngo", new Delimiter("GO", true)));
+    }
+
+    @Test
+    public void stripDelimiterCustom() {
+        assertEquals("SELECT * FROM t WHERE a = 'Straßenpaß'",
+                SqlStatementBuilder.stripDelimiter("SELECT * FROM t WHERE a = 'Straßenpaß'$ßß$", new Delimiter("$ßß$", false)));
+    }
 }
