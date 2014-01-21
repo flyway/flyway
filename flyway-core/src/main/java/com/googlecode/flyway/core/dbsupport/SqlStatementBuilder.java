@@ -229,7 +229,9 @@ public class SqlStatementBuilder {
      */
     /* private -> testing */
     static String stripDelimiter(String sql, Delimiter delimiter) {
-        return sql.substring(0, sql.lastIndexOf(delimiter.getDelimiter()));
+        final int lowerCaseIndex = sql.lastIndexOf(delimiter.getDelimiter().toLowerCase());
+        final int upperCaseIndex = sql.lastIndexOf(delimiter.getDelimiter().toUpperCase());
+        return sql.substring(0, Math.max(lowerCaseIndex, upperCaseIndex));
     }
 
     /**
