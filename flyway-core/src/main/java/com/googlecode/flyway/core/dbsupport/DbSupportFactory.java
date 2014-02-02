@@ -16,20 +16,14 @@
 package com.googlecode.flyway.core.dbsupport;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.dbsupport.db2.DB2DbSupport;
-import com.googlecode.flyway.core.dbsupport.derby.DerbyDbSupport;
-import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
-import com.googlecode.flyway.core.dbsupport.hsql.HsqlDbSupport;
-import com.googlecode.flyway.core.dbsupport.mysql.MySQLDbSupport;
-import com.googlecode.flyway.core.dbsupport.oracle.OracleDbSupport;
-import com.googlecode.flyway.core.dbsupport.postgresql.PostgreSQLDbSupport;
-import com.googlecode.flyway.core.dbsupport.sqlserver.SQLServerDbSupport;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Factory for obtaining the correct DbSupport instance for the current connection.
@@ -39,6 +33,9 @@ public class DbSupportFactory {
      * Logger.
      */
     private static final Log LOG = LogFactory.getLog(DbSupportFactory.class);
+
+    private static Map<Class<? extends DbSupport>, Class<? extends DbSupport>> customDbSupport =
+            new HashMap<Class<? extends DbSupport>, Class<? extends DbSupport>>();
 
     /**
      * Prevent instantiation.
@@ -60,38 +57,34 @@ public class DbSupportFactory {
         LOG.debug("Jdbc Url: " + url);
         LOG.debug("Database: " + databaseProductName);
 
-        if (databaseProductName.startsWith("Apache Derby")) {
-            return new DerbyDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("H2")) {
-            return new H2DbSupport(connection);
-        }
-        if (databaseProductName.contains("HSQL Database Engine")) {
-            // For regular Hsql and the Google Cloud SQL local default DB.
-            return new HsqlDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("Microsoft SQL Server")) {
-            return new SQLServerDbSupport(connection);
-        }
-        if (databaseProductName.contains("MySQL")) {
-            // For regular MySQL and Google Cloud SQL.
-            // Google Cloud SQL returns different names depending on the environment and the SDK version.
-            //   ex.: Google SQL Service/MySQL
-            return new MySQLDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("Oracle")) {
-            return new OracleDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("PostgreSQL")) {
-            return new PostgreSQLDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("DB2")) {
-            // DB2 also returns the OS it's running on.
-            //   ex.: DB2/NT
-            return new DB2DbSupport(connection);
-        }
+        Class<? extends DbSupport> dbSupportClass = SupportedDb.forDatabaseProductName(databaseProductName).getDbSupportClass();
+        if(customDbSupport.containsKey(dbSupportClass)) dbSupportClass = customDbSupport.get(dbSupportClass);
 
-        throw new FlywayException("Unsupported Database: " + databaseProductName);
+        try {
+            return dbSupportClass.getConstructor(Connection.class).newInstance(connection);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to create instance of " + dbSupportClass.getName(), e);
+        }
+    }
+
+    public static void clearCustomDbSupport() {
+        customDbSupport.clear();
+    }
+
+    public static Class<? extends DbSupport> getCustomDbSupport(Class<? extends DbSupport> dbSupportClass) {
+        return customDbSupport.get(dbSupportClass);
+    }
+
+    public static void registerCustomDbSupport(String databaseName, String dbSupportClassName) {
+        DbSupportFactory.customDbSupport.put(SupportedDb.forName(databaseName).getDbSupportClass(), findClass(dbSupportClassName));
+    }
+
+    private static Class<? extends DbSupport> findClass(String className) {
+        try {
+            return Class.forName(className).asSubclass(DbSupport.class);
+        } catch(ClassNotFoundException e) {
+            throw new FlywayException("Could not find class: " + className, e);
+        }
     }
 
     /**
