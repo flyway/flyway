@@ -118,11 +118,15 @@ public class OracleSchema extends Schema {
         for (Table table : allTables()) {
             table.drop();
         }
-
+        
         for (String statement : generateDropStatementsForXmlTables()) {
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : generateDropStatementsForObjectType("CLUSTER", "CLUSTER")) {
+            jdbcTemplate.execute(statement);
+        }
+        
         for (String statement : generateDropStatementsForObjectType("TYPE", "FORCE")) {
             jdbcTemplate.execute(statement);
         }
