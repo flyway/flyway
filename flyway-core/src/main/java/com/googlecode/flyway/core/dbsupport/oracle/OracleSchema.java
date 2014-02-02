@@ -123,7 +123,7 @@ public class OracleSchema extends Schema {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : generateDropStatementsForObjectType("CLUSTER", "CLUSTER")) {
+        for (String statement : generateDropStatementsForObjectType("CLUSTER", "")) {
             jdbcTemplate.execute(statement);
         }
         
