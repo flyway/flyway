@@ -83,6 +83,10 @@ public class OracleSchema extends Schema {
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : generateAlterStatementsForFlashbackTables()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
             jdbcTemplate.execute(statement);
         }
@@ -127,6 +131,41 @@ public class OracleSchema extends Schema {
             jdbcTemplate.execute(statement);
         }
     }
+
+    /**
+     * Generates the ALTER statements for all tables that have Flashback enabled.
+     *
+     * @return The complete alter statements, ready to execute.
+     * @throws SQLException when the statements could not be generated.
+     */
+    private List<String> generateAlterStatementsForFlashbackTables() throws SQLException {
+        List<String> alterStatements = new ArrayList<String>();
+
+        if (!flashbackAvailable()) {
+            LOG.debug("Oracle DBA_FLASHBACK_ARCHIVE_TABLES not available. No cleaning of Flashback tables.");
+            return alterStatements;
+        }
+        List<String> objectNames =
+                jdbcTemplate.queryForStringList("SELECT table_name " +
+                        "FROM DBA_FLASHBACK_ARCHIVE_TABLES WHERE owner_name = ?", name);
+        for (String objectName : objectNames) {
+            alterStatements.add("ALTER TABLE " + dbSupport.quote(name, objectName) + " NO FLASHBACK ARCHIVE");
+        }
+        return alterStatements;
+    }
+
+    /**
+     * Checks whether Oracle DBA_FLASHBACK_ARCHIVE_TABLES are available or not.
+     *
+     * @return {@code true} if they are available, {@code false} if not.
+     * @throws SQLException when checking availability of the feature failed.
+     */
+    private boolean flashbackAvailable() throws SQLException {
+        return jdbcTemplate.queryForInt("select count(*) " +
+                "from all_objects " +
+                "where object_name like 'DBA_FLASHBACK_ARCHIVE_TABLES'") > 0;
+    }
+
 
     /**
      * Generates the drop statements for all xml tables.
