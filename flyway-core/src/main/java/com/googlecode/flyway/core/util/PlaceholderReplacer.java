@@ -16,6 +16,8 @@
 package com.googlecode.flyway.core.util;
 
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.util.logging.Log;
+import com.googlecode.flyway.core.util.logging.LogFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,10 +30,17 @@ import java.util.regex.Pattern;
  * Tool for replacing placeholders.
  */
 public class PlaceholderReplacer {
+    private static final Log LOG = LogFactory.getLog(PlaceholderReplacer.class);
+
     /**
      * PlaceholderReplacer that doesn't replace any placeholders.
      */
-    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<String, String>(), "", "");
+    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<String, String>(), "", "", false);
+
+    /**
+     * Enforce check for unmatched placeholders.
+     */
+    private boolean placeholderStrict;
 
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.
@@ -54,11 +63,13 @@ public class PlaceholderReplacer {
      * @param placeholders      A map of <placeholder, replacementValue> to apply to sql migration scripts.
      * @param placeholderPrefix The prefix of every placeholder. Usually ${
      * @param placeholderSuffix The suffix of every placeholder. Usually }
+     * @param placeholderStrict Enforce unmatched placeholder checks.
      */
-    public PlaceholderReplacer(Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+    public PlaceholderReplacer(Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix, boolean placeholderStrict) {
         this.placeholders = placeholders;
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
+        this.placeholderStrict = placeholderStrict;
     }
 
     /**
@@ -74,8 +85,9 @@ public class PlaceholderReplacer {
             String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
             noPlaceholders = StringUtils.replaceAll(noPlaceholders, searchTerm, placeholders.get(placeholder));
         }
-        checkForUnmatchedPlaceholderExpression(noPlaceholders);
 
+        checkForUnmatchedPlaceholderExpression(noPlaceholders);
+        
         return noPlaceholders;
     }
 
@@ -96,9 +108,13 @@ public class PlaceholderReplacer {
         }
 
         if (!unmatchedPlaceHolderExpressions.isEmpty()) {
-            throw new FlywayException("No value provided for placeholder expressions: "
-                    + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions)
-                    + ".  Check your configuration!");
+            if(placeholderStrict) {
+                throw new FlywayException("No value provided for placeholder expressions: "
+                        + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions)
+                        + ".  Check your configuration!");
+            } else {
+                LOG.debug("Unmatched placeholders found: " + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions));
+            }
         }
     }
 }

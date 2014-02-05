@@ -80,6 +80,11 @@ public class CompositeMigrationResolver implements MigrationResolver {
     private final String placeholderSuffix;
 
     /**
+     * Flag for enforcing unmatched placeholder checking.
+     */
+    private final boolean placeholderStrict;
+
+    /**
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
      * found.
      */
@@ -96,8 +101,9 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param placeholders       A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      * @param placeholderPrefix  The prefix of every placeholder.
      * @param placeholderSuffix  The suffix of every placeholder.
+     * @param placeholderStrict  Enforces unmatched placeholder checking.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
+    public CompositeMigrationResolver(DbSupport dbSupport, Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix, boolean placeholderStrict) {
         this.dbSupport = dbSupport;
         this.locations = locations;
         this.encoding = encoding;
@@ -106,6 +112,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
         this.placeholders = placeholders;
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
+        this.placeholderStrict = placeholderStrict;
     }
 
     /**
@@ -131,7 +138,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix, placeholderStrict);
 
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 

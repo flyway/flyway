@@ -106,6 +106,12 @@ public class Flyway {
     private Map<String, String> placeholders = new HashMap<String, String>();
 
     /**
+     * Sets strict enforcement of unmatched placeholder checks.
+     * If false Flyway will not throw error for unmatched placeholders found in sql
+     */
+    private boolean placeholderStrict = false;
+
+    /**
      * The prefix of every placeholder. (default: ${ )
      */
     private String placeholderPrefix = "${";
@@ -634,6 +640,15 @@ public class Flyway {
     }
 
     /**
+     * Sets strict validation on unmatched placeholders.
+     *
+     * @param placeholderStrict Flag for checking for unmatched placeholders. (default: false )
+     */
+    public void setPlaceholderStrict(boolean placeholderStrict) {
+        this.placeholderStrict = placeholderStrict;
+    }
+
+    /**
      * Sets the prefix of every placeholder.
      *
      * @param placeholderPrefix The prefix of every placeholder. (default: ${ )
@@ -1032,7 +1047,7 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
-        return new CompositeMigrationResolver(dbSupport, locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        return new CompositeMigrationResolver(dbSupport, locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix, placeholderStrict);
     }
 
     /**
@@ -1058,6 +1073,10 @@ public class Flyway {
         String locationsProp = properties.getProperty("flyway.locations");
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
+        }
+        String placeholderStrictProp = properties.getProperty("flyway.placeholderStrict");
+        if (placeholderStrictProp != null) {
+            setPlaceholderStrict(new Boolean(placeholderStrictProp));
         }
         String placeholderPrefixProp = properties.getProperty("flyway.placeholderPrefix");
         if (placeholderPrefixProp != null) {

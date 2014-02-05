@@ -142,7 +142,7 @@ public class MetaDataTableTo20FormatUpgrader {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", table.getSchema().getName());
         placeholders.put("table", table.getName());
-        String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+        String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}", true).replacePlaceholders(source);
 
         SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
         sqlScript.execute(jdbcTemplate);

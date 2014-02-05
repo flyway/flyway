@@ -37,7 +37,7 @@ public class CompositeMigrationResolverSmallTest {
     public void resolveMigrationsMultipleLocations() {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+                "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}", true);
 
         List<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
 
