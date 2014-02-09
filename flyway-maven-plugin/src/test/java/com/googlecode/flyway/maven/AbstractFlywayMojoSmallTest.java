@@ -18,7 +18,10 @@ package com.googlecode.flyway.maven;
 import com.googlecode.flyway.core.Flyway;
 import org.apache.maven.project.MavenProject;
 import org.h2.Driver;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -27,6 +30,14 @@ import static org.junit.Assert.assertNull;
  * Test for AbstractFlywayMojo.
  */
 public class AbstractFlywayMojoSmallTest {
+
+    public static final String FLYWAY_MY_PROPERTY = "flyway.myProperty";
+
+    @Before
+    public void cleanCustomSystemProperty(){
+        System.clearProperty(FLYWAY_MY_PROPERTY);
+    }
+
     @Test
     public void execute() throws Exception {
         AbstractFlywayMojo mojo = new AbstractFlywayMojo() {
@@ -59,5 +70,30 @@ public class AbstractFlywayMojoSmallTest {
         mojo.url = "jdbc:h2:mem:dummy";
         mojo.mavenProject = new MavenProject();
         mojo.execute();
+    }
+
+    @Test
+    public void shouldHaveABooleanPropertyWithTrue() throws Exception {
+        System.setProperty(FLYWAY_MY_PROPERTY, "true");
+        AbstractFlywayMojo mojo = new AbstractFlywayMojo() {
+            @Override
+            protected void doExecute(Flyway flyway) throws Exception {
+            }
+        };
+
+        boolean booleanProperty = mojo.getBooleanProperty(FLYWAY_MY_PROPERTY, false);
+        assertEquals(true, booleanProperty);
+    }
+
+    @Test
+    public void shouldHaveTheMavenPropertyWithFalse() throws Exception {
+        AbstractFlywayMojo mojo = new AbstractFlywayMojo() {
+            @Override
+            protected void doExecute(Flyway flyway) throws Exception {
+            }
+        };
+
+        boolean booleanProperty = mojo.getBooleanProperty(FLYWAY_MY_PROPERTY, false);
+        assertEquals(false, booleanProperty);
     }
 }

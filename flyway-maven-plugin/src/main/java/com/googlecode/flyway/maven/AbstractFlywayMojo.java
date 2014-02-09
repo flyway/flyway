@@ -407,10 +407,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @param mavenPropertyValue The value of the Maven property.
      * @return The value to use.
      */
-    private boolean getBooleanProperty(String systemPropertyName, boolean mavenPropertyValue) {
+    protected boolean getBooleanProperty(String systemPropertyName, boolean mavenPropertyValue) {
         String systemPropertyValue = System.getProperty(systemPropertyName);
         if (systemPropertyValue != null) {
-            return Boolean.getBoolean(systemPropertyValue);
+            return Boolean.getBoolean(systemPropertyName);
         }
         return mavenPropertyValue;
     }
