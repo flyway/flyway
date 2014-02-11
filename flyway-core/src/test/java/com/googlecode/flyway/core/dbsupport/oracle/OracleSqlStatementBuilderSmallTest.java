@@ -37,4 +37,10 @@ public class OracleSqlStatementBuilderSmallTest {
         builder.addLine("INSERT INTO nvarchar2_test VALUES ( N'qwerty' );");
         assertTrue(builder.isTerminated());
     }
+
+    @Test
+    public void notNvarchar() {
+        builder.addLine("INSERT INTO nvarchar2_test VALUES ( ' N' );");
+        assertTrue(builder.isTerminated());
+    }
 }

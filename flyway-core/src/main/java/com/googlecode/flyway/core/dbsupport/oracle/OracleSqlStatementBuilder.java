@@ -61,6 +61,14 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
+    protected String removeCharsetCasting(String token) {
+        if (token.startsWith("N'")) {
+            return token.substring(1);
+        }
+        return token;
+    }
+
+    @Override
     protected String simplifyLine(String line) {
         String simplifiedQQuotes = StringUtils.replaceAll(StringUtils.replaceAll(line, "q'(", "q'["), ")'", "]'");
         return super.simplifyLine(simplifiedQQuotes);
@@ -71,16 +79,11 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         if (token.startsWith("Q'") && (token.length() >= 3)) {
             return token.substring(0, 3);
         }
-        if (token.startsWith("N'")) {
-            return "N'";
-        }
         return null;
     }
 
     @Override
     protected String computeAlternateCloseQuote(String openQuote) {
-        if (openQuote.equals("N'")) return "'";
-
         char specialChar = openQuote.charAt(2);
         switch (specialChar) {
             case '[':
