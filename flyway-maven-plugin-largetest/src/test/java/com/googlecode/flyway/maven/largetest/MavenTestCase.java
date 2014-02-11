@@ -47,7 +47,7 @@ public abstract class MavenTestCase {
 
     @Test
     public void regular() throws Exception {
-        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:init", "flyway:status", "-Dflyway.initVersion=0.1", "-Dflyway.user=SA");
+        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:init", "flyway:info", "-Dflyway.initVersion=0.1", "-Dflyway.user=SA");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
@@ -66,7 +66,7 @@ public abstract class MavenTestCase {
 
     @Test
     public void settings() throws Exception {
-        String stdOut = runMaven(0, "settings", "clean", "compile", "flyway:init", "flyway:status", "-s", pomInstallDir + "/settings/settings.xml");
+        String stdOut = runMaven(0, "settings", "clean", "compile", "flyway:init", "flyway:info", "-s", pomInstallDir + "/settings/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 
@@ -75,7 +75,7 @@ public abstract class MavenTestCase {
      */
     @Test
     public void settingsDefault() throws Exception {
-        String stdOut = runMaven(0, "settings-default", "clean", "compile", "flyway:init", "flyway:status", "-s", pomInstallDir + "/settings-default/settings.xml");
+        String stdOut = runMaven(0, "settings-default", "clean", "compile", "flyway:init", "flyway:info", "-s", pomInstallDir + "/settings-default/settings.xml");
         assertTrue(stdOut.contains("<< Flyway Init >>"));
     }
 

@@ -17,15 +17,11 @@ package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.Location;
-import com.googlecode.flyway.core.util.StringUtils;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
-import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import com.googlecode.flyway.core.validation.ValidationMode;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -59,6 +55,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     protected Log log;
+
+    protected Flyway flyway = new Flyway();
 
     /**
      * Whether to skip the execution of the Maven Plugin for this module.<br/>
@@ -127,27 +125,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.table"
      */
-    private String table;
-
-    /**
-     * The version to tag an existing schema with when executing init. (default: 1)<br/>
-     * <p>Also configurable with Maven or System Property: ${flyway.initialVersion}</p>
-     *
-     * @parameter property="flyway.initialVersion"
-     * @deprecated Use initVersion instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    private String initialVersion;
-
-    /**
-     * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br>
-     * <p>Also configurable with Maven or System Property: ${flyway.initialDescription}</p>
-     *
-     * @parameter property="flyway.initialDescription"
-     * @deprecated Use initDescription instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    private String initialDescription;
+    private String table = flyway.getTable();
 
     /**
      * The version to tag an existing schema with when executing init. (default: 1)<br/>
@@ -155,7 +133,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.initVersion"
      */
-    private String initVersion;
+    private String initVersion = flyway.getInitVersion().getVersion();
 
     /**
      * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br>
@@ -163,7 +141,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.initDescription"
      */
-    private String initDescription;
+    private String initDescription = flyway.getInitDescription();
 
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
@@ -172,7 +150,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter
      */
-    private String[] locations;
+    private String[] locations = flyway.getLocations();
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
@@ -180,7 +158,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.encoding"
      */
-    private String encoding;
+    private String encoding = flyway.getEncoding();
 
     /**
      * The file name prefix for Sql migrations (default: V) <p>Also configurable with Maven or System Property:
@@ -188,7 +166,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.sqlMigrationPrefix"
      */
-    private String sqlMigrationPrefix;
+    private String sqlMigrationPrefix = flyway.getSqlMigrationPrefix();
 
     /**
      * The file name suffix for Sql migrations (default: .sql) <p>Also configurable with Maven or System Property:
@@ -196,23 +174,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.sqlMigrationSuffix"
      */
-    private String sqlMigrationSuffix;
-
-    /**
-     * The action to take when validation fails.<br/> <br/> Possible values are:<br/> <br/> <b>FAIL</b> (default)<br/>
-     * Throw an exception and fail.<br/> <br/> <b>CLEAN (Warning ! Do not use in production !)</b><br/> Cleans the
-     * database.<br/> <br/> This is exclusively intended as a convenience for development. Even tough we strongly
-     * recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of
-     * dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next
-     * migration will bring you back to the state checked into SCM.<br/> <br/> This property has no effect when
-     * <i>validationMode</i> is set to <i>NONE</i>.<br/> <br/> <p>Also configurable with Maven or System Property:
-     * ${flyway.validationErrorMode}</p>
-     *
-     * @parameter property="flyway.validationErrorMode"
-     * @deprecated Use cleanOnValidationError instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    private String validationErrorMode;
+    private String sqlMigrationSuffix = flyway.getSqlMigrationSuffix();
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
@@ -225,7 +187,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.cleanOnValidationError"
      */
-    private boolean cleanOnValidationError;
+    private boolean cleanOnValidationError = flyway.isCleanOnValidationError();
 
     /**
      * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
@@ -234,7 +196,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.target"
      */
-    private String target;
+    private String target = flyway.getTarget().getVersion();
 
     /**
      * Allows migrations to be run "out of order" (default: {@code false}).
@@ -244,7 +206,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.outOfOrder"
      */
-    private boolean outOfOrder;
+    private boolean outOfOrder = flyway.isOutOfOrder();
 
     /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
@@ -258,44 +220,32 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.ignoreFailedFutureMigration"
      */
-    private boolean ignoreFailedFutureMigration;
+    private boolean ignoreFailedFutureMigration = flyway.isIgnoreFailedFutureMigration();
 
     /**
      * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     *
+     * <p/>
      * <p>Also configurable with Maven or System Properties like ${flyway.placeholders.myplaceholder} or ${flyway.placeholders.otherone}</p>
      *
      * @parameter
      */
-    private Map<String, String> placeholders;
+    private Map<String, String> placeholders = flyway.getPlaceholders();
 
     /**
      * The prefix of every placeholder. (default: ${ )<br>
-     *     <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
      *
      * @parameter property="flyway.placeholderPrefix"
      */
-    private String placeholderPrefix;
+    private String placeholderPrefix = flyway.getPlaceholderPrefix();
 
     /**
      * The suffix of every placeholder. (default: } )<br>
-     *     <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
      *
      * @parameter property="flyway.placeholderSuffix"
      */
-    private String placeholderSuffix;
-
-    /**
-     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
-     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
-     * this! (default: false)<br/><p>Also configurable with Maven or System Property:
-     * ${flyway.disableInitCheck}</p>
-     *
-     * @parameter property="flyway.disableInitCheck"
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    private boolean disableInitCheck;
+    private String placeholderSuffix = flyway.getPlaceholderSuffix();
 
     /**
      * <p>
@@ -314,20 +264,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.initOnMigrate"
      */
-    private boolean initOnMigrate;
-
-    /**
-     * The type of validation to be performed before migrating.<br/> <br/> Possible values are:<br/> <br/> <b>NONE</b>
-     * (default)<br/> No validation is performed.<br/> <br/> <b>ALL</b><br/> For each sql migration a CRC32 checksum is
-     * calculated when the sql script is executed. The validate mechanism checks if the sql migrations in the classpath
-     * still has the same checksum as the sql migration already executed in the database.<br/> <p>Also configurable
-     * with Maven or System Property: ${flyway.validationMode}</p>
-     *
-     * @parameter property="flyway.validationMode"
-     * @deprecated Use validateOnMigrate instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    private String validationMode;
+    private boolean initOnMigrate = flyway.isInitOnMigrate();
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
@@ -335,7 +272,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.validateOnMigrate"
      */
-    private boolean validateOnMigrate;
+    private boolean validateOnMigrate = flyway.isValidateOnMigrate();
 
     /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
@@ -407,7 +344,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @param mavenPropertyValue The value of the Maven property.
      * @return The value to use.
      */
-    protected boolean getBooleanProperty(String systemPropertyName, boolean mavenPropertyValue) {
+    /* private -> for testing */ boolean getBooleanProperty(String systemPropertyName, boolean mavenPropertyValue) {
         String systemPropertyValue = System.getProperty(systemPropertyName);
         if (systemPropertyValue != null) {
             return Boolean.getBoolean(systemPropertyName);
@@ -427,42 +364,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         try {
             loadCredentialsFromSettings();
 
-            Flyway flyway = new Flyway();
             flyway.setDataSource(createDataSource());
-
-            String schemasProperty = System.getProperty("flyway.schemas", mavenProject.getProperties().getProperty("flyway.schemas"));
-            if (schemasProperty != null) {
-                flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasProperty, ","));
-            } else if (schemas != null) {
-                flyway.setSchemas(schemas);
-            }
-
-            String tableProperty = System.getProperty("flyway.table", table);
-            if (tableProperty != null) {
-                flyway.setTable(tableProperty);
-            }
-
-            String initialVersionProperty = System.getProperty("flyway.initialVersion", initialVersion);
-            if (initialVersionProperty != null) {
-                flyway.setInitialVersion(initialVersionProperty);
-            }
-            String initialDescriptionProperty = System.getProperty("flyway.initialDescription", initialDescription);
-            if (initialDescriptionProperty != null) {
-                flyway.setInitialDescription(initialDescriptionProperty);
-            }
-            String initVersionProperty = System.getProperty("flyway.initVersion", initVersion);
-            if (initVersionProperty != null) {
-                flyway.setInitVersion(initVersionProperty);
-            }
-            String initDescriptionProperty = System.getProperty("flyway.initDescription", initDescription);
-            if (initDescriptionProperty != null) {
-                flyway.setInitDescription(initDescriptionProperty);
-            }
-
-            String locationsProperty = getProperty("flyway.locations");
-            if (locationsProperty != null) {
-                locations = StringUtils.tokenizeToStringArray(locationsProperty, ",");
-            }
+            flyway.setSchemas(schemas);
+            flyway.setTable(table);
+            flyway.setInitVersion(initVersion);
+            flyway.setInitDescription(initDescription);
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
                     if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
@@ -476,34 +382,20 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 }
                 flyway.setLocations(locations);
             }
+            flyway.setEncoding(encoding);
+            flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
+            flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
+            flyway.setCleanOnValidationError(cleanOnValidationError);
+            flyway.setOutOfOrder(outOfOrder);
+            flyway.setTarget(target);
+            flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
+            flyway.setPlaceholderPrefix(placeholderPrefix);
+            flyway.setPlaceholderSuffix(placeholderSuffix);
+            flyway.setInitOnMigrate(initOnMigrate);
+            flyway.setValidateOnMigrate(validateOnMigrate);
 
-            String encodingProperty = System.getProperty("flyway.encoding", encoding);
-            if (encodingProperty != null) {
-                flyway.setEncoding(encodingProperty);
-            }
-
-            String sqlMigrationPrefixProperty = System.getProperty("flyway.sqlMigrationPrefix", sqlMigrationPrefix);
-            if (sqlMigrationPrefixProperty != null) {
-                flyway.setSqlMigrationPrefix(sqlMigrationPrefixProperty);
-            }
-            String sqlMigrationSuffixProperty = System.getProperty("flyway.sqlMigrationSuffix", sqlMigrationSuffix);
-            if (sqlMigrationSuffix != null) {
-                flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
-            }
-
-            String validationErrorModeProperty = System.getProperty("flyway.validationErrorMode", validationErrorMode);
-            if (validationErrorModeProperty != null) {
-                flyway.setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeProperty.toUpperCase()));
-            }
-            flyway.setCleanOnValidationError(getBooleanProperty("flyway.cleanOnValidationError", cleanOnValidationError));
-
-            flyway.setOutOfOrder(getBooleanProperty("flyway.outOfOrder", outOfOrder));
-            String targetProperty = System.getProperty("flyway.target", target);
-            if (targetProperty != null) {
-                flyway.setTarget(new MigrationVersion(targetProperty));
-            }
-
-            flyway.setIgnoreFailedFutureMigration(getBooleanProperty("flyway.ignoreFailedFutureMigration", ignoreFailedFutureMigration));
+            flyway.configure(mavenProject.getProperties());
+            flyway.configure(System.getProperties());
 
             Map<String, String> mergedPlaceholders = new HashMap<String, String>();
             addPlaceholdersFromProperties(mergedPlaceholders, mavenProject.getProperties());
@@ -512,24 +404,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 mergedPlaceholders.putAll(placeholders);
             }
             flyway.setPlaceholders(mergedPlaceholders);
-
-            String placeholderPrefixProperty = System.getProperty("flyway.placeholderPrefix", placeholderPrefix);
-            if (placeholderPrefixProperty != null) {
-                flyway.setPlaceholderPrefix(placeholderPrefixProperty);
-            }
-            String placeholderSuffixProperty = System.getProperty("flyway.placeholderSuffix", placeholderSuffix);
-            if (placeholderSuffixProperty != null) {
-                flyway.setPlaceholderSuffix(placeholderSuffixProperty);
-            }
-
-            flyway.setDisableInitCheck(getBooleanProperty("flyway.disableInitCheck", disableInitCheck));
-            flyway.setInitOnMigrate(getBooleanProperty("flyway.initOnMigrate", initOnMigrate));
-
-            String validationModeProperty = System.getProperty("flyway.validationMode", validationMode);
-            if (validationModeProperty != null) {
-                flyway.setValidationMode(ValidationMode.valueOf(validationModeProperty.toUpperCase()));
-            }
-            flyway.setValidateOnMigrate(getBooleanProperty("flyway.validateOnMigrate", validateOnMigrate));
 
             doExecute(flyway);
         } catch (Exception e) {
