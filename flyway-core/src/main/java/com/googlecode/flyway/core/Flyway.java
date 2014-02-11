@@ -212,7 +212,7 @@ public class Flyway {
      * and java-based migrations.
      *
      * @return Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     *         and java-based migrations. (default: db/migration)
+     * and java-based migrations. (default: db/migration)
      */
     public String[] getLocations() {
         String[] result = new String[locations.getLocations().size()];
@@ -263,7 +263,7 @@ public class Flyway {
      * will not be applied.
      *
      * @return The target version up to which Flyway should run migrations. Migrations with a higher version number will
-     *         not be applied. (default: the latest version)
+     * not be applied. (default: the latest version)
      */
     public MigrationVersion getTarget() {
         return target;
@@ -324,7 +324,7 @@ public class Flyway {
      * failed due to a bad migration.
      *
      * @return {@code true} to terminate normally and log a warning, {@code false} to fail fast with an exception.
-     *         (default: {@code false})
+     * (default: {@code false})
      */
     public boolean isIgnoreFailedFutureMigration() {
         return ignoreFailedFutureMigration;
@@ -684,18 +684,7 @@ public class Flyway {
      * @param url      The JDBC URL of the database.
      * @param user     The user of the database.
      * @param password The password of the database.
-     */
-    public void setDataSource(String url, String user, String password) {
-        this.dataSource = new DriverDataSource(null, url, user, password);
-    }
-
-    /**
-     * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     *
-     * @param url      The JDBC URL of the database.
-     * @param user     The user of the database.
-     * @param password The password of the database.
-     * @param initSqls    The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
     public void setDataSource(String url, String user, String password, String... initSqls) {
         this.dataSource = new DriverDataSource(null, url, user, password, initSqls);
@@ -1040,7 +1029,6 @@ public class Flyway {
      * Creates the MigrationResolver.
      *
      * @param dbSupport The database-specific support.
-     *
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
