@@ -271,6 +271,19 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests support for cleaning of tables with Flashback/Total Recall enabled.
+     * Schema containing such tables has to be first cleaned by disabling flashback on each table;
+     */
+    @Ignore("Disabled due to missing flashback functionality in Oracle XE.")
+    @Test
+    public void flashback() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/flashback");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    /**
      * Tests support for reference partitioned tables.
      */
     @Ignore("Disabled due to missing functionality in Oracle XE.")

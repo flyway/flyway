@@ -64,13 +64,13 @@ public class OracleDbSupportMediumTest {
         if (customPropertiesFile.canRead()) {
             connectionProperties.load(new FileInputStream(customPropertiesFile));
         }
-        if (!connectionProperties.contains("oracle.user")) {
+        if (!connectionProperties.containsKey("oracle.user")) {
             connectionProperties.setProperty("oracle.user", "flyway");
         }
-        if (!connectionProperties.contains("oracle.password")) {
+        if (!connectionProperties.containsKey("oracle.password")) {
             connectionProperties.setProperty("oracle.password", "flyway");
         }
-        if (!connectionProperties.contains("oracle.url")) {
+        if (!connectionProperties.containsKey("oracle.url")) {
             connectionProperties.setProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
         }
         return connectionProperties;

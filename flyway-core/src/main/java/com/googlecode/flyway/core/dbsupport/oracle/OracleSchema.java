@@ -83,6 +83,10 @@ public class OracleSchema extends Schema {
             jdbcTemplate.execute(statement);
         }
 
+        if (flashbackAvailable()) {
+            executeAlterStatementsForFlashbackTables();
+        }
+
         for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
             jdbcTemplate.execute(statement);
         }
@@ -127,6 +131,47 @@ public class OracleSchema extends Schema {
             jdbcTemplate.execute(statement);
         }
     }
+
+    /**
+     * Executes ALTER statements for all tables that have Flashback enabled.
+     * Flashback is an asynchronous process so we need to wait until it completes, otherwise cleaning the
+     * tables in schema will sometimes fail with ORA-55622 or ORA-55610 depending on the race between
+     * Flashback and Java code
+     *
+     * @throws SQLException when the statements could not be generated.
+     */
+    private void executeAlterStatementsForFlashbackTables() throws SQLException {
+        List<String> tableNames = jdbcTemplate.queryForStringList("SELECT table_name " +
+                "FROM DBA_FLASHBACK_ARCHIVE_TABLES WHERE owner_name = ?", name);
+        for (String tableName : tableNames) {
+            jdbcTemplate.execute("ALTER TABLE " + dbSupport.quote(name, tableName) + " NO FLASHBACK ARCHIVE");
+            String queryForOracleTechnicalTables = "SELECT count(archive_table_name) " +
+                    "FROM user_flashback_archive_tables " +
+                    "WHERE table_name = ?";
+            //wait until the tables disappear
+            while (jdbcTemplate.queryForInt(queryForOracleTechnicalTables, tableName) > 0) {
+                try {
+                    LOG.debug("Actively waiting for Flashback cleanup on table: " + tableName);
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new FlywayException("Waiting for Flashback cleanup interrupted", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks whether Oracle DBA_FLASHBACK_ARCHIVE_TABLES are available or not.
+     *
+     * @return {@code true} if they are available, {@code false} if not.
+     * @throws SQLException when checking availability of the feature failed.
+     */
+    private boolean flashbackAvailable() throws SQLException {
+        return jdbcTemplate.queryForInt("select count(*) " +
+                "from all_objects " +
+                "where object_name like 'DBA_FLASHBACK_ARCHIVE_TABLES'") > 0;
+    }
+
 
     /**
      * Generates the drop statements for all xml tables.
