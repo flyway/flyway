@@ -126,6 +126,10 @@ public class OracleSchema extends Schema {
         for (String statement : generateDropStatementsForObjectType("TYPE", "FORCE")) {
             jdbcTemplate.execute(statement);
         }
+
+        for (String statement : generateDropStatementsForObjectType("JAVA SOURCE", "")) {
+            jdbcTemplate.execute(statement);
+        }
     }
 
     /**
