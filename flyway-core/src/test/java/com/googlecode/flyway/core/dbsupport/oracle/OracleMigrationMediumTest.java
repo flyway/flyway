@@ -247,13 +247,23 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
-
     /**
      * Tests support for clean together with queue Tables.
      */
     @Test
     public void queueTable() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/queue");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    /**
+     * Tests support for clean together with cluster Tables.
+     */
+    @Test
+    public void cluster() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/cluster");
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
