@@ -26,6 +26,7 @@ import org.junit.experimental.categories.Category;
 import com.googlecode.flyway.core.DbCategory;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -293,5 +294,26 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+    }
+
+    /**
+     * Tests support for cleaning together with JAVA SOURCE Type.
+     */
+    @Test
+    public void javaSource() throws FlywayException, SQLException {
+        flyway.setLocations("com/googlecode/flyway/core/dbsupport/oracle/sql/javaSource");
+
+        flyway.migrate();
+        assertTrue(isExistMyJavaSource());
+
+        flyway.clean();
+        assertFalse(isExistMyJavaSource());
+    }
+
+    private boolean isExistMyJavaSource() throws SQLException {
+        String query = "SELECT count(*) FROM all_objects WHERE object_name = ? AND owner = ?";
+        String objectName = "MyJavaSource";
+        String owner = flyway.getSchemas()[0];
+        return jdbcTemplate.queryForInt(query, objectName, owner) != 0;
     }
 }
