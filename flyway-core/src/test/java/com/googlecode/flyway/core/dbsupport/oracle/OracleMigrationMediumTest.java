@@ -299,6 +299,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     /**
      * Tests support for cleaning together with JAVA SOURCE Type.
      */
+    @Ignore("Disabled due to missing functionality in Oracle XE.")
     @Test
     public void javaSource() throws FlywayException, SQLException {
         flyway.setLocations("com/googlecode/flyway/core/dbsupport/oracle/sql/javaSource");
