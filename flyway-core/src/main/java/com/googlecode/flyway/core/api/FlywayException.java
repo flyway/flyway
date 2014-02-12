@@ -18,7 +18,7 @@ package com.googlecode.flyway.core.api;
 /**
  * Exception thrown when Flyway encounters a problem.
  */
-public class FlywayException extends com.googlecode.flyway.core.exception.FlywayException {
+public class FlywayException extends RuntimeException {
     /**
      * Creates a new FlywayException with this message and this cause.
      *

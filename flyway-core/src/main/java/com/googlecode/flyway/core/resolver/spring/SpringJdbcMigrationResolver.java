@@ -63,7 +63,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(location.getPath(), SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
-                SpringJdbcMigration springJdbcMigration = (SpringJdbcMigration) ClassUtils.instantiate(clazz.getName());
+                SpringJdbcMigration springJdbcMigration = ClassUtils.instantiate(clazz.getName());
 
                 ResolvedMigration migrationInfo = extractMigrationInfo(springJdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));

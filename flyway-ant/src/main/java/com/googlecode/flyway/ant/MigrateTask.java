@@ -16,7 +16,6 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.validation.ValidationMode;
 
 /**
  * Ant task that triggers the migration of the configured database to the latest version.

@@ -23,7 +23,6 @@ import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
 import com.googlecode.flyway.core.dbsupport.Table;
-import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.StopWatch;
@@ -48,11 +47,6 @@ public class MetaDataTableImpl implements MetaDataTable {
     private static final Log LOG = LogFactory.getLog(MetaDataTableImpl.class);
 
     /**
-     * Flag indicating whether the upgrade has already been executed.
-     */
-    private boolean upgraded;
-
-    /**
      * Database-specific functionality.
      */
     private final DbSupport dbSupport;
@@ -63,11 +57,6 @@ public class MetaDataTableImpl implements MetaDataTable {
     private final Table table;
 
     /**
-     * The migration resolver.
-     */
-    private final MigrationResolver migrationResolver;
-
-    /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
     private final JdbcTemplate jdbcTemplate;
@@ -75,28 +64,20 @@ public class MetaDataTableImpl implements MetaDataTable {
     /**
      * Creates a new instance of the metadata table support.
      *
-     * @param dbSupport         Database-specific functionality.
-     * @param table             The metadata table used by flyway.
-     * @param migrationResolver For resolving available migrations.
+     * @param dbSupport Database-specific functionality.
+     * @param table     The metadata table used by flyway.
      */
-    public MetaDataTableImpl(DbSupport dbSupport, Table table, MigrationResolver migrationResolver) {
+    public MetaDataTableImpl(DbSupport dbSupport, Table table) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;
-        this.migrationResolver = migrationResolver;
     }
 
     /**
      * Creates the metatable if it doesn't exist, upgrades it if it does.
      */
     private void createIfNotExists() {
-        if (table.existsNoQuotes() || table.exists()) {
-            if (!upgraded) {
-                new MetaDataTableTo20FormatUpgrader(dbSupport, table, migrationResolver).upgrade();
-                new MetaDataTableTo202FormatUpgrader(dbSupport, table).upgrade();
-                new MetaDataTableTo21FormatUpgrader(dbSupport, table).upgrade();
-                upgraded = true;
-            }
+        if (table.exists()) {
             return;
         }
 

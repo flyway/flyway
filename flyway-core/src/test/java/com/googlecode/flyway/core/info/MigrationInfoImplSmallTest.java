@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 public class MigrationInfoImplSmallTest {
     @Test
     public void validate() {
-        MigrationVersion version = new MigrationVersion("1");
+        MigrationVersion version = MigrationVersion.fromVersion("1");
         String description = "test";
         MigrationType type = MigrationType.SQL;
 

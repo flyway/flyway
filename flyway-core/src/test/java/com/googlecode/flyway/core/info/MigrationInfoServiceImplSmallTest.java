@@ -147,7 +147,7 @@ public class MigrationInfoServiceImplSmallTest {
      */
     private ResolvedMigration createAvailableMigration(int version) {
         ResolvedMigration migration = new ResolvedMigration();
-        migration.setVersion(new MigrationVersion(Integer.toString(version)));
+        migration.setVersion(MigrationVersion.fromVersion(Integer.toString(version)));
         migration.setDescription("abc");
         migration.setScript("x");
         migration.setType(MigrationType.SQL);
@@ -161,7 +161,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied migration.
      */
     private AppliedMigration createAppliedMigration(int version) {
-        return new AppliedMigration(version, version, new MigrationVersion(Integer.toString(version)), "abc",
+        return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
                 MigrationType.SQL, "x", null, new Date(), "sa", 123, true);
     }
 
@@ -172,7 +172,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied init migration.
      */
     private AppliedMigration createAppliedInitMigration(int version) {
-        return new AppliedMigration(version, version, new MigrationVersion(Integer.toString(version)), "abc",
+        return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
                 MigrationType.INIT, "x", null, new Date(), "sa", 0, true);
     }
 

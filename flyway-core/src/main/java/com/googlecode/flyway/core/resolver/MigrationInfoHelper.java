@@ -53,6 +53,6 @@ public class MigrationInfoHelper {
             description = cleanMigrationName.substring(descriptionPos + 2).replaceAll("_", " ");
         }
 
-        return Pair.of(new MigrationVersion(version), description);
+        return Pair.of(MigrationVersion.fromVersion(version), description);
     }
 }

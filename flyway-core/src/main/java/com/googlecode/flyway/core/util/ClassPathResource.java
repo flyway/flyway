@@ -126,6 +126,7 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Resourc
         return location.hashCode();
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(ClassPathResource o) {
         return location.compareTo(o.location);
     }

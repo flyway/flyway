@@ -155,10 +155,12 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
         this.executor = executor;
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(ResolvedMigration o) {
         return version.compareTo(o.version);
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

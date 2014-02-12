@@ -6,7 +6,11 @@
     Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
 
     If your contribution does not require changes to the database-specific code it is also possible to run the build
-    without having to install the Jdbc drivers using mvn -P-MediumTests
+    without having to install the Jdbc drivers using mvn -P-CommercialDBJars
+
+    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with -PNoCommercialDBTest as well.
+
+    If you not not wish to install any database you can run the build with -PNoInstallableDBTest.
     -->
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.googlecode.flyway</groupId>

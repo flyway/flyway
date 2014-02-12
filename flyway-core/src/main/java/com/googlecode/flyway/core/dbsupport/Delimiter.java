@@ -61,8 +61,7 @@ public class Delimiter {
 
         Delimiter delimiter1 = (Delimiter) o;
 
-        if (aloneOnLine != delimiter1.aloneOnLine) return false;
-        return delimiter.equals(delimiter1.delimiter);
+        return aloneOnLine == delimiter1.aloneOnLine && delimiter.equals(delimiter1.delimiter);
     }
 
     @Override

@@ -113,7 +113,7 @@ public class CompositeMigrationResolverSmallTest {
      */
     private ResolvedMigration createTestMigration(final MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
         ResolvedMigration migration = new ResolvedMigration();
-        migration.setVersion(new MigrationVersion(aVersion));
+        migration.setVersion(MigrationVersion.fromVersion(aVersion));
         migration.setDescription(aDescription);
         migration.setScript(aScript);
         migration.setChecksum(aChecksum);

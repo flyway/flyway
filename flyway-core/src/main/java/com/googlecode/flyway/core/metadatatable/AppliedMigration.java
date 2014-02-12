@@ -245,6 +245,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         return success;
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -281,6 +282,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         return result;
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(AppliedMigration o) {
         return version.compareTo(o.version);
     }

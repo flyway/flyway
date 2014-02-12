@@ -26,18 +26,10 @@ import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
-import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableTo21FormatUpgrader;
-import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
-import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.Location;
-import com.googlecode.flyway.core.util.Locations;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
-import com.googlecode.flyway.core.util.Resource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -548,157 +540,6 @@ public abstract class MigrationTestCase {
         flyway.migrate();
 
         assertEquals(com.googlecode.flyway.core.api.MigrationState.OUT_OF_ORDER, flyway.info().all()[2].getState());
-    }
-
-    @Test
-    public void format20upgrade() throws Exception {
-        createMetaDataTableIn17Format();
-        upgradeMetaDataTableTo20Format();
-        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasPrimaryKey());
-    }
-
-    @Test
-    public void format202upgrade() throws Exception {
-        createMetaDataTableIn17Format();
-        upgradeMetaDataTableTo20Format();
-        upgradeMetaDataTableTo202Format();
-    }
-
-    @Test
-    public void format21upgrade() throws Exception {
-        createMetaDataTableIn17Format();
-        upgradeMetaDataTableTo20Format();
-        upgradeMetaDataTableTo202Format();
-        upgradeMetaDataTableTo21Format();
-    }
-
-    @Test
-    public void format20upgradeMixedCase() throws Exception {
-        flyway.setTable("MiXeD_CaSe");
-        createMetaDataTableIn17Format();
-        upgradeMetaDataTableTo20Format();
-    }
-
-    @Test
-    public void format20upgradeUpperCase() throws Exception {
-        flyway.setTable("UPPER_CASE");
-        createMetaDataTableIn17Format();
-        upgradeMetaDataTableTo20Format();
-    }
-
-    @Test(expected = FlywayException.class)
-    public void format20upgradeEmptyDescription() throws Exception {
-        createMetaDataTableIn17Format();
-        insert17Row("1", null, "SQL", "V1__First.sql", 1234, 666, "SUCCESS");
-        upgradeMetaDataTableTo20Format();
-    }
-
-    @Test
-    public void format20upgradeCheckRank() throws Exception {
-        createMetaDataTableIn17Format();
-        insert17Row("1.1", "View", "SQL", "V1_1__View.sql", Integer.MAX_VALUE, 666, "SUCCESS");
-        insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
-        insert17Row("3", "Spring", "JAVA", "V3__Spring", null, 55, "SUCCESS");
-        insert17Row("4", "Jdbc", "JDBC", "V4__Jdbc", null, 55, "SUCCESS");
-        upgradeMetaDataTableTo20Format();
-        assertIntColumnValue("1", "version_rank", 1);
-        assertIntColumnValue("1", "installed_rank", 1);
-        assertIntColumnValue("1.1", "version_rank", 2);
-        assertIntColumnValue("1.1", "installed_rank", 2);
-        assertIntColumnValue("3", "version_rank", 3);
-        assertIntColumnValue("3", "installed_rank", 3);
-        assertIntColumnValue("4", "version_rank", 4);
-        assertIntColumnValue("4", "installed_rank", 4);
-        assertStringColumnValue("3", "type", "SPRING_JDBC");
-    }
-
-    @Test
-    public void formatUpgradeOnMigrate() throws Exception {
-        createMetaDataTableIn17Format();
-        insert17Row("1", "First", "SQL", "V1__First.sql", Integer.MIN_VALUE, 666, "SUCCESS");
-        jdbcTemplate.execute("CREATE TABLE test_user (id INT NOT NULL,name VARCHAR(25) NOT NULL,PRIMARY KEY(name))");
-        flyway.setLocations(BASEDIR);
-        flyway.migrate();
-        assertEquals("2.0", flyway.info().current().getVersion().toString());
-    }
-
-    /**
-     * Creates a metadata table in Flyway 1.7 format.
-     */
-    private void createMetaDataTableIn17Format() throws SQLException {
-        Resource resource = new ClassPathResource(dbSupport.getScriptLocation() + "createMetaDataTable17.sql");
-        String source = resource.loadAsString("UTF-8");
-
-        Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", dbSupport.getCurrentSchema().getName());
-        placeholders.put("table", flyway.getTable());
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
-
-        SqlScript sqlScript = new SqlScript(placeholderReplacer.replacePlaceholders(source), dbSupport);
-        sqlScript.execute(jdbcTemplate);
-    }
-
-    /**
-     * Inserts a row in the old metadata table in 1.7 format.
-     */
-    private void insert17Row(String version, String description, String migrationType, String script, Integer checksum, int executionTime, String state) throws SQLException {
-        jdbcTemplate.update("INSERT INTO " + dbSupport.getCurrentSchema() + "." + flyway.getTable()
-                + " (version, description, type, script, checksum, installed_by, execution_time, state, current_version)"
-                + " VALUES (?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?, "
-                + dbSupport.getBooleanTrue() + ")",
-                version, description, migrationType, script, checksum, executionTime, state);
-    }
-
-    /**
-     * Upgrade a Flyway 1.7 format metadata table to the Flyway 2.0 format.
-     */
-    private void upgradeMetaDataTableTo20Format() throws Exception {
-        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(dbSupport, new Locations(BASEDIR), "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
-
-        MetaDataTableTo20FormatUpgrader upgrader = new MetaDataTableTo20FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable()), migrationResolver);
-        upgrader.upgrade();
-    }
-
-    /**
-     * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.0.2 format.
-     */
-    private void upgradeMetaDataTableTo202Format() throws Exception {
-        new MetaDataTableTo202FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable())).upgrade();
-    }
-
-    /**
-     * Upgrade a Flyway 2.0 format metadata table to the Flyway 2.1 format.
-     */
-    private void upgradeMetaDataTableTo21Format() throws Exception {
-        new MetaDataTableTo21FormatUpgrader(dbSupport, dbSupport.getCurrentSchema().getTable(flyway.getTable())).upgrade();
-    }
-
-    /**
-     * Checks the value contained in this int column in the metadata table against this expected value.
-     *
-     * @param version  The migration version to check.
-     * @param column   The column to check.
-     * @param expected The expected value.
-     */
-    private void assertIntColumnValue(String version, String column, int expected) throws Exception {
-        int actual = jdbcTemplate.queryForInt("SELECT " + dbSupport.quote(column)
-                + " FROM " + dbSupport.getCurrentSchema() + "." + dbSupport.quote(flyway.getTable())
-                + " WHERE " + dbSupport.quote("version") + " = ?", version);
-        assertEquals("Wrong value for column: " + column, expected, actual);
-    }
-
-    /**
-     * Checks the value contained in this string column in the metadata table against this expected value.
-     *
-     * @param version  The migration version to check.
-     * @param column   The column to check.
-     * @param expected The expected value.
-     */
-    private void assertStringColumnValue(String version, String column, String expected) throws Exception {
-        String actual = jdbcTemplate.queryForString("SELECT " + dbSupport.quote(column)
-                + " FROM " + dbSupport.getCurrentSchema() + "." + dbSupport.quote(flyway.getTable())
-                + " WHERE " + dbSupport.quote("version") + " = ?", version);
-        assertEquals("Wrong value for column: " + column, expected, actual);
     }
 
     @Test

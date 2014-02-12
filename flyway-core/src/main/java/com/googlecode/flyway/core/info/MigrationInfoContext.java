@@ -46,6 +46,7 @@ public class MigrationInfoContext {
      */
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

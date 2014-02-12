@@ -110,6 +110,7 @@ public class FileSystemResource implements Resource, Comparable<FileSystemResour
         return location.exists();
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(FileSystemResource o) {
         return location.compareTo(o.location);
     }

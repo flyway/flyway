@@ -15,14 +15,14 @@
  */
 package com.googlecode.flyway.core.dbsupport.sqlserver.large;
 
+import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.googlecode.flyway.core.migration.java.JavaMigration;
+@SuppressWarnings("UnusedDeclaration")
+public class V3_1_3__Insert_tipos_de_eventos_padroes implements SpringJdbcMigration {
 
-public class V3_1_3__Insert_tipos_de_eventos_padroes implements JavaMigration {
-
-	public void migrate(JdbcTemplate jdbc) throws Exception {
-		jdbc.update("INSERT INTO EVENTO_TIPO VALUES ('Casamento')");
-	}
+    public void migrate(JdbcTemplate jdbc) throws Exception {
+        jdbc.update("INSERT INTO EVENTO_TIPO VALUES ('Casamento')");
+    }
 
 }

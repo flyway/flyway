@@ -85,7 +85,7 @@ public class FlywayMediumTest {
         assertEquals(4, flyway.info().all().length);
         assertEquals(4, flyway.info().pending().length);
 
-        flyway.setTarget(new MigrationVersion("1.1"));
+        flyway.setTarget(MigrationVersion.fromVersion("1.1"));
         assertEquals(4, flyway.info().all().length);
         assertEquals(2, flyway.info().pending().length);
         assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[2].getState());
@@ -205,7 +205,7 @@ public class FlywayMediumTest {
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/sql");
-        flyway.setTarget(new MigrationVersion("1.2"));
+        flyway.setTarget(MigrationVersion.fromVersion("1.2"));
         assertEquals(4, flyway.info().all().length);
         assertEquals(3, flyway.info().pending().length);
 

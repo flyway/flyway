@@ -123,6 +123,7 @@ public class Location implements Comparable<Location> {
         return prefix + path;
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(Location o) {
         return getDescriptor().compareTo(o.getDescriptor());
     }

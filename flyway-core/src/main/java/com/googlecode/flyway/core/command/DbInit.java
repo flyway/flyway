@@ -89,7 +89,7 @@ public class DbInit {
                             + ") as it has already been initialized with ("
                             + initMarker.getVersion() + "," + initMarker.getDescription() + ")");
                 }
-                if (metaDataTable.hasSchemasMarker() && initVersion.equals(new MigrationVersion("0"))) {
+                if (metaDataTable.hasSchemasMarker() && initVersion.equals(MigrationVersion.fromVersion("0"))) {
                     throw new FlywayException("Unable to init metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
                 }
                 metaDataTable.addInitMarker(initVersion, initDescription);

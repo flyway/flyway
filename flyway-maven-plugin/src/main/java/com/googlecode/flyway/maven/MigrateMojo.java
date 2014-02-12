@@ -16,11 +16,6 @@
 package com.googlecode.flyway.maven;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.validation.ValidationMode;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Maven goal that triggers the migration of the configured database to the latest version.

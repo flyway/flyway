@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.info;
 import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationType;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.metadatatable.AppliedMigration;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
@@ -46,7 +45,7 @@ public class MigrationInfoDumperSmallTest {
 
         assertEquals(5, lines.length);
         for (String line : lines) {
-            assertEquals(line , 79, line.length());
+            assertEquals(line, 79, line.length());
         }
     }
 
@@ -76,7 +75,7 @@ public class MigrationInfoDumperSmallTest {
      */
     private ResolvedMigration createAvailableMigration(int version) {
         ResolvedMigration migration = new ResolvedMigration();
-        migration.setVersion(new MigrationVersion(Integer.toString(version)));
+        migration.setVersion(MigrationVersion.fromVersion(Integer.toString(version)));
         migration.setDescription("abc");
         migration.setScript("x");
         migration.setType(MigrationType.SQL);

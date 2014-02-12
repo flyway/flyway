@@ -15,8 +15,6 @@
  */
 package com.googlecode.flyway.core.util.scanner.classpath;
 
-import com.googlecode.flyway.core.util.scanner.classpath.ClassPathLocationScanner;
-
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;

@@ -63,7 +63,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
         try {
             Class<?>[] classes = new ClassPathScanner().scanForClasses(location.getPath(), JdbcMigration.class);
             for (Class<?> clazz : classes) {
-                JdbcMigration jdbcMigration = (JdbcMigration) ClassUtils.instantiate(clazz.getName());
+                JdbcMigration jdbcMigration = ClassUtils.instantiate(clazz.getName());
 
                 ResolvedMigration migrationInfo = extractMigrationInfo(jdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));

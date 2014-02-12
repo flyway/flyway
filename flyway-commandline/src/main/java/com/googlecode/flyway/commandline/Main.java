@@ -117,18 +117,6 @@ public class Main {
             flyway.migrate();
         } else if ("validate".equals(operation)) {
             flyway.validate();
-        } else if ("status".equals(operation)) {
-            LOG.warn("status is deprecated. Use info instead.");
-            MigrationInfo current = flyway.info().current();
-
-            if (current == null) {
-                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[0], consoleWidth));
-            } else {
-                LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(new MigrationInfo[]{current}, consoleWidth));
-            }
-        } else if ("history".equals(operation)) {
-            LOG.warn("history is deprecated. Use info instead.");
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().applied(), consoleWidth));
         } else if ("info".equals(operation)) {
             LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all(), consoleWidth));
         } else if ("repair".equals(operation)) {

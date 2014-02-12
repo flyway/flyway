@@ -34,7 +34,7 @@ public class Version3dot5 extends DummyAbstractJdbcMigration implements Migratio
     }
 
     public MigrationVersion getVersion() {
-        return new MigrationVersion("3.5");
+        return MigrationVersion.fromVersion("3.5");
     }
 
     public String getDescription() {

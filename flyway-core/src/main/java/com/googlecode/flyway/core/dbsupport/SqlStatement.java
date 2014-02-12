@@ -15,12 +15,6 @@
  */
 package com.googlecode.flyway.core.dbsupport;
 
-import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.util.logging.Log;
-import com.googlecode.flyway.core.util.logging.LogFactory;
-
-import java.sql.SQLException;
-
 /**
  * A sql statement from a script that can be executed at once against a database.
  */

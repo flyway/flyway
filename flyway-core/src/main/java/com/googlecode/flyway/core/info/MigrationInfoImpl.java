@@ -184,10 +184,12 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(MigrationInfo o) {
         return getVersion().compareTo(o.getVersion());
     }
 
+    @SuppressWarnings("SimplifiableIfStatement")
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

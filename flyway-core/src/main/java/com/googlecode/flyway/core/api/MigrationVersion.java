@@ -65,10 +65,8 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      *
      * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
      *                means that this version refers to an empty schema.
-     * @deprecated Will be removed in Flyway 3.0. Please use MigrationVersion.fromVersion() instead
      */
-    @Deprecated
-    public MigrationVersion(String version) {
+    private MigrationVersion(String version) {
         String normalizedVersion = version.replace('_', '.');
         this.versionParts = tokenizeToLongs(normalizedVersion);
         this.displayText = normalizedVersion;
