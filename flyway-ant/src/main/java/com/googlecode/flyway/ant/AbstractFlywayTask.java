@@ -16,7 +16,6 @@
 package com.googlecode.flyway.ant;
 
 import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.util.ExceptionUtils;
 import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.StringUtils;
@@ -36,6 +35,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Base class for all Flyway Ant tasks.
@@ -46,6 +46,8 @@ public abstract class AbstractFlywayTask extends Task {
      * Property name prefix for placeholders that are configured through properties.
      */
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+
+    private Flyway flyway = new Flyway();
 
     /**
      * Logger.
@@ -80,131 +82,15 @@ public abstract class AbstractFlywayTask extends Task {
     private String password;
 
     /**
-     * Comma-separated list of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
-     * (default: The default schema for the datasource connection)
-     * <p>Consequences:</p>
-     * <ul>
-     * <li>The first schema in the list will be automatically set as the default one during the migration.</li>
-     * <li>The first schema in the list will also be the one containing the metadata table.</li>
-     * <li>The schemas will be cleaned in the order of this list.</li>
-     * </ul>
-     * Also configurable with Ant Property: ${flyway.schemas}
-     */
-    private String schemas;
-
-    /**
-     * <p>The name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode) the
-     * metadata table is placed in the default schema for the connection provided by the datasource. </p> <p> When the
-     * <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first schema of
-     * the list. </p> (default: schema_version)<br/>Also configurable with Ant Property: ${flyway.table}
-     */
-    private String table;
-
-    /**
-     * The version to tag an existing schema with when executing init. (default: 1)<br/>Also configurable with Ant Property: ${flyway.initVersion}
-     */
-    private String initVersion;
-
-    /**
-     * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br/>Also configurable with Ant Property:
-     * ${flyway.initDescription}
-     */
-    private String initDescription;
-
-    /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
      * and java-based migrations. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.locations}
      */
-    private String[] locations;
-
-    /**
-     * The encoding of Sql migrations. (default: UTF-8)<br/>Also configurable with Ant Property: ${flyway.encoding}
-     */
-    private String encoding;
-
-    /**
-     * The file name prefix for Sql migrations (default: V)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationPrefix}
-     */
-    private String sqlMigrationPrefix;
-
-    /**
-     * The file name suffix for Sql migrations (default: .sql)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationSuffix}
-     */
-    private String sqlMigrationSuffix;
-
-    /**
-     * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
-     * <p> This is exclusively intended as a convenience for development. Even tough we
-     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
-     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
-     * the next migration will bring you back to the state checked into SCM.</p>
-     * <p><b>Warning ! Do not enable in production !</b></p>
-     * <br/>Also configurable with Ant Property: ${flyway.cleanOnValidationError}
-     */
-    private boolean cleanOnValidationError;
-
-    /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)<br/>Also configurable with Ant Property: ${flyway.target}
-     */
-    private String target;
-
-    /**
-     * Allows migrations to be run "out of order" (default: {@code false}).
-     * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
-     * it will be applied too instead of being ignored.</p>
-     * Also configurable with Ant Property: ${flyway.outOfOrder}
-     */
-    private boolean outOfOrder;
+    private String[] locations = flyway.getLocations();
 
     /**
      * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
-    private Map<String, String> placeholders = new HashMap<String, String>();
-
-    /**
-     * The prefix of every placeholder. (default: ${ )<br/>Also configurable with Ant Property: ${flyway.placeholderPrefix}
-     */
-    private String placeholderPrefix;
-
-    /**
-     * The suffix of every placeholder. (default: } )<br/>Also configurable with Ant Property: ${flyway.placeholderSuffix}
-     */
-    private String placeholderSuffix;
-
-    /**
-     * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
-     * newer deployment of the application that are not yet available in this version. For example: we have migrations
-     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
-     * (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a
-     * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
-     * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
-     * bad migration. (default: false)<br/>Also configurable with Ant Property: ${flyway.ignoreFailedFutureMigration}
-     */
-    private boolean ignoreFailedFutureMigration;
-
-    /**
-     * Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
-     * Also configurable with Ant Property: ${flyway.validateOnMigrate}
-     */
-    private boolean validateOnMigrate;
-
-    /**
-     * <p>
-     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
-     * </p>
-     * <p>
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
-     * </p>
-     * Also configurable with Ant Property: ${flyway.initOnMigrate}
-     */
-    private boolean initOnMigrate;
+    private Map<String, String> placeholders = flyway.getPlaceholders();
 
     /**
      * @param classpath The classpath used to load the JDBC driver and the migrations.<br/>Also configurable with Ant
@@ -266,7 +152,7 @@ public abstract class AbstractFlywayTask extends Task {
      *                ${flyway.schemas}
      */
     public void setSchemas(String schemas) {
-        this.schemas = schemas;
+        flyway.setSchemas(StringUtils.tokenizeToStringArray(schemas, ","));
     }
 
     /**
@@ -276,14 +162,14 @@ public abstract class AbstractFlywayTask extends Task {
      *              the list. </p> (default: schema_version)<br/>Also configurable with Ant Property: ${flyway.table}
      */
     public void setTable(String table) {
-        this.table = table;
+        flyway.setTable(table);
     }
 
     /**
      * @param initVersion The version to tag an existing schema with when executing init. (default: 1)<br/>Also configurable with Ant Property: ${flyway.initVersion}
      */
     public void setInitVersion(String initVersion) {
-        this.initVersion = initVersion;
+        flyway.setInitVersion(initVersion);
     }
 
     /**
@@ -291,7 +177,7 @@ public abstract class AbstractFlywayTask extends Task {
      *                        ${flyway.initDescription}
      */
     public void setInitDescription(String initDescription) {
-        this.initDescription = initDescription;
+        flyway.setInitDescription(initDescription);
     }
 
     /**
@@ -374,21 +260,21 @@ public abstract class AbstractFlywayTask extends Task {
      * @param encoding The encoding of Sql migrations. (default: UTF-8)<br/>Also configurable with Ant Property: ${flyway.encoding}
      */
     public void setEncoding(String encoding) {
-        this.encoding = encoding;
+        flyway.setEncoding(encoding);
     }
 
     /**
      * @param sqlMigrationPrefix The file name prefix for Sql migrations (default: V)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationPrefix}
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
-        this.sqlMigrationPrefix = sqlMigrationPrefix;
+        flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
     }
 
     /**
      * @param sqlMigrationSuffix The file name suffix for Sql migrations (default: .sql)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationSuffix}
      */
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
-        this.sqlMigrationSuffix = sqlMigrationSuffix;
+        flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
     }
 
     /**
@@ -396,7 +282,7 @@ public abstract class AbstractFlywayTask extends Task {
      *               applied. (default: the latest version)<br/>Also configurable with Ant Property: ${flyway.target}
      */
     public void setTarget(String target) {
-        this.target = target;
+        flyway.setTarget(target);
     }
 
     /**
@@ -409,7 +295,7 @@ public abstract class AbstractFlywayTask extends Task {
      *                               <br/>Also configurable with Ant Property: ${flyway.cleanOnValidationError}
      */
     public void setCleanOnValidationError(boolean cleanOnValidationError) {
-        this.cleanOnValidationError = cleanOnValidationError;
+        flyway.setCleanOnValidationError(cleanOnValidationError);
     }
 
     /**
@@ -419,21 +305,21 @@ public abstract class AbstractFlywayTask extends Task {
      *                   Also configurable with Ant Property: ${flyway.outOfOrder}
      */
     public void setOutOfOrder(boolean outOfOrder) {
-        this.outOfOrder = outOfOrder;
+        flyway.setOutOfOrder(outOfOrder);
     }
 
     /**
      * @param placeholderPrefix The prefix of every placeholder. (default: ${ )<br/>Also configurable with Ant Property: ${flyway.placeholderPrefix}
      */
     public void setPlaceholderPrefix(String placeholderPrefix) {
-        this.placeholderPrefix = placeholderPrefix;
+        flyway.setPlaceholderPrefix(placeholderPrefix);
     }
 
     /**
      * @param placeholderSuffix The suffix of every placeholder. (default: } )<br/>Also configurable with Ant Property: ${flyway.placeholderSuffix}
      */
     public void setPlaceholderSuffix(String placeholderSuffix) {
-        this.placeholderSuffix = placeholderSuffix;
+        flyway.setPlaceholderSuffix(placeholderSuffix);
     }
 
     /**
@@ -455,7 +341,7 @@ public abstract class AbstractFlywayTask extends Task {
      *                                    bad migration. (default: false)<br/>Also configurable with Ant Property: ${flyway.ignoreFailedFutureMigration}
      */
     public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
-        this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
+        flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
     }
 
     /**
@@ -463,7 +349,7 @@ public abstract class AbstractFlywayTask extends Task {
      *                          Also configurable with Ant Property: ${flyway.validateOnMigrate}
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
-        this.validateOnMigrate = validateOnMigrate;
+        flyway.setValidateOnMigrate(validateOnMigrate);
     }
 
     /**
@@ -484,7 +370,7 @@ public abstract class AbstractFlywayTask extends Task {
      * @param initOnMigrate {@code true} if init should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
      */
     public void setInitOnMigrate(boolean initOnMigrate) {
-        this.initOnMigrate = initOnMigrate;
+        flyway.setInitOnMigrate(initOnMigrate);
     }
 
     @Override
@@ -495,64 +381,17 @@ public abstract class AbstractFlywayTask extends Task {
         prepareClassPath();
 
         try {
-            Flyway flyway = new Flyway();
-
             flyway.setDataSource(createDataSource());
-            String schemasValue = useValueIfPropertyNotSet(schemas, "schemas");
-            if (schemasValue != null) {
-                flyway.setSchemas(StringUtils.tokenizeToStringArray(schemasValue, ","));
-            }
-            String tableValue = useValueIfPropertyNotSet(table, "table");
-            if (tableValue != null) {
-                flyway.setTable(tableValue);
-            }
-            String initVersionValue = useValueIfPropertyNotSet(initVersion, "initVersion");
-            if (initVersionValue != null) {
-                flyway.setInitVersion(initVersionValue);
-            }
-            String initDescriptionValue = useValueIfPropertyNotSet(initDescription, "initDescription");
-            if (initDescriptionValue != null) {
-                flyway.setInitDescription(initDescriptionValue);
-            }
 
-            String[] locationsValue = getLocations();
-            if (locationsValue != null) {
-                flyway.setLocations(locationsValue);
-            }
-            String encodingValue = useValueIfPropertyNotSet(encoding, "encoding");
-            if (encodingValue != null) {
-                flyway.setEncoding(encodingValue);
-            }
-            String sqlMigrationPrefixValue = useValueIfPropertyNotSet(sqlMigrationPrefix, "sqlMigrationPrefix");
-            if (sqlMigrationPrefixValue != null) {
-                flyway.setSqlMigrationPrefix(sqlMigrationPrefixValue);
-            }
-            String sqlMigrationSuffixValue = useValueIfPropertyNotSet(sqlMigrationSuffix, "sqlMigrationSuffix");
-            if (sqlMigrationSuffixValue != null) {
-                flyway.setSqlMigrationSuffix(sqlMigrationSuffixValue);
-            }
-            flyway.setCleanOnValidationError(useValueIfPropertyNotSet(cleanOnValidationError, "cleanOnValidationError"));
-            flyway.setOutOfOrder(useValueIfPropertyNotSet(outOfOrder, "outOfOrder"));
-            String targetValue = useValueIfPropertyNotSet(target, "target");
-            if (targetValue != null) {
-                flyway.setTarget(MigrationVersion.fromVersion(targetValue));
-            }
+            Properties projectProperties = new Properties();
+            projectProperties.putAll(getProject().getProperties());
+            flyway.configure(projectProperties);
+            flyway.configure(System.getProperties());
+
+            flyway.setLocations(getLocations());
 
             addPlaceholdersFromProperties(placeholders, getProject().getProperties());
             flyway.setPlaceholders(placeholders);
-
-            String placeholderPrefixValue = useValueIfPropertyNotSet(placeholderPrefix, "placeholderPrefix");
-            if (placeholderPrefixValue != null) {
-                flyway.setPlaceholderPrefix(placeholderPrefixValue);
-            }
-            String placeholderSuffixValue = useValueIfPropertyNotSet(placeholderSuffix, "placeholderSuffix");
-            if (placeholderSuffixValue != null) {
-                flyway.setPlaceholderSuffix(placeholderSuffixValue);
-            }
-
-            flyway.setValidateOnMigrate(useValueIfPropertyNotSet(validateOnMigrate, "validateOnMigrate"));
-            flyway.setInitOnMigrate(useValueIfPropertyNotSet(initOnMigrate, "initOnMigrate"));
-            flyway.setIgnoreFailedFutureMigration(useValueIfPropertyNotSet(ignoreFailedFutureMigration, "ignoreFailedFutureMigration"));
 
             doExecute(flyway);
         } catch (Exception e) {
@@ -572,20 +411,16 @@ public abstract class AbstractFlywayTask extends Task {
      * @return The locations configured through Ant.
      */
     private String[] getLocations() {
+        String[] locationsVal = locations;
         String locationsProperty = getProject().getProperty("flyway.locations");
-        String[] locationsVal = null;
         if (locationsProperty != null) {
             locationsVal = StringUtils.tokenizeToStringArray(locationsProperty, ",");
-        } else if (locations != null) {
-            locationsVal = locations;
         }
 
-        if (locationsVal != null) {
-            //Adjust relative locations to be relative from Ant's basedir.
-            File baseDir = getProject().getBaseDir();
-            for (int i = 0; i < locationsVal.length; i++) {
-                locationsVal[i] = adjustRelativeFileSystemLocationToBaseDir(baseDir, locationsVal[i]);
-            }
+        //Adjust relative locations to be relative from Ant's basedir.
+        File baseDir = getProject().getBaseDir();
+        for (int i = 0; i < locationsVal.length; i++) {
+            locationsVal[i] = adjustRelativeFileSystemLocationToBaseDir(baseDir, locationsVal[i]);
         }
 
         return locationsVal;
