@@ -323,17 +323,17 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.8</version>
+                <version>1.10</version>
                 <configuration>
                     <signature>
                         <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java15</artifactId>
-                        <version>1.0</version>
+                        <artifactId>java16</artifactId>
+                        <version>1.1</version>
                     </signature>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>jdk5-apis-only</id>
+                        <id>jdk6-apis-only</id>
                         <phase>test</phase>
                         <goals>
                             <goal>check</goal>
@@ -344,8 +344,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
