@@ -111,12 +111,16 @@ public final class PropertiesUtils {
      * @param properties   The properties.
      * @param key          The key of the property.
      * @param defaultValue The default value of the property.
-     * @return The value of the property or the default value if it wasn't found.
+     * @return The value of the property or the default value if it wasn't found or wasn't an int.
      */
     public static int getIntProperty(Properties properties, String key, int defaultValue) {
         final String value = properties.getProperty(key);
         if (StringUtils.hasText(value)) {
-            return Integer.parseInt(value);
+            try {
+                return Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
         }
         return defaultValue;
     }
