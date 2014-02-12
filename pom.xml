@@ -80,14 +80,6 @@
             <id>maven-central</id>
             <url>http://repo1.maven.org/maven2</url>
         </repository>
-        <repository>
-            <id>gradle</id>
-            <url>http://repo.gradle.org/gradle/libs-releases-local</url>
-        </repository>
-        <repository>
-            <id>gradle-workaround</id>
-            <url>http://flywaydb.org/repo</url>
-        </repository>
     </repositories>
 
     <properties>
