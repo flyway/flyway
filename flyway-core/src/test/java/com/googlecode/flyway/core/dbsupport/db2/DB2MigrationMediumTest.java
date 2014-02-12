@@ -15,16 +15,16 @@
  */
 package com.googlecode.flyway.core.dbsupport.db2;
 
-import static org.junit.Assert.assertEquals;
-import java.util.Properties;
-import javax.sql.DataSource;
-
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import com.googlecode.flyway.core.DbCategory;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import javax.sql.DataSource;
+import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using DB2.
@@ -50,9 +50,8 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/db2/sql/sequence");
         flyway.migrate();
 
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.toString());
-        assertEquals("Sequence", flyway.status().getDescription());
+        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals("Sequence", flyway.info().current().getDescription());
 
         assertEquals(666, jdbcTemplate.queryForInt("VALUES NEXTVAL FOR BEAST_SEQ"));
 
@@ -65,9 +64,8 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/db2/sql/mqt");
         flyway.migrate();
 
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.toString());
-        assertEquals("Mqt", flyway.status().getDescription());
+        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals("Mqt", flyway.info().current().getDescription());
 
         assertEquals(2, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM empl_mqt"));
 
@@ -80,9 +78,8 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/db2/sql/alias");
         flyway.migrate();
 
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.toString());
-        assertEquals("Alias", flyway.status().getDescription());
+        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals("Alias", flyway.info().current().getDescription());
 
         assertEquals(2, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM POOR_SLAVE"));
 

@@ -43,15 +43,17 @@
                  classpathref="lib.path"/>
 
         <flyway:migrate>
-            <placeholder name="name" value="Mr. T"/>
+            <placeholders>
+                <placeholder name="name" value="Mr. T"/>
+            </placeholders>
             <locations>
                 <location path="sql"/>
             </locations>
         </flyway:migrate>
-        <flyway:history>
+        <flyway:info>
             <locations>
                 <location path="sql"/>
             </locations>
-        </flyway:history>
+        </flyway:info>
     </target>
 </project>

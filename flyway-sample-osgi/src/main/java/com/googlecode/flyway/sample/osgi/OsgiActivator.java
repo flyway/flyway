@@ -40,9 +40,10 @@ public class OsgiActivator implements BundleActivator {
             flyway.setLocations("db/migration", "com.googlecode.flyway.sample.osgi.fragment");
             flyway.migrate();
 
-            System.out.println("New schema version: " + flyway.status().getVersion());
+            System.out.println("New schema version: " + flyway.info().current().getVersion());
 
-        } finally {
+            System.exit(0);
+        } catch (Throwable t) {
             System.exit(0);
         }
     }

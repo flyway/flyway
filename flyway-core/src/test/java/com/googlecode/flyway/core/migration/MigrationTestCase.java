@@ -27,7 +27,6 @@ import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
 import com.googlecode.flyway.core.dbsupport.JdbcTemplate;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.dbsupport.SqlScript;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo202FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo20FormatUpgrader;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableTo21FormatUpgrader;
@@ -39,8 +38,6 @@ import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.Locations;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import com.googlecode.flyway.core.util.Resource;
-import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +87,7 @@ public abstract class MigrationTestCase {
 
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.setValidationMode(ValidationMode.ALL);
+        flyway.setValidateOnMigrate(true);
         flyway.clean();
     }
 
@@ -141,14 +138,13 @@ public abstract class MigrationTestCase {
     public void migrate() throws Exception {
         flyway.setLocations(BASEDIR);
         flyway.migrate();
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("2.0", schemaVersion.toString());
-        assertEquals("Add foreign key and super mega humongous padding to exceed the maximum column length in the metad...", flyway.status().getDescription());
+        MigrationVersion version = flyway.info().current().getVersion();
+        assertEquals("2.0", version.toString());
         assertEquals(0, flyway.migrate());
-        assertEquals(4, flyway.history().size());
+        assertEquals(4, flyway.info().applied().length);
 
-        for (MetaDataTableRow metaDataTableRow : flyway.history()) {
-            assertChecksum(metaDataTableRow);
+        for (MigrationInfo migrationInfo : flyway.info().applied()) {
+            assertChecksum(migrationInfo);
         }
 
         assertEquals(2, jdbcTemplate.queryForInt("select count(*) from all_misters"));
@@ -158,19 +154,19 @@ public abstract class MigrationTestCase {
     public void target() throws Exception {
         flyway.setLocations(BASEDIR);
 
-        flyway.setTarget(new SchemaVersion("1.2"));
+        flyway.setTarget(MigrationVersion.fromVersion("1.2"));
         flyway.migrate();
-        assertEquals("1.2", flyway.status().getVersion().toString());
-        assertEquals("Populate table", flyway.status().getDescription());
+        assertEquals("1.2", flyway.info().current().getVersion().toString());
+        assertEquals("Populate table", flyway.info().current().getDescription());
 
-        flyway.setTarget(new MigrationVersion("1.0"));
+        flyway.setTarget(MigrationVersion.fromVersion("1.0"));
         flyway.migrate();
-        assertEquals("1.2", flyway.status().getVersion().toString());
-        assertEquals("Populate table", flyway.status().getDescription());
+        assertEquals("1.2", flyway.info().current().getVersion().toString());
+        assertEquals("Populate table", flyway.info().current().getDescription());
 
         flyway.setTarget(MigrationVersion.LATEST);
         flyway.migrate();
-        assertEquals("2.0", flyway.status().getVersion().toString());
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
     }
 
     @Test
@@ -185,9 +181,9 @@ public abstract class MigrationTestCase {
     /**
      * Compares the DB checksum to the classpath checksum of this migration.
      *
-     * @param appliedMigration The migration to check.
+     * @param migrationInfo The migration to check.
      */
-    private void assertChecksum(MetaDataTableRow appliedMigration) {
+    private void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
                 dbSupport,
                 new Location(BASEDIR),
@@ -197,8 +193,8 @@ public abstract class MigrationTestCase {
                 ".sql");
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
-            if (migration.getVersion().toString().equals(appliedMigration.getVersion().toString())) {
-                assertEquals("Wrong checksum for " + appliedMigration.getScript(), migration.getChecksum(), appliedMigration.getChecksum());
+            if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {
+                assertEquals("Wrong checksum for " + migrationInfo.getScript(), migration.getChecksum(), migrationInfo.getChecksum());
             }
         }
     }
@@ -209,8 +205,7 @@ public abstract class MigrationTestCase {
         flyway.setSqlMigrationSuffix("First.sql");
         flyway.migrate();
 
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.toString());
+        assertEquals("1", flyway.info().current().getVersion().toString());
 
         flyway.setSqlMigrationPrefix("CheckValidate");
         flyway.validate();
@@ -221,8 +216,7 @@ public abstract class MigrationTestCase {
         flyway.setLocations(BASEDIR);
         flyway.migrate();
 
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("2.0", schemaVersion.toString());
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
 
         flyway.setLocations("migration/validate");
         flyway.validate();
@@ -233,11 +227,10 @@ public abstract class MigrationTestCase {
         flyway.setLocations("migration/validate");
         flyway.migrate();
 
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.toString());
+        assertEquals("1", flyway.info().current().getVersion().toString());
 
-        flyway.setValidationMode(ValidationMode.ALL);
-        flyway.setValidationErrorMode(ValidationErrorMode.CLEAN);
+        flyway.setValidateOnMigrate(true);
+        flyway.setCleanOnValidationError(true);
         flyway.setSqlMigrationPrefix("CheckValidate");
         assertEquals(1, flyway.migrate());
     }
@@ -280,7 +273,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void futureFailedMigration() throws Exception {
-        flyway.setValidationMode(ValidationMode.NONE);
+        flyway.setValidateOnMigrate(false);
         flyway.setLocations("migration/future_failed");
 
         try {
@@ -305,7 +298,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void futureFailedMigrationIgnore() throws Exception {
-        flyway.setValidationMode(ValidationMode.NONE);
+        flyway.setValidateOnMigrate(false);
         flyway.setLocations("migration/future_failed");
 
         try {
@@ -322,7 +315,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void futureFailedMigrationIgnoreAvailableMigrations() throws Exception {
-        flyway.setValidationMode(ValidationMode.NONE);
+        flyway.setValidateOnMigrate(false);
         flyway.setLocations("migration/future_failed");
 
         try {
@@ -373,18 +366,18 @@ public abstract class MigrationTestCase {
     @Test
     public void checkValidationWithInitRow() throws Exception {
         flyway.setLocations(BASEDIR);
-        flyway.setTarget(new MigrationVersion("1.1"));
+        flyway.setTarget(MigrationVersion.fromVersion("1.1"));
         flyway.migrate();
-        assertEquals("1.1", flyway.status().getVersion().toString());
+        assertEquals("1.1", flyway.info().current().getVersion().toString());
 
         jdbcTemplate.update("DROP TABLE " + dbSupport.quote(flyway.getTable()));
-        flyway.setInitialVersion(new SchemaVersion("1.1"));
-        flyway.setInitialDescription("initial version 1.1");
+        flyway.setInitVersion(MigrationVersion.fromVersion("1.1"));
+        flyway.setInitDescription("initial version 1.1");
         flyway.init();
 
         flyway.setTarget(MigrationVersion.LATEST);
         flyway.migrate();
-        assertEquals("2.0", flyway.status().getVersion().toString());
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
         flyway.validate();
     }
 
@@ -427,17 +420,6 @@ public abstract class MigrationTestCase {
     }
 
     @Test
-    public void nonEmptySchemaWithDisableInitCheck() throws Exception {
-        jdbcTemplate.execute("CREATE TABLE t1 (\n" +
-                "  name VARCHAR(25) NOT NULL,\n" +
-                "  PRIMARY KEY(name))");
-
-        flyway.setLocations(BASEDIR);
-        flyway.setDisableInitCheck(true);
-        flyway.migrate();
-    }
-
-    @Test
     public void nonEmptySchemaWithInitOnMigrate() throws Exception {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
@@ -465,7 +447,7 @@ public abstract class MigrationTestCase {
 
         flyway.setLocations(BASEDIR);
         flyway.setInitOnMigrate(true);
-        flyway.setInitialVersion(new MigrationVersion("99"));
+        flyway.setInitVersion(MigrationVersion.fromVersion("99"));
         flyway.migrate();
         MigrationInfo[] migrationInfos = flyway.info().all();
 
@@ -485,9 +467,8 @@ public abstract class MigrationTestCase {
         flyway.setLocations("migration/semicolon");
         flyway.migrate();
 
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1.1", schemaVersion.toString());
-        assertEquals("Populate table", flyway.status().getDescription());
+        assertEquals("1.1", flyway.info().current().getVersion().toString());
+        assertEquals("Populate table", flyway.info().current().getDescription());
 
         assertEquals("Mr. Semicolon+Linebreak;\nanother line",
                 jdbcTemplate.queryForString("select name from test_user where name like '%line'"));
@@ -514,9 +495,8 @@ public abstract class MigrationTestCase {
         placeholders.put("schema3", dbSupport.quote("flyway_3"));
         flyway.setPlaceholders(placeholders);
         flyway.migrate();
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("2.0", schemaVersion.toString());
-        assertEquals("Add foreign key", flyway.status().getDescription());
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals("Add foreign key", flyway.info().current().getDescription());
         assertEquals(0, flyway.migrate());
 
         assertEquals(4, flyway.info().applied().length);

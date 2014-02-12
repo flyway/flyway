@@ -15,13 +15,12 @@
  */
 package com.googlecode.flyway.core.dbsupport.hsql;
 
+import com.googlecode.flyway.core.DbCategory;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import com.googlecode.flyway.core.DbCategory;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -48,9 +47,8 @@ public class HsqlMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/hsql/sql/sequence");
         flyway.migrate();
 
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("1", schemaVersion.toString());
-        assertEquals("Sequence", flyway.status().getDescription());
+        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals("Sequence", flyway.info().current().getDescription());
 
         assertEquals(666, jdbcTemplate.queryForInt("CALL NEXT VALUE FOR the_beast"));
 

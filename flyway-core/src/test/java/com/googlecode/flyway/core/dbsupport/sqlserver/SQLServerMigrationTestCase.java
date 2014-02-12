@@ -16,9 +16,9 @@
 package com.googlecode.flyway.core.dbsupport.sqlserver;
 
 import com.googlecode.flyway.core.api.FlywayException;
+import com.googlecode.flyway.core.api.MigrationState;
 import com.googlecode.flyway.core.command.FlywaySqlScriptException;
 import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.migration.MigrationState;
 import com.googlecode.flyway.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -189,11 +189,11 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     public void large() throws Exception {
         flyway.setLocations("migration/dbsupport/sqlserver/sql/large",
                 "com.googlecode.flyway.core.dbsupport.sqlserver.large");
-        flyway.setTarget(new MigrationVersion("3.1.0"));
+        flyway.setTarget(MigrationVersion.fromVersion("3.1.0"));
         flyway.migrate();
 
-        assertEquals("3.1.0", flyway.status().getVersion().toString());
-        assertEquals(MigrationState.SUCCESS, flyway.status().getState());
+        assertEquals("3.1.0", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
         assertTrue(jdbcTemplate.queryForInt("SELECT COUNT(*) FROM dbo.CHANGELOG") > 0);
     }
 

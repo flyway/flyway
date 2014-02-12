@@ -18,7 +18,6 @@ package com.googlecode.flyway.core;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -88,17 +87,6 @@ public class FlywaySmallTest {
         flyway.configure(properties);
 
         assertEquals(true, flyway.isOutOfOrder());
-    }
-
-    @Test
-    public void configureValidationMode() {
-        Properties properties = new Properties();
-        properties.setProperty("flyway.validationMode", "ALL");
-
-        Flyway flyway = new Flyway();
-        flyway.configure(properties);
-
-        assertEquals(ValidationMode.ALL, flyway.getValidationMode());
     }
 
     @Test

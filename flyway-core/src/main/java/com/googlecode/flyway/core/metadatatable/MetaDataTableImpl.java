@@ -181,7 +181,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         List<MigrationVersion> migrationVersions = new ArrayList<MigrationVersion>();
         for (String versionStr : versions) {
-            migrationVersions.add(new MigrationVersion(versionStr));
+            migrationVersions.add(MigrationVersion.fromVersion(versionStr));
         }
 
         Collections.sort(migrationVersions);
@@ -244,7 +244,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                     return new AppliedMigration(
                             rs.getInt("version_rank"),
                             rs.getInt("installed_rank"),
-                            new MigrationVersion(rs.getString("version")),
+                            MigrationVersion.fromVersion(rs.getString("version")),
                             rs.getString("description"),
                             MigrationType.valueOf(rs.getString("type")),
                             rs.getString("script"),
@@ -320,7 +320,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     public void addSchemasMarker(final Schema[] schemas) {
         createIfNotExists();
 
-        addAppliedMigration(new AppliedMigration(new MigrationVersion("0"), "<< Flyway Schema Creation >>",
+        addAppliedMigration(new AppliedMigration(MigrationVersion.fromVersion("0"), "<< Flyway Schema Creation >>",
                 MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));
     }
 

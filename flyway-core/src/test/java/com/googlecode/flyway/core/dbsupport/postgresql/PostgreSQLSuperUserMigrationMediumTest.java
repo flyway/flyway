@@ -15,13 +15,12 @@
  */
 package com.googlecode.flyway.core.dbsupport.postgresql;
 
+import com.googlecode.flyway.core.DbCategory;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
-import com.googlecode.flyway.core.validation.ValidationMode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import com.googlecode.flyway.core.DbCategory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,7 +48,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
         flyway = new Flyway();
         flyway.setSchemas("super_user_test");
         flyway.setDataSource(new DriverDataSource(null, url, "postgres", password));
-        flyway.setValidationMode(ValidationMode.ALL);
+        flyway.setValidateOnMigrate(true);
         flyway.clean();
     }
 

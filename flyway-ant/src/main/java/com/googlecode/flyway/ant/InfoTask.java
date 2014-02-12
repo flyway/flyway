@@ -22,9 +22,9 @@ import com.googlecode.flyway.core.info.MigrationInfoDumper;
  * Ant task to retrieve the complete information about the migrations including applied, pending and current migrations with
  * details and status.
  */
-public class InfoTask extends AbstractMigrationLoadingTask {
+public class InfoTask extends AbstractFlywayTask {
     @Override
-    protected void doExecuteWithMigrationConfig(Flyway flyway) throws Exception {
+    protected void doExecute(Flyway flyway) throws Exception {
         log.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
     }
 }

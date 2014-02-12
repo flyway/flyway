@@ -16,7 +16,6 @@
 package com.googlecode.flyway.core;
 
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.api.MigrationInfoService;
 import com.googlecode.flyway.core.api.MigrationVersion;
 import com.googlecode.flyway.core.command.DbClean;
@@ -30,8 +29,6 @@ import com.googlecode.flyway.core.dbsupport.Schema;
 import com.googlecode.flyway.core.info.MigrationInfoServiceImpl;
 import com.googlecode.flyway.core.metadatatable.MetaDataTable;
 import com.googlecode.flyway.core.metadatatable.MetaDataTableImpl;
-import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import com.googlecode.flyway.core.resolver.CompositeMigrationResolver;
 import com.googlecode.flyway.core.resolver.MigrationResolver;
 import com.googlecode.flyway.core.util.Locations;
@@ -40,8 +37,6 @@ import com.googlecode.flyway.core.util.jdbc.DriverDataSource;
 import com.googlecode.flyway.core.util.jdbc.JdbcUtils;
 import com.googlecode.flyway.core.util.logging.Log;
 import com.googlecode.flyway.core.util.logging.LogFactory;
-import com.googlecode.flyway.core.validation.ValidationErrorMode;
-import com.googlecode.flyway.core.validation.ValidationMode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -154,22 +149,12 @@ public class Flyway {
     /**
      * The version to tag an existing schema with when executing init. (default: 1)
      */
-    private MigrationVersion initVersion = new MigrationVersion("1");
+    private MigrationVersion initVersion = MigrationVersion.fromVersion("1");
 
     /**
      * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)
      */
     private String initDescription = "<< Flyway Init >>";
-
-    /**
-     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake. Be careful when disabling
-     * this! (default: {@code false})
-     *
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    private boolean disableInitCheck;
 
     /**
      * <p>
@@ -331,36 +316,6 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the mode for validation. Only used for migrate. When using validate validationMode is always ALL.
-     *
-     * @return The mode for validation. (default: NONE)
-     * @deprecated Use isValidateOnMigrate instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public ValidationMode getValidationMode() {
-        LOG.warn("validationMode has been deprecated and will be removed in Flyway 3.0. Use validateOnMigrate instead.");
-        if (validateOnMigrate) {
-            return ValidationMode.ALL;
-        }
-        return ValidationMode.NONE;
-    }
-
-    /**
-     * Retrieves the error mode for validation.
-     *
-     * @return The error mode for validation. (default: FAIL)
-     * @deprecated Use isCleanOnValidationError instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public ValidationErrorMode getValidationErrorMode() {
-        LOG.warn("validationErrorMode has been deprecated and will be removed in Flyway 3.0. Use cleanOnValidationError instead.");
-        if (cleanOnValidationError) {
-            return ValidationErrorMode.CLEAN;
-        }
-        return ValidationErrorMode.FAIL;
-    }
-
-    /**
      * Whether to automatically call validate or not when running migrate.
      *
      * @return {@code true} if validate should be called. {@code false} if not. (default: {@code false})
@@ -387,30 +342,6 @@ public class Flyway {
      * Retrieves the version to tag an existing schema with when executing init.
      *
      * @return The version to tag an existing schema with when executing init. (default: 1)
-     * @deprecated Use getInitVersion() instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public MigrationVersion getInitialVersion() {
-        LOG.warn("Flyway.getInitialVersion() has been deprecated. Use getInitVersion() instead. Will be removed in Flyway 3.0.");
-        return initVersion;
-    }
-
-    /**
-     * Retrieves the description to tag an existing schema with when executing init.
-     *
-     * @return The description to tag an existing schema with when executing init. (default: << Flyway Init >>)
-     * @deprecated Use getInitDescription() instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public String getInitialDescription() {
-        LOG.warn("Flyway.getInitialDescription() has been deprecated. Use getInitDescription() instead. Will be removed in Flyway 3.0.");
-        return initDescription;
-    }
-
-    /**
-     * Retrieves the version to tag an existing schema with when executing init.
-     *
-     * @return The version to tag an existing schema with when executing init. (default: 1)
      */
     public MigrationVersion getInitVersion() {
         return initVersion;
@@ -423,19 +354,6 @@ public class Flyway {
      */
     public String getInitDescription() {
         return initDescription;
-    }
-
-    /**
-     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
-     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
-     * this!
-     *
-     * @return {@code true} if the check is disabled. {@code false} if it is active. (default: {@code false})
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public boolean isDisableInitCheck() {
-        return disableInitCheck;
     }
 
     /**
@@ -492,30 +410,6 @@ public class Flyway {
      */
     public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
-    }
-
-    /**
-     * Sets the mode for validation. Only used for migrate. When using validate validationMode is always ALL.
-     *
-     * @param validationMode The mode for validation. (default: NONE)
-     * @deprecated Use setValidateOnMigrate instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setValidationMode(ValidationMode validationMode) {
-        LOG.warn("validationMode has been deprecated and will be removed in Flyway 3.0. Use validateOnMigrate instead.");
-        validateOnMigrate = ValidationMode.ALL == validationMode;
-    }
-
-    /**
-     * Sets the error mode for validation.
-     *
-     * @param validationErrorMode The error mode for validation. (default: FAIL)
-     * @deprecated Use setCleanOnValidationError instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setValidationErrorMode(ValidationErrorMode validationErrorMode) {
-        LOG.warn("validationErrorMode has been deprecated and will be removed in Flyway 3.0. Use cleanOnValidationError instead.");
-        cleanOnValidationError = ValidationErrorMode.CLEAN == validationErrorMode;
     }
 
     /**
@@ -586,20 +480,6 @@ public class Flyway {
      */
     public void setTable(String table) {
         this.table = table;
-    }
-
-    /**
-     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
-     * not be applied.
-     *
-     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
-     *               number will not be applied. (default: the latest version)
-     * @deprecated Use setTarget(MigrationVersion) instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setTarget(SchemaVersion target) {
-        LOG.warn("Flyway.setTarget(SchemaVersion) has been deprecated. Use setTarget(MigrationVersion) instead. Will be removed in Flyway 3.0.");
-        this.target = new MigrationVersion(target.toString());
     }
 
     /**
@@ -691,54 +571,6 @@ public class Flyway {
     }
 
     /**
-     * Sets the version to tag an existing schema with when executing init. (default: 1)
-     *
-     * @param initialVersion The version to tag an existing schema with when executing init. (default: 1)
-     * @deprecated Use setInitVersion(MigrationVersion) instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setInitialVersion(SchemaVersion initialVersion) {
-        LOG.warn("Flyway.setInitialVersion(SchemaVersion) has been deprecated. Use setInitVersion(MigrationVersion) instead. Will be removed in Flyway 3.0.");
-        this.initVersion = MigrationVersion.fromVersion(initialVersion.toString());
-    }
-
-    /**
-     * Sets the version to tag an existing schema with when executing init.
-     *
-     * @param initialVersion The version to tag an existing schema with when executing init. (default: 1)
-     * @deprecated Use setInitVersion(MigrationVersion) instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setInitialVersion(MigrationVersion initialVersion) {
-        LOG.warn("Flyway.setInitialVersion(MigrationVersion) has been deprecated. Use setInitVersion(MigrationVersion) instead. Will be removed in Flyway 3.0.");
-        this.initVersion = initialVersion;
-    }
-
-    /**
-     * Sets the version to tag an existing schema with when executing init.
-     *
-     * @param initialVersion The version to tag an existing schema with when executing init. (default: 1)
-     * @deprecated Use setInitVersion(String) instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setInitialVersion(String initialVersion) {
-        LOG.warn("Flyway.setInitialVersion(String) has been deprecated. Use setInitVersion(String) instead. Will be removed in Flyway 3.0.");
-        this.initVersion = new MigrationVersion(initialVersion);
-    }
-
-    /**
-     * Sets the description to tag an existing schema with when executing init.
-     *
-     * @param initialDescription The description to tag an existing schema with when executing init. (default: << Flyway Init >>)
-     * @deprecated Use setInitDescription(String) instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setInitialDescription(String initialDescription) {
-        LOG.warn("Flyway.setInitialDescription(String) has been deprecated. Use setInitDescription(String instead. Will be removed in Flyway 3.0.");
-        this.initDescription = initialDescription;
-    }
-
-    /**
      * Sets the version to tag an existing schema with when executing init.
      *
      * @param initVersion The version to tag an existing schema with when executing init. (default: 1)
@@ -753,7 +585,7 @@ public class Flyway {
      * @param initVersion The version to tag an existing schema with when executing init. (default: 1)
      */
     public void setInitVersion(String initVersion) {
-        this.initVersion = new MigrationVersion(initVersion);
+        this.initVersion = MigrationVersion.fromVersion(initVersion);
     }
 
     /**
@@ -763,19 +595,6 @@ public class Flyway {
      */
     public void setInitDescription(String initDescription) {
         this.initDescription = initDescription;
-    }
-
-    /**
-     * Flag to disable the check that a non-empty schema has been properly initialized with init. This check ensures
-     * Flyway does not migrate or clean the wrong database in case of a configuration mistake. Be careful when disabling
-     * this!
-     *
-     * @param disableInitCheck {@code true} if the check is disabled. {@code false} if it is active. (default: {@code false})
-     * @deprecated Use initOnMigrate instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public void setDisableInitCheck(boolean disableInitCheck) {
-        this.disableInitCheck = disableInitCheck;
     }
 
     /**
@@ -837,7 +656,7 @@ public class Flyway {
                         }
                     }
 
-                    if (initOnMigrate || disableInitCheck || nonEmptySchemas.isEmpty()) {
+                    if (initOnMigrate || nonEmptySchemas.isEmpty()) {
                         if (initOnMigrate && !nonEmptySchemas.isEmpty()) {
                             new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription).init();
                         }
@@ -935,40 +754,6 @@ public class Flyway {
                 return null;
             }
         });
-    }
-
-    /**
-     * Returns the status (current version) of the database.
-     *
-     * @return The latest applied migration, or {@code null} if no migration has been applied yet.
-     * @deprecated Use flyway.info().current() instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public MetaDataTableRow status() {
-        LOG.warn("Flyway.status() has been deprecated and will be removed in Flyway 3.0. Use Flyway.info().current() instead.");
-        MigrationInfo current = info().current();
-        if (current == null) {
-            return null;
-        }
-        return new MetaDataTableRow(current);
-    }
-
-    /**
-     * Returns the history (all applied migrations) of the database.
-     *
-     * @return All migrations applied to the database, sorted, oldest first. An empty list if none.
-     * @deprecated Use flyway.info().applied() instead. Will be removed in Flyway 3.0.
-     */
-    @Deprecated
-    public List<MetaDataTableRow> history() {
-        LOG.warn("Flyway.history() has been deprecated and will be removed in Flyway 3.0. Use Flyway.info().applied() instead.");
-        MigrationInfo[] migrationInfos = info().applied();
-
-        List<MetaDataTableRow> metaDataTableRows = new ArrayList<MetaDataTableRow>();
-        for (MigrationInfo migrationInfo : migrationInfos) {
-            metaDataTableRows.add(new MetaDataTableRow(migrationInfo));
-        }
-        return metaDataTableRows;
     }
 
     /**
@@ -1087,14 +872,6 @@ public class Flyway {
         if (tableProp != null) {
             setTable(tableProp);
         }
-        String validationErrorModeProp = properties.getProperty("flyway.validationErrorMode");
-        if (validationErrorModeProp != null) {
-            setValidationErrorMode(ValidationErrorMode.valueOf(validationErrorModeProp));
-        }
-        String validationModeProp = properties.getProperty("flyway.validationMode");
-        if (validationModeProp != null) {
-            setValidationMode(ValidationMode.valueOf(validationModeProp));
-        }
         String cleanOnValidationErrorProp = properties.getProperty("flyway.cleanOnValidationError");
         if (cleanOnValidationErrorProp != null) {
             setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
@@ -1103,25 +880,13 @@ public class Flyway {
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
         }
-        String initialVersionProp = properties.getProperty("flyway.initialVersion");
-        if (initialVersionProp != null) {
-            setInitialVersion(new MigrationVersion(initialVersionProp));
-        }
-        String initialDescriptionProp = properties.getProperty("flyway.initialDescription");
-        if (initialDescriptionProp != null) {
-            setInitialDescription(initialDescriptionProp);
-        }
         String initVersionProp = properties.getProperty("flyway.initVersion");
         if (initVersionProp != null) {
-            setInitVersion(new MigrationVersion(initVersionProp));
+            setInitVersion(MigrationVersion.fromVersion(initVersionProp));
         }
         String initDescriptionProp = properties.getProperty("flyway.initDescription");
         if (initDescriptionProp != null) {
             setInitDescription(initDescriptionProp);
-        }
-        String disableInitCheckProp = properties.getProperty("flyway.disableInitCheck");
-        if (disableInitCheckProp != null) {
-            setDisableInitCheck(Boolean.parseBoolean(disableInitCheckProp));
         }
         String initOnMigrateProp = properties.getProperty("flyway.initOnMigrate");
         if (initOnMigrateProp != null) {
@@ -1133,7 +898,7 @@ public class Flyway {
         }
         String targetProp = properties.getProperty("flyway.target");
         if (targetProp != null) {
-            setTarget(new MigrationVersion(targetProp));
+            setTarget(MigrationVersion.fromVersion(targetProp));
         }
         String outOfOrderProp = properties.getProperty("flyway.outOfOrder");
         if (outOfOrderProp != null) {

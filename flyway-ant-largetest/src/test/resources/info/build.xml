@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<project name="StatusLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
+<project name="InfoLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
     <path id="lib.path">
         <fileset dir="${installDir}/flyway-ant-${pomVersion}" includes="*.jar"/>
     </path>
@@ -35,6 +35,6 @@
 
     <target name="run">
         <mkdir dir="target/db"/>
-        <flyway:status user="sa" url="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
+        <flyway:info user="sa" url="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
     </target>
 </project>

@@ -15,7 +15,7 @@
  */
 package com.googlecode.flyway.commandline;
 
-import com.googlecode.flyway.core.migration.java.JavaMigration;
+import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
 import com.googlecode.flyway.core.util.Resource;
@@ -24,17 +24,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Medium Test for Main.
  */
 @SuppressWarnings({"JavaDoc"})
-public class MainClassLoaderSmallTest {
+public class MainClassLoaderMediumTest {
     /**
      * The old classloader, to be restored after a test completes.
      */
@@ -105,19 +104,20 @@ public class MainClassLoaderSmallTest {
      */
     @Test
     public void addJarToClasspath() throws Exception {
-        assertFalse(new ClassPathResource("db/migration/V1.sql").exists());
+        assertFalse(new ClassPathResource("db/migration/V1__Initial_structure.sql.sql").exists());
         assertFalse(ClassUtils.isPresent("com.googlecode.flyway.sample.migration.V1_2__Another_user"));
 
         String jar = new ClassPathResource("flyway-sample.jar").getLocationOnDisk();
+        assertTrue(new File(jar).isFile());
         Main.addJarOrDirectoryToClasspath(jar);
 
-        assertTrue(new ClassPathResource("db/migration/V1.sql").exists());
+        assertTrue(new ClassPathResource("db/migration/V1__Initial_structure.sql").exists());
         assertTrue(ClassUtils.isPresent("com.googlecode.flyway.sample.migration.V1_2__Another_user"));
 
-        Resource[] resources = new ClassPathScanner().scanForResources("db/migration", "V", ".sql");
-        assertEquals("db/migration/V1.sql", resources[0].getLocation());
+        Resource[] resources = new ClassPathScanner().scanForResources("db/migration", "V1__", ".sql");
+        assertEquals("db/migration/V1__Initial_structure.sql", resources[0].getLocation());
 
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/sample/migration", JavaMigration.class);
+        Class<?>[] classes = new ClassPathScanner().scanForClasses("com/googlecode/flyway/sample/migration", SpringJdbcMigration.class);
         assertEquals("com.googlecode.flyway.sample.migration.V1_2__Another_user", classes[0].getName());
     }
 }

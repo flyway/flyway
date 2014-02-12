@@ -17,7 +17,6 @@ package com.googlecode.flyway.core.resolver;
 
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
-import com.googlecode.flyway.core.resolver.java.JavaMigrationResolver;
 import com.googlecode.flyway.core.resolver.jdbc.JdbcMigrationResolver;
 import com.googlecode.flyway.core.resolver.spring.SpringJdbcMigrationResolver;
 import com.googlecode.flyway.core.resolver.sql.SqlMigrationResolver;
@@ -88,7 +87,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param dbSupport           The database-specific support.
+     * @param dbSupport          The database-specific support.
      * @param locations          The locations where migrations are located.
      * @param encoding           The encoding of Sql migrations.
      * @param sqlMigrationPrefix The file name prefix for sql migrations.
@@ -112,7 +111,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
      * @return The available migrations, sorted by version, oldest first. An empty list is returned when no migrations
-     *         can be found.
+     * can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     public List<ResolvedMigration> resolveMigrations() {
@@ -127,7 +126,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
      * @return The available migrations, sorted by version, oldest first. An empty list is returned when no migrations
-     *         can be found.
+     * can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
@@ -141,7 +140,6 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
             if (FeatureDetector.isSpringJdbcAvailable()) {
                 migrationResolvers.add(new SpringJdbcMigrationResolver(location));
-                migrationResolvers.add(new JavaMigrationResolver(location));
             }
         }
 

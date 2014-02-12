@@ -67,7 +67,7 @@ public class AntLargeTest {
 
     @Test
     public void status() throws Exception {
-        String stdOut = runAnt(0, "status");
+        String stdOut = runAnt(0, "info");
         assertTrue(stdOut.contains("No migrations found"));
     }
 

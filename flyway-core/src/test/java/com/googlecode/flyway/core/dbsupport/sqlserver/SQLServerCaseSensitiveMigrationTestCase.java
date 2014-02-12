@@ -18,7 +18,6 @@ package com.googlecode.flyway.core.dbsupport.sqlserver;
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.dbsupport.DbSupport;
 import com.googlecode.flyway.core.dbsupport.DbSupportFactory;
-import com.googlecode.flyway.core.migration.SchemaVersion;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -48,11 +47,9 @@ public abstract class SQLServerCaseSensitiveMigrationTestCase {
         flyway.setLocations("migration/sql");
         flyway.clean();
         flyway.migrate();
-        SchemaVersion schemaVersion = flyway.status().getVersion();
-        assertEquals("2.0", schemaVersion.toString());
-        assertEquals("Add foreign key and super mega humongous padding to exceed the maximum column length in the metad...", flyway.status().getDescription());
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
         assertEquals(0, flyway.migrate());
-        assertEquals(4, flyway.history().size());
+        assertEquals(4, flyway.info().applied().length);
 
         Connection connection = dataSource.getConnection();
         DbSupport dbSupport = DbSupportFactory.createDbSupport(connection);
