@@ -17,7 +17,6 @@ package com.googlecode.flyway.commandline;
 
 import com.googlecode.flyway.core.Flyway;
 import com.googlecode.flyway.core.api.FlywayException;
-import com.googlecode.flyway.core.api.MigrationInfo;
 import com.googlecode.flyway.core.info.MigrationInfoDumper;
 import com.googlecode.flyway.core.util.ClassPathResource;
 import com.googlecode.flyway.core.util.ClassUtils;
@@ -35,6 +34,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -65,8 +66,8 @@ public class Main {
         try {
             printVersion();
 
-            String operation = determineOperation(args);
-            if (operation == null) {
+            List<String> operations = determineOperations(args);
+            if (operations.isEmpty()) {
                 printUsage();
                 return;
             }
@@ -83,7 +84,9 @@ public class Main {
 
             int consoleWidth = PropertiesUtils.getIntProperty(properties, "flyway.consoleWidth", 80);
 
-            executeOperation(flyway, operation, consoleWidth);
+            for (String operation : operations) {
+                executeOperation(flyway, operation, consoleWidth);
+            }
         } catch (Exception e) {
             if (debug) {
                 LOG.error("Unexpected error", e);
@@ -122,7 +125,9 @@ public class Main {
         } else if ("repair".equals(operation)) {
             flyway.repair();
         } else {
+            LOG.error("Invalid operation: " + operation);
             printUsage();
+            System.exit(1);
         }
     }
 
@@ -403,18 +408,20 @@ public class Main {
     }
 
     /**
-     * Determine the operation Flyway should execute.
+     * Determine the operations Flyway should execute.
      *
      * @param args The command-line arguments passed in.
-     * @return The operation. {@code null} if it could not be determined.
+     * @return The operations. An empty list if none.
      */
-    private static String determineOperation(String[] args) {
+    private static List<String> determineOperations(String[] args) {
+        List<String> operations = new ArrayList<String>();
+
         for (String arg : args) {
             if (!arg.startsWith("-")) {
-                return arg;
+                operations.add(arg);
             }
         }
 
-        return null;
+        return operations;
     }
 }
