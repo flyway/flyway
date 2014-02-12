@@ -47,11 +47,7 @@ public class FileSystemResource implements Resource, Comparable<FileSystemResour
      * @return The location of the resource on the classpath.
      */
     public String getLocation() {
-        String path = StringUtils.replaceAll(location.getPath(), "\\", "/");
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-        return path;
+        return StringUtils.replaceAll(location.getPath(), "\\", "/");
     }
 
     /**

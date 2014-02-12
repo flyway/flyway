@@ -18,6 +18,7 @@ package com.googlecode.flyway.core.resolver.sql;
 import com.googlecode.flyway.core.api.FlywayException;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.ClassPathResource;
+import com.googlecode.flyway.core.util.FileSystemResource;
 import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import org.junit.Test;
@@ -93,5 +94,13 @@ public class SqlMigrationResolverSmallTest {
                 new SqlMigrationResolver(null, new Location(""), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", ".sql");
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(new ClassPathResource("db_0__init.sql")));
+    }
+
+    @Test
+    public void extractScriptNameFileSystemPrefix() {
+        SqlMigrationResolver sqlMigrationResolver =
+                new SqlMigrationResolver(null, new Location("filesystem:/some/dir"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
+
+        assertEquals("V3.171__patch.sql", sqlMigrationResolver.extractScriptName(new FileSystemResource("/some/dir/V3.171__patch.sql")));
     }
 }

@@ -145,13 +145,11 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @return The script name.
      */
     /* private -> for testing */ String extractScriptName(Resource resource) {
-        int start = 0;
-
-        if (location.getPath().length() > 0) {
-            start = location.getPath().length() + "/".length();
+        if (location.getPath().isEmpty()) {
+            return resource.getLocation();
         }
 
-        return resource.getLocation().substring(start);
+        return resource.getLocation().substring(location.getPath().length() + 1);
     }
 
     /**

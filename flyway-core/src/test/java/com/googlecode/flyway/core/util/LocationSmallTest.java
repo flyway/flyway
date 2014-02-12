@@ -53,6 +53,15 @@ public class LocationSmallTest {
     }
 
     @Test
+    public void filesystemPrefixAbsolutePath() {
+        Location location = new Location("filesystem:/db/migration");
+        assertEquals("filesystem:", location.getPrefix());
+        assertFalse(location.isClassPath());
+        assertEquals("/db/migration", location.getPath());
+        assertEquals("filesystem:/db/migration", location.getDescriptor());
+    }
+
+    @Test
     public void filesystemPrefixWithDotsInPath() {
         Location location = new Location("filesystem:util-2.0.4/db/migration");
         assertEquals("filesystem:", location.getPrefix());

@@ -15,12 +15,12 @@
  */
 package com.googlecode.flyway.core.resolver.sql;
 
-import com.googlecode.flyway.core.dbsupport.h2.H2DbSupport;
 import com.googlecode.flyway.core.resolver.ResolvedMigration;
 import com.googlecode.flyway.core.util.Location;
 import com.googlecode.flyway.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +40,7 @@ public class SqlMigrationResolverMediumTest {
         String path = URLDecoder.decode(getClass().getClassLoader().getResource("migration/subdir").getPath(), "UTF-8");
 
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, new Location("filesystem:" + path), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
+                new SqlMigrationResolver(null, new Location("filesystem:" + new File(path).getPath()), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
