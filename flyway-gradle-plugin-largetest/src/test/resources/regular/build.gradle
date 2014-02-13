@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.hsqldb:hsqldb:2.2.8'
-        classpath "com.googlecode.flyway:flyway-gradle-plugin:${flywayVersion}"
+        classpath "org.flywaydb:flyway-gradle-plugin:${flywayVersion}"
     }
 }
 
@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     compile 'org.springframework:spring-jdbc:3.0.5.RELEASE'
-    compile "com.googlecode.flyway:flyway-core:${flywayVersion}"
+    compile "org.flywaydb:flyway-core:${flywayVersion}"
 }
 
 flyway {
@@ -28,6 +28,7 @@ flyway {
     locations = [
             'classpath:db.migration'
     ]
+    placeholders = ['execUserName' : "${project.name}"]
     initVersion = 0
     target = '7'
 }

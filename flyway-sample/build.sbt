@@ -1,14 +1,14 @@
 import scala.xml._
-import com.googlecode.flyway.sbt.FlywayPlugin._
+import org.flywaydb.sbt.FlywayPlugin._
 
-organization := "com.googlecode.flyway"
+organization := "org.flywaydb"
 
 name := "flyway-sample"
 
 libraryDependencies ++= Seq(
   "org.springframework" % "spring-jdbc" % "3.0.5.RELEASE",
   "org.hsqldb" % "hsqldb" % "2.2.8",
-  "com.googlecode.flyway" % "flyway-core" % (XML.load(Source.fromFile(new File("../pom.xml"))) \ "version").text
+  "org.flywaydb" % "flyway-core" % (XML.load(Source.fromFile(new File("../pom.xml"))) \ "version").text
 )
 
 resolvers += (
@@ -21,7 +21,7 @@ flywayUrl := "jdbc:hsqldb:file:target/flyway_sample;shutdown=true"
 
 flywayUser := "SA"
 
-flywayLocations += "com.googlecode.flyway.sample.migration"
+flywayLocations += "org.flywaydb.sample.migration"
 
 
 

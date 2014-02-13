@@ -13,7 +13,7 @@ http://flywaydb.org/contribute/
 
 License
 =======
-Copyright (C) 2010-2013 Axel Fontaine and the many contributors.
+Copyright (C) 2010-2014 Axel Fontaine and the many contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

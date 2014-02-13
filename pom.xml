@@ -6,10 +6,14 @@
     Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
 
     If your contribution does not require changes to the database-specific code it is also possible to run the build
-    without having to install the Jdbc drivers using mvn -P-MediumTests
+    without having to install the Jdbc drivers using mvn -P-CommercialDBJars
+
+    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with -PNoCommercialDBTest as well.
+
+    If you not not wish to install any database you can run the build with -PNoInstallableDBTest.
     -->
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.googlecode.flyway</groupId>
+    <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
     <version>0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -75,14 +79,6 @@
         <repository>
             <id>maven-central</id>
             <url>http://repo1.maven.org/maven2</url>
-        </repository>
-        <repository>
-            <id>gradle</id>
-            <url>http://repo.gradle.org/gradle/libs-releases-local</url>
-        </repository>
-        <repository>
-            <id>gradle-workaround</id>
-            <url>http://flywaydb.org/repo</url>
         </repository>
     </repositories>
 
@@ -267,7 +263,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.7</version>
+                    <version>2.8.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -319,17 +315,17 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.8</version>
+                <version>1.10</version>
                 <configuration>
                     <signature>
                         <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java15</artifactId>
-                        <version>1.0</version>
+                        <artifactId>java16</artifactId>
+                        <version>1.1</version>
                     </signature>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>jdk5-apis-only</id>
+                        <id>jdk6-apis-only</id>
                         <phase>test</phase>
                         <goals>
                             <goal>check</goal>
@@ -340,8 +336,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -391,6 +387,8 @@
                     <failIfMissing>true</failIfMissing>
                     <encoding>UTF-8</encoding>
                     <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>**/build/**</exclude>
                         <exclude>.idea/**</exclude>
                         <exclude>**/*.sh</exclude>
                         <exclude>**/*.txt</exclude>
@@ -404,6 +402,9 @@
                         <exclude>**/*.iws</exclude>
                         <exclude>**/*.bin</exclude>
                         <exclude>**/*.lock</exclude>
+                        <exclude>**/*.gradle</exclude>
+                        <exclude>**/*.sbt</exclude>
+                        <exclude>**/gradlew</exclude>
                         <exclude>.gitignore</exclude>
                         <exclude>.gitattributes</exclude>
                         <exclude>.travis.yml</exclude>
@@ -435,6 +436,9 @@
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
                 <executions>
                     <execution>
                         <id>MediumTests</id>
@@ -522,7 +526,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>com.googlecode.flyway.core.DbCategory$InstallableDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -535,7 +539,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>com.googlecode.flyway.core.DbCategory$CommercialDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>

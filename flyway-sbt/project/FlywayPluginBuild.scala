@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2013 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine and the many contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ object FlywayPluginBuild extends Build {
     settings = Defaults.defaultSettings ++ Seq(
       sbtPlugin := true,
       name := "flyway-sbt",
-      organization := "com.googlecode.flyway",
+      organization := "org.flywaydb",
       version := flywayVersion,
       resolvers += (
         "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + ".m2/repository"
         ),
-      libraryDependencies += "com.googlecode.flyway" % "flyway-core" % flywayVersion
+      libraryDependencies += "org.flywaydb" % "flyway-core" % flywayVersion
     )
   )
 }

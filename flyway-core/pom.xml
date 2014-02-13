@@ -1,16 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
-    Detailed information how to contribute: http://flywaydb.org/howToContribute.html
+    Detailed information how to contribute: http://flywaydb.org/contribute/howToContribute.html
 
     A number of Jdbc drivers are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: http://flywaydb.org/devEnvironmentSetup.html
+    Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
 
     If your contribution does not require changes to the database-specific code it is also possible to run the build
-    without having to install the Jdbc drivers using mvn -P-MediumTests
+    without having to install the Jdbc drivers using mvn -P-CommercialDBJars
+
+    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with -PNoCommercialDBTest as well.
+
+    If you not not wish to install any database you can run the build with -PNoInstallableDBTest.
     -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.googlecode.flyway</groupId>
+        <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
         <version>0-SNAPSHOT</version>
     </parent>
@@ -121,17 +125,13 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
+                        <Bundle-SymbolicName>org.flywaydb.core</Bundle-SymbolicName>
                         <Export-Package>
-                            com.googlecode.flyway.core;version=${project.version},
-                            com.googlecode.flyway.core.api.*;version=${project.version},
-                            com.googlecode.flyway.core.exception;version=${project.version},
-                            com.googlecode.flyway.core.metadatatable;version=${project.version},
-                            com.googlecode.flyway.core.migration;version=${project.version},
-                            com.googlecode.flyway.core.migration.java;version=${project.version},
-                            com.googlecode.flyway.core.validation;version=${project.version}
+                            org.flywaydb.core;version=${project.version},
+                            org.flywaydb.core.api.*;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            org.springframework.*;version="[2.5,4.0)";resolution:=optional,
+                            org.springframework.*;version="[2.5,5.0)";resolution:=optional,
                             org.apache.commons.logging;version="[1.1,2)";resolution:=optional,
                             org.osgi.framework;version="1.3.0";resolution:=mandatory,
                             javax.sql

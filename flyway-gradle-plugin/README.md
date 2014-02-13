@@ -34,7 +34,7 @@ buildscript {
 
   dependencies {
     classpath 'com.h2database:h2:1.3.170'
-    classpath 'com.googlecode.flyway:flyway-gradle-plugin:VERSION'
+    classpath 'org.flywaydb:flyway-gradle-plugin:VERSION'
   }
 }
 
