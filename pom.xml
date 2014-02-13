@@ -13,7 +13,7 @@
     If you not not wish to install any database you can run the build with -PNoInstallableDBTest.
     -->
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.googlecode.flyway</groupId>
+    <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
     <version>0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -526,7 +526,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>com.googlecode.flyway.core.DbCategory$InstallableDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -539,7 +539,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>com.googlecode.flyway.core.DbCategory$CommercialDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>

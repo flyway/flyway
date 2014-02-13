@@ -49,7 +49,7 @@ else
 	CONSOLE_WIDTH=80
 fi
 
-"$JAVA_CMD" -cp ./bin/flyway-commandline-${project.version}.jar:./bin/flyway-core-${project.version}.jar com.googlecode.flyway.commandline.Main $@ -consoleWidth=$CONSOLE_WIDTH
+"$JAVA_CMD" -cp ./bin/flyway-commandline-${project.version}.jar:./bin/flyway-core-${project.version}.jar org.flywaydb.commandline.Main $@ -consoleWidth=$CONSOLE_WIDTH
 
 # Save the exit code
 JAVA_EXIT_CODE=$?

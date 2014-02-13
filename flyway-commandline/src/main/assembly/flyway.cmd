@@ -38,7 +38,7 @@ for /F "usebackq tokens=2* skip=4 delims=: " %%A in (`mode con`) do (
 )
 :ExitLoop
 
-%JAVA_CMD% -cp bin\flyway-commandline-${project.version}.jar;bin\flyway-core-${project.version}.jar com.googlecode.flyway.commandline.Main %* -consoleWidth=%CONSOLE_WIDTH%
+%JAVA_CMD% -cp bin\flyway-commandline-${project.version}.jar;bin\flyway-core-${project.version}.jar org.flywaydb.commandline.Main %* -consoleWidth=%CONSOLE_WIDTH%
 
 @REM Save the exit code
 set JAVA_EXIT_CODE=%ERRORLEVEL%

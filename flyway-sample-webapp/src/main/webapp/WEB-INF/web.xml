@@ -21,19 +21,19 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
         <servlet-name>EnvInfoServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.EnvInfoServlet</servlet-class>
+        <servlet-class>org.flywaydb.sample.webapp.EnvInfoServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>CleanServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.CleanServlet</servlet-class>
+        <servlet-class>org.flywaydb.sample.webapp.CleanServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>MigrateServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.MigrateServlet</servlet-class>
+        <servlet-class>org.flywaydb.sample.webapp.MigrateServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>InfoServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.InfoServlet</servlet-class>
+        <servlet-class>org.flywaydb.sample.webapp.InfoServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

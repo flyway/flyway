@@ -15,7 +15,7 @@
  */
 package largetest.migrate;
 
-import com.googlecode.flyway.core.api.migration.jdbc.JdbcMigration;
+import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 
 import java.sql.Connection;
 

@@ -29,12 +29,12 @@ object FlywayPluginBuild extends Build {
     settings = Defaults.defaultSettings ++ Seq(
       sbtPlugin := true,
       name := "flyway-sbt",
-      organization := "com.googlecode.flyway",
+      organization := "org.flywaydb",
       version := flywayVersion,
       resolvers += (
         "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + ".m2/repository"
         ),
-      libraryDependencies += "com.googlecode.flyway" % "flyway-core" % flywayVersion
+      libraryDependencies += "org.flywaydb" % "flyway-core" % flywayVersion
     )
   )
 }

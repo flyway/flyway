@@ -34,7 +34,7 @@ dependencies {
 flyway {
     url = "jdbc:hsqldb:file:${buildDir}/db/flyway_sample;shutdown=true"
     locations = [
-            'classpath:com.googlecode.flyway.sample.migration',
+            'classpath:org.flywaydb.sample.migration',
             "filesystem:${project.sourceSets.main.output.resourcesDir.path}"
     ]
 }
