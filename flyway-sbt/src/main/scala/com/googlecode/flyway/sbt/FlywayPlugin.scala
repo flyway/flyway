@@ -26,6 +26,8 @@ import com.googlecode.flyway.core.util.logging.{LogFactory, LogCreator}
 import scala.Some
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import java.util.Properties
+import scala.sys.SystemProperties
 
 object FlywayPlugin extends Plugin {
 
@@ -70,7 +72,12 @@ object FlywayPlugin extends Plugin {
   // convenience settings
   //*********************
 
-  private case class ConfigDataSource(driver: String, url: String, user: String, password: String)
+  private case class ConfigDataSource(driver: String, url: String, user: String, password: String) {
+    def asProps: Map[String, String] =  (driver.isEmpty match {
+      case true => Map()
+      case false => Map("flyway.driver" -> driver)
+    }) ++ Map("flyway.url" -> url, "flyway.user" -> user, "flyway.password" -> password)
+  }
   private case class ConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String)
   private case class ConfigMigrationLoading(locations: Seq[String], encoding: String, sqlMigrationPrefix: String, sqlMigrationSuffix: String,
                                            cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean)
@@ -104,6 +111,7 @@ object FlywayPlugin extends Plugin {
     val defaults = new Flyway()
     Seq[Setting[_]](
       flywayDriver := "",
+      flywayUrl := "",
       flywayUser := "",
       flywayPassword := "",
       flywayLocations := defaults.getLocations.toSeq,
@@ -142,22 +150,22 @@ object FlywayPlugin extends Plugin {
         (dataSource, base, migrationLoading, migrate) => Config(dataSource, base, migrationLoading, migrate)
       },
       flywayMigrate <<= (fullClasspath in Runtime, flywayConfig, streams) map {
-        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().migrate() }
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).migrate() }
       },
       flywayValidate <<= (fullClasspath in Runtime, flywayConfig, streams) map {
-        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().validate() }
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).validate() }
       },
       flywayInfo <<= (fullClasspath in Runtime, flywayConfig, streams) map {
-        (cp, config, s) => withPrepared(cp, s) { s.log.info(MigrationInfoDumper.dumpToAsciiTable(Flyway(config).configureSysProps().info().all())) }
+        (cp, config, s) => withPrepared(cp, s) { s.log.info(MigrationInfoDumper.dumpToAsciiTable(Flyway(config).info().all())) }
       },
       flywayRepair <<= (fullClasspath in Runtime, flywayConfig, streams) map {
-        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().repair() }
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).repair() }
       },
       flywayClean <<= (fullClasspath in Runtime, flywayConfig, streams) map {
-        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().clean() }
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).clean() }
       },
       flywayInit <<= (fullClasspath in Runtime, flywayConfig, streams) map {
-        (cp, config, s) => withPrepared(cp, s) { Flyway(config).configureSysProps().init() }
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).init() }
       }
     )
   }
@@ -204,15 +212,11 @@ object FlywayPlugin extends Plugin {
 
   private implicit class FlywayOps(val flyway: Flyway) extends AnyVal {
     def configure(config: Config): Flyway = {
-      flyway.configure(config.dataSource)
+      flyway
       .configure(config.base)
       .configure(config.migrationLoading)
       .configure(config.migrate)
-    }
-
-    def configure(config: ConfigDataSource): Flyway = {
-      flyway.setDataSource(new DriverDataSource(config.driver.emptyToNull(), config.url, config.user, config.password))
-      flyway
+      .configureSysProps(config.dataSource)
     }
     def configure(config: ConfigBase): Flyway = {
       flyway.setSchemas(config.schemas: _*)
@@ -240,8 +244,10 @@ object FlywayPlugin extends Plugin {
       flyway.setValidateOnMigrate(config.validateOnMigrate)
       flyway
     }
-    def configureSysProps(): Flyway = {
-      flyway.configure(System.getProperties)
+    def configureSysProps(config: ConfigDataSource): Flyway = {
+      val props = new Properties(System.getProperties)
+      props.putAll(config.asProps.filter(e => !sys.props.contains(e._1)))
+      flyway.configure(props)
       flyway
     }
   }
