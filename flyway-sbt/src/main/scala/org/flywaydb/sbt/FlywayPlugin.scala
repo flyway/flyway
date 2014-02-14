@@ -245,8 +245,9 @@ object FlywayPlugin extends Plugin {
       flyway
     }
     def configureSysProps(config: ConfigDataSource): Flyway = {
-      val props = new Properties(System.getProperties)
-      props.putAll(config.asProps.filter(e => !sys.props.contains(e._1)))
+      val props = new Properties()
+      System.getProperties.filter(e => e._1.startsWith("flyway")).foreach(e => props.put(e._1, e._2))
+      config.asProps.filter(e => !sys.props.contains(e._1)).foreach(e => props.put(e._1, e._2))
       flyway.configure(props)
       flyway
     }

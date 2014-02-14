@@ -1,4 +1,3 @@
-import scala.xml._
 import org.flywaydb.sbt.FlywayPlugin._
 
 organization := "org.flywaydb"
@@ -17,11 +16,7 @@ resolvers += (
 
 seq(flywaySettings: _*)
 
-flywayUrl := "jdbc:hsqldb:file:target/flyway_sample;shutdown=true"
-
 flywayUser := "SA"
-
-flywayLocations += "db/sbt"
 
 
 

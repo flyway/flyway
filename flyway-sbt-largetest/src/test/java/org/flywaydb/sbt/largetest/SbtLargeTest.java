@@ -31,18 +31,25 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"JavaDoc"})
 public class SbtLargeTest {
+    private File sbtLaunchJar = new File(System.getProperty("sbtLaunchDir", "../flyway-sbt"), "sbt-launch.jar");
     private File installDir = new File(System.getProperty("installDir", "flyway-sbt-largetest/target"));
 
     @Test
     public void cleanMigrate() throws Exception {
-        String stdOut = runSbt(0, "-Dflyway.placeholders.name=James", "flywayClean", "flywayMigrate");
+        String stdOut = runSbt("test1", 0, "-Dflyway.placeholders.name=James", "flywayClean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
         assertFalse(stdOut.contains("deprecated"));
     }
 
     @Test
     public void sysPropsOverride() throws Exception {
-        String stdOut = runSbt(0, "-Dflyway.locations=db/migration", "flywayClean", "flywayMigrate");
+        String stdOut = runSbt("test1", 0, "-Dflyway.locations=db/migration", "flywayClean", "flywayMigrate");
+        assertTrue(stdOut.contains("Successfully applied 1 migration"));
+    }
+
+    @Test
+    public void flywayUrlAsSysProps() throws Exception {
+        String stdOut = runSbt("test2", 0, "-Dflyway.url=jdbc:hsqldb:file:target/flyway_sample;shutdown=true", "flywayClean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 
@@ -54,13 +61,13 @@ public class SbtLargeTest {
      * @return The standard output.
      * @throws Exception When the execution failed.
      */
-    private String runSbt(int expectedReturnCode, String... extraArgs) throws Exception {
-        String root = new File(installDir,  "test-classes").getAbsolutePath();
+    private String runSbt(String dir, int expectedReturnCode, String... extraArgs) throws Exception {
+        String root = new File(installDir,  "test-classes/" + dir).getAbsolutePath();
 
         List<String> args = new ArrayList<String>();
         args.add("java");
         args.add("-jar");
-        args.add("sbt-launch.jar");
+        args.add(sbtLaunchJar.getAbsolutePath());
         args.addAll(Arrays.asList(extraArgs));
 
         ProcessBuilder builder = new ProcessBuilder(args);
@@ -71,9 +78,7 @@ public class SbtLargeTest {
         String stdOut = FileCopyUtils.copyToString(new InputStreamReader(process.getInputStream(), "UTF-8"));
         int returnCode = process.waitFor();
 
-        System.out.print(stdOut);
-
-        assertEquals("Unexpected return code", expectedReturnCode, returnCode);
+        assertEquals("Unexpected return code: " + stdOut, expectedReturnCode, returnCode);
 
         return stdOut;
     }
