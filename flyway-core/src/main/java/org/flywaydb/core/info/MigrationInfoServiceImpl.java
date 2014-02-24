@@ -118,6 +118,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             if (version.compareTo(context.lastApplied) > 0) {
                 context.lastApplied = version;
             }
+            if (appliedMigration.getType() == MigrationType.SCHEMA) {
+                context.schema = version;
+            }
             if (appliedMigration.getType() == MigrationType.INIT) {
                 context.init = version;
             }

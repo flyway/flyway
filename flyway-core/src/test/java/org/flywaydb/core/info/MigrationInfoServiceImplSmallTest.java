@@ -139,6 +139,22 @@ public class MigrationInfoServiceImplSmallTest {
         assertEquals(0, migrationInfoService.pending().length);
     }
 
+    @Test
+    public void schemaCreation() {
+        MigrationInfoServiceImpl migrationInfoService =
+                new MigrationInfoServiceImpl(
+                        createMigrationResolver(createAvailableMigration(1)),
+                        createMetaDataTable(createAppliedSchemaMigration(), createAppliedMigration(1)),
+                        MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
+
+        assertEquals("1", migrationInfoService.current().getVersion().toString());
+        assertEquals(MigrationState.SUCCESS, migrationInfoService.all()[0].getState());
+        assertEquals(MigrationState.SUCCESS, migrationInfoService.all()[1].getState());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(0, migrationInfoService.pending().length);
+    }
+
     /**
      * Creates a new available migration with this version.
      *
@@ -174,6 +190,16 @@ public class MigrationInfoServiceImplSmallTest {
     private AppliedMigration createAppliedInitMigration(int version) {
         return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
                 MigrationType.INIT, "x", null, new Date(), "sa", 0, true);
+    }
+
+    /**
+     * Creates a new applied schema migration with this version.
+     *
+     * @return The applied schema migration.
+     */
+    private AppliedMigration createAppliedSchemaMigration() {
+        return new AppliedMigration(0, 0, MigrationVersion.fromVersion(Integer.toString(0)), "<< Schema Creation >>",
+                MigrationType.SCHEMA, "x", null, new Date(), "sa", 0, true);
     }
 
     /**

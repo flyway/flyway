@@ -67,38 +67,38 @@ public class MigrationInfoImpl implements MigrationInfo {
     }
 
     public MigrationType getType() {
-        if (resolvedMigration != null) {
-            return resolvedMigration.getType();
+        if (appliedMigration != null) {
+            return appliedMigration.getType();
         }
-        return appliedMigration.getType();
+        return resolvedMigration.getType();
     }
 
     public Integer getChecksum() {
-        if (resolvedMigration != null) {
-            return resolvedMigration.getChecksum();
+        if (appliedMigration != null) {
+            return appliedMigration.getChecksum();
         }
-        return appliedMigration.getChecksum();
+        return resolvedMigration.getChecksum();
     }
 
     public MigrationVersion getVersion() {
-        if (resolvedMigration != null) {
-            return resolvedMigration.getVersion();
+        if (appliedMigration != null) {
+            return appliedMigration.getVersion();
         }
-        return appliedMigration.getVersion();
+        return resolvedMigration.getVersion();
     }
 
     public String getDescription() {
-        if (resolvedMigration != null) {
-            return resolvedMigration.getDescription();
+        if (appliedMigration != null) {
+            return appliedMigration.getDescription();
         }
-        return appliedMigration.getDescription();
+        return resolvedMigration.getDescription();
     }
 
     public String getScript() {
-        if (resolvedMigration != null) {
-            return resolvedMigration.getScript();
+        if (appliedMigration != null) {
+            return appliedMigration.getScript();
         }
-        return appliedMigration.getScript();
+        return resolvedMigration.getScript();
     }
 
     public MigrationState getState() {
@@ -116,6 +116,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (resolvedMigration == null) {
+            if (MigrationType.SCHEMA == appliedMigration.getType()) {
+                return MigrationState.SUCCESS;
+            }
+
             if (MigrationType.INIT == appliedMigration.getType()) {
                 return MigrationState.SUCCESS;
             }
