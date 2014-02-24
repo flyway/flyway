@@ -65,6 +65,21 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     @Test
+    public void appliedOverridesAvailable() {
+        MigrationInfoServiceImpl migrationInfoService =
+                new MigrationInfoServiceImpl(
+                        createMigrationResolver(createAvailableMigration(1)),
+                        createMetaDataTable(createAppliedMigration(1, "xyz")),
+                        MigrationVersion.LATEST, false);
+        migrationInfoService.refresh();
+
+        assertEquals("1", migrationInfoService.current().getVersion().toString());
+        assertEquals("xyz", migrationInfoService.current().getDescription());
+        assertEquals(1, migrationInfoService.all().length);
+        assertEquals(0, migrationInfoService.pending().length);
+    }
+
+    @Test
     public void onePendingOneApplied() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
@@ -177,7 +192,18 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied migration.
      */
     private AppliedMigration createAppliedMigration(int version) {
-        return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
+        return createAppliedMigration(version, "x");
+    }
+
+    /**
+     * Creates a new applied migration with this version.
+     *
+     * @param version     The version of the migration.
+     * @param description The description of the migration.
+     * @return The applied migration.
+     */
+    private AppliedMigration createAppliedMigration(int version, String description) {
+        return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), description,
                 MigrationType.SQL, "x", null, new Date(), "sa", 123, true);
     }
 
