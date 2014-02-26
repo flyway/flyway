@@ -186,6 +186,11 @@ public class Flyway {
     private DataSource dataSource;
 
     /**
+     * Whether the database connection info has already been printed in the logs.
+     */
+    private boolean dbConnectionInfoPrinted;
+
+    /**
      * Creates a new instance of Flyway. This is your starting point.
      */
     public Flyway() {
@@ -677,8 +682,8 @@ public class Flyway {
                     }
                 }
 
-                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects);
-                Schema originalSchemaUserObjects = dbSupport.getCurrentSchema();
+                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
+                Schema originalSchemaUserObjects = dbSupportUserObjects.getCurrentSchema();
                 boolean schemaChange = !schemas[0].equals(originalSchemaUserObjects);
                 if (schemaChange) {
                     dbSupportUserObjects.setCurrentSchema(schemas[0]);
@@ -934,7 +939,8 @@ public class Flyway {
             connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
             connectionUserObjects = JdbcUtils.openConnection(dataSource);
 
-            DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable);
+            DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
+            dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
             if (schemaNames.length == 0) {

@@ -74,7 +74,7 @@ public abstract class MigrationTestCase {
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
-        dbSupport = DbSupportFactory.createDbSupport(connection);
+        dbSupport = DbSupportFactory.createDbSupport(connection, false);
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
         flyway = new Flyway();
