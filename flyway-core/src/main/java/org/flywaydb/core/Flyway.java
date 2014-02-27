@@ -21,6 +21,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.command.DbClean;
 import org.flywaydb.core.command.DbInit;
 import org.flywaydb.core.command.DbMigrate;
+import org.flywaydb.core.command.DbRepair;
 import org.flywaydb.core.command.DbSchemas;
 import org.flywaydb.core.command.DbValidate;
 import org.flywaydb.core.dbsupport.DbSupport;
@@ -804,7 +805,8 @@ public class Flyway {
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                new MetaDataTableImpl(dbSupport, schemas[0].getTable(table)).repair();
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+                new DbRepair(connectionMetaDataTable, metaDataTable).repair();
                 return null;
             }
         });

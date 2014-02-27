@@ -110,7 +110,7 @@ public class FlywayMediumTest {
     @Test
     public void repairFirst() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "", "SET AUTOCOMMIT OFF");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
