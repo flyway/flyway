@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.resolver.sql;
 
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.util.Location;
 import org.flywaydb.core.util.PlaceholderReplacer;
 import org.junit.Test;
@@ -24,7 +24,6 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -46,7 +45,6 @@ public class SqlMigrationResolverMediumTest {
         assertEquals(3, migrations.size());
 
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
-        Collections.sort(migrationList);
 
         assertEquals("1", migrationList.get(0).getVersion().toString());
         assertEquals("1.1", migrationList.get(1).getVersion().toString());

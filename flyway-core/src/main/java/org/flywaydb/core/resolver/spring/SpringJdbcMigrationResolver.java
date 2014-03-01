@@ -22,8 +22,10 @@ import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.resolver.MigrationInfoHelper;
-import org.flywaydb.core.resolver.MigrationResolver;
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.resolver.ResolvedMigrationComparator;
+import org.flywaydb.core.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.util.ClassUtils;
 import org.flywaydb.core.util.Location;
 import org.flywaydb.core.util.Pair;
@@ -31,6 +33,7 @@ import org.flywaydb.core.util.StringUtils;
 import org.flywaydb.core.util.scanner.classpath.ClassPathScanner;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,7 +56,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         this.location = location;
     }
 
-    public List<ResolvedMigration> resolveMigrations() {
+    public Collection<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         if (!location.isClassPath()) {
@@ -65,7 +68,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
             for (Class<?> clazz : classes) {
                 SpringJdbcMigration springJdbcMigration = ClassUtils.instantiate(clazz.getName());
 
-                ResolvedMigration migrationInfo = extractMigrationInfo(springJdbcMigration);
+                ResolvedMigrationImpl migrationInfo = extractMigrationInfo(springJdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
                 migrationInfo.setExecutor(new SpringJdbcMigrationExecutor(springJdbcMigration));
 
@@ -75,7 +78,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
             throw new FlywayException("Unable to resolve Spring Jdbc Java migrations in location: " + location, e);
         }
 
-        Collections.sort(migrations);
+        Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
@@ -85,7 +88,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
      * @param springJdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ ResolvedMigration extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
+    /* private -> testing */ ResolvedMigrationImpl extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
         Integer checksum = null;
         if (springJdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) springJdbcMigration;
@@ -110,7 +113,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
 
         String script = springJdbcMigration.getClass().getName();
 
-        ResolvedMigration resolvedMigration = new ResolvedMigration();
+        ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
         resolvedMigration.setVersion(version);
         resolvedMigration.setDescription(description);
         resolvedMigration.setScript(script);

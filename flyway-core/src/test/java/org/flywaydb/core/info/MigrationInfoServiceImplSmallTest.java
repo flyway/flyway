@@ -20,8 +20,9 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.metadatatable.AppliedMigration;
 import org.flywaydb.core.metadatatable.MetaDataTable;
-import org.flywaydb.core.resolver.MigrationResolver;
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -177,7 +178,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The available migration.
      */
     private ResolvedMigration createAvailableMigration(int version) {
-        ResolvedMigration migration = new ResolvedMigration();
+        ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
         migration.setVersion(MigrationVersion.fromVersion(Integer.toString(version)));
         migration.setDescription("abc");
         migration.setScript("x");

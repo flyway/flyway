@@ -17,7 +17,7 @@ package org.flywaydb.core.dbsupport.sqlserver;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.command.FlywaySqlScriptException;
+import org.flywaydb.core.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;

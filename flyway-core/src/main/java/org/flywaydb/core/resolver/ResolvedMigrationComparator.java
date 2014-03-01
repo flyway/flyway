@@ -15,16 +15,16 @@
  */
 package org.flywaydb.core.resolver;
 
-import java.sql.Connection;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+
+import java.util.Comparator;
 
 /**
- * Executes a migration.
- */
-public interface MigrationExecutor {
-    /**
-     * Executes the migration this executor is associated with.
-     *
-     * @param connection The connection to use to execute the migration against the DB.
-     */
-    void execute(Connection connection);
+* Comparator for ResolvedMigration.
+*/
+public class ResolvedMigrationComparator implements Comparator<ResolvedMigration> {
+    @Override
+    public int compare(ResolvedMigration o1, ResolvedMigration o2) {
+        return o1.getVersion().compareTo(o2.getVersion());
+    }
 }

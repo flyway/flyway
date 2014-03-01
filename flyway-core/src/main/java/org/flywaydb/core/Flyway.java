@@ -18,6 +18,7 @@ package org.flywaydb.core;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.command.DbClean;
 import org.flywaydb.core.command.DbInit;
 import org.flywaydb.core.command.DbMigrate;
@@ -31,7 +32,6 @@ import org.flywaydb.core.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.metadatatable.MetaDataTable;
 import org.flywaydb.core.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.resolver.CompositeMigrationResolver;
-import org.flywaydb.core.resolver.MigrationResolver;
 import org.flywaydb.core.util.Locations;
 import org.flywaydb.core.util.StringUtils;
 import org.flywaydb.core.util.jdbc.DriverDataSource;
@@ -182,6 +182,11 @@ public class Flyway {
     private boolean outOfOrder;
 
     /**
+     * The custom MigrationResolvers to be used in addition to the built-in ones.
+     */
+    private MigrationResolver[] customMigrationResolvers = new MigrationResolver[0];
+
+    /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     private DataSource dataSource;
@@ -199,11 +204,10 @@ public class Flyway {
     }
 
     /**
-     * Retrieves locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations.
+     * Retrieves locations on the classpath or on the filesystem to scan recursively for migrations.
+     * Locations may contain both sql and java-based migrations.
      *
-     * @return Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db/migration)
+     * @return Locations on the classpath or on the filesystem to scan recursively for migrations. (default: db/migration)
      */
     public String[] getLocations() {
         String[] result = new String[locations.getLocations().size()];
@@ -391,6 +395,15 @@ public class Flyway {
      */
     public boolean isOutOfOrder() {
         return outOfOrder;
+    }
+
+    /**
+     * Retrieves the The custom MigrationResolvers to be used in addition to the built-in ones.
+     *
+     * @return The custom MigrationResolvers to be used in addition to the built-in ones. An empty array if none.
+     */
+    public MigrationResolver[] getCustomMigrationResolvers() {
+        return customMigrationResolvers;
     }
 
     /**
@@ -635,6 +648,14 @@ public class Flyway {
     }
 
     /**
+     * Sets custom MigrationResolvers to be used in addition to the built-in ones.
+     * @param customMigrationResolvers The custom MigrationResolvers to be used in addition to the built-in ones.
+     */
+    public void setCustomMigrationResolvers(MigrationResolver... customMigrationResolvers) {
+        this.customMigrationResolvers = customMigrationResolvers;
+    }
+
+    /**
      * Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.
      *
@@ -819,7 +840,9 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
-        return new CompositeMigrationResolver(dbSupport, locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        return new CompositeMigrationResolver(dbSupport, locations,
+                encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix,
+                customMigrationResolvers);
     }
 
     /**

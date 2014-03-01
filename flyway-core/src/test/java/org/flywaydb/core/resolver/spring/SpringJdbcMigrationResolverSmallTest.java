@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.resolver.spring;
 
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.resolver.spring.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.resolver.spring.dummy.Version3dot5;
 import org.flywaydb.core.util.Location;
@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -42,7 +41,6 @@ public class SpringJdbcMigrationResolverSmallTest {
         assertEquals(2, migrations.size());
 
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
-        Collections.sort(migrationList);
 
         assertEquals("2", migrationList.get(0).getVersion().toString());
         assertEquals("3.5", migrationList.get(1).getVersion().toString());

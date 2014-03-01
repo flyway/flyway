@@ -16,6 +16,8 @@
 package org.flywaydb.core.resolver;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.resolver.spring.SpringJdbcMigrationResolver;
@@ -26,6 +28,7 @@ import org.flywaydb.core.util.Locations;
 import org.flywaydb.core.util.PlaceholderReplacer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,44 +42,9 @@ import java.util.Set;
  */
 public class CompositeMigrationResolver implements MigrationResolver {
     /**
-     * Database-specific support.
+     * The migration resolvers to use internally.
      */
-    private final DbSupport dbSupport;
-
-    /**
-     * The locations where the migrations are located.
-     */
-    private final Locations locations;
-
-    /**
-     * The encoding of Sql migrations.
-     */
-    private final String encoding;
-
-    /**
-     * The file name prefix for sql migrations.
-     */
-    private final String sqlMigrationPrefix;
-
-    /**
-     * The file name suffix for sql migrations.
-     */
-    private final String sqlMigrationSuffix;
-
-    /**
-     * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     */
-    private final Map<String, String> placeholders;
-
-    /**
-     * The prefix of every placeholder.
-     */
-    private final String placeholderPrefix;
-
-    /**
-     * The suffix of every placeholder.
-     */
-    private final String placeholderSuffix;
+    private Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
 
     /**
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
@@ -87,24 +55,32 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param dbSupport          The database-specific support.
-     * @param locations          The locations where migrations are located.
-     * @param encoding           The encoding of Sql migrations.
-     * @param sqlMigrationPrefix The file name prefix for sql migrations.
-     * @param sqlMigrationSuffix The file name suffix for sql migrations.
-     * @param placeholders       A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     * @param placeholderPrefix  The prefix of every placeholder.
-     * @param placeholderSuffix  The suffix of every placeholder.
+     * @param dbSupport                The database-specific support.
+     * @param locations                The locations where migrations are located.
+     * @param encoding                 The encoding of Sql migrations.
+     * @param sqlMigrationPrefix       The file name prefix for sql migrations.
+     * @param sqlMigrationSuffix       The file name suffix for sql migrations.
+     * @param placeholders             A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+     * @param placeholderPrefix        The prefix of every placeholder.
+     * @param placeholderSuffix        The suffix of every placeholder.
+     * @param customMigrationResolvers Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, Locations locations, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix, Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix) {
-        this.dbSupport = dbSupport;
-        this.locations = locations;
-        this.encoding = encoding;
-        this.sqlMigrationPrefix = sqlMigrationPrefix;
-        this.sqlMigrationSuffix = sqlMigrationSuffix;
-        this.placeholders = placeholders;
-        this.placeholderPrefix = placeholderPrefix;
-        this.placeholderSuffix = placeholderSuffix;
+    public CompositeMigrationResolver(DbSupport dbSupport, Locations locations,
+                                      String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix,
+                                      Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix,
+                                      MigrationResolver... customMigrationResolvers) {
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+
+        for (Location location : locations.getLocations()) {
+            migrationResolvers.add(new SqlMigrationResolver(dbSupport, location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
+            migrationResolvers.add(new JdbcMigrationResolver(location));
+
+            if (FeatureDetector.isSpringJdbcAvailable()) {
+                migrationResolvers.add(new SpringJdbcMigrationResolver(location));
+            }
+        }
+
+        migrationResolvers.addAll(Arrays.asList(customMigrationResolvers));
     }
 
     /**
@@ -130,21 +106,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
-
-        Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
-
-        for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
-            migrationResolvers.add(new JdbcMigrationResolver(location));
-
-            if (FeatureDetector.isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(location));
-            }
-        }
-
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>(collectMigrations(migrationResolvers));
-        Collections.sort(migrations);
+        Collections.sort(migrations, new ResolvedMigrationComparator());
 
         checkForIncompatibilities(migrations);
 
@@ -178,7 +141,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
         for (int i = 0; i < migrations.size() - 1; i++) {
             ResolvedMigration current = migrations.get(i);
             ResolvedMigration next = migrations.get(i + 1);
-            if (current.compareTo(next) == 0) {
+            if (current.getVersion().compareTo(next.getVersion()) == 0) {
                 throw new FlywayException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
                         current.getVersion(),
                         current.getType(),
@@ -188,4 +151,5 @@ public class CompositeMigrationResolver implements MigrationResolver {
             }
         }
     }
+
 }

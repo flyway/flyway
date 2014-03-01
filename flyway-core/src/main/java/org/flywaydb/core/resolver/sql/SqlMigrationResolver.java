@@ -20,8 +20,10 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.resolver.MigrationInfoHelper;
-import org.flywaydb.core.resolver.MigrationResolver;
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.resolver.ResolvedMigrationComparator;
+import org.flywaydb.core.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.util.Location;
 import org.flywaydb.core.util.Pair;
 import org.flywaydb.core.util.PlaceholderReplacer;
@@ -103,7 +105,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             }
 
             for (Resource resource : resources) {
-                ResolvedMigration resolvedMigration = extractMigrationInfo(resource);
+                ResolvedMigrationImpl resolvedMigration = extractMigrationInfo(resource);
                 resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
                 resolvedMigration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
 
@@ -113,7 +115,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
         }
 
-        Collections.sort(migrations);
+        Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
@@ -123,8 +125,8 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param resource The resource to analyse.
      * @return The migration info.
      */
-    private ResolvedMigration extractMigrationInfo(Resource resource) {
-        ResolvedMigration migration = new ResolvedMigration();
+    private ResolvedMigrationImpl extractMigrationInfo(Resource resource) {
+        ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
 
         Pair<MigrationVersion, String> info =
                 MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);

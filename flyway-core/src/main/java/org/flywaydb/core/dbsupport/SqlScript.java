@@ -16,7 +16,6 @@
 package org.flywaydb.core.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.command.FlywaySqlScriptException;
 import org.flywaydb.core.util.StringUtils;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
