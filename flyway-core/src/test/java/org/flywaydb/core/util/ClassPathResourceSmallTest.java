@@ -25,19 +25,19 @@ import static org.junit.Assert.assertEquals;
 public class ClassPathResourceSmallTest {
     @Test
     public void getFilename() throws Exception {
-        assertEquals("Mig777__Test.sql", new ClassPathResource("Mig777__Test.sql").getFilename());
-        assertEquals("Mig777__Test.sql", new ClassPathResource("folder/Mig777__Test.sql").getFilename());
+        assertEquals("Mig777__Test.sql", new ClassPathResource("Mig777__Test.sql", Thread.currentThread().getContextClassLoader()).getFilename());
+        assertEquals("Mig777__Test.sql", new ClassPathResource("folder/Mig777__Test.sql", Thread.currentThread().getContextClassLoader()).getFilename());
     }
 
     @Test
     public void loadAsStringUtf8WithoutBOM() {
         assertEquals("SELECT 1 FROM DUAL;",
-                new ClassPathResource("org/flywaydb/core/util/utf8.nofilter").loadAsString("UTF-8"));
+                new ClassPathResource("org/flywaydb/core/util/utf8.nofilter", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"));
     }
 
     @Test
     public void loadAsStringUtf8WithBOM() {
         assertEquals("SELECT 1 FROM DUAL;",
-                new ClassPathResource("org/flywaydb/core/util/utf8bom.nofilter").loadAsString("UTF-8"));
+                new ClassPathResource("org/flywaydb/core/util/utf8bom.nofilter", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"));
     }
 }

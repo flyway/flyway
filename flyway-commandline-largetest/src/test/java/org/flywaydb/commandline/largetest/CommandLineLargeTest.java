@@ -107,7 +107,7 @@ public class CommandLineLargeTest {
             args.add(operation);
         }
         if (configFileName != null) {
-            String configFile = new ClassPathResource(configFileName).getLocationOnDisk();
+            String configFile = new ClassPathResource(configFileName, Thread.currentThread().getContextClassLoader()).getLocationOnDisk();
             args.add("-configFile=" + configFile);
         }
         args.addAll(Arrays.asList(extraArgs));

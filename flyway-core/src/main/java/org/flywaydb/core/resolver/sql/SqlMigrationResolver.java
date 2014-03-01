@@ -48,6 +48,11 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final DbSupport dbSupport;
 
     /**
+     * The classpath scanner to use.
+     */
+    private final ClassPathScanner classPathScanner;
+
+    /**
      * The base directory on the classpath where to migrations are located.
      */
     private final Location location;
@@ -76,14 +81,18 @@ public class SqlMigrationResolver implements MigrationResolver {
      * Creates a new instance.
      *
      * @param dbSupport           The database-specific support.
+     * @param classLoader The ClassLoader for loading migrations on the classpath.
      * @param location            The location on the classpath where to migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of Sql migrations.
      * @param sqlMigrationPrefix  The prefix for sql migrations
      * @param sqlMigrationSuffix  The suffix for sql migrations
      */
-    public SqlMigrationResolver(DbSupport dbSupport, Location location, PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix) {
+    public SqlMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Location location,
+                                PlaceholderReplacer placeholderReplacer, String encoding,
+                                String sqlMigrationPrefix, String sqlMigrationSuffix) {
         this.dbSupport = dbSupport;
+        this.classPathScanner = new ClassPathScanner(classLoader);
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
@@ -98,7 +107,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         try {
             if (location.isClassPath()) {
                 resources =
-                        new ClassPathScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
+                        classPathScanner.scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
             } else if (location.isFileSystem()) {
                 resources =
                         new FileSystemScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);

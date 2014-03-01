@@ -42,7 +42,7 @@ public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
 
         LocalRdbmsServiceTestConfig config = new LocalRdbmsServiceTestConfig();
         config.setServerType(LocalRdbmsService.ServerType.LOCAL);
-        ClassUtils.instantiate("com.mysql.jdbc.Driver");
+        ClassUtils.instantiate("com.mysql.jdbc.Driver", Thread.currentThread().getContextClassLoader());
         config.setDriverClass("com.mysql.jdbc.Driver");
         config.setJdbcConnectionStringFormat(url);
         config.setUser(user);
@@ -50,7 +50,7 @@ public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
         helper = new LocalServiceTestHelper(config);
         helper.setUp();
 
-        return new DriverDataSource(null, "jdbc:google:rdbms://localhost/flyway_cloudsql_db", "", "");
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:google:rdbms://localhost/flyway_cloudsql_db", "", "");
     }
 
     @Override

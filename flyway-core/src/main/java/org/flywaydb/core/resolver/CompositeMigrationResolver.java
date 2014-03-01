@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -56,27 +55,24 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * Creates a new CompositeMigrationResolver.
      *
      * @param dbSupport                The database-specific support.
+     * @param classLoader              The ClassLoader for loading migrations on the classpath.
      * @param locations                The locations where migrations are located.
      * @param encoding                 The encoding of Sql migrations.
      * @param sqlMigrationPrefix       The file name prefix for sql migrations.
      * @param sqlMigrationSuffix       The file name suffix for sql migrations.
-     * @param placeholders             A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
-     * @param placeholderPrefix        The prefix of every placeholder.
-     * @param placeholderSuffix        The suffix of every placeholder.
+     * @param placeholderReplacer      The placeholder replacer to use.
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, Locations locations,
+    public CompositeMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Locations locations,
                                       String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix,
-                                      Map<String, String> placeholders, String placeholderPrefix, String placeholderSuffix,
+                                      PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
-
         for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
-            migrationResolvers.add(new JdbcMigrationResolver(location));
+            migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
+            migrationResolvers.add(new JdbcMigrationResolver(classLoader, location));
 
-            if (FeatureDetector.isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(location));
+            if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {
+                migrationResolvers.add(new SpringJdbcMigrationResolver(classLoader, location));
             }
         }
 

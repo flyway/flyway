@@ -36,12 +36,19 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Resourc
     private String location;
 
     /**
+     * The ClassLoader to use.
+     */
+    private ClassLoader classLoader;
+
+    /**
      * Creates a new ClassPathResource.
      *
-     * @param location The location of the resource on the classpath.
+     * @param location    The location of the resource on the classpath.
+     * @param classLoader The ClassLoader to use.
      */
-    public ClassPathResource(String location) {
+    public ClassPathResource(String location, ClassLoader classLoader) {
         this.location = location;
+        this.classLoader = classLoader;
     }
 
     public String getLocation() {
@@ -64,19 +71,12 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Resourc
      * @return The url of this resource.
      */
     private URL getUrl() {
-        return getClassLoader().getResource(location);
-    }
-
-    /**
-     * @return The classloader to load the resource with.
-     */
-    private ClassLoader getClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
+        return classLoader.getResource(location);
     }
 
     public String loadAsString(String encoding) {
         try {
-            InputStream inputStream = getClassLoader().getResourceAsStream(location);
+            InputStream inputStream = classLoader.getResourceAsStream(location);
             if (inputStream == null) {
                 throw new FlywayException("Unable to obtain inputstream for resource: " + location);
             }
@@ -90,7 +90,7 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Resourc
 
     public byte[] loadAsBytes() {
         try {
-            InputStream inputStream = getClassLoader().getResourceAsStream(location);
+            InputStream inputStream = classLoader.getResourceAsStream(location);
             if (inputStream == null) {
                 throw new FlywayException("Unable to obtain inputstream for resource: " + location);
             }

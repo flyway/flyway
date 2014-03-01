@@ -37,9 +37,11 @@ import static org.junit.Assert.assertTrue;
  * Tests for ClassPathScanner.
  */
 public class ClassPathScannerSmallTest {
+    private ClassPathScanner classPathScanner = new ClassPathScanner(Thread.currentThread().getContextClassLoader());
+
     @Test
     public void scanForResources() throws Exception {
-        Resource[] resources = new ClassPathScanner().scanForResources("migration/sql", "V", ".sql");
+        Resource[] resources = classPathScanner.scanForResources("migration/sql", "V", ".sql");
 
         assertEquals(4, resources.length);
 
@@ -51,7 +53,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesRoot() throws Exception {
-        Resource[] resources = new ClassPathScanner().scanForResources("", "CheckValidate", ".sql");
+        Resource[] resources = classPathScanner.scanForResources("", "CheckValidate", ".sql");
 
         assertEquals(1, resources.length);
 
@@ -60,7 +62,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
-        Resource[] resources = new ClassPathScanner().scanForResources("migration", "CheckValidate", ".sql");
+        Resource[] resources = classPathScanner.scanForResources("migration", "CheckValidate", ".sql");
 
         assertEquals(1, resources.length);
 
@@ -69,7 +71,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesDefaultPackage() throws Exception {
-        Resource[] resources = new ClassPathScanner().scanForResources("", "log4j", "");
+        Resource[] resources = classPathScanner.scanForResources("", "log4j", "");
 
         assertEquals(2, resources.length);
 
@@ -79,7 +81,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSubDirectory() throws Exception {
-        Resource[] resources = new ClassPathScanner().scanForResources("migration/subdir", "V", ".sql");
+        Resource[] resources = classPathScanner.scanForResources("migration/subdir", "V", ".sql");
 
         assertEquals(3, resources.length);
 
@@ -90,13 +92,13 @@ public class ClassPathScannerSmallTest {
 
     @Test(expected = FlywayException.class)
     public void scanForResourcesInvalidPath() throws Exception {
-        new ClassPathScanner().scanForResources("invalid", "V", ".sql");
+        classPathScanner.scanForResources("invalid", "V", ".sql");
     }
 
     @Test
     public void scanForResourcesSplitDirectory() throws Exception {
         Resource[] resources =
-                new ClassPathScanner().scanForResources("org/flywaydb/core/dbsupport", "create", ".sql");
+                classPathScanner.scanForResources("org/flywaydb/core/dbsupport", "create", ".sql");
 
         assertTrue(resources.length > 7);
 
@@ -105,7 +107,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesJarFile() throws Exception {
-        Resource[] resources = new ClassPathScanner().scanForResources("org/junit", "Af", ".class");
+        Resource[] resources = classPathScanner.scanForResources("org/junit", "Af", ".class");
 
         assertEquals(2, resources.length);
 
@@ -115,7 +117,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClasses() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("org/flywaydb/core/resolver/jdbc/dummy", JdbcMigration.class);
+        Class<?>[] classes = classPathScanner.scanForClasses("org/flywaydb/core/resolver/jdbc/dummy", JdbcMigration.class);
 
         assertEquals(3, classes.length);
 
@@ -126,7 +128,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSubPackage() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("org/flywaydb/core/dbsupport", MigrationTestCase.class);
+        Class<?>[] classes = classPathScanner.scanForClasses("org/flywaydb/core/dbsupport", MigrationTestCase.class);
 
         assertTrue(classes.length >= 10);
 
@@ -135,7 +137,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSplitPackage() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("org/flywaydb/core/util", UrlResolver.class);
+        Class<?>[] classes = classPathScanner.scanForClasses("org/flywaydb/core/util", UrlResolver.class);
 
         assertTrue(classes.length >= 2);
         assertTrue(Arrays.asList(classes).contains(JBossVFSv2UrlResolver.class));
@@ -143,7 +145,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesJarFile() throws Exception {
-        Class<?>[] classes = new ClassPathScanner().scanForClasses("org/mockito/internal/creation", MockSettings.class);
+        Class<?>[] classes = classPathScanner.scanForClasses("org/mockito/internal/creation", MockSettings.class);
 
         assertTrue(Arrays.asList(classes).contains(MockSettingsImpl.class));
     }

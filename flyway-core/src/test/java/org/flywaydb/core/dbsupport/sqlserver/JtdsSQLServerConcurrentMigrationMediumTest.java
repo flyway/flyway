@@ -34,6 +34,6 @@ public class JtdsSQLServerConcurrentMigrationMediumTest extends ConcurrentMigrat
         String password = customProperties.getProperty("sqlserver.password", "flyway");
         String url = customProperties.getProperty("sqlserver.jtds_url", "jdbc:jtds:sqlserver://localhost:1433/flyway_db_jtds_concurrent");
 
-        return new DriverDataSource(null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
     }
 }

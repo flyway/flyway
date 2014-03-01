@@ -35,13 +35,13 @@ import static org.junit.Assert.assertNull;
 public class JdbcMigrationResolverSmallTest {
     @Test(expected = FlywayException.class)
     public void broken() {
-        new JdbcMigrationResolver(new Location("org/flywaydb/core/resolver/jdbc/error")).resolveMigrations();
+        new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Location("org/flywaydb/core/resolver/jdbc/error")).resolveMigrations();
     }
 
     @Test
     public void resolveMigrations() {
         JdbcMigrationResolver jdbcMigrationResolver =
-                new JdbcMigrationResolver(new Location("org/flywaydb/core/resolver/jdbc/dummy"));
+                new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Location("org/flywaydb/core/resolver/jdbc/dummy"));
         Collection<ResolvedMigration> migrations = jdbcMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
@@ -64,7 +64,7 @@ public class JdbcMigrationResolverSmallTest {
 
     @Test
     public void conventionOverConfiguration() {
-        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(null);
+        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), null);
         ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
@@ -73,7 +73,7 @@ public class JdbcMigrationResolverSmallTest {
 
     @Test
     public void explicitInfo() {
-        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(null);
+        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), null);
         ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
         assertEquals("3.5", migrationInfo.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo.getDescription());

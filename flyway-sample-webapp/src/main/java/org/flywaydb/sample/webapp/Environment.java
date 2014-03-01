@@ -16,7 +16,6 @@
 package org.flywaydb.sample.webapp;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
 
 /**
  * Environment of this application.
@@ -40,14 +39,9 @@ public class Environment {
         Flyway flyway = new Flyway();
 
         if (runningOnGoogleAppEngine()) {
-            flyway.setDataSource(new DriverDataSource(
-                    null,
-                    "jdbc:google:rdbms://flyway-test-project:flywaycloudsql/flyway_cloudsql_db",
-                    null,
-                    null));
+            flyway.setDataSource("jdbc:google:rdbms://flyway-test-project:flywaycloudsql/flyway_cloudsql_db", null, null);
         } else {
-            flyway.setDataSource(
-                    new DriverDataSource(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", ""));
+            flyway.setDataSource("jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
         }
 
         flyway.setLocations("db.migration",

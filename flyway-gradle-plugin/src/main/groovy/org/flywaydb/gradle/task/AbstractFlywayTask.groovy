@@ -83,7 +83,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
     /** Creates a new, configured flyway instance */
     protected def createFlyway() {
         def flyway = new Flyway()
-        flyway.setDataSource(new DriverDataSource(prop("driver"), prop("url"), prop("user"), prop("password")))
+        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), prop("driver"), prop("url"), prop("user"), prop("password")))
 
         propSet(flyway, 'table')
         propSet(flyway, 'initVersion')

@@ -25,6 +25,6 @@ import static org.junit.Assert.assertTrue;
 public class FeatureDetectorSmallTest {
     @Test
     public void isSpringJdbcAvailable() {
-        assertTrue(FeatureDetector.isSpringJdbcAvailable());
+        assertTrue(new FeatureDetector(Thread.currentThread().getContextClassLoader()).isSpringJdbcAvailable());
     }
 }

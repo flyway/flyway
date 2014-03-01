@@ -47,12 +47,19 @@ public class JdbcMigrationResolver implements MigrationResolver {
     private final Location location;
 
     /**
+     * The ClassLoader to use.
+     */
+    private ClassLoader classLoader;
+
+    /**
      * Creates a new instance.
      *
      * @param location The base package on the classpath where to migrations are located.
+     * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
-    public JdbcMigrationResolver(Location location) {
+    public JdbcMigrationResolver(ClassLoader classLoader, Location location) {
         this.location = location;
+        this.classLoader = classLoader;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
@@ -63,9 +70,9 @@ public class JdbcMigrationResolver implements MigrationResolver {
         }
 
         try {
-            Class<?>[] classes = new ClassPathScanner().scanForClasses(location.getPath(), JdbcMigration.class);
+            Class<?>[] classes = new ClassPathScanner(classLoader).scanForClasses(location.getPath(), JdbcMigration.class);
             for (Class<?> clazz : classes) {
-                JdbcMigration jdbcMigration = ClassUtils.instantiate(clazz.getName());
+                JdbcMigration jdbcMigration = ClassUtils.instantiate(clazz.getName(), classLoader);
 
                 ResolvedMigrationImpl migrationInfo = extractMigrationInfo(jdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));

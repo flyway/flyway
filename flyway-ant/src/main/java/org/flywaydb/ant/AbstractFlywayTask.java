@@ -192,7 +192,7 @@ public abstract class AbstractFlywayTask extends Task {
         String userValue = useValueIfPropertyNotSet(user, "user");
         String passwordValue = useValueIfPropertyNotSet(password, "password");
 
-        return new DriverDataSource(driverValue, urlValue, userValue, passwordValue);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), driverValue, urlValue, userValue, passwordValue);
     }
 
     /**
@@ -381,6 +381,7 @@ public abstract class AbstractFlywayTask extends Task {
         prepareClassPath();
 
         try {
+            flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setDataSource(createDataSource());
 
             Properties projectProperties = new Properties();

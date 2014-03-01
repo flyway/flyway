@@ -43,10 +43,10 @@ public class FlywayMediumTest {
     @Test
     public void multipleSetDataSourceCalls() throws Exception {
         DriverDataSource dataSource1 =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1", "sa", "");
 
         DriverDataSource dataSource2 =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1", "sa", "");
 
         Connection connection1 = dataSource1.getConnection();
         Connection connection2 = dataSource2.getConnection();
@@ -75,7 +75,7 @@ public class FlywayMediumTest {
     @Test
     public void info() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", null);
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", null);
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -110,7 +110,7 @@ public class FlywayMediumTest {
     @Test
     public void repairFirst() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "", "SET AUTOCOMMIT OFF");
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "", "SET AUTOCOMMIT OFF");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -133,7 +133,7 @@ public class FlywayMediumTest {
     @Test
     public void infoInit() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_info_init;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_info_init;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -148,7 +148,7 @@ public class FlywayMediumTest {
     @Test
     public void initAgainWithSameVersion() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_init_same;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_init_same;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -167,7 +167,7 @@ public class FlywayMediumTest {
     @Test(expected = FlywayException.class)
     public void initAgainWithDifferentVersion() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_init_different;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_init_different;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -180,7 +180,7 @@ public class FlywayMediumTest {
     @Test
     public void initOnMigrateOnCleanOnValidate() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_db_init_validate;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_init_validate;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -199,7 +199,7 @@ public class FlywayMediumTest {
     @Test
     public void outOfOrder() {
         DriverDataSource dataSource =
-                new DriverDataSource(null, "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -328,7 +328,7 @@ public class FlywayMediumTest {
         private int openConnectionCount = 0;
 
         public OpenConnectionCountDriverDataSource() {
-            super(null, "jdbc:h2:mem:flyway_db_open_connection;DB_CLOSE_DELAY=-1", "sa", "");
+            super(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_open_connection;DB_CLOSE_DELAY=-1", "sa", "");
         }
 
         /**

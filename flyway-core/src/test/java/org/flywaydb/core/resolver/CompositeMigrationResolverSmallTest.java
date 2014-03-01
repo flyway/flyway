@@ -22,6 +22,7 @@ import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.util.Locations;
+import org.flywaydb.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -39,9 +40,11 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
+                Thread.currentThread().getContextClassLoader(),
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}", createCustomMigrationResolver());
+                "UTF-8", "V", ".sql", placeholderReplacer, createCustomMigrationResolver());
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);

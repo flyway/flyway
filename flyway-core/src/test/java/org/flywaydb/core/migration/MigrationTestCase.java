@@ -177,7 +177,7 @@ public abstract class MigrationTestCase {
      */
     private void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport,
+                dbSupport, Thread.currentThread().getContextClassLoader(),
                 new Location(BASEDIR),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",

@@ -30,7 +30,8 @@ import static org.junit.Assert.assertEquals;
 public class PostgreSQLSqlScriptSmallTest {
     @Test
     public void parseSqlStatementsDo() throws Exception {
-        String source = new ClassPathResource("migration/dbsupport/postgresql/sql/dollar/V2__Even_more_dollars.sql").loadAsString("UTF-8");
+        String source = new ClassPathResource(
+                "migration/dbsupport/postgresql/sql/dollar/V2__Even_more_dollars.sql", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
         SqlScript sqlScript = new SqlScript(source, new PostgreSQLDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();

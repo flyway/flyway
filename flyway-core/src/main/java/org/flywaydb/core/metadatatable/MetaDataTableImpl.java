@@ -62,15 +62,22 @@ public class MetaDataTableImpl implements MetaDataTable {
     private final JdbcTemplate jdbcTemplate;
 
     /**
+     * The ClassLoader to use.
+     */
+    private ClassLoader classLoader;
+
+    /**
      * Creates a new instance of the metadata table support.
      *
-     * @param dbSupport Database-specific functionality.
-     * @param table     The metadata table used by flyway.
+     * @param dbSupport   Database-specific functionality.
+     * @param table       The metadata table used by flyway.
+     * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
-    public MetaDataTableImpl(DbSupport dbSupport, Table table) {
+    public MetaDataTableImpl(DbSupport dbSupport, Table table, ClassLoader classLoader) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;
+        this.classLoader = classLoader;
     }
 
     /**
@@ -83,13 +90,13 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         LOG.info("Creating Metadata table: " + table);
 
-        final String source =
-                new ClassPathResource("org/flywaydb/core/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql").loadAsString("UTF-8");
+        String resourceName = "org/flywaydb/core/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
+        String source = new ClassPathResource(resourceName, classLoader).loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", table.getSchema().getName());
         placeholders.put("table", table.getName());
-        final String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+        String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
         SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
         sqlScript.execute(jdbcTemplate);

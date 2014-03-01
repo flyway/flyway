@@ -50,7 +50,7 @@ public class LogFactory {
      */
     public static Log getLog(Class<?> clazz) {
         if (logCreator == null) {
-            if (FeatureDetector.isApacheCommonsLoggingAvailable()) {
+            if (new FeatureDetector(Thread.currentThread().getContextClassLoader()).isApacheCommonsLoggingAvailable()) {
                 logCreator = new ApacheCommonsLogCreator();
             } else {
                 logCreator = new JavaUtilLogCreator();

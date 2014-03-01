@@ -330,7 +330,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @throws Exception Thrown when the datasource could not be created.
      */
     /* private -> for testing */ DataSource createDataSource() throws Exception {
-        return new DriverDataSource(
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(),
                 System.getProperty("flyway.driver", driver),
                 System.getProperty("flyway.url", url),
                 System.getProperty("flyway.user", user),
@@ -364,6 +364,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         try {
             loadCredentialsFromSettings();
 
+            flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setDataSource(createDataSource());
             flyway.setSchemas(schemas);
             flyway.setTable(table);
