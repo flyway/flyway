@@ -37,6 +37,7 @@ import org.flywaydb.core.util.jdbc.DriverDataSource;
 import org.flywaydb.core.util.jdbc.JdbcUtils;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.listeners.HookListener;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -179,6 +180,18 @@ public class Flyway {
      * <p>(default: {@code false})</p>
      */
     private boolean outOfOrder;
+    
+    /**
+     * This is a list of listeners that fire before the migrate task is executed.  You can
+     * add as many listeners as you want.  
+     */
+    private List<HookListener> preHookListeners = new ArrayList<HookListener>();
+
+    /**
+     * This is a list of listeners that fire after the migrate task is executed.  You can
+     * add as many listeners as you want.  
+     */
+    private List<HookListener> postHookListeners = new ArrayList<HookListener>();
 
     /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
@@ -627,6 +640,23 @@ public class Flyway {
     public void setOutOfOrder(boolean outOfOrder) {
         this.outOfOrder = outOfOrder;
     }
+    
+    /**
+     * This is a list of listeners that fire before the migrate task is executed.  You can
+     * add as many listeners as you want.  
+     */
+	public void setPreHookListeners(List<HookListener> preHookListeners) {
+		this.preHookListeners = preHookListeners;
+	}
+
+    /**
+     * This is a list of listeners that fire after the migrate task is executed.  You can
+     * add as many listeners as you want.
+     */
+	public void setPostHookListeners(List<HookListener> postHookListeners) {
+		this.postHookListeners = postHookListeners;
+	}
+
 
     /**
      * Starts the database migration. All pending migrations will be applied in order.
@@ -687,6 +717,8 @@ public class Flyway {
                 DbMigrate dbMigrator =
                         new DbMigrate(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable,
                                 schemas[0], migrationResolver, target, ignoreFailedFutureMigration, outOfOrder);
+                dbMigrator.setPreHookListeners(preHookListeners);
+                dbMigrator.setPostHookListeners(postHookListeners);
                 try {
                     return dbMigrator.migrate();
                 } finally {

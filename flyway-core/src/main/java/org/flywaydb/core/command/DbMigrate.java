@@ -33,8 +33,10 @@ import org.flywaydb.core.util.jdbc.TransactionCallback;
 import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.listeners.HookListener;
 
 import java.sql.Connection;
+import java.util.List;
 
 /**
  * Main workflow for migrating the database.
@@ -94,6 +96,20 @@ public class DbMigrate {
     private boolean outOfOrder;
 
     /**
+     * This is a list of listeners that fire before the migrate task is executed.  You can
+     * add as many listeners as you want.  These listeners should be set on the Flyway class
+     * by the end user as Flyway will set them automatically for you here.
+     */
+    private List<HookListener> preHookListeners;
+
+    /**
+     * This is a list of listeners that fire after the migrate task is executed.  You can
+     * add as many listeners as you want.  These listeners should be set on the Flyway class
+     * by the end user as Flyway will set them automatically for you here.
+     */
+    private List<HookListener> postHookListeners;
+
+    /**
      * Creates a new database migrator.
      *
      * @param connectionMetaDataTable     The connection to use.
@@ -126,6 +142,12 @@ public class DbMigrate {
      * @throws FlywayException when migration failed.
      */
     public int migrate() throws FlywayException {
+    	if (getPreHookListeners() != null) {
+    		for (HookListener preHook: getPreHookListeners()) {
+    			preHook.run();
+    		}
+    	}
+    	
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -197,7 +219,14 @@ public class DbMigrate {
         stopWatch.stop();
 
         logSummary(migrationSuccessCount, stopWatch.getTotalTimeMillis());
-        return migrationSuccessCount;
+
+    	if (getPostHookListeners() != null) {
+    		for (HookListener postHook: getPostHookListeners()) {
+    			postHook.run();
+    		}
+    	}
+
+    	return migrationSuccessCount;
     }
 
     /**
@@ -270,4 +299,30 @@ public class DbMigrate {
 
         return version;
     }
+
+    /**
+     * This is a list of listeners that fire before the migrate task is executed.  You can
+     * add as many listeners as you want.  These listeners should be set on the Flyway class
+     * by the end user as Flyway will set them automatically for you here.
+     */
+	public List<HookListener> getPreHookListeners() {
+		return preHookListeners;
+	}
+
+	public void setPreHookListeners(List<HookListener> preHookListeners) {
+		this.preHookListeners = preHookListeners;
+	}
+
+    /**
+     * This is a list of listeners that fire after the migrate task is executed.  You can
+     * add as many listeners as you want.  These listeners should be set on the Flyway class
+     * by the end user as Flyway will set them automatically for you here.
+     */
+	public List<HookListener> getPostHookListeners() {
+		return postHookListeners;
+	}
+
+	public void setPostHookListeners(List<HookListener> postHookListeners) {
+		this.postHookListeners = postHookListeners;
+	}
 }
