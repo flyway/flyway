@@ -35,6 +35,7 @@ public class DbCategory {
     public interface PostgreSQL extends OpenSourceDB {}
 
     public interface DB2 extends CommercialDB {}
+    public interface DB2zOS extends CommercialDB {}
     public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
 }

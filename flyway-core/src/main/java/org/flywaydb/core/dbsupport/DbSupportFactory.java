@@ -17,6 +17,7 @@ package org.flywaydb.core.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.dbsupport.db2.DB2DbSupport;
+import org.flywaydb.core.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.dbsupport.derby.DerbyDbSupport;
 import org.flywaydb.core.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.dbsupport.hsql.HsqlDbSupport;
@@ -54,7 +55,7 @@ public class DbSupportFactory {
      * @param printInfo  Where the DB info should be printed in the logs.
      * @return The appropriate DbSupport class.
      */
-    public static DbSupport createDbSupport(Connection connection, boolean printInfo) {
+    public static DbSupport createDbSupport(Connection connection, boolean printInfo, String databasePlatform) {
         String databaseProductName = getDatabaseProductName(connection);
 
         if (printInfo) {
@@ -87,9 +88,11 @@ public class DbSupportFactory {
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-            // DB2 also returns the OS it's running on.
-            //   ex.: DB2/NT
-            return new DB2DbSupport(connection);
+			if (databasePlatform.equals("zOS")) {
+				return new DB2zosDbSupport(connection);
+			} else {
+				return new DB2DbSupport(connection);
+			}
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
@@ -108,6 +111,7 @@ public class DbSupportFactory {
             throw new FlywayException("Unable to retrieve the Jdbc connection Url!", e);
         }
     }
+
 
     /**
      * Retrieves the name of the database product.

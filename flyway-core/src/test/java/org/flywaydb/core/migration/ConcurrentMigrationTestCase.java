@@ -78,7 +78,7 @@ public abstract class ConcurrentMigrationTestCase {
         concurrentMigrationDataSource = createDataSource(customProperties);
 
         Connection connection = concurrentMigrationDataSource.getConnection();
-        schemaQuoted = DbSupportFactory.createDbSupport(connection, false).quote("concurrent_test");
+        schemaQuoted = DbSupportFactory.createDbSupport(connection, false, "databasePlatformNotInUse").quote("concurrent_test");
         connection.close();
 
         flyway = createFlyway();

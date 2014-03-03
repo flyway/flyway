@@ -101,6 +101,20 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String password;
 
     /**
+	 *  Get the databasePlatform
+	 *  For databases that run on different platforms. DB2 on LUW differ from DB2 on z/OS
+	 *  It is not possible to decide platform rumtime, so this information must be a property
+	 *
+	 *  Default: DB2 on LUW
+	 *  databasePlatform=zOS for zOS
+	 *
+	 * <p>Also configurable with Maven or System Property: ${flyway.databasePlatform} </p>
+	 *
+	 * @parameter property="flyway.databasePlatform"
+	 */
+	private String databasePlatform;
+
+    /**
      * List of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
      * (default: The default schema for the datasource connection)
      * <p>Consequences:</p>
@@ -233,7 +247,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The prefix of every placeholder. (default: ${ )<br>
-     * <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
+     *     <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
      *
      * @parameter property="flyway.placeholderPrefix"
      */
@@ -241,7 +255,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The suffix of every placeholder. (default: } )<br>
-     * <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
+     *     <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
      *
      * @parameter property="flyway.placeholderSuffix"
      */
@@ -366,10 +380,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setDataSource(createDataSource());
-            flyway.setSchemas(schemas);
+                flyway.setSchemas(schemas);
             flyway.setTable(table);
             flyway.setInitVersion(initVersion);
             flyway.setInitDescription(initDescription);
+            flyway.setDatabasePlatform(databasePlatform);
+
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
                     if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {

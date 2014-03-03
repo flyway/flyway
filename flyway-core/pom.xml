@@ -108,6 +108,7 @@
             <artifactId>jtds</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -178,6 +179,26 @@
     </reporting>
 
     <profiles>
+        <profile>
+            <id>DB2</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.ibm.db2.jcc</groupId>
+                    <artifactId>DB2Driver</artifactId>
+                    <version>3.1.57</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.ibm.db2</groupId>
+                    <artifactId>db2jcc_license_cisuz</artifactId>
+                    <version>3.4.65</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <id>CommercialDBJars</id>
             <activation>

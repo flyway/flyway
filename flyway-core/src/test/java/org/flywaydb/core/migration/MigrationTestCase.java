@@ -74,13 +74,17 @@ public abstract class MigrationTestCase {
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
-        dbSupport = DbSupportFactory.createDbSupport(connection, false);
+        dbSupport = DbSupportFactory.createDbSupport(connection, false, customProperties.getProperty("db2zos.databaseplatform", "databasePlatformNotInUse"));
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
+		configureFlyway();
+		flyway.clean();
+	}
+
+	protected void configureFlyway() {
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.setValidateOnMigrate(true);
-        flyway.clean();
+		flyway.isValidateOnMigrate();
     }
 
     /**
@@ -333,7 +337,7 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-        assertTrue(dbSupport.getCurrentSchema().getTable("schema_version").exists());
+		assertTrue(dbSupport.getCurrentSchema().getTable(flyway.getTable()).exists());
         assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 
