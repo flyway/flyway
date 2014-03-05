@@ -248,6 +248,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String placeholderSuffix = flyway.getPlaceholderSuffix();
 
     /**
+     * An array of FlywayCallback implementations. (default: empty )<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.callbacks}</p>
+     *
+     * @parameter property="flyway.callbacks"
+     */
+    private String callbacks;
+
+    /**
      * <p>
      * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
      * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
@@ -391,7 +399,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setTarget(target);
             flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
             flyway.setPlaceholderPrefix(placeholderPrefix);
-            flyway.setPlaceholderSuffix(placeholderSuffix);
+            
+            if (callbacks != null) {
+            	flyway.initCallbackDefs(callbacks);
+            }
+            
             flyway.setInitOnMigrate(initOnMigrate);
             flyway.setValidateOnMigrate(validateOnMigrate);
 

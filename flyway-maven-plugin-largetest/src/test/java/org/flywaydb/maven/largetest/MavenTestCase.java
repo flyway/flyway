@@ -104,6 +104,13 @@ public abstract class MavenTestCase {
     }
 
     @Test
+    public void callbacksProperty() throws Exception {
+        String stdOut = runMaven(0, "callbacks-property", "clean", "compile", "flyway:info");
+        assertTrue(stdOut.contains("beforeInfo"));
+        assertTrue(stdOut.contains("afterInfo"));
+    }
+
+    @Test
     public void skip() throws Exception {
         String stdOut = runMaven(0, "skip", "flyway:migrate");
         assertTrue(stdOut.contains("Skipping Flyway execution"));
