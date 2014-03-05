@@ -35,8 +35,6 @@ import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
 import java.sql.Connection;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Main workflow for migrating the database.
@@ -100,7 +98,7 @@ public class DbMigrate {
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
+    private FlywayCallback[] callbacks = new FlywayCallback[0];
 
     /**
      * Creates a new database migrator.
@@ -299,7 +297,7 @@ public class DbMigrate {
      * 
      * @return FlywayCallback interface implementations or an empty list
      */
-	public List<FlywayCallback> getCallbacks() {
+	public FlywayCallback[] getCallbacks() {
 		return callbacks;
 	}
 
@@ -308,7 +306,7 @@ public class DbMigrate {
 	 * 
 	 * @param callbacks FlywayCallback interface implementations
 	 */
-	public void setCallbacks(List<FlywayCallback> callbacks) {
+	public void setCallbacks(FlywayCallback[] callbacks) {
 		this.callbacks = callbacks;
 	}
 }

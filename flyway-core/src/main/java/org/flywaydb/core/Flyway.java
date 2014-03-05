@@ -186,7 +186,7 @@ public class Flyway {
      * This is a list of callbacks that fire before and after tasks are executed.  You can
      * add as many custom callbacks as you want.  
      */
-    private List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
+    private FlywayCallback[] callbacks = new FlywayCallback[0];
 
     /**
      * The custom MigrationResolvers to be used in addition to the built-in ones.
@@ -685,7 +685,7 @@ public class Flyway {
      * 
      * @return FlywayCallback interface implementations or an empty list
      */
-    public List<FlywayCallback> getCallbacks() {
+    public FlywayCallback[] getCallbacks() {
 		return callbacks;
 	}
 
@@ -695,7 +695,7 @@ public class Flyway {
      * 
      * @param callbacks
      */
-	public void setCallbacks(List<FlywayCallback> callbacks) {
+	public void setCallbacks(FlywayCallback[] callbacks) {
 		this.callbacks = callbacks;
 	}
 
@@ -1041,7 +1041,10 @@ public class Flyway {
         String callbacksProp = properties.getProperty("flyway.callbacks");
         if (callbacksProp != null) {
         	String[] callbackClasses = callbacksProp.split(",");
-        	for(String callbackClass: callbackClasses) {
+        	callbacks = new FlywayCallback[callbackClasses.length];
+        	
+        	for (int i = 0; i < callbackClasses.length; i++) {
+        		String callbackClass = callbackClasses[i];
         		try {
 	        		Class<?> cbClazz = Class.forName(callbackClass.trim());
 	        		Object obj = cbClazz.newInstance();
@@ -1050,7 +1053,7 @@ public class Flyway {
 	        			throw new FlywayException("The property 'flyway.callbacks' contained a fully qualified classname that does not implement FlywayCallback.  Please check your property classes");
 	        		}
 	        		
-	        		callbacks.add((FlywayCallback)obj);
+	        		callbacks[i] = (FlywayCallback)obj;
         		} catch (ClassNotFoundException e) {
         			throw new FlywayException("The property 'flyway.callbacks' contain an invalid classname.", e);
         		} catch (InstantiationException e) {
