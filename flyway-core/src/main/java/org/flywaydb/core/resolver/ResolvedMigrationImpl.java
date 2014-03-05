@@ -17,11 +17,13 @@ package org.flywaydb.core.resolver;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 /**
  * A migration available on the classpath.
  */
-public class ResolvedMigration implements Comparable<ResolvedMigration> {
+public class ResolvedMigrationImpl implements ResolvedMigration {
     /**
      * The target version of this migration.
      */
@@ -57,9 +59,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
      */
     private MigrationExecutor executor;
 
-    /**
-     * @return The target version of this migration.
-     */
+    @Override
     public MigrationVersion getVersion() {
         return version;
     }
@@ -71,9 +71,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
         this.version = version;
     }
 
-    /**
-     * @return The description of the migration.
-     */
+    @Override
     public String getDescription() {
         return description;
     }
@@ -85,9 +83,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
         this.description = description;
     }
 
-    /**
-     * @return The name of the script to execute for this migration, relative to its classpath location.
-     */
+    @Override
     public String getScript() {
         return script;
     }
@@ -99,9 +95,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
         this.script = script;
     }
 
-    /**
-     * @return The checksum of the migration.
-     */
+    @Override
     public Integer getChecksum() {
         return checksum;
     }
@@ -113,9 +107,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
         this.checksum = checksum;
     }
 
-    /**
-     * @return The type of migration (INIT, SQL, ...)
-     */
+    @Override
     public MigrationType getType() {
         return type;
     }
@@ -127,9 +119,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
         this.type = type;
     }
 
-    /**
-     * @return The physical location of the migration on disk.
-     */
+    @Override
     public String getPhysicalLocation() {
         return physicalLocation;
     }
@@ -141,9 +131,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
         this.physicalLocation = physicalLocation;
     }
 
-    /**
-     * @return The executor to run this migration.
-     */
+    @Override
     public MigrationExecutor getExecutor() {
         return executor;
     }
@@ -156,7 +144,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
     }
 
     @SuppressWarnings("NullableProblems")
-    public int compareTo(ResolvedMigration o) {
+    public int compareTo(ResolvedMigrationImpl o) {
         return version.compareTo(o.version);
     }
 
@@ -166,7 +154,7 @@ public class ResolvedMigration implements Comparable<ResolvedMigration> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ResolvedMigration migration = (ResolvedMigration) o;
+        ResolvedMigrationImpl migration = (ResolvedMigrationImpl) o;
 
         if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
         if (description != null ? !description.equals(migration.description) : migration.description != null)

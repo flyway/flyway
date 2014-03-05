@@ -17,7 +17,7 @@ package org.flywaydb.core.resolver.sql;
 
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.dbsupport.SqlScript;
-import org.flywaydb.core.resolver.MigrationExecutor;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.dbsupport.JdbcTemplate;
 import org.flywaydb.core.util.PlaceholderReplacer;
 import org.flywaydb.core.util.Resource;

@@ -13,39 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api;
+package org.flywaydb.core.api.resolver;
+
+import java.util.Collection;
 
 /**
- * Type of migration.
+ * Resolves available migrations.
  */
-public enum MigrationType {
+public interface MigrationResolver {
     /**
-     * The type for the schema creation migration.
+     * Resolves the available migrations.
+     *
+     * @return The available migrations.
      */
-    SCHEMA,
-
-    /**
-     * The type for the metadata init migration.
-     */
-    INIT,
-
-    /**
-     * The type for sql migrations.
-     */
-    SQL,
-
-    /**
-     * The type for Jdbc java-based migrations.
-     */
-    JDBC,
-
-    /**
-     * The type for Spring Jdbc java-based migrations.
-     */
-    SPRING_JDBC,
-
-    /**
-     * The type for other migrations by custom MigrationResolvers.
-     */
-    CUSTOM;
+    Collection<ResolvedMigration> resolveMigrations();
 }

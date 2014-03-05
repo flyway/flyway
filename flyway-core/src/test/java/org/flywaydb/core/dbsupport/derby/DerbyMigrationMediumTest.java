@@ -36,7 +36,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     @Override
     public void tearDown() throws Exception {
         try {
-            new DriverDataSource(null, "jdbc:derby:memory:flyway_db;drop=true", "", "").getConnection();
+            new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:derby:memory:flyway_db;drop=true", "", "").getConnection();
         } catch (FlywayException e) {
             //OK, expected error 08006. See http://db.apache.org/derby/docs/dev/devguide/cdevdvlpinmemdb.html
         }
@@ -46,7 +46,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(null, "jdbc:derby:memory:flyway_db;create=true", "", "");
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:derby:memory:flyway_db;create=true", "", "");
     }
 
     @Override

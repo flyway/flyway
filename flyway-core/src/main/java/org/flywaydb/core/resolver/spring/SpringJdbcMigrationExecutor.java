@@ -17,7 +17,7 @@ package org.flywaydb.core.resolver.spring;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
-import org.flywaydb.core.resolver.MigrationExecutor;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import java.sql.Connection;

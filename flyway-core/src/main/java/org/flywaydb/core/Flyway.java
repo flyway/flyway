@@ -19,9 +19,11 @@ import org.flywaydb.core.api.FlywayCallback;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.command.DbClean;
 import org.flywaydb.core.command.DbInit;
 import org.flywaydb.core.command.DbMigrate;
+import org.flywaydb.core.command.DbRepair;
 import org.flywaydb.core.command.DbSchemas;
 import org.flywaydb.core.command.DbValidate;
 import org.flywaydb.core.dbsupport.DbSupport;
@@ -31,8 +33,8 @@ import org.flywaydb.core.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.metadatatable.MetaDataTable;
 import org.flywaydb.core.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.resolver.CompositeMigrationResolver;
-import org.flywaydb.core.resolver.MigrationResolver;
 import org.flywaydb.core.util.Locations;
+import org.flywaydb.core.util.PlaceholderReplacer;
 import org.flywaydb.core.util.StringUtils;
 import org.flywaydb.core.util.jdbc.DriverDataSource;
 import org.flywaydb.core.util.jdbc.JdbcUtils;
@@ -187,9 +189,24 @@ public class Flyway {
     private List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
 
     /**
+     * The custom MigrationResolvers to be used in addition to the built-in ones.
+     */
+    private MigrationResolver[] customMigrationResolvers = new MigrationResolver[0];
+
+    /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     private DataSource dataSource;
+
+    /**
+     * The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
+     */
+    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+    /**
+     * Whether the database connection info has already been printed in the logs.
+     */
+    private boolean dbConnectionInfoPrinted;
 
     /**
      * Creates a new instance of Flyway. This is your starting point.
@@ -199,11 +216,10 @@ public class Flyway {
     }
 
     /**
-     * Retrieves locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations.
+     * Retrieves locations on the classpath or on the filesystem to scan recursively for migrations.
+     * Locations may contain both sql and java-based migrations.
      *
-     * @return Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db/migration)
+     * @return Locations on the classpath or on the filesystem to scan recursively for migrations. (default: db/migration)
      */
     public String[] getLocations() {
         String[] result = new String[locations.getLocations().size()];
@@ -394,12 +410,31 @@ public class Flyway {
     }
 
     /**
+     * Retrieves the The custom MigrationResolvers to be used in addition to the built-in ones.
+     *
+     * @return The custom MigrationResolvers to be used in addition to the built-in ones. An empty array if none.
+     */
+    public MigrationResolver[] getCustomMigrationResolvers() {
+        return customMigrationResolvers;
+    }
+
+    /**
      * Retrieves the dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      *
      * @return The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     public DataSource getDataSource() {
         return dataSource;
+    }
+
+    /**
+     * Retrieves the ClassLoader to use for resolving migrations on the classpath.
+     *
+     * @return The ClassLoader to use for resolving migrations on the classpath.
+     * (default: Thread.currentThread().getContextClassLoader() )
+     */
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     /**
@@ -567,13 +602,24 @@ public class Flyway {
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
      *
+     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     *
      * @param url      The JDBC URL of the database.
      * @param user     The user of the database.
      * @param password The password of the database.
      * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
     public void setDataSource(String url, String user, String password, String... initSqls) {
-        this.dataSource = new DriverDataSource(null, url, user, password, initSqls);
+        this.dataSource = new DriverDataSource(classLoader, null, url, user, password, initSqls);
+    }
+
+    /**
+     * Sets the ClassLoader to use for resolving migrations on the classpath.
+     *
+     * @param classLoader The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
+     */
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
     /**
@@ -654,6 +700,15 @@ public class Flyway {
 	}
 
 	/**
+     * Sets custom MigrationResolvers to be used in addition to the built-in ones.
+     *
+     * @param customMigrationResolvers The custom MigrationResolvers to be used in addition to the built-in ones.
+     */
+    public void setCustomMigrationResolvers(MigrationResolver... customMigrationResolvers) {
+        this.customMigrationResolvers = customMigrationResolvers;
+    }
+
+    /**
      * Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.
      *
@@ -667,7 +722,7 @@ public class Flyway {
         			callback.beforeMigrate(connectionUserObjects);
         		}
 
-        		MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
 
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 if (validateOnMigrate) {
@@ -706,8 +761,8 @@ public class Flyway {
                     }
                 }
 
-                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects);
-                Schema originalSchemaUserObjects = dbSupport.getCurrentSchema();
+                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
+                Schema originalSchemaUserObjects = dbSupportUserObjects.getCurrentSchema();
                 boolean schemaChange = !schemas[0].equals(originalSchemaUserObjects);
                 if (schemaChange) {
                     dbSupportUserObjects.setCurrentSchema(schemas[0]);
@@ -744,7 +799,7 @@ public class Flyway {
         			callback.beforeValidate(connectionUserObjects);
         		}
 
-        		MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
 
                 doValidate(connectionMetaDataTable, migrationResolver, metaDataTable, schemas);
@@ -792,8 +847,8 @@ public class Flyway {
         			callback.beforeClean(connectionUserObjects);
         		}
 
-        		MetaDataTableImpl metaDataTable =
-                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+                MetaDataTableImpl metaDataTable =
+                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
                 new DbClean(connectionMetaDataTable, metaDataTable, schemas).clean();
 
         		for (FlywayCallback callback: getCallbacks()) {
@@ -819,8 +874,8 @@ public class Flyway {
         			callback.beforeInfo(connectionUserObjects);
         		}
 
-        		MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
-                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
 
                 MigrationInfoServiceImpl migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
                 migrationInfoService.refresh();
@@ -846,7 +901,7 @@ public class Flyway {
         			callback.beforeInit(connectionUserObjects);
         		}
 
-        		MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
                 new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription).init();
 
@@ -872,7 +927,8 @@ public class Flyway {
         			callback.beforeRepair(connectionUserObjects);
         		}
 
-        		new MetaDataTableImpl(dbSupport, schemas[0].getTable(table)).repair();
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
+                new DbRepair(connectionMetaDataTable, metaDataTable).repair();
                 
         		for (FlywayCallback callback: getCallbacks()) {
         			callback.afterRepair(connectionUserObjects);
@@ -890,12 +946,17 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
-        return new CompositeMigrationResolver(dbSupport, locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholders, placeholderPrefix, placeholderSuffix);
+        PlaceholderReplacer placeholderReplacer =
+                new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+        return new CompositeMigrationResolver(dbSupport, classLoader, locations,
+                encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholderReplacer, customMigrationResolvers);
     }
 
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
+     *
+     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
@@ -907,7 +968,7 @@ public class Flyway {
         String passwordProp = properties.getProperty("flyway.password");
 
         if (StringUtils.hasText(urlProp)) {
-            setDataSource(new DriverDataSource(driverProp, urlProp, userProp, passwordProp));
+            setDataSource(new DriverDataSource(classLoader, driverProp, urlProp, userProp, passwordProp));
         } else if (!StringUtils.hasText(urlProp) &&
                 (StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! flyway.url must be set.");
@@ -1034,7 +1095,8 @@ public class Flyway {
             connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
             connectionUserObjects = JdbcUtils.openConnection(dataSource);
 
-            DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable);
+            DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
+            dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
             if (schemaNames.length == 0) {

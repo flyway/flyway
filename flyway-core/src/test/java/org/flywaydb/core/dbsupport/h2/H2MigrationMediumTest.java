@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 public class H2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
     }
 
     @Override

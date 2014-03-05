@@ -20,7 +20,7 @@ import org.flywaydb.core.api.FlywayException;
 /**
  * A location to load migrations from.
  */
-public class Location implements Comparable<Location> {
+public final class Location implements Comparable<Location> {
     /**
      * The prefix for classpath locations.
      */
@@ -117,7 +117,7 @@ public class Location implements Comparable<Location> {
     }
 
     /**
-     * @return The location descriptor.
+     * @return The complete location descriptor.
      */
     public String getDescriptor() {
         return prefix + path;
@@ -144,7 +144,7 @@ public class Location implements Comparable<Location> {
     }
 
     /**
-     * @return The location descriptor.
+     * @return The complete location descriptor.
      */
     @Override
     public String toString() {

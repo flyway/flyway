@@ -176,7 +176,7 @@ public class Main {
      * @throws IOException when the version could not be read.
      */
     private static void printVersion() throws IOException {
-        String version = new ClassPathResource("version.txt").loadAsString("UTF-8");
+        String version = new ClassPathResource("version.txt", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
         LOG.info("Flyway (Command-line Tool) v." + version);
         LOG.info("");
     }

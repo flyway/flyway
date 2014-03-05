@@ -43,6 +43,20 @@ public class ClassPathScanner {
     private static final Log LOG = LogFactory.getLog(ClassPathScanner.class);
 
     /**
+     * The ClassLoader for loading migrations on the classpath.
+     */
+    private final ClassLoader classLoader;
+
+    /**
+     * Creates a new Classpath scanner.
+     *
+     * @param classLoader The ClassLoader for loading migrations on the classpath.
+     */
+    public ClassPathScanner(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
+    /**
      * Scans the classpath for resources under the specified location, starting with the specified prefix and ending with
      * the specified suffix.
      *
@@ -59,7 +73,7 @@ public class ClassPathScanner {
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffix);
         for (String resourceName : resourceNames) {
-            resources.add(new ClassPathResource(resourceName));
+            resources.add(new ClassPathResource(resourceName, classLoader));
             LOG.debug("Found resource: " + resourceName);
         }
 
@@ -84,7 +98,7 @@ public class ClassPathScanner {
         Set<String> resourceNames = findResourceNames(location, "", ".class");
         for (String resourceName : resourceNames) {
             String className = toClassName(resourceName);
-            Class<?> clazz = getClassLoader().loadClass(className);
+            Class<?> clazz = classLoader.loadClass(className);
 
             if (Modifier.isAbstract(clazz.getModifiers())) {
                 LOG.debug("Skipping abstract class: " + className);
@@ -96,7 +110,7 @@ public class ClassPathScanner {
             }
 
             try {
-                ClassUtils.instantiate(className);
+                ClassUtils.instantiate(className, classLoader);
             } catch (Exception e) {
                 throw new FlywayException("Unable to instantiate class: " + className);
             }
@@ -162,11 +176,11 @@ public class ClassPathScanner {
     private List<URL> getLocationUrlsForPath(String path) throws IOException {
         List<URL> locationUrls = new ArrayList<URL>();
 
-        if (getClassLoader().getClass().getName().startsWith("com.ibm")) {
+        if (classLoader.getClass().getName().startsWith("com.ibm")) {
             // WebSphere
-            Enumeration<URL> urls = getClassLoader().getResources(path + "/flyway.location");
+            Enumeration<URL> urls = classLoader.getResources(path + "/flyway.location");
             if (!urls.hasMoreElements()) {
-                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")"
+                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + classLoader + ")"
                         + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
             }
             while (urls.hasMoreElements()) {
@@ -174,9 +188,9 @@ public class ClassPathScanner {
                 locationUrls.add(new URL(URLDecoder.decode(url.toExternalForm(), "UTF-8").replace("/flyway.location", "")));
             }
         } else {
-            Enumeration<URL> urls = getClassLoader().getResources(path);
+            Enumeration<URL> urls = classLoader.getResources(path);
             if (!urls.hasMoreElements()) {
-                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + getClassLoader() + ")");
+                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + classLoader + ")");
             }
 
             while (urls.hasMoreElements()) {
@@ -194,7 +208,7 @@ public class ClassPathScanner {
      * @return The url resolver for this protocol.
      */
     private UrlResolver createUrlResolver(String protocol) {
-        if (FeatureDetector.isJBossVFSv2Available() && protocol.startsWith("vfs")) {
+        if (new FeatureDetector(classLoader).isJBossVFSv2Available() && protocol.startsWith("vfs")) {
             return new JBossVFSv2UrlResolver();
         }
 
@@ -219,11 +233,11 @@ public class ClassPathScanner {
             return new JarFileClassPathLocationScanner();
         }
 
-        if (FeatureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
+        FeatureDetector featureDetector = new FeatureDetector(classLoader);
+        if (featureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
             return new JBossVFSv3ClassPathLocationScanner();
         }
-
-        if (FeatureDetector.isOsgiFrameworkAvailable() && (
+        if (featureDetector.isOsgiFrameworkAvailable() && (
                 "bundle".equals(protocol) // Felix
                         || "bundleresource".equals(protocol)) //Equinox
                 ) {
@@ -231,13 +245,6 @@ public class ClassPathScanner {
         }
 
         return null;
-    }
-
-    /**
-     * @return The classloader to use to scan the classpath.
-     */
-    private ClassLoader getClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
     }
 
     /**

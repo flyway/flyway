@@ -18,7 +18,7 @@ package org.flywaydb.core.info;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.metadatatable.AppliedMigration;
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -29,7 +29,7 @@ public class MigrationInfoImplSmallTest {
         String description = "test";
         MigrationType type = MigrationType.SQL;
 
-        ResolvedMigration resolvedMigration = new ResolvedMigration();
+        ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
         resolvedMigration.setVersion(version);
         resolvedMigration.setDescription(description);
         resolvedMigration.setType(type);

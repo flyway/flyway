@@ -18,9 +18,14 @@ package org.flywaydb.core.resolver;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.util.Locations;
+import org.flywaydb.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,16 +40,20 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
+                Thread.currentThread().getContextClassLoader(),
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", ".sql", new HashMap<String, String>(), "${", "}");
+                "UTF-8", "V", ".sql", placeholderReplacer, createCustomMigrationResolver());
 
-        List<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
+        Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
+        List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
 
-        assertEquals(3, migrations.size());
-        assertEquals("First", migrations.get(0).getDescription());
-        assertEquals("Late arrivals", migrations.get(1).getDescription());
-        assertEquals("Add foreign key", migrations.get(2).getDescription());
+        assertEquals(4, migrations.size());
+        assertEquals("First", migrationList.get(0).getDescription());
+        assertEquals("Late arrivals", migrationList.get(1).getDescription());
+        assertEquals("Virtual Migration", migrationList.get(2).getDescription());
+        assertEquals("Add foreign key", migrationList.get(3).getDescription());
     }
 
     /**
@@ -71,10 +80,10 @@ public class CompositeMigrationResolverSmallTest {
 
     @Test
     public void checkForIncompatibilitiesMessage() {
-        ResolvedMigration migration1 = createTestMigration(MigrationType.SQL, "1", "First", "V1__First.sql", 123);
+        ResolvedMigrationImpl migration1 = createTestMigration(MigrationType.SQL, "1", "First", "V1__First.sql", 123);
         migration1.setPhysicalLocation("target/test-classes/migration/validate/V1__First.sql");
 
-        ResolvedMigration migration2 = createTestMigration(MigrationType.SPRING_JDBC, "1", "Description", "Migration1", 123);
+        ResolvedMigrationImpl migration2 = createTestMigration(MigrationType.SPRING_JDBC, "1", "Description", "Migration1", 123);
         migration2.setPhysicalLocation("Migration1");
 
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
@@ -111,13 +120,64 @@ public class CompositeMigrationResolverSmallTest {
      * @param aChecksum      The checksum.
      * @return The new test migration.
      */
-    private ResolvedMigration createTestMigration(final MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
-        ResolvedMigration migration = new ResolvedMigration();
+    private ResolvedMigrationImpl createTestMigration(final MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
+        ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
         migration.setVersion(MigrationVersion.fromVersion(aVersion));
         migration.setDescription(aDescription);
         migration.setScript(aScript);
         migration.setChecksum(aChecksum);
         migration.setType(aMigrationType);
         return migration;
+    }
+
+    private MigrationResolver createCustomMigrationResolver() {
+        return new MigrationResolver() {
+            @Override
+            public List<ResolvedMigration> resolveMigrations() {
+                List<ResolvedMigration> resolvedMigrations = new ArrayList<ResolvedMigration>();
+                resolvedMigrations.add(new ResolvedMigration() {
+                    @Override
+                    public MigrationVersion getVersion() {
+                        return MigrationVersion.fromVersion("1.9");
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Virtual Migration";
+                    }
+
+                    @Override
+                    public String getScript() {
+                        return "VirtualScript 1.9";
+                    }
+
+                    @Override
+                    public Integer getChecksum() {
+                        return 19;
+                    }
+
+                    @Override
+                    public MigrationType getType() {
+                        return MigrationType.CUSTOM;
+                    }
+
+                    @Override
+                    public String getPhysicalLocation() {
+                        return "virtual://loaction";
+                    }
+
+                    @Override
+                    public MigrationExecutor getExecutor() {
+                        return new MigrationExecutor() {
+                            @Override
+                            public void execute(Connection connection) {
+                                System.out.println("Executed !");
+                            }
+                        };
+                    }
+                });
+                return resolvedMigrations;
+            }
+        };
     }
 }

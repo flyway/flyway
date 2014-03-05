@@ -43,7 +43,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         String password = customProperties.getProperty("postgresql.password", "flyway");
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
 
-        return new DriverDataSource(null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
     }
 
     @Override
@@ -225,7 +225,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     public void emptySearchPath() {
         Flyway flyway1 = new Flyway();
         DriverDataSource driverDataSource = (DriverDataSource) dataSource;
-        flyway1.setDataSource(new DriverDataSource(
+        flyway1.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(),
                 null, driverDataSource.getUrl(), driverDataSource.getUser(), driverDataSource.getPassword()) {
             @Override
             public Connection getConnection() throws SQLException {

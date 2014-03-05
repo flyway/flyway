@@ -31,7 +31,8 @@ import static org.junit.Assert.assertTrue;
 public class OracleSqlScriptSmallTest {
     @Test
     public void parseSqlStatements() throws Exception {
-        String source = new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1__Placeholders.sql").loadAsString("UTF-8");
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1__Placeholders.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
         SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
@@ -44,7 +45,8 @@ public class OracleSqlScriptSmallTest {
 
     @Test
     public void parseSqlStatementsWithInlineCommentsInsidePlSqlBlocks() throws Exception {
-        String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V2__FunctionWithConditionals.sql").loadAsString("UTF-8");
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V2__FunctionWithConditionals.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
         SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
@@ -55,7 +57,8 @@ public class OracleSqlScriptSmallTest {
 
     @Test
     public void parseFunctionsAndProcedures() throws Exception {
-        String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql").loadAsString("UTF-8");
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
         SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
@@ -70,7 +73,8 @@ public class OracleSqlScriptSmallTest {
 
     @Test
     public void parseQQuotes() throws Exception {
-        String source = new ClassPathResource("migration/dbsupport/oracle/sql/qquote/V1__Q_Quote.sql").loadAsString("UTF-8");
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/qquote/V1__Q_Quote.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
         SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();

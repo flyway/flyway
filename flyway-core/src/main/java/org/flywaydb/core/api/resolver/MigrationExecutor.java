@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.resolver;
+package org.flywaydb.core.api.resolver;
 
-import java.util.List;
+import java.sql.Connection;
 
 /**
- * Facility for resolving available migrations.
+ * Executes a migration.
  */
-public interface MigrationResolver {
+public interface MigrationExecutor {
     /**
-     * Resolves the available migrations.
+     * Executes the migration this executor is associated with.
      *
-     * @return The available migrations. Sorted by Version, oldest first.
+     * @param connection The connection to use to execute the migration against the DB.
      */
-    List<ResolvedMigration> resolveMigrations();
+    void execute(Connection connection);
 }

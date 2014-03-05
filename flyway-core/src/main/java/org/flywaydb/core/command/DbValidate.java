@@ -18,7 +18,7 @@ package org.flywaydb.core.command;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.metadatatable.MetaDataTable;
-import org.flywaydb.core.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.util.Pair;
 import org.flywaydb.core.util.StopWatch;
 import org.flywaydb.core.util.TimeFormat;

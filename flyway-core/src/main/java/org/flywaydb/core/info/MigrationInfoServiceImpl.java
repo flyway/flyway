@@ -22,10 +22,11 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.metadatatable.AppliedMigration;
 import org.flywaydb.core.metadatatable.MetaDataTable;
-import org.flywaydb.core.resolver.MigrationResolver;
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -84,7 +85,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * Refreshes the info about all known migrations from both the classpath and the DB.
      */
     public void refresh() {
-        List<ResolvedMigration> availableMigrations = migrationResolver.resolveMigrations();
+        Collection<ResolvedMigration> availableMigrations = migrationResolver.resolveMigrations();
         List<AppliedMigration> appliedMigrations = metaDataTable.allAppliedMigrations();
 
         migrationInfos = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
@@ -98,7 +99,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @return The complete list of migrations.
      */
     /* private -> testing */
-    List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(List<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
+    List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(Collection<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
         MigrationInfoContext context = new MigrationInfoContext();
         context.outOfOrder = outOfOrder;
         context.target = target;

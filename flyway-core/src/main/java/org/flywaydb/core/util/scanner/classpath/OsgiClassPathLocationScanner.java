@@ -30,8 +30,7 @@ import java.util.TreeSet;
  *
  * <p>
  * The resources that this scanner returns can only be loaded if
- * Thread.currentThread().getContextClassLoader() belongs to the
- * bundle that contains the migrations.
+ * Flyway's ClassLoader has access to the bundle that contains the migrations.
  * </p>
  */
 public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {

@@ -26,11 +26,11 @@ import static org.junit.Assert.assertTrue;
 public class ClassUtilsSmallTest {
     @Test
     public void isPresent() {
-        assertTrue(ClassUtils.isPresent("org.flywaydb.core.Flyway"));
+        assertTrue(ClassUtils.isPresent("org.flywaydb.core.Flyway", Thread.currentThread().getContextClassLoader()));
     }
 
     @Test
     public void isPresentNot() {
-        assertFalse(ClassUtils.isPresent("com.example.FakeClass"));
+        assertFalse(ClassUtils.isPresent("com.example.FakeClass", Thread.currentThread().getContextClassLoader()));
     }
 }

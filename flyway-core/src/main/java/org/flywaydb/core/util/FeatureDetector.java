@@ -25,45 +25,52 @@ public final class FeatureDetector {
     private static final Log LOG = LogFactory.getLog(FeatureDetector.class);
 
     /**
-     * Prevent instantiation.
+     * The ClassLoader to use.
      */
-    private FeatureDetector() {
-        // Do nothing
+    private ClassLoader classLoader;
+
+    /**
+     * Creates a new FeatureDetector.
+     *
+     * @param classLoader The ClassLoader to use.
+     */
+    public FeatureDetector(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
     /**
      * Flag indicating availability of the Apache Commons Logging.
      */
-    private static Boolean apacheCommonsLoggingAvailable;
+    private Boolean apacheCommonsLoggingAvailable;
 
     /**
      * Flag indicating availability of Spring JDBC.
      */
-    private static Boolean springJdbcAvailable;
+    private Boolean springJdbcAvailable;
 
     /**
      * Flag indicating availability of JBoss VFS v2.
      */
-    private static Boolean jbossVFSv2Available;
+    private Boolean jbossVFSv2Available;
 
     /**
      * Flag indicating availability of JBoss VFS v3.
      */
-    private static Boolean jbossVFSv3Available;
+    private Boolean jbossVFSv3Available;
 
     /**
      * Flag indicating availability of the OSGi framework classes.
      */
-    private static Boolean osgiFrameworkAvailable;
+    private Boolean osgiFrameworkAvailable;
 
     /**
      * Checks whether Apache Commons Logging is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
-    public static boolean isApacheCommonsLoggingAvailable() {
+    public boolean isApacheCommonsLoggingAvailable() {
         if (apacheCommonsLoggingAvailable == null) {
-            apacheCommonsLoggingAvailable = ClassUtils.isPresent("org.apache.commons.logging.Log");
+            apacheCommonsLoggingAvailable = ClassUtils.isPresent("org.apache.commons.logging.Log", classLoader);
         }
 
         return apacheCommonsLoggingAvailable;
@@ -74,9 +81,9 @@ public final class FeatureDetector {
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
-    public static boolean isSpringJdbcAvailable() {
+    public boolean isSpringJdbcAvailable() {
         if (springJdbcAvailable == null) {
-            springJdbcAvailable = ClassUtils.isPresent("org.springframework.jdbc.core.JdbcTemplate");
+            springJdbcAvailable = ClassUtils.isPresent("org.springframework.jdbc.core.JdbcTemplate", classLoader);
             LOG.debug("Spring Jdbc available: " + springJdbcAvailable);
         }
 
@@ -88,9 +95,9 @@ public final class FeatureDetector {
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
-    public static boolean isJBossVFSv2Available() {
+    public boolean isJBossVFSv2Available() {
         if (jbossVFSv2Available == null) {
-            jbossVFSv2Available = ClassUtils.isPresent("org.jboss.virtual.VFS");
+            jbossVFSv2Available = ClassUtils.isPresent("org.jboss.virtual.VFS", classLoader);
             LOG.debug("JBoss VFS v2 available: " + jbossVFSv2Available);
         }
 
@@ -102,9 +109,9 @@ public final class FeatureDetector {
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
-    public static boolean isJBossVFSv3Available() {
+    public boolean isJBossVFSv3Available() {
         if (jbossVFSv3Available == null) {
-            jbossVFSv3Available = ClassUtils.isPresent("org.jboss.vfs.VFS");
+            jbossVFSv3Available = ClassUtils.isPresent("org.jboss.vfs.VFS", classLoader);
             LOG.debug("JBoss VFS v3 available: " + jbossVFSv3Available);
         }
 
@@ -116,9 +123,9 @@ public final class FeatureDetector {
      *
      * @return {@code true} if it is, {@code false if it is not}
      */
-    public static boolean isOsgiFrameworkAvailable() {
+    public boolean isOsgiFrameworkAvailable() {
         if (osgiFrameworkAvailable == null) {
-            osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle");
+            osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle", classLoader);
             LOG.debug("OSGi framework available: " + osgiFrameworkAvailable);
         }
 

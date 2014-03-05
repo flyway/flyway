@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.dbsupport.h2;
 
+import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.flywaydb.core.DbCategory;
 
 /**
  * Test for H2 in case-sensitive (DATABASE_TO_UPPER=FALSE) mode.
@@ -29,7 +28,7 @@ public class H2CaseSensitiveMigrationMediumTest {
     @Test
     public void migrate() {
         Flyway flyway = new Flyway();
-        flyway.setDataSource(new DriverDataSource(null, "jdbc:h2:mem:flyway_db_case_sensitive;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE", "sa", ""));
+        flyway.setDataSource("jdbc:h2:mem:flyway_db_case_sensitive;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.migrate();
         flyway.clean();

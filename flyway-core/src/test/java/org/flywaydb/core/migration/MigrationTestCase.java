@@ -21,12 +21,12 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.command.FlywaySqlScriptException;
+import org.flywaydb.core.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.dbsupport.DbSupportFactory;
 import org.flywaydb.core.dbsupport.JdbcTemplate;
 import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.util.Location;
 import org.flywaydb.core.util.PlaceholderReplacer;
@@ -74,7 +74,7 @@ public abstract class MigrationTestCase {
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
-        dbSupport = DbSupportFactory.createDbSupport(connection);
+        dbSupport = DbSupportFactory.createDbSupport(connection, false);
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
         flyway = new Flyway();
@@ -177,7 +177,7 @@ public abstract class MigrationTestCase {
      */
     private void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport,
+                dbSupport, Thread.currentThread().getContextClassLoader(),
                 new Location(BASEDIR),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",

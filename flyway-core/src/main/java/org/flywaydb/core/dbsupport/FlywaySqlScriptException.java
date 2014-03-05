@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.command;
+package org.flywaydb.core.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
 

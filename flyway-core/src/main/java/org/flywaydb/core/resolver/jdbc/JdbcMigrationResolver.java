@@ -22,8 +22,10 @@ import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.resolver.MigrationInfoHelper;
-import org.flywaydb.core.resolver.MigrationResolver;
-import org.flywaydb.core.resolver.ResolvedMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.resolver.ResolvedMigrationComparator;
+import org.flywaydb.core.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.util.ClassUtils;
 import org.flywaydb.core.util.Location;
 import org.flywaydb.core.util.Pair;
@@ -45,12 +47,19 @@ public class JdbcMigrationResolver implements MigrationResolver {
     private final Location location;
 
     /**
+     * The ClassLoader to use.
+     */
+    private ClassLoader classLoader;
+
+    /**
      * Creates a new instance.
      *
      * @param location The base package on the classpath where to migrations are located.
+     * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
-    public JdbcMigrationResolver(Location location) {
+    public JdbcMigrationResolver(ClassLoader classLoader, Location location) {
         this.location = location;
+        this.classLoader = classLoader;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
@@ -61,11 +70,11 @@ public class JdbcMigrationResolver implements MigrationResolver {
         }
 
         try {
-            Class<?>[] classes = new ClassPathScanner().scanForClasses(location.getPath(), JdbcMigration.class);
+            Class<?>[] classes = new ClassPathScanner(classLoader).scanForClasses(location.getPath(), JdbcMigration.class);
             for (Class<?> clazz : classes) {
-                JdbcMigration jdbcMigration = ClassUtils.instantiate(clazz.getName());
+                JdbcMigration jdbcMigration = ClassUtils.instantiate(clazz.getName(), classLoader);
 
-                ResolvedMigration migrationInfo = extractMigrationInfo(jdbcMigration);
+                ResolvedMigrationImpl migrationInfo = extractMigrationInfo(jdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
                 migrationInfo.setExecutor(new JdbcMigrationExecutor(jdbcMigration));
 
@@ -75,7 +84,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
             throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + location, e);
         }
 
-        Collections.sort(migrations);
+        Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
@@ -85,7 +94,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
      * @param jdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ ResolvedMigration extractMigrationInfo(JdbcMigration jdbcMigration) {
+    /* private -> testing */ ResolvedMigrationImpl extractMigrationInfo(JdbcMigration jdbcMigration) {
         Integer checksum = null;
         if (jdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
@@ -111,7 +120,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
         String script = jdbcMigration.getClass().getName();
 
 
-        ResolvedMigration resolvedMigration = new ResolvedMigration();
+        ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
         resolvedMigration.setVersion(version);
         resolvedMigration.setDescription(description);
         resolvedMigration.setScript(script);

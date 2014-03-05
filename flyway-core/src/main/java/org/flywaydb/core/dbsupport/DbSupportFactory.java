@@ -51,14 +51,15 @@ public class DbSupportFactory {
      * Initializes the appropriate DbSupport class for the database product used by the data source.
      *
      * @param connection The Jdbc connection to use to query the database.
+     * @param printInfo  Where the DB info should be printed in the logs.
      * @return The appropriate DbSupport class.
      */
-    public static DbSupport createDbSupport(Connection connection) {
+    public static DbSupport createDbSupport(Connection connection, boolean printInfo) {
         String databaseProductName = getDatabaseProductName(connection);
-        String url = getJdbcUrl(connection);
 
-        LOG.debug("Jdbc Url: " + url);
-        LOG.debug("Database: " + databaseProductName);
+        if (printInfo) {
+            LOG.info("Database: " + getJdbcUrl(connection) + " (" + databaseProductName + ")");
+        }
 
         if (databaseProductName.startsWith("Apache Derby")) {
             return new DerbyDbSupport(connection);
