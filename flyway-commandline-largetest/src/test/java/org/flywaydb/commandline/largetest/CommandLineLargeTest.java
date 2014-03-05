@@ -56,12 +56,20 @@ public class CommandLineLargeTest {
     public void showUsage() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null);
         assertTrue(stdOut.contains("* Usage"));
+        assertTrue(stdOut.contains("callback"));
     }
 
     @Test
     public void migrateWithCustomLocations() throws Exception {
         String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=filesystem:sql/migrations");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
+    }
+
+    @Test
+    public void infoWithCallback() throws Exception {
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "info", "-callbacks=org.flywaydb.core.api.DefaultFlywayCallback");
+        assertTrue(stdOut.contains("beforeInfo"));
+        assertTrue(stdOut.contains("afterInfo"));
     }
 
     @Test
