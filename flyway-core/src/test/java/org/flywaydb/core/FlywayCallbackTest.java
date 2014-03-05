@@ -17,8 +17,6 @@ package org.flywaydb.core;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import org.flywaydb.core.api.FlywayCallback;
 import org.junit.Test;
@@ -47,9 +45,8 @@ public class FlywayCallbackTest {
     public void cleanTest() {
         Properties properties = createProperties();
 
-        List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
-        callbacks.add(callbackImpl);
+        FlywayCallback[] callbacks = new FlywayCallback[] { callbackImpl };
         
         final Flyway flyway = new Flyway();
         flyway.configure(properties);
@@ -85,9 +82,8 @@ public class FlywayCallbackTest {
     public void infoTest() {
         Properties properties = createProperties();
 
-        List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
-        callbacks.add(callbackImpl);
+        FlywayCallback[] callbacks = new FlywayCallback[] { callbackImpl };
         
         final Flyway flyway = new Flyway();
         flyway.configure(properties);
@@ -121,9 +117,8 @@ public class FlywayCallbackTest {
     public void initTest() {
         Properties properties = createProperties();
 
-        List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
-        callbacks.add(callbackImpl);
+        FlywayCallback[] callbacks = new FlywayCallback[] { callbackImpl };
         
         final Flyway flyway = new Flyway();
         flyway.configure(properties);
@@ -157,9 +152,8 @@ public class FlywayCallbackTest {
     public void migrateTest() {
         Properties properties = createProperties();
 
-        List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
-        callbacks.add(callbackImpl);
+        FlywayCallback[] callbacks = new FlywayCallback[] { callbackImpl };
         
         final Flyway flyway = new Flyway();
         flyway.configure(properties);
@@ -193,9 +187,8 @@ public class FlywayCallbackTest {
     public void repairTest() {
         Properties properties = createProperties();
 
-        List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
-        callbacks.add(callbackImpl);
+        FlywayCallback[] callbacks = new FlywayCallback[] { callbackImpl };
         
         final Flyway flyway = new Flyway();
         flyway.configure(properties);
@@ -229,9 +222,8 @@ public class FlywayCallbackTest {
     public void validateTest() {
         Properties properties = createProperties();
 
-        List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
-        callbacks.add(callbackImpl);
+        FlywayCallback[] callbacks = new FlywayCallback[] { callbackImpl };
         
         final Flyway flyway = new Flyway();
         flyway.configure(properties);
@@ -266,9 +258,8 @@ public class FlywayCallbackTest {
     	cleanTest();
         Properties properties = createProperties();
 
-        List<FlywayCallback> callbacks = new ArrayList<FlywayCallback>();
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
-        callbacks.add(callbackImpl);
+        FlywayCallback[] callbacks = new FlywayCallback[] { callbackImpl };
         
         final Flyway flyway = new Flyway();
         flyway.configure(properties);

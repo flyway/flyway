@@ -1040,28 +1040,7 @@ public class Flyway {
         }
         String callbacksProp = properties.getProperty("flyway.callbacks");
         if (callbacksProp != null) {
-        	String[] callbackClasses = callbacksProp.split(",");
-        	callbacks = new FlywayCallback[callbackClasses.length];
-        	
-        	for (int i = 0; i < callbackClasses.length; i++) {
-        		String callbackClass = callbackClasses[i];
-        		try {
-	        		Class<?> cbClazz = Class.forName(callbackClass.trim());
-	        		Object obj = cbClazz.newInstance();
-	        		
-	        		if (!(obj instanceof FlywayCallback)) {
-	        			throw new FlywayException("The property 'flyway.callbacks' contained a fully qualified classname that does not implement FlywayCallback.  Please check your property classes");
-	        		}
-	        		
-	        		callbacks[i] = (FlywayCallback)obj;
-        		} catch (ClassNotFoundException e) {
-        			throw new FlywayException("The property 'flyway.callbacks' contain an invalid classname.", e);
-        		} catch (InstantiationException e) {
-        			throw new FlywayException("Property 'flyway.callbacks' class instantiation problem.", e);
-        		} catch (IllegalAccessException e) {
-        			throw new FlywayException("Property 'flyway.callbacks' illegal access problem.", e);
-        		}
-        	}
+        	initCallbackDefs(callbacksProp);
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>();
@@ -1147,4 +1126,35 @@ public class Flyway {
          */
         T execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas);
     }
+
+    /**
+     * Takes a String that contain comma delimited fully classified class names and instantiates
+     * them as their respective Java objects.
+     * 
+     * @param callbacksProp The callbacks list that implements FlywayCallback
+     */
+	public void initCallbackDefs(String callbacksProp) {
+		String[] callbackClasses = StringUtils.tokenizeToStringArray(callbacksProp, ",");
+		callbacks = new FlywayCallback[callbackClasses.length];
+		
+		for (int i = 0; i < callbackClasses.length; i++) {
+			String callbackClass = callbackClasses[i];
+			try {
+				Class<?> cbClazz = Class.forName(callbackClass.trim());
+				Object obj = cbClazz.newInstance();
+				
+				if (!(obj instanceof FlywayCallback)) {
+					throw new FlywayException("The property 'flyway.callbacks' contained a fully qualified classname that does not implement FlywayCallback.  Please check your property classes");
+				}
+				
+				callbacks[i] = (FlywayCallback)obj;
+			} catch (ClassNotFoundException e) {
+				throw new FlywayException("The property 'flyway.callbacks' contain an invalid classname.", e);
+			} catch (InstantiationException e) {
+				throw new FlywayException("Property 'flyway.callbacks' class instantiation problem.", e);
+			} catch (IllegalAccessException e) {
+				throw new FlywayException("Property 'flyway.callbacks' illegal access problem.", e);
+			}
+		}
+	}
 }
