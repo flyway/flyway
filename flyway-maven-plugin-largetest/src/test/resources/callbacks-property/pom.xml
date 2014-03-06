@@ -30,7 +30,9 @@
                     <schemas>
                         <schema>PUBLIC</schema>
                     </schemas>
-                    <callbacks>org.flywaydb.core.api.DefaultFlywayCallback</callbacks>
+                    <callbacks>
+                    	<callback>org.flywaydb.sample.callback.DefaultFlywayCallback</callback>
+                    </callbacks>
                 </configuration>
             </plugin>
             <plugin>

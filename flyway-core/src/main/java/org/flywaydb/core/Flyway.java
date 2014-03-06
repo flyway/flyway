@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core;
 
+
 import org.flywaydb.core.api.FlywayCallback;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
@@ -33,6 +34,7 @@ import org.flywaydb.core.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.metadatatable.MetaDataTable;
 import org.flywaydb.core.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.resolver.CompositeMigrationResolver;
+import org.flywaydb.core.util.ClassUtils;
 import org.flywaydb.core.util.Locations;
 import org.flywaydb.core.util.PlaceholderReplacer;
 import org.flywaydb.core.util.StringUtils;
@@ -1140,9 +1142,8 @@ public class Flyway {
 		for (int i = 0; i < callbackClasses.length; i++) {
 			String callbackClass = callbackClasses[i];
 			try {
-				Class<?> cbClazz = Class.forName(callbackClass.trim());
-				Object obj = cbClazz.newInstance();
-				
+				Object obj = ClassUtils.instantiate(callbackClass, classLoader);
+
 				if (!(obj instanceof FlywayCallback)) {
 					throw new FlywayException("The property 'flyway.callbacks' contained a fully qualified classname that does not implement FlywayCallback.  Please check your property classes");
 				}
@@ -1150,10 +1151,8 @@ public class Flyway {
 				callbacks[i] = (FlywayCallback)obj;
 			} catch (ClassNotFoundException e) {
 				throw new FlywayException("The property 'flyway.callbacks' contain an invalid classname.", e);
-			} catch (InstantiationException e) {
+			} catch (Exception e) {
 				throw new FlywayException("Property 'flyway.callbacks' class instantiation problem.", e);
-			} catch (IllegalAccessException e) {
-				throw new FlywayException("Property 'flyway.callbacks' illegal access problem.", e);
 			}
 		}
 	}

@@ -24,10 +24,10 @@
 
     <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
     <property name="flyway.locations" value="org.hsqldb.sample"/>
-    <property name="flyway.callbacks" value="org.flywaydb.core.api.DefaultFlywayCallback"/>
+    <property name="flyway.callbacks" value="org.flywaydb.sample.callback.DefaultFlywayCallback"/>
 
     <path id="flyway.classpath">
-        <fileset dir="${installDir}/jars" includes="hsqldb-*.jar"/>
+        <fileset dir="${installDir}/jars" includes="*.jar"/>
     </path>
 
     <target name="clean">

@@ -220,7 +220,7 @@ public class Main {
         LOG.info("placeholderSuffix      : Suffix of every placeholder");
         LOG.info("target                 : Target version up to which Flyway should migrate");
         LOG.info("outOfOrder             : Allows migrations to be run \"out of order\"");
-        LOG.info("callbacks              : A comma separated list of fully qualified FlywayCallback class implementations");
+        LOG.info("callbacks              : Comma-separated list of FlywayCallback classes");
         LOG.info("validateOnMigrate      : Validate when running migrate");
         LOG.info("cleanOnValidationError : Automatically clean on a validation error");
         LOG.info("initVersion            : Version to tag schema with when executing init");

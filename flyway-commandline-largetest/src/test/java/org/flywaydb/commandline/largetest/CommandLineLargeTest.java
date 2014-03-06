@@ -67,7 +67,7 @@ public class CommandLineLargeTest {
 
     @Test
     public void infoWithCallback() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "info", "-callbacks=org.flywaydb.core.api.DefaultFlywayCallback");
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "info", "-callbacks=org.flywaydb.sample.callback.DefaultFlywayCallback");
         assertTrue(stdOut.contains("beforeInfo"));
         assertTrue(stdOut.contains("afterInfo"));
     }

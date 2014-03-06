@@ -253,7 +253,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.callbacks"
      */
-    private String callbacks;
+    private String[] callbacks;
 
     /**
      * <p>
@@ -400,8 +400,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
             flyway.setPlaceholderPrefix(placeholderPrefix);
             
-            if (callbacks != null) {
-            	flyway.initCallbackDefs(callbacks);
+            if (callbacks != null && callbacks.length > 0) {
+            	StringBuffer callbackList = new StringBuffer();
+            	for (String callback: callbacks) {
+            		callbackList.append(callback);
+            		callbackList.append(",");
+            	}
+            	callbackList.delete(callbackList.length() - 1, callbackList.length());
+            	flyway.initCallbackDefs(callbackList.toString());
             }
             
             flyway.setInitOnMigrate(initOnMigrate);

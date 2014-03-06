@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api;
+package org.flywaydb.sample.callback;
+
+import org.flywaydb.core.api.FlywayCallback;
+import org.flywaydb.core.api.MigrationInfo;
 
 import java.sql.Connection;
 import org.flywaydb.core.util.logging.Log;
