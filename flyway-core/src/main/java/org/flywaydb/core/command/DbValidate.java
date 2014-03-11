@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.command;
 
+import org.flywaydb.core.api.FlywayCallback;
+
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.metadatatable.MetaDataTable;
@@ -26,7 +28,6 @@ import org.flywaydb.core.util.jdbc.TransactionCallback;
 import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
-
 import java.sql.Connection;
 
 /**
@@ -58,12 +59,24 @@ public class DbValidate {
     private final Connection connectionMetaDataTable;
 
     /**
+     * The connection to use to perform the actual database migrations.
+     */
+    private final Connection connectionUserObjects;
+
+    /**
      * Allows migrations to be run "out of order".
      * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
      * it will be applied too instead of being ignored.</p>
      * <p>(default: {@code false})</p>
      */
     private boolean outOfOrder;
+
+    /**
+     * This is a list of callbacks that fire before or after the validate task is executed.  
+     * You can add as many callbacks as you want.  These should be set on the Flyway class
+     * by the end user as Flyway will set them automatically for you here.
+     */
+    private FlywayCallback[] callbacks = new FlywayCallback[0];
 
     /**
      * Creates a new database validator.
@@ -74,14 +87,16 @@ public class DbValidate {
      * @param target                  The target version of the migration.
      * @param outOfOrder              Allows migrations to be run "out of order".
      */
-    public DbValidate(Connection connectionMetaDataTable,
+    public DbValidate(Connection connectionMetaDataTable, Connection connectionUserObjects,
                       MetaDataTable metaDataTable, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder) {
+                      MigrationVersion target, boolean outOfOrder, FlywayCallback[] callbacks) {
         this.connectionMetaDataTable = connectionMetaDataTable;
+        this.connectionUserObjects = connectionUserObjects;
         this.metaDataTable = metaDataTable;
         this.migrationResolver = migrationResolver;
         this.target = target;
         this.outOfOrder = outOfOrder;
+        this.callbacks = callbacks;
     }
 
     /**
@@ -90,7 +105,11 @@ public class DbValidate {
      * @return The validation error, if any.
      */
     public String validate() {
-        LOG.debug("Validating migrations ...");
+		for (FlywayCallback callback: callbacks) {
+			callback.beforeValidate(connectionUserObjects);
+		}
+
+		LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -123,6 +142,10 @@ public class DbValidate {
                     count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
         }
 
-        return result.getRight();
+		for (FlywayCallback callback: callbacks) {
+			callback.afterValidate(connectionUserObjects);
+		}
+
+		return result.getRight();
     }
 }

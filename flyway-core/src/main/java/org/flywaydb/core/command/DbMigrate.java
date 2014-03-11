@@ -133,7 +133,11 @@ public class DbMigrate {
      * @throws FlywayException when migration failed.
      */
     public int migrate() throws FlywayException {
-        StopWatch stopWatch = new StopWatch();
+		for (FlywayCallback callback: getCallbacks()) {
+			callback.beforeMigrate(connectionUserObjects);
+		}
+
+		StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         int migrationSuccessCount = 0;
@@ -216,7 +220,11 @@ public class DbMigrate {
 
         logSummary(migrationSuccessCount, stopWatch.getTotalTimeMillis());
 
-    	return migrationSuccessCount;
+		for (FlywayCallback callback: getCallbacks()) {
+			callback.afterMigrate(connectionUserObjects);
+		}
+
+		return migrationSuccessCount;
     }
 
     /**
