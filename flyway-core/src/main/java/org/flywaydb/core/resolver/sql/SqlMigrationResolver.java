@@ -128,6 +128,11 @@ public class SqlMigrationResolver implements MigrationResolver {
         return migrations;
     }
 
+    @Override
+    public MigrationType getMigrationType() {
+        return MigrationType.SQL;
+    }
+
     /**
      * Extracts the migration info for this resource.
      *
@@ -145,7 +150,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         migration.setScript(extractScriptName(resource));
 
         migration.setChecksum(calculateChecksum(resource.loadAsBytes()));
-        migration.setType(MigrationType.SQL);
+        migration.setType(getMigrationType());
         return migration;
     }
 

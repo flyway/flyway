@@ -240,6 +240,11 @@ public class MigrationInfoServiceImplSmallTest {
             public List<ResolvedMigration> resolveMigrations() {
                 return Arrays.asList(resolvedMigrations);
             }
+
+            @Override
+            public MigrationType getMigrationType() {
+                return null;
+            }
         };
     }
 

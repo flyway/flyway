@@ -89,6 +89,11 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         return migrations;
     }
 
+    @Override
+    public MigrationType getMigrationType() {
+        return MigrationType.SPRING_JDBC;
+    }
+
     /**
      * Extracts the migration info from this migration.
      *
@@ -125,7 +130,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         resolvedMigration.setDescription(description);
         resolvedMigration.setScript(script);
         resolvedMigration.setChecksum(checksum);
-        resolvedMigration.setType(MigrationType.SPRING_JDBC);
+        resolvedMigration.setType(getMigrationType());
         return resolvedMigration;
     }
 }

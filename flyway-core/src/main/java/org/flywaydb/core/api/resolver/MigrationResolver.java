@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.api.resolver;
 
+import org.flywaydb.core.api.MigrationType;
+
 import java.util.Collection;
 
 /**
@@ -27,4 +29,11 @@ public interface MigrationResolver {
      * @return The available migrations.
      */
     Collection<ResolvedMigration> resolveMigrations();
+
+    /**
+     * specify the migration type for resolved migrations
+     *
+     * @return the migration type of all resolved migrations
+     */
+    MigrationType getMigrationType();
 }

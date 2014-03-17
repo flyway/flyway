@@ -70,6 +70,11 @@ public class CompositeMigrationResolverSmallTest {
                 migrations.add(createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234));
                 return migrations;
             }
+
+            @Override
+            public MigrationType getMigrationType() {
+                return null;
+            }
         };
         Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
         migrationResolvers.add(migrationResolver);
@@ -158,7 +163,7 @@ public class CompositeMigrationResolverSmallTest {
 
                     @Override
                     public MigrationType getType() {
-                        return MigrationType.CUSTOM;
+                        return getMigrationType();
                     }
 
                     @Override
@@ -177,6 +182,11 @@ public class CompositeMigrationResolverSmallTest {
                     }
                 });
                 return resolvedMigrations;
+            }
+
+            @Override
+            public MigrationType getMigrationType() {
+                return MigrationType.CUSTOM;
             }
         };
     }
