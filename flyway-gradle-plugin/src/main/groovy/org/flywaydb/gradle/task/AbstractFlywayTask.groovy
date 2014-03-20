@@ -73,7 +73,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         try {
             run(createFlyway())
         } catch (Exception e) {
-            throw new FlywayException("Error occurred while executing ${this.getName()}", e);
+            handleException(e)
         }
     }
 
@@ -136,6 +136,32 @@ abstract class AbstractFlywayTask extends DefaultTask {
         flyway.placeholders = placeholders
 
         flyway
+    }
+
+    /**
+     * @param throwable Throwable instance to be handled
+     */
+    private void handleException(Throwable throwable)
+    {
+        String message = "Error occurred while executing ${this.getName()}${System.lineSeparator()}" 
+        throw new FlywayException(collectMessages(throwable, message, 5), throwable)
+    }
+
+    /**
+     * Collect error messages from the stack trace
+     * @param throwable Throwable instance from which the message should be build
+     * @param message the message to which the error message will be appended
+     * @param depth number of levels in the stack trace
+     * @return a String containing the composed messages
+     */
+    private String collectMessages(Throwable throwable, String message, int depth) {
+        if (depth > 0 && throwable != null) {
+            message += throwable.getMessage() + System.lineSeparator()
+            collectMessages(throwable.getCause(), message, depth--)
+        }
+        else{
+            message
+        }
     }
 
     /**
