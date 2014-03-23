@@ -227,7 +227,10 @@ public class JdbcTemplate {
         Statement statement = null;
         try {
             statement = connection.createStatement();
-            statement.execute(sql);
+            for(String batchElement : sql.split("[;|GO]((\\r\\n|\\r|\\n)+)")) {
+                statement.addBatch(batchElement);
+            }
+            statement.executeBatch();
         } finally {
             JdbcUtils.closeStatement(statement);
         }
