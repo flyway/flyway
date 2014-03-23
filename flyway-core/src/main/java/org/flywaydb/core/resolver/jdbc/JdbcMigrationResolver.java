@@ -88,6 +88,11 @@ public class JdbcMigrationResolver implements MigrationResolver {
         return migrations;
     }
 
+    @Override
+    public MigrationType getMigrationType() {
+        return MigrationType.JDBC;
+    }
+
     /**
      * Extracts the migration info from this migration.
      *
@@ -125,7 +130,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
         resolvedMigration.setDescription(description);
         resolvedMigration.setScript(script);
         resolvedMigration.setChecksum(checksum);
-        resolvedMigration.setType(MigrationType.JDBC);
+        resolvedMigration.setType(getMigrationType());
         return resolvedMigration;
     }
 }

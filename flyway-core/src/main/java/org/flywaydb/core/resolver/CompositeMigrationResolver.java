@@ -16,6 +16,7 @@
 package org.flywaydb.core.resolver;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.dbsupport.DbSupport;
@@ -92,6 +93,11 @@ public class CompositeMigrationResolver implements MigrationResolver {
         }
 
         return availableMigrations;
+    }
+
+    @Override
+    public MigrationType getMigrationType() {
+        return null;
     }
 
     /**
