@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.command;
 
+import org.flywaydb.core.api.FlywayCallback;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.metadatatable.AppliedMigration;
@@ -23,7 +25,6 @@ import org.flywaydb.core.util.jdbc.TransactionCallback;
 import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
-
 import java.sql.Connection;
 
 /**
@@ -53,6 +54,13 @@ public class DbInit {
     private final String initDescription;
 
     /**
+     * This is a list of callbacks that fire before or after the init task is executed.  
+     * You can add as many callbacks as you want.  These should be set on the Flyway class
+     * by the end user as Flyway will set them automatically for you here.
+     */
+    private FlywayCallback[] callbacks = new FlywayCallback[0];
+
+    /**
      * Creates a new DbInit.
      *
      * @param connection      The database connection to use for accessing the metadata table.
@@ -60,11 +68,12 @@ public class DbInit {
      * @param initVersion     The version to tag an existing schema with when executing init.
      * @param initDescription The description to tag an existing schema with when executing init.
      */
-    public DbInit(Connection connection, MetaDataTable metaDataTable, MigrationVersion initVersion, String initDescription) {
+    public DbInit(Connection connection, MetaDataTable metaDataTable, MigrationVersion initVersion, String initDescription, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.metaDataTable = metaDataTable;
         this.initVersion = initVersion;
         this.initDescription = initDescription;
+        this.callbacks = callbacks;
     }
 
     /**
@@ -73,7 +82,11 @@ public class DbInit {
     public void init() {
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-                if (metaDataTable.hasAppliedMigrations()) {
+        		for (FlywayCallback callback: callbacks) {
+        			callback.beforeInit(connection);
+        		}
+
+        		if (metaDataTable.hasAppliedMigrations()) {
                     throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it already contains migrations");
                 }
                 if (metaDataTable.hasInitMarker()) {
@@ -93,7 +106,12 @@ public class DbInit {
                     throw new FlywayException("Unable to init metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
                 }
                 metaDataTable.addInitMarker(initVersion, initDescription);
-                return null;
+
+        		for (FlywayCallback callback: callbacks) {
+        			callback.afterInit(connection);
+        		}
+
+        		return null;
             }
         });
 

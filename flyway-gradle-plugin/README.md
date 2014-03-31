@@ -101,6 +101,9 @@ flyway {
       validateOnMigrate = true
       cleanOnValidationError = false
       initOnMigrate = false
+      callbacks = [
+        'com.mycompany.project.migration.CustomFlywayCallback'
+      ]
     }
   }
 }

@@ -16,6 +16,7 @@
 package org.flywaydb.gradle.task
 
 import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.FlywayCallback
 import org.flywaydb.core.api.FlywayException
 import org.flywaydb.core.util.StringUtils
 import org.flywaydb.core.util.jdbc.DriverDataSource
@@ -135,7 +136,22 @@ abstract class AbstractFlywayTask extends DefaultTask {
         }
         flyway.placeholders = placeholders
 
-        flyway
+        def sysCallbacks = System.getProperty("flyway.callbacks")
+        def callbackArray = []
+        if (sysCallbacks != null) {
+            callbackArray = StringUtils.tokenizeToStringArray(sysCallbacks, ",")
+        } else if (project.hasProperty("flyway.callbacks")) {
+            callbackArray = StringUtils.tokenizeToStringArray(project["flyway.callbacks"].toString(), ",")
+        } else if (extension.callbacks != null) {
+            callbackArray = extension.callbacks
+        }
+        
+        flyway.callbacks = new FlywayCallback[callbackArray.size()] 
+        for (int i = 0; i < callbackArray.size(); i++) {
+        	flyway.callbacks[i] = Class.forName(callbackArray.getAt(i)).newInstance()
+		}
+		
+		flyway
     }
 
     /**

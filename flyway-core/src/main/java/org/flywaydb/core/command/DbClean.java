@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.command;
 
+import org.flywaydb.core.api.FlywayCallback;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.dbsupport.Schema;
 import org.flywaydb.core.metadatatable.MetaDataTable;
@@ -24,7 +26,6 @@ import org.flywaydb.core.util.jdbc.TransactionCallback;
 import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
-
 import java.sql.Connection;
 
 /**
@@ -49,16 +50,24 @@ public class DbClean {
     private final Schema[] schemas;
 
     /**
+     * This is a list of callbacks that fire before or after the validate task is executed.  
+     * You can add as many callbacks as you want.  These should be set on the Flyway class
+     * by the end user as Flyway will set them automatically for you here.
+     */
+    private FlywayCallback[] callbacks = new FlywayCallback[0];
+
+    /**
      * Creates a new database cleaner.
      *
      * @param connection    The connection to use.
      * @param metaDataTable The metadata table.
      * @param schemas       The schemas to clean.
      */
-    public DbClean(Connection connection, MetaDataTable metaDataTable, Schema[] schemas) {
+    public DbClean(Connection connection, MetaDataTable metaDataTable, Schema[] schemas, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.metaDataTable = metaDataTable;
         this.schemas = schemas;
+        this.callbacks = callbacks;
     }
 
     /**
@@ -67,7 +76,11 @@ public class DbClean {
      * @throws FlywayException when clean failed.
      */
     public void clean() throws FlywayException {
-        boolean dropSchemas = false;
+		for (FlywayCallback callback: callbacks) {
+			callback.beforeClean(connection);
+		}
+
+		boolean dropSchemas = false;
         try {
             dropSchemas = metaDataTable.hasSchemasMarker();
         } catch (Exception e) {
@@ -81,6 +94,10 @@ public class DbClean {
                 cleanSchema(schema);
             }
         }
+
+		for (FlywayCallback callback: callbacks) {
+			callback.afterClean(connection);
+		}
     }
 
     /**
