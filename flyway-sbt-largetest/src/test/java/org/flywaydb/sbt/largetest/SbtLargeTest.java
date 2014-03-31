@@ -53,6 +53,12 @@ public class SbtLargeTest {
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 
+    @Test
+    public void flywayCallbacks() throws Exception {
+        String stdOut = runSbt("test3", 0, "-Dflyway.locations=db/migration", "flywayClean");
+        assertTrue(stdOut.contains("beforeClean"));
+    }
+
     /**
      * Runs sbt in install directory with these extra arguments.
      *
