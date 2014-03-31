@@ -180,12 +180,14 @@ class FlywayPluginSmallTest {
             schemas = ['schemeA', 'schemeB']
             locations = ['classpath:migrations1', 'migrations2', 'filesystem:/sql-migrations']
             placeholders = ['placeholderA':'A', 'placeholderB':'B']
+            callbacks = ['org.flywaydb.gradle.DefaultFlywayCallback']
         }
 
         Flyway flyway = getFlyway()
         assert flyway.schemas == ['schemeA', 'schemeB']
         assert flyway.locations == ['classpath:migrations1', 'classpath:migrations2', 'filesystem:/sql-migrations']
         assert flyway.placeholders == ['placeholderA':'A', 'placeholderB':'B']
+        assert flyway.callbacks[0] instanceof org.flywaydb.core.api.FlywayCallback
     }
 
 }
