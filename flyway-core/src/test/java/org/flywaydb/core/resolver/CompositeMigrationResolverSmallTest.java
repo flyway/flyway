@@ -18,14 +18,12 @@ package org.flywaydb.core.resolver;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.util.Locations;
 import org.flywaydb.core.util.PlaceholderReplacer;
 import org.junit.Test;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,7 +42,7 @@ public class CompositeMigrationResolverSmallTest {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
                 Thread.currentThread().getContextClassLoader(),
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", ".sql", placeholderReplacer, createCustomMigrationResolver());
+                "UTF-8", "V", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
@@ -130,54 +128,4 @@ public class CompositeMigrationResolverSmallTest {
         return migration;
     }
 
-    private MigrationResolver createCustomMigrationResolver() {
-        return new MigrationResolver() {
-            @Override
-            public List<ResolvedMigration> resolveMigrations() {
-                List<ResolvedMigration> resolvedMigrations = new ArrayList<ResolvedMigration>();
-                resolvedMigrations.add(new ResolvedMigration() {
-                    @Override
-                    public MigrationVersion getVersion() {
-                        return MigrationVersion.fromVersion("1.9");
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "Virtual Migration";
-                    }
-
-                    @Override
-                    public String getScript() {
-                        return "VirtualScript 1.9";
-                    }
-
-                    @Override
-                    public Integer getChecksum() {
-                        return 19;
-                    }
-
-                    @Override
-                    public MigrationType getType() {
-                        return MigrationType.CUSTOM;
-                    }
-
-                    @Override
-                    public String getPhysicalLocation() {
-                        return "virtual://loaction";
-                    }
-
-                    @Override
-                    public MigrationExecutor getExecutor() {
-                        return new MigrationExecutor() {
-                            @Override
-                            public void execute(Connection connection) {
-                                System.out.println("Executed !");
-                            }
-                        };
-                    }
-                });
-                return resolvedMigrations;
-            }
-        };
-    }
 }

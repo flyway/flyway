@@ -212,6 +212,7 @@ public class Main {
         LOG.info("schemas                : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table                  : Name of Flyway's metadata table");
         LOG.info("locations              : Classpath locations to scan recursively for migrations");
+        LOG.info("resolvers              : Comma-separated list of custom MigrationResolvers");
         LOG.info("sqlMigrationPrefix     : File name prefix for Sql migrations");
         LOG.info("sqlMigrationSuffix     : File name suffix for Sql migrations");
         LOG.info("encoding               : Encoding of Sql migrations");

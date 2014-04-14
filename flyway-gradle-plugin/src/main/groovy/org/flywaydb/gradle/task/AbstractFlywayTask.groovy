@@ -17,6 +17,7 @@ package org.flywaydb.gradle.task
 
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.FlywayException
+import org.flywaydb.core.util.ClassUtils
 import org.flywaydb.core.util.StringUtils
 import org.flywaydb.core.util.jdbc.DriverDataSource
 import org.flywaydb.gradle.FlywayExtension
@@ -117,6 +118,15 @@ abstract class AbstractFlywayTask extends DefaultTask {
             flyway.locations = extension.locations
         }
 
+        def sysResolvers = System.getProperty("flyway.resolvers")
+        if (sysResolvers != null) {
+            flyway.resolvers = ClassUtils.instantiateAll(sysResolvers, flyway.classLoader)
+        } else if (project.hasProperty("flyway.resolvers")) {
+            flyway.resolvers = ClassUtils.instantiateAll(project["flyway.resolvers"].toString(), flyway.classLoader)
+        } else if (extension.resolvers != null) {
+            flyway.resolvers = ClassUtils.instantiateAll(extension.resolvers, flyway.classLoader);
+        }
+
         Map<String, String> placeholders = [:]
         System.getProperties().each { String key, String value ->
             if (key.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)) {
@@ -175,5 +185,4 @@ abstract class AbstractFlywayTask extends DefaultTask {
     protected boolean isJavaProject() {
         project.plugins.hasPlugin('java')
     }
-
 }

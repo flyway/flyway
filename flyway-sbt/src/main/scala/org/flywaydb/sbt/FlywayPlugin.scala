@@ -50,6 +50,7 @@ object FlywayPlugin extends Plugin {
   //*********************
 
   val flywayLocations = settingKey[Seq[String]]("Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
+  val flywayResolvers = settingKey[Seq[String]](" The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.")
   val flywayEncoding = settingKey[String]("The encoding of Sql migrations. (default: UTF-8)")
   val flywaySqlMigrationPrefix = settingKey[String]("The file name prefix for Sql migrations (default: V) ")
   val flywaySqlMigrationSuffix = settingKey[String]("The file name suffix for Sql migrations (default: .sql)")
@@ -79,7 +80,7 @@ object FlywayPlugin extends Plugin {
     }) ++ Map("flyway.url" -> url, "flyway.user" -> user, "flyway.password" -> password)
   }
   private case class ConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String)
-  private case class ConfigMigrationLoading(locations: Seq[String], encoding: String, sqlMigrationPrefix: String, sqlMigrationSuffix: String,
+  private case class ConfigMigrationLoading(locations: Seq[String], resolvers: Seq[String], encoding: String, sqlMigrationPrefix: String, sqlMigrationSuffix: String,
                                            cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean)
   private case class ConfigMigrate(ignoreFailedFutureMigration: Boolean, placeholders: Map[String, String],
                                          placeholderPrefix: String, placeholderSuffix: String, initOnMigrate: Boolean, validateOnMigrate: Boolean)
@@ -101,7 +102,6 @@ object FlywayPlugin extends Plugin {
   val flywayClean = taskKey[Unit]("Drops all database objects.")
   val flywayInit = taskKey[Unit]("Initializes the metadata table in an existing schema.")
   val flywayRepair = taskKey[Unit]("Repairs the metadata table after a failed migration on a database without DDL transactions.")
-  val flywayLog = taskKey[Unit]("Repairs the metadata table after a failed migration on a database without DDL transactions.")
 
   //*********************
   // flyway defaults
@@ -115,6 +115,7 @@ object FlywayPlugin extends Plugin {
       flywayUser := "",
       flywayPassword := "",
       flywayLocations := defaults.getLocations.toSeq,
+      flywayResolvers := Array.empty[String],
       flywaySchemas := defaults.getSchemas.toSeq,
       flywayTable := defaults.getTable,
       flywayInitVersion := defaults.getInitVersion.getVersion,
@@ -138,9 +139,9 @@ object FlywayPlugin extends Plugin {
         (schemas, table, initVersion, initDescription) =>
           ConfigBase(schemas, table, initVersion, initDescription)
       },
-      flywayConfigMigrationLoading <<= (flywayLocations, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder) map {
-        (locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
-          ConfigMigrationLoading(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder)
+      flywayConfigMigrationLoading <<= (flywayLocations, flywayResolvers, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder) map {
+        (locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
+          ConfigMigrationLoading(locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder)
       },
       flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
         (ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>

@@ -17,6 +17,8 @@ package org.flywaydb.maven;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.util.ClassUtils;
 import org.flywaydb.core.util.ExceptionUtils;
 import org.flywaydb.core.util.Location;
 import org.flywaydb.core.util.jdbc.DriverDataSource;
@@ -37,6 +39,7 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 import javax.sql.DataSource;
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -151,6 +154,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter
      */
     private String[] locations = flyway.getLocations();
+
+    /**
+     * The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for
+     * resolving Migrations to apply.
+     * <p>(default: none)</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.resolvers} (Comma-separated list)</p>
+     */
+    String[] resolvers;
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
@@ -382,6 +393,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     }
                 }
                 flyway.setLocations(locations);
+            }
+            if (resolvers != null) {
+                List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, flyway.getClassLoader());
+                flyway.setResolvers(resolverList.toArray(new MigrationResolver[resolverList.size()]));
             }
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);

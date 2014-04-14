@@ -17,6 +17,7 @@ package org.flywaydb.core;
 
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.dbsupport.Schema;
+import org.flywaydb.core.resolver.MyCustomMigrationResolver;
 import org.flywaydb.core.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
@@ -101,6 +102,17 @@ public class FlywaySmallTest {
         assertEquals("schema1", flyway.getSchemas()[0]);
         assertEquals("schema2", flyway.getSchemas()[1]);
         assertEquals("schema3", flyway.getSchemas()[2]);
+    }
+
+    @Test
+    public void configureCustomMigrationResolvers() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.resolvers", MyCustomMigrationResolver.class.getName());
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+
+        assertEquals(MyCustomMigrationResolver.class, flyway.getResolvers()[0].getClass());
     }
 
     @Test

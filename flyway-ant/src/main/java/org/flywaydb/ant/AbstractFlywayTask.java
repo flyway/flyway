@@ -15,27 +15,24 @@
  */
 package org.flywaydb.ant;
 
+import org.apache.tools.ant.AntClassLoader;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Reference;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.util.ClassUtils;
 import org.flywaydb.core.util.ExceptionUtils;
 import org.flywaydb.core.util.Location;
 import org.flywaydb.core.util.StringUtils;
 import org.flywaydb.core.util.jdbc.DriverDataSource;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
-import org.apache.tools.ant.AntClassLoader;
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
-import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.types.Reference;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Base class for all Flyway Ant tasks.
@@ -86,6 +83,12 @@ public abstract class AbstractFlywayTask extends Task {
      * and java-based migrations. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.locations}
      */
     private String[] locations = flyway.getLocations();
+
+    /**
+     * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     * <p>(default: none)</p>
+     */
+    private String resolvers;
 
     /**
      * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -257,6 +260,14 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     *                  <p>(default: none)</p>
+     */
+    public void setResolvers(String resolvers) {
+        this.resolvers = resolvers;
+    }
+
+    /**
      * @param encoding The encoding of Sql migrations. (default: UTF-8)<br/>Also configurable with Ant Property: ${flyway.encoding}
      */
     public void setEncoding(String encoding) {
@@ -383,6 +394,11 @@ public abstract class AbstractFlywayTask extends Task {
         try {
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setDataSource(createDataSource());
+
+            if (resolvers != null) {
+                List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, flyway.getClassLoader());
+                flyway.setResolvers(resolverList.toArray(new MigrationResolver[resolverList.size()]));
+            }
 
             Properties projectProperties = new Properties();
             projectProperties.putAll(getProject().getProperties());

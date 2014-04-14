@@ -166,8 +166,8 @@
             </dependency>
             <dependency>
                 <groupId>com.oracle</groupId>
-                <artifactId>ojdbc5</artifactId>
-                <version>11.2.0.2.0</version>
+                <artifactId>ojdbc6</artifactId>
+                <version>12.1.0.1</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -458,7 +458,7 @@
                                 <user.timezone>+00:00</user.timezone>
                             </systemPropertyVariables>
                             <parallel>classes</parallel>
-                            <threadCount>2</threadCount>
+                            <threadCount>1</threadCount>
                             <perCoreThreadCount>true</perCoreThreadCount>
                             <argLine>-XX:ReservedCodeCacheSize=128m -Xmx1536m</argLine>
                         </configuration>

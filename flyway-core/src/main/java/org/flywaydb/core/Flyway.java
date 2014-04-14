@@ -32,6 +32,7 @@ import org.flywaydb.core.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.metadatatable.MetaDataTable;
 import org.flywaydb.core.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.resolver.CompositeMigrationResolver;
+import org.flywaydb.core.util.ClassUtils;
 import org.flywaydb.core.util.Locations;
 import org.flywaydb.core.util.PlaceholderReplacer;
 import org.flywaydb.core.util.StringUtils;
@@ -183,9 +184,10 @@ public class Flyway {
     private boolean outOfOrder;
 
     /**
-     * The custom MigrationResolvers to be used in addition to the built-in ones.
+     * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     * <p>(default: none)</p>
      */
-    private MigrationResolver[] customMigrationResolvers = new MigrationResolver[0];
+    private MigrationResolver[] resolvers = new MigrationResolver[0];
 
     /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
@@ -404,12 +406,13 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the The custom MigrationResolvers to be used in addition to the built-in ones.
+     * Retrieves the The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
-     * @return The custom MigrationResolvers to be used in addition to the built-in ones. An empty array if none.
+     * @return The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. An empty array if none.
+     * (default: none)
      */
-    public MigrationResolver[] getCustomMigrationResolvers() {
-        return customMigrationResolvers;
+    public MigrationResolver[] getResolvers() {
+        return resolvers;
     }
 
     /**
@@ -675,12 +678,12 @@ public class Flyway {
     }
 
     /**
-     * Sets custom MigrationResolvers to be used in addition to the built-in ones.
+     * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
-     * @param customMigrationResolvers The custom MigrationResolvers to be used in addition to the built-in ones.
+     * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      */
-    public void setCustomMigrationResolvers(MigrationResolver... customMigrationResolvers) {
-        this.customMigrationResolvers = customMigrationResolvers;
+    public void setResolvers(MigrationResolver... resolvers) {
+        this.resolvers = resolvers;
     }
 
     /**
@@ -871,7 +874,7 @@ public class Flyway {
         PlaceholderReplacer placeholderReplacer =
                 new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
         return new CompositeMigrationResolver(dbSupport, classLoader, locations,
-                encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholderReplacer, customMigrationResolvers);
+                encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholderReplacer, resolvers);
     }
 
     /**
@@ -959,6 +962,11 @@ public class Flyway {
         String outOfOrderProp = properties.getProperty("flyway.outOfOrder");
         if (outOfOrderProp != null) {
             setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
+        }
+        String resolversProp = properties.getProperty("flyway.resolvers");
+        if (resolversProp != null) {
+            List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolversProp, getClassLoader());
+            setResolvers(resolverList.toArray(new MigrationResolver[resolverList.size()]));
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>();

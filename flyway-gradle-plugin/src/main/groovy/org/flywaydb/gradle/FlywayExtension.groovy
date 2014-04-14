@@ -57,6 +57,13 @@ public class FlywayExtension {
      */
     String[] locations
 
+    /**
+     * The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for
+     * resolving Migrations to apply.
+     * <p>(default: none)</p>
+     */
+    String[] resolvers
+
     /** The file name prefix for Sql migrations */
     String sqlMigrationPrefix
 

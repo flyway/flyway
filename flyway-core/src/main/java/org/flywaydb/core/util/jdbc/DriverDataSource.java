@@ -113,7 +113,7 @@ public class DriverDataSource implements DataSource {
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
         } catch (Exception e) {
-            throw new FlywayException("Unable to instantiate jdbc driver: " + driverClass);
+            throw new FlywayException("Unable to instantiate jdbc driver: " + driverClass, e);
         }
 
         this.user = user;
