@@ -160,8 +160,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * resolving Migrations to apply.
      * <p>(default: none)</p>
      * <p>Also configurable with Maven or System Property: ${flyway.resolvers} (Comma-separated list)</p>
+     *
+     * @parameter
      */
-    String[] resolvers;
+    private String[] resolvers;
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:

@@ -131,7 +131,7 @@ public abstract class MavenTestCase {
         List<String> args = new ArrayList<String>();
         args.add(mavenHome + "/bin/mvn" + extension);
         args.add("-Dflyway.version=" + flywayVersion);
-        //args.add("-X");
+        args.add("-X");
         args.addAll(Arrays.asList(extraArgs));
 
         ProcessBuilder builder = new ProcessBuilder(args);
