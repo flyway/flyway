@@ -88,6 +88,9 @@ public class FlywayExtension {
      */
     String target
 
+    /** An array of fully qualified FlywayCallback class implementations */
+    String[] callbacks
+
     /** Allows migrations to be run "out of order" */
     Boolean outOfOrder
 

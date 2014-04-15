@@ -42,6 +42,14 @@ public class AntLargeTest {
         assertTrue(stdOut.contains("A new beginning!"));
     }
 
+    @Test
+    public void callbackProperty() throws Exception {
+        String stdOut = runAnt(0, "callback-property");
+        assertTrue(stdOut.contains("No migrations found"));
+        assertTrue(stdOut.contains("beforeInfo"));
+        assertTrue(stdOut.contains("afterInfo"));
+    }
+
     /**
      * Tests finding migrations in different jar files.
      */

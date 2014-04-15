@@ -57,6 +57,7 @@ object FlywayPlugin extends Plugin {
   val flywayCleanOnValidationError = settingKey[Boolean]("Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/> This is exclusively intended as a convenience for development. Even tough we strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you back to the state checked into SCM. Warning ! Do not enable in production !")
   val flywayTarget = settingKey[String]("The target version up to which Flyway should run migrations. Migrations with a higher version number will not be  applied. (default: the latest version)")
   val flywayOutOfOrder = settingKey[Boolean]("Allows migrations to be run \"out of order\" (default: {@code false}). If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.")
+  val flywayCallbacks = settingKey[Seq[String]]("A list of fully qualified FlywayCallback implementation classnames that will be used for Flyway lifecycle notifications. (default: Empty)")
 
   //*********************
   // settings for migrate
@@ -81,7 +82,7 @@ object FlywayPlugin extends Plugin {
   }
   private case class ConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String)
   private case class ConfigMigrationLoading(locations: Seq[String], resolvers: Seq[String], encoding: String, sqlMigrationPrefix: String, sqlMigrationSuffix: String,
-                                           cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean)
+                                           cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean, callbacks: Seq[String])
   private case class ConfigMigrate(ignoreFailedFutureMigration: Boolean, placeholders: Map[String, String],
                                          placeholderPrefix: String, placeholderSuffix: String, initOnMigrate: Boolean, validateOnMigrate: Boolean)
   private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading, migrate: ConfigMigrate)
@@ -126,6 +127,7 @@ object FlywayPlugin extends Plugin {
       flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayTarget := defaults.getTarget.getVersion,
       flywayOutOfOrder := defaults.isOutOfOrder,
+      flywayCallbacks := new Array[String](0),
       flywayIgnoreFailedFutureMigration := defaults.isIgnoreFailedFutureMigration,
       flywayPlaceholders := defaults.getPlaceholders.asScala.toMap,
       flywayPlaceholderPrefix := defaults.getPlaceholderPrefix,
@@ -139,9 +141,9 @@ object FlywayPlugin extends Plugin {
         (schemas, table, initVersion, initDescription) =>
           ConfigBase(schemas, table, initVersion, initDescription)
       },
-      flywayConfigMigrationLoading <<= (flywayLocations, flywayResolvers, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder) map {
-        (locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
-          ConfigMigrationLoading(locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder)
+      flywayConfigMigrationLoading <<= (flywayLocations, flywayResolvers, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder, flywayCallbacks) map {
+        (locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks) =>
+          ConfigMigrationLoading(locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks)
       },
       flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
         (ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
@@ -234,6 +236,11 @@ object FlywayPlugin extends Plugin {
       flyway.setCleanOnValidationError(config.cleanOnValidationError)
       flyway.setTarget(config.target)
       flyway.setOutOfOrder(config.outOfOrder)
+      
+      for(cb <- config.callbacks) {
+        flyway.initCallbackDefs(cb)
+	  }
+	  
       flyway
     }
     def configure(config: ConfigMigrate): Flyway = {

@@ -157,6 +157,14 @@ public abstract class AbstractFlywayTask extends Task {
     public void setSchemas(String schemas) {
         flyway.setSchemas(StringUtils.tokenizeToStringArray(schemas, ","));
     }
+    
+    /**
+     * @param callbacks A comma-separated list of fully qualified FlywayCallback implementation class names.  These classes
+     * 					will be instantiated and wired into the Flyway lifecycle notification events.
+     */
+    public void setCallbacks(String callbacks) {
+    	flyway.initCallbackDefs(callbacks);
+    }
 
     /**
      * @param table <p>The name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode) the

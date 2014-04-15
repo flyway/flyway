@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.command;
 
+import org.flywaydb.core.api.FlywayCallback;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.metadatatable.AppliedMigration;
@@ -23,7 +25,6 @@ import org.flywaydb.core.util.jdbc.TransactionCallback;
 import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
-
 import java.sql.Connection;
 
 /**
@@ -41,14 +42,22 @@ public class DbRepair {
     private final MetaDataTable metaDataTable;
 
     /**
+     * This is a list of callbacks that fire before or after the repair task is executed.  
+     * You can add as many callbacks as you want.  These should be set on the Flyway class
+     * by the end user as Flyway will set them automatically for you here.
+     */
+    private FlywayCallback[] callbacks = new FlywayCallback[0];
+
+    /**
      * Creates a new DbRepair.
      *
      * @param connection      The database connection to use for accessing the metadata table.
      * @param metaDataTable   The metadata table.
      */
-    public DbRepair(Connection connection, MetaDataTable metaDataTable) {
+    public DbRepair(Connection connection, MetaDataTable metaDataTable, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.metaDataTable = metaDataTable;
+        this.callbacks = callbacks;
     }
 
     /**
@@ -57,8 +66,17 @@ public class DbRepair {
     public void repair() {
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
+        		for (FlywayCallback callback: callbacks) {
+        			callback.beforeRepair(connection);
+        		}
+
                 metaDataTable.repair();
-                return null;
+
+        		for (FlywayCallback callback: callbacks) {
+        			callback.afterRepair(connection);
+        		}
+
+        		return null;
             }
         });
     }
