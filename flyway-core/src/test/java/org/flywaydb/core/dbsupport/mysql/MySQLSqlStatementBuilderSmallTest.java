@@ -28,20 +28,51 @@ public class MySQLSqlStatementBuilderSmallTest {
     private MySQLSqlStatementBuilder builder = new MySQLSqlStatementBuilder();
 
     @Test
-    public void isCommentDirective() {
+    public void isCommentDirectiveRegularStatement() {
         assertFalse(builder.isCommentDirective("SELECT * FROM TABLE;"));
+        assertFalse(builder.isInMultiLineCommentDirective);
+    }
+
+    @Test
+    public void isCommentDirectiveNoVersion() {
         assertFalse(builder.isCommentDirective("/*SELECT * FROM TABLE*/;"));
+        assertFalse(builder.isInMultiLineCommentDirective);
+    }
+
+    @Test
+    public void isCommentDirectiveNoSemicolon() {
         assertTrue(builder.isCommentDirective("/*!12345 SELECT * FROM TABLE*/"));
+        assertFalse(builder.isInMultiLineCommentDirective);
+    }
+
+    @Test
+    public void isCommentDirectiveSemicolonNoSpace() {
         assertTrue(builder.isCommentDirective("/*!12345 SELECT * FROM TABLE*/;"));
+        assertFalse(builder.isInMultiLineCommentDirective);
+    }
+
+    @Test
+    public void isCommentDirectiveSemicolonSpace() {
+        assertTrue(builder.isCommentDirective("/*!50003 SET @saved_cs_client = @@character_set_client */ ;"));
+        assertFalse(builder.isInMultiLineCommentDirective);
     }
 
     @Test
     public void isUnquotedMultiLineCommentDirective() {
         assertFalse(builder.isCommentDirective("SELECT * FROM TABLE;"));
+        assertFalse(builder.isInMultiLineCommentDirective);
+
         assertTrue(builder.isCommentDirective("/*!12345 CREATE TABLE tbl ("));
+        assertTrue(builder.isInMultiLineCommentDirective);
+
         assertTrue(builder.isCommentDirective("foo varchar(5)"));
+        assertTrue(builder.isInMultiLineCommentDirective);
+
         assertTrue(builder.isCommentDirective(") ENGINE=MyISAM*/;"));
+        assertFalse(builder.isInMultiLineCommentDirective);
+
         assertFalse(builder.isCommentDirective("SELECT * FROM TABLE;"));
+        assertFalse(builder.isInMultiLineCommentDirective);
     }
 
     @Test

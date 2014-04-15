@@ -35,7 +35,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
             "LATIN2", "LATIN5", "LATIN7", "MACCE", "MACROMAN", "SJIS", "SWE7", "TIS620", "UCS2", "UJIS", "UTF8"
     };
 
-    private boolean isInMultiLineCommentDirective = false;
+    /*private -> testing*/ boolean isInMultiLineCommentDirective = false;
 
     @Override
     public Delimiter extractNewDelimiterFromLine(String line) {
@@ -58,11 +58,11 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
     @Override
     public boolean isCommentDirective(String line) {
         // single-line comment directive
-        if (line.matches("^" + Pattern.quote("/*!") + "\\d{5} .*" + Pattern.quote("*/") + ";?")) {
+        if (line.matches("^" + Pattern.quote("/*!") + "\\d{5} .*" + Pattern.quote("*/") + "\\s*;?")) {
             return true;
         }
         // last line of multi-line comment directive
-        if (isInMultiLineCommentDirective && line.matches(".*" + Pattern.quote("*/") + ";?")) {
+        if (isInMultiLineCommentDirective && line.matches(".*" + Pattern.quote("*/") + "\\s*;?")) {
             isInMultiLineCommentDirective = false;
             return true;
         }
