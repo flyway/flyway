@@ -88,7 +88,7 @@ public abstract class AbstractFlywayTask extends Task {
      * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      * <p>(default: none)</p>
      */
-    private String resolvers;
+    private String[] resolvers;
 
     /**
      * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -253,10 +253,28 @@ public abstract class AbstractFlywayTask extends Task {
     /**
      * Do not use. For Ant itself.
      *
-     * @param locations The locations on the classpath.
+     * @param locationsElement The locations on the classpath.
      */
-    public void addConfiguredLocations(Locations locations) {
-        this.locations = locations.locations.toArray(new String[locations.locations.size()]);
+    public void addConfiguredLocations(LocationsElement locationsElement) {
+        this.locations = locationsElement.locations.toArray(new String[locationsElement.locations.size()]);
+    }
+
+    /**
+     * Do not use. For Ant itself.
+     *
+     * @param resolversElement The resolvers on the classpath.
+     */
+    public void addConfiguredResolvers(ResolversElement resolversElement) {
+        this.resolvers = resolversElement.resolvers.toArray(new String[resolversElement.resolvers.size()]);
+    }
+
+    /**
+     * Do not use. For Ant itself.
+     *
+     * @param schemasElement The schemas.
+     */
+    public void addConfiguredSchemas(SchemasElement schemasElement) {
+        flyway.setSchemas(schemasElement.schemas.toArray(new String[schemasElement.schemas.size()]));
     }
 
     /**
@@ -264,7 +282,7 @@ public abstract class AbstractFlywayTask extends Task {
      *                  <p>(default: none)</p>
      */
     public void setResolvers(String resolvers) {
-        this.resolvers = resolvers;
+        this.resolvers = StringUtils.tokenizeToStringArray(resolvers, ",");
     }
 
     /**
@@ -480,7 +498,7 @@ public abstract class AbstractFlywayTask extends Task {
     /**
      * The nested &lt;locations&gt; element of the task. Contains 1 or more &lt;location&gt; sub-elements.
      */
-    public static class Locations {
+    public static class LocationsElement {
         /**
          * The classpath locations.
          */
@@ -512,6 +530,82 @@ public abstract class AbstractFlywayTask extends Task {
          */
         public void setPath(String path) {
             this.path = path;
+        }
+    }
+
+    /**
+     * The nested &lt;schemas&gt; element of the task. Contains 1 or more &lt;schema&gt; sub-elements.
+     */
+    public static class SchemasElement {
+        /**
+         * The schema names.
+         */
+        List<String> schemas = new ArrayList<String>();
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param schema A schema.
+         */
+        public void addConfiguredLocation(SchemaElement schema) {
+            schemas.add(schema.name);
+        }
+    }
+
+    /**
+     * One &lt;location&gt; sub-element within the &lt;locations&gt; element.
+     */
+    public static class SchemaElement {
+        /**
+         * The name of the schema.
+         */
+        private String name;
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param name The name of the schema.
+         */
+        public void setPath(String name) {
+            this.name = name;
+        }
+    }
+
+    /**
+     * The nested &lt;resolvers&gt; element of the task. Contains 1 or more &lt;resolver&gt; sub-elements.
+     */
+    public static class ResolversElement {
+        /**
+         * The classpath locations.
+         */
+        List<String> resolvers = new ArrayList<String>();
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param resolver A resolver on the classpath.
+         */
+        public void addConfiguredResolver(ResolverElement resolver) {
+            resolvers.add(resolver.name);
+        }
+    }
+
+    /**
+     * One &lt;resolver&gt; sub-element within the &lt;resolvers&gt; element.
+     */
+    public static class ResolverElement {
+        /**
+         * The fully qualified class name of the resolver.
+         */
+        private String name;
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param name The fully qualified class name of the resolver.
+         */
+        public void setName(String name) {
+            this.name = name;
         }
     }
 

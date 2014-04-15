@@ -37,6 +37,9 @@
                 <location path="db/migration"/>
                 <location path="org.flywaydb.sample"/>
             </locations>
+            <resolvers>
+                <resolver name="org.flywaydb.sample.resolver.SampleResolver"/>
+            </resolvers>
         </flyway:migrate>
     </target>
 </project>

@@ -70,15 +70,17 @@ public class ClassUtils {
      * @return The list of instances.
      */
     public static <T> List<T> instantiateAll(String[] classes, ClassLoader classLoader) {
-        List<T> migrationResolvers = new ArrayList<T>();
+        List<T> clazzes = new ArrayList<T>();
         for (String clazz : classes) {
-            try {
-                migrationResolvers.add(ClassUtils.<T>instantiate(clazz, classLoader));
-            } catch (Exception e) {
-                throw new FlywayException("Unable to instantiate class: " + clazz);
+            if (StringUtils.hasLength(clazz)) {
+                try {
+                    clazzes.add(ClassUtils.<T>instantiate(clazz, classLoader));
+                } catch (Exception e) {
+                    throw new FlywayException("Unable to instantiate class: " + clazz);
+                }
             }
         }
-        return migrationResolvers;
+        return clazzes;
     }
 
     /**

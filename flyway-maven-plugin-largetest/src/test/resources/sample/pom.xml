@@ -34,6 +34,9 @@
                         <location>org.flywaydb.sample</location>
                         <location>db/migration</location>
                     </locations>
+                    <resolvers>
+                        <resolver>org.flywaydb.sample.resolver.SampleResolver</resolver>
+                    </resolvers>
                 </configuration>
             </plugin>
             <plugin>

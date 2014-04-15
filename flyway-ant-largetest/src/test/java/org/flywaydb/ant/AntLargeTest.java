@@ -141,7 +141,7 @@ public class AntLargeTest {
     @Test
     public void sample() throws Exception {
         String stdOut = runAnt(0, "sample");
-        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
     }
 
     /**

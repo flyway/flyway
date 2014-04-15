@@ -16,6 +16,7 @@
 package org.flywaydb.core.api.resolver;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Executes a migration.
@@ -25,6 +26,7 @@ public interface MigrationExecutor {
      * Executes the migration this executor is associated with.
      *
      * @param connection The connection to use to execute the migration against the DB.
+     * @throws SQLException when the execution of a statement failed.
      */
-    void execute(Connection connection);
+    void execute(Connection connection) throws SQLException;
 }

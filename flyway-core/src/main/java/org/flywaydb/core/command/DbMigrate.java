@@ -35,6 +35,7 @@ import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Main workflow for migrating the database.
@@ -239,7 +240,7 @@ public class DbMigrate {
 
         try {
             new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() {
+                public Void doInTransaction() throws SQLException {
                     migration.getExecutor().execute(connectionUserObjects);
                     return null;
                 }

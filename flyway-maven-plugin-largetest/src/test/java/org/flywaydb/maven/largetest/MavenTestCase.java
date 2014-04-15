@@ -61,7 +61,7 @@ public abstract class MavenTestCase {
     @Test
     public void sample() throws Exception {
         String stdOut = runMaven(0, "sample", "clean", "compile", "flyway:migrate");
-        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
+        assertTrue(stdOut.contains("Successfully applied 5 migrations"));
     }
 
     @Test

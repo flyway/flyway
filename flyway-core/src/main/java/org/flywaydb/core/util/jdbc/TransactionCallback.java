@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.util.jdbc;
 
+import java.sql.SQLException;
+
 /**
  * Callback for TransactionTemplate.
  *
@@ -25,6 +27,7 @@ public interface TransactionCallback<T> {
      * Executes this code within a transaction.
      *
      * @return The result of the transaction code.
+     * @throws SQLException when the execution of a statement failed.
      */
-    T doInTransaction();
+    T doInTransaction() throws SQLException;
 }
