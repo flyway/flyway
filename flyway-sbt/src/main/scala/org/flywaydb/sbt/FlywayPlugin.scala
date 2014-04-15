@@ -28,6 +28,9 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import java.util.Properties
 import scala.sys.SystemProperties
+import org.flywaydb.core.util.ClassUtils
+import org.flywaydb.core.api.FlywayCallback
+import org.flywaydb.core.api.resolver.MigrationResolver
 
 object FlywayPlugin extends Plugin {
 
@@ -236,11 +239,8 @@ object FlywayPlugin extends Plugin {
       flyway.setCleanOnValidationError(config.cleanOnValidationError)
       flyway.setTarget(config.target)
       flyway.setOutOfOrder(config.outOfOrder)
-      
-      for(cb <- config.callbacks) {
-        flyway.initCallbackDefs(cb)
-	  }
-	  
+      flyway.setCallbacks(config.callbacks: _*)
+      flyway.setResolvers(config.resolvers: _*)
       flyway
     }
     def configure(config: ConfigMigrate): Flyway = {

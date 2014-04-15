@@ -26,6 +26,7 @@ import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Handles Flyway's repair command.
@@ -46,7 +47,7 @@ public class DbRepair {
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private FlywayCallback[] callbacks = new FlywayCallback[0];
+    private final FlywayCallback[] callbacks;
 
     /**
      * Creates a new DbRepair.
@@ -64,20 +65,31 @@ public class DbRepair {
      * Repairs the metadata table.
      */
     public void repair() {
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.beforeRepair(connection);
+                    return null;
+                }
+            });
+        }
+
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-        		for (FlywayCallback callback: callbacks) {
-        			callback.beforeRepair(connection);
-        		}
-
                 metaDataTable.repair();
-
-        		for (FlywayCallback callback: callbacks) {
-        			callback.afterRepair(connection);
-        		}
-
         		return null;
             }
         });
+
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.afterRepair(connection);
+                    return null;
+                }
+            });
+        }
     }
 }

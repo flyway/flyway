@@ -29,6 +29,7 @@ import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Handles the validate command.
@@ -69,14 +70,14 @@ public class DbValidate {
      * it will be applied too instead of being ignored.</p>
      * <p>(default: {@code false})</p>
      */
-    private boolean outOfOrder;
+    private final boolean outOfOrder;
 
     /**
      * This is a list of callbacks that fire before or after the validate task is executed.  
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private FlywayCallback[] callbacks = new FlywayCallback[0];
+    private final FlywayCallback[] callbacks;
 
     /**
      * Creates a new database validator.
@@ -105,9 +106,15 @@ public class DbValidate {
      * @return The validation error, if any.
      */
     public String validate() {
-		for (FlywayCallback callback: callbacks) {
-			callback.beforeValidate(connectionUserObjects);
-		}
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.beforeValidate(connectionUserObjects);
+                    return null;
+                }
+            });
+        }
 
 		LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
@@ -142,9 +149,15 @@ public class DbValidate {
                     count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
         }
 
-		for (FlywayCallback callback: callbacks) {
-			callback.afterValidate(connectionUserObjects);
-		}
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.afterValidate(connectionUserObjects);
+                    return null;
+                }
+            });
+        }
 
 		return result.getRight();
     }

@@ -21,8 +21,6 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.util.ClassUtils;
 import org.flywaydb.core.util.ExceptionUtils;
 import org.flywaydb.core.util.Location;
 import org.flywaydb.core.util.StringUtils;
@@ -32,7 +30,12 @@ import org.flywaydb.core.util.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Base class for all Flyway Ant tasks.
@@ -89,6 +92,12 @@ public abstract class AbstractFlywayTask extends Task {
      * <p>(default: none)</p>
      */
     private String[] resolvers;
+
+    /**
+     * The callbacks for lifecycle notifications.
+     * <p>(default: none)</p>
+     */
+    private String[] callbacks;
 
     /**
      * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -157,13 +166,21 @@ public abstract class AbstractFlywayTask extends Task {
     public void setSchemas(String schemas) {
         flyway.setSchemas(StringUtils.tokenizeToStringArray(schemas, ","));
     }
-    
+
+    /**
+     * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     *                  <p>(default: none)</p>
+     */
+    public void setResolvers(String resolvers) {
+        this.resolvers = StringUtils.tokenizeToStringArray(resolvers, ",");
+    }
+
     /**
      * @param callbacks A comma-separated list of fully qualified FlywayCallback implementation class names.  These classes
-     * 					will be instantiated and wired into the Flyway lifecycle notification events.
+     *                  will be instantiated and wired into the Flyway lifecycle notification events.
      */
     public void setCallbacks(String callbacks) {
-    	flyway.initCallbackDefs(callbacks);
+        this.callbacks = StringUtils.tokenizeToStringArray(callbacks, ",");
     }
 
     /**
@@ -283,14 +300,6 @@ public abstract class AbstractFlywayTask extends Task {
      */
     public void addConfiguredSchemas(SchemasElement schemasElement) {
         flyway.setSchemas(schemasElement.schemas.toArray(new String[schemasElement.schemas.size()]));
-    }
-
-    /**
-     * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
-     *                  <p>(default: none)</p>
-     */
-    public void setResolvers(String resolvers) {
-        this.resolvers = StringUtils.tokenizeToStringArray(resolvers, ",");
     }
 
     /**
@@ -422,8 +431,10 @@ public abstract class AbstractFlywayTask extends Task {
             flyway.setDataSource(createDataSource());
 
             if (resolvers != null) {
-                List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, flyway.getClassLoader());
-                flyway.setResolvers(resolverList.toArray(new MigrationResolver[resolverList.size()]));
+                flyway.setResolvers(resolvers);
+            }
+            if (callbacks != null) {
+                flyway.setCallbacks(callbacks);
             }
 
             Properties projectProperties = new Properties();

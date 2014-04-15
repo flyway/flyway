@@ -16,7 +16,6 @@
 package org.flywaydb.core.command;
 
 import org.flywaydb.core.api.FlywayCallback;
-
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.metadatatable.AppliedMigration;
@@ -25,7 +24,9 @@ import org.flywaydb.core.util.jdbc.TransactionCallback;
 import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
+
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Handles Flyway's init command.
@@ -54,11 +55,11 @@ public class DbInit {
     private final String initDescription;
 
     /**
-     * This is a list of callbacks that fire before or after the init task is executed.  
+     * This is a list of callbacks that fire before or after the init task is executed.
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private FlywayCallback[] callbacks = new FlywayCallback[0];
+    private final FlywayCallback[] callbacks;
 
     /**
      * Creates a new DbInit.
@@ -80,13 +81,19 @@ public class DbInit {
      * Initializes the database.
      */
     public void init() {
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.beforeInit(connection);
+                    return null;
+                }
+            });
+        }
+
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-        		for (FlywayCallback callback: callbacks) {
-        			callback.beforeInit(connection);
-        		}
-
-        		if (metaDataTable.hasAppliedMigrations()) {
+                if (metaDataTable.hasAppliedMigrations()) {
                     throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it already contains migrations");
                 }
                 if (metaDataTable.hasInitMarker()) {
@@ -107,14 +114,20 @@ public class DbInit {
                 }
                 metaDataTable.addInitMarker(initVersion, initDescription);
 
-        		for (FlywayCallback callback: callbacks) {
-        			callback.afterInit(connection);
-        		}
-
-        		return null;
+                return null;
             }
         });
 
         LOG.info("Schema initialized with version: " + initVersion);
+
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.afterInit(connection);
+                    return null;
+                }
+            });
+        }
     }
 }

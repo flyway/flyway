@@ -15,21 +15,19 @@
  */
 package org.flywaydb.maven;
 
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.util.ClassUtils;
-import org.flywaydb.core.util.ExceptionUtils;
-import org.flywaydb.core.util.Location;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.util.ExceptionUtils;
+import org.flywaydb.core.util.Location;
+import org.flywaydb.core.util.jdbc.DriverDataSource;
+import org.flywaydb.core.util.logging.Log;
+import org.flywaydb.core.util.logging.LogFactory;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -39,7 +37,6 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 import javax.sql.DataSource;
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -264,7 +261,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * An array of FlywayCallback implementations. (default: empty )<br>
      * <p>Also configurable with Maven or System Property: ${flyway.callbacks}</p>
      *
-     * @parameter property="flyway.callbacks"
+     * @parameter
      */
     private String[] callbacks;
 
@@ -405,9 +402,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 flyway.setLocations(locations);
             }
             if (resolvers != null) {
-                List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, flyway.getClassLoader());
-                flyway.setResolvers(resolverList.toArray(new MigrationResolver[resolverList.size()]));
+                flyway.setResolvers(resolvers);
             }
+            if (callbacks != null) {
+                flyway.setCallbacks(callbacks);
+            }
+
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
@@ -416,17 +416,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setTarget(target);
             flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
             flyway.setPlaceholderPrefix(placeholderPrefix);
-            
-            if (callbacks != null && callbacks.length > 0) {
-            	StringBuffer callbackList = new StringBuffer();
-            	for (String callback: callbacks) {
-            		callbackList.append(callback);
-            		callbackList.append(",");
-            	}
-            	callbackList.delete(callbackList.length() - 1, callbackList.length());
-            	flyway.initCallbackDefs(callbackList.toString());
-            }
-            
+
             flyway.setInitOnMigrate(initOnMigrate);
             flyway.setValidateOnMigrate(validateOnMigrate);
 

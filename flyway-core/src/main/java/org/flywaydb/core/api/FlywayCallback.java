@@ -20,108 +20,111 @@ import java.sql.Connection;
 /**
  * This is the main callback interface that should be implemented to
  * get access to flyway lifecycle notifications.  Simply add code
- * or logic to the callback method you are interested in having
+ * or logic to the callback method you are interested in having.
+ *
+ * <p>Each callback method will run within its own transaction,
+ * except beforeEachMigrate and afterEachMigrate which share the transaction with the migration.</p>
  * 
  * @author Dan Bunker
  */
 public interface FlywayCallback {
 	/**
-	 * Runs before the clean task executes
+	 * Runs before the clean task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void beforeClean(Connection dataConnection);
+	void beforeClean(Connection connection);
 
 	/**
-	 * Runs after the clean task executes
+	 * Runs after the clean task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void afterClean(Connection dataConnection);
+	void afterClean(Connection connection);
 
 	/**
-	 * Runs before the migrate task executes
+	 * Runs before the migrate task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void beforeMigrate(Connection dataConnection);
+	void beforeMigrate(Connection connection);
 
 	/**
-	 * Runs after the migrate task executes
+	 * Runs after the migrate task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void afterMigrate(Connection dataConnection);
+	void afterMigrate(Connection connection);
 
 	/**
-	 * Runs before each migration script is executed
+	 * Runs before each migration script is executed.
 	 * 
-	 * @param dataConnection A valid connection to the database
-	 * @param info The current MigrationInfo for this migration
+	 * @param connection A valid connection to the database.
+	 * @param info The current MigrationInfo for this migration.
 	 */
-	void beforeEachMigrate(Connection dataConnection, MigrationInfo info);
+	void beforeEachMigrate(Connection connection, MigrationInfo info);
 
 	/**
-	 * Runs after each migration script is executed
+	 * Runs after each migration script is executed.
 	 * 
-	 * @param dataConnection A valid connection to the database
-	 * @param info The current MigrationInfo for this migration
+	 * @param connection A valid connection to the database.
+	 * @param info The current MigrationInfo for this migration.
 	 */
-	void afterEachMigrate(Connection dataConnection, MigrationInfo info);
+	void afterEachMigrate(Connection connection, MigrationInfo info);
 
 	/**
-	 * Runs before the validate task executes
+	 * Runs before the validate task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void beforeValidate(Connection dataConnection);
+	void beforeValidate(Connection connection);
 
 	/**
-	 * Runs after the validate task executes
+	 * Runs after the validate task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void afterValidate(Connection dataConnection);
+	void afterValidate(Connection connection);
 
 	/**
-	 * Runs before the init task executes
+	 * Runs before the init task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void beforeInit(Connection dataConnection);
+	void beforeInit(Connection connection);
 
 	/**
-	 * Runs after the init task executes
+	 * Runs after the init task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void afterInit(Connection dataConnection);
+	void afterInit(Connection connection);
 
 	/**
-	 * Runs before the repair task executes
+	 * Runs before the repair task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void beforeRepair(Connection dataConnection);
+	void beforeRepair(Connection connection);
 
 	/**
-	 * Runs after the repair task executes
+	 * Runs after the repair task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void afterRepair(Connection dataConnection);
+	void afterRepair(Connection connection);
 
 	/**
-	 * Runs before the info task executes
+	 * Runs before the info task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void beforeInfo(Connection dataConnection);
+	void beforeInfo(Connection connection);
 
 	/**
-	 * Runs after the info task executes
+	 * Runs after the info task executes.
 	 * 
-	 * @param dataConnection A valid connection to the database
+	 * @param connection A valid connection to the database.
 	 */
-	void afterInfo(Connection dataConnection);
+	void afterInfo(Connection connection);
 }

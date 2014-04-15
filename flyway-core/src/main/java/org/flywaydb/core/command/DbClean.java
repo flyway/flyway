@@ -16,7 +16,6 @@
 package org.flywaydb.core.command;
 
 import org.flywaydb.core.api.FlywayCallback;
-
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.dbsupport.Schema;
 import org.flywaydb.core.metadatatable.MetaDataTable;
@@ -26,7 +25,9 @@ import org.flywaydb.core.util.jdbc.TransactionCallback;
 import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
+
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Main workflow for cleaning the database.
@@ -50,11 +51,11 @@ public class DbClean {
     private final Schema[] schemas;
 
     /**
-     * This is a list of callbacks that fire before or after the validate task is executed.  
+     * This is a list of callbacks that fire before or after the validate task is executed.
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private FlywayCallback[] callbacks = new FlywayCallback[0];
+    private final FlywayCallback[] callbacks;
 
     /**
      * Creates a new database cleaner.
@@ -76,11 +77,17 @@ public class DbClean {
      * @throws FlywayException when clean failed.
      */
     public void clean() throws FlywayException {
-		for (FlywayCallback callback: callbacks) {
-			callback.beforeClean(connection);
-		}
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.beforeClean(connection);
+                    return null;
+                }
+            });
+        }
 
-		boolean dropSchemas = false;
+        boolean dropSchemas = false;
         try {
             dropSchemas = metaDataTable.hasSchemasMarker();
         } catch (Exception e) {
@@ -95,9 +102,15 @@ public class DbClean {
             }
         }
 
-		for (FlywayCallback callback: callbacks) {
-			callback.afterClean(connection);
-		}
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.afterClean(connection);
+                    return null;
+                }
+            });
+        }
     }
 
     /**

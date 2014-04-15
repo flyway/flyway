@@ -49,19 +49,6 @@ public class ClassUtils {
     }
 
     /**
-     * Instantiate all classes in this list.
-     *
-     * @param classes     A comma-separated list of fully qualified class names to instantiate.
-     * @param classLoader The ClassLoader to use.
-     * @param <T>         The common type for all classes.
-     * @return The list of instances.
-     */
-    public static <T> List<T> instantiateAll(String classes, ClassLoader classLoader) {
-        String[] classArray = StringUtils.tokenizeToStringArray(classes, ",");
-        return instantiateAll(classArray, classLoader);
-    }
-
-    /**
      * Instantiate all these classes.
      *
      * @param classes     A fully qualified class names to instantiate.

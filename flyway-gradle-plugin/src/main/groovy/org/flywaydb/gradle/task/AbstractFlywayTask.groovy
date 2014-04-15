@@ -121,11 +121,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         def sysResolvers = System.getProperty("flyway.resolvers")
         if (sysResolvers != null) {
-            flyway.resolvers = ClassUtils.instantiateAll(sysResolvers, flyway.classLoader)
+            flyway.resolvers = StringUtils.tokenizeToStringArray(sysResolvers, ",")
         } else if (project.hasProperty("flyway.resolvers")) {
-            flyway.resolvers = ClassUtils.instantiateAll(project["flyway.resolvers"].toString(), flyway.classLoader)
+            flyway.resolvers = StringUtils.tokenizeToStringArray(project["flyway.resolvers"].toString(), ",")
         } else if (extension.resolvers != null) {
-            flyway.resolvers = ClassUtils.instantiateAll(extension.resolvers, flyway.classLoader);
+            flyway.resolvers = extension.resolvers
         }
 
         Map<String, String> placeholders = [:]

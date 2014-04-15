@@ -20,20 +20,21 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.dbsupport.Schema;
 import org.flywaydb.core.info.MigrationInfoImpl;
 import org.flywaydb.core.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.metadatatable.AppliedMigration;
 import org.flywaydb.core.metadatatable.MetaDataTable;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.util.StopWatch;
 import org.flywaydb.core.util.TimeFormat;
 import org.flywaydb.core.util.jdbc.TransactionCallback;
 import org.flywaydb.core.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -92,14 +93,14 @@ public class DbMigrate {
      * it will be applied too instead of being ignored.</p>
      * <p>(default: {@code false})</p>
      */
-    private boolean outOfOrder;
+    private final boolean outOfOrder;
 
     /**
-     * This is a list of callbacks that fire before or after the migrate task is executed.  
+     * This is a list of callbacks that fire before or after the migrate task is executed.
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
-    private FlywayCallback[] callbacks = new FlywayCallback[0];
+    private final FlywayCallback[] callbacks;
 
     /**
      * Creates a new database migrator.
@@ -115,7 +116,8 @@ public class DbMigrate {
      */
     public DbMigrate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport,
                      MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                     MigrationVersion target, boolean ignoreFailedFutureMigration, boolean outOfOrder) {
+                     MigrationVersion target, boolean ignoreFailedFutureMigration, boolean outOfOrder,
+                     FlywayCallback[] callbacks) {
         this.connectionMetaDataTable = connectionMetaDataTable;
         this.connectionUserObjects = connectionUserObjects;
         this.dbSupport = dbSupport;
@@ -125,6 +127,7 @@ public class DbMigrate {
         this.target = target;
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
         this.outOfOrder = outOfOrder;
+        this.callbacks = callbacks;
     }
 
     /**
@@ -134,11 +137,17 @@ public class DbMigrate {
      * @throws FlywayException when migration failed.
      */
     public int migrate() throws FlywayException {
-		for (FlywayCallback callback: getCallbacks()) {
-			callback.beforeMigrate(connectionUserObjects);
-		}
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.beforeMigrate(connectionUserObjects);
+                    return null;
+                }
+            });
+        }
 
-		StopWatch stopWatch = new StopWatch();
+        StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         int migrationSuccessCount = 0;
@@ -194,19 +203,20 @@ public class DbMigrate {
                         return null;
                     }
 
-                    boolean isOutOfOrder = pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
+                    MigrationInfoImpl migration = pendingMigrations[0];
 
-            		for (FlywayCallback callback: getCallbacks()) {
-            			callback.beforeEachMigrate(connectionUserObjects, pendingMigrations[0]);
-            		}
+                    for (FlywayCallback callback : callbacks) {
+                        callback.beforeEachMigrate(connectionUserObjects, migration);
+                    }
 
-            		MigrationVersion version = applyMigration(pendingMigrations[0].getResolvedMigration(), isOutOfOrder);
-            		
-            		for (FlywayCallback callback: getCallbacks()) {
-            			callback.afterEachMigrate(connectionUserObjects, pendingMigrations[0]);
-            		}
+                    boolean isOutOfOrder = migration.getVersion().compareTo(currentSchemaVersion) < 0;
+                    MigrationVersion version = applyMigration(migration.getResolvedMigration(), isOutOfOrder);
 
-            		return version;
+                    for (FlywayCallback callback : callbacks) {
+                        callback.afterEachMigrate(connectionUserObjects, migration);
+                    }
+
+                    return version;
                 }
             });
             if (result == null) {
@@ -221,11 +231,17 @@ public class DbMigrate {
 
         logSummary(migrationSuccessCount, stopWatch.getTotalTimeMillis());
 
-		for (FlywayCallback callback: getCallbacks()) {
-			callback.afterMigrate(connectionUserObjects);
-		}
+        for (final FlywayCallback callback : callbacks) {
+            new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                @Override
+                public Object doInTransaction() throws SQLException {
+                    callback.afterMigrate(connectionUserObjects);
+                    return null;
+                }
+            });
+        }
 
-		return migrationSuccessCount;
+        return migrationSuccessCount;
     }
 
     /**
@@ -298,24 +314,4 @@ public class DbMigrate {
 
         return version;
     }
-
-    /**
-     * This is a list of callbacks that fire before or after the migrate task is executed.  
-     * You can add as many callbacks as you want.  These should be set on the Flyway class
-     * by the end user as Flyway will set them automatically for you here.
-     * 
-     * @return FlywayCallback interface implementations or an empty list
-     */
-	public FlywayCallback[] getCallbacks() {
-		return callbacks;
-	}
-
-	/**
-	 * Sets the FlywayCallback list
-	 * 
-	 * @param callbacks FlywayCallback interface implementations
-	 */
-	public void setCallbacks(FlywayCallback[] callbacks) {
-		this.callbacks = callbacks;
-	}
 }
