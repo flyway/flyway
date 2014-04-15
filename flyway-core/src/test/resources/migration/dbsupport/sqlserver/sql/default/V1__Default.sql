@@ -14,6 +14,8 @@
 -- limitations under the License.
 --
 
+PRINT 'Hello warning!';
+
 create table [dbo].[TableA] (
 ID varchar(25) not null,
 Column1 varchar(10),

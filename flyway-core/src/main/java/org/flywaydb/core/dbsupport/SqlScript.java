@@ -33,7 +33,6 @@ import java.util.List;
  * comments are stripped and ignored.
  */
 public class SqlScript {
-
     private static final Log LOG = LogFactory.getLog(SqlScript.class);
 
     /**

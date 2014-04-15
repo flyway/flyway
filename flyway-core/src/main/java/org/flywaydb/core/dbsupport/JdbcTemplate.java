@@ -17,12 +17,15 @@ package org.flywaydb.core.dbsupport;
 
 import org.flywaydb.core.util.jdbc.JdbcUtils;
 import org.flywaydb.core.util.jdbc.RowMapper;
+import org.flywaydb.core.util.logging.Log;
+import org.flywaydb.core.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +36,8 @@ import java.util.Map;
  * Collection of utility methods for querying the DB. Inspired by Spring's JdbcTemplate.
  */
 public class JdbcTemplate {
+    private static final Log LOG = LogFactory.getLog(JdbcTemplate.class);
+
     /**
      * The DB connection to use.
      */
@@ -228,6 +233,12 @@ public class JdbcTemplate {
         try {
             statement = connection.createStatement();
             statement.execute(sql);
+            @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
+            while (warning != null) {
+                LOG.warn(warning.getMessage()
+                        + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
+                warning = warning.getNextWarning();
+            }
         } finally {
             JdbcUtils.closeStatement(statement);
         }
