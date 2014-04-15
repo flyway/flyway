@@ -18,6 +18,7 @@ package org.flywaydb.core.dbsupport;
 import org.flywaydb.core.dbsupport.h2.H2SqlStatementBuilder;
 import org.flywaydb.core.dbsupport.oracle.OracleSqlStatementBuilder;
 import org.flywaydb.core.dbsupport.postgresql.PostgreSQLSqlStatementBuilder;
+import org.flywaydb.core.dbsupport.sqlserver.SQLServerSqlStatementBuilder;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -33,6 +34,14 @@ public class SqlStatementBuilderSmallTest {
         assertTrue(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
         assertFalse(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
                 "2. second');"));
+    }
+
+    @Test
+    public void sqlServerEndsWithOpenMultilineStringLiteral() {
+        assertFalse(new SQLServerSqlStatementBuilder().endsWithOpenMultilineStringLiteral("print 'baz'+"));
+
+        //Currently broken:
+        //assertFalse(new SQLServerSqlStatementBuilder().endsWithOpenMultilineStringLiteral("print 'baz'-- Oops"));
     }
 
     @Test

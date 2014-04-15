@@ -41,18 +41,14 @@ public class MigrationInfoHelper {
     public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName, String prefix, String suffix) {
         String cleanMigrationName = migrationName.substring(prefix.length(), migrationName.length() - suffix.length());
 
-        String version;
-        String description;
-
         // Handle the description
         int descriptionPos = cleanMigrationName.indexOf("__");
         if (descriptionPos < 0) {
             throw new FlywayException("Wrong migration name format: " + migrationName + "(It should look like this: " + prefix + "1_2__Description" + suffix + ")");
-        } else {
-            version = cleanMigrationName.substring(0, descriptionPos);
-            description = cleanMigrationName.substring(descriptionPos + 2).replaceAll("_", " ");
         }
 
+        String version = cleanMigrationName.substring(0, descriptionPos);
+        String description = cleanMigrationName.substring(descriptionPos + 2).replaceAll("_", " ");
         return Pair.of(MigrationVersion.fromVersion(version), description);
     }
 }
