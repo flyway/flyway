@@ -21,7 +21,6 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.dbsupport.Schema;
 import org.flywaydb.core.info.MigrationInfoImpl;
@@ -203,20 +202,8 @@ public class DbMigrate {
                         return null;
                     }
 
-                    MigrationInfoImpl migration = pendingMigrations[0];
-
-                    for (FlywayCallback callback : callbacks) {
-                        callback.beforeEachMigrate(connectionUserObjects, migration);
-                    }
-
-                    boolean isOutOfOrder = migration.getVersion().compareTo(currentSchemaVersion) < 0;
-                    MigrationVersion version = applyMigration(migration.getResolvedMigration(), isOutOfOrder);
-
-                    for (FlywayCallback callback : callbacks) {
-                        callback.afterEachMigrate(connectionUserObjects, migration);
-                    }
-
-                    return version;
+                    boolean isOutOfOrder = pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
+                    return applyMigration(pendingMigrations[0], isOutOfOrder);
                 }
             });
             if (result == null) {
@@ -270,7 +257,7 @@ public class DbMigrate {
      * @param isOutOfOrder If this migration is being applied out of order.
      * @return The result of the migration.
      */
-    private MigrationVersion applyMigration(final ResolvedMigration migration, boolean isOutOfOrder) {
+    private MigrationVersion applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
         MigrationVersion version = migration.getVersion();
         if (isOutOfOrder) {
             LOG.info("Migrating schema " + schema + " to version " + version + " (out of order)");
@@ -282,13 +269,33 @@ public class DbMigrate {
         stopWatch.start();
 
         try {
+            for (final FlywayCallback callback : callbacks) {
+                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                    @Override
+                    public Object doInTransaction() throws SQLException {
+                        callback.beforeEachMigrate(connectionUserObjects, migration);
+                        return null;
+                    }
+                });
+            }
+
             new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() throws SQLException {
-                    migration.getExecutor().execute(connectionUserObjects);
+                    migration.getResolvedMigration().getExecutor().execute(connectionUserObjects);
                     return null;
                 }
             });
             LOG.debug("Successfully completed and committed migration of schema " + schema + " to version " + version);
+
+            for (final FlywayCallback callback : callbacks) {
+                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                    @Override
+                    public Object doInTransaction() throws SQLException {
+                        callback.afterEachMigrate(connectionUserObjects, migration);
+                        return null;
+                    }
+                });
+            }
         } catch (FlywayException e) {
             String failedMsg = "Migration of schema " + schema + " to version " + version + " failed!";
             if (dbSupport.supportsDdlTransactions()) {

@@ -22,8 +22,7 @@ import java.sql.Connection;
  * get access to flyway lifecycle notifications.  Simply add code
  * or logic to the callback method you are interested in having.
  *
- * <p>Each callback method will run within its own transaction,
- * except beforeEachMigrate and afterEachMigrate which share the transaction with the migration.</p>
+ * <p>Each callback method will run within its own transaction.</p>
  * 
  * @author Dan Bunker
  */
