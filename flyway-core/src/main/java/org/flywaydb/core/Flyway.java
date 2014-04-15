@@ -65,8 +65,15 @@ public class Flyway {
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
-     * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db/migration)
+     * The locations to scan recursively for migrations.
+     *
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both sql and java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
+     * migrations.</p>
+     *
+     * (default: db/migration)
      */
     private Locations locations = new Locations("db/migration");
 
@@ -220,10 +227,15 @@ public class Flyway {
     }
 
     /**
-     * Retrieves locations on the classpath or on the filesystem to scan recursively for migrations.
-     * Locations may contain both sql and java-based migrations.
+     * Retrieves the locations to scan recursively for migrations.
      *
-     * @return Locations on the classpath or on the filesystem to scan recursively for migrations. (default: db/migration)
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both sql and java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
+     * migrations.</p>
+     *
+     * @return Locations to scan recursively for migrations. (default: db/migration)
      */
     public String[] getLocations() {
         String[] result = new String[locations.getLocations().size()];
@@ -482,11 +494,15 @@ public class Flyway {
     }
 
     /**
-     * Sets the locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db.migration)
+     * Sets the locations to scan recursively for migrations.
      *
-     * @param locations Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     *                  and java-based migrations. (default: db/migration)
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both sql and java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
+     * migrations.</p>
+     *
+     * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
     public void setLocations(String... locations) {
         this.locations = new Locations(locations);
