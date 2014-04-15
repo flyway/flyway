@@ -172,8 +172,8 @@
             </dependency>
             <dependency>
                 <groupId>com.ibm.db2</groupId>
-                <artifactId>db2jcc</artifactId>
-                <version>3.62.56</version>
+                <artifactId>db2jcc4</artifactId>
+                <version>4.17.29</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -276,11 +276,11 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.14.1</version>
+                    <version>2.17</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.14.1</version>
+                    <version>2.17</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
@@ -432,6 +432,8 @@
                     </excludes>
                     <parallel>methods</parallel>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <threadCount>2</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
                 </configuration>
             </plugin>
             <plugin>
@@ -447,6 +449,7 @@
                             <goal>verify</goal>
                         </goals>
                         <configuration>
+                            <encoding>UTF-8</encoding>
                             <includes>
                                 <include>**/*MediumTest.java</include>
                             </includes>
