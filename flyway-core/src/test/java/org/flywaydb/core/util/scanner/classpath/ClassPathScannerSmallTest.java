@@ -31,6 +31,7 @@ import org.mockito.internal.creation.MockSettingsImpl;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -148,5 +149,13 @@ public class ClassPathScannerSmallTest {
         Class<?>[] classes = classPathScanner.scanForClasses("org/mockito/internal/creation", MockSettings.class);
 
         assertTrue(Arrays.asList(classes).contains(MockSettingsImpl.class));
+    }
+
+    @Test
+    public void scanForSpecificPathWhenMultiplePathsExist() throws Exception {
+        Resource[] resources = classPathScanner.scanForResources("net/sourceforge/jtds/jdbc", "", ".class");
+        for (Resource resource : resources) {
+            assertFalse(resource.getLocation(), resource.getLocation().startsWith("net/sourceforge/jtds/jdbcx/"));
+        }
     }
 }
