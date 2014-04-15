@@ -421,7 +421,8 @@ public abstract class AbstractFlywayTask extends Task {
 
     @Override
     public void execute() throws BuildException {
-        LogFactory.setLogCreator(new AntLogCreator(getProject()));
+        AntLogCreator.INSTANCE.setAntProject(getProject());
+        LogFactory.setLogCreator(AntLogCreator.INSTANCE);
         log = LogFactory.getLog(getClass());
 
         prepareClassPath();
