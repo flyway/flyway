@@ -42,6 +42,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
             statementStart += line;
             statementStart += " ";
+            statementStart = statementStart.replaceAll("\\s+", " ");
         }
 
         if (statementStart.startsWith("CREATE FUNCTION")

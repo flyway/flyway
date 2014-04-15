@@ -14,7 +14,9 @@
 -- limitations under the License.
 --
 
-CREATE OR REPLACE PACKAGE emp_actions AS  -- spec
+CREATE OR REPLACE
+
+PACKAGE emp_actions AS  -- spec
    TYPE EmpRecTyp IS RECORD (emp_id INT, salary REAL);
    CURSOR desc_salary RETURN EmpRecTyp;
    PROCEDURE hire_employee (
