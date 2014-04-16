@@ -23,6 +23,7 @@ import org.flywaydb.core.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.dbsupport.postgresql.PostgreSQLDbSupport;
+import org.flywaydb.core.dbsupport.redshift.RedshiftSQLDbSupport;
 import org.flywaydb.core.dbsupport.sqlserver.SQLServerDbSupport;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
@@ -56,9 +57,10 @@ public class DbSupportFactory {
      */
     public static DbSupport createDbSupport(Connection connection, boolean printInfo) {
         String databaseProductName = getDatabaseProductName(connection);
+        String jdbcUrl = getJdbcUrl(connection);
 
         if (printInfo) {
-            LOG.info("Database: " + getJdbcUrl(connection) + " (" + databaseProductName + ")");
+            LOG.info("Database: " + jdbcUrl + " (" + databaseProductName + ")");
         }
 
         if (databaseProductName.startsWith("Apache Derby")) {
@@ -82,6 +84,10 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
+        }
+        if(jdbcUrl.contains("redshift.amazonaws.com")) {
+            // Redshift supports only a subset of PostgreSQL 8.0, hence we used something else to identify it.
+            return new RedshiftSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
             return new PostgreSQLDbSupport(connection);
