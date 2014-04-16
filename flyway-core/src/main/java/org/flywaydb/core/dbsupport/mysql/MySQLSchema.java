@@ -51,8 +51,9 @@ public class MySQLSchema extends Schema {
                 + "(Select count(*) from information_schema.TABLES Where TABLE_SCHEMA=?) + "
                 + "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
                 + "(Select count(*) from information_schema.TABLE_CONSTRAINTS Where TABLE_SCHEMA=?) + "
+                + "(Select count(*) from information_schema.EVENTS Where EVENT_SCHEMA=?) + "
                 + "(Select count(*) from information_schema.ROUTINES Where ROUTINE_SCHEMA=?)",
-                name, name, name, name);
+                name, name, name, name, name);
         return objectCount == 0;
     }
 
@@ -68,6 +69,10 @@ public class MySQLSchema extends Schema {
 
     @Override
     protected void doClean() throws SQLException {
+        for (String statement : cleanEvents()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : cleanRoutines()) {
             jdbcTemplate.execute(statement);
         }
@@ -81,6 +86,25 @@ public class MySQLSchema extends Schema {
             table.drop();
         }
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+    }
+
+    /**
+     * Generate the statements to clean the events in this schema.
+     *
+     * @return The list of statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanEvents() throws SQLException {
+        List<Map<String, String>> eventNames =
+                jdbcTemplate.queryForList(
+                        "SELECT event_name FROM information_schema.events WHERE event_schema=?",
+                        name);
+
+        List<String> statements = new ArrayList<String>();
+        for (Map<String, String> row : eventNames) {
+            statements.add("DROP EVENT " + dbSupport.quote(name, row.get("event_name")));
+        }
+        return statements;
     }
 
     /**

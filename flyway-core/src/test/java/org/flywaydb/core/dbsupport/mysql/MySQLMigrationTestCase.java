@@ -100,6 +100,19 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for MySQL Events.
+     */
+    @Test
+    public void event() throws Exception {
+        flyway.setLocations("migration/dbsupport/mysql/sql/event");
+        flyway.migrate();
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
      * Tests clean and migrate for MySQL dumps.
      */
     @Test
