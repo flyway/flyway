@@ -295,7 +295,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
-     * flyway.encoding property, which is UTF-8 by default. (default: flyway.properties)
+     * flyway.encoding property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
      * <p/>
      * <p>Also configurable with Maven or System Property: ${flyway.configFile}</p>
      *
