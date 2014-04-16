@@ -39,6 +39,7 @@ public class SqlStatementBuilderSmallTest {
     @Test
     public void sqlServerEndsWithOpenMultilineStringLiteral() {
         assertFalse(new SQLServerSqlStatementBuilder().endsWithOpenMultilineStringLiteral("print 'baz'+"));
+        assertFalse(new SQLServerSqlStatementBuilder().endsWithOpenMultilineStringLiteral("CUSTOMER set creaon_date = {ts '3099-01-01 00:00:00'} FROM CUSTOMER c inner join inserted i on c.id=i.id"));
 
         //Currently broken:
         //assertFalse(new SQLServerSqlStatementBuilder().endsWithOpenMultilineStringLiteral("print 'baz'-- Oops"));
