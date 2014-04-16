@@ -16,20 +16,15 @@
 package org.flywaydb.core.dbsupport.mysql;
 
 import org.flywaydb.core.DbCategory;
-import org.flywaydb.core.Flyway;
 import org.flywaydb.core.util.jdbc.DriverDataSource;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * Test to demonstrate the migration functionality using Mysql.
  */
-@SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.MariaDB.class)
 public class MariaDBMigrationMediumTest extends MySQLMigrationTestCase {
     @Override
