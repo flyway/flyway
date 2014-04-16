@@ -25,7 +25,6 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.util.ExceptionUtils;
 import org.flywaydb.core.util.Location;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
@@ -34,9 +33,10 @@ import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
-import javax.sql.DataSource;
 import java.io.File;
-import java.util.HashMap;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Properties;
 
@@ -160,7 +160,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter
      */
-    private String[] resolvers;
+    private String[] resolvers = new String[0];
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
@@ -263,7 +263,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter
      */
-    private String[] callbacks;
+    private String[] callbacks = new String[0];
 
     /**
      * <p>
@@ -291,6 +291,17 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter property="flyway.validateOnMigrate"
      */
     private boolean validateOnMigrate = flyway.isValidateOnMigrate();
+
+    /**
+     * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
+     * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
+     * flyway.encoding property, which is UTF-8 by default. (default: flyway.properties)
+     * <p/>
+     * <p>Also configurable with Maven or System Property: ${flyway.configFile}</p>
+     *
+     * @parameter property="flyway.configFile"
+     */
+    private File configFile;
 
     /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
@@ -342,20 +353,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     }
 
     /**
-     * Creates the datasource based on the provided parameters.
-     *
-     * @return The fully configured datasource.
-     * @throws Exception Thrown when the datasource could not be created.
-     */
-    /* private -> for testing */ DataSource createDataSource() throws Exception {
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(),
-                System.getProperty("flyway.driver", driver),
-                System.getProperty("flyway.url", url),
-                System.getProperty("flyway.user", user),
-                System.getProperty("flyway.password", password));
-    }
-
-    /**
      * Retrieves the value of this boolean property, based on the matching System on the Maven property.
      *
      * @param systemPropertyName The name of the System property.
@@ -383,7 +380,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             loadCredentialsFromSettings();
 
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
-            flyway.setDataSource(createDataSource());
             flyway.setSchemas(schemas);
             flyway.setTable(table);
             flyway.setInitVersion(initVersion);
@@ -401,13 +397,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 }
                 flyway.setLocations(locations);
             }
-            if (resolvers != null) {
-                flyway.setResolvers(resolvers);
-            }
-            if (callbacks != null) {
-                flyway.setCallbacks(callbacks);
-            }
-
+            flyway.setResolvers(resolvers);
+            flyway.setCallbacks(callbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
@@ -420,21 +411,62 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setInitOnMigrate(initOnMigrate);
             flyway.setValidateOnMigrate(validateOnMigrate);
 
-            flyway.configure(mavenProject.getProperties());
-            flyway.configure(System.getProperties());
-
-            Map<String, String> mergedPlaceholders = new HashMap<String, String>();
-            addPlaceholdersFromProperties(mergedPlaceholders, mavenProject.getProperties());
-            addPlaceholdersFromProperties(mergedPlaceholders, System.getProperties());
-            if (placeholders != null) {
-                mergedPlaceholders.putAll(placeholders);
+            Properties properties = new Properties();
+            properties.putAll(mavenProject.getProperties());
+            if (driver != null) {
+                properties.setProperty("flyway.driver", driver);
             }
-            flyway.setPlaceholders(mergedPlaceholders);
+            if (url != null) {
+                properties.setProperty("flyway.url", url);
+            }
+            if (user != null) {
+                properties.setProperty("flyway.user", user);
+            }
+            if (password != null) {
+                properties.setProperty("flyway.password", password);
+            }
+            for (String placeholer : placeholders.keySet()) {
+                String value = placeholders.get(placeholer);
+                properties.setProperty("flyway.placeholders." + placeholer, value == null ? "" : value);
+            }
+            properties.putAll(getConfigFileProperties());
+            properties.putAll(System.getProperties());
+            System.out.println("PROPS =================>");
+            properties.list(System.out);
+            flyway.configure(properties);
 
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
         }
+    }
+
+    /**
+     * Retrieve the properties from the config file (if specified).
+     */
+    private Properties getConfigFileProperties() throws IOException {
+        Properties properties = new Properties();
+        String configFileProp = System.getProperty("flyway.configFile");
+        if (configFileProp != null) {
+            configFile = new File(configFileProp);
+            if (!configFile.isAbsolute()) {
+                configFile = new File(mavenProject.getBasedir(), configFileProp);
+            }
+        }
+        if (configFile == null) {
+            File file = new File(mavenProject.getBasedir(), "flyway.properties");
+            if (file.isFile() && file.canRead()) {
+                configFile = file;
+            } else {
+                log.debug("flyway.properties not found. Skipping.");
+                return properties;
+            }
+        } else if (!configFile.canRead() || !configFile.isFile()) {
+            throw new FlywayException("Unable to read config file: " + configFile.getAbsolutePath());
+        }
+
+        properties.load(new InputStreamReader(new FileInputStream(configFile), encoding));
+        return properties;
     }
 
     /**
@@ -460,22 +492,4 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @throws Exception any exception
      */
     protected abstract void doExecute(Flyway flyway) throws Exception;
-
-    /**
-     * Adds the additional placeholders contained in these properties to the existing list.
-     *
-     * @param placeholders The existing list of placeholders.
-     * @param properties   The properties containing additional placeholders.
-     */
-    private static void addPlaceholdersFromProperties(Map<String, String> placeholders, Properties properties) {
-        for (Object property : properties.keySet()) {
-            String propertyName = (String) property;
-            if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
-                    && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
-                String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
-                String placeholderValue = properties.getProperty(propertyName);
-                placeholders.put(placeholderName, placeholderValue);
-            }
-        }
-    }
 }

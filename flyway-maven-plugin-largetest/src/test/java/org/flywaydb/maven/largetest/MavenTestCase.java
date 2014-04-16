@@ -60,8 +60,20 @@ public abstract class MavenTestCase {
 
     @Test
     public void sample() throws Exception {
-        String stdOut = runMaven(0, "sample", "clean", "compile", "flyway:migrate");
+        String stdOut = runMaven(0, "sample", "clean", "compile", "flyway:clean", "flyway:migrate");
         assertTrue(stdOut.contains("Successfully applied 5 migrations"));
+    }
+
+    @Test
+    public void configFile() throws Exception {
+        String stdOut = runMaven(0, "configfile", "clean", "compile", "flyway:clean", "flyway:migrate");
+        assertTrue(stdOut.contains("Successfully applied 5 migrations"));
+    }
+
+    @Test
+    public void configFileInvalid() throws Exception {
+        String stdOut = runMaven(1, "configfile", "-Dflyway.configFile=test.properties", "flyway:info");
+        assertTrue(stdOut.contains("Unable to read config file"));
     }
 
     @Test

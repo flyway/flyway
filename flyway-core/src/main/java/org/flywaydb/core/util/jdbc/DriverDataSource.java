@@ -84,7 +84,7 @@ public class DriverDataSource implements DataSource {
         }
         this.url = url;
 
-        if (driverClass == null) {
+        if (!StringUtils.hasLength(driverClass)) {
             if (url.startsWith("jdbc:db2:")) {
                 driverClass = "com.ibm.db2.jcc.DB2Driver";
             } else if (url.startsWith("jdbc:derby:")) {
