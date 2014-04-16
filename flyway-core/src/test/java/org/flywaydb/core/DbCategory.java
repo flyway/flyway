@@ -32,6 +32,7 @@ public class DbCategory {
     public interface HSQL extends EmbeddedDB {}
 
     public interface MySQL extends OpenSourceDB {}
+    public interface MariaDB extends OpenSourceDB {}
     public interface PostgreSQL extends OpenSourceDB {}
 
     public interface DB2 extends CommercialDB {}

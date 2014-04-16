@@ -15,5 +15,6 @@
 --
 
 DROP DATABASE flyway_db;
+DROP DATABASE flyway_maria_db;
 DROP DATABASE flyway_cloudsql_db;
 DROP USER 'flyway';

@@ -95,6 +95,8 @@ public class DriverDataSource implements DataSource {
                 driverClass = "org.hsqldb.jdbcDriver";
             } else if (url.startsWith("jdbc:mysql:")) {
                 driverClass = "com.mysql.jdbc.Driver";
+            } else if (url.startsWith("jdbc:mariadb:")) {
+                driverClass = "org.mariadb.jdbc.Driver";
             } else if (url.startsWith("jdbc:google:")) {
                 driverClass = "com.google.appengine.api.rdbms.AppEngineDriver";
             } else if (url.startsWith("jdbc:oracle:")) {

@@ -15,6 +15,7 @@
 --
 
 CREATE DATABASE flyway_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
+CREATE DATABASE flyway_maria_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
 CREATE DATABASE flyway_cloudsql_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
 CREATE USER 'flyway'@'localhost' IDENTIFIED BY 'flyway';
 
