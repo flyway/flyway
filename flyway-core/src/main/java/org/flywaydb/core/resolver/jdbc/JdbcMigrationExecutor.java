@@ -39,11 +39,17 @@ public class JdbcMigrationExecutor implements MigrationExecutor {
         this.jdbcMigration = jdbcMigration;
     }
 
+    @Override
     public void execute(Connection connection) {
         try {
             jdbcMigration.migrate(connection);
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }
+    }
+
+    @Override
+    public boolean executeInTransaction() {
+        return true;
     }
 }

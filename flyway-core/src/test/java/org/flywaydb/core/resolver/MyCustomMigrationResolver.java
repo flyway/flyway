@@ -70,6 +70,11 @@ public class MyCustomMigrationResolver implements MigrationResolver {
                     public void execute(Connection connection) {
                         System.out.println("Executed !");
                     }
+
+                    @Override
+                    public boolean executeInTransaction() {
+                        return true;
+                    }
                 };
             }
         });

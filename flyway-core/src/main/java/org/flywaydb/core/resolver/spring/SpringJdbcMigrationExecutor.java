@@ -40,6 +40,7 @@ public class SpringJdbcMigrationExecutor implements MigrationExecutor {
         this.springJdbcMigration = springJdbcMigration;
     }
 
+    @Override
     public void execute(Connection connection) {
         try {
             springJdbcMigration.migrate(new org.springframework.jdbc.core.JdbcTemplate(
@@ -47,5 +48,10 @@ public class SpringJdbcMigrationExecutor implements MigrationExecutor {
         } catch (Exception e) {
             throw new FlywayException("Migration failed !", e);
         }
+    }
+
+    @Override
+    public boolean executeInTransaction() {
+        return true;
     }
 }

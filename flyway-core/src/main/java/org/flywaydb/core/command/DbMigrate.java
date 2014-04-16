@@ -20,6 +20,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.dbsupport.Schema;
@@ -279,12 +280,21 @@ public class DbMigrate {
                 });
             }
 
-            new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() throws SQLException {
-                    migration.getResolvedMigration().getExecutor().execute(connectionUserObjects);
-                    return null;
+            final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
+            if (migrationExecutor.executeInTransaction()) {
+                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
+                    public Void doInTransaction() throws SQLException {
+                        migrationExecutor.execute(connectionUserObjects);
+                        return null;
+                    }
+                });
+            } else {
+                try {
+                    migrationExecutor.execute(connectionUserObjects);
+                } catch (SQLException e) {
+                    throw new FlywayException("Unable to apply migration", e);
                 }
-            });
+            }
             LOG.debug("Successfully completed and committed migration of schema " + schema + " to version " + version);
 
             for (final FlywayCallback callback : callbacks) {

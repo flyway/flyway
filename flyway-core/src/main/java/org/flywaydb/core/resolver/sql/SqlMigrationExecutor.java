@@ -65,10 +65,16 @@ public class SqlMigrationExecutor implements MigrationExecutor {
         this.placeholderReplacer = placeholderReplacer;
     }
 
+    @Override
     public void execute(Connection connection) {
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         String sqlScriptSourceNoPlaceholders = placeholderReplacer.replacePlaceholders(sqlScriptSource);
         SqlScript sqlScript = new SqlScript(sqlScriptSourceNoPlaceholders, dbSupport);
         sqlScript.execute(new JdbcTemplate(connection, 0));
+    }
+
+    @Override
+    public boolean executeInTransaction() {
+        return true;
     }
 }

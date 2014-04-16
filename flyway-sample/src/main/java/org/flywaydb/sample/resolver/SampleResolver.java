@@ -78,6 +78,11 @@ public class SampleResolver implements MigrationResolver {
                             JdbcUtils.closeStatement(statement);
                         }
                     }
+
+                    @Override
+                    public boolean executeInTransaction() {
+                        return true;
+                    }
                 };
             }
         });
