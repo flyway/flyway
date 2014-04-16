@@ -72,7 +72,8 @@ public class PlaceholderReplacer {
 
         for (String placeholder : placeholders.keySet()) {
             String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
-            noPlaceholders = StringUtils.replaceAll(noPlaceholders, searchTerm, placeholders.get(placeholder));
+            String value = placeholders.get(placeholder);
+            noPlaceholders = StringUtils.replaceAll(noPlaceholders, searchTerm, value == null ? "" : value);
         }
         checkForUnmatchedPlaceholderExpression(noPlaceholders);
 

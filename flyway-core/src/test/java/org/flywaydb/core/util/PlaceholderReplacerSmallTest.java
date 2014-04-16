@@ -57,7 +57,18 @@ public class PlaceholderReplacerSmallTest {
         assertEquals("No ${placeholder} right to ${replace}", placeholderReplacer.replacePlaceholders(TEST_STR));
     }
 
+    @Test
+    public void issue725RegexNPE() {
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("database", "abc");
+        placeholders.put("useLocal", "");
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "$[", "]");
 
+        String input = "INSERT INTO `source` VALUES (138, 'Source DN', 'Source DN', now(), NULL);\n" +
+                "INSERT INTO `source_location` (`id`, `url`, `active`, `type`, `source_id`, `m_created`, `m_modified`) VALUES \n" +
+                "(386, 'http://someUrl.si/feed/?cat=32,7,10,9,64&amp;feed=rss2&amp;tag__not_in=77', 1, 'news', 138, now(), NULL);";
+        assertEquals(input, placeholderReplacer.replacePlaceholders(input));
+    }
 
     @Test
     public void unmatchedPlaceholders() throws FlywayException {

@@ -32,6 +32,7 @@
                     </schemas>
                     <placeholders>
                         <name>Joe TestUser</name>
+                        <other>${undefined}</other>
                     </placeholders>
                 </configuration>
             </plugin>
