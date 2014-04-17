@@ -105,6 +105,21 @@ public class FlywaySmallTest {
     }
 
     @Test
+    public void configurePlaceholders() {
+        Flyway flyway = new Flyway();
+        flyway.getPlaceholders().put("mykey", "myvalue");
+
+        flyway.configure(new Properties());
+        assertEquals("myvalue", flyway.getPlaceholders().get("mykey"));
+
+        Properties properties = new Properties();
+        properties.setProperty("flyway.placeholders.lucky", "luke");
+        flyway.configure(properties);
+        assertEquals("myvalue", flyway.getPlaceholders().get("mykey"));
+        assertEquals("luke", flyway.getPlaceholders().get("lucky"));
+    }
+
+    @Test
     public void configureCustomMigrationResolvers() {
         Properties properties = new Properties();
         properties.setProperty("flyway.resolvers", MyCustomMigrationResolver.class.getName());

@@ -1044,7 +1044,7 @@ public class Flyway {
             setCallbacks(StringUtils.tokenizeToStringArray(callbacksProp, ","));
         }
 
-        Map<String, String> placeholdersFromProps = new HashMap<String, String>();
+        Map<String, String> placeholdersFromProps = new HashMap<String, String>(placeholders);
         for (Object property : properties.keySet()) {
             String propertyName = (String) property;
             if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
@@ -1054,7 +1054,7 @@ public class Flyway {
                 placeholdersFromProps.put(placeholderName, placeholderValue);
             }
         }
-        if (placeholdersFromProps.size() > 0) setPlaceholders(placeholdersFromProps);
+        setPlaceholders(placeholdersFromProps);
     }
 
     /**
