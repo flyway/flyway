@@ -18,6 +18,8 @@ seq(flywaySettings: _*)
 
 flywayUser := "SA"
 
+flywayPlaceholders := Map("name" -> "My Name")
+
 
 
 
