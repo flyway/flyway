@@ -104,11 +104,13 @@ public class MetaDataTableImpl implements MetaDataTable {
         LOG.debug("Metadata table " + table + " created.");
     }
 
+    @Override
     public void lock() {
         createIfNotExists();
         table.lock();
     }
 
+    @Override
     public void addAppliedMigration(AppliedMigration appliedMigration) {
         createIfNotExists();
 
@@ -183,6 +185,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         return migrationVersions.size() + 1;
     }
 
+    @Override
     public List<AppliedMigration> allAppliedMigrations() {
         return findAppliedMigrations();
     }
@@ -194,7 +197,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      * @return The applied migrations.
      */
     private List<AppliedMigration> findAppliedMigrations(MigrationType... migrationTypes) {
-        if (!table.existsNoQuotes() && !table.exists()) {
+        if (!table.exists()) {
             return new ArrayList<AppliedMigration>();
         }
 
@@ -264,13 +267,15 @@ public class MetaDataTableImpl implements MetaDataTable {
         return number.intValue();
     }
 
+    @Override
     public void addInitMarker(final MigrationVersion initVersion, final String initDescription) {
         addAppliedMigration(new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
                 0, true));
     }
 
+    @Override
     public void repair() {
-        if (!table.existsNoQuotes() && !table.exists()) {
+        if (!table.exists()) {
             LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
             return;
         }
@@ -305,6 +310,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
     }
 
+    @Override
     public void addSchemasMarker(final Schema[] schemas) {
         createIfNotExists();
 
@@ -312,8 +318,9 @@ public class MetaDataTableImpl implements MetaDataTable {
                 MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));
     }
 
+    @Override
     public boolean hasSchemasMarker() {
-        if (!table.existsNoQuotes() && !table.exists()) {
+        if (!table.exists()) {
             return false;
         }
 
@@ -328,8 +335,9 @@ public class MetaDataTableImpl implements MetaDataTable {
         }
     }
 
+    @Override
     public boolean hasInitMarker() {
-        if (!table.existsNoQuotes() && !table.exists()) {
+        if (!table.exists()) {
             return false;
         }
 
@@ -350,7 +358,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     public boolean hasAppliedMigrations() {
-        if (!table.existsNoQuotes() && !table.exists()) {
+        if (!table.exists()) {
             return false;
         }
 

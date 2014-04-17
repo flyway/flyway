@@ -66,11 +66,6 @@ public class HsqlTable extends Table {
     }
 
     @Override
-    protected boolean doExistsNoQuotes() throws SQLException {
-        return exists(null, dbSupport.getSchema(schema.getName().toUpperCase()), name.toUpperCase());
-    }
-
-    @Override
     protected void doLock() throws SQLException {
         if (version18) {
             LOG.debug("Unable to lock " + this + " as Hsql 1.8 does not support locking. No concurrent migration supported.");

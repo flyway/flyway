@@ -63,27 +63,6 @@ public abstract class Table extends SchemaObject {
     protected abstract boolean doExists() throws SQLException;
 
     /**
-     * Checks whether this table is already present in the database. WITHOUT quoting either the table or the schema name!
-     *
-     * @return {@code true} if the table exists, {@code false} if it doesn't.
-     */
-    public boolean existsNoQuotes() {
-        try {
-            return doExistsNoQuotes();
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether table " + this + " exists", e);
-        }
-    }
-
-    /**
-     * Checks whether this table is already present in the database. WITHOUT quoting either the table or the schema name!
-     *
-     * @return {@code true} if the table exists, {@code false} if it doesn't.
-     * @throws SQLException when there was an error checking whether this table exists in this schema.
-     */
-    protected abstract boolean doExistsNoQuotes() throws SQLException;
-
-    /**
      * Checks whether the database contains a table matching these criteria.
      *
      * @param catalog    The catalog where the table resides. (optional)

@@ -21,6 +21,9 @@ import org.flywaydb.core.util.StringUtils;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
@@ -35,39 +38,47 @@ public class DriverDataSource implements DataSource {
     /**
      * The JDBC Driver instance to use.
      */
-    private Driver driver;
+    private final Driver driver;
 
     /**
      * The JDBC URL to use for connecting through the Driver.
      */
-    private String url;
+    private final String url;
 
     /**
      * The JDBC user to use for connecting through the Driver.
      */
-    private String user;
+    private final String user;
 
     /**
      * The JDBC password to use for connecting through the Driver.
      */
-    private String password;
+    private final String password;
 
     /**
      * The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
-    private String[] initSqls = new String[0];
+    private final String[] initSqls;
 
     /**
-     * Creates a new DriverDataSource.
+     * The ClassLoader to use.
      */
-    public DriverDataSource() {
-        //Do nothing.
-    }
+    private final ClassLoader classLoader;
+
+    /**
+     * Whether to run in Single Connection mode.
+     */
+    private boolean singleConnectionMode;
+
+    /**
+     * The Single Connection for single connection mode.
+     */
+    private Connection singleConnection;
 
     /**
      * Creates a new DriverDataSource.
      *
-     * @param classLoader The ClassLoader for the driver.
+     * @param classLoader The ClassLoader to use.
      * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
      * @param url         The JDBC URL to use for connecting through the Driver. (required)
      * @param user        The JDBC user to use for connecting through the Driver.
@@ -82,32 +93,12 @@ public class DriverDataSource implements DataSource {
         if (!url.toLowerCase().startsWith("jdbc:")) {
             throw new FlywayException("Invalid JDBC URL (should start with jdbc:) : " + url);
         }
+        this.classLoader = classLoader;
         this.url = url;
 
         if (!StringUtils.hasLength(driverClass)) {
-            if (url.startsWith("jdbc:db2:")) {
-                driverClass = "com.ibm.db2.jcc.DB2Driver";
-            } else if (url.startsWith("jdbc:derby:")) {
-                driverClass = "org.apache.derby.jdbc.EmbeddedDriver";
-            } else if (url.startsWith("jdbc:h2:")) {
-                driverClass = "org.h2.Driver";
-            } else if (url.startsWith("jdbc:hsqldb:")) {
-                driverClass = "org.hsqldb.jdbcDriver";
-            } else if (url.startsWith("jdbc:mysql:")) {
-                driverClass = "com.mysql.jdbc.Driver";
-            } else if (url.startsWith("jdbc:mariadb:")) {
-                driverClass = "org.mariadb.jdbc.Driver";
-            } else if (url.startsWith("jdbc:google:")) {
-                driverClass = "com.google.appengine.api.rdbms.AppEngineDriver";
-            } else if (url.startsWith("jdbc:oracle:")) {
-                driverClass = "oracle.jdbc.OracleDriver";
-            } else if (url.startsWith("jdbc:postgresql:")) {
-                driverClass = "org.postgresql.Driver";
-            } else if (url.startsWith("jdbc:jtds:")) {
-                driverClass = "net.sourceforge.jtds.jdbc.Driver";
-            } else if (url.startsWith("jdbc:sqlserver:")) {
-                driverClass = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-            } else {
+            driverClass = detectDriverForUrl(url);
+            if (!StringUtils.hasLength(driverClass)) {
                 throw new FlywayException("Unable to autodetect Jdbc driver for url: " + url);
             }
         }
@@ -121,6 +112,65 @@ public class DriverDataSource implements DataSource {
         this.user = user;
         this.password = password;
         this.initSqls = initSqls;
+    }
+
+    /**
+     * Detects the correct Jdbc driver for this Jdbc url.
+     *
+     * @param url The Jdbc url.
+     * @return The Jdbc driver.
+     */
+    private String detectDriverForUrl(String url) {
+        if (url.startsWith("jdbc:db2:")) {
+            return "com.ibm.db2.jcc.DB2Driver";
+        }
+
+        if (url.startsWith("jdbc:derby:")) {
+            return "org.apache.derby.jdbc.EmbeddedDriver";
+        }
+
+        if (url.startsWith("jdbc:h2:")) {
+            return "org.h2.Driver";
+        }
+
+        if (url.startsWith("jdbc:hsqldb:")) {
+            return "org.hsqldb.jdbcDriver";
+        }
+
+        if (url.startsWith("jdbc:sqlite:")) {
+            singleConnectionMode = true;
+            return "org.sqlite.JDBC";
+        }
+
+        if (url.startsWith("jdbc:mysql:")) {
+            return "com.mysql.jdbc.Driver";
+        }
+
+        if (url.startsWith("jdbc:mariadb:")) {
+            return "org.mariadb.jdbc.Driver";
+        }
+
+        if (url.startsWith("jdbc:google:")) {
+            return "com.google.appengine.api.rdbms.AppEngineDriver";
+        }
+
+        if (url.startsWith("jdbc:oracle:")) {
+            return "oracle.jdbc.OracleDriver";
+        }
+
+        if (url.startsWith("jdbc:postgresql:")) {
+            return "org.postgresql.Driver";
+        }
+
+        if (url.startsWith("jdbc:jtds:")) {
+            return "net.sourceforge.jtds.jdbc.Driver";
+        }
+
+        if (url.startsWith("jdbc:sqlserver:")) {
+            return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+        }
+
+        return null;
     }
 
     /**
@@ -190,6 +240,10 @@ public class DriverDataSource implements DataSource {
      * @see java.sql.Driver#connect(String, java.util.Properties)
      */
     protected Connection getConnectionFromDriver(String username, String password) throws SQLException {
+        if (singleConnectionMode && (singleConnection != null)) {
+            return singleConnection;
+        }
+
         Properties props = new Properties();
         if (username != null) {
             props.setProperty("user", username);
@@ -213,6 +267,12 @@ public class DriverDataSource implements DataSource {
             } finally {
                 JdbcUtils.closeStatement(statement);
             }
+        }
+
+        if (singleConnectionMode) {
+            InvocationHandler suppressCloseHandler = new SuppressCloseHandler(connection);
+            singleConnection =
+                    (Connection) Proxy.newProxyInstance(classLoader, new Class[] {Connection.class}, suppressCloseHandler);
         }
 
         return connection;
@@ -244,5 +304,22 @@ public class DriverDataSource implements DataSource {
 
     public Logger getParentLogger() {
         throw new UnsupportedOperationException("getParentLogger");
+    }
+
+    private static class SuppressCloseHandler implements InvocationHandler {
+        private final Connection connection;
+
+        public SuppressCloseHandler(Connection connection) {
+            this.connection = connection;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if (!"close".equals(method.getName())) {
+                return method.invoke(connection, args);
+            }
+
+            return null;
+        }
     }
 }

@@ -49,11 +49,6 @@ public class PostgreSQLTable extends Table {
     }
 
     @Override
-    protected boolean doExistsNoQuotes() throws SQLException {
-        return exists(null, dbSupport.getSchema(schema.getName().toLowerCase()), name.toLowerCase(), "TABLE");
-    }
-
-    @Override
     protected void doLock() throws SQLException {
         jdbcTemplate.execute("SELECT * FROM " + this + " FOR UPDATE");
     }

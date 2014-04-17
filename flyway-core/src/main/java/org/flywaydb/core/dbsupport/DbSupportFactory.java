@@ -23,6 +23,7 @@ import org.flywaydb.core.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.dbsupport.postgresql.PostgreSQLDbSupport;
+import org.flywaydb.core.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.dbsupport.sqlserver.SQLServerDbSupport;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
@@ -63,6 +64,9 @@ public class DbSupportFactory {
 
         if (databaseProductName.startsWith("Apache Derby")) {
             return new DerbyDbSupport(connection);
+        }
+        if (databaseProductName.startsWith("SQLite")) {
+            return new SQLiteDbSupport(connection);
         }
         if (databaseProductName.startsWith("H2")) {
             return new H2DbSupport(connection);

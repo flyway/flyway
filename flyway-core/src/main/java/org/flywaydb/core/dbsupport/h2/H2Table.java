@@ -49,11 +49,6 @@ public class H2Table extends Table {
     }
 
     @Override
-    protected boolean doExistsNoQuotes() throws SQLException {
-        return exists(null, dbSupport.getSchema(schema.getName().toUpperCase()), name.toUpperCase());
-    }
-
-    @Override
     protected void doLock() throws SQLException {
         jdbcTemplate.execute("select * from " + this + " for update");
     }

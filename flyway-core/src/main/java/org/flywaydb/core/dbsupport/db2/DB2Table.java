@@ -49,11 +49,6 @@ public class DB2Table extends Table {
     }
 
     @Override
-    protected boolean doExistsNoQuotes() throws SQLException {
-        return exists(null, dbSupport.getSchema(schema.getName().toUpperCase()), name.toUpperCase());
-    }
-
-    @Override
     protected void doLock() throws SQLException {
         jdbcTemplate.update("lock table " + this + " in exclusive mode");
     }

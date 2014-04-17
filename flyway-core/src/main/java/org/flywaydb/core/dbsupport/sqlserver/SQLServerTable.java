@@ -49,11 +49,6 @@ public class SQLServerTable extends Table {
     }
 
     @Override
-    protected boolean doExistsNoQuotes() throws SQLException {
-        return exists(null, schema, name);
-    }
-
-    @Override
     protected void doLock() throws SQLException {
         jdbcTemplate.execute("select * from " + this + " WITH (TABLOCKX)");
     }

@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.dbsupport.derby;
+package org.flywaydb.core.dbsupport.sqlite;
 
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.dbsupport.JdbcTemplate;
 import org.flywaydb.core.dbsupport.Schema;
 import org.flywaydb.core.dbsupport.Table;
+import org.flywaydb.core.util.logging.Log;
+import org.flywaydb.core.util.logging.LogFactory;
 
 import java.sql.SQLException;
 
 /**
- * Derby-specific table.
+ * SQLite-specific table.
  */
-public class DerbyTable extends Table {
+public class SQLiteTable extends Table {
+    private static final Log LOG = LogFactory.getLog(SQLiteTable.class);
+
     /**
-     * Creates a new Derby table.
+     * Creates a new SQLite table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param dbSupport    The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public DerbyTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    public SQLiteTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
     }
 
@@ -45,11 +49,12 @@ public class DerbyTable extends Table {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return exists(null, schema, name);
+        return jdbcTemplate.queryForInt("SELECT count(tbl_name) FROM "
+                + dbSupport.quote(schema.getName()) + ".sqlite_master WHERE type='table' AND tbl_name='" + name + "'") > 0;
     }
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE");
+        LOG.debug("Unable to lock " + this + " as SQLite does not support locking. No concurrent migration supported.");
     }
 }

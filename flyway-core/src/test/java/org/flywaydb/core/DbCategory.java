@@ -30,6 +30,7 @@ public class DbCategory {
     public interface Derby extends EmbeddedDB {}
     public interface H2 extends EmbeddedDB {}
     public interface HSQL extends EmbeddedDB {}
+    public interface SQLite extends EmbeddedDB {}
 
     public interface MySQL extends OpenSourceDB {}
     public interface MariaDB extends OpenSourceDB {}
