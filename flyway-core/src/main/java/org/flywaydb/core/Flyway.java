@@ -1054,7 +1054,7 @@ public class Flyway {
                 placeholdersFromProps.put(placeholderName, placeholderValue);
             }
         }
-        setPlaceholders(placeholdersFromProps);
+        if (placeholdersFromProps.size() > 0) setPlaceholders(placeholdersFromProps);
     }
 
     /**

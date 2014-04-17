@@ -50,7 +50,7 @@ public class SbtLargeTest {
     @Test
     public void flywayUrlAsSysProps() throws Exception {
         String stdOut = runSbt("test2", 0, "-Dflyway.url=jdbc:hsqldb:file:target/flyway_sample;shutdown=true", "flywayClean", "flywayMigrate");
-        assertTrue(stdOut.contains("Successfully applied 1 migration"));
+        assertTrue(stdOut.contains("Successfully applied 2 migration"));
     }
 
     @Test
