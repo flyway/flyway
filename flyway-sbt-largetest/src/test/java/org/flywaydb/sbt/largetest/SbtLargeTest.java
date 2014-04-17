@@ -15,7 +15,7 @@
  */
 package org.flywaydb.sbt.largetest;
 
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Test;
 
 import java.io.File;

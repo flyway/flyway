@@ -16,7 +16,7 @@
 package org.flywaydb.gradle.task
 
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.info.MigrationInfoDumper
+import org.flywaydb.core.internal.info.MigrationInfoDumper
 
 /**
  * @author Ben Manes (ben.manes@gmail.com)

@@ -18,7 +18,7 @@ package org.flywaydb.core;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.Connection;
-import org.flywaydb.core.api.FlywayCallback;
+import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.MigrationInfo;
 
 /**

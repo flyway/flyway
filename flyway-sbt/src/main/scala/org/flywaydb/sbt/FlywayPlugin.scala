@@ -19,18 +19,18 @@ import sbt._
 import sbt.classpath._
 import Keys._
 
-import org.flywaydb.core.util.jdbc.DriverDataSource
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.info.MigrationInfoDumper
-import org.flywaydb.core.util.logging.{LogFactory, LogCreator}
+import org.flywaydb.core.internal.info.MigrationInfoDumper
+import org.flywaydb.core.internal.util.logging.{LogFactory, LogCreator}
 import scala.Some
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import java.util.Properties
 import scala.sys.SystemProperties
-import org.flywaydb.core.util.ClassUtils
-import org.flywaydb.core.api.FlywayCallback
+import org.flywaydb.core.internal.util.ClassUtils
 import org.flywaydb.core.api.resolver.MigrationResolver
+import org.flywaydb.core.api.callback.FlywayCallback
 
 object FlywayPlugin extends Plugin {
 
@@ -265,7 +265,7 @@ object FlywayPlugin extends Plugin {
     def createLogger(clazz: Class[_]) = FlywaySbtLog
   }
 
-  private object FlywaySbtLog extends org.flywaydb.core.util.logging.Log {
+  private object FlywaySbtLog extends org.flywaydb.core.internal.util.logging.Log {
     var streams: Option[TaskStreams] = None
     def debug(message: String) { streams map (_.log.debug(message)) }
     def info(message: String) { streams map (_.log.info(message)) }

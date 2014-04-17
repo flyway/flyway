@@ -15,12 +15,12 @@
  */
 package org.flywaydb.sample.callback;
 
-import org.flywaydb.core.api.FlywayCallback;
+import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.MigrationInfo;
 
 import java.sql.Connection;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 /**
  * Default FlywayCallback implementation.  If you don't want to have to 

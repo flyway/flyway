@@ -15,8 +15,8 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogCreator;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogCreator;
 
 /**
  * Log Creator for the Command-Line console.

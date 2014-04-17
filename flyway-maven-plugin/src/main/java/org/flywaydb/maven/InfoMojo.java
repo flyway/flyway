@@ -16,7 +16,7 @@
 package org.flywaydb.maven;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
 /**
  * Maven goal to retrieve the complete information about the migrations including applied, pending and current migrations with

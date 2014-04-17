@@ -18,7 +18,7 @@ package org.flywaydb.sample.webapp;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.util.DateUtils;
+import org.flywaydb.core.internal.util.DateUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

@@ -15,7 +15,7 @@
  */
 package org.flywaydb.ant;
 
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 

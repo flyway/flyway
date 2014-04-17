@@ -16,8 +16,8 @@
 package org.flywaydb.sample.webapp;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.util.FeatureDetector;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.FeatureDetector;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

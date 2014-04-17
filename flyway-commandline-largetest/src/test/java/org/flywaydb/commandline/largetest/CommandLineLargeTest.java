@@ -15,8 +15,8 @@
  */
 package org.flywaydb.commandline.largetest;
 
-import org.flywaydb.core.util.ClassPathResource;
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.ClassPathResource;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 

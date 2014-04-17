@@ -16,11 +16,11 @@
 package org.flywaydb.core.migration;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.dbsupport.DbSupportFactory;
-import org.flywaydb.core.dbsupport.JdbcTemplate;
-import org.flywaydb.core.util.jdbc.JdbcUtils;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 

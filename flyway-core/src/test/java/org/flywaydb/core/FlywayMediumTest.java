@@ -20,11 +20,11 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.dbsupport.h2.H2DbSupport;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
-import org.flywaydb.core.util.logging.LogFactory;
-import org.flywaydb.core.util.logging.StringLogCreator;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.logging.StringLogCreator;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationHandler;

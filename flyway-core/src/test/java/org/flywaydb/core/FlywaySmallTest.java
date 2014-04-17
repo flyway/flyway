@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core;
 
-import org.flywaydb.core.dbsupport.DbSupport;
-import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.resolver.MyCustomMigrationResolver;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;

@@ -1,0 +1,54 @@
+/**
+ * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.flywaydb.core.internal.resolver;
+
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.util.Pair;
+
+/**
+ * Parsing support for migrations that use the standard Flyway version + description embedding in their name. These
+ * migrations have names like 1_2__Description .
+ */
+public class MigrationInfoHelper {
+    /**
+     * Prevents instantiation.
+     */
+    private MigrationInfoHelper() {
+        //Do nothing.
+    }
+
+    /**
+     * Extracts the schema version and the description from a migration name formatted as 1_2__Description.
+     *
+     * @param migrationName The migration name to parse. Should not contain any folders or packages.
+     * @return The extracted schema version.
+     * @throws FlywayException if the migration name does not follow the standard conventions.
+     */
+    public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName, String prefix, String suffix) {
+        String cleanMigrationName = migrationName.substring(prefix.length(), migrationName.length() - suffix.length());
+
+        // Handle the description
+        int descriptionPos = cleanMigrationName.indexOf("__");
+        if (descriptionPos < 0) {
+            throw new FlywayException("Wrong migration name format: " + migrationName + "(It should look like this: " + prefix + "1_2__Description" + suffix + ")");
+        }
+
+        String version = cleanMigrationName.substring(0, descriptionPos);
+        String description = cleanMigrationName.substring(descriptionPos + 2).replaceAll("_", " ");
+        return Pair.of(MigrationVersion.fromVersion(version), description);
+    }
+}

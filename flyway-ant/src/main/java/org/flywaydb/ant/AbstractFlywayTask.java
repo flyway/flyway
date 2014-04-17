@@ -21,12 +21,12 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.util.ExceptionUtils;
-import org.flywaydb.core.util.Location;
-import org.flywaydb.core.util.StringUtils;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.ExceptionUtils;
+import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -291,6 +291,15 @@ public abstract class AbstractFlywayTask extends Task {
      */
     public void addConfiguredResolvers(ResolversElement resolversElement) {
         this.resolvers = resolversElement.resolvers.toArray(new String[resolversElement.resolvers.size()]);
+    }
+
+    /**
+     * Do not use. For Ant itself.
+     *
+     * @param callbacksElement The callbacks on the classpath.
+     */
+    public void addConfiguredCallbacks(CallbacksElement callbacksElement) {
+        this.callbacks = callbacksElement.callbacks.toArray(new String[callbacksElement.callbacks.size()]);
     }
 
     /**
@@ -623,6 +632,44 @@ public abstract class AbstractFlywayTask extends Task {
          * Do not use. For Ant itself.
          *
          * @param name The fully qualified class name of the resolver.
+         */
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    /**
+     * The nested &lt;callbacks&gt; element of the task. Contains 1 or more &lt;callback&gt; sub-elements.
+     */
+    public static class CallbacksElement {
+        /**
+         * The classpath locations.
+         */
+        List<String> callbacks = new ArrayList<String>();
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param callback A callback on the classpath.
+         */
+        public void addConfiguredCallback(CallbackElement callback) {
+            callbacks.add(callback.name);
+        }
+    }
+
+    /**
+     * One &lt;callback&gt; sub-element within the &lt;callbacks&gt; element.
+     */
+    public static class CallbackElement {
+        /**
+         * The fully qualified class name of the callback.
+         */
+        private String name;
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param name The fully qualified class name of the callback.
          */
         public void setName(String name) {
             this.name = name;

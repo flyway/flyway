@@ -15,9 +15,9 @@
  */
 package org.flywaydb.maven.largetest;
 
-import org.flywaydb.core.util.StringUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;

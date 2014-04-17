@@ -16,11 +16,10 @@
 package org.flywaydb.gradle.task
 
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.api.FlywayCallback
+import org.flywaydb.core.api.callback.FlywayCallback
 import org.flywaydb.core.api.FlywayException
-import org.flywaydb.core.util.ClassUtils
-import org.flywaydb.core.util.StringUtils
-import org.flywaydb.core.util.jdbc.DriverDataSource
+import org.flywaydb.core.internal.util.StringUtils
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource
 import org.flywaydb.gradle.FlywayExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction

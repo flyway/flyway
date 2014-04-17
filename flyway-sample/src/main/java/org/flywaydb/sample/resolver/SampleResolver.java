@@ -20,7 +20,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;

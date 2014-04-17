@@ -17,14 +17,14 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.info.MigrationInfoDumper;
-import org.flywaydb.core.util.ClassPathResource;
-import org.flywaydb.core.util.ClassUtils;
-import org.flywaydb.core.util.ExceptionUtils;
-import org.flywaydb.core.util.FileCopyUtils;
-import org.flywaydb.core.util.PropertiesUtils;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.util.ClassPathResource;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.ExceptionUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.PropertiesUtils;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.io.File;
 import java.io.FileInputStream;

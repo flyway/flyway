@@ -16,7 +16,8 @@
 package org.flywaydb.gradle
 
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.util.jdbc.DriverDataSource
+import org.flywaydb.core.api.callback.FlywayCallback
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Before
@@ -187,7 +188,7 @@ class FlywayPluginSmallTest {
         assert flyway.schemas == ['schemeA', 'schemeB']
         assert flyway.locations == ['classpath:migrations1', 'classpath:migrations2', 'filesystem:/sql-migrations']
         assert flyway.placeholders == ['placeholderA':'A', 'placeholderB':'B']
-        assert flyway.callbacks[0] instanceof org.flywaydb.core.api.FlywayCallback
+        assert flyway.callbacks[0] instanceof FlywayCallback
     }
 
 }

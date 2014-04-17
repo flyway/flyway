@@ -16,7 +16,7 @@
 package org.flywaydb.gradle.largetest;
 
 import org.junit.Test;
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
