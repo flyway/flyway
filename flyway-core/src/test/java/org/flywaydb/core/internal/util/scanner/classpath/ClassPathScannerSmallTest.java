@@ -22,7 +22,7 @@ import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V4__DummyExtendedAbstractJdbcMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.Version3dot5;
-import org.flywaydb.core.internal.util.Resource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.junit.Test;
 import org.mockito.MockSettings;

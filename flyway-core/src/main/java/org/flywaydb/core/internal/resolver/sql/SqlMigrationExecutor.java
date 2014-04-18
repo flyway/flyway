@@ -20,7 +20,7 @@ import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.Resource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
 

@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,7 +109,12 @@ public class ClassUtils {
      */
     public static String getLocationOnDisk(Class<?> aClass) {
         try {
-            String url = aClass.getProtectionDomain().getCodeSource().getLocation().getPath();
+            ProtectionDomain protectionDomain = aClass.getProtectionDomain();
+            if (protectionDomain == null) {
+                //Android
+                return null;
+            }
+            String url = protectionDomain.getCodeSource().getLocation().getPath();
             return URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             //Can never happen.

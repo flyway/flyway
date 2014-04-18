@@ -205,6 +205,11 @@ public class Flyway {
     private MigrationResolver[] resolvers = new MigrationResolver[0];
 
     /**
+     * Whether Flyway created the DataSource.
+     */
+    private boolean createdDataSource;
+
+    /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     private DataSource dataSource;
@@ -618,6 +623,7 @@ public class Flyway {
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+        createdDataSource = false;
     }
 
     /**
@@ -632,6 +638,7 @@ public class Flyway {
      */
     public void setDataSource(String url, String user, String password, String... initSqls) {
         this.dataSource = new DriverDataSource(classLoader, null, url, user, password, initSqls);
+        createdDataSource = true;
     }
 
     /**
@@ -1106,6 +1113,10 @@ public class Flyway {
         } finally {
             JdbcUtils.closeConnection(connectionUserObjects);
             JdbcUtils.closeConnection(connectionMetaDataTable);
+
+            if ((dataSource instanceof DriverDataSource) && createdDataSource) {
+                ((DriverDataSource) dataSource).close();
+            }
         }
         return result;
     }

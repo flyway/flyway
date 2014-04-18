@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util;
+package org.flywaydb.core.internal.util.scanner;
 
 /**
  * A loadable resource.
@@ -50,11 +50,4 @@ public interface Resource {
      * @return The filename of this resource, without the path.
      */
     String getFilename();
-
-    /**
-     * Checks whether this resource exists.
-     *
-     * @return {@code true} if it exists, {@code false} if not.
-     */
-    boolean exists();
 }

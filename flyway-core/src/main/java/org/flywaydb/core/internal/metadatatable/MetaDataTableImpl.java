@@ -23,7 +23,7 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.util.ClassPathResource;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -232,6 +232,11 @@ public class MetaDataTableImpl implements MetaDataTable {
         try {
             return jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
                 public AppliedMigration mapRow(final ResultSet rs) throws SQLException {
+                    Integer checksum = rs.getInt("checksum");
+                    if (rs.wasNull()) {
+                        checksum = null;
+                    }
+
                     return new AppliedMigration(
                             rs.getInt("version_rank"),
                             rs.getInt("installed_rank"),
@@ -239,10 +244,10 @@ public class MetaDataTableImpl implements MetaDataTable {
                             rs.getString("description"),
                             MigrationType.valueOf(rs.getString("type")),
                             rs.getString("script"),
-                            toInteger((Number) rs.getObject("checksum")),
+                            checksum,
                             rs.getTimestamp("installed_on"),
                             rs.getString("installed_by"),
-                            toInteger((Number) rs.getObject("execution_time")),
+                            rs.getInt("execution_time"),
                             rs.getBoolean("success")
                     );
                 }
@@ -251,20 +256,6 @@ public class MetaDataTableImpl implements MetaDataTable {
             throw new FlywayException("Error while retrieving the list of applied migrations from metadata table "
                     + table, e);
         }
-    }
-
-    /**
-     * Converts this number into an Integer.
-     *
-     * @param number The Number to convert.
-     * @return The matching Integer.
-     */
-    private Integer toInteger(Number number) {
-        if (number == null) {
-            return null;
-        }
-
-        return number.intValue();
     }
 
     @Override

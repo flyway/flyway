@@ -16,10 +16,9 @@
 package org.flywaydb.core.internal.util.scanner.classpath;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.ClassPathResource;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.Resource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;

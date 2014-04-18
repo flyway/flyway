@@ -23,7 +23,7 @@ CREATE TABLE "${schema}"."${table}" (
     "script" VARCHAR(1000) NOT NULL,
     "checksum" INT,
     "installed_by" VARCHAR(100) NOT NULL,
-    "installed_on" TEXT NOT NULL DEFAULT (datetime('now')),
+    "installed_on" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f','now')),
     "execution_time" INT NOT NULL,
     "success" BOOLEAN NOT NULL
 );

@@ -27,9 +27,8 @@ import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.Resource;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
-import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemScanner;
+import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,9 +47,9 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final DbSupport dbSupport;
 
     /**
-     * The classpath scanner to use.
+     * The scanner to use.
      */
-    private final ClassPathScanner classPathScanner;
+    private final Scanner scanner;
 
     /**
      * The base directory on the classpath where to migrations are located.
@@ -92,7 +91,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                                 PlaceholderReplacer placeholderReplacer, String encoding,
                                 String sqlMigrationPrefix, String sqlMigrationSuffix) {
         this.dbSupport = dbSupport;
-        this.classPathScanner = new ClassPathScanner(classLoader);
+        this.scanner = new Scanner(classLoader);
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
@@ -103,15 +102,9 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        Resource[] resources = new Resource[0];
+        Resource[] resources;
         try {
-            if (location.isClassPath()) {
-                resources =
-                        classPathScanner.scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
-            } else if (location.isFileSystem()) {
-                resources =
-                        new FileSystemScanner().scanForResources(location.getPath(), sqlMigrationPrefix, sqlMigrationSuffix);
-            }
+            resources = scanner.scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
 
             for (Resource resource : resources) {
                 ResolvedMigrationImpl resolvedMigration = extractMigrationInfo(resource);
@@ -120,7 +113,7 @@ public class SqlMigrationResolver implements MigrationResolver {
 
                 migrations.add(resolvedMigration);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
         }
 

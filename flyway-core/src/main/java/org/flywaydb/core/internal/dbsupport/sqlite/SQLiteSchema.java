@@ -55,7 +55,8 @@ public class SQLiteSchema extends Schema {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return allTables().length == 0;
+        Table[] tables = allTables();
+        return (tables.length == 0) || ((tables.length == 1) && "android_metadata".equals(tables[0].getName()));
     }
 
     @Override

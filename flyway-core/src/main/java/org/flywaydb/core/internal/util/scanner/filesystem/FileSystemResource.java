@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util;
+package org.flywaydb.core.internal.util.scanner.filesystem;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -95,15 +98,6 @@ public class FileSystemResource implements Resource, Comparable<FileSystemResour
      */
     public String getFilename() {
         return location.getName();
-    }
-
-    /**
-     * Checks whether this resource exists.
-     *
-     * @return {@code true} if it exists, {@code false} if not.
-     */
-    public boolean exists() {
-        return location.exists();
     }
 
     @SuppressWarnings("NullableProblems")

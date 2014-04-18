@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.util.logging;
 
 import org.flywaydb.core.internal.util.FeatureDetector;
+import org.flywaydb.core.internal.util.logging.android.AndroidLogCreator;
 import org.flywaydb.core.internal.util.logging.apachecommons.ApacheCommonsLogCreator;
 import org.flywaydb.core.internal.util.logging.javautil.JavaUtilLogCreator;
 
@@ -50,7 +51,10 @@ public class LogFactory {
      */
     public static Log getLog(Class<?> clazz) {
         if (logCreator == null) {
-            if (new FeatureDetector(Thread.currentThread().getContextClassLoader()).isApacheCommonsLoggingAvailable()) {
+            FeatureDetector featureDetector = new FeatureDetector(Thread.currentThread().getContextClassLoader());
+            if (featureDetector.isAndroidAvailable()) {
+                logCreator = new AndroidLogCreator();
+            } else if (featureDetector.isApacheCommonsLoggingAvailable()) {
                 logCreator = new ApacheCommonsLogCreator();
             } else {
                 logCreator = new JavaUtilLogCreator();

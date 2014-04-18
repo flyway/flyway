@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util;
+package org.flywaydb.core.internal.util.scanner.classpath;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;

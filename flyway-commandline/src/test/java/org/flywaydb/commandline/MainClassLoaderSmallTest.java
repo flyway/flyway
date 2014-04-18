@@ -16,9 +16,9 @@
 package org.flywaydb.commandline;
 
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
-import org.flywaydb.core.internal.util.ClassPathResource;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.Resource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
 import org.junit.After;
 import org.junit.Before;

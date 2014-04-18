@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import javax.sql.DataSource;
@@ -139,7 +140,14 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:sqlite:")) {
             singleConnectionMode = true;
+            if (new FeatureDetector(classLoader).isAndroidAvailable()) {
+                return "org.sqldroid.SQLDroidDriver";
+            }
             return "org.sqlite.JDBC";
+        }
+
+        if (url.startsWith("jdbc:sqldroid:")) {
+            return "org.sqldroid.SQLDroidDriver";
         }
 
         if (url.startsWith("jdbc:mysql:")) {
@@ -321,5 +329,13 @@ public class DriverDataSource implements DataSource {
 
             return null;
         }
+    }
+
+    /**
+     * Closes this datasource.
+     */
+    public void close() {
+        JdbcUtils.closeConnection(singleConnection);
+        singleConnection = null;
     }
 }

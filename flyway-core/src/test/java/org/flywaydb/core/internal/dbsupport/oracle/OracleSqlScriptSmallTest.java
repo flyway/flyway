@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.dbsupport.SqlStatement;
-import org.flywaydb.core.internal.util.ClassPathResource;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Test;
 
 import java.util.List;

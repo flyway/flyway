@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.util.ClassPathResource;
-import org.flywaydb.core.internal.util.FileSystemResource;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.junit.Test;

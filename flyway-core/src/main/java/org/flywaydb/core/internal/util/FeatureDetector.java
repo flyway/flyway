@@ -64,6 +64,11 @@ public final class FeatureDetector {
     private Boolean osgiFrameworkAvailable;
 
     /**
+     * Flag indicating availability of the Android classes.
+     */
+    private Boolean androidAvailable;
+
+    /**
      * Checks whether Apache Commons Logging is available.
      *
      * @return {@code true} if it is, {@code false if it is not}
@@ -130,5 +135,18 @@ public final class FeatureDetector {
         }
 
         return osgiFrameworkAvailable;
+    }
+
+    /**
+     * Checks if Android is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isAndroidAvailable() {
+        if (androidAvailable == null) {
+            androidAvailable = "Android Runtime".equals(System.getProperty("java.runtime.name"));
+        }
+
+        return androidAvailable;
     }
 }

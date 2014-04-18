@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.util;
 
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -16,8 +16,7 @@
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.FileSystemResource;
-import org.flywaydb.core.internal.util.Resource;
+import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
