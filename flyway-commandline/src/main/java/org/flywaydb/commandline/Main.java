@@ -201,7 +201,7 @@ public class Main {
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
         LOG.info("init     : Creates and initializes the metadata table");
-        LOG.info("repair   : Repairs the metadata table after a failed migration");
+        LOG.info("repair   : Repairs the metadata table");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("=======");

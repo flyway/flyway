@@ -107,7 +107,7 @@ object FlywayPlugin extends Plugin {
   val flywayInfo = taskKey[Unit]("Retrieves the complete information about the migrations including applied, pending and current migrations with details and status.")
   val flywayClean = taskKey[Unit]("Drops all database objects.")
   val flywayInit = taskKey[Unit]("Initializes the metadata table in an existing schema.")
-  val flywayRepair = taskKey[Unit]("Repairs the metadata table after a failed migration on a database without DDL transactions.")
+  val flywayRepair = taskKey[Unit]("Repairs the metadata table.")
 
   //*********************
   // flyway defaults

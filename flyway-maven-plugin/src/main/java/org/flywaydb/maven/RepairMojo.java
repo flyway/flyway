@@ -18,7 +18,11 @@ package org.flywaydb.maven;
 import org.flywaydb.core.Flyway;
 
 /**
- * Maven goal that repairs the metadata table after a failed migration on a database without DDL transactions.
+ * Repairs the Flyway metadata table. This will perform the following actions:
+ * <ul>
+ *     <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
+ *     <li>Correct wrong checksums</li>
+ * </ul>
  *
  * @goal repair
  */
