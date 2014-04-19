@@ -416,7 +416,7 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param validateOnMigrate Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
+     * @param validateOnMigrate Whether to automatically call validate or not when running migrate. (default: {@code true})<br/>
      *                          Also configurable with Ant Property: ${flyway.validateOnMigrate}
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {

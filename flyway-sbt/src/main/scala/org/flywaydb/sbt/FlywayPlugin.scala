@@ -72,7 +72,7 @@ object FlywayPlugin extends Plugin {
   val flywayPlaceholderPrefix = settingKey[String]("The prefix of every placeholder. (default: ${ )")
   val flywayPlaceholderSuffix = settingKey[String]("The suffix of every placeholder. (default: } )")
   val flywayInitOnMigrate = settingKey[Boolean]("Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table. This schema will then be initialized with the {@code initialVersion} before executing the migrations. Only migrations above {@code initialVersion} will then be applied. This is useful for initial Flyway production deployments on projects with an existing DB. Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})")
-  val flywayValidateOnMigrate = settingKey[Boolean]("Whether to automatically call validate or not when running migrate. (default: {@code false})")
+  val flywayValidateOnMigrate = settingKey[Boolean]("Whether to automatically call validate or not when running migrate. (default: {@code true})")
 
   //*********************
   // convenience settings
@@ -130,7 +130,6 @@ object FlywayPlugin extends Plugin {
       flywaySqlMigrationPrefix := defaults.getSqlMigrationPrefix,
       flywaySqlMigrationSeparator := defaults.getSqlMigrationSeparator,
       flywaySqlMigrationSuffix := defaults.getSqlMigrationSuffix,
-      flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayTarget := defaults.getTarget.getVersion,
       flywayOutOfOrder := defaults.isOutOfOrder,
       flywayCallbacks := new Array[String](0),
@@ -140,6 +139,7 @@ object FlywayPlugin extends Plugin {
       flywayPlaceholderSuffix := defaults.getPlaceholderSuffix,
       flywayInitOnMigrate := defaults.isInitOnMigrate,
       flywayValidateOnMigrate := defaults.isValidateOnMigrate,
+      flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayConfigDataSource <<= (flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
         (driver, url, user, password) => ConfigDataSource(driver, url, user, password)
       },

@@ -113,7 +113,7 @@ public class FlywayExtension {
     /** Allows migrations to be run "out of order" */
     Boolean outOfOrder
 
-    /** Whether to automatically call validate or not when running migrate */
+    /** Whether to automatically call validate or not when running migrate. (default: true) */
     Boolean validateOnMigrate
 
     /** Whether to automatically call clean or not when a validation error occurs */

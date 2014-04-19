@@ -20,9 +20,8 @@ import org.flywaydb.core.api.MigrationInfo;
 import java.sql.Connection;
 
 /**
- * This is the main callback interface that should be implemented to
- * get access to flyway lifecycle notifications.  Simply add code
- * or logic to the callback method you are interested in having.
+ * This is the main callback interface that should be implemented to get access to flyway lifecycle notifications.
+ * Simply add code to the callback method you are interested in having.
  *
  * <p>Each callback method will run within its own transaction.</p>
  * 

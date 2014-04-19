@@ -302,7 +302,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean initOnMigrate = flyway.isInitOnMigrate();
 
     /**
-     * Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
+     * Whether to automatically call validate or not when running migrate. (default: {@code true})<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.validationErrorMode}</p>
      *
      * @parameter property="flyway.validateOnMigrate"

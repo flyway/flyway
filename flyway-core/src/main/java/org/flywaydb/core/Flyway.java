@@ -158,9 +158,9 @@ public class Flyway {
     private boolean ignoreFailedFutureMigration;
 
     /**
-     * Whether to automatically call validate or not when running migrate. (default: {@code false})
+     * Whether to automatically call validate or not when running migrate. (default: {@code true})
      */
-    private boolean validateOnMigrate;
+    private boolean validateOnMigrate = true;
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
@@ -393,7 +393,7 @@ public class Flyway {
     /**
      * Whether to automatically call validate or not when running migrate.
      *
-     * @return {@code true} if validate should be called. {@code false} if not. (default: {@code false})
+     * @return {@code true} if validate should be called. {@code false} if not. (default: {@code true})
      */
     public boolean isValidateOnMigrate() {
         return validateOnMigrate;
@@ -510,7 +510,7 @@ public class Flyway {
     /**
      * Whether to automatically call validate or not when running migrate.
      *
-     * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code false})
+     * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
         this.validateOnMigrate = validateOnMigrate;
@@ -1019,6 +1019,7 @@ public class Flyway {
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
      */
+    @SuppressWarnings("ConstantConditions")
     public void configure(Properties properties) {
         String driverProp = properties.getProperty("flyway.driver");
         String urlProp = properties.getProperty("flyway.url");
