@@ -15,12 +15,11 @@
  */
 package org.flywaydb.core.internal.command;
 
-import org.flywaydb.core.api.callback.FlywayCallback;
-
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
-import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
@@ -28,6 +27,7 @@ import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -73,7 +73,12 @@ public class DbValidate {
     private final boolean outOfOrder;
 
     /**
-     * This is a list of callbacks that fire before or after the validate task is executed.  
+     * Whether pending migrations are allowed.
+     */
+    private final boolean pending;
+
+    /**
+     * This is a list of callbacks that fire before or after the validate task is executed.
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
@@ -87,16 +92,19 @@ public class DbValidate {
      * @param migrationResolver       The migration resolver.
      * @param target                  The target version of the migration.
      * @param outOfOrder              Allows migrations to be run "out of order".
+     * @param pending                 Whether pending migrations are allowed.
+     * @param callbacks               The lifecycle callbacks.
      */
     public DbValidate(Connection connectionMetaDataTable, Connection connectionUserObjects,
                       MetaDataTable metaDataTable, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, FlywayCallback[] callbacks) {
+                      MigrationVersion target, boolean outOfOrder, boolean pending, FlywayCallback[] callbacks) {
         this.connectionMetaDataTable = connectionMetaDataTable;
         this.connectionUserObjects = connectionUserObjects;
         this.metaDataTable = metaDataTable;
         this.migrationResolver = migrationResolver;
         this.target = target;
         this.outOfOrder = outOfOrder;
+        this.pending = pending;
         this.callbacks = callbacks;
     }
 
@@ -116,21 +124,16 @@ public class DbValidate {
             });
         }
 
-		LOG.debug("Validating migrations ...");
+        LOG.debug("Validating migrations ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         Pair<Integer, String> result = new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Integer, String>>() {
             public Pair<Integer, String> doInTransaction() {
                 MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
+                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending);
 
                 migrationInfoService.refresh();
-
-                if (migrationInfoService.applied().length == 0) {
-                    LOG.info("No migrations applied yet. No validation necessary.");
-                    return Pair.of(0, null);
-                }
 
                 int count = migrationInfoService.all().length;
                 String validationError = migrationInfoService.validate();
@@ -159,6 +162,6 @@ public class DbValidate {
             });
         }
 
-		return result.getRight();
+        return result.getRight();
     }
 }

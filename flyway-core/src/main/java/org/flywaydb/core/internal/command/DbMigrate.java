@@ -158,7 +158,7 @@ public class DbMigrate {
                     metaDataTable.lock();
 
                     MigrationInfoServiceImpl infoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true);
                     infoService.refresh();
 
                     MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;

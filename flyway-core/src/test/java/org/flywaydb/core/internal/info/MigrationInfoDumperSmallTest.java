@@ -55,7 +55,7 @@ public class MigrationInfoDumperSmallTest {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
                         createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
-                        createMetaDataTable(), MigrationVersion.LATEST, false);
+                        createMetaDataTable(), MigrationVersion.LATEST, false, true);
         migrationInfoService.refresh();
 
         String table = MigrationInfoDumper.dumpToAsciiTable(migrationInfoService.all());

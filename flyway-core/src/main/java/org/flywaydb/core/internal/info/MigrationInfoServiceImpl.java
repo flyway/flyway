@@ -62,6 +62,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private boolean outOfOrder;
 
     /**
+     * Whether pending migrations are allowed.
+     */
+    private final boolean pending;
+
+    /**
      * The migrations infos calculated at the last refresh.
      */
     private List<MigrationInfoImpl> migrationInfos;
@@ -73,12 +78,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param metaDataTable     The metadata table for applied migrations.
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
+     * @param pending                 Whether pending migrations are allowed.
      */
-    public MigrationInfoServiceImpl(MigrationResolver migrationResolver, MetaDataTable metaDataTable, MigrationVersion target, boolean outOfOrder) {
+    public MigrationInfoServiceImpl(MigrationResolver migrationResolver, MetaDataTable metaDataTable,
+                                    MigrationVersion target, boolean outOfOrder, boolean pending) {
         this.migrationResolver = migrationResolver;
         this.metaDataTable = metaDataTable;
         this.target = target;
         this.outOfOrder = outOfOrder;
+        this.pending = pending;
     }
 
     /**
@@ -102,6 +110,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(Collection<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
         MigrationInfoContext context = new MigrationInfoContext();
         context.outOfOrder = outOfOrder;
+        context.pending = pending;
         context.target = target;
 
         Map<MigrationVersion, ResolvedMigration> resolvedMigrationsMap = new TreeMap<MigrationVersion, ResolvedMigration>();

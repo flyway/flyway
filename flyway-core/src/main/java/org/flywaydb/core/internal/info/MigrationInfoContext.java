@@ -27,6 +27,11 @@ public class MigrationInfoContext {
     public boolean outOfOrder;
 
     /**
+     * Whether pending migrations are allowed.
+     */
+    public boolean pending;
+
+    /**
      * The migration target.
      */
     public MigrationVersion target;
@@ -60,6 +65,7 @@ public class MigrationInfoContext {
         MigrationInfoContext context = (MigrationInfoContext) o;
 
         if (outOfOrder != context.outOfOrder) return false;
+        if (pending != context.pending) return false;
         if (schema != null ? !schema.equals(context.schema) : context.schema != null) return false;
         if (init != null ? !init.equals(context.init) : context.init != null) return false;
         if (!lastApplied.equals(context.lastApplied)) return false;
@@ -70,6 +76,7 @@ public class MigrationInfoContext {
     @Override
     public int hashCode() {
         int result = (outOfOrder ? 1 : 0);
+        result = 31 * result + (pending ? 1 : 0);
         result = 31 * result + target.hashCode();
         result = 31 * result + (schema != null ? schema.hashCode() : 0);
         result = 31 * result + (init != null ? init.hashCode() : 0);

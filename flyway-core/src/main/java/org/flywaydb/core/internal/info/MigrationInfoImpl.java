@@ -20,8 +20,8 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.util.ObjectUtils;
 
 import java.util.Date;
@@ -171,6 +171,11 @@ public class MigrationInfoImpl implements MigrationInfo {
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.INIT)) {
             return "Detected applied migration missing on the classpath: " + getVersion();
+        }
+
+        if ((!context.pending && (MigrationState.PENDING == getState()))
+                || (MigrationState.IGNORED == getState())) {
+            return "Migration on the classpath has not been applied to database: " + getVersion();
         }
 
         if (resolvedMigration != null && appliedMigration != null) {
