@@ -416,7 +416,7 @@
                 <version>1.9.0</version>
                 <inherited>false</inherited>
                 <configuration>
-                    <header>${basedir}/license.txt</header>
+                    <header>${basedir}/LICENSE.txt</header>
                     <aggregate>true</aggregate>
                     <failIfMissing>true</failIfMissing>
                     <encoding>UTF-8</encoding>
