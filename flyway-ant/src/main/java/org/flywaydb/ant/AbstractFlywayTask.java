@@ -631,7 +631,7 @@ public abstract class AbstractFlywayTask extends Task {
          * @param resolver A resolver on the classpath.
          */
         public void addConfiguredResolver(ResolverElement resolver) {
-            resolvers.add(resolver.name);
+            resolvers.add(resolver.clazz);
         }
     }
 
@@ -642,15 +642,15 @@ public abstract class AbstractFlywayTask extends Task {
         /**
          * The fully qualified class name of the resolver.
          */
-        private String name;
+        private String clazz;
 
         /**
          * Do not use. For Ant itself.
          *
-         * @param name The fully qualified class name of the resolver.
+         * @param clazz The fully qualified class name of the resolver.
          */
-        public void setName(String name) {
-            this.name = name;
+        public void setClass(String clazz) {
+            this.clazz = clazz;
         }
     }
 
@@ -669,7 +669,7 @@ public abstract class AbstractFlywayTask extends Task {
          * @param callback A callback on the classpath.
          */
         public void addConfiguredCallback(CallbackElement callback) {
-            callbacks.add(callback.name);
+            callbacks.add(callback.clazz);
         }
     }
 
@@ -680,15 +680,15 @@ public abstract class AbstractFlywayTask extends Task {
         /**
          * The fully qualified class name of the callback.
          */
-        private String name;
+        private String clazz;
 
         /**
          * Do not use. For Ant itself.
          *
-         * @param name The fully qualified class name of the callback.
+         * @param clazz The fully qualified class name of the callback.
          */
-        public void setName(String name) {
-            this.name = name;
+        public void setClass(String clazz) {
+            this.clazz = clazz;
         }
     }
 
