@@ -188,6 +188,10 @@ public class MigrationInfoImpl implements MigrationInfo {
                     return String.format("Migration Checksum mismatch for migration %s: DB=%s, Classpath=%s",
                             appliedMigration.getScript(), appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                 }
+                if (!resolvedMigration.getDescription().equals(appliedMigration.getDescription())) {
+                    return String.format("Migration Description mismatch for migration %s: DB=%s, Classpath=%s",
+                            appliedMigration.getScript(), appliedMigration.getDescription(), resolvedMigration.getDescription());
+                }
             }
         }
         return null;
