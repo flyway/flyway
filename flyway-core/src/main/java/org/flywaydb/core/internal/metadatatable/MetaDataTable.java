@@ -45,15 +45,15 @@ public interface MetaDataTable {
 
     /**
      * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
-     *         applied so far.
+     * applied so far.
      */
     List<AppliedMigration> allAppliedMigrations();
 
     /**
      * Creates and initializes the Flyway metadata table.
      *
-     * @param initVersion             The version to tag an existing schema with when executing init.
-     * @param initDescription         The description to tag an existing schema with when executing init.
+     * @param initVersion     The version to tag an existing schema with when executing init.
+     * @param initDescription The description to tag an existing schema with when executing init.
      */
     void addInitMarker(MigrationVersion initVersion, String initDescription);
 
@@ -81,7 +81,7 @@ public interface MetaDataTable {
      * including the ones in the metadata table.
      * </p>
      */
-    void repair();
+    void removeFailedMigrations();
 
     /**
      * Indicates in the metadata table that Flyway created these schemas.
@@ -96,4 +96,12 @@ public interface MetaDataTable {
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
     boolean hasSchemasMarker();
+
+    /**
+     * Update the checksum for this version to this new value.
+     *
+     * @param version  The version to update.
+     * @param checksum The new checksum.
+     */
+    void updateChecksum(MigrationVersion version, Integer checksum);
 }

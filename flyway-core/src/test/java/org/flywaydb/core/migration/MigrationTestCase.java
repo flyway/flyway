@@ -27,6 +27,8 @@ import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -110,15 +112,33 @@ public abstract class MigrationTestCase {
 
         if (dbSupport.supportsDdlTransactions()) {
             assertEquals("2.0", flyway.info().current().getVersion().toString());
-            assertEquals(org.flywaydb.core.api.MigrationState.SUCCESS, flyway.info().current().getState());
+            assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
         } else {
             assertEquals("3", flyway.info().current().getVersion().toString());
-            assertEquals(org.flywaydb.core.api.MigrationState.FAILED, flyway.info().current().getState());
+            assertEquals(MigrationState.FAILED, flyway.info().current().getState());
         }
 
         flyway.repair();
         assertEquals("2.0", flyway.info().current().getVersion().toString());
-        assertEquals(org.flywaydb.core.api.MigrationState.SUCCESS, flyway.info().current().getState());
+        assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+    }
+
+    @Test
+    public void repairChecksum() {
+        flyway.setLocations("migration/comment");
+        Integer commentChecksum = flyway.info().pending()[0].getChecksum();
+
+        flyway.setLocations(getQuoteLocation());
+        Integer quoteChecksum = flyway.info().pending()[0].getChecksum();
+
+        assertNotEquals(commentChecksum, quoteChecksum);
+
+        flyway.migrate();
+        assertEquals(quoteChecksum, flyway.info().applied()[0].getChecksum());
+
+        flyway.setLocations("migration/comment");
+        flyway.repair();
+        assertEquals(commentChecksum, flyway.info().applied()[0].getChecksum());
     }
 
     /**

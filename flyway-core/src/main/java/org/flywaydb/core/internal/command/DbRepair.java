@@ -15,9 +15,16 @@
  */
 package org.flywaydb.core.internal.command;
 
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.info.MigrationInfoImpl;
+import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
+import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
@@ -34,12 +41,17 @@ public class DbRepair {
     private final Connection connection;
 
     /**
+     * The migration infos.
+     */
+    private final MigrationInfoServiceImpl migrationInfoService;
+
+    /**
      * The metadata table.
      */
     private final MetaDataTable metaDataTable;
 
     /**
-     * This is a list of callbacks that fire before or after the repair task is executed.  
+     * This is a list of callbacks that fire before or after the repair task is executed.
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
@@ -48,11 +60,14 @@ public class DbRepair {
     /**
      * Creates a new DbRepair.
      *
-     * @param connection      The database connection to use for accessing the metadata table.
-     * @param metaDataTable   The metadata table.
+     * @param connection        The database connection to use for accessing the metadata table.
+     * @param migrationResolver The migration resolver.
+     * @param metaDataTable     The metadata table.
+     * @param callbacks         Callbacks for the Flyway lifecycle.
      */
-    public DbRepair(Connection connection, MetaDataTable metaDataTable, FlywayCallback[] callbacks) {
+    public DbRepair(Connection connection, MigrationResolver migrationResolver, MetaDataTable metaDataTable, FlywayCallback[] callbacks) {
         this.connection = connection;
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true);
         this.metaDataTable = metaDataTable;
         this.callbacks = callbacks;
     }
@@ -73,8 +88,22 @@ public class DbRepair {
 
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
-                metaDataTable.repair();
-        		return null;
+                metaDataTable.removeFailedMigrations();
+
+                migrationInfoService.refresh();
+                for (MigrationInfo migrationInfo : migrationInfoService.all()) {
+                    MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
+
+                    ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
+                    AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
+                    if ((resolved != null) && (applied != null)) {
+                        if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())) {
+                            metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
+                        }
+                    }
+                }
+
+                return null;
             }
         });
 

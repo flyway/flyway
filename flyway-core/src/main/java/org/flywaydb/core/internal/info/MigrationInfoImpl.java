@@ -66,6 +66,13 @@ public class MigrationInfoImpl implements MigrationInfo {
         return resolvedMigration;
     }
 
+    /**
+     * @return The applied migration to aggregate the info from.
+     */
+    public AppliedMigration getAppliedMigration() {
+        return appliedMigration;
+    }
+
     public MigrationType getType() {
         if (appliedMigration != null) {
             return appliedMigration.getType();

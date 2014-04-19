@@ -978,16 +978,20 @@ public class Flyway {
     }
 
     /**
-     * Repairs the Flyway metadata table after a failed migration. User objects left behind must still be cleaned up
-     * manually.
+     * Repairs the Flyway metadata table. This will perform the following actions:
+     * <ul>
+     *     <li>Remove any failed migrations (User objects left behind must still be cleaned up manually)</li>
+     *     <li>Correct any wrong checksums</li>
+     * </ul>
      *
      * @throws FlywayException when the metadata table repair failed.
      */
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
+                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
-                new DbRepair(connectionMetaDataTable, metaDataTable, callbacks).repair();
+                new DbRepair(connectionMetaDataTable, migrationResolver, metaDataTable, callbacks).repair();
                 return null;
             }
         });

@@ -265,7 +265,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     @Override
-    public void repair() {
+    public void removeFailedMigrations() {
         if (!table.exists()) {
             LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
             return;
@@ -343,11 +343,13 @@ public class MetaDataTableImpl implements MetaDataTable {
         }
     }
 
+    @Override
     public AppliedMigration getInitMarker() {
         List<AppliedMigration> appliedMigrations = findAppliedMigrations(MigrationType.INIT);
         return appliedMigrations.isEmpty() ? null : appliedMigrations.get(0);
     }
 
+    @Override
     public boolean hasAppliedMigrations() {
         if (!table.exists()) {
             return false;
@@ -361,6 +363,17 @@ public class MetaDataTableImpl implements MetaDataTable {
             return count > 0;
         } catch (SQLException e) {
             throw new FlywayException("Unable to check whether the metadata table " + table + " has applied migrations", e);
+        }
+    }
+
+    @Override
+    public void updateChecksum(MigrationVersion version, Integer checksum) {
+        try {
+            jdbcTemplate.update("UPDATE " + table + " SET " + dbSupport.quote("checksum") + "=" + checksum
+                    + " WHERE " + dbSupport.quote("version") + "='" + version + "'");
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to update checksum in metadata table " + table
+                    + " for version " + version + " to " + checksum, e);
         }
     }
 
