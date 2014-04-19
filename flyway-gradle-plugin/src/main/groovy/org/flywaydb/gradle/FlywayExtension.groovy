@@ -18,8 +18,9 @@ package org.flywaydb.gradle
 /**
  * The flyway's configuration properties.
  *
+ * <p>More info: <a href="http://flywaydb.org/documentation/gradle">http://flywaydb.org/documentation/gradle</a></p>
+ *
  * @author Ben Manes (ben.manes@gmail.com)
- * @see http://flywaydb.org/documentation/commandline
  */
 public class FlywayExtension {
     /** The fully qualified classname of the jdbc driver to use to connect to the database */
@@ -64,10 +65,28 @@ public class FlywayExtension {
      */
     String[] resolvers
 
-    /** The file name prefix for Sql migrations */
+    /**
+     * The file name prefix for Sql migrations
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     */
     String sqlMigrationPrefix
 
-    /** The file name suffix for Sql migrations */
+    /**
+     * The file name prefix for Sql migrations
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     */
+    String sqlMigrationSeparator
+
+    /**
+     * The file name suffix for Sql migrations
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     */
     String sqlMigrationSuffix
 
     /** The encoding of Sql migrations */

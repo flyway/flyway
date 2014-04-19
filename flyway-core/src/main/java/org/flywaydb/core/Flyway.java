@@ -124,11 +124,25 @@ public class Flyway {
 
     /**
      * The file name prefix for sql migrations. (default: V)
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      */
     private String sqlMigrationPrefix = "V";
 
     /**
+     * The file name separator for sql migrations. (default: __)
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     */
+    private String sqlMigrationSeparator = "__";
+
+    /**
      * The file name suffix for sql migrations. (default: .sql)
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      */
     private String sqlMigrationSuffix = ".sql";
 
@@ -327,6 +341,9 @@ public class Flyway {
     /**
      * Retrieves the file name prefix for sql migrations.
      *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @return The file name prefix for sql migrations. (default: V)
      */
     public String getSqlMigrationPrefix() {
@@ -334,7 +351,22 @@ public class Flyway {
     }
 
     /**
+     * Retrieves the file name separator for sql migrations.
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
+     * @return The file name separator for sql migrations. (default: __)
+     */
+    public String getSqlMigrationSeparator() {
+        return sqlMigrationSeparator;
+    }
+
+    /**
      * Retrieves the file name suffix for sql migrations.
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @return The file name suffix for sql migrations. (default: .sql)
      */
@@ -601,6 +633,9 @@ public class Flyway {
     /**
      * Sets the file name prefix for sql migrations.
      *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @param sqlMigrationPrefix The file name prefix for sql migrations (default: V)
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
@@ -608,7 +643,26 @@ public class Flyway {
     }
 
     /**
+     * Sets the file name separator for sql migrations.
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
+     * @param sqlMigrationSeparator The file name separator for sql migrations (default: __)
+     */
+    public void setSqlMigrationSeparator(String sqlMigrationSeparator) {
+        if (!StringUtils.hasLength(sqlMigrationSeparator)) {
+            throw new FlywayException("sqlMigrationSeparator cannot be empty!");
+        }
+
+        this.sqlMigrationSeparator = sqlMigrationSeparator;
+    }
+
+    /**
      * Sets the file name suffix for sql migrations.
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @param sqlMigrationSuffix The file name suffix for sql migrations (default: .sql)
      */
@@ -953,7 +1007,7 @@ public class Flyway {
         PlaceholderReplacer placeholderReplacer =
                 new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
         return new CompositeMigrationResolver(dbSupport, classLoader, locations,
-                encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholderReplacer, resolvers);
+                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, placeholderReplacer, resolvers);
     }
 
     /**
@@ -993,6 +1047,10 @@ public class Flyway {
         String sqlMigrationPrefixProp = properties.getProperty("flyway.sqlMigrationPrefix");
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
+        }
+        String sqlMigrationSeparatorProp = properties.getProperty("flyway.sqlMigrationSeparator");
+        if (sqlMigrationSeparatorProp != null) {
+            setSqlMigrationSeparator(sqlMigrationSeparatorProp);
         }
         String sqlMigrationSuffixProp = properties.getProperty("flyway.sqlMigrationSuffix");
         if (sqlMigrationSuffixProp != null) {

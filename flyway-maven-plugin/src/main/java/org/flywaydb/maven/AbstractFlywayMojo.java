@@ -174,13 +174,30 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The file name prefix for Sql migrations (default: V) <p>Also configurable with Maven or System Property:
      * ${flyway.sqlMigrationPrefix}</p>
      *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @parameter property="flyway.sqlMigrationPrefix"
      */
     private String sqlMigrationPrefix = flyway.getSqlMigrationPrefix();
 
     /**
+     * The file name separator for Sql migrations (default: __) <p>Also configurable with Maven or System Property:
+     * ${flyway.sqlMigrationSeparator}</p>
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
+     * @parameter property="flyway.sqlMigrationSeparator"
+     */
+    private String sqlMigrationSeparator = flyway.getSqlMigrationSeparator();
+
+    /**
      * The file name suffix for Sql migrations (default: .sql) <p>Also configurable with Maven or System Property:
      * ${flyway.sqlMigrationSuffix}</p>
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @parameter property="flyway.sqlMigrationSuffix"
      */
@@ -401,6 +418,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setCallbacks(callbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
+            flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setOutOfOrder(outOfOrder);
@@ -431,8 +449,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             }
             properties.putAll(getConfigFileProperties());
             properties.putAll(System.getProperties());
-            System.out.println("PROPS =================>");
-            properties.list(System.out);
             flyway.configure(properties);
 
             doExecute(flyway);

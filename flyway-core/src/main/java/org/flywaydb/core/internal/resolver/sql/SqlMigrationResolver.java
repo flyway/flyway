@@ -18,10 +18,10 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.Location;
@@ -30,7 +30,6 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,6 +71,11 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final String sqlMigrationPrefix;
 
     /**
+     * The separator for sql migrations
+     */
+    private final String sqlMigrationSeparator;
+
+    /**
      * The suffix for sql migrations
      */
     private final String sqlMigrationSuffix;
@@ -79,23 +83,25 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param dbSupport           The database-specific support.
-     * @param classLoader The ClassLoader for loading migrations on the classpath.
-     * @param location            The location on the classpath where to migrations are located.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @param encoding            The encoding of Sql migrations.
-     * @param sqlMigrationPrefix  The prefix for sql migrations
-     * @param sqlMigrationSuffix  The suffix for sql migrations
+     * @param dbSupport             The database-specific support.
+     * @param classLoader           The ClassLoader for loading migrations on the classpath.
+     * @param location              The location on the classpath where to migrations are located.
+     * @param placeholderReplacer   The placeholder replacer to apply to sql migration scripts.
+     * @param encoding              The encoding of Sql migrations.
+     * @param sqlMigrationPrefix    The prefix for sql migrations
+     * @param sqlMigrationSeparator The separator for sql migrations
+     * @param sqlMigrationSuffix    The suffix for sql migrations
      */
     public SqlMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Location location,
                                 PlaceholderReplacer placeholderReplacer, String encoding,
-                                String sqlMigrationPrefix, String sqlMigrationSuffix) {
+                                String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix) {
         this.dbSupport = dbSupport;
         this.scanner = new Scanner(classLoader);
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
+        this.sqlMigrationSeparator = sqlMigrationSeparator;
         this.sqlMigrationSuffix = sqlMigrationSuffix;
     }
 
@@ -131,7 +137,8 @@ public class SqlMigrationResolver implements MigrationResolver {
         ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
 
         Pair<MigrationVersion, String> info =
-                MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(), sqlMigrationPrefix, sqlMigrationSuffix);
+                MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(),
+                        sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
         migration.setVersion(info.getLeft());
         migration.setDescription(info.getRight());
 
@@ -154,25 +161,6 @@ public class SqlMigrationResolver implements MigrationResolver {
         }
 
         return resource.getLocation().substring(location.getPath().length() + 1);
-    }
-
-    /**
-     * Extracts the sql file version string from this file name.
-     *
-     * @param fileName The file name to parse.
-     * @param prefix   The prefix to extract
-     * @param suffix   The suffix to extract
-     * @return The version string.
-     */
-    /* private -> for testing */
-    static String extractVersionStringFromFileName(String fileName, String prefix, String suffix) {
-        int lastDirSeparator = fileName.lastIndexOf("/");
-        int extension = fileName.lastIndexOf(suffix);
-        String withoutPathAndSuffix = fileName.substring(lastDirSeparator + 1, extension);
-        if (withoutPathAndSuffix.startsWith(prefix)) {
-            return withoutPathAndSuffix.substring(prefix.length());
-        }
-        return withoutPathAndSuffix;
     }
 
     /**

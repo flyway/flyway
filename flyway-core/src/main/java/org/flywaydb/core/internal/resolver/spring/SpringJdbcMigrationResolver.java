@@ -113,7 +113,8 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
             }
         } else {
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(ClassUtils.getShortName(springJdbcMigration.getClass()), "V", "");
+                    MigrationInfoHelper.extractVersionAndDescription(
+                            ClassUtils.getShortName(springJdbcMigration.getClass()), "V", "__", "");
             version = info.getLeft();
             description = info.getRight();
         }

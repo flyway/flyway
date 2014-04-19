@@ -319,6 +319,9 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @param sqlMigrationPrefix The file name prefix for Sql migrations (default: V)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationPrefix}
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
@@ -326,6 +329,19 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
+     * @param sqlMigrationSeparator The file name separator for Sql migrations (default: V)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationPrefix}
+     */
+    public void setSqlMigrationSeparator(String sqlMigrationSeparator) {
+        flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
+    }
+
+    /**
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @param sqlMigrationSuffix The file name suffix for Sql migrations (default: .sql)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationSuffix}
      */
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {

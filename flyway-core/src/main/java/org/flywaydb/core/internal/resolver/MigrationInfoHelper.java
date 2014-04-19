@@ -35,20 +35,25 @@ public class MigrationInfoHelper {
      * Extracts the schema version and the description from a migration name formatted as 1_2__Description.
      *
      * @param migrationName The migration name to parse. Should not contain any folders or packages.
+     * @param prefix        The migration prefix.
+     * @param separator     The migration separator.
+     * @param suffix        The migration suffix.
      * @return The extracted schema version.
      * @throws FlywayException if the migration name does not follow the standard conventions.
      */
-    public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName, String prefix, String suffix) {
+    public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName,
+                                                                              String prefix, String separator, String suffix) {
         String cleanMigrationName = migrationName.substring(prefix.length(), migrationName.length() - suffix.length());
 
         // Handle the description
-        int descriptionPos = cleanMigrationName.indexOf("__");
+        int descriptionPos = cleanMigrationName.indexOf(separator);
         if (descriptionPos < 0) {
-            throw new FlywayException("Wrong migration name format: " + migrationName + "(It should look like this: " + prefix + "1_2__Description" + suffix + ")");
+            throw new FlywayException("Wrong migration name format: " + migrationName
+                    + "(It should look like this: " + prefix + "1_2" + separator + "Description" + suffix + ")");
         }
 
         String version = cleanMigrationName.substring(0, descriptionPos);
-        String description = cleanMigrationName.substring(descriptionPos + 2).replaceAll("_", " ");
+        String description = cleanMigrationName.substring(descriptionPos + separator.length()).replaceAll("_", " ");
         return Pair.of(MigrationVersion.fromVersion(version), description);
     }
 }

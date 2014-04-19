@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
@@ -25,8 +26,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Test for the main Flyway class.
@@ -173,5 +173,24 @@ public class FlywaySmallTest {
         assertEquals(2, locations.length);
         assertEquals("classpath:db/migrations1", locations[0]);
         assertEquals("filesystem:db/migrations2", locations[1]);
+    }
+
+    @Test
+    public void setSqlMigrationSeparator() {
+        Flyway flyway = new Flyway();
+        assertEquals("__", flyway.getSqlMigrationSeparator());
+
+        flyway.setSqlMigrationSeparator("-");
+        assertEquals("-", flyway.getSqlMigrationSeparator());
+
+        flyway.setSqlMigrationSeparator(" ");
+        assertEquals(" ", flyway.getSqlMigrationSeparator());
+
+        try {
+            flyway.setSqlMigrationSeparator("");
+            fail();
+        } catch (FlywayException e) {
+            //expected
+        }
     }
 }

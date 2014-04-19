@@ -196,11 +196,11 @@ public class Main {
         LOG.info("");
         LOG.info("Commands");
         LOG.info("========");
-        LOG.info("clean    : Drops all objects in the configured schemas");
-        LOG.info("init     : Creates and initializes the metadata table");
         LOG.info("migrate  : Migrates the database");
-        LOG.info("validate : Validates the applied migrations against the ones on the classpath");
+        LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
+        LOG.info("validate : Validates the applied migrations against the ones on the classpath");
+        LOG.info("init     : Creates and initializes the metadata table");
         LOG.info("repair   : Repairs the metadata table after a failed migration");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
@@ -214,6 +214,7 @@ public class Main {
         LOG.info("locations              : Classpath locations to scan recursively for migrations");
         LOG.info("resolvers              : Comma-separated list of custom MigrationResolvers");
         LOG.info("sqlMigrationPrefix     : File name prefix for Sql migrations");
+        LOG.info("sqlMigrationSeparator  : File name separator for Sql migrations");
         LOG.info("sqlMigrationSuffix     : File name suffix for Sql migrations");
         LOG.info("encoding               : Encoding of Sql migrations");
         LOG.info("placeholders           : Placeholders to replace in Sql migrations");
@@ -235,7 +236,7 @@ public class Main {
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
-        LOG.info("flyway -target=1.5 -placeholder.user=my_user info");
+        LOG.info("flyway -target=1.5 -placeholders.user=my_user info");
         LOG.info("");
         LOG.info("More info at http://flywaydb.org/documentation/commandline");
     }

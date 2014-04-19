@@ -59,16 +59,19 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param locations                The locations where migrations are located.
      * @param encoding                 The encoding of Sql migrations.
      * @param sqlMigrationPrefix       The file name prefix for sql migrations.
+     * @param sqlMigrationSeparator    The file name separator for sql migrations.
      * @param sqlMigrationSuffix       The file name suffix for sql migrations.
      * @param placeholderReplacer      The placeholder replacer to use.
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
     public CompositeMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Locations locations,
-                                      String encoding, String sqlMigrationPrefix, String sqlMigrationSuffix,
+                                      String encoding,
+                                      String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
         for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSuffix));
+            migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer,
+                    encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
             migrationResolvers.add(new JdbcMigrationResolver(classLoader, location));
 
             if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {

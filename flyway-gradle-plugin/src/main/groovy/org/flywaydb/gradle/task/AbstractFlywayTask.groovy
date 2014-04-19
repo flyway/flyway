@@ -90,6 +90,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSet(flyway, 'initVersion')
         propSet(flyway, 'initDescription')
         propSet(flyway, 'sqlMigrationPrefix')
+        propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
         propSet(flyway, 'encoding')
         propSet(flyway, 'placeholderPrefix')
@@ -120,11 +121,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         def sysResolvers = System.getProperty("flyway.resolvers")
         if (sysResolvers != null) {
-            flyway.resolvers = StringUtils.tokenizeToStringArray(sysResolvers, ",")
+            flyway.setResolvers(StringUtils.tokenizeToStringArray(sysResolvers, ","))
         } else if (project.hasProperty("flyway.resolvers")) {
-            flyway.resolvers = StringUtils.tokenizeToStringArray(project["flyway.resolvers"].toString(), ",")
+            flyway.setResolvers(StringUtils.tokenizeToStringArray(project["flyway.resolvers"].toString(), ","))
         } else if (extension.resolvers != null) {
-            flyway.resolvers = extension.resolvers
+            flyway.setResolvers(extension.resolvers)
         }
 
         Map<String, String> placeholders = [:]
@@ -146,20 +147,14 @@ abstract class AbstractFlywayTask extends DefaultTask {
         flyway.placeholders = placeholders
 
         def sysCallbacks = System.getProperty("flyway.callbacks")
-        def callbackArray = []
         if (sysCallbacks != null) {
-            callbackArray = StringUtils.tokenizeToStringArray(sysCallbacks, ",")
+            flyway.setCallbacks(StringUtils.tokenizeToStringArray(sysCallbacks, ","))
         } else if (project.hasProperty("flyway.callbacks")) {
-            callbackArray = StringUtils.tokenizeToStringArray(project["flyway.callbacks"].toString(), ",")
+            flyway.setCallbacks(StringUtils.tokenizeToStringArray(project["flyway.callbacks"].toString(), ","))
         } else if (extension.callbacks != null) {
-            callbackArray = extension.callbacks
+            flyway.setCallbacks(extension.callbacks)
         }
-        
-        flyway.callbacks = new FlywayCallback[callbackArray.size()] 
-        for (int i = 0; i < callbackArray.size(); i++) {
-        	flyway.callbacks[i] = Class.forName(callbackArray.getAt(i)).newInstance()
-		}
-		
+
 		flyway
     }
 

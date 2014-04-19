@@ -112,7 +112,8 @@ public class JdbcMigrationResolver implements MigrationResolver {
             }
         } else {
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(ClassUtils.getShortName(jdbcMigration.getClass()), "V", "");
+                    MigrationInfoHelper.extractVersionAndDescription(
+                            ClassUtils.getShortName(jdbcMigration.getClass()), "V", "__", "");
             version = info.getLeft();
             description = info.getRight();
         }

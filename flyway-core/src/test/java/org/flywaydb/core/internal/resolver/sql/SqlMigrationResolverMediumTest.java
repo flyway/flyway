@@ -39,7 +39,9 @@ public class SqlMigrationResolverMediumTest {
         String path = URLDecoder.decode(getClass().getClassLoader().getResource("migration/subdir").getPath(), "UTF-8");
 
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, Thread.currentThread().getContextClassLoader(), new Location("filesystem:" + new File(path).getPath()), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", ".sql");
+                new SqlMigrationResolver(null, Thread.currentThread().getContextClassLoader(),
+                        new Location("filesystem:" + new File(path).getPath()), PlaceholderReplacer.NO_PLACEHOLDERS,
+                        "UTF-8", "V", "__", ".sql");
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
