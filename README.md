@@ -1,4 +1,4 @@
-# Flyway: Database migrations made easy. 
+# Flyway: database migrations made easy
 [![Build Status](https://travis-ci.org/flyway/flyway.png)](https://travis-ci.org/flyway/flyway)
 
 ![alt text](http://flywaydb.org/assets/logo/flyway-logo-transparent-300.png "Flyway")
