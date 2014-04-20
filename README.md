@@ -15,6 +15,9 @@ Maven, Gradle, Ant and SBT
 #### Supported databases
 Oracle, SQL Server, SQL Azure, DB2, MySQL, MariaDB, Google Cloud SQL, PostgreSQL, H2, Hsql, Derby, SQLite
 
+#### Third party plugins available for
+Grails, Play, Grunt and more
+
 ## Documentation
 http://flywaydb.org
 
