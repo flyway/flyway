@@ -20,24 +20,45 @@ import java.sql.SQLException;
 import org.flywaydb.core.dbsupport.DbSupport;
 import org.flywaydb.core.dbsupport.JdbcTemplate;
 import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.dbsupport.postgresql.PostgreSQLTable;
+import org.flywaydb.core.dbsupport.Table;
 
-public class RedshiftSQLTable extends PostgreSQLTable
+/**
+ * Redshift-specific table.
+ */
+public class RedshiftTable extends Table
 {
     /**
-     * Creates a new RedshiftSQL table.
+     * Creates a new Redshift table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param dbSupport    The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public RedshiftSQLTable(JdbcTemplate jdbcTemplate,
-                            DbSupport dbSupport,
-                            Schema schema,
-                            String name)
+    public RedshiftTable(JdbcTemplate jdbcTemplate,
+                         DbSupport dbSupport,
+                         Schema schema,
+                         String name)
     {
         super(jdbcTemplate, dbSupport, schema, name);
+    }
+
+    @Override
+    protected void doDrop() throws SQLException
+    {
+        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE");
+    }
+
+    @Override
+    protected boolean doExists() throws SQLException
+    {
+        return exists(null, schema, name);
+    }
+
+    @Override
+    protected boolean doExistsNoQuotes() throws SQLException
+    {
+        return exists(null, dbSupport.getSchema(schema.getName().toLowerCase()), name.toLowerCase(), "TABLE");
     }
 
     @Override

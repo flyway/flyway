@@ -26,7 +26,6 @@ import javax.sql.DataSource;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.util.jdbc.DriverDataSource;
 import org.flywaydb.core.util.jdbc.JdbcUtils;
 import org.junit.Test;
@@ -36,7 +35,7 @@ import org.junit.experimental.categories.Category;
  * Test to demonstrate the concurrent migration functionality using Redshift.
  */
 @Category(DbCategory.Redshift.class)
-public class RedshiftSQLDbSupportMediumTest
+public class RedshiftDbSupportMediumTest
 {
     /**
      * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.
@@ -45,7 +44,7 @@ public class RedshiftSQLDbSupportMediumTest
     public void setCurrentSchema() throws Exception
     {
         Connection connection = createDataSource().getConnection();
-        PostgreSQLDbSupport dbSupport = new RedshiftSQLDbSupport(connection);
+        RedshiftDbSupport dbSupport = new RedshiftDbSupport(connection);
         Schema schema = dbSupport.getSchema("search_path_test");
         schema.create();
         dbSupport.setCurrentSchema(dbSupport.getSchema("search_path_test"));
@@ -54,7 +53,6 @@ public class RedshiftSQLDbSupportMediumTest
         schema.drop();
         JdbcUtils.closeConnection(connection);
     }
-
 
     /**
      * Creates a datasource for use in tests.

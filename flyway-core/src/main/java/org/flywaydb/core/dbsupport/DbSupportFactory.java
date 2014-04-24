@@ -23,7 +23,7 @@ import org.flywaydb.core.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.dbsupport.postgresql.PostgreSQLDbSupport;
-import org.flywaydb.core.dbsupport.redshift.RedshiftSQLDbSupport;
+import org.flywaydb.core.dbsupport.redshift.RedshiftDbSupport;
 import org.flywaydb.core.dbsupport.sqlserver.SQLServerDbSupport;
 import org.flywaydb.core.util.logging.Log;
 import org.flywaydb.core.util.logging.LogFactory;
@@ -87,7 +87,7 @@ public class DbSupportFactory {
         }
         if(jdbcUrl.contains("redshift.amazonaws.com")) {
             // Redshift supports only a subset of PostgreSQL 8.0, hence we used something else to identify it.
-            return new RedshiftSQLDbSupport(connection);
+            return new RedshiftDbSupport(connection);
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
             return new PostgreSQLDbSupport(connection);

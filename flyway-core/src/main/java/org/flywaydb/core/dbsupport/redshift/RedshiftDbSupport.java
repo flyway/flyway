@@ -17,27 +17,44 @@ package org.flywaydb.core.dbsupport.redshift;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Types;
 
+import org.flywaydb.core.dbsupport.DbSupport;
+import org.flywaydb.core.dbsupport.JdbcTemplate;
 import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.dbsupport.postgresql.PostgreSQLDbSupport;
+import org.flywaydb.core.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.util.StringUtils;
 
-public class RedshiftSQLDbSupport extends PostgreSQLDbSupport
+/**
+ * Redshift-specific support.
+ */
+public class RedshiftDbSupport extends DbSupport
 {
     /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
      */
-    public RedshiftSQLDbSupport(Connection connection)
+    public RedshiftDbSupport(Connection connection)
     {
-        super(connection);
+        super(new JdbcTemplate(connection, Types.NULL));
     }
 
     @Override
     public String getDbName()
     {
         return "redshift";
+    }
+
+    public String getCurrentUserFunction()
+    {
+        return "current_user";
+    }
+
+    @Override
+    protected String doGetCurrentSchema() throws SQLException
+    {
+        return jdbcTemplate.queryForString("SELECT current_schema()");
     }
 
     @Override
@@ -51,7 +68,7 @@ public class RedshiftSQLDbSupport extends PostgreSQLDbSupport
         String searchPath = jdbcTemplate.queryForString("SHOW search_path");
         if (StringUtils.hasText(searchPath) && !searchPath.equals("unset")) {
             // Redshift throws an error on the $ character of $user when setting search_path. It needs to be quoted.
-            if(searchPath.contains("$user") && !searchPath.contains(doQuote("$user"))){
+            if (searchPath.contains("$user") && !searchPath.contains(doQuote("$user"))) {
                 searchPath = searchPath.replace("$user", doQuote("$user"));
             }
 
@@ -59,11 +76,44 @@ public class RedshiftSQLDbSupport extends PostgreSQLDbSupport
         } else {
             jdbcTemplate.execute("SET search_path = " + schema);
         }
+
+    }
+
+    public boolean supportsDdlTransactions()
+    {
+        return true;
+    }
+
+    public String getBooleanTrue()
+    {
+        return "TRUE";
+    }
+
+    public String getBooleanFalse()
+    {
+        return "FALSE";
+    }
+
+    public SqlStatementBuilder createSqlStatementBuilder()
+    {
+        return new RedshiftSqlStatementBuilder();
+    }
+
+    @Override
+    public String doQuote(String identifier)
+    {
+        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
     }
 
     @Override
     public Schema getSchema(String name)
     {
-        return new RedshiftSQLSchema(jdbcTemplate, this, name);
+        return new RedshiftSchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema()
+    {
+        return false;
     }
 }
