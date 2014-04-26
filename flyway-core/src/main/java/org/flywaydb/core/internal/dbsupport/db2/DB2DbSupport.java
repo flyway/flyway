@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -29,12 +30,22 @@ import java.sql.Types;
  */
 public class DB2DbSupport extends DbSupport {
     /**
+     * The major version of DB2. (9, 10, ...)
+     */
+    private final int majorVersion;
+
+    /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
      */
     public DB2DbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+        try {
+            majorVersion = connection.getMetaData().getDatabaseMajorVersion();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to determine DB2 major version", e);
+        }
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
@@ -84,5 +95,12 @@ public class DB2DbSupport extends DbSupport {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    /**
+     * @return The major version of DB2. (9, 10, ...)
+     */
+    public int getDb2MajorVersion() {
+        return majorVersion;
     }
 }

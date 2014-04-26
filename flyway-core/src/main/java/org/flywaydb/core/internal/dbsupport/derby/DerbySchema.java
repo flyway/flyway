@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.derby;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -29,7 +28,7 @@ import java.util.Map;
 /**
  * Derby implementation of Schema.
  */
-public class DerbySchema extends Schema {
+public class DerbySchema extends Schema<DerbyDbSupport> {
     /**
      * Creates a new Derby schema.
      *
@@ -37,7 +36,7 @@ public class DerbySchema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public DerbySchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public DerbySchema(JdbcTemplate jdbcTemplate, DerbyDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 

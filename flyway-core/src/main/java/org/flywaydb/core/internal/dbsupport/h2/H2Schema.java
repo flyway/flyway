@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.h2;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -30,7 +29,7 @@ import java.util.List;
 /**
  * H2 implementation of Schema.
  */
-public class H2Schema extends Schema {
+public class H2Schema extends Schema<H2DbSupport> {
     private static final Log LOG = LogFactory.getLog(H2Schema.class);
 
     /**
@@ -40,7 +39,7 @@ public class H2Schema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public H2Schema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public H2Schema(JdbcTemplate jdbcTemplate, H2DbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 

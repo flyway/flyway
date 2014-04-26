@@ -15,11 +15,9 @@
  */
 package org.flywaydb.core.internal.dbsupport.sqlite;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
@@ -29,7 +27,7 @@ import java.util.List;
 /**
  * SQLite implementation of Schema.
  */
-public class SQLiteSchema extends Schema {
+public class SQLiteSchema extends Schema<SQLiteDbSupport> {
     private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
 
     /**
@@ -39,7 +37,7 @@ public class SQLiteSchema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public SQLiteSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public SQLiteSchema(JdbcTemplate jdbcTemplate, SQLiteDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
