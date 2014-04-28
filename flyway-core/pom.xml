@@ -245,6 +245,11 @@
                     <artifactId>db2jcc4</artifactId>
                     <scope>test</scope>
                 </dependency>
+                <dependency>
+                    <groupId>com.vertica</groupId>
+                    <artifactId>vertica-jdbc</artifactId>
+                    <scope>test</scope>
+                </dependency>                
             </dependencies>
         </profile>
     </profiles>
