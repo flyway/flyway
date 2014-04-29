@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.mysql;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -28,7 +27,7 @@ import java.util.Map;
 /**
  * MySQL implementation of Schema.
  */
-public class MySQLSchema extends Schema {
+public class MySQLSchema extends Schema<MySQLDbSupport> {
     /**
      * Creates a new MySQL schema.
      *
@@ -36,7 +35,7 @@ public class MySQLSchema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public MySQLSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public MySQLSchema(JdbcTemplate jdbcTemplate, MySQLDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -48,12 +47,13 @@ public class MySQLSchema extends Schema {
     @Override
     protected boolean doEmpty() throws SQLException {
         int objectCount = jdbcTemplate.queryForInt("Select "
-                + "(Select count(*) from information_schema.TABLES Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.TABLE_CONSTRAINTS Where TABLE_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.EVENTS Where EVENT_SCHEMA=?) + "
-                + "(Select count(*) from information_schema.ROUTINES Where ROUTINE_SCHEMA=?)",
-                name, name, name, name, name);
+                        + "(Select count(*) from information_schema.TABLES Where TABLE_SCHEMA=?) + "
+                        + "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
+                        + "(Select count(*) from information_schema.TABLE_CONSTRAINTS Where TABLE_SCHEMA=?) + "
+                        + "(Select count(*) from information_schema.EVENTS Where EVENT_SCHEMA=?) + "
+                        + "(Select count(*) from information_schema.ROUTINES Where ROUTINE_SCHEMA=?)",
+                name, name, name, name, name
+        );
         return objectCount == 0;
     }
 

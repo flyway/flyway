@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.hsql;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -27,7 +26,7 @@ import java.util.List;
 /**
  * Hsql implementation of Schema.
  */
-public class HsqlSchema extends Schema {
+public class HsqlSchema extends Schema<HsqlDbSupport> {
     /**
      * Creates a new Hsql schema.
      *
@@ -35,7 +34,7 @@ public class HsqlSchema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public HsqlSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public HsqlSchema(JdbcTemplate jdbcTemplate, HsqlDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
