@@ -18,9 +18,9 @@ package org.flywaydb.core.internal.dbsupport.redshift;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLSchema;
 
 /**
@@ -34,7 +34,7 @@ public class RedshiftSchema extends PostgreSQLSchema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public RedshiftSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public RedshiftSchema(JdbcTemplate jdbcTemplate, PostgreSQLDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
