@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -29,7 +28,7 @@ import java.util.Map;
 /**
  * PostgreSQL implementation of Schema.
  */
-public class PostgreSQLSchema extends Schema {
+public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     /**
      * Creates a new PostgreSQL schema.
      *
@@ -37,7 +36,7 @@ public class PostgreSQLSchema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public PostgreSQLSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -161,7 +160,8 @@ public class PostgreSQLSchema extends Schema {
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                                 + "WHERE pg_proc.proisagg = true AND ns.nspname = ?",
-                        name);
+                        name
+                );
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {
@@ -182,7 +182,8 @@ public class PostgreSQLSchema extends Schema {
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                                 + "WHERE pg_proc.proisagg = false AND ns.nspname = ?",
-                        name);
+                        name
+                );
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {
@@ -242,7 +243,8 @@ public class PostgreSQLSchema extends Schema {
                                 //and are not child tables (= do not inherit from another table).
                                 " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
                                 " WHERE inhrelid = ('\"'||t.table_schema||'\".\"'||t.table_name||'\"')::regclass::oid))",
-                        name);
+                        name
+                );
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
         Table[] tables = new Table[tableNames.size()];

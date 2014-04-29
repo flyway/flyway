@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -30,7 +29,7 @@ import java.util.List;
 /**
  * Oracle implementation of Schema.
  */
-public class OracleSchema extends Schema {
+public class OracleSchema extends Schema<OracleDbSupport> {
     private static final Log LOG = LogFactory.getLog(OracleSchema.class);
 
     /**
@@ -40,7 +39,7 @@ public class OracleSchema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public OracleSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public OracleSchema(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -122,7 +121,7 @@ public class OracleSchema extends Schema {
         for (Table table : allTables()) {
             table.drop();
         }
-        
+
         for (String statement : generateDropStatementsForXmlTables()) {
             jdbcTemplate.execute(statement);
         }
@@ -130,7 +129,7 @@ public class OracleSchema extends Schema {
         for (String statement : generateDropStatementsForObjectType("CLUSTER", "")) {
             jdbcTemplate.execute(statement);
         }
-        
+
         for (String statement : generateDropStatementsForObjectType("TYPE", "FORCE")) {
             jdbcTemplate.execute(statement);
         }
@@ -312,7 +311,8 @@ public class OracleSchema extends Schema {
                         // Ignore Nested Tables
                         + " AND nested != 'YES'"
                         // Ignore Nested Tables
-                        + " AND secondary != 'Y'", name);
+                        + " AND secondary != 'Y'", name
+        );
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {

@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.sqlserver;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -28,7 +27,7 @@ import java.util.Map;
 /**
  * SQLServer implementation of Schema.
  */
-public class SQLServerSchema extends Schema {
+public class SQLServerSchema extends Schema<SQLServerDbSupport> {
     /**
      * Creates a new SQLServer schema.
      *
@@ -36,7 +35,7 @@ public class SQLServerSchema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public SQLServerSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public SQLServerSchema(JdbcTemplate jdbcTemplate, SQLServerDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -114,7 +113,8 @@ public class SQLServerSchema extends Schema {
                 jdbcTemplate.queryForList(
                         "SELECT table_name, constraint_name FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS" +
                                 " WHERE constraint_type in ('FOREIGN KEY','CHECK') and table_schema=?",
-                        name);
+                        name
+                );
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : constraintNames) {
@@ -140,7 +140,8 @@ public class SQLServerSchema extends Schema {
                                 " inner join sys.default_constraints d on d.parent_object_id = t.object_id\n" +
                                 " inner join sys.schemas s on s.schema_id = t.schema_id\n" +
                                 " where s.name = ?",
-                        name);
+                        name
+                );
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : constraintNames) {
@@ -161,8 +162,9 @@ public class SQLServerSchema extends Schema {
         @SuppressWarnings({"unchecked"})
         List<Map<String, String>> routineNames =
                 jdbcTemplate.queryForList("SELECT routine_name, routine_type FROM INFORMATION_SCHEMA.ROUTINES" +
-                        " WHERE routine_schema=?",
-                        name);
+                                " WHERE routine_schema=?",
+                        name
+                );
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : routineNames) {
@@ -202,7 +204,8 @@ public class SQLServerSchema extends Schema {
                 jdbcTemplate.queryForStringList(
                         "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
                                 " WHERE t.is_user_defined = 1 AND s.name = ?",
-                        name);
+                        name
+                );
 
         List<String> statements = new ArrayList<String>();
         for (String typeName : typeNames) {
@@ -222,7 +225,8 @@ public class SQLServerSchema extends Schema {
                 jdbcTemplate.queryForStringList(
                         "SELECT sn.name FROM sys.synonyms sn INNER JOIN sys.schemas s ON sn.schema_id = s.schema_id" +
                                 " WHERE s.name = ?",
-                        name);
+                        name
+                );
 
         List<String> statements = new ArrayList<String>();
         for (String synonymName : synonymNames) {

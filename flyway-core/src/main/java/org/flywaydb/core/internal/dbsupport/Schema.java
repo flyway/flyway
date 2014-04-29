@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Represents a database schema.
  */
-public abstract class Schema {
+public abstract class Schema<S extends DbSupport> {
     /**
      * The Jdbc Template for communicating with the DB.
      */
@@ -35,7 +35,7 @@ public abstract class Schema {
     /**
      * The database-specific support.
      */
-    protected final DbSupport dbSupport;
+    protected final S dbSupport;
 
     /**
      * The name of the schema.
@@ -49,7 +49,7 @@ public abstract class Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public Schema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public Schema(JdbcTemplate jdbcTemplate, S dbSupport, String name) {
         this.jdbcTemplate = jdbcTemplate;
         this.dbSupport = dbSupport;
         this.name = name;

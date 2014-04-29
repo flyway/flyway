@@ -15,23 +15,18 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2;
 
+import org.flywaydb.core.internal.dbsupport.*;
+import org.flywaydb.core.internal.util.StringUtils;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Function;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.dbsupport.Type;
-import org.flywaydb.core.internal.util.StringUtils;
-
 /**
  * DB2 implementation of Schema.
  */
-public class DB2Schema extends Schema {
+public class DB2Schema extends Schema<DB2DbSupport> {
     /**
      * Creates a new DB2 schema.
      *
@@ -39,7 +34,7 @@ public class DB2Schema extends Schema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public DB2Schema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public DB2Schema(JdbcTemplate jdbcTemplate, DB2DbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -75,9 +70,11 @@ public class DB2Schema extends Schema {
         // MQTs are dropped when the backing views or tables are dropped
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
-        // drop versioned table link
-        for (String dropVersioningStatement : generateDropVersioningStatement()) {
-            jdbcTemplate.execute(dropVersioningStatement);
+        if (dbSupport.getDb2MajorVersion() >= 10) {
+            // drop versioned table link -> not supported for DB2 9.x
+            for (String dropVersioningStatement : generateDropVersioningStatement()) {
+                jdbcTemplate.execute(dropVersioningStatement);
+            }
         }
 
         // views
@@ -112,7 +109,6 @@ public class DB2Schema extends Schema {
             type.drop();
         }
     }
-
 
 
     /**
@@ -174,22 +170,19 @@ public class DB2Schema extends Schema {
     }
 
     /**
-     * Returns all tables that have versioning associated with them.
-     *
-     * @return
-     * @throws SQLException
+     * @return All tables that have versioning associated with them.
      */
     private List<String> generateDropVersioningStatement() throws SQLException {
         List<String> dropVersioningStatements = new ArrayList<String>();
         Table[] versioningTables = findTables("select rtrim(TABNAME) from SYSCAT.TABLES where TEMPORALTYPE <> 'N' and TABSCHEMA = ?", name);
-        for(Table table : versioningTables) {
+        for (Table table : versioningTables) {
             dropVersioningStatements.add("ALTER TABLE " + table.toString() + " DROP VERSIONING");
         }
 
         return dropVersioningStatements;
     }
 
-    private Table[] findTables(String sqlQuery, String ... params) throws SQLException {
+    private Table[] findTables(String sqlQuery, String... params) throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(sqlQuery, params);
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
@@ -211,7 +204,8 @@ public class DB2Schema extends Schema {
                         " from SYSCAT.FUNCTIONS f inner join SYSCAT.FUNCPARMS p on f.SPECIFICNAME = p.SPECIFICNAME" +
                         " where f.ORIGIN = 'Q' and p.FUNCSCHEMA = ? and p.ROWTYPE = 'P'" +
                         " group by p.SPECIFICNAME, p.FUNCNAME" +
-                        " order by p.SPECIFICNAME", name);
+                        " order by p.SPECIFICNAME", name
+        );
 
         List<Function> functions = new ArrayList<Function>();
         for (Map<String, String> row : rows) {
