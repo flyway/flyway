@@ -20,16 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.dbsupport.Type;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLTable;
 
-public class VerticaSchema extends Schema {
+public class VerticaSchema extends Schema<VerticaDbSupport> {
 
-    public VerticaSchema(JdbcTemplate jdbcTemplate, DbSupport dbSupport, String name) {
+    public VerticaSchema(JdbcTemplate jdbcTemplate, VerticaDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
     
