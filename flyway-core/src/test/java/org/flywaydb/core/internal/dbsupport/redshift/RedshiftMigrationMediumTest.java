@@ -42,7 +42,7 @@ import org.junit.experimental.categories.Category;
 
 /**
  * Test to demonstrate the migration functionality using Redshift.
- * 
+ *
  * Note: most of these tests re-use the *.sql test resources that were created for postgresql.
  */
 @SuppressWarnings({"JavaDoc"})
@@ -149,7 +149,7 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
         public boolean executeInTransaction() {
             return false;
         }
-    }    
+    }
 
     /**
      * Tests clean and migrate for PostgreSQL Views.
@@ -165,8 +165,8 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
-    }    
-    
+    }
+
     /**
      * Tests parsing support for $$ string literals.
      */

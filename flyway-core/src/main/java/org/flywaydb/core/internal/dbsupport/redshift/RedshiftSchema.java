@@ -43,10 +43,10 @@ public class RedshiftSchema extends PostgreSQLSchema {
         for (Table table : allTables()) {
             table.drop();
         }
-        
+
         // Custom sequences, functions, domains and types are not supported by Redshift.
-    }    
-    
+    }
+
     @Override
     protected Table[] doAllTables() throws SQLException {
         List<String> tableNames =
@@ -66,11 +66,11 @@ public class RedshiftSchema extends PostgreSQLSchema {
             tables[i] = new RedshiftTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
-    }    
-    
+    }
+
     @Override
     public Table getTable(String tableName) {
         return new RedshiftTable(jdbcTemplate, dbSupport, this, tableName);
-    }    
+    }
 
 }

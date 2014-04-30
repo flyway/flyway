@@ -21,11 +21,15 @@ import java.sql.SQLException;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 /**
  * Redshift-specific support.
  */
 public class RedshiftDbSupport extends PostgreSQLDbSupport {
+    private static final Log LOG = LogFactory.getLog(RedshiftDbSupport.class);
+
     /**
      * Creates a new instance.
      *
@@ -51,7 +55,7 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
              // Redshift throws an error on the $ character of $user when setting search_path. It needs to be quoted.
              if (searchPath.contains("$user") && !searchPath.contains(doQuote("$user"))) {
                  searchPath = searchPath.replace("$user", doQuote("$user"));
-             }            
+             }
             jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
         } else {
             jdbcTemplate.execute("SET search_path = " + schema);
@@ -62,7 +66,7 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
     public Schema getSchema(String name) {
         return new RedshiftSchema(jdbcTemplate, this, name);
     }
-    
+
     /**
      * @return true if we are connected to Redshift; false otherwise
      */
@@ -70,9 +74,9 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
         try {
             return jdbcTemplate.queryForInt("select count(*) from information_schema.tables where table_schema = 'pg_catalog' and table_name = 'stl_s3client'") > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Unable to check whether this is a Redshift database", e);
             return false;
-        }        
+        }
     }
 
 }
