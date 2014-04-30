@@ -31,7 +31,7 @@ public class VerticaSchema extends Schema<VerticaDbSupport> {
     public VerticaSchema(JdbcTemplate jdbcTemplate, VerticaDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
-    
+
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM v_catalog.schemata WHERE schema_name=?", name) > 0;
@@ -69,7 +69,7 @@ public class VerticaSchema extends Schema<VerticaDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
-        // Vertica does not support base types, enums or domains 
+        // Vertica does not support base types, enums or domains
 
         // Includes scalar functions and aggregate functions:
         for (String statement : generateDropStatementsForFunctions()) {
@@ -117,8 +117,8 @@ public class VerticaSchema extends Schema<VerticaDbSupport> {
             statements.add("DROP FUNCTION IF EXISTS " + dbSupport.quote(name, row.get("function_name")) + "(" + row.get("function_argument_type") + ")");
         }
         return statements;
-    } 
-    
+    }
+
     /**
      * Generates the statements for dropping the views in this schema.
      *
@@ -128,11 +128,11 @@ public class VerticaSchema extends Schema<VerticaDbSupport> {
     private List<String> generateDropStatementsForViews() throws SQLException {
         List<String> viewNames =
                 jdbcTemplate.queryForStringList(
-                        //Search for all the table names 
+                        //Search for all the table names
                         "SELECT t.table_name FROM v_catalog.all_tables t" +
                                 //in this schema
                                 " WHERE schema_name=?" +
-                                //Querying for 'VIEW' in Vertica will exclude user-defined tables, system tables and temporary tables 
+                                //Querying for 'VIEW' in Vertica will exclude user-defined tables, system tables and temporary tables
                                 " and table_type = 'VIEW'",
                         name);
 
@@ -141,17 +141,17 @@ public class VerticaSchema extends Schema<VerticaDbSupport> {
             statements.add("DROP VIEW IF EXISTS " + dbSupport.quote(name, viewName));
         }
         return statements;
-    }     
-    
+    }
+
     @Override
     protected Table[] doAllTables() throws SQLException {
         List<String> tableNames =
                 jdbcTemplate.queryForStringList(
-                        //Search for all the table names 
+                        //Search for all the table names
                         "SELECT t.table_name FROM v_catalog.all_tables t" +
                                 //in this schema
                                 " WHERE schema_name=?" +
-                                //Querying for 'TABLE' in Vertica will exclude views, system tables and temporary tables 
+                                //Querying for 'TABLE' in Vertica will exclude views, system tables and temporary tables
                                 " and table_type =  'TABLE'",
                         name);
         //Vertica will drop projections, when using cascade, but it will not drop views.

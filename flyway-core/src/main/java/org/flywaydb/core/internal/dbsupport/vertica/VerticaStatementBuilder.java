@@ -33,7 +33,7 @@ public class VerticaStatementBuilder extends PostgreSQLSqlStatementBuilder {
      * Holds the beginning of the statement.
      */
     private String statementStart = "";
-    
+
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
@@ -56,5 +56,5 @@ public class VerticaStatementBuilder extends PostgreSQLSqlStatementBuilder {
         }
         return getDefaultDelimiter();
     }
-    
+
 }

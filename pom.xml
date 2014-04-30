@@ -212,7 +212,7 @@
                 <artifactId>vertica-jdbc</artifactId>
                 <version>7.0.0-0</version>
                 <optional>true</optional>
-            </dependency>            
+            </dependency>
             <dependency>
                 <groupId>com.google.appengine</groupId>
                 <artifactId>appengine-api-1.0-sdk</artifactId>

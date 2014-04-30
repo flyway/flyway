@@ -249,7 +249,7 @@
                     <groupId>com.vertica</groupId>
                     <artifactId>vertica-jdbc</artifactId>
                     <scope>test</scope>
-                </dependency>                
+                </dependency>
             </dependencies>
         </profile>
     </profiles>

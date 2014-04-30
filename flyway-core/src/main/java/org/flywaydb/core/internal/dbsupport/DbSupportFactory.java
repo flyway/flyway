@@ -98,7 +98,7 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("Vertica")) {
             return new VerticaDbSupport(connection);
-        }        
+        }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }

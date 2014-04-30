@@ -60,7 +60,7 @@ public class VerticaDbSupport extends DbSupport {
             return;
         }
 
-        String searchPath = doGetSearchPath();        
+        String searchPath = doGetSearchPath();
         if (StringUtils.hasText(searchPath)) {
             jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
         } else {
@@ -75,19 +75,19 @@ public class VerticaDbSupport extends DbSupport {
                 // All "show" commands in Vertica return two columns: "name" and "setting",
                 // but we just want the value in the second column:
                 //
-                //     name     |                      setting                      
+                //     name     |                      setting
                 // -------------+---------------------------------------------------
                 // search_path | "$user", public, v_catalog, v_monitor, v_internal
                 return rs.getString("setting");
             }
-            
+
         }).get(0);
         return searchPath;
-    }     
+    }
 
     public boolean supportsDdlTransactions() {
         return false;
-    }    
+    }
 
     public String getBooleanTrue() {
         return "TRUE";
@@ -99,7 +99,7 @@ public class VerticaDbSupport extends DbSupport {
 
     public SqlStatementBuilder createSqlStatementBuilder() {
         return new VerticaStatementBuilder();
-    }    
+    }
 
     @Override
     public String doQuote(String identifier) {
@@ -109,11 +109,11 @@ public class VerticaDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         return new VerticaSchema(jdbcTemplate, this, name);
-    }   
+    }
 
     @Override
     public boolean catalogIsSchema() {
         return false;
     }
-    
+
 }
