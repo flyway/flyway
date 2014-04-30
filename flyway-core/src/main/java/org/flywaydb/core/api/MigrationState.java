@@ -80,7 +80,7 @@ public enum MigrationState {
      * Rerunning the entire migration history might produce different results!
      * </p>
      */
-    OUT_OF_ORDER("OutOrder", true, true, false),
+    OUT_OF_ORDER("OutOrdr", true, true, false),
 
     /**
      * <p>This migration succeeded.</p>
