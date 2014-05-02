@@ -24,7 +24,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Properties;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test to demonstrate the migration functionality using SQLite.
@@ -48,6 +52,11 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
 
     @Ignore
     public void setCurrentSchema() throws Exception {
+        //Not supported by SQLite
+    }
+
+    @Ignore
+    public void schemaExists() throws SQLException {
         //Not supported by SQLite
     }
 
