@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.sqlite;
 
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Ignore;
@@ -56,6 +57,23 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
 
         flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
+    public void noDriverCrashIssue746() throws Exception {
+        flyway.setLocations(BASEDIR);
+
+        Properties props = new Properties();
+        //uncomment this to fix the code
+        //props.setProperty("flyway.driver", "org.sqlite.JDBC");
+        props.setProperty("flyway.url", "jdbc:sqlite::memory:");
+        props.setProperty("flyway.user", "sa");
+        flyway.configure(props);
+
+        //first invocation works fine
+        flyway.info();
+        //here comes the crash
         flyway.migrate();
     }
 }

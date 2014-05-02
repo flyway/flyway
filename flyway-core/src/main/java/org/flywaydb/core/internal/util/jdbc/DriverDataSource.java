@@ -281,6 +281,7 @@ public class DriverDataSource implements DataSource {
             InvocationHandler suppressCloseHandler = new SuppressCloseHandler(connection);
             singleConnection =
                     (Connection) Proxy.newProxyInstance(classLoader, new Class[] {Connection.class}, suppressCloseHandler);
+            return singleConnection;
         }
 
         return connection;
