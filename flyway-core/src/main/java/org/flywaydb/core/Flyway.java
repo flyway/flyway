@@ -176,8 +176,8 @@ public class Flyway {
     /**
      * <p>
      * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
+     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
+     * Only migrations above {@code initVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
@@ -425,8 +425,8 @@ public class Flyway {
     /**
      * <p>
      * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
+     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
+     * Only migrations above {@code initVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
@@ -725,8 +725,8 @@ public class Flyway {
     /**
      * <p>
      * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
+     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
+     * Only migrations above {@code initVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
