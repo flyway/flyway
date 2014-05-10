@@ -167,6 +167,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:postgresql:")) {
+            // The format of Redshift JDBC urls is the same as PostgreSQL, and Redshift uses the same JDBC driver
             return "org.postgresql.Driver";
         }
 
