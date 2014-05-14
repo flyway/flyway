@@ -38,7 +38,7 @@ public class DB2zosDbSupport extends DbSupport {
     }
 
     public String getDbName() {
-        return "db2zOS";
+        return "db2zos";
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {

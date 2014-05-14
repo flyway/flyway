@@ -55,7 +55,7 @@ public class DbSupportFactory {
      * @param printInfo  Where the DB info should be printed in the logs.
      * @return The appropriate DbSupport class.
      */
-    public static DbSupport createDbSupport(Connection connection, boolean printInfo, String databasePlatform) {
+    public static DbSupport createDbSupport(Connection connection, boolean printInfo) {
         String databaseProductName = getDatabaseProductName(connection);
 
         if (printInfo) {
@@ -88,7 +88,7 @@ public class DbSupportFactory {
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-			if (databasePlatform.equals("zOS")) {
+			if (getDatabaseProductVersion(connection).startsWith("DSN")){
 				return new DB2zosDbSupport(connection);
 			} else {
 				return new DB2DbSupport(connection);
@@ -133,11 +133,40 @@ public class DbSupportFactory {
 
             int databaseMajorVersion = databaseMetaData.getDatabaseMajorVersion();
             int databaseMinorVersion = databaseMetaData.getDatabaseMinorVersion();
+			String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
 
-            return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
+			return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
             throw new FlywayException("Error while determining database product name", e);
         }
     }
+
+	/**
+	 * Retrieves the database version.
+	 *
+	 * @param connection The connection to use to query the database.
+	 * @return The version of the database product.
+	 * Ex.: DSN11015 DB2 for z/OS Version 11
+	 *      SQL10050 DB" for Linux, UNIX and Windows Version 10.5
+	 */
+	private static String getDatabaseProductVersion(Connection connection) {
+		try {
+			DatabaseMetaData databaseMetaData = connection.getMetaData();
+			if (databaseMetaData == null) {
+				throw new FlywayException("Unable to read database metadata while it is null!");
+			}
+
+			String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
+			if (databaseProductVersion == null) {
+				throw new FlywayException("Unable to determine database. Product version is null.");
+			}
+
+
+			return databaseProductVersion;
+		} catch (SQLException e) {
+			throw new FlywayException("Error while determining database product version", e);
+		}
+	}
+
 
 }

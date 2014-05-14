@@ -40,7 +40,6 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 	protected void configureFlyway() {
 		super.configureFlyway();
 		flyway.setTable("SCHEMA_VERSION");
-		flyway.setDatabasePlatform("zOS");
 		flyway.setSchemas("TESTADM");
 		flyway.setInitOnMigrate(true);
 		try {

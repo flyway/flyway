@@ -97,14 +97,6 @@ public class Flyway {
      */
     private MigrationVersion target = MigrationVersion.LATEST;
 
-	/**
-	 *
-	 *   For databases that run on different platforms. DB2 on LUW differ from DB2 on z/OS
-	 *   It is not possible to decide platform rumtime, so this information must be a property
-	 *
-	 */
-	private String databasePlatform = "";
-
     /**
      * The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
@@ -323,15 +315,6 @@ public class Flyway {
         return sqlMigrationSuffix;
     }
 
-	/**
-	 *
-	 *  Get the databasePlatform
-	 *  For databases that run on different platforms. DB2 on LUW differ from DB2 on z/OS
-	 *
-	 */
-	public String getDatabasePlatform() {
-		return databasePlatform;
-	}
 
     /**
      * Whether to ignore failed future migrations when reading the metadata table. These are migrations that
@@ -662,17 +645,6 @@ public class Flyway {
     }
 
     /**
-	 *  Get the databasePlatform
-	 *  For databases that run on different platforms. DB2 on LUW differ from DB2 on z/OS
-	 *
-	 *  Default: DB2 on LUW
-	 *  databasePlatform=zOS for zOS
-	 */
-	public void setDatabasePlatform(String databasePlatform) {
-		this.databasePlatform = databasePlatform;
-	}
-
-    /**
      * <p>
      * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
      * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
@@ -761,7 +733,7 @@ public class Flyway {
                     }
                 }
 
-                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false, databasePlatform);
+                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
                 Schema originalSchemaUserObjects = dbSupportUserObjects.getCurrentSchema();
                 boolean schemaChange = !schemas[0].equals(originalSchemaUserObjects);
                 if (schemaChange) {
@@ -925,10 +897,6 @@ public class Flyway {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! flyway.url must be set.");
         }
 
-		String databasePlatformProp = properties.getProperty("flyway.databasePlatform");
-		if (databasePlatformProp != null) {
-			setDatabasePlatform(databasePlatformProp);
-		}
         String locationsProp = properties.getProperty("flyway.locations");
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
@@ -1028,7 +996,7 @@ public class Flyway {
             connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
             connectionUserObjects = JdbcUtils.openConnection(dataSource);
 
-            DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted, databasePlatform);
+            DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 

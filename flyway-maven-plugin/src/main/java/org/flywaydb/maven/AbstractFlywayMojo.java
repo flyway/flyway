@@ -100,19 +100,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     private String password;
 
-    /**
-	 *  Get the databasePlatform
-	 *  For databases that run on different platforms. DB2 on LUW differ from DB2 on z/OS
-	 *  It is not possible to decide platform rumtime, so this information must be a property
-	 *
-	 *  Default: DB2 on LUW
-	 *  databasePlatform=zOS for zOS
-	 *
-	 * <p>Also configurable with Maven or System Property: ${flyway.databasePlatform} </p>
-	 *
-	 * @parameter property="flyway.databasePlatform"
-	 */
-	private String databasePlatform;
 
     /**
      * List of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
@@ -384,7 +371,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setTable(table);
             flyway.setInitVersion(initVersion);
             flyway.setInitDescription(initDescription);
-            flyway.setDatabasePlatform(databasePlatform);
 
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {

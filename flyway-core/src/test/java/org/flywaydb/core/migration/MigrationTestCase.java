@@ -74,7 +74,7 @@ public abstract class MigrationTestCase {
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
-        dbSupport = DbSupportFactory.createDbSupport(connection, false, customProperties.getProperty("db2zos.databaseplatform", "databasePlatformNotInUse"));
+        dbSupport = DbSupportFactory.createDbSupport(connection, false);
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
 		configureFlyway();
