@@ -91,7 +91,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         LOG.info("Creating Metadata table: " + table);
 
         String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
-        String source = new ClassPathResource(resourceName, classLoader).loadAsString("UTF-8");
+        String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", table.getSchema().getName());
