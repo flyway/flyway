@@ -112,7 +112,6 @@ public class DbSupportFactory {
         }
     }
 
-
     /**
      * Retrieves the name of the database product.
      *
@@ -133,9 +132,8 @@ public class DbSupportFactory {
 
             int databaseMajorVersion = databaseMetaData.getDatabaseMajorVersion();
             int databaseMinorVersion = databaseMetaData.getDatabaseMinorVersion();
-			String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
 
-			return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
+            return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
             throw new FlywayException("Error while determining database product name", e);
         }

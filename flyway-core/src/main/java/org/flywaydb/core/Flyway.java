@@ -315,7 +315,6 @@ public class Flyway {
         return sqlMigrationSuffix;
     }
 
-
     /**
      * Whether to ignore failed future migrations when reading the metadata table. These are migrations that
      * were performed by a newer deployment of the application that are not yet available in this version. For example:

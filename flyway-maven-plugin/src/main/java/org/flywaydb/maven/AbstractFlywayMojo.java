@@ -100,7 +100,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     private String password;
 
-
     /**
      * List of the schemas managed by Flyway. These schema names are case-sensitive.<br/>
      * (default: The default schema for the datasource connection)
@@ -234,7 +233,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The prefix of every placeholder. (default: ${ )<br>
-     *     <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
      *
      * @parameter property="flyway.placeholderPrefix"
      */
@@ -242,7 +241,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The suffix of every placeholder. (default: } )<br>
-     *     <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
      *
      * @parameter property="flyway.placeholderSuffix"
      */
@@ -367,11 +366,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setDataSource(createDataSource());
-                flyway.setSchemas(schemas);
+            flyway.setSchemas(schemas);
             flyway.setTable(table);
             flyway.setInitVersion(initVersion);
             flyway.setInitDescription(initDescription);
-
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
                     if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
