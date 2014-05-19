@@ -54,7 +54,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 	protected DataSource createDataSource(Properties customProperties) throws Exception {
 		String user = customProperties.getProperty("db2.user", "TESTADMS");
 		String password = customProperties.getProperty("db2.password", "password");
-		String url = customProperties.getProperty("db2.url", "jdbc:db2://155.55.1.82:5023/TDB2");
+		String url = customProperties.getProperty("db2.url", "jdbc:db2://host:port/schemaname");
 
 		return new DriverDataSource(Thread.currentThread().getContextClassLoader(),null, url, user, password);
 	}
