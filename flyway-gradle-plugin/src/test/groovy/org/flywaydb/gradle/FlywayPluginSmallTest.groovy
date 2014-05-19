@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 package org.flywaydb.gradle
 
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.util.jdbc.DriverDataSource
+import org.flywaydb.core.api.callback.FlywayCallback
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Before
@@ -98,6 +99,7 @@ class FlywayPluginSmallTest {
             table = 'table'
             initDescription = 'initDescription'
             sqlMigrationPrefix = 'sqlMigrationPrefix'
+            sqlMigrationSeparator = 'sqlMigrationSeparator'
             sqlMigrationSuffix = 'sqlMigrationSuffix'
             encoding = 'encoding'
             placeholderPrefix = 'placeholderPrefix'
@@ -108,6 +110,7 @@ class FlywayPluginSmallTest {
         assert flyway.table == 'table'
         assert flyway.initDescription == 'initDescription'
         assert flyway.sqlMigrationPrefix == 'sqlMigrationPrefix'
+        assert flyway.sqlMigrationSeparator == 'sqlMigrationSeparator'
         assert flyway.sqlMigrationSuffix == 'sqlMigrationSuffix'
         assert flyway.encoding == 'encoding'
         assert flyway.placeholderPrefix == 'placeholderPrefix'
@@ -180,12 +183,14 @@ class FlywayPluginSmallTest {
             schemas = ['schemeA', 'schemeB']
             locations = ['classpath:migrations1', 'migrations2', 'filesystem:/sql-migrations']
             placeholders = ['placeholderA':'A', 'placeholderB':'B']
+            callbacks = ['org.flywaydb.gradle.DefaultFlywayCallback']
         }
 
         Flyway flyway = getFlyway()
         assert flyway.schemas == ['schemeA', 'schemeB']
         assert flyway.locations == ['classpath:migrations1', 'classpath:migrations2', 'filesystem:/sql-migrations']
         assert flyway.placeholders == ['placeholderA':'A', 'placeholderB':'B']
+        assert flyway.callbacks[0] instanceof FlywayCallback
     }
 
 }

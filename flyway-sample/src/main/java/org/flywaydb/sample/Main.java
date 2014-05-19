@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.flywaydb.sample;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.sample.resolver.SampleResolver;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class Main {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:hsqldb:file:db/flyway_sample;shutdown=true", "SA", "");
         flyway.setLocations("db/migration", "org.flywaydb.sample.migration");
+        flyway.setResolvers(new SampleResolver());
         flyway.migrate();
 
         SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(flyway.getDataSource());

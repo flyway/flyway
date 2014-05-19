@@ -18,6 +18,13 @@ dependencies {
     testCompile 'org.hsqldb:hsqldb:2.2.8'
 }
 
+jar {
+    from ('..') {
+        include 'LICENSE.txt' into('META-INF')
+        include 'README.txt' into('META-INF')
+    }
+}
+
 test.dependsOn cleanTest
 
 test {

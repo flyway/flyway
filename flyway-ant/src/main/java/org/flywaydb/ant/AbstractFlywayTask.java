@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,18 @@
  */
 package org.flywaydb.ant;
 
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.util.ExceptionUtils;
-import org.flywaydb.core.util.Location;
-import org.flywaydb.core.util.StringUtils;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.internal.util.ExceptionUtils;
+import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -86,6 +86,18 @@ public abstract class AbstractFlywayTask extends Task {
      * and java-based migrations. (default: db.migration)<br/>Also configurable with Ant Property: ${flyway.locations}
      */
     private String[] locations = flyway.getLocations();
+
+    /**
+     * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     * <p>(default: none)</p>
+     */
+    private String[] resolvers;
+
+    /**
+     * The callbacks for lifecycle notifications.
+     * <p>(default: none)</p>
+     */
+    private String[] callbacks;
 
     /**
      * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -153,6 +165,22 @@ public abstract class AbstractFlywayTask extends Task {
      */
     public void setSchemas(String schemas) {
         flyway.setSchemas(StringUtils.tokenizeToStringArray(schemas, ","));
+    }
+
+    /**
+     * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     *                  <p>(default: none)</p>
+     */
+    public void setResolvers(String resolvers) {
+        this.resolvers = StringUtils.tokenizeToStringArray(resolvers, ",");
+    }
+
+    /**
+     * @param callbacks A comma-separated list of fully qualified FlywayCallback implementation class names.  These classes
+     *                  will be instantiated and wired into the Flyway lifecycle notification events.
+     */
+    public void setCallbacks(String callbacks) {
+        this.callbacks = StringUtils.tokenizeToStringArray(callbacks, ",");
     }
 
     /**
@@ -250,10 +278,37 @@ public abstract class AbstractFlywayTask extends Task {
     /**
      * Do not use. For Ant itself.
      *
-     * @param locations The locations on the classpath.
+     * @param locationsElement The locations on the classpath.
      */
-    public void addConfiguredLocations(Locations locations) {
-        this.locations = locations.locations.toArray(new String[locations.locations.size()]);
+    public void addConfiguredLocations(LocationsElement locationsElement) {
+        this.locations = locationsElement.locations.toArray(new String[locationsElement.locations.size()]);
+    }
+
+    /**
+     * Do not use. For Ant itself.
+     *
+     * @param resolversElement The resolvers on the classpath.
+     */
+    public void addConfiguredResolvers(ResolversElement resolversElement) {
+        this.resolvers = resolversElement.resolvers.toArray(new String[resolversElement.resolvers.size()]);
+    }
+
+    /**
+     * Do not use. For Ant itself.
+     *
+     * @param callbacksElement The callbacks on the classpath.
+     */
+    public void addConfiguredCallbacks(CallbacksElement callbacksElement) {
+        this.callbacks = callbacksElement.callbacks.toArray(new String[callbacksElement.callbacks.size()]);
+    }
+
+    /**
+     * Do not use. For Ant itself.
+     *
+     * @param schemasElement The schemas.
+     */
+    public void addConfiguredSchemas(SchemasElement schemasElement) {
+        flyway.setSchemas(schemasElement.schemas.toArray(new String[schemasElement.schemas.size()]));
     }
 
     /**
@@ -264,6 +319,9 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @param sqlMigrationPrefix The file name prefix for Sql migrations (default: V)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationPrefix}
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
@@ -271,6 +329,19 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
+     * @param sqlMigrationSeparator The file name separator for Sql migrations (default: V)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationPrefix}
+     */
+    public void setSqlMigrationSeparator(String sqlMigrationSeparator) {
+        flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
+    }
+
+    /**
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
      * @param sqlMigrationSuffix The file name suffix for Sql migrations (default: .sql)<br/>Also configurable with Ant Property: ${flyway.sqlMigrationSuffix}
      */
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
@@ -345,7 +416,7 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param validateOnMigrate Whether to automatically call validate or not when running migrate. (default: {@code false})<br/>
+     * @param validateOnMigrate Whether to automatically call validate or not when running migrate. (default: {@code true})<br/>
      *                          Also configurable with Ant Property: ${flyway.validateOnMigrate}
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
@@ -375,7 +446,8 @@ public abstract class AbstractFlywayTask extends Task {
 
     @Override
     public void execute() throws BuildException {
-        LogFactory.setLogCreator(new AntLogCreator(getProject()));
+        AntLogCreator.INSTANCE.setAntProject(getProject());
+        LogFactory.setLogCreator(AntLogCreator.INSTANCE);
         log = LogFactory.getLog(getClass());
 
         prepareClassPath();
@@ -383,6 +455,13 @@ public abstract class AbstractFlywayTask extends Task {
         try {
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setDataSource(createDataSource());
+
+            if (resolvers != null) {
+                flyway.setResolvers(resolvers);
+            }
+            if (callbacks != null) {
+                flyway.setCallbacks(callbacks);
+            }
 
             Properties projectProperties = new Properties();
             projectProperties.putAll(getProject().getProperties());
@@ -464,7 +543,7 @@ public abstract class AbstractFlywayTask extends Task {
     /**
      * The nested &lt;locations&gt; element of the task. Contains 1 or more &lt;location&gt; sub-elements.
      */
-    public static class Locations {
+    public static class LocationsElement {
         /**
          * The classpath locations.
          */
@@ -496,6 +575,120 @@ public abstract class AbstractFlywayTask extends Task {
          */
         public void setPath(String path) {
             this.path = path;
+        }
+    }
+
+    /**
+     * The nested &lt;schemas&gt; element of the task. Contains 1 or more &lt;schema&gt; sub-elements.
+     */
+    public static class SchemasElement {
+        /**
+         * The schema names.
+         */
+        List<String> schemas = new ArrayList<String>();
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param schema A schema.
+         */
+        public void addConfiguredLocation(SchemaElement schema) {
+            schemas.add(schema.name);
+        }
+    }
+
+    /**
+     * One &lt;location&gt; sub-element within the &lt;locations&gt; element.
+     */
+    public static class SchemaElement {
+        /**
+         * The name of the schema.
+         */
+        private String name;
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param name The name of the schema.
+         */
+        public void setPath(String name) {
+            this.name = name;
+        }
+    }
+
+    /**
+     * The nested &lt;resolvers&gt; element of the task. Contains 1 or more &lt;resolver&gt; sub-elements.
+     */
+    public static class ResolversElement {
+        /**
+         * The classpath locations.
+         */
+        List<String> resolvers = new ArrayList<String>();
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param resolver A resolver on the classpath.
+         */
+        public void addConfiguredResolver(ResolverElement resolver) {
+            resolvers.add(resolver.clazz);
+        }
+    }
+
+    /**
+     * One &lt;resolver&gt; sub-element within the &lt;resolvers&gt; element.
+     */
+    public static class ResolverElement {
+        /**
+         * The fully qualified class name of the resolver.
+         */
+        private String clazz;
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param clazz The fully qualified class name of the resolver.
+         */
+        public void setClass(String clazz) {
+            this.clazz = clazz;
+        }
+    }
+
+    /**
+     * The nested &lt;callbacks&gt; element of the task. Contains 1 or more &lt;callback&gt; sub-elements.
+     */
+    public static class CallbacksElement {
+        /**
+         * The classpath locations.
+         */
+        List<String> callbacks = new ArrayList<String>();
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param callback A callback on the classpath.
+         */
+        public void addConfiguredCallback(CallbackElement callback) {
+            callbacks.add(callback.clazz);
+        }
+    }
+
+    /**
+     * One &lt;callback&gt; sub-element within the &lt;callbacks&gt; element.
+     */
+    public static class CallbackElement {
+        /**
+         * The fully qualified class name of the callback.
+         */
+        private String clazz;
+
+        /**
+         * Do not use. For Ant itself.
+         *
+         * @param clazz The fully qualified class name of the callback.
+         */
+        public void setClass(String clazz) {
+            this.clazz = clazz;
         }
     }
 

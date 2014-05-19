@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.flywaydb.commandline.largetest;
 
-import org.flywaydb.core.util.ClassPathResource;
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -42,26 +42,34 @@ public class CommandLineLargeTest {
     @Test
     public void migrate() throws Exception {
         String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate");
-        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
     }
 
     @Test
     public void multipleCommands() throws Exception {
         String stdOut = runFlywayCommandLine(0, "largeTest.properties", "clean", "migrate");
         assertTrue(stdOut.contains("Cleaned schema"));
-        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
     }
 
     @Test
     public void showUsage() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null);
         assertTrue(stdOut.contains("* Usage"));
+        assertTrue(stdOut.contains("callback"));
     }
 
     @Test
     public void migrateWithCustomLocations() throws Exception {
-        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=filesystem:sql/migrations");
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "migrate", "-locations=filesystem:sql/migrations", "-resolvers=");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
+    }
+
+    @Test
+    public void infoWithCallback() throws Exception {
+        String stdOut = runFlywayCommandLine(0, "largeTest.properties", "info", "-callbacks=org.flywaydb.sample.callback.DefaultFlywayCallback");
+        assertTrue(stdOut.contains("beforeInfo"));
+        assertTrue(stdOut.contains("afterInfo"));
     }
 
     @Test
@@ -75,7 +83,8 @@ public class CommandLineLargeTest {
 
     @Test
     public void sqlFolderRoot() throws Exception {
-        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-driver=org.hsqldb.jdbcDriver", "-sqlMigrationPrefix=Mig");
+        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db",
+                "-driver=org.hsqldb.jdbcDriver", "-sqlMigrationPrefix=Mig", "-resolvers=");
         assertTrue(stdOut.contains("777"));
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
@@ -83,7 +92,7 @@ public class CommandLineLargeTest {
     @Test
     public void jarFile() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db",
-                "-driver=org.hsqldb.jdbcDriver", "-locations=db/migration,org/flywaydb/sample/migration");
+                "-driver=org.hsqldb.jdbcDriver", "-locations=db/migration,org/flywaydb/sample/migration", "-resolvers=");
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
 

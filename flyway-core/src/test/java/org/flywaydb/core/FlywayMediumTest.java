@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.dbsupport.h2.H2DbSupport;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
-import org.flywaydb.core.util.logging.LogFactory;
-import org.flywaydb.core.util.logging.StringLogCreator;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.logging.StringLogCreator;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationHandler;
@@ -91,6 +91,7 @@ public class FlywayMediumTest {
         assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
 
         flyway.migrate();
+        assertEquals(-1336099243, flyway.info().current().getChecksum().intValue());
         assertEquals("1.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
         assertEquals(4, flyway.info().all().length);
@@ -215,8 +216,11 @@ public class FlywayMediumTest {
         flyway.setLocations("migration/sql", "migration/outoforder");
         assertEquals(5, flyway.info().all().length);
         assertEquals(MigrationState.IGNORED, flyway.info().all()[2].getState());
+
+        flyway.setValidateOnMigrate(false);
         assertEquals(0, flyway.migrate());
 
+        flyway.setValidateOnMigrate(true);
         flyway.setTarget(MigrationVersion.LATEST);
         flyway.setOutOfOrder(true);
         assertEquals(MigrationState.PENDING, flyway.info().all()[2].getState());
@@ -245,6 +249,56 @@ public class FlywayMediumTest {
 
         flyway.setLocations("migration/empty");
         assertEquals(MigrationState.FUTURE_SUCCESS, flyway.info().applied()[0].getState());
+    }
+
+    @Test
+    public void validateApplied() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_applied;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+        flyway.validate();
+    }
+
+    @Test
+    public void validateOutOfOrder() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_outoforder;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+        flyway.validate();
+        flyway.setLocations("migration/sql", "migration/outoforder");
+        try {
+            flyway.validate();
+            fail();
+        } catch (FlywayException e) {
+            //expected
+        }
+        flyway.setOutOfOrder(true);
+        try {
+            flyway.validate();
+            fail();
+        } catch (FlywayException e) {
+            //expected
+        }
+        flyway.migrate();
+        flyway.validate();
+    }
+
+    @Test
+    public void validateEmpty() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_empty;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/empty");
+        flyway.validate();
+    }
+
+    @Test(expected = FlywayException.class)
+    public void validateNotApplied() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.validate();
     }
 
     @Test

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package org.flywaydb.maven.largetest;
 
-import org.flywaydb.core.util.StringUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -60,8 +60,20 @@ public abstract class MavenTestCase {
 
     @Test
     public void sample() throws Exception {
-        String stdOut = runMaven(0, "sample", "clean", "compile", "flyway:migrate");
-        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
+        String stdOut = runMaven(0, "sample", "clean", "compile", "flyway:clean", "flyway:migrate");
+        assertTrue(stdOut.contains("Successfully applied 5 migrations"));
+    }
+
+    @Test
+    public void configFile() throws Exception {
+        String stdOut = runMaven(0, "configfile", "clean", "compile", "flyway:clean", "flyway:migrate");
+        assertTrue(stdOut.contains("Successfully applied 5 migrations"));
+    }
+
+    @Test
+    public void configFileInvalid() throws Exception {
+        String stdOut = runMaven(1, "configfile", "-Dflyway.configFile=test.properties", "flyway:info");
+        assertTrue(stdOut.contains("Unable to read config file"));
     }
 
     @Test
@@ -101,6 +113,13 @@ public abstract class MavenTestCase {
     public void locationsProperty() throws Exception {
         String stdOut = runMaven(0, "locations-property", "clean", "compile", "flyway:migrate");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
+    }
+
+    @Test
+    public void callbacksProperty() throws Exception {
+        String stdOut = runMaven(0, "callbacks-property", "clean", "compile", "flyway:info");
+        assertTrue(stdOut.contains("beforeInfo"));
+        assertTrue(stdOut.contains("afterInfo"));
     }
 
     @Test

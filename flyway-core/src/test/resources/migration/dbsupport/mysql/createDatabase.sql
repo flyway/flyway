@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2014 Axel Fontaine and the many contributors.
+-- Copyright 2010-2014 Axel Fontaine
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 --
 
 CREATE DATABASE flyway_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
+CREATE DATABASE flyway_maria_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
 CREATE DATABASE flyway_cloudsql_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
 CREATE USER 'flyway'@'localhost' IDENTIFIED BY 'flyway';
 

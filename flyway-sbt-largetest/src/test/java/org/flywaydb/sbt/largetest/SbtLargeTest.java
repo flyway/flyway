@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.flywaydb.sbt.largetest;
 
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -50,7 +50,13 @@ public class SbtLargeTest {
     @Test
     public void flywayUrlAsSysProps() throws Exception {
         String stdOut = runSbt("test2", 0, "-Dflyway.url=jdbc:hsqldb:file:target/flyway_sample;shutdown=true", "flywayClean", "flywayMigrate");
-        assertTrue(stdOut.contains("Successfully applied 1 migration"));
+        assertTrue(stdOut.contains("Successfully applied 2 migration"));
+    }
+
+    @Test
+    public void flywayCallbacks() throws Exception {
+        String stdOut = runSbt("test3", 0, "-Dflyway.locations=db/migration", "flywayClean");
+        assertTrue(stdOut.contains("beforeClean"));
     }
 
     /**

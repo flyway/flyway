@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,16 @@ package org.flywaydb.gradle.task
 import org.flywaydb.core.Flyway
 
 /**
- * @author Ben Manes (ben.manes@gmail.com)
+ * Repairs the Flyway metadata table. This will perform the following actions:
+ * <ul>
+ *     <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
+ *     <li>Correct wrong checksums</li>
+ * </ul>
  */
 class FlywayRepairTask extends AbstractFlywayTask {
 
   FlywayRepairTask() {
-    description = 'Repairs the Flyway metadata table after a failed migration.'
+    description = 'Repairs the Flyway metadata table.'
   }
 
   def run(Flyway flyway) {

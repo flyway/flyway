@@ -48,7 +48,7 @@
                     </excludes>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
-                        <installDir>${project.build.directory}</installDir>
+                        <installDir>${project.build.testOutputDirectory}</installDir>
                         <flywayVersion>${project.version}</flywayVersion>
                     </systemPropertyVariables>
                     <parallel>none</parallel>

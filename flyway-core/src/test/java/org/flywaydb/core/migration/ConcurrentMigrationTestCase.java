@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 package org.flywaydb.core.migration;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.dbsupport.DbSupportFactory;
-import org.flywaydb.core.dbsupport.JdbcTemplate;
-import org.flywaydb.core.util.jdbc.JdbcUtils;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 

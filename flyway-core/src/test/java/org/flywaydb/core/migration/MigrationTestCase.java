@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,12 @@
 package org.flywaydb.core.migration;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.dbsupport.FlywaySqlScriptException;
-import org.flywaydb.core.dbsupport.DbSupport;
-import org.flywaydb.core.dbsupport.DbSupportFactory;
-import org.flywaydb.core.dbsupport.JdbcTemplate;
-import org.flywaydb.core.dbsupport.Schema;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.resolver.sql.SqlMigrationResolver;
-import org.flywaydb.core.util.Location;
-import org.flywaydb.core.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.dbsupport.*;
+import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
+import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,7 +76,7 @@ public abstract class MigrationTestCase {
 	protected void configureFlyway() {
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
-		flyway.isValidateOnMigrate();
+        flyway.setValidateOnMigrate(true);
     }
 
     /**
@@ -114,15 +106,33 @@ public abstract class MigrationTestCase {
 
         if (dbSupport.supportsDdlTransactions()) {
             assertEquals("2.0", flyway.info().current().getVersion().toString());
-            assertEquals(org.flywaydb.core.api.MigrationState.SUCCESS, flyway.info().current().getState());
+            assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
         } else {
             assertEquals("3", flyway.info().current().getVersion().toString());
-            assertEquals(org.flywaydb.core.api.MigrationState.FAILED, flyway.info().current().getState());
+            assertEquals(MigrationState.FAILED, flyway.info().current().getState());
         }
 
         flyway.repair();
         assertEquals("2.0", flyway.info().current().getVersion().toString());
-        assertEquals(org.flywaydb.core.api.MigrationState.SUCCESS, flyway.info().current().getState());
+        assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+    }
+
+    @Test
+    public void repairChecksum() {
+        flyway.setLocations("migration/comment");
+        Integer commentChecksum = flyway.info().pending()[0].getChecksum();
+
+        flyway.setLocations(getQuoteLocation());
+        Integer quoteChecksum = flyway.info().pending()[0].getChecksum();
+
+        assertNotEquals(commentChecksum, quoteChecksum);
+
+        flyway.migrate();
+        assertEquals(quoteChecksum, flyway.info().applied()[0].getChecksum());
+
+        flyway.setLocations("migration/comment");
+        flyway.repair();
+        assertEquals(commentChecksum, flyway.info().applied()[0].getChecksum());
     }
 
     /**
@@ -185,8 +195,7 @@ public abstract class MigrationTestCase {
                 new Location(BASEDIR),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",
-                "V",
-                ".sql");
+                "V", "__", ".sql");
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {

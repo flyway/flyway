@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,10 @@
 package org.flywaydb.gradle.task
 
 import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.callback.FlywayCallback
 import org.flywaydb.core.api.FlywayException
-import org.flywaydb.core.util.StringUtils
-import org.flywaydb.core.util.jdbc.DriverDataSource
+import org.flywaydb.core.internal.util.StringUtils
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource
 import org.flywaydb.gradle.FlywayExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -73,7 +74,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         try {
             run(createFlyway())
         } catch (Exception e) {
-            throw new FlywayException("Error occurred while executing ${this.getName()}", e);
+            handleException(e)
         }
     }
 
@@ -89,6 +90,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSet(flyway, 'initVersion')
         propSet(flyway, 'initDescription')
         propSet(flyway, 'sqlMigrationPrefix')
+        propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
         propSet(flyway, 'encoding')
         propSet(flyway, 'placeholderPrefix')
@@ -117,6 +119,15 @@ abstract class AbstractFlywayTask extends DefaultTask {
             flyway.locations = extension.locations
         }
 
+        def sysResolvers = System.getProperty("flyway.resolvers")
+        if (sysResolvers != null) {
+            flyway.setResolvers(StringUtils.tokenizeToStringArray(sysResolvers, ","))
+        } else if (project.hasProperty("flyway.resolvers")) {
+            flyway.setResolvers(StringUtils.tokenizeToStringArray(project["flyway.resolvers"].toString(), ","))
+        } else if (extension.resolvers != null) {
+            flyway.setResolvers(extension.resolvers)
+        }
+
         Map<String, String> placeholders = [:]
         System.getProperties().each { String key, String value ->
             if (key.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)) {
@@ -135,7 +146,42 @@ abstract class AbstractFlywayTask extends DefaultTask {
         }
         flyway.placeholders = placeholders
 
-        flyway
+        def sysCallbacks = System.getProperty("flyway.callbacks")
+        if (sysCallbacks != null) {
+            flyway.setCallbacks(StringUtils.tokenizeToStringArray(sysCallbacks, ","))
+        } else if (project.hasProperty("flyway.callbacks")) {
+            flyway.setCallbacks(StringUtils.tokenizeToStringArray(project["flyway.callbacks"].toString(), ","))
+        } else if (extension.callbacks != null) {
+            flyway.setCallbacks(extension.callbacks)
+        }
+
+		flyway
+    }
+
+    /**
+     * @param throwable Throwable instance to be handled
+     */
+    private void handleException(Throwable throwable)
+    {
+        String message = "Error occurred while executing ${this.getName()}${System.lineSeparator()}" 
+        throw new FlywayException(collectMessages(throwable, message, 5), throwable)
+    }
+
+    /**
+     * Collect error messages from the stack trace
+     * @param throwable Throwable instance from which the message should be build
+     * @param message the message to which the error message will be appended
+     * @param depth number of levels in the stack trace
+     * @return a String containing the composed messages
+     */
+    private String collectMessages(Throwable throwable, String message, int depth) {
+        if (depth > 0 && throwable != null) {
+            message += throwable.getMessage() + System.lineSeparator()
+            collectMessages(throwable.getCause(), message, depth--)
+        }
+        else{
+            message
+        }
     }
 
     /**
@@ -175,5 +221,4 @@ abstract class AbstractFlywayTask extends DefaultTask {
     protected boolean isJavaProject() {
         project.plugins.hasPlugin('java')
     }
-
 }

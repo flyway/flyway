@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 package org.flywaydb.commandline;
 
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
-import org.flywaydb.core.util.ClassPathResource;
-import org.flywaydb.core.util.ClassUtils;
-import org.flywaydb.core.util.Resource;
-import org.flywaydb.core.util.scanner.classpath.ClassPathScanner;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

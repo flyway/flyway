@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,18 @@
  */
 package org.flywaydb.core;
 
-import org.flywaydb.core.dbsupport.DbSupport;
-import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Test for the main Flyway class.
@@ -104,6 +105,32 @@ public class FlywaySmallTest {
     }
 
     @Test
+    public void configurePlaceholders() {
+        Flyway flyway = new Flyway();
+        flyway.getPlaceholders().put("mykey", "myvalue");
+
+        flyway.configure(new Properties());
+        assertEquals("myvalue", flyway.getPlaceholders().get("mykey"));
+
+        Properties properties = new Properties();
+        properties.setProperty("flyway.placeholders.lucky", "luke");
+        flyway.configure(properties);
+        assertEquals("myvalue", flyway.getPlaceholders().get("mykey"));
+        assertEquals("luke", flyway.getPlaceholders().get("lucky"));
+    }
+
+    @Test
+    public void configureCustomMigrationResolvers() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.resolvers", MyCustomMigrationResolver.class.getName());
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+
+        assertEquals(MyCustomMigrationResolver.class, flyway.getResolvers()[0].getClass());
+    }
+
+    @Test
     public void configureWithExistingDataSource() {
         DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
 
@@ -146,5 +173,24 @@ public class FlywaySmallTest {
         assertEquals(2, locations.length);
         assertEquals("classpath:db/migrations1", locations[0]);
         assertEquals("filesystem:db/migrations2", locations[1]);
+    }
+
+    @Test
+    public void setSqlMigrationSeparator() {
+        Flyway flyway = new Flyway();
+        assertEquals("__", flyway.getSqlMigrationSeparator());
+
+        flyway.setSqlMigrationSeparator("-");
+        assertEquals("-", flyway.getSqlMigrationSeparator());
+
+        flyway.setSqlMigrationSeparator(" ");
+        assertEquals(" ", flyway.getSqlMigrationSeparator());
+
+        try {
+            flyway.setSqlMigrationSeparator("");
+            fail();
+        } catch (FlywayException e) {
+            //expected
+        }
     }
 }

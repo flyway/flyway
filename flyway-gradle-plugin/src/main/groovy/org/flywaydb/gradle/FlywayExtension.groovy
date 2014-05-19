@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package org.flywaydb.gradle
 /**
  * The flyway's configuration properties.
  *
+ * <p>More info: <a href="http://flywaydb.org/documentation/gradle">http://flywaydb.org/documentation/gradle</a></p>
+ *
  * @author Ben Manes (ben.manes@gmail.com)
- * @see http://flywaydb.org/documentation/commandline
  */
 public class FlywayExtension {
     /** The fully qualified classname of the jdbc driver to use to connect to the database */
@@ -57,10 +58,35 @@ public class FlywayExtension {
      */
     String[] locations
 
-    /** The file name prefix for Sql migrations */
+    /**
+     * The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for
+     * resolving Migrations to apply.
+     * <p>(default: none)</p>
+     */
+    String[] resolvers
+
+    /**
+     * The file name prefix for Sql migrations
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     */
     String sqlMigrationPrefix
 
-    /** The file name suffix for Sql migrations */
+    /**
+     * The file name prefix for Sql migrations
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     */
+    String sqlMigrationSeparator
+
+    /**
+     * The file name suffix for Sql migrations
+     *
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     */
     String sqlMigrationSuffix
 
     /** The encoding of Sql migrations */
@@ -81,10 +107,13 @@ public class FlywayExtension {
      */
     String target
 
+    /** An array of fully qualified FlywayCallback class implementations */
+    String[] callbacks
+
     /** Allows migrations to be run "out of order" */
     Boolean outOfOrder
 
-    /** Whether to automatically call validate or not when running migrate */
+    /** Whether to automatically call validate or not when running migrate. (default: true) */
     Boolean validateOnMigrate
 
     /** Whether to automatically call clean or not when a validation error occurs */

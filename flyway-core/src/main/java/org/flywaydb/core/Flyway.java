@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,32 @@
  */
 package org.flywaydb.core;
 
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.command.DbClean;
-import org.flywaydb.core.command.DbInit;
-import org.flywaydb.core.command.DbMigrate;
-import org.flywaydb.core.command.DbRepair;
-import org.flywaydb.core.command.DbSchemas;
-import org.flywaydb.core.command.DbValidate;
-import org.flywaydb.core.dbsupport.DbSupport;
-import org.flywaydb.core.dbsupport.DbSupportFactory;
-import org.flywaydb.core.dbsupport.Schema;
-import org.flywaydb.core.info.MigrationInfoServiceImpl;
-import org.flywaydb.core.metadatatable.MetaDataTable;
-import org.flywaydb.core.metadatatable.MetaDataTableImpl;
-import org.flywaydb.core.resolver.CompositeMigrationResolver;
-import org.flywaydb.core.util.Locations;
-import org.flywaydb.core.util.PlaceholderReplacer;
-import org.flywaydb.core.util.StringUtils;
-import org.flywaydb.core.util.jdbc.DriverDataSource;
-import org.flywaydb.core.util.jdbc.JdbcUtils;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.core.internal.command.*;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.metadatatable.MetaDataTableImpl;
+import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.Locations;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -62,8 +56,15 @@ public class Flyway {
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
-     * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db/migration)
+     * The locations to scan recursively for migrations.
+     * <p/>
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both sql and java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
+     * migrations.</p>
+     * <p/>
+     * (default: db/migration)
      */
     private Locations locations = new Locations("db/migration");
 
@@ -114,11 +115,25 @@ public class Flyway {
 
     /**
      * The file name prefix for sql migrations. (default: V)
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      */
     private String sqlMigrationPrefix = "V";
 
     /**
+     * The file name separator for sql migrations. (default: __)
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     */
+    private String sqlMigrationSeparator = "__";
+
+    /**
      * The file name suffix for sql migrations. (default: .sql)
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      */
     private String sqlMigrationSuffix = ".sql";
 
@@ -134,9 +149,9 @@ public class Flyway {
     private boolean ignoreFailedFutureMigration;
 
     /**
-     * Whether to automatically call validate or not when running migrate. (default: {@code false})
+     * Whether to automatically call validate or not when running migrate. (default: {@code true})
      */
-    private boolean validateOnMigrate;
+    private boolean validateOnMigrate = true;
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
@@ -161,8 +176,8 @@ public class Flyway {
     /**
      * <p>
      * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
+     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
+     * Only migrations above {@code initVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
@@ -183,9 +198,21 @@ public class Flyway {
     private boolean outOfOrder;
 
     /**
-     * The custom MigrationResolvers to be used in addition to the built-in ones.
+     * This is a list of callbacks that fire before and after tasks are executed.  You can
+     * add as many custom callbacks as you want.
      */
-    private MigrationResolver[] customMigrationResolvers = new MigrationResolver[0];
+    private FlywayCallback[] callbacks = new FlywayCallback[0];
+
+    /**
+     * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     * <p>(default: none)</p>
+     */
+    private MigrationResolver[] resolvers = new MigrationResolver[0];
+
+    /**
+     * Whether Flyway created the DataSource.
+     */
+    private boolean createdDataSource;
 
     /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
@@ -210,10 +237,15 @@ public class Flyway {
     }
 
     /**
-     * Retrieves locations on the classpath or on the filesystem to scan recursively for migrations.
-     * Locations may contain both sql and java-based migrations.
+     * Retrieves the locations to scan recursively for migrations.
+     * <p/>
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both sql and java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
+     * migrations.</p>
      *
-     * @return Locations on the classpath or on the filesystem to scan recursively for migrations. (default: db/migration)
+     * @return Locations to scan recursively for migrations. (default: db/migration)
      */
     public String[] getLocations() {
         String[] result = new String[locations.getLocations().size()];
@@ -299,6 +331,9 @@ public class Flyway {
 
     /**
      * Retrieves the file name prefix for sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @return The file name prefix for sql migrations. (default: V)
      */
@@ -307,7 +342,22 @@ public class Flyway {
     }
 
     /**
+     * Retrieves the file name separator for sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
+     * @return The file name separator for sql migrations. (default: __)
+     */
+    public String getSqlMigrationSeparator() {
+        return sqlMigrationSeparator;
+    }
+
+    /**
      * Retrieves the file name suffix for sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @return The file name suffix for sql migrations. (default: .sql)
      */
@@ -334,7 +384,7 @@ public class Flyway {
     /**
      * Whether to automatically call validate or not when running migrate.
      *
-     * @return {@code true} if validate should be called. {@code false} if not. (default: {@code false})
+     * @return {@code true} if validate should be called. {@code false} if not. (default: {@code true})
      */
     public boolean isValidateOnMigrate() {
         return validateOnMigrate;
@@ -375,8 +425,8 @@ public class Flyway {
     /**
      * <p>
      * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
+     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
+     * Only migrations above {@code initVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
@@ -404,12 +454,13 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the The custom MigrationResolvers to be used in addition to the built-in ones.
+     * Retrieves the The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
-     * @return The custom MigrationResolvers to be used in addition to the built-in ones. An empty array if none.
+     * @return The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. An empty array if none.
+     * (default: none)
      */
-    public MigrationResolver[] getCustomMigrationResolvers() {
-        return customMigrationResolvers;
+    public MigrationResolver[] getResolvers() {
+        return resolvers;
     }
 
     /**
@@ -450,7 +501,7 @@ public class Flyway {
     /**
      * Whether to automatically call validate or not when running migrate.
      *
-     * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code false})
+     * @param validateOnMigrate {@code true} if validate should be called. {@code false} if not. (default: {@code true})
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
         this.validateOnMigrate = validateOnMigrate;
@@ -471,11 +522,15 @@ public class Flyway {
     }
 
     /**
-     * Sets the locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db.migration)
+     * Sets the locations to scan recursively for migrations.
+     * <p/>
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both sql and java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
+     * migrations.</p>
      *
-     * @param locations Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     *                  and java-based migrations. (default: db/migration)
+     * @param locations Locations to scan recursively for migrations. (default: db/migration)
      */
     public void setLocations(String... locations) {
         this.locations = new Locations(locations);
@@ -568,6 +623,9 @@ public class Flyway {
 
     /**
      * Sets the file name prefix for sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @param sqlMigrationPrefix The file name prefix for sql migrations (default: V)
      */
@@ -576,7 +634,26 @@ public class Flyway {
     }
 
     /**
+     * Sets the file name separator for sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
+     *
+     * @param sqlMigrationSeparator The file name separator for sql migrations (default: __)
+     */
+    public void setSqlMigrationSeparator(String sqlMigrationSeparator) {
+        if (!StringUtils.hasLength(sqlMigrationSeparator)) {
+            throw new FlywayException("sqlMigrationSeparator cannot be empty!");
+        }
+
+        this.sqlMigrationSeparator = sqlMigrationSeparator;
+    }
+
+    /**
      * Sets the file name suffix for sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description.sql</p>
      *
      * @param sqlMigrationSuffix The file name suffix for sql migrations (default: .sql)
      */
@@ -591,11 +668,12 @@ public class Flyway {
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+        createdDataSource = false;
     }
 
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     *
+     * <p/>
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param url      The JDBC URL of the database.
@@ -605,6 +683,7 @@ public class Flyway {
      */
     public void setDataSource(String url, String user, String password, String... initSqls) {
         this.dataSource = new DriverDataSource(classLoader, null, url, user, password, initSqls);
+        createdDataSource = true;
     }
 
     /**
@@ -646,8 +725,8 @@ public class Flyway {
     /**
      * <p>
      * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
+     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
+     * Only migrations above {@code initVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
@@ -675,12 +754,50 @@ public class Flyway {
     }
 
     /**
-     * Sets custom MigrationResolvers to be used in addition to the built-in ones.
+     * Gets the callbacks for lifecycle notifications.
      *
-     * @param customMigrationResolvers The custom MigrationResolvers to be used in addition to the built-in ones.
+     * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
      */
-    public void setCustomMigrationResolvers(MigrationResolver... customMigrationResolvers) {
-        this.customMigrationResolvers = customMigrationResolvers;
+    public FlywayCallback[] getCallbacks() {
+        return callbacks;
+    }
+
+    /**
+     * Set the callbacks for lifecycle notifications.
+     *
+     * @param callbacks The callbacks for lifecycle notifications. (default: none)
+     */
+    public void setCallbacks(FlywayCallback... callbacks) {
+        this.callbacks = callbacks;
+    }
+
+    /**
+     * Set the callbacks for lifecycle notifications.
+     *
+     * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     */
+    public void setCallbacks(String... callbacks) {
+        List<FlywayCallback> callbackList = ClassUtils.instantiateAll(callbacks, classLoader);
+        this.callbacks = callbackList.toArray(new FlywayCallback[callbacks.length]);
+    }
+
+    /**
+     * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     *
+     * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
+     */
+    public void setResolvers(MigrationResolver... resolvers) {
+        this.resolvers = resolvers;
+    }
+
+    /**
+     * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     *
+     * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
+     */
+    public void setResolvers(String... resolvers) {
+        List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
+        this.resolvers = resolverList.toArray(new MigrationResolver[resolvers.length]);
     }
 
     /**
@@ -697,7 +814,8 @@ public class Flyway {
 
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 if (validateOnMigrate) {
-                    doValidate(connectionMetaDataTable, migrationResolver, metaDataTable, schemas);
+                    doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable,
+                            schemas, true);
                 }
 
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
@@ -712,7 +830,7 @@ public class Flyway {
 
                     if (initOnMigrate || nonEmptySchemas.isEmpty()) {
                         if (initOnMigrate && !nonEmptySchemas.isEmpty()) {
-                            new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription).init();
+                            new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription, callbacks).init();
                         }
                     } else {
                         if (nonEmptySchemas.size() == 1) {
@@ -739,11 +857,11 @@ public class Flyway {
                     dbSupportUserObjects.setCurrentSchema(schemas[0]);
                 }
 
-                DbMigrate dbMigrator =
+                DbMigrate dbMigrate =
                         new DbMigrate(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable,
-                                schemas[0], migrationResolver, target, ignoreFailedFutureMigration, outOfOrder);
+                                schemas[0], migrationResolver, target, ignoreFailedFutureMigration, outOfOrder, callbacks);
                 try {
-                    return dbMigrator.migrate();
+                    return dbMigrate.migrate();
                 } finally {
                     if (schemaChange) {
                         dbSupportUserObjects.setCurrentSchema(originalSchemaUserObjects);
@@ -764,7 +882,8 @@ public class Flyway {
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
 
-                doValidate(connectionMetaDataTable, migrationResolver, metaDataTable, schemas);
+                doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable, schemas,
+                        false);
                 return null;
             }
         });
@@ -774,18 +893,21 @@ public class Flyway {
      * Performs the actual validation. All set up must have taken place beforehand.
      *
      * @param connectionMetaDataTable The database connection for the metadata table.
+     * @param connectionUserObjects   The database connection for the data.
      * @param migrationResolver       The migration resolver;
      * @param metaDataTable           The metadata table.
      * @param schemas                 The schemas managed by Flyway.
+     * @param pending                 Whether pending migrations are ok.
      */
-    private void doValidate(Connection connectionMetaDataTable, MigrationResolver migrationResolver,
-                            MetaDataTable metaDataTable, Schema[] schemas) {
+    private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver,
+                            MetaDataTable metaDataTable, Schema[] schemas, boolean pending) {
         String validationError =
-                new DbValidate(connectionMetaDataTable, metaDataTable, migrationResolver, target, outOfOrder).validate();
+                new DbValidate(connectionMetaDataTable, connectionUserObjects, metaDataTable, migrationResolver,
+                        target, outOfOrder, pending, callbacks).validate();
 
         if (validationError != null) {
             if (cleanOnValidationError) {
-                new DbClean(connectionMetaDataTable, metaDataTable, schemas).clean();
+                new DbClean(connectionMetaDataTable, metaDataTable, schemas, callbacks).clean();
             } else {
                 throw new FlywayException("Validate failed. Found differences between applied migrations and available migrations: " + validationError);
             }
@@ -803,7 +925,7 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTableImpl metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
-                new DbClean(connectionMetaDataTable, metaDataTable, schemas).clean();
+                new DbClean(connectionMetaDataTable, metaDataTable, schemas, callbacks).clean();
                 return null;
             }
         });
@@ -819,11 +941,21 @@ public class Flyway {
     public MigrationInfoService info() {
         return execute(new Command<MigrationInfoService>() {
             public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
+                for (FlywayCallback callback : getCallbacks()) {
+                    callback.beforeInfo(connectionUserObjects);
+                }
+
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
 
-                MigrationInfoServiceImpl migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder);
+                MigrationInfoServiceImpl migrationInfoService =
+                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true);
                 migrationInfoService.refresh();
+
+                for (FlywayCallback callback : getCallbacks()) {
+                    callback.afterInfo(connectionUserObjects);
+                }
+
                 return migrationInfoService;
             }
         });
@@ -839,23 +971,27 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
-                new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription).init();
+                new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription, callbacks).init();
                 return null;
             }
         });
     }
 
     /**
-     * Repairs the Flyway metadata table after a failed migration. User objects left behind must still be cleaned up
-     * manually.
+     * Repairs the Flyway metadata table. This will perform the following actions:
+     * <ul>
+     *     <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
+     *     <li>Correct wrong checksums</li>
+     * </ul>
      *
      * @throws FlywayException when the metadata table repair failed.
      */
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
+                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
-                new DbRepair(connectionMetaDataTable, metaDataTable).repair();
+                new DbRepair(connectionMetaDataTable, migrationResolver, metaDataTable, callbacks).repair();
                 return null;
             }
         });
@@ -871,18 +1007,19 @@ public class Flyway {
         PlaceholderReplacer placeholderReplacer =
                 new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
         return new CompositeMigrationResolver(dbSupport, classLoader, locations,
-                encoding, sqlMigrationPrefix, sqlMigrationSuffix, placeholderReplacer, customMigrationResolvers);
+                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, placeholderReplacer, resolvers);
     }
 
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
-     *
+     * <p/>
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
      * @throws FlywayException when the configuration failed.
      */
+    @SuppressWarnings("ConstantConditions")
     public void configure(Properties properties) {
         String driverProp = properties.getProperty("flyway.driver");
         String urlProp = properties.getProperty("flyway.url");
@@ -911,6 +1048,10 @@ public class Flyway {
         String sqlMigrationPrefixProp = properties.getProperty("flyway.sqlMigrationPrefix");
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
+        }
+        String sqlMigrationSeparatorProp = properties.getProperty("flyway.sqlMigrationSeparator");
+        if (sqlMigrationSeparatorProp != null) {
+            setSqlMigrationSeparator(sqlMigrationSeparatorProp);
         }
         String sqlMigrationSuffixProp = properties.getProperty("flyway.sqlMigrationSuffix");
         if (sqlMigrationSuffixProp != null) {
@@ -960,8 +1101,16 @@ public class Flyway {
         if (outOfOrderProp != null) {
             setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
         }
+        String resolversProp = properties.getProperty("flyway.resolvers");
+        if (StringUtils.hasLength(resolversProp)) {
+            setResolvers(StringUtils.tokenizeToStringArray(resolversProp, ","));
+        }
+        String callbacksProp = properties.getProperty("flyway.callbacks");
+        if (StringUtils.hasLength(callbacksProp)) {
+            setCallbacks(StringUtils.tokenizeToStringArray(callbacksProp, ","));
+        }
 
-        Map<String, String> placeholdersFromProps = new HashMap<String, String>();
+        Map<String, String> placeholdersFromProps = new HashMap<String, String>(placeholders);
         for (Object property : properties.keySet()) {
             String propertyName = (String) property;
             if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
@@ -1023,6 +1172,10 @@ public class Flyway {
         } finally {
             JdbcUtils.closeConnection(connectionUserObjects);
             JdbcUtils.closeConnection(connectionMetaDataTable);
+
+            if ((dataSource instanceof DriverDataSource) && createdDataSource) {
+                ((DriverDataSource) dataSource).close();
+            }
         }
         return result;
     }

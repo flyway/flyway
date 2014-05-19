@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package org.flywaydb.gradle.largetest;
 
 import org.junit.Test;
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,13 +37,19 @@ import static org.junit.Assert.assertTrue;
  */
 @SuppressWarnings({"JavaDoc"})
 public class GradleLargeTest {
-    private String installDir = System.getProperty("installDir", "flyway-gradle-plugin-largetest/target");
+    private String installDir = System.getProperty("installDir", "flyway-gradle-plugin-largetest/target/test-classes");
 
     @Test
     public void regular() throws Exception {
         String stdOut = runGradle(0, "regular", "clean", "flywayMigrate", "-Pflyway.placeholders.name=James");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
         assertFalse(stdOut.contains("deprecated"));
+    }
+
+    @Test
+    public void error() throws Exception {
+        String stdOut = runGradle(1, "error", "clean", "flywayMigrate");
+        assertTrue(stdOut.contains("Unable to determine URL for classpath location"));
     }
 
     /**
@@ -57,7 +63,6 @@ public class GradleLargeTest {
      */
     private String runGradle(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
         String flywayVersion = System.getProperty("flywayVersion", getPomVersion());
-        String root = new File(installDir + "/test-classes/" + dir).getAbsolutePath();
 
         String extension = "";
         if (System.getProperty("os.name").startsWith("Windows")) {
@@ -66,20 +71,22 @@ public class GradleLargeTest {
 
         List<String> args = new ArrayList<String>();
         addShellIfNeeded(args);
-        args.add(root + "/gradlew" + extension);
+        args.add(installDir + "/install/gradlew" + extension);
         args.add("-PflywayVersion=" + flywayVersion);
         args.add("--info");
-        args.add("--stacktrace");
+        //args.add("--stacktrace");
+        args.add("-b");
+        args.add(installDir + "/tests/" + dir + "/build.gradle");
         args.addAll(Arrays.asList(extraArgs));
 
         ProcessBuilder builder = new ProcessBuilder(args);
-        builder.directory(new File(root));
+        builder.directory(new File(installDir + "/tests/" + dir));
         builder.redirectErrorStream(true);
 
         Process process = builder.start();
-        String stdOut = FileCopyUtils.copyToString(new InputStreamReader(process.getInputStream(), "UTF-8"));
         int returnCode = process.waitFor();
 
+        String stdOut = FileCopyUtils.copyToString(new InputStreamReader(process.getInputStream(), "UTF-8"));
         System.out.print(stdOut);
 
         assertEquals("Unexpected return code", expectedReturnCode, returnCode);

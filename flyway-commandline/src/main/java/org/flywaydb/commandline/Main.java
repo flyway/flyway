@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.info.MigrationInfoDumper;
-import org.flywaydb.core.util.ClassPathResource;
-import org.flywaydb.core.util.ClassUtils;
-import org.flywaydb.core.util.ExceptionUtils;
-import org.flywaydb.core.util.FileCopyUtils;
-import org.flywaydb.core.util.PropertiesUtils;
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogFactory;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.ExceptionUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.PropertiesUtils;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -196,12 +196,12 @@ public class Main {
         LOG.info("");
         LOG.info("Commands");
         LOG.info("========");
-        LOG.info("clean    : Drops all objects in the configured schemas");
-        LOG.info("init     : Creates and initializes the metadata table");
         LOG.info("migrate  : Migrates the database");
-        LOG.info("validate : Validates the applied migrations against the ones on the classpath");
+        LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
-        LOG.info("repair   : Repairs the metadata table after a failed migration");
+        LOG.info("validate : Validates the applied migrations against the ones on the classpath");
+        LOG.info("init     : Creates and initializes the metadata table");
+        LOG.info("repair   : Repairs the metadata table");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("=======");
@@ -212,7 +212,9 @@ public class Main {
         LOG.info("schemas                : Comma-separated list of the schemas managed by Flyway");
         LOG.info("table                  : Name of Flyway's metadata table");
         LOG.info("locations              : Classpath locations to scan recursively for migrations");
+        LOG.info("resolvers              : Comma-separated list of custom MigrationResolvers");
         LOG.info("sqlMigrationPrefix     : File name prefix for Sql migrations");
+        LOG.info("sqlMigrationSeparator  : File name separator for Sql migrations");
         LOG.info("sqlMigrationSuffix     : File name suffix for Sql migrations");
         LOG.info("encoding               : Encoding of Sql migrations");
         LOG.info("placeholders           : Placeholders to replace in Sql migrations");
@@ -220,6 +222,7 @@ public class Main {
         LOG.info("placeholderSuffix      : Suffix of every placeholder");
         LOG.info("target                 : Target version up to which Flyway should migrate");
         LOG.info("outOfOrder             : Allows migrations to be run \"out of order\"");
+        LOG.info("callbacks              : Comma-separated list of FlywayCallback classes");
         LOG.info("validateOnMigrate      : Validate when running migrate");
         LOG.info("cleanOnValidationError : Automatically clean on a validation error");
         LOG.info("initVersion            : Version to tag schema with when executing init");
@@ -233,7 +236,7 @@ public class Main {
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
-        LOG.info("flyway -target=1.5 -placeholder.user=my_user info");
+        LOG.info("flyway -target=1.5 -placeholders.user=my_user info");
         LOG.info("");
         LOG.info("More info at http://flywaydb.org/documentation/commandline");
     }

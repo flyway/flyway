@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.flywaydb.ant;
 
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -40,6 +40,14 @@ public class AntLargeTest {
     public void init() throws Exception {
         String stdOut = runAnt(0, "init");
         assertTrue(stdOut.contains("A new beginning!"));
+    }
+
+    @Test
+    public void callbackProperty() throws Exception {
+        String stdOut = runAnt(0, "callback-property");
+        assertTrue(stdOut.contains("No migrations found"));
+        assertTrue(stdOut.contains("beforeInfo"));
+        assertTrue(stdOut.contains("afterInfo"));
     }
 
     /**
@@ -141,7 +149,7 @@ public class AntLargeTest {
     @Test
     public void sample() throws Exception {
         String stdOut = runAnt(0, "sample");
-        assertTrue(stdOut.contains("Successfully applied 3 migrations"));
+        assertTrue(stdOut.contains("Successfully applied 4 migrations"));
     }
 
     /**

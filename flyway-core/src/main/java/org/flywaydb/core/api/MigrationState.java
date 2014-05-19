@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public enum MigrationState {
      * Rerunning the entire migration history might produce different results!
      * </p>
      */
-    OUT_OF_ORDER("OutOrder", true, true, false),
+    OUT_OF_ORDER("OutOrdr", true, true, false),
 
     /**
      * <p>This migration succeeded.</p>

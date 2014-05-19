@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.flywaydb.ant;
 
-import org.flywaydb.core.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.Log;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
@@ -23,41 +23,32 @@ import org.apache.tools.ant.Task;
  * Wrapper around an Ant Logger.
  */
 public class AntLog implements Log {
-    /**
-     * The Ant project to log for.
-     */
-    private final Project antProject;
-
-    /**
-     * Creates a new wrapper around this logger.
-     *
-     * @param antProject The Ant project to log for.
-     */
-    public AntLog(Project antProject) {
-        this.antProject = antProject;
-    }
-
     public void debug(String message) {
+        Project antProject = AntLogCreator.INSTANCE.getAntProject();
         Task task = antProject.getThreadTask(Thread.currentThread());
         antProject.log(task, message, Project.MSG_VERBOSE);
     }
 
     public void info(String message) {
+        Project antProject = AntLogCreator.INSTANCE.getAntProject();
         Task task = antProject.getThreadTask(Thread.currentThread());
         antProject.log(task, message, Project.MSG_INFO);
     }
 
     public void warn(String message) {
+        Project antProject = AntLogCreator.INSTANCE.getAntProject();
         Task task = antProject.getThreadTask(Thread.currentThread());
         antProject.log(task, message, Project.MSG_WARN);
     }
 
     public void error(String message) {
+        Project antProject = AntLogCreator.INSTANCE.getAntProject();
         Task task = antProject.getThreadTask(Thread.currentThread());
         antProject.log(task, message, Project.MSG_ERR);
     }
 
     public void error(String message, Exception e) {
+        Project antProject = AntLogCreator.INSTANCE.getAntProject();
         Task task = antProject.getThreadTask(Thread.currentThread());
         antProject.log(task, message, e, Project.MSG_ERR);
     }

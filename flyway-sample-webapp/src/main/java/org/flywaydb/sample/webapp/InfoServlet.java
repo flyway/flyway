@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.flywaydb.sample.webapp;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.util.DateUtils;
+import org.flywaydb.core.internal.util.DateUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

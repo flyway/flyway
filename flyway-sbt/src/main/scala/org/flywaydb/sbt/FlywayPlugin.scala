@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,18 @@ import sbt._
 import sbt.classpath._
 import Keys._
 
-import org.flywaydb.core.util.jdbc.DriverDataSource
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.info.MigrationInfoDumper
-import org.flywaydb.core.util.logging.{LogFactory, LogCreator}
+import org.flywaydb.core.internal.info.MigrationInfoDumper
+import org.flywaydb.core.internal.util.logging.{LogFactory, LogCreator}
 import scala.Some
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import java.util.Properties
 import scala.sys.SystemProperties
+import org.flywaydb.core.internal.util.ClassUtils
+import org.flywaydb.core.api.resolver.MigrationResolver
+import org.flywaydb.core.api.callback.FlywayCallback
 
 object FlywayPlugin extends Plugin {
 
@@ -50,12 +53,15 @@ object FlywayPlugin extends Plugin {
   //*********************
 
   val flywayLocations = settingKey[Seq[String]]("Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
+  val flywayResolvers = settingKey[Seq[String]](" The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.")
   val flywayEncoding = settingKey[String]("The encoding of Sql migrations. (default: UTF-8)")
   val flywaySqlMigrationPrefix = settingKey[String]("The file name prefix for Sql migrations (default: V) ")
+  val flywaySqlMigrationSeparator = settingKey[String]("The file name separator for Sql migrations (default: __)")
   val flywaySqlMigrationSuffix = settingKey[String]("The file name suffix for Sql migrations (default: .sql)")
   val flywayCleanOnValidationError = settingKey[Boolean]("Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/> This is exclusively intended as a convenience for development. Even tough we strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that the next migration will bring you back to the state checked into SCM. Warning ! Do not enable in production !")
   val flywayTarget = settingKey[String]("The target version up to which Flyway should run migrations. Migrations with a higher version number will not be  applied. (default: the latest version)")
   val flywayOutOfOrder = settingKey[Boolean]("Allows migrations to be run \"out of order\" (default: {@code false}). If you already have versions 1 and 3 applied, and now a version 2 is found, it will be applied too instead of being ignored.")
+  val flywayCallbacks = settingKey[Seq[String]]("A list of fully qualified FlywayCallback implementation classnames that will be used for Flyway lifecycle notifications. (default: Empty)")
 
   //*********************
   // settings for migrate
@@ -66,7 +72,7 @@ object FlywayPlugin extends Plugin {
   val flywayPlaceholderPrefix = settingKey[String]("The prefix of every placeholder. (default: ${ )")
   val flywayPlaceholderSuffix = settingKey[String]("The suffix of every placeholder. (default: } )")
   val flywayInitOnMigrate = settingKey[Boolean]("Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table. This schema will then be initialized with the {@code initialVersion} before executing the migrations. Only migrations above {@code initialVersion} will then be applied. This is useful for initial Flyway production deployments on projects with an existing DB. Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})")
-  val flywayValidateOnMigrate = settingKey[Boolean]("Whether to automatically call validate or not when running migrate. (default: {@code false})")
+  val flywayValidateOnMigrate = settingKey[Boolean]("Whether to automatically call validate or not when running migrate. (default: {@code true})")
 
   //*********************
   // convenience settings
@@ -79,8 +85,9 @@ object FlywayPlugin extends Plugin {
     }) ++ Map("flyway.url" -> url, "flyway.user" -> user, "flyway.password" -> password)
   }
   private case class ConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String)
-  private case class ConfigMigrationLoading(locations: Seq[String], encoding: String, sqlMigrationPrefix: String, sqlMigrationSuffix: String,
-                                           cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean)
+  private case class ConfigMigrationLoading(locations: Seq[String], resolvers: Seq[String], encoding: String,
+                                            sqlMigrationPrefix: String, sqlMigrationSeparator: String, sqlMigrationSuffix: String,
+                                           cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean, callbacks: Seq[String])
   private case class ConfigMigrate(ignoreFailedFutureMigration: Boolean, placeholders: Map[String, String],
                                          placeholderPrefix: String, placeholderSuffix: String, initOnMigrate: Boolean, validateOnMigrate: Boolean)
   private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading, migrate: ConfigMigrate)
@@ -100,8 +107,7 @@ object FlywayPlugin extends Plugin {
   val flywayInfo = taskKey[Unit]("Retrieves the complete information about the migrations including applied, pending and current migrations with details and status.")
   val flywayClean = taskKey[Unit]("Drops all database objects.")
   val flywayInit = taskKey[Unit]("Initializes the metadata table in an existing schema.")
-  val flywayRepair = taskKey[Unit]("Repairs the metadata table after a failed migration on a database without DDL transactions.")
-  val flywayLog = taskKey[Unit]("Repairs the metadata table after a failed migration on a database without DDL transactions.")
+  val flywayRepair = taskKey[Unit]("Repairs the metadata table.")
 
   //*********************
   // flyway defaults
@@ -115,22 +121,25 @@ object FlywayPlugin extends Plugin {
       flywayUser := "",
       flywayPassword := "",
       flywayLocations := defaults.getLocations.toSeq,
+      flywayResolvers := Array.empty[String],
       flywaySchemas := defaults.getSchemas.toSeq,
       flywayTable := defaults.getTable,
       flywayInitVersion := defaults.getInitVersion.getVersion,
       flywayInitDescription := defaults.getInitDescription,
       flywayEncoding := defaults.getEncoding,
       flywaySqlMigrationPrefix := defaults.getSqlMigrationPrefix,
+      flywaySqlMigrationSeparator := defaults.getSqlMigrationSeparator,
       flywaySqlMigrationSuffix := defaults.getSqlMigrationSuffix,
-      flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayTarget := defaults.getTarget.getVersion,
       flywayOutOfOrder := defaults.isOutOfOrder,
+      flywayCallbacks := new Array[String](0),
       flywayIgnoreFailedFutureMigration := defaults.isIgnoreFailedFutureMigration,
       flywayPlaceholders := defaults.getPlaceholders.asScala.toMap,
       flywayPlaceholderPrefix := defaults.getPlaceholderPrefix,
       flywayPlaceholderSuffix := defaults.getPlaceholderSuffix,
       flywayInitOnMigrate := defaults.isInitOnMigrate,
       flywayValidateOnMigrate := defaults.isValidateOnMigrate,
+      flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayConfigDataSource <<= (flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
         (driver, url, user, password) => ConfigDataSource(driver, url, user, password)
       },
@@ -138,9 +147,9 @@ object FlywayPlugin extends Plugin {
         (schemas, table, initVersion, initDescription) =>
           ConfigBase(schemas, table, initVersion, initDescription)
       },
-      flywayConfigMigrationLoading <<= (flywayLocations, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder) map {
-        (locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder) =>
-          ConfigMigrationLoading(locations, encoding, sqlMigrationPrefix, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder)
+      flywayConfigMigrationLoading <<= (flywayLocations, flywayResolvers, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSeparator, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder, flywayCallbacks) map {
+        (locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks) =>
+          ConfigMigrationLoading(locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks)
       },
       flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayValidateOnMigrate) map {
         (ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, validateOnMigrate) =>
@@ -229,10 +238,13 @@ object FlywayPlugin extends Plugin {
       flyway.setLocations(config.locations: _*)
       flyway.setEncoding(config.encoding)
       flyway.setSqlMigrationPrefix(config.sqlMigrationPrefix)
+      flyway.setSqlMigrationSeparator(config.sqlMigrationSeparator)
       flyway.setSqlMigrationSuffix(config.sqlMigrationSuffix)
       flyway.setCleanOnValidationError(config.cleanOnValidationError)
       flyway.setTarget(config.target)
       flyway.setOutOfOrder(config.outOfOrder)
+      flyway.setCallbacks(config.callbacks: _*)
+      flyway.setResolvers(config.resolvers: _*)
       flyway
     }
     def configure(config: ConfigMigrate): Flyway = {
@@ -257,7 +269,7 @@ object FlywayPlugin extends Plugin {
     def createLogger(clazz: Class[_]) = FlywaySbtLog
   }
 
-  private object FlywaySbtLog extends org.flywaydb.core.util.logging.Log {
+  private object FlywaySbtLog extends org.flywaydb.core.internal.util.logging.Log {
     var streams: Option[TaskStreams] = None
     def debug(message: String) { streams map (_.log.debug(message)) }
     def info(message: String) { streams map (_.log.info(message)) }

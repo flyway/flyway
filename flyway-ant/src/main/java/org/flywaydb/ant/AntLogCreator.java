@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,33 @@
  */
 package org.flywaydb.ant;
 
-import org.flywaydb.core.util.logging.Log;
-import org.flywaydb.core.util.logging.LogCreator;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogCreator;
 import org.apache.tools.ant.Project;
 
 /**
  * Log Creator for Ant Logging.
  */
-public class AntLogCreator implements LogCreator {
+public enum AntLogCreator implements LogCreator {
+    INSTANCE;
+
     /**
      * The Ant project to log for.
      */
-    private final Project antProject;
+    private Project antProject;
 
     /**
-     * Creates a new Ant Log Creator for this project.
-     *
      * @param antProject The Ant project to log for.
      */
-    public AntLogCreator(Project antProject) {
+    public void setAntProject(Project antProject) {
         this.antProject = antProject;
     }
 
     public Log createLogger(Class<?> clazz) {
-        return new AntLog(antProject);
+        return new AntLog();
+    }
+
+    public Project getAntProject() {
+        return antProject;
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine and the many contributors.
+ * Copyright 2010-2014 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.flywaydb.osgi.largetest;
 
-import org.flywaydb.core.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Test;
 
 import java.io.File;
