@@ -23,8 +23,9 @@ public class DbCategory {
     public interface DB {}
     public interface InstallableDB extends DB {}
     public interface EmbeddedDB extends DB {}
-    public interface CommercialDB extends InstallableDB {}
     public interface OpenSourceDB extends InstallableDB {}
+    public interface CommercialDB extends InstallableDB {}
+    public interface ContributorSupportedDB extends CommercialDB {}
 
     // specific DBs
     public interface Derby extends EmbeddedDB {}
@@ -39,5 +40,6 @@ public class DbCategory {
     public interface DB2 extends CommercialDB {}
     public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
-    public interface Vertica extends CommercialDB {}
+
+    public interface Vertica extends ContributorSupportedDB {}
 }
