@@ -68,7 +68,7 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
     }
 
     /**
-     * @return true if we are connected to Redshift; false otherwise
+     * @return {@code true} if we are connected to Redshift; {@code false} otherwise
      */
     public boolean detect() {
         try {
