@@ -23,9 +23,10 @@ import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
-import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
+import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
+import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
@@ -88,6 +89,15 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
         }
+        if (databaseProductName.startsWith("PostgreSQL 8")) {
+            // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
+            // but only supports a subset of features. Therefore, we need to execute a query in order to
+            // distinguish it from the real PostgreSQL 8:
+            RedshiftDbSupport redshift = new RedshiftDbSupport(connection);
+            if (redshift.detect()) {
+                return redshift;
+            }
+        }
         if (databaseProductName.startsWith("PostgreSQL")) {
             return new PostgreSQLDbSupport(connection);
         }
@@ -109,6 +119,7 @@ public class DbSupportFactory {
      * @param connection The Jdbc connection.
      * @return The Jdbc Url.
      */
+
     private static String getJdbcUrl(Connection connection) {
         try {
             return connection.getMetaData().getURL();
