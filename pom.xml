@@ -7,11 +7,13 @@
     Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
 
     If your contribution does not require changes to the database-specific code it is also possible to run the build
-    without having to install the Jdbc drivers using mvn -P-CommercialDBJars
+    without having to install the Jdbc drivers using mvn -P-CommercialDBTest
 
-    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with -PNoCommercialDBTest as well.
+    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with -P-CommercialDBTest as well.
 
-    If you not not wish to install any database you can run the build with -PNoInstallableDBTest.
+    If you not not wish to install any database you can run the build with -P-InstallableDBTest.
+
+    If you wish to run to Vertica, RedShift oder DB2 zOS tests, you can run the build with -PContributorSupportedDBTest
     -->
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
@@ -205,6 +207,12 @@
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>sqljdbc4</artifactId>
                 <version>4.0.2206.100</version>
+                <optional>true</optional>
+            </dependency>
+             <dependency>
+                <groupId>com.vertica</groupId>
+                <artifactId>vertica-jdbc</artifactId>
+                <version>7.0.0-0</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -534,32 +542,6 @@
     </reporting>
 
     <profiles>
-        <profile>
-            <id>NoInstallableDBTest</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB</excludedGroups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>NoCommercialDBTest</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB</excludedGroups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>release-sign-artifacts</id>
             <activation>

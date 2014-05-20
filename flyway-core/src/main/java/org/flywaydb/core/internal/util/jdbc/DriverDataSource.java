@@ -167,6 +167,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:postgresql:")) {
+            // The format of Redshift JDBC urls is the same as PostgreSQL, and Redshift uses the same JDBC driver
             return "org.postgresql.Driver";
         }
 
@@ -178,6 +179,10 @@ public class DriverDataSource implements DataSource {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         }
 
+        if (url.startsWith("jdbc:vertica:")) {
+            return "com.vertica.jdbc.Driver";
+        }
+        
         return null;
     }
 
