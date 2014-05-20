@@ -178,6 +178,10 @@ public class DriverDataSource implements DataSource {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         }
 
+        if (url.startsWith("jdbc:vertica:")) {
+            return "com.vertica.jdbc.Driver";
+        }
+        
         return null;
     }
 
