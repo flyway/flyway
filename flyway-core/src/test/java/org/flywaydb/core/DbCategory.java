@@ -27,7 +27,6 @@ public class DbCategory {
     public interface CommercialDB extends InstallableDB {}
     public interface ContributorSupportedDB extends CommercialDB {}
 
-    // specific DBs
     public interface Derby extends EmbeddedDB {}
     public interface H2 extends EmbeddedDB {}
     public interface HSQL extends EmbeddedDB {}
@@ -39,8 +38,8 @@ public class DbCategory {
 
     public interface DB2 extends CommercialDB {}
     public interface Oracle extends CommercialDB {}
-    public interface Redshift extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
 
     public interface Vertica extends ContributorSupportedDB {}
+    public interface Redshift extends ContributorSupportedDB {}
 }
