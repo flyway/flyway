@@ -20,13 +20,18 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.ObjectUtils;
+import org.flywaydb.core.internal.util.StopWatch;
+import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,6 +40,8 @@ import java.sql.SQLException;
  * Handles Flyway's repair command.
  */
 public class DbRepair {
+    private static final Log LOG = LogFactory.getLog(DbRepair.class);
+
     /**
      * The database connection to use for accessing the metadata table.
      */
@@ -58,14 +65,21 @@ public class DbRepair {
     private final FlywayCallback[] callbacks;
 
     /**
+     * The database-specific support.
+     */
+    private final DbSupport dbSupport;
+
+    /**
      * Creates a new DbRepair.
      *
+     * @param dbSupport    The database-specific support.
      * @param connection        The database connection to use for accessing the metadata table.
      * @param migrationResolver The migration resolver.
      * @param metaDataTable     The metadata table.
      * @param callbacks         Callbacks for the Flyway lifecycle.
      */
-    public DbRepair(Connection connection, MigrationResolver migrationResolver, MetaDataTable metaDataTable, FlywayCallback[] callbacks) {
+    public DbRepair(DbSupport dbSupport, Connection connection, MigrationResolver migrationResolver, MetaDataTable metaDataTable, FlywayCallback[] callbacks) {
+        this.dbSupport = dbSupport;
         this.connection = connection;
         this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true);
         this.metaDataTable = metaDataTable;
@@ -85,6 +99,9 @@ public class DbRepair {
                 }
             });
         }
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
 
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
@@ -106,6 +123,14 @@ public class DbRepair {
                 return null;
             }
         });
+
+        stopWatch.stop();
+
+        LOG.info("Metadata table " + metaDataTable + " successfully repaired (execution time "
+                + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
+        if (!dbSupport.supportsDdlTransactions()) {
+            LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
+        }
 
         for (final FlywayCallback callback : callbacks) {
             new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {

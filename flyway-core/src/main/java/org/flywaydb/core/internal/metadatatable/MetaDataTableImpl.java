@@ -23,14 +23,12 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,22 +60,15 @@ public class MetaDataTableImpl implements MetaDataTable {
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * The ClassLoader to use.
-     */
-    private ClassLoader classLoader;
-
-    /**
      * Creates a new instance of the metadata table support.
      *
-     * @param dbSupport   Database-specific functionality.
-     * @param table       The metadata table used by flyway.
-     * @param classLoader The ClassLoader for loading migrations on the classpath.
+     * @param dbSupport Database-specific functionality.
+     * @param table     The metadata table used by flyway.
      */
-    public MetaDataTableImpl(DbSupport dbSupport, Table table, ClassLoader classLoader) {
+    public MetaDataTableImpl(DbSupport dbSupport, Table table) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;
-        this.classLoader = classLoader;
     }
 
     /**
@@ -122,18 +113,18 @@ public class MetaDataTableImpl implements MetaDataTable {
                     + " SET " + dbSupport.quote("version_rank") + " = " + dbSupport.quote("version_rank")
                     + " + 1 WHERE " + dbSupport.quote("version_rank") + " >= ?", versionRank);
             jdbcTemplate.update("INSERT INTO " + table
-                    + " (" + dbSupport.quote("version_rank")
-                    + "," + dbSupport.quote("installed_rank")
-                    + "," + dbSupport.quote("version")
-                    + "," + dbSupport.quote("description")
-                    + "," + dbSupport.quote("type")
-                    + "," + dbSupport.quote("script")
-                    + "," + dbSupport.quote("checksum")
-                    + "," + dbSupport.quote("installed_by")
-                    + "," + dbSupport.quote("execution_time")
-                    + "," + dbSupport.quote("success")
-                    + ")"
-                    + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
+                            + " (" + dbSupport.quote("version_rank")
+                            + "," + dbSupport.quote("installed_rank")
+                            + "," + dbSupport.quote("version")
+                            + "," + dbSupport.quote("description")
+                            + "," + dbSupport.quote("type")
+                            + "," + dbSupport.quote("script")
+                            + "," + dbSupport.quote("checksum")
+                            + "," + dbSupport.quote("installed_by")
+                            + "," + dbSupport.quote("execution_time")
+                            + "," + dbSupport.quote("success")
+                            + ")"
+                            + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
                     versionRank,
                     calculateInstalledRank(),
                     version.toString(),
@@ -142,7 +133,8 @@ public class MetaDataTableImpl implements MetaDataTable {
                     appliedMigration.getScript(),
                     appliedMigration.getChecksum(),
                     appliedMigration.getExecutionTime(),
-                    appliedMigration.isSuccess());
+                    appliedMigration.isSuccess()
+            );
             LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
             throw new FlywayException("Unable to insert row for version '" + version + "' in metadata table " + table, e);
@@ -267,7 +259,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     @Override
     public void removeFailedMigrations() {
         if (!table.exists()) {
-            LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
+            LOG.info("Repair of failed migration in metadata table " + table + " not necessary. No failed migration detected.");
             return;
         }
 
@@ -277,15 +269,12 @@ public class MetaDataTableImpl implements MetaDataTable {
             int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table
                     + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
             if (failedCount == 0) {
-                LOG.info("Repair of metadata table " + table + " not necessary. No failed migration detected.");
+                LOG.info("Repair of failed migration in metadata table " + table + " not necessary. No failed migration detected.");
                 return;
             }
         } catch (SQLException e) {
             throw new FlywayException("Unable to check the metadata table " + table + " for failed migrations", e);
         }
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
 
         try {
             jdbcTemplate.execute("DELETE FROM " + table
@@ -293,12 +282,6 @@ public class MetaDataTableImpl implements MetaDataTable {
         } catch (SQLException e) {
             throw new FlywayException("Unable to repair metadata table " + table, e);
         }
-
-        stopWatch.stop();
-
-        LOG.info("Metadata table " + table + " successfully repaired (execution time "
-                + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
-        LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
     }
 
     @Override
@@ -368,6 +351,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     @Override
     public void updateChecksum(MigrationVersion version, Integer checksum) {
+        LOG.info("Updating checksum of " + version + " to " + checksum + " ...");
         try {
             jdbcTemplate.update("UPDATE " + table + " SET " + dbSupport.quote("checksum") + "=" + checksum
                     + " WHERE " + dbSupport.quote("version") + "='" + version + "'");

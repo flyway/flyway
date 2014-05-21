@@ -810,7 +810,7 @@ public class Flyway {
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
 
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 if (validateOnMigrate) {
@@ -879,7 +879,7 @@ public class Flyway {
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
 
                 doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable, schemas,
@@ -924,7 +924,7 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTableImpl metaDataTable =
-                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
+                        new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
                 new DbClean(connectionMetaDataTable, metaDataTable, schemas, callbacks).clean();
                 return null;
             }
@@ -946,7 +946,7 @@ public class Flyway {
                 }
 
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
-                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
 
                 MigrationInfoServiceImpl migrationInfoService =
                         new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true);
@@ -969,7 +969,7 @@ public class Flyway {
     public void init() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
                 new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription, callbacks).init();
                 return null;
@@ -990,8 +990,8 @@ public class Flyway {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
-                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), classLoader);
-                new DbRepair(connectionMetaDataTable, migrationResolver, metaDataTable, callbacks).repair();
+                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+                new DbRepair(dbSupport, connectionMetaDataTable, migrationResolver, metaDataTable, callbacks).repair();
                 return null;
             }
         });
