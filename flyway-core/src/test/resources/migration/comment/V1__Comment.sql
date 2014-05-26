@@ -37,3 +37,16 @@ CREATE TABLE table1 (
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
 );
+
+CREATE TABLE table2 (
+/*'
+  sixth
+ '*/
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+);
+
+CREATE TABLE table3 (
+  name VARCHAR(25) NOT NULL, --' seventh
+  PRIMARY KEY(name)
+);
