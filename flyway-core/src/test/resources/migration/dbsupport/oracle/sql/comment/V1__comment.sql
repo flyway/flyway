@@ -14,34 +14,7 @@
 -- limitations under the License.
 --
 
-/*
-   First ' comment
- */
-CREATE TABLE user1 (
-  name VARCHAR(25) NOT NULL,
-  -- second '
-  PRIMARY KEY(name)
-);
-
-CREATE TABLE group1 (
-/*
-  third '
- */
-  name VARCHAR(25) NOT NULL,
-  PRIMARY KEY(name)
-);
-
--- 'fourth'
-CREATE TABLE table1 (
--- ' fifth
-  name VARCHAR(25) NOT NULL,
-  PRIMARY KEY(name)
-);
-
-CREATE TABLE table2 (
-/*'
-  sixth
- '*/
-  name VARCHAR(25) NOT NULL,
+ CREATE TABLE table1 (
+  name VARCHAR(25) NOT NULL, --' first
   PRIMARY KEY(name)
 );

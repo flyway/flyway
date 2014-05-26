@@ -269,6 +269,12 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
+    @Test
+    public void commentOracle() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/comment");
+        assertEquals(1, flyway.migrate());
+    }
+
     /**
      * Tests support for clean together with XML Type.
      */

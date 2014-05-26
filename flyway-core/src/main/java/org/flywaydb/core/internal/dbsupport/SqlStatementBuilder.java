@@ -336,20 +336,25 @@ public class SqlStatementBuilder {
                 //Skip '', 'abc', ...
                 continue;
             }
-            if (cleanToken.startsWith("'") || cleanToken.endsWith("'")) {
-                delimitingTokens.add(TokenType.QUOTE);
+            if ((cleanToken.length() >= 4) && cleanToken.startsWith("/*") && cleanToken.endsWith("*/")) {
+                //Skip /**/, /*comment*/, ...
+                continue;
             }
 
             if (isSingleLineComment(cleanToken)) {
                 delimitingTokens.add(TokenType.SINGLE_LINE_COMMENT);
             }
 
-            if ((cleanToken.length() >= 4) && cleanToken.startsWith("/*") && cleanToken.endsWith("*/")) {
-                //Skip /**/, /*comment*/, ...
-                continue;
-            }
-            if (cleanToken.startsWith("/*") || cleanToken.endsWith("*/")) {
+            if (cleanToken.startsWith("/*")) {
                 delimitingTokens.add(TokenType.MULTI_LINE_COMMENT);
+            } else if (cleanToken.startsWith("'")) {
+                delimitingTokens.add(TokenType.QUOTE);
+            }
+
+            if (!cleanToken.startsWith("/*") && cleanToken.endsWith("*/")) {
+                delimitingTokens.add(TokenType.MULTI_LINE_COMMENT);
+            } else if (!cleanToken.startsWith("'") && cleanToken.endsWith("'")) {
+                delimitingTokens.add(TokenType.QUOTE);
             }
         }
 
