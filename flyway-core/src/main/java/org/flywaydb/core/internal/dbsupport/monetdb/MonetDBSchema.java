@@ -62,11 +62,17 @@ public class MonetDBSchema extends Schema<MonetDBDbSupport> {
 
 	@Override
 	protected void doCreate() throws SQLException {
-		jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
+		String savedRole = jdbcTemplate.queryForString("select CURRENT_ROLE");
+		String user = jdbcTemplate.queryForString("select CURRENT_USER");
+		
+		jdbcTemplate.execute("set role \"sysadmin\"");
+		jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name) + " AUTHORIZATION " + user);
+		//jdbcTemplate.execute("set role \"" + savedRole + "\"");
 	}
 
 	@Override
 	protected void doDrop() throws SQLException {
+		//jdbcTemplate.execute("set role \"sysadmin\"");
 		jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " cascade");
 	}
 

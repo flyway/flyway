@@ -42,4 +42,5 @@ public class DbCategory {
 
     public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}
+    public interface MonetDB extends ContributorSupportedDB {}
 }

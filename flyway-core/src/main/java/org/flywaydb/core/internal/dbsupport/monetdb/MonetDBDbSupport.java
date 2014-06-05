@@ -43,25 +43,18 @@ public class MonetDBDbSupport extends DbSupport {
     }
 
     public String getCurrentUserFunction() {
-        return "\'flyway\'"; // FIXME
+        return "CURRENT_USER";
     }
 
     @Override
     protected String doGetCurrentSchema() throws SQLException {
-        return jdbcTemplate.getConnection().getCatalog();
+    	String schemaName = jdbcTemplate.queryForString("select CURRENT_SCHEMA");
+        return schemaName;
     }
 
     @Override
     protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        if ("".equals(schema.getName())) {
-            // Weird hack to switch back to no database selected...
-            String newDb = quote(UUID.randomUUID().toString());
-            jdbcTemplate.execute("CREATE SCHEMA " + newDb);
-            jdbcTemplate.execute("USE " + newDb);
-            jdbcTemplate.execute("DROP SCHEMA " + newDb);
-        } else {
-            jdbcTemplate.execute("USE " + schema);
-        }
+    	jdbcTemplate.execute("set schema " + schema);
     }
 
     public boolean supportsDdlTransactions() {

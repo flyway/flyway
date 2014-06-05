@@ -54,7 +54,7 @@ public class MonetDBTable extends Table {
     	if(! jdbcTemplate.getConnection().getAutoCommit()) {
     		jdbcTemplate.getConnection().commit();
     	}
-        return exists(schema, null, name);
+        return exists(null, schema, name);
     }
 
     @Override
