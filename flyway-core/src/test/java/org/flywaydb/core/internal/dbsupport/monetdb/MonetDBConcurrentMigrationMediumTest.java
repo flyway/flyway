@@ -28,7 +28,6 @@ import java.util.Properties;
  * Test to demonstrate the migration functionality using MySQL.
  */
 @Category(DbCategory.MonetDB.class)
-@Ignore // FIXME problems
 public class MonetDBConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
