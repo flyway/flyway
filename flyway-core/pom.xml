@@ -242,6 +242,29 @@
             </build>
         </profile>
         <profile>
+            <id>MonetDBTest</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$MonetDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+				<dependency>
+					<groupId>org.monetdb</groupId>
+					<artifactId>monetdb-jdbc</artifactId>
+					<scope>test</scope>
+				</dependency>               
+            </dependencies>
+        </profile>        
+        <profile>
             <id>InstallableDBTest</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -260,7 +283,7 @@
         <profile>
             <id>CommercialDBTest</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
