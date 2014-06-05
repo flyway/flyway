@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
+import org.flywaydb.core.internal.dbsupport.monetdb.MonetDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
@@ -108,6 +109,9 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("Vertica")) {
             return new VerticaDbSupport(connection);
+        }
+        if (databaseProductName.startsWith("MonetDB")) {
+        	return new MonetDBDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
