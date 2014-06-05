@@ -77,6 +77,7 @@ public class TransactionTemplate {
         } catch (RuntimeException e) {
             if (rollbackOnException) {
                 try {
+                	// LOG.error(e.getMessage(), e);
                     LOG.debug("Rolling back transaction...");
                     connection.rollback();
                     LOG.debug("Transaction rolled back");
