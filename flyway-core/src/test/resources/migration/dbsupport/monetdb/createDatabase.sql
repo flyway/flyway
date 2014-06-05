@@ -13,7 +13,7 @@
 --
 
 CREATE USER "flyway" WITH PASSWORD 'flyway' NAME 'flyway test user' SCHEMA "sys";
-CREATE ROLE "FLYWAY";
+CREATE ROLE "flyway";
 GRANT "flyway" TO "flyway";
 GRANT "sysadmin" TO "flyway";
 

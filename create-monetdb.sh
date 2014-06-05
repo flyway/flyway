@@ -13,4 +13,5 @@ echo "MonetDB"
 sudo monetdb create flywaydb
 sudo monetdb release flywaydb
 
+echo 'Enter "monetdb" (password for moentdb user)'
 mclient -u monetdb -d flywaydb flyway-core/src/test/resources/migration/dbsupport/monetdb/createDatabase.sql
