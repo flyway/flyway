@@ -185,6 +185,12 @@
                 <version>12.1.0.1</version>
                 <optional>true</optional>
             </dependency>
+			<dependency>
+				<groupId>org.monetdb</groupId>
+				<artifactId>monetdb-jdbc</artifactId>
+				<version>2.11</version>
+				<optional>true</optional>
+			</dependency>            
             <dependency>
                 <groupId>com.ibm.db2</groupId>
                 <artifactId>db2jcc4</artifactId>
