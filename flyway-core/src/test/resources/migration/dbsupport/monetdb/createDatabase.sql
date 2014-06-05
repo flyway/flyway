@@ -1,6 +1,4 @@
 --
--- Copyright 2010-2014 Axel Fontaine
---
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
 -- You may obtain a copy of the License at
@@ -14,10 +12,13 @@
 -- limitations under the License.
 --
 
-/*
-CREATE DATABASE flyway_db DEFAULT CHARACTER SET 'utf8' DEFAULT COLLATE 'utf8_bin';
-CREATE USER 'flyway'@'localhost' IDENTIFIED BY 'flyway';
+CREATE USER "flyway" WITH PASSWORD 'flyway' NAME 'flyway test user' SCHEMA "sys";
+CREATE ROLE "FLYWAY";
+GRANT "flyway" TO "flyway";
+GRANT "sysadmin" TO "flyway";
 
--- For MySQL 5.1 and up
-GRANT all ON *.* TO 'flyway'@'localhost';
-*/
+set user="flyway";
+set role "sysadmin";
+
+CREATE SCHEMA "flywaydb" AUTHORIZATION "flyway";
+ALTER USER "flyway" SET SCHEMA "flywaydb";
