@@ -17,8 +17,8 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
  * @author Dan Bunker
  *
  */
-public class MonetDBEnableAutoCommit implements FlywayCallback {
-    private static final Log LOG = LogFactory.getLog(MonetDBEnableAutoCommit.class);
+public class MonetDBCallback implements FlywayCallback {
+    private static final Log LOG = LogFactory.getLog(MonetDBCallback.class);
 
     @Override
 	public void beforeClean(Connection dataConnection) {
@@ -32,36 +32,22 @@ public class MonetDBEnableAutoCommit implements FlywayCallback {
 
 	@Override
 	public void beforeMigrate(Connection dataConnection) {
-		LOG.info("beforeMigrate: setting AutoCommit to true");
+		LOG.info("beforeMigrate");
 	}
 
 	@Override
 	public void afterMigrate(Connection dataConnection) {
-		LOG.info("afterMigrate: setting AutoCommit to false");
-
+		LOG.info("afterMigrate");
 	}
 
 	@Override
 	public void beforeEachMigrate(Connection dataConnection, MigrationInfo info) {
 		LOG.debug("beforeEachMigrate");
-//		try {
-//			//dataConnection.commit();
-//			//dataConnection.setAutoCommit(true);
-//		} catch (SQLException e) {
-//			LOG.error(e.getMessage(), e);
-//		}
-		
 	}
 
 	@Override
 	public void afterEachMigrate(Connection dataConnection, MigrationInfo info) {
 		LOG.debug("afterEachMigrate");
-		try {
-			dataConnection.commit();
-		} catch (SQLException e) {
-			LOG.error(e.getMessage(), e);
-		}
-
 	}
 
 	@Override

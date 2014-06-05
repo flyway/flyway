@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -45,11 +46,25 @@ public class MonetDBTable extends Table {
 
     @Override
     protected boolean doExists() throws SQLException {
+    	// MonetDB need such dirty trick because
+    	// there are problems with commiting changes to metadata table after migration.
+    	// Migration can be succesfull BUT writing record to matadata table is refused by database. 
+    	// JDBC Driver throws SQLException with message "COMMIT: failed".
+    	// Strange...
+    	if(! jdbcTemplate.getConnection().getAutoCommit()) {
+    		jdbcTemplate.getConnection().commit();
+    	}
         return exists(schema, null, name);
     }
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.execute("SELECT * FROM " + this); // FIXME no FOR UPDATE !!!
+    	// Dirty trick explained above (in doExists metod).
+    	jdbcTemplate.getConnection().commit(); 
+    	// MonetDB cannot lock tables for updates.
+    	
+    	// Maybe creating temporary table before mgration and removing it after???
+    	// I don't know....
+    	// maybe there is no problem because of optimictic lock?
     }
 }
