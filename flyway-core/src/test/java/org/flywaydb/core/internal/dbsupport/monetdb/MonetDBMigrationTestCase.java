@@ -156,7 +156,7 @@ public abstract class MonetDBMigrationTestCase extends MigrationTestCase {
     @Test
     public void escapeSingleQuote() throws FlywayException {
     	flyway.setLocations("migration/dbsupport/monetdb/sql/escape");
-        flyway.setCallbacks(new MonetDBCallback());
+        flyway.setCallbacks(new MonetDBConcurrentLockManager());
         flyway.migrate();
     }
 

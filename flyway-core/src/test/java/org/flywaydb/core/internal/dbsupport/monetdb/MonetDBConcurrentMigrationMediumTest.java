@@ -17,11 +17,15 @@ package org.flywaydb.core.internal.dbsupport.monetdb;
 
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
+
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -37,4 +41,15 @@ public class MonetDBConcurrentMigrationMediumTest extends ConcurrentMigrationTes
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
     }
+
+    /* (non-Javadoc)
+     * @see org.flywaydb.core.migration.ConcurrentMigrationTestCase#createFlyway()
+     */
+    @Override
+    protected Flyway createFlyway() throws SQLException {
+    	Flyway flyway = super.createFlyway();
+    	flyway.setCallbacks(new MonetDBConcurrentLockManager());
+    	return flyway;
+    }
+    
 }

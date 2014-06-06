@@ -20,88 +20,126 @@ import org.flywaydb.core.api.MigrationInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Random;
 
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 /**
- * Default FlywayCallback implementation.  If you don't want to have to 
- * implement all of the FlywayCallback methods you can use this as your
- * base class and override the relavant callbacks you are interested in.
+ * This class is responsible for createing and relasing locks during migration process. In MonetDB it's not possible to lock metadata table using select ... for update. 
+ * In distributed environments user must declare this class as callback managing locks.
  * 
- * @author Dan Bunker
- *
+ * @author Radosław Ostrzycki
+ * 
  */
-public class MonetDBCallback implements FlywayCallback {
-    private static final Log LOG = LogFactory.getLog(MonetDBCallback.class);
+public class MonetDBConcurrentLockManager implements FlywayCallback {
+	private static final Log LOG = LogFactory.getLog(MonetDBConcurrentLockManager.class);
 
-    @Override
+	private final static String LOCK_TABLE = "flyway_lock_table_4_monetdb";
+	
+	@Override
 	public void beforeClean(Connection dataConnection) {
-    	LOG.debug("beforeClean");
 	}
 
 	@Override
 	public void afterClean(Connection dataConnection) {
-		LOG.debug("afterClean");
 	}
 
+	/**
+	 * This method tries to create "lock" table - if it fails, it tries again and again...
+	 */
 	@Override
 	public void beforeMigrate(Connection dataConnection) {
-		LOG.info("beforeMigrate");
+		boolean hasLock = false;
+		while (!hasLock) {
+			Statement stmt = null;
+			try {
+				try {
+					Thread.sleep(100 + new Random().nextInt(500));
+				} catch (InterruptedException e) {
+				}
+				
+				stmt = dataConnection.createStatement();
+				stmt.execute("create table " + LOCK_TABLE + " (i int)");
+				stmt.close();
+				dataConnection.commit();
+				hasLock = true;
+				LOG.debug("Lock acquired.");
+			} catch (SQLException e) {
+				try {
+					stmt.close();
+					dataConnection.rollback();
+				} catch (SQLException e2) {
+				}
+				try {
+					LOG.debug("Lock failed - waiting...");
+					Thread.sleep(500 + new Random().nextInt(1500));
+				} catch (InterruptedException e1) {
+				}
+			}
+		}
+		
 	}
 
+	/**
+	 * Releaseing lock (dropping lock table).
+	 */
 	@Override
 	public void afterMigrate(Connection dataConnection) {
-		LOG.info("afterMigrate");
+		LOG.info("afterMigrate: release locks.");
+		Statement stmt = null;
+		try {
+			stmt = dataConnection.createStatement();
+			stmt.execute("drop table " + LOCK_TABLE);
+			stmt.close();
+			dataConnection.commit();
+		} catch (SQLException e) {
+			try {
+				stmt.close();
+			} catch (SQLException e2) {
+			}
+		}
+		
 	}
 
 	@Override
 	public void beforeEachMigrate(Connection dataConnection, MigrationInfo info) {
-		LOG.debug("beforeEachMigrate");
 	}
 
 	@Override
 	public void afterEachMigrate(Connection dataConnection, MigrationInfo info) {
-		LOG.debug("afterEachMigrate");
 	}
 
 	@Override
 	public void beforeValidate(Connection dataConnection) {
-		LOG.debug("beforeValidate");
 	}
 
 	@Override
 	public void afterValidate(Connection dataConnection) {
-		LOG.debug("afterValidate");
 	}
 
 	@Override
 	public void beforeInit(Connection dataConnection) {
-		LOG.debug("beforeInit");
 	}
 
 	@Override
 	public void afterInit(Connection dataConnection) {
-		LOG.debug("afterInit");
 	}
 
 	@Override
 	public void beforeRepair(Connection dataConnection) {
-		LOG.debug("beforeRepair");
 	}
 
 	@Override
 	public void afterRepair(Connection dataConnection) {
-		LOG.debug("afterRepair");
 	}
 
 	@Override
 	public void beforeInfo(Connection dataConnection) {
-		LOG.debug("beforeInfo");
 	}
 
 	@Override
 	public void afterInfo(Connection dataConnection) {
-		LOG.debug("afterInfo");
 	}
 }
