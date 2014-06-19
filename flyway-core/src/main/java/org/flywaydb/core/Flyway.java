@@ -95,8 +95,7 @@ public class Flyway {
     private String[] schemaNames = new String[0];
     
     /**
-     * 
-     * 
+     * Will allow multiple schemas to be migrated at once
      */
     private boolean multipleDbMode = false;
 
@@ -296,8 +295,8 @@ public class Flyway {
     }
 
     /**
-     * 
-     * @return
+     * Get whether or not the multiple db mode is active or not  
+     * @return {@code true} if multiple db mode is active {@code false} if it is not enabled (default: {@code false})
      */
     public boolean isMultipleDbMode() {
     	return multipleDbMode;
@@ -585,8 +584,8 @@ public class Flyway {
     }
 
     /**
-     * 
-     * @param multipleDbMode
+     * Set whether the multiple db mode is active or not
+     * @param multipleDbMode {@code true} to enable multiple db mode {@code false} to disable
      */
     public void setMultipleDbMode(boolean multipleDbMode) {
     	this.multipleDbMode = multipleDbMode;
