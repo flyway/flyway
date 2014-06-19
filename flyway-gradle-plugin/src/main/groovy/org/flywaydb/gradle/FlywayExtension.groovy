@@ -41,8 +41,8 @@ public class FlywayExtension {
     /** The case-sensitive list of schemas managed by Flyway */
     String[] schemas
 
-	/** Whether single schema mode is on or not */
-	Boolean singleSchemaMode
+	/** Whether multiple db mode is on or not */
+	Boolean multipleDbMode
 
     /** The initial version to put in the database */
     String initVersion
