@@ -116,6 +116,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String[] schemas;
 
     /**
+     * Whether the multiple db mode option is enabled or not 
+     * 
+     * @parameter property="flyway.multipleDbMode"
+     */
+    private boolean multipleDbMode = flyway.isMultipleDbMode();
+    
+    /**
      * <p>The name of the metadata table that will be used by Flyway. (default: schema_version)</p>
      * <p> By default (single-schema mode) the
      * metadata table is placed in the default schema for the connection provided by the datasource. <br/> When the
@@ -398,6 +405,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setSchemas(schemas);
+            flyway.setMultipleDbMode(multipleDbMode);
             flyway.setTable(table);
             flyway.setInitVersion(initVersion);
             flyway.setInitDescription(initDescription);

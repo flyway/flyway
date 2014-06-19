@@ -96,6 +96,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSet(flyway, 'placeholderPrefix')
         propSet(flyway, 'placeholderSuffix')
         propSet(flyway, 'target')
+        propSetAsBoolean(flyway, 'singleSchemaMode')
         propSetAsBoolean(flyway, 'outOfOrder')
         propSetAsBoolean(flyway, 'validateOnMigrate')
         propSetAsBoolean(flyway, 'cleanOnValidationError')

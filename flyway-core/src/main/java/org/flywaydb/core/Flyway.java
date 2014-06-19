@@ -16,12 +16,26 @@
 package org.flywaydb.core;
 
 
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.command.*;
+import org.flywaydb.core.internal.command.DbClean;
+import org.flywaydb.core.internal.command.DbInit;
+import org.flywaydb.core.internal.command.DbMigrate;
+import org.flywaydb.core.internal.command.DbRepair;
+import org.flywaydb.core.internal.command.DbSchemas;
+import org.flywaydb.core.internal.command.DbValidate;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -37,10 +51,6 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -83,6 +93,12 @@ public class Flyway {
      * </ul>
      */
     private String[] schemaNames = new String[0];
+    
+    /**
+     * 
+     * 
+     */
+    private boolean multipleDbMode = false;
 
     /**
      * <p>The name of the schema metadata table that will be used by Flyway. (default: schema_version)</p><p> By default
@@ -279,6 +295,14 @@ public class Flyway {
         return schemaNames;
     }
 
+    /**
+     * 
+     * @return
+     */
+    public boolean isMultipleDbMode() {
+    	return multipleDbMode;
+    }
+    
     /**
      * <p>Retrieves the name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema
      * mode) the metadata table is placed in the default schema for the connection provided by the datasource. </p> <p>
@@ -561,6 +585,15 @@ public class Flyway {
     }
 
     /**
+     * 
+     * @param multipleDbMode
+     */
+    public void setMultipleDbMode(boolean multipleDbMode) {
+    	this.multipleDbMode = multipleDbMode;
+    }
+    
+    
+    /**
      * <p>Sets the name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode)
      * the metadata table is placed in the default schema for the connection provided by the datasource. </p> <p> When
      * the <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first schema
@@ -809,64 +842,79 @@ public class Flyway {
      */
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
+        	
             public Integer execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
-
-                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
-                if (validateOnMigrate) {
-                    doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable,
-                            schemas, true);
-                }
-
-                new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
-
-                if (!metaDataTable.hasSchemasMarker() && !metaDataTable.hasInitMarker() && !metaDataTable.hasAppliedMigrations()) {
-                    List<Schema> nonEmptySchemas = new ArrayList<Schema>();
-                    for (Schema schema : schemas) {
-                        if (!schema.empty()) {
-                            nonEmptySchemas.add(schema);
-                        }
-                    }
-
-                    if (initOnMigrate || nonEmptySchemas.isEmpty()) {
-                        if (initOnMigrate && !nonEmptySchemas.isEmpty()) {
-                            new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription, callbacks).init();
-                        }
-                    } else {
-                        if (nonEmptySchemas.size() == 1) {
-                            Schema schema = nonEmptySchemas.get(0);
-                            //Check whether we only have an empty metadata table in an otherwise empty schema
-                            if (schema.allTables().length != 1 || !schema.getTable(table).exists()) {
-                                throw new FlywayException("Found non-empty schema " + schema
+            	
+            	int successful = 0;
+            	for(Schema schema : schemas) {
+            		
+            		MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport,schema.getTable(table));
+            		MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
+            		if(validateOnMigrate) {
+            			doValidate(connectionMetaDataTable,connectionUserObjects,migrationResolver,metaDataTable,schemas,true);
+            		}
+            		
+            		new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
+            		
+            		if(!metaDataTable.hasSchemasMarker() && !metaDataTable.hasInitMarker() && !metaDataTable.hasAppliedMigrations()) {
+            			List<Schema> nonEmptySchemas = new ArrayList<Schema>();
+            			
+            			if(!schema.empty()) {
+            				nonEmptySchemas.add(schema);
+            			}
+            			
+            			if(!multipleDbMode) {
+            				for(int i=1,l=schemas.length;i<l;++i) {
+            					if(!schema.empty()) {
+                    				nonEmptySchemas.add(schemas[i]);
+                    			}
+            				}
+            			}
+            			
+            			if(initOnMigrate || nonEmptySchemas.isEmpty()) {
+            				if(initOnMigrate && !nonEmptySchemas.isEmpty()) {
+            					new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription, callbacks).init();
+            				}
+            			} else {
+            				if(nonEmptySchemas.size() == 1) {
+            					Schema s = nonEmptySchemas.get(0);
+            					if(schema.allTables().length != 1 || !schema.getTable(table).exists()) {
+            						throw new FlywayException("Found non-empty schema " + schema
+                                            + " without metadata table! Use init()"
+                                            + " or set initOnMigrate to true to initialize the metadata table.");
+            					}
+            				} else {
+            					throw new FlywayException("Found non-empty schemas "
+                                        + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
                                         + " without metadata table! Use init()"
                                         + " or set initOnMigrate to true to initialize the metadata table.");
-                            }
-                        } else {
-                            throw new FlywayException("Found non-empty schemas "
-                                    + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                    + " without metadata table! Use init()"
-                                    + " or set initOnMigrate to true to initialize the metadata table.");
-                        }
-                    }
-                }
-
-                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
-                Schema originalSchemaUserObjects = dbSupportUserObjects.getCurrentSchema();
-                boolean schemaChange = !schemas[0].equals(originalSchemaUserObjects);
-                if (schemaChange) {
-                    dbSupportUserObjects.setCurrentSchema(schemas[0]);
-                }
-
-                DbMigrate dbMigrate =
-                        new DbMigrate(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable,
-                                schemas[0], migrationResolver, target, ignoreFailedFutureMigration, outOfOrder, callbacks);
-                try {
-                    return dbMigrate.migrate();
-                } finally {
-                    if (schemaChange) {
-                        dbSupportUserObjects.setCurrentSchema(originalSchemaUserObjects);
-                    }
-                }
+            				}
+            			}
+            		}
+            		
+            		DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
+            		Schema originalSchemaUserObjects = dbSupportUserObjects.getCurrentSchema();
+            		boolean schemaChange = !schema.equals(originalSchemaUserObjects);
+            		if(schemaChange) {
+            			dbSupportUserObjects.setCurrentSchema(schema);
+            		}
+            		
+            		DbMigrate dbMigrate = new DbMigrate(connectionMetaDataTable,connectionUserObjects,dbSupport,metaDataTable,
+            											schema, migrationResolver, target, ignoreFailedFutureMigration, outOfOrder, callbacks);
+            		
+            		try {
+            			if(multipleDbMode) {
+            				successful += dbMigrate.migrate();
+            			} else {
+            				return dbMigrate.migrate();
+            			}
+            		} finally {
+            			if(schemaChange) {
+            				dbSupportUserObjects.setCurrentSchema(originalSchemaUserObjects);
+            			}
+            		}
+            	}
+            	return successful;
             }
         });
     }
@@ -1064,6 +1112,10 @@ public class Flyway {
         String schemasProp = properties.getProperty("flyway.schemas");
         if (schemasProp != null) {
             setSchemas(StringUtils.tokenizeToStringArray(schemasProp, ","));
+        }
+        String multipleDbModeProp = properties.getProperty("flyway.multipleDbModeProp");
+        if(multipleDbModeProp != null) {
+        	setMultipleDbMode(Boolean.parseBoolean(multipleDbModeProp));
         }
         String tableProp = properties.getProperty("flyway.table");
         if (tableProp != null) {
