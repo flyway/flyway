@@ -58,6 +58,10 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             return PLSQL_DELIMITER;
         }
 
+        if (statementStart.matches("CREATE( OR REPLACE)?( AND (RESOLVE|COMPILE))?( NOFORCE)? JAVA (SOURCE|RESOURCE|CLASS).*")) {
+            return PLSQL_DELIMITER;
+        }
+
         return delimiter;
     }
 
