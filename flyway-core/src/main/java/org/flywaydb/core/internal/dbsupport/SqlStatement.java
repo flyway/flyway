@@ -30,14 +30,21 @@ public class SqlStatement {
     private String sql;
 
     /**
+     * Whether or not JDBC SQL escape processing should be modified
+     */
+    private Boolean useSqlEscape;
+
+    /**
      * Creates a new sql statement.
      *
-     * @param lineNumber The original line number where the statement was located in the script it came from.
-     * @param sql        The sql to send to the database.
+     * @param lineNumber   The original line number where the statement was located in the script it came from.
+     * @param sql          The sql to send to the database.
+     * @param useSqlEscape If true, JDBC escape processing will be enabled. If false, JDBC escape processing will be disabled. If null, JDBC escape processing will be left at the default value.
      */
-    public SqlStatement(int lineNumber, String sql) {
+    public SqlStatement(int lineNumber, String sql, Boolean useSqlEscape) {
         this.lineNumber = lineNumber;
         this.sql = sql;
+        this.useSqlEscape = useSqlEscape;
     }
 
     /**
@@ -52,5 +59,12 @@ public class SqlStatement {
      */
     public String getSql() {
         return sql;
+    }
+
+    /**
+     * @return true if JDBC escape processing will be enabled. false if JDBC escape processing will be disabled. null if JDBC escape processing will be left at the default value
+     */
+    public Boolean isUseSqlEscape() {
+        return useSqlEscape;
     }
 }

@@ -59,6 +59,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         }
 
         if (statementStart.matches("CREATE( OR REPLACE)?( AND (RESOLVE|COMPILE))?( NOFORCE)? JAVA (SOURCE|RESOURCE|CLASS).*")) {
+            setUseSqlEscape(false);
             return PLSQL_DELIMITER;
         }
 

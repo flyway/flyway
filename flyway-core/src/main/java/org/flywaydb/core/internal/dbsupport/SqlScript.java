@@ -86,7 +86,7 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                jdbcTemplate.executeStatement(sql);
+                jdbcTemplate.executeStatement(sql, sqlStatement.isUseSqlEscape());
             } catch (SQLException e) {
                 throw new FlywaySqlScriptException(sqlStatement.getLineNumber(), sql, e);
             }
