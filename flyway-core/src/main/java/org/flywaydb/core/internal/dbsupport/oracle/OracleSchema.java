@@ -300,7 +300,7 @@ public class OracleSchema extends Schema {
 
         List<String> linkNames = jdbcTemplate.queryForStringList("SELECT db_link FROM user_db_links");
         for (String linkName : linkNames) {
-            dropStatements.add("DROP DATABASE LINK " + dbSupport.quote(name, linkName));
+            dropStatements.add("DROP DATABASE LINK \"" + linkName + "\"");
         }
         return dropStatements;
     }
