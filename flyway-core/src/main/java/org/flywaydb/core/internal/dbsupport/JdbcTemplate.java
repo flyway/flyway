@@ -229,9 +229,23 @@ public class JdbcTemplate {
      * @throws SQLException when the execution failed.
      */
     public void executeStatement(String sql) throws SQLException {
+        executeStatement(sql, null);
+    }
+
+    /**
+     * Executes this sql statement using an ordinary Statement.
+     *
+     * @param sql The statement to execute.
+     * @param useSqlEscape If true, JDBC escape processing is set to true. If false, JDBC escape processing is set to false. If null, JDBC escape processing is left at the default value.
+     * @throws SQLException when the execution failed.
+     */
+    public void executeStatement(String sql, Boolean useSqlEscape) throws SQLException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
+            if (useSqlEscape != null) {
+                statement.setEscapeProcessing(useSqlEscape);
+            }
             statement.execute(sql);
             @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
             while (warning != null) {

@@ -132,6 +132,17 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests cleaning up after CREATE JAVA SOURCE.
+     */
+    @Ignore("Disabled due to missing functionality in Oracle XE 11g. Works fine with XE 10g.")
+    @Test
+    public void createJavaSource() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/javapackage");
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
      * Test clean with recycle bin
      */
     @Test

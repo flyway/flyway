@@ -70,6 +70,25 @@ public class SqlStatementBuilder {
     private Delimiter delimiter = getDefaultDelimiter();
 
     /**
+     * If true, JDBC escape processing will be enabled. If false, JDBC escape processing will be disabled. If null, JDBC escape processing will be left at the default value.
+     */
+    private Boolean useSqlEscape = null;
+
+    /**
+     * @return true if JDBC escape processing will be enabled. false if JDBC escape processing will be disabled. null if JDBC escape processing will be left at the default value
+     */
+    public Boolean isUseSqlEscape() {
+        return useSqlEscape;
+    }
+
+    /**
+     * @param useSqlEscape If true, JDBC escape processing will be enabled. If false, JDBC escape processing will be disabled. If null, JDBC escape processing will be left at the default value
+     */
+    protected void setUseSqlEscape(Boolean useSqlEscape) {
+        this.useSqlEscape = useSqlEscape;
+    }
+
+    /**
      * @return The default delimiter for this database.
      */
     protected Delimiter getDefaultDelimiter() {
@@ -112,7 +131,7 @@ public class SqlStatementBuilder {
      * @return The assembled statement, with the delimiter stripped off.
      */
     public SqlStatement getSqlStatement() {
-        return new SqlStatement(lineNumber, statement.toString());
+        return new SqlStatement(lineNumber, statement.toString(), isUseSqlEscape());
     }
 
     /**
