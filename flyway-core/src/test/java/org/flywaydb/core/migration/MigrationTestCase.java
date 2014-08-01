@@ -69,10 +69,14 @@ public abstract class MigrationTestCase {
         dbSupport = DbSupportFactory.createDbSupport(connection, false);
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
+		configureFlyway();
+		flyway.clean();
+	}
+
+	protected void configureFlyway() {
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setValidateOnMigrate(true);
-        flyway.clean();
     }
 
     /**
@@ -342,7 +346,7 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-        assertTrue(dbSupport.getCurrentSchema().getTable("schema_version").exists());
+		assertTrue(dbSupport.getCurrentSchema().getTable(flyway.getTable()).exists());
         assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 

@@ -226,6 +226,26 @@
 
     <profiles>
         <profile>
+            <id>DB2zOS</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.ibm.db2</groupId>
+                    <artifactId>db2jcc</artifactId>
+                    <version>8.1</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.ibm.db2</groupId>
+                    <artifactId>db2jcc_license_cisuz</artifactId>
+                    <version>3.4.65</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>EmbeddedDBTest</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
