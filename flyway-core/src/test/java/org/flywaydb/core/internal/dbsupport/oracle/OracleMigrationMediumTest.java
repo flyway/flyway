@@ -83,21 +83,6 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         }
     }
 
-    @Test
-    public void itShouldCreateType() throws Exception {
-        // given
-        flyway.setLocations( "migration/dbsupport/oracle/sql/comment" );
-
-        // when
-        flyway.migrate();
-
-        // then
-        String statusWithComment = jdbcTemplate.queryForString( "select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITH_COMMENT' " );
-        String statusWithoutComment = jdbcTemplate.queryForString( "select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITHOUT_COMMENT' " );
-        assertEquals( "VALID", statusWithoutComment );
-        assertEquals( "VALID", statusWithComment );
-    }
-
     /**
      * Tests clean for Oracle Spatial Extensions.
      */
@@ -285,9 +270,14 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void commentOracle() throws FlywayException {
+    public void commentOracle() throws Exception {
         flyway.setLocations("migration/dbsupport/oracle/sql/comment");
-        assertEquals(1, flyway.migrate());
+        assertEquals(3, flyway.migrate());
+
+        String statusWithComment = jdbcTemplate.queryForString( "select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITH_COMMENT' " );
+        String statusWithoutComment = jdbcTemplate.queryForString( "select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITHOUT_COMMENT' " );
+        assertEquals( "VALID", statusWithoutComment );
+        assertEquals( "VALID", statusWithComment );
     }
 
     /**
