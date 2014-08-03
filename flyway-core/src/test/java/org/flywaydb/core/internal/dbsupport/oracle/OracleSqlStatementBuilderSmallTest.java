@@ -33,6 +33,18 @@ public class OracleSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void javaSource() {
+        builder.addLine("CREATE OR REPLACE AND COMPILE JAVA SOURCE NAMED \"JavaTest\" AS");
+        assertFalse(builder.isTerminated());
+        builder.addLine("public class JavaTest {");
+        assertFalse(builder.isTerminated());
+        builder.addLine("};");
+        assertFalse(builder.isTerminated());
+        builder.addLine("/");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
     public void nvarchar() {
         builder.addLine("INSERT INTO nvarchar2_test VALUES ( N'qwerty' );");
         assertTrue(builder.isTerminated());

@@ -323,19 +323,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Ignore("Disabled due to missing functionality in Oracle XE.")
     @Test
     public void javaSource() throws FlywayException, SQLException {
-        flyway.setLocations("org/flywaydb/core/dbsupport/oracle/sql/javaSource");
-
+        flyway.setLocations("migration/dbsupport/oracle/sql/javasource");
         flyway.migrate();
-        assertTrue(isExistMyJavaSource());
-
         flyway.clean();
-        assertFalse(isExistMyJavaSource());
-    }
-
-    private boolean isExistMyJavaSource() throws SQLException {
-        String query = "SELECT count(*) FROM all_objects WHERE object_name = ? AND owner = ?";
-        String objectName = "MyJavaSource";
-        String owner = flyway.getSchemas()[0];
-        return jdbcTemplate.queryForInt(query, objectName, owner) != 0;
     }
 }

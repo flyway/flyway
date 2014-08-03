@@ -232,6 +232,7 @@ public class JdbcTemplate {
         Statement statement = null;
         try {
             statement = connection.createStatement();
+            statement.setEscapeProcessing(false);
             boolean hasResults = statement.execute(sql);
             // retrieve all results to ensure all errors are detected
             while (hasResults || statement.getUpdateCount() != -1) {

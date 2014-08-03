@@ -39,22 +39,18 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             return PLSQL_DELIMITER;
         }
 
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
             statementStart += line;
             statementStart += " ";
             statementStart = statementStart.replaceAll("\\s+", " ");
         }
 
-        if (statementStart.startsWith("CREATE FUNCTION")
-                || statementStart.startsWith("CREATE PROCEDURE")
-                || statementStart.startsWith("CREATE PACKAGE")
-                || statementStart.startsWith("CREATE TYPE")
-                || statementStart.startsWith("CREATE TRIGGER")
-                || statementStart.startsWith("CREATE OR REPLACE FUNCTION")
-                || statementStart.startsWith("CREATE OR REPLACE PROCEDURE")
-                || statementStart.startsWith("CREATE OR REPLACE PACKAGE")
-                || statementStart.startsWith("CREATE OR REPLACE TYPE")
-                || statementStart.startsWith("CREATE OR REPLACE TRIGGER")){
+        if (statementStart.matches("CREATE( OR REPLACE)? FUNCTION.*")
+                || statementStart.matches("CREATE( OR REPLACE)? PROCEDURE.*")
+                || statementStart.matches("CREATE( OR REPLACE)? PACKAGE.*")
+                || statementStart.matches("CREATE( OR REPLACE)? TYPE.*")
+                || statementStart.matches("CREATE( OR REPLACE)? TRIGGER.*")
+                || statementStart.matches("CREATE( OR REPLACE)?( AND (RESOLVE|COMPILE))?( NOFORCE)? JAVA (SOURCE|RESOURCE|CLASS).*")){
             return PLSQL_DELIMITER;
         }
 
