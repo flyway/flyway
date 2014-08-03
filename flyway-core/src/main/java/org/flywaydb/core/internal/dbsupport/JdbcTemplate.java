@@ -232,7 +232,11 @@ public class JdbcTemplate {
         Statement statement = null;
         try {
             statement = connection.createStatement();
-            statement.execute(sql);
+            boolean hasResults = statement.execute(sql);
+            // retrieve all results to ensure all errors are detected
+            while (hasResults || statement.getUpdateCount() != -1) {
+              hasResults = statement.getMoreResults();
+            }
             @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
             while (warning != null) {
                 LOG.warn(warning.getMessage()
