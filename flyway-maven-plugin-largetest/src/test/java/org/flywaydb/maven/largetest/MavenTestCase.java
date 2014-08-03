@@ -59,6 +59,13 @@ public abstract class MavenTestCase {
     }
 
     @Test
+    public void executions() throws Exception {
+        String stdOut = runMaven(0, "executions", "clean", "install", "-Dflyway.user=SA");
+        assertTrue(stdOut.contains("[INFO] Cleaned schema \"PUBLIC\""));
+        assertTrue(stdOut.contains("[echo] Property: flyway.current = 1.1"));
+    }
+
+    @Test
     public void sample() throws Exception {
         String stdOut = runMaven(0, "sample", "clean", "compile", "flyway:clean", "flyway:migrate");
         assertTrue(stdOut.contains("Successfully applied 5 migrations"));
