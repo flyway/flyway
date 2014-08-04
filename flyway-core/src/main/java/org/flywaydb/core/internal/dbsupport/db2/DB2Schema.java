@@ -51,6 +51,7 @@ public class DB2Schema extends Schema<DB2DbSupport> {
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.procedures where procschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.functions where funcschema = ?", name);
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.triggers where trigschema = ?", name);
         return objectCount == 0;
     }
 
