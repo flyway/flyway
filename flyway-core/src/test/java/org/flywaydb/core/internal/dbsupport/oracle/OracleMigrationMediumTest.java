@@ -162,6 +162,18 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests cleaning up after DBMS_SCHEDULE.CREATE_JOB
+     */
+    @Test
+    public void createScheduledJob() throws Exception {
+        flyway.setLocations("migration/dbsupport/oracle/sql/scheduled_job");
+        flyway.migrate();
+        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from user_scheduler_jobs where job_name='TEST_JOB'"));
+        flyway.clean();
+        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from user_scheduler_jobs where job_name='TEST_JOB'"));
+    }
+
+    /**
      * Tests parsing support for q-Quote string literals.
      */
     @Test
