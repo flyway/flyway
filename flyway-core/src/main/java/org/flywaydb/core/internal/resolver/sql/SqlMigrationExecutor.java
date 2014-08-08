@@ -15,19 +15,21 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
+import java.sql.Connection;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
-
-import java.sql.Connection;
 
 /**
  * Database migration based on a sql file.
  */
 public class SqlMigrationExecutor implements MigrationExecutor {
+
+    private final static String DISABLE_TRANSACTION_COMMENT = "--not-transactional";
+
     /**
      * Database-specific support.
      */
@@ -67,7 +69,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(Connection connection) {
-        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
+        String sqlScriptSource = load();
         String sqlScriptSourceNoPlaceholders = placeholderReplacer.replacePlaceholders(sqlScriptSource);
         SqlScript sqlScript = new SqlScript(sqlScriptSourceNoPlaceholders, dbSupport);
         sqlScript.execute(new JdbcTemplate(connection, 0));
@@ -75,6 +77,10 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public boolean executeInTransaction() {
-        return true;
+        return load().startsWith(DISABLE_TRANSACTION_COMMENT);
+    }
+    
+    private String load(){
+        return sqlScriptResource.loadAsString(encoding);
     }
 }
