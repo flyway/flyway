@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2010-2013 the original author or authors.
+    Copyright 2010-2014 Axel Fontaine
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -67,6 +67,14 @@
                 <include>put-your-jdbc-driver-and-java-migration-jars-here.txt</include>
             </includes>
             <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>..</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>LICENSE.txt</include>
+                <include>README.txt</include>
+            </includes>
         </fileSet>
     </fileSets>
     <dependencySets>

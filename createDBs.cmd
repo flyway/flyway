@@ -1,5 +1,5 @@
 @REM
-@REM Copyright (C) 2010-2013 the original author or authors.
+@REM Copyright 2010-2014 Axel Fontaine
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ sqlplus SYSTEM/flyway@XE < flyway-core/src/test/resources/migration/dbsupport/or
 
 echo MySQL...
 mysql -uroot -pflyway < flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
+
+echo MariaDB...
+mysql -uroot -pflyway -P3333 < flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
 
 echo PostgreSQL...
 set PGPASSWORD=flyway

@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2014 Axel Fontaine
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -34,6 +34,14 @@ CREATE TABLE group1 (
 -- 'fourth'
 CREATE TABLE table1 (
 -- ' fifth
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+);
+
+CREATE TABLE table2 (
+/*'
+  sixth
+ '*/
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
 );

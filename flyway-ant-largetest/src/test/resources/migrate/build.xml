@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 
-    Copyright (C) 2010-2013 the original author or authors.
+    Copyright 2010-2014 Axel Fontaine
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
     limitations under the License.
 
 -->
-<project name="MigrateLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
+<project name="MigrateLargeTest" basedir="." xmlns:flyway="antlib:org.flywaydb.ant">
     <path id="lib.path">
         <fileset dir="${installDir}/flyway-ant-${pomVersion}" includes="*.jar"/>
     </path>
-    <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml" classpathref="lib.path"/>
+    <taskdef uri="antlib:org.flywaydb.ant" resource="org/flywaydb/ant/antlib.xml"
+             classpathref="lib.path"/>
 
     <property name="flyway.driver" value="org.hsqldb.jdbcDriver"/>
-    <property name="flyway.url" value="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
+    <property name="flyway.url" value="jdbc:hsqldb:file:${basedir}/target/db/flyway_db;shutdown=true"/>
     <property name="flyway.user" value="sa"/>
+    <property name="flyway.locations" value="largetest/migrate,filesystem:target/classes/largetest/sql"/>
 
     <target name="clean">
         <delete dir="target"/>
@@ -53,8 +55,10 @@
 
     <target name="run" depends="compile">
         <flyway:migrate>
-            <placeholder name="name" value="Mr. T"/>
+            <placeholders>
+                <placeholder name="name" value="Mr. T"/>
+            </placeholders>
         </flyway:migrate>
-        <flyway:info />
+        <flyway:info/>
     </target>
 </project>

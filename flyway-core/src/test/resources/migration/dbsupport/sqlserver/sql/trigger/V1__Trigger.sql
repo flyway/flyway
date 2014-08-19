@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2014 Axel Fontaine
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -18,17 +18,23 @@ CREATE TABLE Customers (
  CustomerId smallint identity(1,1),
  Name nvarchar(255),
  Priority tinyint
-)
+   CONSTRAINT [PK_Source] PRIMARY KEY CLUSTERED
+     (
+       [CustomerId] ASC
+     ));
 CREATE TABLE Sales (
  TransactionId smallint identity(1,1),
  CustomerId smallint,
  [Net Amount] int,
  Completed bit
-)
+   CONSTRAINT [PK_Source1] PRIMARY KEY CLUSTERED
+     (
+       [TransactionId] ASC
+     ));
 go
 
 CREATE TRIGGER dbo.Update_Customer_Priority
-  ON dbo.Sales
+  ON Sales
 AFTER INSERT, UPDATE, DELETE
 AS
 WITH CTE AS (

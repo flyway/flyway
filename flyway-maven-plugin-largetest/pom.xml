@@ -1,18 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.googlecode.flyway</groupId>
+        <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>0-SNAPSHOT</version>
     </parent>
     <artifactId>flyway-maven-plugin-largetest</artifactId>
-    <version>2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
+        <!-- Add Flyway dependencies to force order in reaction -->
         <dependency>
-            <groupId>com.googlecode.flyway</groupId>
+            <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-sample</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -32,7 +38,7 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>apache-maven</artifactId>
-            <version>3.0.5</version>
+            <version>3.1.0</version>
             <classifier>bin</classifier>
             <type>tar.gz</type>
             <scope>test</scope>
@@ -40,6 +46,12 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <!-- Added to force correct build order in parallel builds -->
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>${project.version}</version>
+            </plugin>
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>

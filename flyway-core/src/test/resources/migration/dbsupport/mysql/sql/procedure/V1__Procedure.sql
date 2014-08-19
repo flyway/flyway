@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2014 Axel Fontaine
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -46,3 +46,18 @@ $$
 
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS sp_temp;
+DELIMITER $$
+CREATE DEFINER=root@'localhost' PROCEDURE sp_temp()
+DETERMINISTIC
+  BEGIN
+    DECLARE s VARCHAR(20);
+
+    SELECT 1;
+
+  END;
+$$
+DELIMITER ;
+
+CALL sp_temp;
+DROP PROCEDURE IF EXISTS sp_temp;

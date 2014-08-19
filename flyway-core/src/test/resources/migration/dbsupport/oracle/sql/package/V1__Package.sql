@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2014 Axel Fontaine
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 -- limitations under the License.
 --
 
-CREATE OR REPLACE PACKAGE emp_actions AS  -- spec
+CREATE OR REPLACE
+
+PACKAGE emp_actions AS  -- spec
    TYPE EmpRecTyp IS RECORD (emp_id INT, salary REAL);
    CURSOR desc_salary RETURN EmpRecTyp;
    PROCEDURE hire_employee (
