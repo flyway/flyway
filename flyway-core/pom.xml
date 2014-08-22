@@ -273,6 +273,11 @@
                     <artifactId>db2jcc4</artifactId>
                     <scope>test</scope>
                 </dependency>
+                <dependency>
+                    <groupId>com.timesten</groupId>
+                    <artifactId>ttjdbc7</artifactId>
+                    <scope>test</scope>
+                </dependency>
             </dependencies>
             <build>
                 <plugins>

@@ -21,8 +21,10 @@ package org.flywaydb.core;
  */
 public class DbCategory {
     public interface DB {}
+
     public interface InstallableDB extends DB {}
     public interface EmbeddedDB extends DB {}
+
     public interface OpenSourceDB extends InstallableDB {}
     public interface CommercialDB extends InstallableDB {}
     public interface ContributorSupportedDB extends CommercialDB {}
@@ -37,11 +39,12 @@ public class DbCategory {
     public interface PostgreSQL extends OpenSourceDB {}
 
     public interface DB2 extends CommercialDB {}
+    public interface GoogleCloudSQL extends CommercialDB {}
     public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
-    public interface GoogleCloudSQL extends CommercialDB {}
+    public interface TimesTen extends CommercialDB {}
 
     public interface DB2zOS extends ContributorSupportedDB {}
-    public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}
+    public interface Vertica extends ContributorSupportedDB {}
 }

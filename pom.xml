@@ -186,6 +186,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.timesten</groupId>
+                <artifactId>ttjdbc7</artifactId>
+                <version>11.2.2.7.4</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>com.ibm.db2</groupId>
                 <artifactId>db2jcc4</artifactId>
                 <version>4.17.29</version>
