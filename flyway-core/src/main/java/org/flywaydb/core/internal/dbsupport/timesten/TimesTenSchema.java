@@ -96,7 +96,7 @@ public class TimesTenSchema extends Schema<TimesTenDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS")) {
+        for (String statement : generateDropStatementsForObjectType("VIEW", "CASCADE")) {
             jdbcTemplate.execute(statement);
         }
 
