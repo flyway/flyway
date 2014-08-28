@@ -39,7 +39,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * The flyway {} block in the build script.
      */
-    private FlywayExtension extension
+    protected FlywayExtension extension
 
     AbstractFlywayTask() {
         group = 'Flyway'
