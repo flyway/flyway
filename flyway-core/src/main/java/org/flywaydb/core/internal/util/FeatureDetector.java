@@ -44,6 +44,11 @@ public final class FeatureDetector {
     private Boolean apacheCommonsLoggingAvailable;
 
     /**
+     * Flag indicating availability of the Slf4j.
+     */
+    private Boolean slf4jAvailable;
+
+    /**
      * Flag indicating availability of Spring JDBC.
      */
     private Boolean springJdbcAvailable;
@@ -79,6 +84,19 @@ public final class FeatureDetector {
         }
 
         return apacheCommonsLoggingAvailable;
+    }
+
+    /**
+     * Checks whether Slf4j is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isSlf4jAvailable() {
+        if (slf4jAvailable == null) {
+            slf4jAvailable = ClassUtils.isPresent("org.slf4j.Logger", classLoader);
+        }
+
+        return slf4jAvailable;
     }
 
     /**
