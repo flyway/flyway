@@ -16,23 +16,16 @@
     limitations under the License.
 
 -->
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-    <appender name="console" class="org.apache.log4j.ConsoleAppender">
-        <param name="Target" value="System.out"/>
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{ISO8601} %t %-5p %c{1} - %m%n"/>
-        </layout>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%15.15t{14}] %-40.40logger{39} : %m%n</pattern>
+        </encoder>
     </appender>
 
-    <logger name="org.springframework" additivity="false">
-        <level value="info"/>
-        <appender-ref ref="console"/>
-    </logger>
-
-    <root>
-        <priority value="debug"/>
-        <appender-ref ref="console"/>
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
     </root>
-</log4j:configuration>
+
+    <logger name="org.springframework" level="INFO"/>
+</configuration>

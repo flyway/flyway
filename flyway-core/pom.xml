@@ -6,7 +6,16 @@
     A number of Jdbc drivers are unfortunately not available from Maven Central due to licensing issues.
     Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
 
-    If you not not wish to install any database you can run the build with -P-InstallableDBTest.
+    If your contribution does not require changes to the database-specific code it is also possible to run the build
+    without having to install the Jdbc drivers or databases using:
+    mvn -P-InstallableDBTest -P-CommercialDBTest
+
+    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with:
+    mvn -P-CommercialDBTest
+
+    If you wish to run to Vertica, RedShift oder DB2 zOS tests, you can run the build with on of the following:
+    mvn -VerticaRedshiftDBTest
+    mvn -PDB2zOSDBTest
     -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -57,6 +66,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -64,11 +78,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
