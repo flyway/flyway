@@ -233,16 +233,20 @@ public class JdbcTemplate {
         try {
             statement = connection.createStatement();
             statement.setEscapeProcessing(false);
-            boolean hasResults = statement.execute(sql);
-            // retrieve all results to ensure all errors are detected
-            while (hasResults || statement.getUpdateCount() != -1) {
-              hasResults = statement.getMoreResults();
-            }
-            @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
-            while (warning != null) {
-                LOG.warn(warning.getMessage()
-                        + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
-                warning = warning.getNextWarning();
+            boolean hasResults = false;
+            try {
+                hasResults = statement.execute(sql);
+            } finally {
+                @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
+                while (warning != null) {
+                    LOG.warn(warning.getMessage()
+                            + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
+                    warning = warning.getNextWarning();
+                }
+                // retrieve all results to ensure all errors are detected
+                while (hasResults || statement.getUpdateCount() != -1) {
+                    hasResults = statement.getMoreResults();
+                }
             }
         } finally {
             JdbcUtils.closeStatement(statement);
