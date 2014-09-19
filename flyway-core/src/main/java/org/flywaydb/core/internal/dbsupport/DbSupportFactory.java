@@ -39,9 +39,6 @@ import java.sql.SQLException;
  * Factory for obtaining the correct DbSupport instance for the current connection.
  */
 public class DbSupportFactory {
-    /**
-     * Logger.
-     */
     private static final Log LOG = LogFactory.getLog(DbSupportFactory.class);
 
     /**
