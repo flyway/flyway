@@ -1,23 +1,44 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
-    Detailed information how to contribute: http://flywaydb.org/howToContribute.html
+    Detailed information how to contribute: http://flywaydb.org/contribute/howToContribute.html
 
     A number of Jdbc drivers are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: http://flywaydb.org/devEnvironmentSetup.html
+    Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
 
     If your contribution does not require changes to the database-specific code it is also possible to run the build
-    without having to install the Jdbc drivers using mvn -P-MediumTests
+    without having to install the Jdbc drivers or databases using:
+    mvn -P-InstallableDBTest -P-CommercialDBTest
+
+    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with:
+    mvn -P-CommercialDBTest
+
+    If you wish to run to Vertica, RedShift oder DB2 zOS tests, you can run the build with on of the following:
+    mvn -VerticaRedshiftDBTest
+    mvn -PDB2zOSDBTest
     -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.googlecode.flyway</groupId>
+        <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
         <version>0-SNAPSHOT</version>
     </parent>
     <artifactId>flyway-core</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -40,6 +61,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -47,11 +78,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -67,6 +93,11 @@
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -95,6 +126,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
@@ -109,6 +145,30 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-license</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>..</directory>
+                                    <includes>
+                                        <include>LICENSE.txt</include>
+                                        <include>README.txt</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
@@ -121,17 +181,13 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
+                        <Bundle-SymbolicName>org.flywaydb.core</Bundle-SymbolicName>
                         <Export-Package>
-                            com.googlecode.flyway.core;version=${project.version},
-                            com.googlecode.flyway.core.api.*;version=${project.version},
-                            com.googlecode.flyway.core.exception;version=${project.version},
-                            com.googlecode.flyway.core.metadatatable;version=${project.version},
-                            com.googlecode.flyway.core.migration;version=${project.version},
-                            com.googlecode.flyway.core.migration.java;version=${project.version},
-                            com.googlecode.flyway.core.validation;version=${project.version}
+                            org.flywaydb.core;version=${project.version},
+                            org.flywaydb.core.api.*;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            org.springframework.*;version="[2.5,4.0)";resolution:=optional,
+                            org.springframework.*;version="[2.5,5.0)";resolution:=optional,
                             org.apache.commons.logging;version="[1.1,2)";resolution:=optional,
                             org.osgi.framework;version="1.3.0";resolution:=mandatory,
                             javax.sql
@@ -179,7 +235,39 @@
 
     <profiles>
         <profile>
-            <id>MediumTests</id>
+            <id>EmbeddedDBTest</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>InstallableDBTest</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>CommercialDBTest</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -191,15 +279,78 @@
                 </dependency>
                 <dependency>
                     <groupId>com.oracle</groupId>
-                    <artifactId>ojdbc5</artifactId>
+                    <artifactId>ojdbc6</artifactId>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.ibm.db2</groupId>
-                    <artifactId>db2jcc</artifactId>
+                    <artifactId>db2jcc4</artifactId>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>VerticaRedshiftDBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.vertica</groupId>
+                    <artifactId>vertica-jdbc</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>DB2zOSDBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.ibm.db2</groupId>
+                    <artifactId>db2jcc</artifactId>
+                    <version>8.1</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.ibm.db2</groupId>
+                    <artifactId>db2jcc_license_cisuz</artifactId>
+                    <version>3.4.65</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

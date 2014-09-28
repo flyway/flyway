@@ -1,5 +1,5 @@
 @REM
-@REM Copyright 2010-2013 Axel Fontaine and the many contributors.
+@REM Copyright 2010-2014 Axel Fontaine
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ net stop postgresql-x64-9.0
 net stop OracleXETNSListener
 net stop OracleServiceXE
 net stop MySQL
+net stop MariaDB
 net stop DB2MGMTSVC_DB2COPY1
 net stop DB2DAS00
 net stop DB2REMOTECMD_DB2COPY1

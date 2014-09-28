@@ -1,7 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.googlecode.flyway</groupId>
+        <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
         <version>0-SNAPSHOT</version>
     </parent>
@@ -9,6 +10,21 @@
     <version>0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://github.com/flyway/flyway/blob/master/LICENSE.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <sbtVersion>0.13</sbtVersion>
+        <scalaVersion>2.10</scalaVersion>
+        <sbtArtifactDir>${project.build.directory}/scala-${scalaVersion}/sbt-${sbtVersion}</sbtArtifactDir>
+    </properties>
+
     <dependencies>
         <!-- Add dependency to force correct module build order -->
         <dependency>
@@ -20,10 +36,28 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-license</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>..</directory>
+                                    <includes>
+                                        <include>LICENSE.txt</include>
+                                        <include>README.txt</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.directory}/scala-${scalaVersion}/sbt-${sbtVersion}/classes/META-INF</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -53,16 +87,16 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/scala-2.10/sbt-0.13/flyway-sbt-${project.version}.jar</file>
+                                    <file>${sbtArtifactDir}/flyway-sbt-${project.version}.jar</file>
                                     <type>jar</type>
                                 </artifact>
                                 <artifact>
-                                    <file>${project.build.directory}/scala-2.10/sbt-0.13/flyway-sbt-${project.version}-sources.jar</file>
+                                    <file>${sbtArtifactDir}/flyway-sbt-${project.version}-sources.jar</file>
                                     <type>jar</type>
                                     <classifier>sources</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>${project.build.directory}/scala-2.10/sbt-0.13/flyway-sbt-${project.version}-javadoc.jar</file>
+                                    <file>${sbtArtifactDir}/flyway-sbt-${project.version}-javadoc.jar</file>
                                     <type>jar</type>
                                     <classifier>javadoc</classifier>
                                 </artifact>

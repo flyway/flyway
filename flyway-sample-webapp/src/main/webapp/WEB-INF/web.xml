@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright 2010-2013 Axel Fontaine and the many contributors.
+    Copyright 2010-2014 Axel Fontaine
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,19 +21,19 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
         <servlet-name>EnvInfoServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.EnvInfoServlet</servlet-class>
+        <servlet-class>org.flywaydb.sample.webapp.EnvInfoServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>CleanServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.CleanServlet</servlet-class>
+        <servlet-class>org.flywaydb.sample.webapp.CleanServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>MigrateServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.MigrateServlet</servlet-class>
+        <servlet-class>org.flywaydb.sample.webapp.MigrateServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>InfoServlet</servlet-name>
-        <servlet-class>com.googlecode.flyway.sample.webapp.InfoServlet</servlet-class>
+        <servlet-class>org.flywaydb.sample.webapp.InfoServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

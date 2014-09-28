@@ -17,6 +17,10 @@
 
 # Save current directory
 OLDDIR=`pwd`
+cygwin=false
+case "`uname`" in
+  CYGWIN*) cygwin=true;;
+esac
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -49,7 +53,14 @@ else
 	CONSOLE_WIDTH=80
 fi
 
-"$JAVA_CMD" -cp ./bin/flyway-commandline-${project.version}.jar:./bin/flyway-core-${project.version}.jar com.googlecode.flyway.commandline.Main $@ -consoleWidth=$CONSOLE_WIDTH
+
+CP="./bin/flyway-commandline-${project.version}.jar:./bin/flyway-core-${project.version}.jar"
+
+if $cygwin; then
+  CP=$(cygpath -pw "$CP")
+fi
+
+"$JAVA_CMD" -cp "$CP" org.flywaydb.commandline.Main $@ -consoleWidth=$CONSOLE_WIDTH
 
 # Save the exit code
 JAVA_EXIT_CODE=$?
