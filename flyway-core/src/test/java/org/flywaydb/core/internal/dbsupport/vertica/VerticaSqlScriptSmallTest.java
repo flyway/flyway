@@ -35,9 +35,9 @@ public class VerticaSqlScriptSmallTest {
 
         SqlScript sqlScript = new SqlScript(source, new VerticaDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(3, sqlStatements.size());
+        assertEquals(10, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(19, sqlStatements.get(1).getLineNumber());
-        assertEquals(23, sqlStatements.get(2).getLineNumber());
+        assertEquals(20, sqlStatements.get(2).getLineNumber());
     }
 }
