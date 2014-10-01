@@ -38,7 +38,7 @@ public class FileSystemLocationScannerMediumTest {
                 new FileSystemClassPathLocationScanner().findResourceNamesFromFileSystem(path, "sql", new File(path + "sql"));
 
         assertEquals(4, resourceNames.size());
-        String[] names = resourceNames.toArray(new String[4]);
+        String[] names = resourceNames.toArray(new String[5]);
         assertEquals("sql/V1_1__View.sql", names[0]);
         assertEquals("sql/V1_2__Populate_table.sql", names[1]);
         assertEquals("sql/V1__First.sql", names[2]);

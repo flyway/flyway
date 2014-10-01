@@ -1,6 +1,5 @@
 package org.flywaydb.core.internal.resolver.sql;
 
-import junit.framework.Assert;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -29,7 +28,7 @@ public class SqlMigrationExecutorMediumTest {
     @Test
     public void testExecuteStream() throws UnsupportedEncodingException {
 
-        String path = URLDecoder.decode(getClass().getClassLoader().getResource("migration/sql/dbdump.sql").getPath(), "UTF-8");
+        String path = URLDecoder.decode(getClass().getClassLoader().getResource("migration/dump/V2_1__dbdump.sql").getPath(), "UTF-8");
         FileSystemResource resource = new FileSystemResource(path);
 
         Map<String,String> map =  new HashMap<String, String>();
