@@ -47,5 +47,10 @@ public enum MigrationType {
     /**
      * The type for other migrations by custom MigrationResolvers.
      */
-    CUSTOM;
+    CUSTOM,
+
+    /**
+     *  The type for Groovy java-based migrations.
+     */
+    GROOVY;
 }

@@ -42,7 +42,25 @@ public class CompositeMigrationResolverSmallTest {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
                 Thread.currentThread().getContextClassLoader(),
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
+                "UTF-8", "V", "__", ".sql","V", "__", ".groovy", placeholderReplacer, new MyCustomMigrationResolver());
+
+        Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
+        List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
+
+        assertEquals(4, migrations.size());
+        assertEquals("First", migrationList.get(0).getDescription());
+        assertEquals("Late arrivals", migrationList.get(1).getDescription());
+        assertEquals("Virtual Migration", migrationList.get(2).getDescription());
+        assertEquals("Add foreign key", migrationList.get(3).getDescription());
+    }
+
+    @Test
+    public void resolveMigrationsMultipleLocationsGroovy() {
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
+                Thread.currentThread().getContextClassLoader(),
+                new Locations("migration/subdirgroovy/dir2", "migration.outofordergroovy", "migration/subdirgroovy/dir1"),
+                "UTF-8", "V", "__", ".sql","V", "__", ".groovy", placeholderReplacer, new MyCustomMigrationResolver());
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);

@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 public final class FeatureDetector {
     private static final Log LOG = LogFactory.getLog(FeatureDetector.class);
 
+
     /**
      * The ClassLoader to use.
      */
@@ -73,6 +74,10 @@ public final class FeatureDetector {
      */
     private Boolean androidAvailable;
 
+    /**
+     * Flag indicating availability of the Groovy classes.
+     */
+    private static Boolean groovyAvailable;
     /**
      * Checks whether Apache Commons Logging is available.
      *
@@ -167,4 +172,13 @@ public final class FeatureDetector {
 
         return androidAvailable;
     }
+
+    public boolean isGroovyAvailable() {
+        if (groovyAvailable == null){
+            groovyAvailable = ClassUtils.isPresent("groovy.lang.GroovyClassLoader",classLoader);
+            LOG.debug("Groovy available: " + groovyAvailable);
+        }
+        return groovyAvailable;
+    }
+
 }
