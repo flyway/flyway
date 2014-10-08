@@ -14,7 +14,7 @@
     mvn -P-CommercialDBTest
 
     If you wish to run to Vertica, RedShift oder DB2 zOS tests, you can run the build with on of the following:
-    mvn -VerticaRedshiftDBTest
+    mvn -PVerticaRedshiftDBTest
     mvn -PDB2zOSDBTest
     -->
     <modelVersion>4.0.0</modelVersion>
