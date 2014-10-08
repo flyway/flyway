@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport.postgresql;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
@@ -338,5 +339,12 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway1.setLocations(BASEDIR);
         flyway1.setSchemas("public");
         flyway1.migrate();
+    }
+
+    @Test(expected = FlywayException.class)
+    public void warning() {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/warning");
+        flyway.migrate();
+        // Log should contain "This is a warning"
     }
 }

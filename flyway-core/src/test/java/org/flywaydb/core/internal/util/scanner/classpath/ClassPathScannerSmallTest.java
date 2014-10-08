@@ -72,12 +72,11 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesDefaultPackage() throws Exception {
-        Resource[] resources = classPathScanner.scanForResources("", "log4j", "");
+        Resource[] resources = classPathScanner.scanForResources("", "logback", "");
 
-        assertEquals(2, resources.length);
+        assertEquals(1, resources.length);
 
-        assertEquals("log4j.dtd", resources[0].getLocation());
-        assertEquals("log4j.xml", resources[1].getLocation());
+        assertEquals("logback.xml", resources[0].getLocation());
     }
 
     @Test
