@@ -13,9 +13,9 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-set current sqlid = '${schema}';
 
-CREATE TABLESPACE SDBVERS
+
+CREATE TABLESPACE ${tablespace}
       IN "${schema}"
      USING STOGROUP SENSITIV PRIQTY -1 SECQTY -1 ERASE NO FREEPAGE 0 PCTFREE 10 DEFINE YES TRACKMOD YES
        SEGSIZE 64
@@ -43,7 +43,7 @@ CREATE TABLE "${schema}"."${table}" (
     "success" SMALLINT NOT NULL,
     CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
 )
-IN "${schema}".SDBVERS
+IN "${schema}".${tablespace}
   CCSID UNICODE
 ;
 

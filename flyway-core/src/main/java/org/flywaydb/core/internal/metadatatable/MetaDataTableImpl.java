@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
@@ -30,6 +31,8 @@ import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -87,6 +90,9 @@ public class MetaDataTableImpl implements MetaDataTable {
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", table.getSchema().getName());
         placeholders.put("table", table.getName());
+        if (dbSupport instanceof DB2zosDbSupport) {
+            placeholders.put("tablespace", getShortTablespaceName(table.getName()));
+        }
         String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
         SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
@@ -94,6 +100,27 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         LOG.debug("Metadata table " + table + " created.");
     }
+
+    private String getShortTablespaceName(String tablename) {
+
+        String encryptedTablename = null;
+        try {
+            // Create MessageDigest instance for SHA
+            MessageDigest md = MessageDigest.getInstance("SHA");
+            md.update(tablename.getBytes());
+            byte[] bytes = md.digest();
+            //Convert it to hexadecimal format
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            encryptedTablename = sb.insert(0,"FLY").toString().substring(0,8);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return encryptedTablename;
+    }
+
 
     @Override
     public void lock() {
