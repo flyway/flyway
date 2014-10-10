@@ -136,6 +136,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.firebirdsql.jdbc</groupId>
+            <artifactId>jaybird-jdk16</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
             <scope>test</scope>

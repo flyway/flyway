@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
+import org.flywaydb.core.internal.dbsupport.firebird.FirebirdDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
@@ -108,6 +109,9 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("Vertica")) {
             return new VerticaDbSupport(connection);
+        }
+        if (databaseProductName.startsWith("Firebird")) {
+            return new FirebirdDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

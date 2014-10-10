@@ -183,6 +183,9 @@ public class DriverDataSource implements DataSource {
             return "com.vertica.jdbc.Driver";
         }
         
+        if (url.startsWith("jdbc:firebirdsql:")) {
+            return "org.firebirdsql.jdbc.FBDriver";
+        }
         return null;
     }
 
