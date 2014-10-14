@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -166,4 +167,14 @@ public abstract class DbSupport {
      * @return {@code true} if this database use a catalog to represent a schema. {@code false} if a schema is simply a schema.
      */
     public abstract boolean catalogIsSchema();
+
+    /**
+     * Executes this COPY statement (PostgreSQL only).
+     *
+     * @param connection The connection to use.
+     * @param sql        The statement to execute.
+     */
+    public void executePgCopy(Connection connection, String sql) throws SQLException {
+        // Do nothing by default
+    }
 }

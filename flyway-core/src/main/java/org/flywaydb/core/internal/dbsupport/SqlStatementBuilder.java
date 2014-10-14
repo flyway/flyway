@@ -112,7 +112,8 @@ public class SqlStatementBuilder {
      * @return The assembled statement, with the delimiter stripped off.
      */
     public SqlStatement getSqlStatement() {
-        return new SqlStatement(lineNumber, statement.toString());
+        String sql = statement.toString();
+        return new SqlStatement(lineNumber, sql, isPgCopy());
     }
 
     /**
@@ -124,6 +125,15 @@ public class SqlStatementBuilder {
     @SuppressWarnings("UnusedParameters")
     public Delimiter extractNewDelimiterFromLine(String line) {
         return null;
+    }
+
+    /**
+     * Checks whether this statement is a COPY statement for PostgreSQL.
+     *
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    public boolean isPgCopy() {
+        return false;
     }
 
     /**
@@ -190,7 +200,7 @@ public class SqlStatementBuilder {
      * Checks whether this line in the sql script indicates that the statement delimiter will be different from the
      * current one. Useful for database-specific stored procedures and block constructs.
      *
-     * @param line      The line to analyse.
+     * @param line      The simplified line to analyse.
      * @param delimiter The current delimiter.
      * @return The new delimiter to use (can be the same as the current one) or {@code null} for no delimiter.
      */
@@ -260,7 +270,7 @@ public class SqlStatementBuilder {
      *
      * @param line The line that was just added to the statement.
      * @return {@code true} if the statement is unfinished and the end is currently in the middle of a multi-line string
-     *         literal. {@code false} if not.
+     * literal. {@code false} if not.
      */
     protected boolean endsWithOpenMultilineStringLiteral(String line) {
         //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
@@ -298,7 +308,7 @@ public class SqlStatementBuilder {
      *
      * @param tokens The tokens to analyse.
      * @return The list of potentially delimiting string literals token types per token. Tokens that do not have any
-     *         impact on string delimiting are discarded.
+     * impact on string delimiting are discarded.
      */
     private List<TokenType> extractStringLiteralDelimitingTokens(String[] tokens) {
         List<TokenType> delimitingTokens = new ArrayList<TokenType>();
@@ -363,6 +373,7 @@ public class SqlStatementBuilder {
 
     /**
      * Removes escaped quotes from this token.
+     *
      * @param token The token to parse.
      * @return The cleaned token.
      */
@@ -373,6 +384,7 @@ public class SqlStatementBuilder {
     /**
      * Removes charset casting that prefixes string literals.
      * Must be implemented in dialect specific sub classes.
+     *
      * @param token The token to parse.
      * @return The cleaned token.
      */

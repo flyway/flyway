@@ -86,7 +86,11 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                jdbcTemplate.executeStatement(sql);
+                if (sqlStatement.isPgCopy()) {
+                    dbSupport.executePgCopy(jdbcTemplate.getConnection(), sql);
+                } else {
+                    jdbcTemplate.executeStatement(sql);
+                }
             } catch (SQLException e) {
                 throw new FlywaySqlScriptException(sqlStatement.getLineNumber(), sql, e);
             }

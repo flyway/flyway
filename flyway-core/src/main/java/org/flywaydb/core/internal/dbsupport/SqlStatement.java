@@ -30,14 +30,23 @@ public class SqlStatement {
     private String sql;
 
     /**
+     * Whether this is a PostgreSQL COPY FROM STDIN statement.
+     * <p/>
+     * Note: This may have to be generalized if additional special cases appear.
+     */
+    private boolean pgCopy;
+
+    /**
      * Creates a new sql statement.
      *
      * @param lineNumber The original line number where the statement was located in the script it came from.
      * @param sql        The sql to send to the database.
+     * @param pgCopy     Whether this is a PostgreSQL COPY FROM STDIN statement.
      */
-    public SqlStatement(int lineNumber, String sql) {
+    public SqlStatement(int lineNumber, String sql, boolean pgCopy) {
         this.lineNumber = lineNumber;
         this.sql = sql;
+        this.pgCopy = pgCopy;
     }
 
     /**
@@ -52,5 +61,12 @@ public class SqlStatement {
      */
     public String getSql() {
         return sql;
+    }
+
+    /**
+     * @return Whether this is a PostgreSQL COPY FROM STDIN statement.
+     */
+    public boolean isPgCopy() {
+        return pgCopy;
     }
 }
