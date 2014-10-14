@@ -31,9 +31,11 @@ import static org.junit.Assert.assertEquals;
  */
 @Category(DbCategory.DB2.class)
 public class DB2MigrationMediumTest extends MigrationTestCase {
+    private String user;
+
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("db2.user", "db2admin");
+        user = customProperties.getProperty("db2.user", "db2admin");
         String password = customProperties.getProperty("db2.password", "flyway");
         String url = customProperties.getProperty("db2.url", "jdbc:db2://localhost:50000/flyway");
 
@@ -131,4 +133,16 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.migrate();
     }
+
+    // Issue #802: Clean on DB2 does not clean triggers.
+    @Test
+    public void noTriggersShouldBeLeftAfterClean() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/trigger");
+        flyway.migrate();
+        flyway.clean();
+
+        // default schema is username in upper case, so we need to use that.
+        assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = ?", user.toUpperCase()));
+    }
+
 }

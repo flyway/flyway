@@ -51,6 +51,7 @@ public class DB2Schema extends Schema<DB2DbSupport> {
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.indexes where indschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.procedures where procschema = ?", name);
         objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.functions where funcschema = ?", name);
+        objectCount += jdbcTemplate.queryForInt("select count(*) from syscat.triggers where trigschema = ?", name);
         return objectCount == 0;
     }
 
@@ -101,6 +102,11 @@ public class DB2Schema extends Schema<DB2DbSupport> {
             jdbcTemplate.execute(dropStatement);
         }
 
+        // triggers
+        for (String dropStatement : generateDropStatementsForTriggers(name)) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
         for (Function function : allFunctions()) {
             function.drop();
         }
@@ -121,6 +127,18 @@ public class DB2Schema extends Schema<DB2DbSupport> {
     private List<String> generateDropStatementsForProcedures(String schema) throws SQLException {
         String dropProcGenQuery = "select rtrim(PROCNAME) from SYSCAT.PROCEDURES where PROCSCHEMA = '" + schema + "'";
         return buildDropStatements("DROP PROCEDURE", dropProcGenQuery, schema);
+    }
+
+    /**
+     * Generates DROP statements for the triggers in this schema.
+     *
+     * @param schema The schema of the objects.
+     * @return The drop statements.
+     * @throws SQLException when the statements could not be generated.
+     */
+    private List<String> generateDropStatementsForTriggers(String schema) throws SQLException {
+        String dropTrigGenQuery = "select rtrim(TRIGNAME) from SYSCAT.TRIGGERS where TRIGSCHEMA = '" + schema + "'";
+        return buildDropStatements("DROP TRIGGER", dropTrigGenQuery, schema);
     }
 
     /**
