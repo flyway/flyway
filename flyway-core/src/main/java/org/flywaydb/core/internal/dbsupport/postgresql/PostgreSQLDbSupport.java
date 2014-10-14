@@ -20,7 +20,11 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.postgresql.copy.CopyManager;
+import org.postgresql.core.BaseConnection;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -95,5 +99,19 @@ public class PostgreSQLDbSupport extends DbSupport {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    @Override
+    public void executePgCopy(Connection connection, String sql) throws SQLException {
+        int split = sql.indexOf(";");
+        String statement = sql.substring(0, split);
+        String data = sql.substring(split + 1).trim();
+
+        CopyManager copyManager = new CopyManager((BaseConnection) connection.unwrap(Connection.class));
+        try {
+            copyManager.copyIn(statement, new StringReader(data));
+        } catch (IOException e) {
+            throw new SQLException("Unable to execute COPY operation", e);
+        }
     }
 }
