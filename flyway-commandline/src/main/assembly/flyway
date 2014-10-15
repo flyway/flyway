@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2010-2013 the original author or authors.
+# Copyright (C) 2010-2014 Axel Fontaine
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ else
 fi
 
 
-CP="./bin/flyway-commandline-${project.version}.jar:./bin/flyway-core-${project.version}.jar"
+CP="./lib/*:./drivers/*"
 
 if $cygwin; then
   CP=$(cygpath -pw "$CP")
