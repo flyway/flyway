@@ -167,7 +167,7 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.locations", "filesystem:" + getInstallationDir() + "/sql");
-        properties.put("flyway.jarDir", getInstallationDir() + "/jars");
+        properties.put("flyway.jarDir", new File(getInstallationDir() + "/jars").getAbsolutePath());
     }
 
     /**
@@ -258,8 +258,7 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.error("Directory for JDBC drivers and JavaMigrations not found: "
-                    + directoryForJdbcDriversAndJavaMigrations);
+            LOG.error("Directory for Java Migrations not found: "+ directoryForJdbcDriversAndJavaMigrations);
             System.exit(1);
         }
 
@@ -335,7 +334,7 @@ public class Main {
      */
     private static String getInstallationDir() {
         String path = ClassUtils.getLocationOnDisk(Main.class);
-        return path.substring(0, path.lastIndexOf("/")) + "/..";
+        return new File(path).getParentFile().getParentFile().getAbsolutePath();
     }
 
     /**

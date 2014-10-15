@@ -46,6 +46,14 @@
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
+            <outputDirectory>/drivers</outputDirectory>
+            <includes>
+                <include>put-your-jdbc-drivers-here.txt</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/assembly</directory>
             <outputDirectory>/conf</outputDirectory>
             <includes>
                 <include>flyway.properties</include>
@@ -64,9 +72,18 @@
             <directory>src/main/assembly</directory>
             <outputDirectory>/jars</outputDirectory>
             <includes>
-                <include>put-your-jdbc-driver-and-java-migration-jars-here.txt</include>
+                <include>put-your-java-migration-jars-here.txt</include>
             </includes>
             <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/assembly</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>LICENSES-THIRD-PARTY.txt</include>
+            </includes>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
         </fileSet>
         <fileSet>
             <directory>..</directory>
@@ -75,13 +92,24 @@
                 <include>LICENSE.txt</include>
                 <include>README.txt</include>
             </includes>
+            <fileMode>644</fileMode>
         </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <outputDirectory>bin</outputDirectory>
-            <useTransitiveFiltering>true</useTransitiveFiltering>
-            <scope>runtime</scope>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>org.flywaydb:flyway-*</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>drivers</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+            <excludes>
+                <exclude>org.flywaydb:flyway-*</exclude>
+            </excludes>
         </dependencySet>
     </dependencySets>
 </assembly>
