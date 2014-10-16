@@ -99,6 +99,12 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
         for (String statement : cleanSynonyms()) {
             jdbcTemplate.execute(statement);
         }
+
+        if (jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 11) {
+            for (String statement : cleanSequences()) {
+                jdbcTemplate.execute(statement);
+            }
+        }
     }
 
     /**
@@ -231,6 +237,24 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
         List<String> statements = new ArrayList<String>();
         for (String synonymName : synonymNames) {
             statements.add("DROP SYNONYM " + dbSupport.quote(name, synonymName));
+        }
+        return statements;
+    }
+
+    /**
+     * Cleans the sequences in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanSequences() throws SQLException {
+        List<String> names =
+                jdbcTemplate.queryForStringList(
+                        "SELECT sequence_name FROM INFORMATION_SCHEMA.SEQUENCES WHERE sequence_schema=?", name);
+
+        List<String> statements = new ArrayList<String>();
+        for (String sequenceName : names) {
+            statements.add("DROP SEQUENCE " + dbSupport.quote(name, sequenceName));
         }
         return statements;
     }

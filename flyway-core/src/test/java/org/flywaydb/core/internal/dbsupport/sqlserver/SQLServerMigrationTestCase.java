@@ -136,6 +136,18 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for SQL Server sequences.
+     */
+    @Test
+    public void sequence() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/sequence");
+        flyway.migrate();
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    /**
      * Tests clean and migrate for default constraints with functions.
      */
     @Test
