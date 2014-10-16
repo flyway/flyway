@@ -86,6 +86,12 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
+    @Test
+    public void cleanUnknown() throws Exception {
+        flyway.setSchemas("non-existant");
+        flyway.clean();
+    }
+
     private class NoTransactionMigrationResolver implements MigrationResolver {
         private final String[][] data;
 
