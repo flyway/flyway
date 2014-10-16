@@ -1,7 +1,7 @@
 This distribution contains third-party software subject to various licenses:
 
 Derby ${version.derby} (drivers/derby-${version.derby}.jar)
--------------------------------------------
+---------------------------------------------
 Source: http://db.apache.org/derby/
 
 Copyright 2004-2014 The Apache Software Foundation
