@@ -17,7 +17,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
     testCompile 'junit:junit:4.11'
-    testCompile 'org.hsqldb:hsqldb:2.2.8'
+    testCompile 'org.hsqldb:hsqldb:2.3.2'
 }
 
 jar {
