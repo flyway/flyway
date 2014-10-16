@@ -31,98 +31,80 @@ import java.util.Map;
 public class DB2as400Schema extends DB2Schema {
 	
 	// System schema name
-	private String systemSchema = "SYSCAT";
+	private String systemSchema = "SYSIBM";						// OK
 	
 	// Field names
-	private String schemaNameField = "SCHEMANAME";
-	private String tableNameField = "TABNAME";
-	private String sequenceNameField = "SEQNAME";
-	private String procedureNameField = "PROCNAME";
-	private String functionNameField = "FUNCNAME";
-	private String specificNameField = "SPECIFICNAME";
-	private String typeNameField = "TYPENAME";
-	private String tableTypeField = "TYPE";
-	private String tableSchemaField = "TABSCHEMA";
-	private String viewSchemaField = "VIEWSCHEMA";
-	private String sequenceSchemaField = "SEQSCHEMA";
-	private String indexSchemaField = "INDSCHEMA";
-	private String procedureSchemaField = "PROCSCHEMA";
-	private String functionSchemaField = "FUNCSCHEMA";
-	private String routineSchemaField = "ROUTSCHEMA";
+	private String schemaNameField = "SCHEMA_NAME";				// OK
+	private String tableNameField = "TABLE_NAME";				// OK
+	private String sequenceNameField = "SEQUENCE_NAME";
+	private String procedureNameField = "PROCEDURE_NAME";
+	private String functionNameField = "FUNCTION_NAME";
+	private String specificNameField = "SPECIFIC_NAME";
+	private String typeNameField = "TYPE_NAME";
+	private String tableTypeField = "TABLE_TYPE";
+	private String tableSchemaField = "TABLE_SCHEMA";
+	private String viewSchemaField = "VIEW_SCHEMA";
+	private String sequenceSchemaField = "SEQUENCE_SCHEMA";
+	private String indexSchemaField = "INDEX_SCHEMA";
+	private String procedureSchemaField = "PROCEDURE_SCHEMA";
+	private String functionSchemaField = "FUNCTION_SCHEMA";
+	private String routineSchemaField = "ROUTINE_SCHEMA";
 	
+	// Table names
+	private String schemaTable = "SCHEMATA";					// OK
+	private String sqlProceduresTable = "SQLPROCEDURES";		// OK
+	private String sqlFunctionsTable = "SQLFUNCTIONS";			// OK
+	private String tablesTable = "TABLES";						// OK
+	private String viewsTable = "VIEWS";						// OK
+
 	// Table-type values in system tables
-	private String sequenceType = "S";
-	private String tableType = "T";
-	private String viewType = "V";
-	private String aliasType = "A";
-	private String parameterType = "P";
+	private String sequenceType = "SEQUENCE";
+	private String tableType = "BASE TABLE";
+	private String viewType = "VIEW";			
+	private String aliasType = "ALIAS";
+	private String parameterType = "PARAM";
 	
     /**
-     * Creates a new DB2 schema.
+     * Creates a new DB2as400 schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
     public DB2as400Schema(JdbcTemplate jdbcTemplate, DB2as400DbSupport dbSupport, String name) {
-        
         super(jdbcTemplate, dbSupport, name);
-        
-        	systemSchema = "SYSIBM";
-        	
-        	schemaNameField = "SCHEMA_NAME";
-        	tableNameField = "TABLE_NAME";
-        	sequenceNameField = "SEQUENCE_NAME";
-        	procedureNameField = "PROCEDURE_NAME";
-        	functionNameField = "FUNCTION_NAME";
-        	specificNameField = "SPECIFIC_NAME";
-        	typeNameField = "TYPE_NAME";
-        	tableTypeField = "TABLE_TYPE";
-        	tableSchemaField = "TABLE_SCHEMA";
-        	viewSchemaField = "VIEW_SCHEMA";
-        	sequenceSchemaField = "SEQUENCE_SCHEMA";
-        	indexSchemaField = "INDEX_SCHEMA";
-        	procedureSchemaField = "PROCEDURE_SCHEMA";
-        	functionSchemaField = "FUNCTION_SCHEMA";
-        	routineSchemaField = "ROUTINE_SCHEMA";
-        	
-        	sequenceType = "SEQUENCE";
-        	tableType = "BASE TABLE";
-        	viewType = "VIEW";
-        	aliasType = "ALIAS";
-        	parameterType = "PARAM";
     }
 
     @Override
     protected boolean doExists() throws SQLException {
-    	String query = "SELECT COUNT(*) FROM " + systemSchema + ".schemata WHERE " + schemaNameField + "=?";
+    	String query = "SELECT COUNT(*) FROM " + systemSchema + "." + schemaTable + " WHERE " + schemaNameField + "=?";
         return jdbcTemplate.queryForInt(query, name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
         int objectCount = 0;
-        objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + systemSchema + ".tables WHERE " + tableSchemaField + " = ?", name);
-        //objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + systemSchema + ".views WHERE " + viewSchemaField + " = ?", name);
-        //objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + systemSchema + ".sqlprocedures WHERE " + procedureSchemaField + " = ?", name);
-        //objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + systemSchema + ".sqlfunctions WHERE " + functionSchemaField + " = ?", name);
+        objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + systemSchema + "." + tablesTable + " WHERE " + tableSchemaField + " = ?", name);
+        //objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + systemSchema + "." + viewsTable + " WHERE " + viewSchemaField + " = ?", name);
+        //objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + systemSchema + "." + sqlProceduresTable + " WHERE " + procedureSchemaField + " = ?", name);
+        //objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + systemSchema + "." + sqlFunctionsTable + " WHERE " + functionSchemaField + " = ?", name);
         return objectCount == 0;
     }
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-    	String query = "select rtrim(" + tableNameField + ") from " + systemSchema + ".TABLES where " + tableTypeField + "='" + tableType + "' and " + tableSchemaField + " = ?";
+    	String query = "SELECT RTRIM(" + tableNameField + ") FROM " + systemSchema + "." + tablesTable + " WHERE " + tableTypeField + "='" + tableType + "' AND " + tableSchemaField + " = ?";
         return findTables(query, name);
     }
 
     @Override
     protected Function[] doAllFunctions() throws SQLException {
-    	String query = "select p." + specificNameField + ", p." + functionNameField + "," +
-                " substr( xmlserialize( xmlagg( xmltext( concat( ', ', " + typeNameField + " ) ) ) as varchar( 1024 ) ), 3 ) as PARAMS" +
-                " from " + systemSchema + ".FUNCTIONS f inner join " + systemSchema + ".FUNCPARMS p on f." + specificNameField + " = p." + specificNameField +
-                " where f.ORIGIN = 'Q' and p." + functionSchemaField + " = ? and p.ROWTYPE = '" + parameterType + "'" +
-                " group by p." + specificNameField + ", p."+ functionNameField +
-                " order by p." + specificNameField;
+    	String query = "SELECT p." + specificNameField + ", p." + functionNameField + "," +
+                " SUBSTR( xmlserialize( xmlagg( xmltext( CONCAT( ', ', " + typeNameField + " ) ) ) AS varchar( 1024 ) ), 3 ) AS PARAMS" +
+                " FROM " + systemSchema + ".FUNCTIONS f INNER JOIN " + systemSchema + ".FUNCPARMS p ON f." + specificNameField + " = p." + specificNameField +
+                " WHERE f.ORIGIN = 'Q' AND p." + functionSchemaField + " = ? AND p.ROWTYPE = '" + parameterType + "'" +
+                " GROUP BY p." + specificNameField + ", p."+ functionNameField +
+                " ORDER BY p." + specificNameField;
     	
         List<Map<String, String>> rows = jdbcTemplate.queryForList(query, name);
 
@@ -139,20 +121,18 @@ public class DB2as400Schema extends DB2Schema {
     @Override
     protected void doClean() throws SQLException {
 
+    	// Commented because System views cannot be deleted
         // views
         //for (String dropStatement : generateDropStatements(name, viewType, "VIEW")) {
-        //    System.out.println("Drop VIEW : " + dropStatement);
         //    jdbcTemplate.execute(dropStatement);
         //}
 
         // aliases
         for (String dropStatement : generateDropStatements(name, aliasType, "ALIAS")) {
-            System.out.println("Drop ALIAS : " + dropStatement);
             jdbcTemplate.execute(dropStatement);
         }
 
         for (Table table : allTables()) {
-        	System.out.println("cleanTable : " + table.getName());
             table.drop();
         }
         
@@ -187,7 +167,7 @@ public class DB2as400Schema extends DB2Schema {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForProcedures(String schema) throws SQLException {
-        String dropProcGenQuery = "select rtrim(" + procedureNameField + ") from " + systemSchema + ".PROCEDURES where " + procedureSchemaField + " = '" + schema + "'";
+        String dropProcGenQuery = "SELECT RTRIM(" + procedureNameField + ") FROM " + systemSchema + ".PROCEDURES where " + procedureSchemaField + " = '" + schema + "'";
         return buildDropStatements("DROP PROCEDURE", dropProcGenQuery, schema);
     }
 
@@ -199,8 +179,8 @@ public class DB2as400Schema extends DB2Schema {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
-        String dropSeqGenQuery = "select rtrim(" + sequenceNameField + ") from " + systemSchema + ".SEQUENCES where " + sequenceSchemaField + " = '" + schema
-                + "' and SEQTYPE='" + sequenceType + "'";
+        String dropSeqGenQuery = "SELECT RTRIM(" + sequenceNameField + ") FROM " + systemSchema + ".SEQUENCES WHERE " + sequenceSchemaField + " = '" + schema
+                + "' AND SEQTYPE='" + sequenceType + "'";
         return buildDropStatements("DROP SEQUENCE", dropSeqGenQuery, schema);
     }
 
@@ -214,7 +194,7 @@ public class DB2as400Schema extends DB2Schema {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatements(String schema, String tableType, String objectType) throws SQLException {
-        String dropTablesGenQuery = "select rtrim(" + tableNameField + ") from " + systemSchema + ".TABLES where " + tableTypeField + "='" + tableType + "' and " + tableSchemaField + " = '"
+        String dropTablesGenQuery = "SELECT RTRIM(" + tableNameField + ") FROM " + systemSchema + "." + tablesTable + " WHERE " + tableTypeField + "='" + tableType + "' AND " + tableSchemaField + " = '"
                 + schema + "'";
         return buildDropStatements("DROP " + objectType, dropTablesGenQuery, schema);
     }
