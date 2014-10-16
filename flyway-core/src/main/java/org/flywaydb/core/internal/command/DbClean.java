@@ -95,6 +95,11 @@ public class DbClean {
         }
 
         for (Schema schema : schemas) {
+            if (!schema.exists()) {
+                LOG.warn("Unable to clean unknown schema: " + schema);
+                continue;
+            }
+
             if (dropSchemas) {
                 dropSchema(schema);
             } else {
