@@ -18,13 +18,13 @@ package org.flywaydb.commandline;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.PropertiesUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +32,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -258,7 +259,7 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.error("Directory for Java Migrations not found: "+ directoryForJdbcDriversAndJavaMigrations);
+            LOG.error("Directory for Java Migrations not found: " + directoryForJdbcDriversAndJavaMigrations);
             System.exit(1);
         }
 
@@ -277,15 +278,15 @@ public class Main {
     static void addJarOrDirectoryToClasspath(String name) throws IOException {
         LOG.debug("Adding location to classpath: " + name);
 
-        // Add the jar or dir to the classpath
-        // Chain the current thread classloader
-        URLClassLoader urlClassLoader = new URLClassLoader(
-                new URL[]{new File(name).toURI().toURL()},
-                Thread.currentThread().getContextClassLoader());
-
-        // Replace the thread classloader - assumes
-        // you have permissions to do so
-        Thread.currentThread().setContextClassLoader(urlClassLoader);
+        try {
+            URL url = new File(name).toURI().toURL();
+            URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
+            method.setAccessible(true);
+            method.invoke(sysloader, url);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to load " + name, e);
+        }
     }
 
     /**

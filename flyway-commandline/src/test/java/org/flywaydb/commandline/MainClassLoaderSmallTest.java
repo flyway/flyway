@@ -90,13 +90,13 @@ public class MainClassLoaderSmallTest {
     public void addDirectoryToClasspathDefaultPackage() throws Exception {
         assertFalse(new ClassPathResource("runtime.properties", getClassLoader()).exists());
 
-        String folder = new ClassPathResource("dynamic/pkg", getClassLoader()).getLocationOnDisk();
+        String folder = new ClassPathResource("dynamic/pkg2", getClassLoader()).getLocationOnDisk();
         Main.addJarOrDirectoryToClasspath(folder);
 
-        assertTrue(new ClassPathResource("runtime.properties", getClassLoader()).exists());
+        assertTrue(new ClassPathResource("funtime.properties", getClassLoader()).exists());
 
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources("", "run", ".properties");
-        assertEquals("runtime.properties", resources[1].getLocation());
+        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources("", "fun", ".properties");
+        assertEquals("funtime.properties", resources[1].getLocation());
     }
 
     private ClassLoader getClassLoader() {
