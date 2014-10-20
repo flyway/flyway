@@ -50,6 +50,7 @@ public class ClassPathScannerSmallTest {
         assertEquals("migration/sql/V1_2__Populate_table.sql", resources[1].getLocation());
         assertEquals("migration/sql/V1__First.sql", resources[2].getLocation());
         assertEquals("migration/sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", resources[3].getLocation());
+
     }
 
     @Test

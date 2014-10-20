@@ -21,7 +21,10 @@ import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 
 /**
  * Resource within an Android App.
@@ -68,5 +71,19 @@ public class AndroidResource implements Resource {
     @Override
     public String getFilename() {
         return name;
+    }
+
+    public Reader getReader(String encoding) {
+        return new InputStreamReader(getInputStream(), Charset.forName(encoding));
+    }
+
+
+    @Override
+    public InputStream getInputStream() {
+        try {
+            return assetManager.open(getLocation());
+        } catch (IOException e) {
+            throw new FlywayException("Unable to load asset: " + getLocation(), e);
+        }
     }
 }

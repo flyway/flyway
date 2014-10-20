@@ -68,8 +68,12 @@ public class PlaceholderReplacer {
      * @return The input string with all placeholders replaced.
      */
     public String replacePlaceholders(String input) {
-        String noPlaceholders = input;
+    	if(input==null){
+    		return null;
+    	}
 
+    	String noPlaceholders = input;
+        
         for (String placeholder : placeholders.keySet()) {
             String searchTerm = placeholderPrefix + placeholder + placeholderSuffix;
             String value = placeholders.get(placeholder);

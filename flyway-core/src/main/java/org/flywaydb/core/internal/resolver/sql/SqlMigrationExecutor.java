@@ -22,12 +22,17 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
 import java.sql.Connection;
 
 /**
  * Database migration based on a sql file.
  */
 public class SqlMigrationExecutor implements MigrationExecutor {
+    private static final int CHUNK_SIZE = 25;
+
     /**
      * Database-specific support.
      */
@@ -67,10 +72,18 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(Connection connection) {
-        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
-        String sqlScriptSourceNoPlaceholders = placeholderReplacer.replacePlaceholders(sqlScriptSource);
-        SqlScript sqlScript = new SqlScript(sqlScriptSourceNoPlaceholders, dbSupport);
-        sqlScript.execute(new JdbcTemplate(connection, 0));
+        LineNumberReader sqlScriptReader = new LineNumberReader(sqlScriptResource.getReader(encoding)) {
+            @Override
+            public String readLine() throws IOException {
+                return placeholderReplacer.replacePlaceholders(super.readLine());
+            }
+        };
+        SqlScript sqlScript = new SqlScript(sqlScriptReader, dbSupport);
+        sqlScript.executeBatch( newJdbcTemplate(connection), CHUNK_SIZE);
+    }
+
+    protected JdbcTemplate newJdbcTemplate(Connection connection) {
+        return new JdbcTemplate(connection, 0);
     }
 
     @Override

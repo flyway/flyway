@@ -22,7 +22,7 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,10 +40,9 @@ public class SqlScript {
      */
     private final DbSupport dbSupport;
 
-    /**
-     * The sql statements contained in this script.
-     */
-    private final List<SqlStatement> sqlStatements;
+    private LineNumberReader sqlScriptReader;
+
+    private List<SqlStatement> sqlStatements;
 
     /**
      * Creates a new sql script from this source with these placeholders to replace.
@@ -53,7 +52,22 @@ public class SqlScript {
      */
     public SqlScript(String sqlScriptSource, DbSupport dbSupport) {
         this.dbSupport = dbSupport;
-        this.sqlStatements = parse(sqlScriptSource);
+        LineNumberReader sqlScriptReader = stringToReader(sqlScriptSource);
+        try {
+            sqlStatements = parse(sqlScriptReader, -1);
+        } finally {
+            if (sqlScriptReader != null) {
+                try {
+                    sqlScriptReader.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
+
+    public SqlScript(LineNumberReader sqlScriptReader, DbSupport dbSupport) {
+        this.dbSupport = dbSupport;
+        this.sqlScriptReader = sqlScriptReader;
     }
 
     /**
@@ -63,7 +77,6 @@ public class SqlScript {
      */
     SqlScript(DbSupport dbSupport) {
         this.dbSupport = dbSupport;
-        this.sqlStatements = null;
     }
 
     /**
@@ -81,7 +94,11 @@ public class SqlScript {
      * @param jdbcTemplate The jdbc template to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
-        for (SqlStatement sqlStatement : sqlStatements) {
+        execute(jdbcTemplate, this.sqlStatements);
+    }
+
+    public void execute(final JdbcTemplate jdbcTemplate, List<SqlStatement> sqlStmts) {
+        for (SqlStatement sqlStatement : sqlStmts) {
             String sql = sqlStatement.getSql();
             LOG.debug("Executing SQL: " + sql);
 
@@ -97,85 +114,101 @@ public class SqlScript {
         }
     }
 
-    /**
-     * Parses this script source into statements.
-     *
-     * @param sqlScriptSource The script source to parse.
-     * @return The parsed statements.
-     */
-    /* private -> for testing */
-    List<SqlStatement> parse(String sqlScriptSource) {
-        return linesToStatements(readLines(new StringReader(sqlScriptSource)));
+    public void executeBatch(JdbcTemplate jdbcTemplate, int chunkSize) {
+        List<SqlStatement> sqlStmts;
+
+        if (this.sqlScriptReader == null) {
+            throw new FlywayException("sqlScriptReader not initialise");
+        }
+
+        try {
+            while (!(sqlStmts = parse(this.sqlScriptReader, chunkSize)).isEmpty()) {
+                execute(jdbcTemplate, sqlStmts);
+            }
+        } finally {
+            if (this.sqlScriptReader != null) {
+                try {
+                    this.sqlScriptReader.close();
+                } catch (IOException e) {
+                }
+            }
+        }
     }
 
-    /**
-     * Turns these lines in a series of statements.
-     *
-     * @param lines The lines to analyse.
-     * @return The statements contained in these lines (in order).
-     */
-    /* private -> for testing */
-    List<SqlStatement> linesToStatements(List<String> lines) {
+
+    public List<SqlStatement> parse(String source) {
+        return parse(stringToReader(source), -1);
+    }
+
+    List<SqlStatement> parse(LineNumberReader reader, int chunk) {
         List<SqlStatement> statements = new ArrayList<SqlStatement>();
 
         boolean inMultilineComment = false;
         Delimiter nonStandardDelimiter = null;
         SqlStatementBuilder sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
 
-        for (int lineNumber = 1; lineNumber <= lines.size(); lineNumber++) {
-            String line = lines.get(lineNumber - 1);
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
 
-            if (sqlStatementBuilder.isEmpty()) {
-                if (!StringUtils.hasText(line)) {
-                    // Skip empty line between statements.
-                    continue;
-                }
-
-                String trimmedLine = line.trim();
-
-                if (!sqlStatementBuilder.isCommentDirective(trimmedLine)) {
-                    if (trimmedLine.startsWith("/*")) {
-                        inMultilineComment = true;
+                if (sqlStatementBuilder.isEmpty()) {
+                    if (!StringUtils.hasText(line)) {
+                        // Skip empty line between statements.
+                        continue;
                     }
 
-                    if (inMultilineComment) {
-                        if (trimmedLine.endsWith("*/")) {
-                            inMultilineComment = false;
+                    String trimmedLine = line.trim();
+
+                    if (!sqlStatementBuilder.isCommentDirective(trimmedLine)) {
+                        if (trimmedLine.startsWith("/*")) {
+                            inMultilineComment = true;
                         }
-                        // Skip line part of a multi-line comment
+
+                        if (inMultilineComment) {
+                            if (trimmedLine.endsWith("*/")) {
+                                inMultilineComment = false;
+                            }
+                            // Skip line part of a multi-line comment
+                            continue;
+                        }
+
+                        if (sqlStatementBuilder.isSingleLineComment(trimmedLine)) {
+                            // Skip single-line comment
+                            continue;
+                        }
+                    }
+
+                    Delimiter newDelimiter = sqlStatementBuilder.extractNewDelimiterFromLine(line);
+                    if (newDelimiter != null) {
+                        nonStandardDelimiter = newDelimiter;
+                        // Skip this line as it was an explicit delimiter change directive outside of any statements.
                         continue;
                     }
 
-                    if (sqlStatementBuilder.isSingleLineComment(trimmedLine)) {
-                        // Skip single-line comment
-                        continue;
+                    sqlStatementBuilder.setLineNumber(reader.getLineNumber());
+
+                    // Start a new statement, marking it with this line number.
+                    if (nonStandardDelimiter != null) {
+                        sqlStatementBuilder.setDelimiter(nonStandardDelimiter);
                     }
                 }
 
-                Delimiter newDelimiter = sqlStatementBuilder.extractNewDelimiterFromLine(line);
-                if (newDelimiter != null) {
-                    nonStandardDelimiter = newDelimiter;
-                    // Skip this line as it was an explicit delimiter change directive outside of any statements.
-                    continue;
-                }
+                sqlStatementBuilder.addLine(line);
 
-                sqlStatementBuilder.setLineNumber(lineNumber);
+                if (sqlStatementBuilder.isTerminated()) {
+                    SqlStatement sqlStatement = sqlStatementBuilder.getSqlStatement();
+                    statements.add(sqlStatement);
+                    LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql());
 
-                // Start a new statement, marking it with this line number.
-                if (nonStandardDelimiter != null) {
-                    sqlStatementBuilder.setDelimiter(nonStandardDelimiter);
+                    if (chunk == statements.size()) {
+                        return statements;
+                    }
+
+                    sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
                 }
             }
-
-            sqlStatementBuilder.addLine(line);
-
-            if (sqlStatementBuilder.isTerminated()) {
-                SqlStatement sqlStatement = sqlStatementBuilder.getSqlStatement();
-                statements.add(sqlStatement);
-                LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql());
-
-                sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
-            }
+        } catch (IOException e) {
+            throw new FlywayException("Unable to load resource", e);
         }
 
         // Catch any statements not followed by delimiter.
@@ -186,27 +219,9 @@ public class SqlScript {
         return statements;
     }
 
-    /**
-     * Parses the textual data provided by this reader into a list of lines.
-     *
-     * @param reader The reader for the textual data.
-     * @return The list of lines (in order).
-     * @throws IllegalStateException Thrown when the textual data parsing failed.
-     */
-    private List<String> readLines(Reader reader) {
-        List<String> lines = new ArrayList<String>();
-
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        String line;
-
-        try {
-            while ((line = bufferedReader.readLine()) != null) {
-                lines.add(line);
-            }
-        } catch (IOException e) {
-            throw new FlywayException("Cannot parse lines", e);
-        }
-
-        return lines;
+    private LineNumberReader stringToReader(String sqlScriptSource) {
+        return new LineNumberReader(new StringReader(sqlScriptSource));
     }
+
+
 }

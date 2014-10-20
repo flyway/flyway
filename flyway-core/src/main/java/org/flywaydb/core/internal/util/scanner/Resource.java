@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.util.scanner;
 
+import java.io.InputStream;
+import java.io.Reader;
+
 /**
  * A loadable resource.
  */
@@ -50,4 +53,8 @@ public interface Resource {
      * @return The filename of this resource, without the path.
      */
     String getFilename();
+
+	Reader getReader(String encoding);
+
+    InputStream getInputStream();
 }
