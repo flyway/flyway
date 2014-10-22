@@ -31,44 +31,44 @@ import java.util.Map;
 public class DB2as400Schema extends DB2Schema {
 		
 	// Table names
-	private String schemaTable = "SYSIBM.SCHEMATA";					
-	private String proceduresTable = "SYSIBM.SQLPROCEDURES";
-	private String functionsTable = "QSYS2.SYSFUNCS";
-	private String parametersTable = "QSYS2.SYSPARMS";
-	private String tablesTable = "QSYS2.SYSTABLES";
-	private String viewsTable = "SYSIBM.VIEWS";
-	private String sequencesTable = "QSYS2.SYSSEQUENCES";
+	private static final String schemaTable = "SYSIBM.SCHEMATA";					
+	private static final String proceduresTable = "SYSIBM.SQLPROCEDURES";
+	private static final String functionsTable = "QSYS2.SYSFUNCS";
+	private static final String parametersTable = "QSYS2.SYSPARMS";
+	private static final String tablesTable = "QSYS2.SYSTABLES";
+	private static final String viewsTable = "SYSIBM.VIEWS";
+	private static final String sequencesTable = "QSYS2.SYSSEQUENCES";
 	
 	// Field names
-	private String dataTypeField = "DATA_TYPE";
-	private String functionNameField = "ROUTINE_NAME";
-	private String functionOriginField = "FUNCTION_ORIGIN";
-	private String functionSchemaField = "FUNCTION_SCHEMA";		
-	private String functionSchemField = "FUNCTION_SCHEM";		// NO 'A' at the end
-	private String indexSchemaField = "INDEX_SCHEMA";
-	private String procedureNameField = "PROCEDURE_NAME";
-	private String procedureSchemField = "PROCEDURE_SCHEM";	// NO 'A' at the end
-	private String rowTypeField = "ROW_TYPE";
-	private String schemaNameField = "SCHEMA_NAME";
-	private String sequenceNameField = "SEQUENCE_NAME";
-	private String sequenceSchemaField = "SEQUENCE_SCHEMA";
-	private String specificSchemaField = "SPECIFIC_SCHEMA";	
-	private String specificNameField = "SPECIFIC_NAME";
-	private String systemTableField = "SYSTEM_TABLE";
-	private String tableNameField = "TABLE_NAME";
-	private String tableTypeField = "TABLE_TYPE";
-	private String tableSchemaField = "TABLE_SCHEMA";
-	private String viewSchemaField = "VIEW_SCHEMA";
-	private String routineSchemaField = "ROUTINE_SCHEMA";
+	private static final String dataTypeField = "DATA_TYPE";
+	private static final String functionNameField = "ROUTINE_NAME";
+	private static final String functionOriginField = "FUNCTION_ORIGIN";
+	private static final String functionSchemaField = "FUNCTION_SCHEMA";		
+	private static final String functionSchemField = "FUNCTION_SCHEM";		// NO 'A' at the end
+	private static final String indexSchemaField = "INDEX_SCHEMA";
+	private static final String procedureNameField = "PROCEDURE_NAME";
+	private static final String procedureSchemField = "PROCEDURE_SCHEM";	// NO 'A' at the end
+	private static final String rowTypeField = "ROW_TYPE";
+	private static final String schemaNameField = "SCHEMA_NAME";
+	private static final String sequenceNameField = "SEQUENCE_NAME";
+	private static final String sequenceSchemaField = "SEQUENCE_SCHEMA";
+	private static final String specificSchemaField = "SPECIFIC_SCHEMA";	
+	private static final String specificNameField = "SPECIFIC_NAME";
+	private static final String systemTableField = "SYSTEM_TABLE";
+	private static final String tableNameField = "TABLE_NAME";
+	private static final String tableTypeField = "TABLE_TYPE";
+	private static final String tableSchemaField = "TABLE_SCHEMA";
+	private static final String viewSchemaField = "VIEW_SCHEMA";
+	private static final String routineSchemaField = "ROUTINE_SCHEMA";
 	
 	// Table-type values in system tables
-	private String aliasValue = "A";
-	private String parameterValue = "P";
-	private String sequenceValue = "S";
-	private String tableValue = "T";
-	private String viewValue = "V";			
-	private String yesValue = "Y";
-	private String noValue = "N";
+	private static final String aliasValue = "A";
+	private static final String parameterValue = "P";
+	private static final String sequenceValue = "S";
+	private static final String tableValue = "T";
+	private static final String viewValue = "V";			
+	private static final String yesValue = "Y";
+	private static final String noValue = "N";
 
     /**
      * Creates a new DB2as400 schema.
@@ -105,7 +105,11 @@ public class DB2as400Schema extends DB2Schema {
 
     @Override
     protected Function[] doAllFunctions() throws SQLException {
-    	String query = "SELECT f." + specificNameField + ", f." + functionNameField + "," +
+    	String query = null;
+    	
+    	// iSeries V7 query (XML functions are not available on V6)
+    	/*
+    	query = "SELECT f." + specificNameField + ", f." + functionNameField + "," +
                 " SUBSTR(xmlserialize(xmlagg(xmltext(CONCAT(', ', " + dataTypeField + "))) AS VARCHAR(1024)), 3) AS PARAMS" +
                 " FROM " + functionsTable + " f INNER JOIN " + parametersTable + " p ON f." + specificNameField + " = p." + specificNameField +
                 " WHERE f." + functionOriginField + "='Q' " + 
@@ -113,6 +117,31 @@ public class DB2as400Schema extends DB2Schema {
                 " AND p." + rowTypeField + "='" + parameterValue + "'" +
                 " GROUP BY f." + specificNameField + ", f."+ functionNameField +
                 " ORDER BY f." + specificNameField;
+    	*/
+    	
+    	// iSeries V6/V7 compatible query
+    	query = "WITH rquery (" + specificSchemaField + "," + specificNameField + ",ordinal, tipo)\n"
+                + "         AS\n"
+                + "         (\n"
+                + "         SELECT f." + specificSchemaField + ", f." + specificNameField + ",par.ordinal_position,par." + dataTypeField + "\n"
+                + "         FROM " + functionsTable + " f\n"
+                + "         JOIN " + parametersTable + " par ON par." + specificNameField + " = f." + specificNameField + "\n"
+                + "         AND f." + specificSchemaField + " = par." + specificSchemaField + "\n"
+                + "         WHERE f." + specificSchemaField + " = ?\n"
+                + "         AND par.ordinal_position=1\n"
+                + "\n"
+                + "         UNION ALL\n"
+                + "\n"
+                + "         SELECT f1." + specificSchemaField + ", f1." + specificNameField + ",f1.ordinal_position,tipo || ',' || f1." + dataTypeField + "\n"
+                + "         FROM rquery t0, qsys2.SYSPARMS f1\n"
+                + "         WHERE t0." + specificNameField + " = f1." + specificNameField + "\n"
+                + "         AND f1." + specificSchemaField + " = ?\n"
+                + "         AND t0.ordinal +1 = f1.ordinal_position\n"
+                + "         )\n"
+                + "         SELECT r." + specificSchemaField + ", r." + specificNameField + " AS Function,\n"
+                + "         r.Tipo AS datatype\n"
+                + "         FROM rquery r\n"
+                + "         WHERE r.ordinal = (SELECT MAX(r1.ordinal) FROM rquery r1 WHERE r1." + specificNameField + "=r." + specificNameField + ")";
     	
         List<Map<String, String>> rows = jdbcTemplate.queryForList(query, name);
 
