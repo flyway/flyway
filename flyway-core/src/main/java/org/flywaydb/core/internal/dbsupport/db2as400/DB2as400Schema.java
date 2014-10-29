@@ -61,7 +61,7 @@ public class DB2as400Schema extends DB2Schema {
 	private static final String viewSchemaField = "VIEW_SCHEMA";
 	private static final String routineSchemaField = "ROUTINE_SCHEMA";
 	
-	// Table-type values in system tables
+	// Value names
 	private static final String aliasValue = "A";
 	private static final String parameterValue = "P";
 	private static final String sequenceValue = "S";
