@@ -239,8 +239,12 @@ public class JdbcTemplate {
             } finally {
                 @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
                 while (warning != null) {
-                    LOG.warn(warning.getMessage()
-                            + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
+                    if ("00000".equals(warning.getSQLState())) {
+                        LOG.info(warning.getMessage());
+                    } else {
+                        LOG.warn(warning.getMessage()
+                                + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
+                    }
                     warning = warning.getNextWarning();
                 }
                 // retrieve all results to ensure all errors are detected
