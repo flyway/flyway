@@ -188,15 +188,15 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (resolvedMigration != null && appliedMigration != null) {
             if (getVersion().compareTo(context.init) > 0) {
                 if (resolvedMigration.getType() != appliedMigration.getType()) {
-                    return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
+                    return String.format("Migration Type mismatch for migration %s: AppliedType=%s, ResolvedType=%s",
                             appliedMigration.getScript(), appliedMigration.getType(), resolvedMigration.getType());
                 }
                 if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
-                    return String.format("Migration Checksum mismatch for migration %s: DB=%s, Classpath=%s",
+                    return String.format("Migration Checksum mismatch for migration %s: AppliedChecksum=%s, ResolvedChecksum=%s",
                             appliedMigration.getScript(), appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                 }
                 if (!resolvedMigration.getDescription().equals(appliedMigration.getDescription())) {
-                    return String.format("Migration Description mismatch for migration %s: DB=%s, Classpath=%s",
+                    return String.format("Migration Description mismatch for migration %s: AppliedDescription=%s, ResolvedDescription=%s",
                             appliedMigration.getScript(), appliedMigration.getDescription(), resolvedMigration.getDescription());
                 }
             }
