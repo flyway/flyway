@@ -1,4 +1,15 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.6'
+    }
+}
+
 apply plugin: 'groovy'
+apply from: 'gradle/publishing.gradle'
 
 def pomProject = new XmlSlurper().parse(file('pom.xml'))
 
@@ -35,7 +46,21 @@ test {
     }
 }
 
+task sourceJar(type: Jar) {
+    group 'Build'
+    description 'An archive of the source code'
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+jar.finalizedBy sourceJar
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
+}
+
+artifacts {
+    sourceJar
+    javadocJar
 }
