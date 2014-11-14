@@ -48,7 +48,7 @@ public abstract class MigrationTestCase {
     /**
      * The base directory for the regular test migrations.
      */
-    private static final String BASEDIR = "migration/sql";
+    protected static final String BASEDIR = "migration/sql";
 
     protected DataSource dataSource;
     private Connection connection;
