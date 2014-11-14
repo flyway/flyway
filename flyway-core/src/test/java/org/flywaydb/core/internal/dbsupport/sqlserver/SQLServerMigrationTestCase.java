@@ -136,6 +136,18 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for SQL Server sequences.
+     */
+    @Test
+    public void sequence() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/sequence");
+        flyway.migrate();
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    /**
      * Tests clean and migrate for default constraints with functions.
      */
     @Test
@@ -196,6 +208,33 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
         assertTrue(jdbcTemplate.queryForInt("SELECT COUNT(*) FROM dbo.CHANGELOG") > 0);
     }
+	
+  /**
+   * Tests that dml errors that occur in the middle of a batch are correctly detected
+   * see issue 718
+   */
+  @Test
+  public void dmlErrorsCorrectlyDetected() throws Exception {
+    String tableName = "sample_table";
+
+    flyway.setLocations("migration/dbsupport/sqlserver/sql/dmlErrorDetection");
+    Map<String, String> placeholders = new HashMap<String, String>();
+    placeholders.put("tableName", dbSupport.quote(tableName));
+    flyway.setPlaceholders(placeholders);
+
+    try {
+      flyway.migrate();
+      fail("This migration should have failed and this point shouldn't have been reached");
+    } catch (FlywaySqlScriptException e) {
+      // root cause of exception must be defined, and it should be FlywaySqlScriptException
+      assertNotNull(e.getCause());
+      assertTrue(e.getCause() instanceof SQLException);
+      // and make sure the failed statement was properly recorded
+      assertEquals(23, e.getLineNumber());
+      assertTrue(e.getStatement().contains("INSERT INTO"));
+      assertTrue(e.getStatement().contains("VALUES(1)"));
+    }
+  }
 
     @Override
     @Ignore("Not supported on SQL Server")

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 
 import java.util.regex.Matcher;
@@ -25,17 +26,50 @@ import java.util.regex.Pattern;
  */
 public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     /**
+     * Delimiter of COPY statements.
+     */
+    private static final Delimiter COPY_DELIMITER = new Delimiter("\\.", true);
+
+    /**
      * Matches $$, $BODY$, $xyz123$, ...
      */
     /*private -> for testing*/
-    static final String DOLLAR_QUOTE_REGEX = "\\$[A-Za-z0-9_]*\\$.*";
+    static final String DOLLAR_QUOTE_REGEX = "(\\$[A-Za-z0-9_]*\\$).*";
+
+    /**
+     * Are we at the beginning of the statement.
+     */
+    private boolean firstLine = true;
+
+    /**
+     * Whether this statement is a COPY statement.
+     */
+    private boolean pgCopy;
 
     @Override
     protected String extractAlternateOpenQuote(String token) {
         Matcher matcher = Pattern.compile(DOLLAR_QUOTE_REGEX).matcher(token);
         if (matcher.find()) {
-            return token.substring(matcher.start(), matcher.end());
+            return matcher.group(1);
         }
         return null;
+    }
+
+    @Override
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (firstLine) {
+            firstLine = false;
+            if (line.matches("COPY|COPY\\s.*")) {
+                pgCopy = true;
+                return COPY_DELIMITER;
+            }
+        }
+
+        return pgCopy ? COPY_DELIMITER : delimiter;
+    }
+
+    @Override
+    public boolean isPgCopy() {
+        return pgCopy;
     }
 }

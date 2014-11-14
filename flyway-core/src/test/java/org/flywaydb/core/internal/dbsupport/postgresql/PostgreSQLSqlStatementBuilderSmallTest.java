@@ -47,6 +47,20 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void function() {
+        String sqlScriptSource = "CREATE FUNCTION add(integer, integer) RETURNS integer\n" +
+                "    LANGUAGE sql IMMUTABLE STRICT\n" +
+                "    AS $_$select $1 + $2;$_$;\n";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
     public void multilineStringLiteralWithSemicolons() {
         String sqlScriptSource = "INSERT INTO address VALUES (1, '1. first;\n"
                 + "2. second;\n"

@@ -16,22 +16,23 @@
 package org.flywaydb.core.internal.util.logging.slf4j;
 
 import org.flywaydb.core.internal.util.logging.Log;
+import org.slf4j.Logger;
 
 /**
- * Wrapper for an Apache Commons Logging logger.
+ * Wrapper for a Slf4j logger.
  */
 public class Slf4jLog implements Log {
     /**
-     * Apache Commons Logging Logger.
+     * Slf4j Logger.
      */
-    private final org.apache.commons.logging.Log logger;
+    private final Logger logger;
 
     /**
      * Creates a new wrapper around this logger.
      *
-     * @param logger The original Apache Commons Logging Logger.
+     * @param logger The original Slf4j Logger.
      */
-    public Slf4jLog(org.apache.commons.logging.Log logger) {
+    public Slf4jLog(Logger logger) {
         this.logger = logger;
     }
 

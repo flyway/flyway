@@ -30,7 +30,7 @@ import java.util.Properties;
  * Test to demonstrate the migration functionality using Google Cloud SQL.
  */
 @SuppressWarnings({"JavaDoc"})
-@Category(DbCategory.MySQL.class)
+@Category(DbCategory.GoogleCloudSQL.class)
 public class GoogleCloudSQLMigrationMediumTest extends MySQLMigrationTestCase {
     private LocalServiceTestHelper helper;
 

@@ -99,8 +99,8 @@ public class ClassPathScanner {
             String className = toClassName(resourceName);
             Class<?> clazz = classLoader.loadClass(className);
 
-            if (Modifier.isAbstract(clazz.getModifiers())) {
-                LOG.debug("Skipping abstract class: " + className);
+            if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
+                LOG.debug("Skipping non-instantiable class: " + className);
                 continue;
             }
 

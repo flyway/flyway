@@ -86,6 +86,10 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             executeAlterStatementsForFlashbackTables();
         }
 
+        for (String statement : generateDropStatementsForScheduledJobs()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
             jdbcTemplate.execute(statement);
         }
@@ -262,6 +266,23 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         List<String> indexNames = jdbcTemplate.queryForStringList("select INDEX_NAME from USER_SDO_INDEX_INFO");
         for (String indexName : indexNames) {
             statements.add("DROP INDEX \"" + indexName + "\"");
+        }
+
+        return statements;
+    }
+
+    /**
+     * Generates the drop statements for scheduled jobs.
+     *
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForScheduledJobs() throws SQLException {
+        List<String> statements = new ArrayList<String>();
+
+        List<String> jobNames = jdbcTemplate.queryForStringList("select JOB_NAME from USER_SCHEDULER_JOBS");
+        for (String jobName : jobNames) {
+            statements.add("begin DBMS_SCHEDULER.DROP_JOB(job_name => '" + jobName + "', defer => false, force => true); end;");
         }
 
         return statements;

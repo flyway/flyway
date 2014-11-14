@@ -17,13 +17,13 @@ package org.flywaydb.core.internal.util.logging.slf4j;
 
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogCreator;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.LoggerFactory;
 
 /**
- * Log Creator for Apache Commons Logging.
+ * Log Creator for Slf4j.
  */
 public class Slf4jLogCreator implements LogCreator {
     public Log createLogger(Class<?> clazz) {
-        return new Slf4jLog(LogFactory.getLog(clazz));
+        return new Slf4jLog(LoggerFactory.getLogger(clazz));
     }
 }

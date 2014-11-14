@@ -31,5 +31,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
         }
 
         flyway.migrate();
+
+        mavenProject.getProperties().setProperty("flyway.current", flyway.info().current().getVersion().toString());
     }
 }
