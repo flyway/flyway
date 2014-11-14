@@ -29,6 +29,8 @@ import org.mockito.MockSettings;
 import org.mockito.internal.creation.MockSettingsImpl;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -59,7 +61,12 @@ public class ClassPathScannerSmallTest {
         //changed to 2 as new test cases are added for SybaseASE
         assertEquals(2, resources.length);
 
-        assertEquals("migration/validate/CheckValidate1__First.sql", resources[0].getLocation());
+        Set<String> validPaths = new HashSet<String>();
+        validPaths.add("migration/validate/CheckValidate1__First.sql");
+        validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
+        
+        assertEquals(true, validPaths.contains(resources[0].getLocation()));
+        assertEquals(true, validPaths.contains(resources[1].getLocation()));
     }
 
     @Test
@@ -68,8 +75,13 @@ public class ClassPathScannerSmallTest {
 
         //changed to 2 as new test cases are added for SybaseASE
         assertEquals(2, resources.length);
-
-        assertEquals("migration/validate/CheckValidate1__First.sql", resources[0].getLocation());
+        
+        Set<String> validPaths = new HashSet<String>();
+        validPaths.add("migration/validate/CheckValidate1__First.sql");
+        validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
+        
+        assertEquals(true, validPaths.contains(resources[0].getLocation()));
+        assertEquals(true, validPaths.contains(resources[1].getLocation()));
     }
 
     @Test
