@@ -1,4 +1,4 @@
-package org.flywaydb.core.internal.dbsupport.sybase;
+package org.flywaydb.core.internal.dbsupport.sybase.ase;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -11,34 +11,40 @@ import org.flywaydb.core.internal.dbsupport.Table;
  * Sybase schema (database) for flyway support
  *
  */
-public class SybaseSchema extends Schema<SybaseDbSupport> {
+public class SybaseASESchema extends Schema<SybaseASEDbSupport> {
 
-	public SybaseSchema(JdbcTemplate jdbcTemplate, SybaseDbSupport dbSupport,
+	public SybaseASESchema(JdbcTemplate jdbcTemplate, SybaseASEDbSupport dbSupport,
 			String name) {
 		super(jdbcTemplate, dbSupport, name);
 	}
 
 	@Override
 	protected boolean doExists() throws SQLException {
-		return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM sysusers where name = ?", name) > 0;
+		//There is no schema in Sybase. Always return true
+		return true;
 	}
 
 	@Override
 	protected boolean doEmpty() throws SQLException {
-		return jdbcTemplate.queryForInt("select COUNT(*) from sysobjects so, sysusers su where so.uid = su.uid and su.name = ?", name) > 0;
+		//There is no schema in Sybase, check whether database is empty
+		//Check for tables, views stored procs and triggers
+		return jdbcTemplate.queryForInt("select count(*) from sysobjects ob where (ob.type='U' or ob.type = 'V' or ob.type = 'P' or ob.type = 'TR') and ob.name != 'sysquerymetrics'") == 0;
 	}
 
 	@Override
 	protected void doCreate() throws SQLException {
-		jdbcTemplate.execute("CREATE USER " + dbSupport.quote(name) + " IDENTIFIED BY flyway");
-        jdbcTemplate.execute("GRANT RESOURCE TO " + dbSupport.quote(name));
+		//There is no schema in Sybase. Do nothing for creation.
 	}
 
 	@Override
 	protected void doDrop() throws SQLException {
-		jdbcTemplate.execute("DROP USER " + dbSupport.quote(name));
+		//There is no schema in Sybase, no schema can be dropped. Do nothing here.
 	}
 
+	/*
+	 * This clean method is equivalent to cleaning the whole database.
+	 * @see org.flywaydb.core.internal.dbsupport.Schema#doClean()
+	 */
 	@Override
 	protected void doClean() throws SQLException {
 		//Drop tables
@@ -61,7 +67,7 @@ public class SybaseSchema extends Schema<SybaseDbSupport> {
 		
 		for(int i = 0; i < tableNames.size(); i++) {
 			String tableName = tableNames.get(i);
-			result[i] = new SybaseTable(jdbcTemplate, dbSupport, this, tableName);
+			result[i] = new SybaseASETable(jdbcTemplate, dbSupport, this, tableName);
 		}
 		
 		return result;
@@ -69,9 +75,14 @@ public class SybaseSchema extends Schema<SybaseDbSupport> {
 
 	@Override
 	public Table getTable(String tableName) {
-		return new SybaseTable(jdbcTemplate, dbSupport, this, tableName);
+		return new SybaseASETable(jdbcTemplate, dbSupport, this, tableName);
 	}
 	
+	/**
+	 * Return all table names in the current database
+	 * @return
+	 * @throws SQLException
+	 */
 	private List<String> retrieveAllTableNames() throws SQLException {
 		List<String> objNames = jdbcTemplate.queryForStringList("select ob.name from sysobjects ob where ob.type=? order by ob.name", "U");
 		
@@ -88,17 +99,20 @@ public class SybaseSchema extends Schema<SybaseDbSupport> {
 			String sql = "";
 			
 			if ("U".equals(sybaseObjType)) {
-				sql = "drop table ?";
+				sql = "drop table ";
 			} else if ("V".equals(sybaseObjType)) {
-				sql = "drop view ?";
+				sql = "drop view ";
 			} else if ("P".equals(sybaseObjType)) {
 				//dropping stored procedure
-				sql = "drop procedure ?";
+				sql = "drop procedure ";
 			} else if ("TR".equals(sybaseObjType)) {
-				sql = "drop trigger ?";
+				sql = "drop trigger ";
+			} else {
+				throw new IllegalArgumentException("Unknown database object type " + sybaseObjType);
 			}
 			
-			jdbcTemplate.execute(sql, name);
+			jdbcTemplate.execute(sql + name);
+			
 		}
 	}
 

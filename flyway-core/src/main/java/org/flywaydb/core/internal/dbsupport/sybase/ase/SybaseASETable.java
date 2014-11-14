@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.flywaydb.core.internal.dbsupport.sybase;
+package org.flywaydb.core.internal.dbsupport.sybase.ase;
 
 import java.sql.SQLException;
 
@@ -14,7 +14,7 @@ import org.flywaydb.core.internal.dbsupport.Table;
  * Sybase table for flyway
  *
  */
-public class SybaseTable extends Table {
+public class SybaseASETable extends Table {
 
 	/**
 	    * Creates a new Sybase table.
@@ -24,7 +24,7 @@ public class SybaseTable extends Table {
 	    * @param schema       The schema this table lives in.
 	    * @param name         The name of the table.
 	    */
-	public SybaseTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport,
+	public SybaseASETable(JdbcTemplate jdbcTemplate, DbSupport dbSupport,
 			Schema schema, String name) {
 		super(jdbcTemplate, dbSupport, schema, name);
 	}
@@ -36,7 +36,7 @@ public class SybaseTable extends Table {
 
 	@Override
 	protected void doLock() throws SQLException {
-		jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE");
+		jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE WAIT 10");
 		
 	}
 
@@ -45,5 +45,14 @@ public class SybaseTable extends Table {
 		jdbcTemplate.execute("DROP TABLE " + getName());
 		
 	}
+	
+	/*
+	 * Since Sybase ASE does not support schema, dropping out the schema name for toString method
+	 * @see org.flywaydb.core.internal.dbsupport.SchemaObject#toString()
+	 */
+	@Override
+    public String toString() {
+        return name;
+    }
 
 }

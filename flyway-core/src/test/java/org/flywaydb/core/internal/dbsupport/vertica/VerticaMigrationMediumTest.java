@@ -130,7 +130,7 @@ public class VerticaMigrationMediumTest extends MigrationTestCase {
                 return connection;
             }
         });
-        flyway1.setLocations(BASEDIR);
+        flyway1.setLocations(getBasedir());
         flyway1.setSchemas("public");
         flyway1.migrate();
     }

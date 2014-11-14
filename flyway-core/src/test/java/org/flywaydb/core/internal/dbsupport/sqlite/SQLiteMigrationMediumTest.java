@@ -71,7 +71,7 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void noDriverCrashIssue746() throws Exception {
-        flyway.setLocations(BASEDIR);
+        flyway.setLocations(getBasedir());
 
         Properties props = new Properties();
         //uncomment this to fix the code

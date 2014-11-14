@@ -39,6 +39,7 @@ public class DbCategory {
     public interface DB2 extends CommercialDB {}
     public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
+    public interface SybaseASE extends CommercialDB {}
 
     public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}

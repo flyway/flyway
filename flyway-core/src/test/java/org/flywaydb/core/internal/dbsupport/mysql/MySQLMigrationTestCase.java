@@ -180,7 +180,7 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
     public void lockOnConnectionReUse() throws SQLException {
         DataSource twoConnectionsDataSource = new TwoConnectionsDataSource(flyway.getDataSource());
         flyway.setDataSource(twoConnectionsDataSource);
-        flyway.setLocations(BASEDIR);
+        flyway.setLocations(getBasedir());
         flyway.migrate();
 
         Connection connection1 = twoConnectionsDataSource.getConnection();

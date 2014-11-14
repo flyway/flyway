@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.sybase;
+package org.flywaydb.core.internal.dbsupport.sybase.ase;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.List;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -31,11 +34,11 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
  * Sybase specific support
  *
  */
-public class SybaseDbSupport extends DbSupport {
+public class SybaseASEDbSupport extends DbSupport {
 
-	private static final Log LOG = LogFactory.getLog(SybaseDbSupport.class);
+	private static final Log LOG = LogFactory.getLog(SybaseASEDbSupport.class);
 	
-	public SybaseDbSupport(Connection connection) {
+	public SybaseASEDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.NULL));
     }
 
@@ -44,7 +47,24 @@ public class SybaseDbSupport extends DbSupport {
 	 */
 	@Override
 	public Schema getSchema(String name) {
-		return new SybaseSchema(jdbcTemplate, this, name);
+		//Sybase does not support schema and changing user on the fly. Always return a schema that does not exist
+		Schema schema = new SybaseASESchema(jdbcTemplate, this, name) {
+			@Override
+			protected boolean doExists() throws SQLException {
+				return false;
+			}
+			
+		};
+		
+		try {
+			String currentName = doGetCurrentSchema();
+			if (currentName.equals(name)) {
+				schema = new SybaseASESchema(jdbcTemplate, this, name);
+			}
+		} catch (SQLException e) {
+			LOG.error("Unable to obtain current schema, return non-existing schema", e);
+		}
+		return schema;
 	}
 
 	/* (non-Javadoc)
@@ -52,8 +72,7 @@ public class SybaseDbSupport extends DbSupport {
 	 */
 	@Override
 	public SqlStatementBuilder createSqlStatementBuilder() {
-		// TODO Auto-generated method stub
-		return null;
+		return new SybaseASESqlStatementBuilder();
 	}
 
 	/* (non-Javadoc)
@@ -61,7 +80,7 @@ public class SybaseDbSupport extends DbSupport {
 	 */
 	@Override
 	public String getDbName() {
-		return "sybase";
+		return "sybaseASE";
 	}
 
 	/* (non-Javadoc)
@@ -118,7 +137,8 @@ public class SybaseDbSupport extends DbSupport {
 	 */
 	@Override
 	protected String doQuote(String identifier) {
-		return "'" + StringUtils.replaceAll(identifier, "'", "\'") + "'";
+		//Sybase doesn't quote identifiers, skip quotting
+		return identifier;
 	}
 
 	/* (non-Javadoc)

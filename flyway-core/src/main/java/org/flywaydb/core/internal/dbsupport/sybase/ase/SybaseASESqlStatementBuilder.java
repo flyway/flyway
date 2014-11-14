@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.flywaydb.core.internal.dbsupport.sybase;
+package org.flywaydb.core.internal.dbsupport.sybase.ase;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -12,7 +12,7 @@ import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
  * @author Jason Wong
  *
  */
-public class SybaseSqlStatementBuilder extends SqlStatementBuilder {
+public class SybaseASESqlStatementBuilder extends SqlStatementBuilder {
 
 	@Override
     protected Delimiter getDefaultDelimiter() {
