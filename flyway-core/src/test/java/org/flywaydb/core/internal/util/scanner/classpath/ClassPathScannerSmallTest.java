@@ -55,8 +55,9 @@ public class ClassPathScannerSmallTest {
     @Test
     public void scanForResourcesRoot() throws Exception {
         Resource[] resources = classPathScanner.scanForResources("", "CheckValidate", ".sql");
-
-        assertEquals(1, resources.length);
+        
+        //changed to 2 as new test cases are added for SybaseASE
+        assertEquals(2, resources.length);
 
         assertEquals("migration/validate/CheckValidate1__First.sql", resources[0].getLocation());
     }
@@ -65,7 +66,8 @@ public class ClassPathScannerSmallTest {
     public void scanForResourcesSomewhereInSubDir() throws Exception {
         Resource[] resources = classPathScanner.scanForResources("migration", "CheckValidate", ".sql");
 
-        assertEquals(1, resources.length);
+        //changed to 2 as new test cases are added for SybaseASE
+        assertEquals(2, resources.length);
 
         assertEquals("migration/validate/CheckValidate1__First.sql", resources[0].getLocation());
     }
