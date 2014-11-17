@@ -14,22 +14,25 @@
 -- limitations under the License.
 --
 
-CREATE TABLE "${schema}"."${table}" (
-    "version_rank" INT NOT NULL,
-    "installed_rank" INT NOT NULL,
-    "version" VARCHAR(50) NOT NULL,
-    "description" VARCHAR(200) NOT NULL,
-    "type" VARCHAR(20) NOT NULL,
-    "script" VARCHAR(1000) NOT NULL,
-    "checksum" INT,
-    "installed_by" VARCHAR(100) NOT NULL,
-    "installed_on" TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,
-    "execution_time" INT NOT NULL,
-    "success" SMALLINT NOT NULL,
-    CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
+CREATE TABLE ${schema}.SCHEM_VERS (
+    version_rank FOR COLUMN VERS_RANK INT NOT NULL,
+    installed_rank FOR COLUMN INST_RANK INT NOT NULL,
+    version VARCHAR(50) NOT NULL,
+    description FOR COLUMN DESCR VARCHAR(200) NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    script VARCHAR(1000) NOT NULL,
+    checksum INT,
+    installed_by FOR COLUMN INST_BY VARCHAR(100) NOT NULL,
+    installed_on FOR COLUMN INST_ON TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,
+    execution_time FOR COLUMN EXEC_TIME INT NOT NULL,
+    success SMALLINT NOT NULL,
+    CONSTRAINT ${schema}.SCHEM_VERS_s CHECK (success in(0,1))
 );
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("version");
+ALTER TABLE ${schema}.SCHEM_VERS ADD CONSTRAINT ${schema}.SCHEM_VERS_pk PRIMARY KEY (version);
 
-CREATE INDEX "${schema}"."${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
-CREATE INDEX "${schema}"."${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
-CREATE INDEX "${schema}"."${table}_s_idx" ON "${schema}"."${table}" ("success");
+CREATE INDEX ${schema}.SCHEM_VERS_vr_idx ON ${schema}.SCHEM_VERS (version_rank);
+CREATE INDEX ${schema}.SCHEM_VERS_ir_idx ON ${schema}.SCHEM_VERS (installed_rank);
+CREATE INDEX ${schema}.SCHEM_VERS_s_idx ON ${schema}.SCHEM_VERS (success);
+
+RENAME TABLE ${schema}.SCHEM_VERS TO ${table}
+ FOR SYSTEM NAME SCHEM_VERS;

@@ -77,16 +77,19 @@ public abstract class Table extends SchemaObject {
         if (types.length == 0) {
             types = null;
         }
-
+        
         ResultSet resultSet = null;
         boolean found;
         try {
+        	
             resultSet = jdbcTemplate.getMetaData().getTables(
                     catalog == null ? null : catalog.getName(),
                     schema == null ? null : schema.getName(),
                     table,
                     types);
+            
             found = resultSet.next();
+            
         } finally {
             JdbcUtils.closeResultSet(resultSet);
         }
