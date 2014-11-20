@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
+import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
 import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
@@ -108,6 +109,12 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("Vertica")) {
             return new VerticaDbSupport(connection);
+        }
+        if (databaseProductName.contains("solidDB")) {
+            // SolidDB was originally developed by a company named Solid and was sold afterwards to IBM.
+            // In the meanwhile IBM also sold solidDB to Unicom Systems.
+            // Therefore no vendor string in search criteria
+            return new SolidDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
