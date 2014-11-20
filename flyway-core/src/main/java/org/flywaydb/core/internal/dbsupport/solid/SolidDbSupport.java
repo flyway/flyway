@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<< HEAD
 /**
  * SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
  * Media-Saturn IT Services GmbH
@@ -20,6 +21,19 @@
  * 85046 Ingolstadt, Germany
  * http://www.media-saturn.com
  */
+=======
+//
+// Project: spring-boot-sample-flyway
+//
+// Media-Saturn IT Services GmbH
+//
+// Wankelstr. 5
+// 85046 Ingolstadt
+// Telefon: +49 (841) 634-0
+// Telefax: +49 (841) 634-992596
+// Web:     www.media-saturn.com
+//
+>>>>>>> Initial commit for SolidDB support (#885)
 
 package org.flywaydb.core.internal.dbsupport.solid;
 
@@ -65,7 +79,11 @@ public class SolidDbSupport extends DbSupport {
 
     @Override
     public String getCurrentUserFunction() {
+<<<<<<< HEAD
         return "LOGIN_SCHEMA()";
+=======
+        return "NAME FROM _SYSTEM.SYS_USERS WHERE ID = LOGIN_USERID()";
+>>>>>>> Initial commit for SolidDB support (#885)
     }
 
     @Override
@@ -85,7 +103,11 @@ public class SolidDbSupport extends DbSupport {
 
     @Override
     protected String doQuote(final String identifier) {
+<<<<<<< HEAD
         return "\"" + identifier + "\"";
+=======
+        return "'" + identifier + "'";
+>>>>>>> Initial commit for SolidDB support (#885)
     }
 
     @Override

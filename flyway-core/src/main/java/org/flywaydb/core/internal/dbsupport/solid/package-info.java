@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 /**
+<<<<<<< HEAD
  * SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
  * Media-Saturn IT Services GmbH
  * Wankelstr. 5
@@ -21,6 +22,8 @@
  * http://www.media-saturn.com
  */
 /**
+=======
+>>>>>>> Initial commit for SolidDB support (#885)
  * Private API. No compatibility guarantees provided.
  */
 package org.flywaydb.core.internal.dbsupport.solid;

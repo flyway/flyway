@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<< HEAD
 /**
  * SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
  * Media-Saturn IT Services GmbH
@@ -20,6 +21,19 @@
  * 85046 Ingolstadt, Germany
  * http://www.media-saturn.com
  */
+=======
+//
+// Project: spring-boot-sample-flyway
+//
+// Media-Saturn IT Services GmbH
+//
+// Wankelstr. 5
+// 85046 Ingolstadt
+// Telefon: +49 (841) 634-0
+// Telefax: +49 (841) 634-992596
+// Web:     www.media-saturn.com
+//
+>>>>>>> Initial commit for SolidDB support (#885)
 
 package org.flywaydb.core.internal.dbsupport.solid;
 
@@ -35,7 +49,11 @@ import java.util.Map;
 public class SolidSchema extends Schema<SolidDbSupport> {
 
     public SolidSchema(final JdbcTemplate jdbcTemplate, final SolidDbSupport dbSupport, final String name) {
+<<<<<<< HEAD
         super(jdbcTemplate, dbSupport, name.toUpperCase());
+=======
+        super(jdbcTemplate, dbSupport, name);
+>>>>>>> Initial commit for SolidDB support (#885)
     }
 
     @Override
@@ -47,7 +65,10 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     protected boolean doEmpty() throws SQLException {
         int count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ?", name);
         if (count > 0) {
+<<<<<<< HEAD
             // This count includes regular tables and views
+=======
+>>>>>>> Initial commit for SolidDB support (#885)
             return false;
         }
         count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM _SYSTEM.SYS_TRIGGERS WHERE TRIGGER_SCHEMA = ?", name);
@@ -63,20 +84,32 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         if (count > 0) {
             return false;
         }
+<<<<<<< HEAD
         //TODO: Query also for possible other items
+=======
+        //TODO: Query also for views, etc.
+>>>>>>> Initial commit for SolidDB support (#885)
 
         return true;
     }
 
     @Override
     protected void doCreate() throws SQLException {
+<<<<<<< HEAD
         jdbcTemplate.execute("CREATE SCHEMA " + name);
+=======
+        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+>>>>>>> Initial commit for SolidDB support (#885)
     }
 
     @Override
     protected void doDrop() throws SQLException {
+<<<<<<< HEAD
         clean();
         jdbcTemplate.execute("DROP SCHEMA " + name);
+=======
+        jdbcTemplate.execute("DROP SCHEMA ?", name);
+>>>>>>> Initial commit for SolidDB support (#885)
     }
 
     @Override
@@ -90,10 +123,14 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         for (final String statement : dropConstraints()) {
             jdbcTemplate.execute(statement);
         }
+<<<<<<< HEAD
         for (final String statement : dropViews()) {
             jdbcTemplate.execute(statement);
         }
         //TODO: drop maybe other related stuff
+=======
+        //TODO: drop views (and maybe other related stuff)
+>>>>>>> Initial commit for SolidDB support (#885)
 
         for (final Table table : allTables()) {
             table.drop();
@@ -103,7 +140,11 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     @Override
     protected Table[] doAllTables() throws SQLException {
         final List<String> tableNames = jdbcTemplate.queryForStringList(
+<<<<<<< HEAD
                 "SELECT TABLE_NAME FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'", name);
+=======
+                "SELECT TABLE_NAME FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE_TABLE'", name);
+>>>>>>> Initial commit for SolidDB support (#885)
 
         final Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
@@ -115,7 +156,11 @@ public class SolidSchema extends Schema<SolidDbSupport> {
 
     @Override
     public Table getTable(final String tableName) {
+<<<<<<< HEAD
         return new SolidTable(jdbcTemplate, dbSupport, this, tableName);
+=======
+        return null;
+>>>>>>> Initial commit for SolidDB support (#885)
     }
 
     private Iterable<String> dropTriggers() throws SQLException {
@@ -144,10 +189,15 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         final List<String> statements = new ArrayList<String>();
 
         for (final Map<String, String> item : jdbcTemplate.queryForList(
+<<<<<<< HEAD
                 "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES " +
                         "WHERE SYS_FORKEYS.KEY_SCHEMA = ? " +
                         "AND SYS_FORKEYS.CREATE_REL_ID = SYS_FORKEYS.REF_REL_ID " +
                         "AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID", name)) {
+=======
+                "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES WHERE SYS_FORKEYS.KEY_SCHEMA = ? AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID",
+                name)) {
+>>>>>>> Initial commit for SolidDB support (#885)
             statements.add("ALTER TABLE " +
                                    dbSupport.quote(name, item.get("TABLE_NAME")) +
                                    " DROP CONSTRAINT " + dbSupport.quote(item.get("KEY_NAME")));
@@ -155,6 +205,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
 
         return statements;
     }
+<<<<<<< HEAD
 
     private Iterable<String> dropViews() throws SQLException {
         final List<String> statements = new ArrayList<String>();
@@ -170,4 +221,6 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     private void commitWork() throws SQLException {
         jdbcTemplate.executeStatement("COMMIT WORK");
     }
+=======
+>>>>>>> Initial commit for SolidDB support (#885)
 }
