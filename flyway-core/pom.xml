@@ -321,7 +321,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$SolidDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -351,7 +351,30 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>SolidDBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.ibm</groupId>
+                    <artifactId>SolidDriver</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>

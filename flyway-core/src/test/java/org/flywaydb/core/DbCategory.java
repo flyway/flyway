@@ -47,4 +47,5 @@ public class DbCategory {
     public interface DB2zOS extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}
     public interface Vertica extends ContributorSupportedDB {}
+    public interface SolidDB extends ContributorSupportedDB {}
 }
