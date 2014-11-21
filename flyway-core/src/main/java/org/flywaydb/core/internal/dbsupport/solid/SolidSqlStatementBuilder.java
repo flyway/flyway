@@ -27,8 +27,19 @@
 
 package org.flywaydb.core.internal.dbsupport.solid;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 
 public class SolidSqlStatementBuilder extends SqlStatementBuilder {
-    // TODO: override methods if necessary
+
+    @Override
+    public Delimiter changeDelimiterIfNecessary(final String line, final Delimiter delimiter) {
+        if (line.startsWith("\"")) {
+            return new Delimiter("\"", false);
+        }
+        if (line.endsWith("\";")) {
+            return getDefaultDelimiter();
+        }
+        return delimiter;
+    }
 }

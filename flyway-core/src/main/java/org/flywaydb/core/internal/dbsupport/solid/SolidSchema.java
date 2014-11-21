@@ -31,6 +31,8 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +41,7 @@ import java.util.Map;
 public class SolidSchema extends Schema<SolidDbSupport> {
 
     public SolidSchema(final JdbcTemplate jdbcTemplate, final SolidDbSupport dbSupport, final String name) {
-        super(jdbcTemplate, dbSupport, name);
+        super(jdbcTemplate, dbSupport, name.toUpperCase());
     }
 
     @Override
@@ -51,6 +53,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     protected boolean doEmpty() throws SQLException {
         int count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ?", name);
         if (count > 0) {
+            // This count includes regular tables and views
             return false;
         }
         count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM _SYSTEM.SYS_TRIGGERS WHERE TRIGGER_SCHEMA = ?", name);
@@ -66,19 +69,20 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         if (count > 0) {
             return false;
         }
-        //TODO: Query also for views, etc.
+        //TODO: Query also for possible other items
 
         return true;
     }
 
     @Override
     protected void doCreate() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA ?", name);
+        jdbcTemplate.execute("CREATE SCHEMA " + name);
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA ?", name);
+        clean();
+        jdbcTemplate.execute("DROP SCHEMA " + name);
     }
 
     @Override
@@ -92,7 +96,10 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         for (final String statement : dropConstraints()) {
             jdbcTemplate.execute(statement);
         }
-        //TODO: drop views (and maybe other related stuff)
+        for (final String statement: dropViews()) {
+            jdbcTemplate.execute(statement);
+        }
+        //TODO: drop maybe other related stuff
 
         for (final Table table : allTables()) {
             table.drop();
@@ -102,7 +109,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     @Override
     protected Table[] doAllTables() throws SQLException {
         final List<String> tableNames = jdbcTemplate.queryForStringList(
-                "SELECT TABLE_NAME FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE_TABLE'", name);
+                "SELECT TABLE_NAME FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'", name);
 
         final Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
@@ -114,7 +121,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
 
     @Override
     public Table getTable(final String tableName) {
-        return null;
+        return new SolidTable(jdbcTemplate, dbSupport, this, tableName);
     }
 
     private Iterable<String> dropTriggers() throws SQLException {
@@ -143,13 +150,31 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         final List<String> statements = new ArrayList<String>();
 
         for (final Map<String, String> item : jdbcTemplate.queryForList(
-                "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES WHERE SYS_FORKEYS.KEY_SCHEMA = ? AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID",
-                name)) {
+                "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES " +
+                        "WHERE SYS_FORKEYS.KEY_SCHEMA = ? " +
+                        "AND SYS_FORKEYS.CREATE_REL_ID = SYS_FORKEYS.REF_REL_ID " +
+                        "AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID", name))
+        {
             statements.add("ALTER TABLE " +
                                    dbSupport.quote(name, item.get("TABLE_NAME")) +
                                    " DROP CONSTRAINT " + dbSupport.quote(item.get("KEY_NAME")));
         }
 
         return statements;
+    }
+
+    private Iterable<String> dropViews() throws SQLException {
+        final List<String> statements = new ArrayList<String>();
+
+        for (final Map<String, String> item : jdbcTemplate.queryForList(
+                "SELECT TABLE_NAME FROM _SYSTEM.SYS_TABLES WHERE TABLE_TYPE = 'VIEW' AND TABLE_SCHEMA = ?", name)) {
+            statements.add("DROP VIEW " + dbSupport.quote(name, item.get("TABLE_NAME")));
+        }
+
+        return statements;
+    }
+
+    private void commitWork() throws SQLException {
+        jdbcTemplate.executeStatement("COMMIT WORK");
     }
 }
