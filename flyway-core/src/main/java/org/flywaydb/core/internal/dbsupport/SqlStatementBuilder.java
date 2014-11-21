@@ -180,8 +180,7 @@ public class SqlStatementBuilder {
         statement.append(line);
 
         if (lineTerminatesStatement(lineSimplified, delimiter)) {
-            //TODO: Check if the delimiter can be stripped from the existing statement instead
-            statement = new StringBuilder(stripDelimiter(statement.toString(), delimiter));
+            stripDelimiter(statement, delimiter);
             terminated = true;
         }
     }
@@ -235,13 +234,18 @@ public class SqlStatementBuilder {
      *
      * @param sql       The statement to parse.
      * @param delimiter The delimiter to strip.
-     * @return The sql statement without delimiter.
      */
     /* private -> testing */
-    static String stripDelimiter(String sql, Delimiter delimiter) {
-        final int lowerCaseIndex = sql.lastIndexOf(delimiter.getDelimiter().toLowerCase());
-        final int upperCaseIndex = sql.lastIndexOf(delimiter.getDelimiter().toUpperCase());
-        return sql.substring(0, Math.max(lowerCaseIndex, upperCaseIndex));
+    static void stripDelimiter(StringBuilder sql, Delimiter delimiter) {
+        int last;
+
+        for (last = sql.length(); last > 0; last--) {
+            if (!Character.isWhitespace(sql.charAt(last - 1))) {
+                break;
+            }
+        }
+
+        sql.delete(last - delimiter.getDelimiter().length(), sql.length());
     }
 
     /**
