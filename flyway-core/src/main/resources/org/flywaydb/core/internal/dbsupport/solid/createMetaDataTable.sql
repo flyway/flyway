@@ -13,6 +13,11 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
+-- SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
+-- Media-Saturn IT Services GmbH
+-- Wankelstr. 5
+-- 85046 Ingolstadt, Germany
+--
 
 CREATE TABLE ${schema}.${table} (
     version_rank INT NOT NULL,
