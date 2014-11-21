@@ -69,7 +69,7 @@ public class SolidDbSupport extends DbSupport {
 
     @Override
     public String getCurrentUserFunction() {
-        return "NAME FROM _SYSTEM.SYS_USERS WHERE ID = LOGIN_USERID()";
+        return "LOGIN_SCHEMA()";
     }
 
     @Override
@@ -89,7 +89,7 @@ public class SolidDbSupport extends DbSupport {
 
     @Override
     protected String doQuote(final String identifier) {
-        return "'" + identifier + "'";
+        return "\"" + identifier + "\"";
     }
 
     @Override

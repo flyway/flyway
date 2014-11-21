@@ -29,7 +29,7 @@ CREATE TABLE ${schema}.${table} (
     PRIMARY KEY(version)
 ) STORE DISK;
 
-"CREATE TRIGGER ${table}_create ON ${schema}.${table}
+"CREATE TRIGGER ${schema}.${table}_create ON ${schema}.${table}
     BEFORE INSERT REFERENCING NEW installed_on AS new_installed_on
     BEGIN
     SET new_installed_on = NOW();
@@ -38,4 +38,6 @@ CREATE TABLE ${schema}.${table} (
 CREATE INDEX ${table}_vr_idx ON ${schema}.${table} (version_rank);
 CREATE INDEX ${table}_ir_idx ON ${schema}.${table} (installed_rank);
 CREATE INDEX ${table}_s_idx ON ${schema}.${table} (success);
+
+COMMIT WORK;
 
