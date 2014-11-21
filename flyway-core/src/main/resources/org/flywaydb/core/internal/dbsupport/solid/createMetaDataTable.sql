@@ -38,10 +38,14 @@ CREATE TABLE ${schema}.${table} (
 ) STORE DISK;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "CREATE TRIGGER ${schema}.${table}_create ON ${schema}.${table}
 =======
 "CREATE TRIGGER ${table}_create ON ${schema}.${table}
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+"CREATE TRIGGER ${schema}.${table}_create ON ${schema}.${table}
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
     BEFORE INSERT REFERENCING NEW installed_on AS new_installed_on
     BEGIN
     SET new_installed_on = NOW();
@@ -52,7 +56,12 @@ CREATE INDEX ${table}_ir_idx ON ${schema}.${table} (installed_rank);
 CREATE INDEX ${table}_s_idx ON ${schema}.${table} (success);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 COMMIT WORK;
 
 =======
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+COMMIT WORK;
+
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest

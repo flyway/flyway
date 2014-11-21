@@ -58,10 +58,14 @@ public class SolidTable extends Table {
     @Override
     protected void doLock() throws SQLException {
 <<<<<<< HEAD
+<<<<<<< HEAD
         jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE");
 =======
         jdbcTemplate.execute("SELECT * FROM " + this + " FOR UPDATE");
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE");
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
     }
 
     @Override

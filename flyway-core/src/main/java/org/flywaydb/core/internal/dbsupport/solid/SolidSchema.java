@@ -41,6 +41,8 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,10 +52,14 @@ public class SolidSchema extends Schema<SolidDbSupport> {
 
     public SolidSchema(final JdbcTemplate jdbcTemplate, final SolidDbSupport dbSupport, final String name) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         super(jdbcTemplate, dbSupport, name.toUpperCase());
 =======
         super(jdbcTemplate, dbSupport, name);
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        super(jdbcTemplate, dbSupport, name.toUpperCase());
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
     }
 
     @Override
@@ -66,9 +72,13 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         int count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ?", name);
         if (count > 0) {
 <<<<<<< HEAD
+<<<<<<< HEAD
             // This count includes regular tables and views
 =======
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+            // This count includes regular tables and views
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
             return false;
         }
         count = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM _SYSTEM.SYS_TRIGGERS WHERE TRIGGER_SCHEMA = ?", name);
@@ -85,10 +95,14 @@ public class SolidSchema extends Schema<SolidDbSupport> {
             return false;
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
         //TODO: Query also for possible other items
 =======
         //TODO: Query also for views, etc.
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        //TODO: Query also for possible other items
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
 
         return true;
     }
@@ -96,20 +110,29 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     @Override
     protected void doCreate() throws SQLException {
 <<<<<<< HEAD
+<<<<<<< HEAD
         jdbcTemplate.execute("CREATE SCHEMA " + name);
 =======
         jdbcTemplate.execute("CREATE SCHEMA ?", name);
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        jdbcTemplate.execute("CREATE SCHEMA " + name);
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
     }
 
     @Override
     protected void doDrop() throws SQLException {
+<<<<<<< HEAD
 <<<<<<< HEAD
         clean();
         jdbcTemplate.execute("DROP SCHEMA " + name);
 =======
         jdbcTemplate.execute("DROP SCHEMA ?", name);
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        clean();
+        jdbcTemplate.execute("DROP SCHEMA " + name);
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
     }
 
     @Override
@@ -124,6 +147,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
             jdbcTemplate.execute(statement);
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
         for (final String statement : dropViews()) {
             jdbcTemplate.execute(statement);
         }
@@ -131,6 +155,12 @@ public class SolidSchema extends Schema<SolidDbSupport> {
 =======
         //TODO: drop views (and maybe other related stuff)
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        for (final String statement: dropViews()) {
+            jdbcTemplate.execute(statement);
+        }
+        //TODO: drop maybe other related stuff
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
 
         for (final Table table : allTables()) {
             table.drop();
@@ -141,10 +171,14 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     protected Table[] doAllTables() throws SQLException {
         final List<String> tableNames = jdbcTemplate.queryForStringList(
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "SELECT TABLE_NAME FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'", name);
 =======
                 "SELECT TABLE_NAME FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE_TABLE'", name);
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+                "SELECT TABLE_NAME FROM _SYSTEM.SYS_TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'", name);
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
 
         final Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
@@ -157,10 +191,14 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     @Override
     public Table getTable(final String tableName) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         return new SolidTable(jdbcTemplate, dbSupport, this, tableName);
 =======
         return null;
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        return new SolidTable(jdbcTemplate, dbSupport, this, tableName);
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
     }
 
     private Iterable<String> dropTriggers() throws SQLException {
@@ -190,6 +228,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
 
         for (final Map<String, String> item : jdbcTemplate.queryForList(
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES " +
                         "WHERE SYS_FORKEYS.KEY_SCHEMA = ? " +
                         "AND SYS_FORKEYS.CREATE_REL_ID = SYS_FORKEYS.REF_REL_ID " +
@@ -198,6 +237,13 @@ public class SolidSchema extends Schema<SolidDbSupport> {
                 "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES WHERE SYS_FORKEYS.KEY_SCHEMA = ? AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID",
                 name)) {
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+                "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES " +
+                        "WHERE SYS_FORKEYS.KEY_SCHEMA = ? " +
+                        "AND SYS_FORKEYS.CREATE_REL_ID = SYS_FORKEYS.REF_REL_ID " +
+                        "AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID", name))
+        {
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
             statements.add("ALTER TABLE " +
                                    dbSupport.quote(name, item.get("TABLE_NAME")) +
                                    " DROP CONSTRAINT " + dbSupport.quote(item.get("KEY_NAME")));
@@ -206,6 +252,9 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         return statements;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
 
     private Iterable<String> dropViews() throws SQLException {
         final List<String> statements = new ArrayList<String>();
@@ -221,6 +270,9 @@ public class SolidSchema extends Schema<SolidDbSupport> {
     private void commitWork() throws SQLException {
         jdbcTemplate.executeStatement("COMMIT WORK");
     }
+<<<<<<< HEAD
 =======
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
 }

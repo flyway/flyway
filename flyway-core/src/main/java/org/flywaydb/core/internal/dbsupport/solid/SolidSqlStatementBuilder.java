@@ -54,9 +54,24 @@ public class SolidSqlStatementBuilder extends SqlStatementBuilder {
 
 package org.flywaydb.core.internal.dbsupport.solid;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 
 public class SolidSqlStatementBuilder extends SqlStatementBuilder {
+<<<<<<< HEAD
     // TODO: override methods if necessary
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+
+    @Override
+    public Delimiter changeDelimiterIfNecessary(final String line, final Delimiter delimiter) {
+        if (line.startsWith("\"")) {
+            return new Delimiter("\"", false);
+        }
+        if (line.endsWith("\";")) {
+            return getDefaultDelimiter();
+        }
+        return delimiter;
+    }
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
 }

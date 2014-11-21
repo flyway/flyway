@@ -80,10 +80,14 @@ public class SolidDbSupport extends DbSupport {
     @Override
     public String getCurrentUserFunction() {
 <<<<<<< HEAD
+<<<<<<< HEAD
         return "LOGIN_SCHEMA()";
 =======
         return "NAME FROM _SYSTEM.SYS_USERS WHERE ID = LOGIN_USERID()";
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        return "LOGIN_SCHEMA()";
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
     }
 
     @Override
@@ -104,10 +108,14 @@ public class SolidDbSupport extends DbSupport {
     @Override
     protected String doQuote(final String identifier) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         return "\"" + identifier + "\"";
 =======
         return "'" + identifier + "'";
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+        return "\"" + identifier + "\"";
+>>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
     }
 
     @Override
