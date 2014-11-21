@@ -64,7 +64,7 @@ public class ClassUtils {
                 try {
                     clazzes.add(ClassUtils.<T>instantiate(clazz, classLoader));
                 } catch (Exception e) {
-                    throw new FlywayException("Unable to instantiate class: " + clazz);
+                    throw new FlywayException("Unable to instantiate class: " + clazz, e);
                 }
             }
         }
