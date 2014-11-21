@@ -316,7 +316,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$SolidDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -369,7 +369,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$DB2zOS</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
