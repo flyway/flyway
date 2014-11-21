@@ -15,6 +15,9 @@
  */
 /**
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> #885: Clean up source headers
  * SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
  * Media-Saturn IT Services GmbH
  * Wankelstr. 5
@@ -22,8 +25,11 @@
  * http://www.media-saturn.com
  */
 /**
+<<<<<<< HEAD
 =======
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+>>>>>>> #885: Clean up source headers
  * Private API. No compatibility guarantees provided.
  */
 package org.flywaydb.core.internal.dbsupport.solid;

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> #885: Clean up source headers
 /**
  * SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
  * Media-Saturn IT Services GmbH
@@ -21,6 +24,7 @@
  * 85046 Ingolstadt, Germany
  * http://www.media-saturn.com
  */
+<<<<<<< HEAD
 =======
 //
 // Project: spring-boot-sample-flyway
@@ -34,6 +38,8 @@
 // Web:     www.media-saturn.com
 //
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+>>>>>>> #885: Clean up source headers
 
 package org.flywaydb.core.internal.dbsupport.solid;
 
@@ -41,8 +47,6 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,6 +152,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         for (final String statement : dropViews()) {
             jdbcTemplate.execute(statement);
         }
@@ -157,6 +162,9 @@ public class SolidSchema extends Schema<SolidDbSupport> {
 >>>>>>> Initial commit for SolidDB support (#885)
 =======
         for (final String statement: dropViews()) {
+=======
+        for (final String statement : dropViews()) {
+>>>>>>> #885: Clean up source headers
             jdbcTemplate.execute(statement);
         }
         //TODO: drop maybe other related stuff
@@ -241,9 +249,13 @@ public class SolidSchema extends Schema<SolidDbSupport> {
                 "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES " +
                         "WHERE SYS_FORKEYS.KEY_SCHEMA = ? " +
                         "AND SYS_FORKEYS.CREATE_REL_ID = SYS_FORKEYS.REF_REL_ID " +
+<<<<<<< HEAD
                         "AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID", name))
         {
 >>>>>>> #885: Minor fixes regarding SolidDB support including green ConcurrentMigrationTest
+=======
+                        "AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID", name)) {
+>>>>>>> #885: Clean up source headers
             statements.add("ALTER TABLE " +
                                    dbSupport.quote(name, item.get("TABLE_NAME")) +
                                    " DROP CONSTRAINT " + dbSupport.quote(item.get("KEY_NAME")));

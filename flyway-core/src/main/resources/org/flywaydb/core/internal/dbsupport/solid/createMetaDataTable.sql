@@ -14,13 +14,19 @@
 -- limitations under the License.
 --
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> #885: Clean up source headers
 -- SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
 -- Media-Saturn IT Services GmbH
 -- Wankelstr. 5
 -- 85046 Ingolstadt, Germany
 --
+<<<<<<< HEAD
 =======
 >>>>>>> Initial commit for SolidDB support (#885)
+=======
+>>>>>>> #885: Clean up source headers
 
 CREATE TABLE ${schema}.${table} (
     version_rank INT NOT NULL,

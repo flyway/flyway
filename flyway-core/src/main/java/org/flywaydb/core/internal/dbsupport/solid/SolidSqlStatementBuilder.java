@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> #885: Clean up source headers
 /**
  * SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
  * Media-Saturn IT Services GmbH
@@ -21,6 +24,7 @@
  * 85046 Ingolstadt, Germany
  * http://www.media-saturn.com
  */
+<<<<<<< HEAD
 
 package org.flywaydb.core.internal.dbsupport.solid;
 
@@ -51,6 +55,8 @@ public class SolidSqlStatementBuilder extends SqlStatementBuilder {
 // Telefax: +49 (841) 634-992596
 // Web:     www.media-saturn.com
 //
+=======
+>>>>>>> #885: Clean up source headers
 
 package org.flywaydb.core.internal.dbsupport.solid;
 
