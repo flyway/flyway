@@ -126,6 +126,15 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
+    public void expressionBasedIndex() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/index");
+        flyway.migrate();
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
     public void versioned() throws Exception {
         flyway.setLocations("migration/dbsupport/db2/sql/versioned");
         flyway.migrate();
