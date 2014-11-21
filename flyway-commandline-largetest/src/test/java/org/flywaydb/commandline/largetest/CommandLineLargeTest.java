@@ -76,9 +76,8 @@ public class CommandLineLargeTest {
     public void exitCodeForFailedMigration() throws Exception {
         String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=filesystem:sql/invalid");
         assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 failed!"));
-        assertTrue(stdOut.contains("ERROR: Error executing statement at line 17: InVaLiD SqL !!!\n"
-                + "ERROR: Caused by: org.hsqldb.HsqlException: unexpected token: INVALID\n"
-                + "ERROR: Occured in org.hsqldb.error.Error.parseError() at line -1"));
+        assertTrue(stdOut.contains("17"));
+        assertTrue(stdOut.contains("InVaLiD SqL !!!"));
     }
 
     @Test
