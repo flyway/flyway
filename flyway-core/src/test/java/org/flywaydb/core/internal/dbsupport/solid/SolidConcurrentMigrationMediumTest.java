@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//
-// Project: flyway
-//
-// Media-Saturn IT Services GmbH
-//
-// Wankelstr. 5
-// 85046 Ingolstadt
-// Telefon: +49 (841) 634-0
-// Telefax: +49 (841) 634-992596
-// Web:     www.media-saturn.com
-//
+/**
+ * SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
+ * Media-Saturn IT Services GmbH
+ * Wankelstr. 5
+ * 85046 Ingolstadt, Germany
+ * http://www.media-saturn.com
+ */
 
 package org.flywaydb.core.internal.dbsupport.solid;
 

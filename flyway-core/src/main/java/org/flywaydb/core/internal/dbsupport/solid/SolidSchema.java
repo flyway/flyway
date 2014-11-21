@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//
-// Project: spring-boot-sample-flyway
-//
-// Media-Saturn IT Services GmbH
-//
-// Wankelstr. 5
-// 85046 Ingolstadt
-// Telefon: +49 (841) 634-0
-// Telefax: +49 (841) 634-992596
-// Web:     www.media-saturn.com
-//
+/**
+ * SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
+ * Media-Saturn IT Services GmbH
+ * Wankelstr. 5
+ * 85046 Ingolstadt, Germany
+ * http://www.media-saturn.com
+ */
 
 package org.flywaydb.core.internal.dbsupport.solid;
 
@@ -31,8 +27,6 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +90,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
         for (final String statement : dropConstraints()) {
             jdbcTemplate.execute(statement);
         }
-        for (final String statement: dropViews()) {
+        for (final String statement : dropViews()) {
             jdbcTemplate.execute(statement);
         }
         //TODO: drop maybe other related stuff
@@ -153,8 +147,7 @@ public class SolidSchema extends Schema<SolidDbSupport> {
                 "SELECT TABLE_NAME, KEY_NAME FROM _SYSTEM.SYS_FORKEYS, _SYSTEM.SYS_TABLES " +
                         "WHERE SYS_FORKEYS.KEY_SCHEMA = ? " +
                         "AND SYS_FORKEYS.CREATE_REL_ID = SYS_FORKEYS.REF_REL_ID " +
-                        "AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID", name))
-        {
+                        "AND SYS_FORKEYS.CREATE_REL_ID = SYS_TABLES.ID", name)) {
             statements.add("ALTER TABLE " +
                                    dbSupport.quote(name, item.get("TABLE_NAME")) +
                                    " DROP CONSTRAINT " + dbSupport.quote(item.get("KEY_NAME")));
