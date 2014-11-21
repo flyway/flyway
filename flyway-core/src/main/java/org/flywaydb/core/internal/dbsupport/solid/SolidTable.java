@@ -47,7 +47,7 @@ public class SolidTable extends Table {
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.execute("SELECT * FROM " + this + " FOR UPDATE");
+        jdbcTemplate.execute("LOCK TABLE " + this + " IN EXCLUSIVE MODE");
     }
 
     @Override
