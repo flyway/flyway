@@ -79,7 +79,7 @@ public class DB2SchemaSmallTest {
         // Return a VERSIONED_TABLE when the SQL to find version tables is called.
         List<String> versionedTables = new ArrayList<String>();
         versionedTables.add("VERSIONED_TABLE");
-        when(jdbcTemplate.queryForStringList("select rtrim(TABNAME) from SYSCAT.TABLES where TEMPORALTYPE <> 'N' and TABSCHEMA = ?", "SCHEMA")).thenReturn(versionedTables);
+        when(jdbcTemplate.queryForStringList("select TABNAME from SYSCAT.TABLES where TEMPORALTYPE <> 'N' and TABSCHEMA = ?", "SCHEMA")).thenReturn(versionedTables);
 
         when(dbSupport.getDb2MajorVersion()).thenReturn(10);
         when(dbSupport.quote("SCHEMA", "VERSIONED_TABLE")).thenReturn("SCHEMA.VERSIONED_TABLE");
