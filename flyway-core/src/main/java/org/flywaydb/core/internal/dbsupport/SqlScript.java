@@ -16,9 +16,11 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,8 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sql script containing a series of statements terminated by semi-columns (;). Single-line (--) and multi-line (/* * /)
- * comments are stripped and ignored.
+ * Sql script containing a series of statements terminated by a delimiter (eg: ;).
+ * Single-line (--) and multi-line (/* * /) comments are stripped and ignored.
  */
 public class SqlScript {
     private static final Log LOG = LogFactory.getLog(SqlScript.class);
@@ -46,7 +48,12 @@ public class SqlScript {
     private final List<SqlStatement> sqlStatements;
 
     /**
-     * Creates a new sql script from this source with these placeholders to replace.
+     * The resource containing the statements.
+     */
+    private final Resource resource;
+
+    /**
+     * Creates a new sql script from this source.
      *
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
      * @param dbSupport       The database-specific support.
@@ -54,16 +61,24 @@ public class SqlScript {
     public SqlScript(String sqlScriptSource, DbSupport dbSupport) {
         this.dbSupport = dbSupport;
         this.sqlStatements = parse(sqlScriptSource);
+        this.resource = null;
     }
 
     /**
-     * Dummy constructor to increase testability.
+     * Creates a new sql script from this resource.
      *
-     * @param dbSupport The database-specific support.
+     * @param dbSupport           The database-specific support.
+     * @param sqlScriptResource   The resource containing the statements.
+     * @param placeholderReplacer The placeholder replacer.
+     * @param encoding            The encoding to use.
      */
-    SqlScript(DbSupport dbSupport) {
+    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
         this.dbSupport = dbSupport;
-        this.sqlStatements = null;
+
+        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
+        this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
+
+        this.resource = sqlScriptResource;
     }
 
     /**
@@ -92,7 +107,7 @@ public class SqlScript {
                     jdbcTemplate.executeStatement(sql);
                 }
             } catch (SQLException e) {
-                throw new FlywaySqlScriptException(sqlStatement.getLineNumber(), sql, e);
+                throw new FlywaySqlScriptException(resource, sqlStatement, e);
             }
         }
     }
@@ -204,7 +219,10 @@ public class SqlScript {
                 lines.add(line);
             }
         } catch (IOException e) {
-            throw new FlywayException("Cannot parse lines", e);
+            String message = resource == null ?
+                    "Unable to parse lines" :
+                    "Unable to parse " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")";
+            throw new FlywayException(message, e);
         }
 
         return lines;

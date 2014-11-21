@@ -20,7 +20,7 @@ package org.flywaydb.core.internal.util.scanner;
  */
 public interface Resource {
     /**
-     * @return The location of the resource on the classpath.
+     * @return The location of the resource on the classpath (path and filename).
      */
     String getLocation();
 

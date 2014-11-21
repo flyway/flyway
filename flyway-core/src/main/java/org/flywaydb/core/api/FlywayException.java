@@ -30,6 +30,15 @@ public class FlywayException extends RuntimeException {
     }
 
     /**
+     * Creates a new FlywayException with this cause. For use in subclasses that override getMessage().
+     *
+     * @param cause   The exception cause.
+     */
+    public FlywayException(Throwable cause) {
+        super(cause);
+    }
+
+    /**
      * Creates a new FlywayException with this message.
      *
      * @param message The exception message.
