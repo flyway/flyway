@@ -133,7 +133,7 @@ public abstract class ConcurrentMigrationTestCase {
         }
     }
 
-    private Flyway createFlyway() throws SQLException {
+    protected Flyway createFlyway() throws SQLException {
         Flyway newFlyway = new Flyway();
         newFlyway.setDataSource(concurrentMigrationDataSource);
         newFlyway.setLocations("migration/concurrent");
