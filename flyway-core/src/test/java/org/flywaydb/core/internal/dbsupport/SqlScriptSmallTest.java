@@ -35,7 +35,7 @@ public class SqlScriptSmallTest {
     /**
      * Class under test.
      */
-    private SqlScript sqlScript = new SqlScript(new MySQLDbSupport(null));
+    private SqlScript sqlScript = new SqlScript("", new MySQLDbSupport(null));
 
     /**
      * Input lines.

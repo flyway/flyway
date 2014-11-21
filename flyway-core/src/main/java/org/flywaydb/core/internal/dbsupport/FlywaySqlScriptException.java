@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.SQLException;
 
@@ -24,20 +26,19 @@ import java.sql.SQLException;
  */
 public class FlywaySqlScriptException extends FlywayException {
 
-    private final int lineNumber;
-    private final String statement;
+    private final Resource resource;
+    private final SqlStatement statement;
 
     /**
      * Creates new instance of FlywaySqlScriptException.
      *
-     * @param lineNumber   The line number in SQL script where exception occurred.
+     * @param resource     The resource containg the failed statement.
      * @param statement    The failed SQL statement.
      * @param sqlException Cause of the problem.
      */
-    public FlywaySqlScriptException(int lineNumber, String statement, SQLException sqlException) {
-        super("Error executing statement at line " + lineNumber + ": " + statement, sqlException);
-
-        this.lineNumber = lineNumber;
+    public FlywaySqlScriptException(Resource resource, SqlStatement statement, SQLException sqlException) {
+        super(sqlException);
+        this.resource = resource;
         this.statement = statement;
     }
 
@@ -47,7 +48,7 @@ public class FlywaySqlScriptException extends FlywayException {
      * @return The line number.
      */
     public int getLineNumber() {
-        return lineNumber;
+        return statement.getLineNumber();
     }
 
     /**
@@ -56,6 +57,29 @@ public class FlywaySqlScriptException extends FlywayException {
      * @return The failed statement.
      */
     public String getStatement() {
-        return statement;
+        return statement.getSql();
+    }
+
+    @Override
+    public String getMessage() {
+        String title = resource == null ? "Script failed" : "Migration " + resource.getFilename() + " failed";
+        String underline = StringUtils.trimOrPad("", title.length(), '-');
+
+        SQLException cause = (SQLException) getCause();
+        while (cause.getNextException() != null) {
+            cause = cause.getNextException();
+        }
+
+        String message = "\n" + title + "\n" + underline + "\n";
+        message += "SQL State  : " + cause.getSQLState() + "\n";
+        message += "Error Code : " + cause.getErrorCode() + "\n";
+        message += "Message    : " + cause.getMessage() + "\n";
+        if (resource != null) {
+            message += "Location   : " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")\n";
+        }
+        message += "Line       : " + getLineNumber() + "\n";
+        message += "Statement  : " + getStatement() + "\n";
+
+        return message;
     }
 }
