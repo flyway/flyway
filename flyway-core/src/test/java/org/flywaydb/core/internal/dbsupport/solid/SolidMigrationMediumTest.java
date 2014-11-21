@@ -29,14 +29,14 @@ package org.flywaydb.core.internal.dbsupport.solid;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
 @Category(DbCategory.SolidDB.class)
-public class SolidConcurrentMigrationTestCase extends ConcurrentMigrationTestCase {
+public class SolidMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(final Properties customProperties) throws Exception {
         final String user = customProperties.getProperty("solid.user", "flyway");
@@ -45,5 +45,10 @@ public class SolidConcurrentMigrationTestCase extends ConcurrentMigrationTestCas
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), "solid.jdbc.SolidDriver",
                                     url, user, password);
+    }
+
+    @Override
+    protected String getQuoteLocation() {
+        return "migration/quote";
     }
 }
