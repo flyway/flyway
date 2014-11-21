@@ -111,7 +111,7 @@ public class ClassPathScanner {
             try {
                 ClassUtils.instantiate(className, classLoader);
             } catch (Exception e) {
-                throw new FlywayException("Unable to instantiate class: " + className);
+                throw new FlywayException("Unable to instantiate class: " + className, e);
             }
 
             classes.add(clazz);
