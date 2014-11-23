@@ -27,6 +27,7 @@ import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
+import org.flywaydb.core.internal.dbsupport.timesten.TimesTenDbSupport;
 import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
@@ -86,6 +87,9 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
+        }
+        if (databaseProductName.startsWith("TimesTen")) {
+            return new TimesTenDbSupport(connection);
         }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
             // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
