@@ -41,6 +41,7 @@ public class DbCategory {
     public interface SQLServer extends CommercialDB {}
     public interface GoogleCloudSQL extends CommercialDB {}
 
+    public interface DB2as400 extends ContributorSupportedDB {}
     public interface DB2zOS extends ContributorSupportedDB {}
     public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}

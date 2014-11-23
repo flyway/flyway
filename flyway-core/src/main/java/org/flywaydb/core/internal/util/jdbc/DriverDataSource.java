@@ -36,6 +36,7 @@ import java.util.logging.Logger;
  * YAGNI: The simplest DataSource implementation that works for Flyway.
  */
 public class DriverDataSource implements DataSource {
+
     /**
      * The JDBC Driver instance to use.
      */
@@ -57,7 +58,8 @@ public class DriverDataSource implements DataSource {
     private final String password;
 
     /**
-     * The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * The (optional) sql statements to execute to initialize a connection
+     * immediately after obtaining it.
      */
     private final String[] initSqls;
 
@@ -80,11 +82,15 @@ public class DriverDataSource implements DataSource {
      * Creates a new DriverDataSource.
      *
      * @param classLoader The ClassLoader to use.
-     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
-     * @param url         The JDBC URL to use for connecting through the Driver. (required)
-     * @param user        The JDBC user to use for connecting through the Driver.
-     * @param password    The JDBC password to use for connecting through the Driver.
-     * @param initSqls    The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * @param driverClass The name of the JDBC Driver class to use. {@code null}
+     * for url-based autodetection.
+     * @param url The JDBC URL to use for connecting through the Driver.
+     * (required)
+     * @param user The JDBC user to use for connecting through the Driver.
+     * @param password The JDBC password to use for connecting through the
+     * Driver.
+     * @param initSqls The (optional) sql statements to execute to initialize a
+     * connection immediately after obtaining it.
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, String... initSqls) throws FlywayException {
@@ -183,6 +189,10 @@ public class DriverDataSource implements DataSource {
             return "com.vertica.jdbc.Driver";
         }
         
+        if (url.startsWith("jdbc:as400:")) {
+            return "com.ibm.as400.access.AS400JDBCDriver";
+        }
+
         return null;
     }
 
@@ -215,15 +225,16 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * @return The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
+     * @return The (optional) sql statements to execute to initialize a
+     * connection immediately after obtaining it.
      */
     public String[] getInitSqls() {
         return initSqls;
     }
 
     /**
-     * This implementation delegates to {@code getConnectionFromDriver},
-     * using the default user and password of this DataSource.
+     * This implementation delegates to {@code getConnectionFromDriver}, using
+     * the default user and password of this DataSource.
      *
      * @see #getConnectionFromDriver(String, String)
      */
@@ -232,8 +243,8 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
-     * This implementation delegates to {@code getConnectionFromDriver},
-     * using the given user and password.
+     * This implementation delegates to {@code getConnectionFromDriver}, using
+     * the given user and password.
      *
      * @see #getConnectionFromDriver(String, String)
      */
@@ -241,10 +252,9 @@ public class DriverDataSource implements DataSource {
         return getConnectionFromDriver(username, password);
     }
 
-
     /**
-     * Build properties for the Driver, including the given user and password (if any),
-     * and obtain a corresponding Connection.
+     * Build properties for the Driver, including the given user and password
+     * (if any), and obtain a corresponding Connection.
      *
      * @param username the name of the user
      * @param password the password to use
@@ -284,8 +294,8 @@ public class DriverDataSource implements DataSource {
 
         if (singleConnectionMode) {
             InvocationHandler suppressCloseHandler = new SuppressCloseHandler(connection);
-            singleConnection =
-                    (Connection) Proxy.newProxyInstance(classLoader, new Class[] {Connection.class}, suppressCloseHandler);
+            singleConnection
+                    = (Connection) Proxy.newProxyInstance(classLoader, new Class[]{Connection.class}, suppressCloseHandler);
             return singleConnection;
         }
 
@@ -321,6 +331,7 @@ public class DriverDataSource implements DataSource {
     }
 
     private static class SuppressCloseHandler implements InvocationHandler {
+
         private final Connection connection;
 
         public SuppressCloseHandler(Connection connection) {

@@ -835,6 +835,8 @@ public class Flyway {
                     } else {
                         if (nonEmptySchemas.size() == 1) {
                             Schema schema = nonEmptySchemas.get(0);
+                            System.out.println(schema.allTables()[0].getName());
+                            System.out.println(table + " exists ? " + schema.getTable(table).exists());
                             //Check whether we only have an empty metadata table in an otherwise empty schema
                             if (schema.allTables().length != 1 || !schema.getTable(table).exists()) {
                                 throw new FlywayException("Found non-empty schema " + schema
