@@ -26,11 +26,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -55,9 +50,9 @@
                         <exclude>**/*MediumTest.java</exclude>
                     </excludes>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <systemPropertyVariables>
+                    <systemProperties>
                         <installDir>${unpackDir}/flyway-${project.version}</installDir>
-                    </systemPropertyVariables>
+                    </systemProperties>
                     <parallel>none</parallel>
                 </configuration>
             </plugin>
@@ -82,7 +77,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>flyway-sample,hsqldb</includeArtifactIds>
+                            <includeArtifactIds>flyway-sample</includeArtifactIds>
                             <outputDirectory>${unpackDir}/flyway-${project.version}/jars</outputDirectory>
                         </configuration>
                     </execution>

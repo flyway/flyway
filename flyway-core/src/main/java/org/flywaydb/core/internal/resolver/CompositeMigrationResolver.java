@@ -141,12 +141,12 @@ public class CompositeMigrationResolver implements MigrationResolver {
             ResolvedMigration current = migrations.get(i);
             ResolvedMigration next = migrations.get(i + 1);
             if (current.getVersion().compareTo(next.getVersion()) == 0) {
-                throw new FlywayException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
+                throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                         current.getVersion(),
-                        current.getType(),
                         current.getPhysicalLocation(),
-                        next.getType(),
-                        next.getPhysicalLocation()));
+                        current.getType(),
+                        next.getPhysicalLocation(),
+                        next.getType()));
             }
         }
     }
