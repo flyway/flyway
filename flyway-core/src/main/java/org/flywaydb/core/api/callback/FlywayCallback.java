@@ -91,13 +91,31 @@ public interface FlywayCallback {
 	 * 
 	 * @param connection A valid connection to the database.
 	 */
-	void beforeInit(Connection connection);
+	void beforeBaseline(Connection connection);
 
 	/**
 	 * Runs after the baseline task executes.
 	 * 
 	 * @param connection A valid connection to the database.
 	 */
+	void afterBaseline(Connection connection);
+
+	/**
+	 * Runs before the baseline task executes.
+	 *
+	 * @param connection A valid connection to the database.
+	 * @deprecated Will be removed in Flyway 4.0. Use beforeBaseline() instead.
+	 */
+	@Deprecated
+	void beforeInit(Connection connection);
+
+	/**
+	 * Runs after the baseline task executes.
+	 *
+	 * @param connection A valid connection to the database.
+	 * @deprecated Will be removed in Flyway 4.0. Use afterBaseline() instead.
+	 */
+	@Deprecated
 	void afterInit(Connection connection);
 
 	/**
