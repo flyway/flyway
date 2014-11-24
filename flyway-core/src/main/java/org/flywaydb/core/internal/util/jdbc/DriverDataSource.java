@@ -37,6 +37,7 @@ import java.util.logging.Logger;
  */
 public class DriverDataSource implements DataSource {
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+    private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
 
     /**
      * The JDBC Driver instance to use.
@@ -133,7 +134,7 @@ public class DriverDataSource implements DataSource {
      * @return The Jdbc driver. {@code null} if none.
      */
     private String getBackupDriverForUrl(String url) {
-        if (url.startsWith("jdbc:mysql:")) {
+        if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
             return MARIADB_JDBC_DRIVER;
         }
 
@@ -175,7 +176,7 @@ public class DriverDataSource implements DataSource {
             return "org.sqldroid.SQLDroidDriver";
         }
 
-        if (url.startsWith("jdbc:mysql:")) {
+        if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
             return "com.mysql.jdbc.Driver";
         }
 
