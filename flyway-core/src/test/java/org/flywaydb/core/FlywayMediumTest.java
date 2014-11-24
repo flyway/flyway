@@ -198,6 +198,18 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void cleanUnknownSchema() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_clean_unknown;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setSchemas("new1");
+        flyway.clean();
+        flyway.clean();
+    }
+
+    @Test
     public void outOfOrder() {
         DriverDataSource dataSource =
                 new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "");
