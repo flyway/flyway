@@ -20,15 +20,12 @@ import org.flywaydb.core.Flyway;
 /**
  * Baselines an existing database, excluding all migrations up to and including baselineVersion.
  *
- * @goal init
- * @deprecated Will be removed in Flyway 4.0. Use flyway:baseline instead.
+ * @goal baseline
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
-@Deprecated
-public class InitMojo extends AbstractFlywayMojo {
+public class BaselineMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        log.warn("flyway:init is deprecated and will be removed in Flyway 4.0. Use flyway:baseline instead.");
         flyway.baseline();
     }
 }

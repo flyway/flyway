@@ -322,7 +322,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                     "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='INIT'");
             return count > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether the metadata table " + table + " has an init marker migration", e);
+            throw new FlywayException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
         }
     }
 

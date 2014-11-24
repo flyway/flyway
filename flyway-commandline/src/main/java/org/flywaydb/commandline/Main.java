@@ -109,8 +109,11 @@ public class Main {
     private static void executeOperation(Flyway flyway, String operation) {
         if ("clean".equals(operation)) {
             flyway.clean();
+        } else if ("baseline".equals(operation)) {
+            flyway.baseline();
         } else if ("init".equals(operation)) {
-            flyway.init();
+            LOG.warn("init is deprecated. Use baseline instead. Will be removed in Flyway 4.0.");
+            flyway.baseline();
         } else if ("migrate".equals(operation)) {
             flyway.migrate();
         } else if ("validate".equals(operation)) {
@@ -182,7 +185,7 @@ public class Main {
         LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
-        LOG.info("init     : Creates and initializes the metadata table");
+        LOG.info("baseline : Baselines an existing database at the baselineVersion");
         LOG.info("repair   : Repairs the metadata table");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
@@ -207,9 +210,9 @@ public class Main {
         LOG.info("callbacks              : Comma-separated list of FlywayCallback classes");
         LOG.info("validateOnMigrate      : Validate when running migrate");
         LOG.info("cleanOnValidationError : Automatically clean on a validation error");
-        LOG.info("initVersion            : Version to tag schema with when executing init");
-        LOG.info("initDescription        : Description to tag schema with when executing init");
-        LOG.info("initOnMigrate          : Init on migrate against uninitialized non-empty schema");
+        LOG.info("baselineVersion        : Version to tag schema with when executing baseline");
+        LOG.info("baselineDescription    : Description to tag schema with when executing baseline");
+        LOG.info("baselineOnMigrate      : Baseline on migrate against uninitialized non-empty schema");
         LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
         LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");

@@ -209,10 +209,10 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     /**
-     * Creates a new applied init migration with this version.
+     * Creates a new applied baseline migration with this version.
      *
      * @param version The version of the migration.
-     * @return The applied init migration.
+     * @return The applied baseline migration.
      */
     private AppliedMigration createAppliedInitMigration(int version) {
         return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",

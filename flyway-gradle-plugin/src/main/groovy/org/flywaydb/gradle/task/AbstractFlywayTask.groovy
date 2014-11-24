@@ -86,9 +86,14 @@ abstract class AbstractFlywayTask extends DefaultTask {
         def flyway = new Flyway()
         flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), prop("driver"), prop("url"), prop("user"), prop("password")))
 
-        propSet(flyway, 'table')
+        // Deprecated
         propSet(flyway, 'initVersion')
         propSet(flyway, 'initDescription')
+        propSetAsBoolean(flyway, 'initOnMigrate')
+
+        propSet(flyway, 'table')
+        propSet(flyway, 'baselineVersion')
+        propSet(flyway, 'baselineDescription')
         propSet(flyway, 'sqlMigrationPrefix')
         propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
@@ -99,7 +104,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSetAsBoolean(flyway, 'outOfOrder')
         propSetAsBoolean(flyway, 'validateOnMigrate')
         propSetAsBoolean(flyway, 'cleanOnValidationError')
-        propSetAsBoolean(flyway, 'initOnMigrate')
+        propSetAsBoolean(flyway, 'baselineOnMigrate')
 
         def sysSchemas = System.getProperty("flyway.schemas")
         if (sysSchemas != null) {
@@ -161,8 +166,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * @param throwable Throwable instance to be handled
      */
-    private void handleException(Throwable throwable)
-    {
+    private void handleException(Throwable throwable) {
         String message = "Error occurred while executing ${this.getName()}${System.lineSeparator()}" 
         throw new FlywayException(collectMessages(throwable, message, 5), throwable)
     }

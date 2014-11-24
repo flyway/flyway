@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.maven;
+package org.flywaydb.gradle.task
 
-import org.flywaydb.core.Flyway;
+import org.flywaydb.core.Flyway
 
-/**
- * Baselines an existing database, excluding all migrations up to and including baselineVersion.
- *
- * @goal init
- * @deprecated Will be removed in Flyway 4.0. Use flyway:baseline instead.
- */
-@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
-@Deprecated
-public class InitMojo extends AbstractFlywayMojo {
-    @Override
-    protected void doExecute(Flyway flyway) throws Exception {
-        log.warn("flyway:init is deprecated and will be removed in Flyway 4.0. Use flyway:baseline instead.");
-        flyway.baseline();
-    }
+class FlywayBaselineTask extends AbstractFlywayTask {
+
+  FlywayBaselineTask() {
+    description = 'Baselines an existing database, excluding all migrations up to and including baselineVersion.'
+  }
+
+  def run(Flyway flyway) {
+    flyway.init()
+  }
 }

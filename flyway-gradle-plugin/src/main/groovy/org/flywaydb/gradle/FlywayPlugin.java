@@ -17,6 +17,7 @@ package org.flywaydb.gradle;
 
 import org.flywaydb.gradle.task.FlywayCleanTask;
 import org.flywaydb.gradle.task.FlywayInfoTask;
+import org.flywaydb.gradle.task.FlywayBaselineTask;
 import org.flywaydb.gradle.task.FlywayInitTask;
 import org.flywaydb.gradle.task.FlywayMigrateTask;
 import org.flywaydb.gradle.task.FlywayRepairTask;
@@ -36,6 +37,7 @@ public class FlywayPlugin implements Plugin<Project> {
         project.getExtensions().create("flyway", FlywayExtension.class);
         project.getTasks().create("flywayClean", FlywayCleanTask.class);
         project.getTasks().create("flywayInit", FlywayInitTask.class);
+        project.getTasks().create("flywayBaseline", FlywayBaselineTask.class);
         project.getTasks().create("flywayMigrate", FlywayMigrateTask.class);
         project.getTasks().create("flywayValidate", FlywayValidateTask.class);
         project.getTasks().create("flywayInfo", FlywayInfoTask.class);

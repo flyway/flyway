@@ -17,13 +17,17 @@ package org.flywaydb.ant;
 
 import org.flywaydb.core.Flyway;
 
+
 /**
- * Ant task that initializes the metadata table in an existing schema.
+ * Baselines an existing database, excluding all migrations up to and including baselineVersion.
+ * @deprecated Use &lt;flyway:baseline/&gt; instead. Will be removed in Flyway 4.0.
  */
 @SuppressWarnings({"UnusedDeclaration"})
+@Deprecated
 public class InitTask extends AbstractFlywayTask {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        flyway.init();
+        log.warn("<flyway:init/> is deprecated and will be removed in Flyway 4.0. Use <flyway:baseline/> instead.");
+        flyway.baseline();
     }
 }
