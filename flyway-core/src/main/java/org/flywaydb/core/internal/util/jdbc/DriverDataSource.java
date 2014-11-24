@@ -36,10 +36,12 @@ import java.util.logging.Logger;
  * YAGNI: The simplest DataSource implementation that works for Flyway.
  */
 public class DriverDataSource implements DataSource {
+    private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+
     /**
      * The JDBC Driver instance to use.
      */
-    private final Driver driver;
+    private Driver driver;
 
     /**
      * The JDBC URL to use for connecting through the Driver.
@@ -100,19 +102,42 @@ public class DriverDataSource implements DataSource {
         if (!StringUtils.hasLength(driverClass)) {
             driverClass = detectDriverForUrl(url);
             if (!StringUtils.hasLength(driverClass)) {
-                throw new FlywayException("Unable to autodetect Jdbc driver for url: " + url);
+                throw new FlywayException("Unable to autodetect JDBC driver for url: " + url);
             }
         }
 
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
         } catch (Exception e) {
-            throw new FlywayException("Unable to instantiate jdbc driver: " + driverClass, e);
+            String backupDriverClass = getBackupDriverForUrl(url);
+            if (backupDriverClass == null) {
+                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass, e);
+            }
+            try {
+                this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
+            } catch (Exception e1) {
+                // Only report original exception about primary driver
+                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass, e);
+            }
         }
 
         this.user = user;
         this.password = password;
         this.initSqls = initSqls;
+    }
+
+    /**
+     * Retrieves a second choice backup driver for a jdbc url, in case the primary driver is not available.
+     *
+     * @param url The Jdbc url.
+     * @return The Jdbc driver. {@code null} if none.
+     */
+    private String getBackupDriverForUrl(String url) {
+        if (url.startsWith("jdbc:mysql:")) {
+            return MARIADB_JDBC_DRIVER;
+        }
+
+        return null;
     }
 
     /**
@@ -155,7 +180,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:mariadb:")) {
-            return "org.mariadb.jdbc.Driver";
+            return MARIADB_JDBC_DRIVER;
         }
 
         if (url.startsWith("jdbc:google:")) {
@@ -182,7 +207,7 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:vertica:")) {
             return "com.vertica.jdbc.Driver";
         }
-        
+
         return null;
     }
 
@@ -285,7 +310,7 @@ public class DriverDataSource implements DataSource {
         if (singleConnectionMode) {
             InvocationHandler suppressCloseHandler = new SuppressCloseHandler(connection);
             singleConnection =
-                    (Connection) Proxy.newProxyInstance(classLoader, new Class[] {Connection.class}, suppressCloseHandler);
+                    (Connection) Proxy.newProxyInstance(classLoader, new Class[]{Connection.class}, suppressCloseHandler);
             return singleConnection;
         }
 

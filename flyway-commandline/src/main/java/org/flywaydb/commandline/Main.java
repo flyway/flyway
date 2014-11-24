@@ -19,7 +19,6 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.PropertiesUtils;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -78,7 +77,8 @@ public class Main {
             loadConfigurationFile(properties, args);
             overrideConfiguration(properties, args);
 
-            loadJdbcDriversAndJavaMigrations(properties);
+            loadJdbcDrivers();
+            loadJavaMigrations(properties);
 
             Flyway flyway = new Flyway();
             flyway.configure(properties);
@@ -97,9 +97,6 @@ public class Main {
                 } else {
                     LOG.error(e.toString());
                 }
-                Throwable cause = ExceptionUtils.getRootCause(e);
-                LOG.error("Caused by: " + cause.toString());
-                outputFirstStackTraceElement(cause);
             }
             System.exit(1);
         }
@@ -149,26 +146,13 @@ public class Main {
     }
 
     /**
-     * Output class, method and line number infos of first stack trace element
-     * of the given {@link Throwable} using {@link Log#error(String)}.
-     *
-     * @param t {@link Throwable} to log
-     */
-    private static void outputFirstStackTraceElement(Throwable t) {
-        StackTraceElement firstStackTraceElement = t.getStackTrace()[0];
-        LOG.error("Occured in " + firstStackTraceElement.getClassName() + "."
-                + firstStackTraceElement.getMethodName() + "() at line "
-                + firstStackTraceElement.getLineNumber());
-    }
-
-    /**
      * Initializes the properties with the default configuration for the command-line tool.
      *
      * @param properties The properties object to initialize.
      */
     private static void initializeDefaults(Properties properties) {
-        properties.put("flyway.locations", "filesystem:" + getInstallationDir() + "/sql");
-        properties.put("flyway.jarDir", new File(getInstallationDir() + "/jars").getAbsolutePath());
+        properties.put("flyway.locations", "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
+        properties.put("flyway.jarDir", new File(getInstallationDir(), "jars").getAbsolutePath());
     }
 
     /**
@@ -243,12 +227,36 @@ public class Main {
     }
 
     /**
-     * Loads all the jars contained in the jars folder. (For Jdbc drivers and Java Migrations)
+     * Loads all the driver jars contained in the drivers folder. (For Jdbc drivers)
+     *
+     * @throws IOException When the jars could not be loaded.
+     */
+    private static void loadJdbcDrivers() throws IOException {
+        File driversDir = new File(getInstallationDir(), "drivers");
+        File[] files = driversDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        });
+
+        // see javadoc of listFiles(): null if given path is not a real directory
+        if (files == null) {
+            LOG.error("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
+            System.exit(1);
+        }
+
+        for (File file : files) {
+            addJarOrDirectoryToClasspath(file.getPath());
+        }
+    }
+
+    /**
+     * Loads all the jars contained in the jars folder. (For Java Migrations)
      *
      * @param properties The configured properties.
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJdbcDriversAndJavaMigrations(Properties properties) throws IOException {
+    private static void loadJavaMigrations(Properties properties) throws IOException {
         String directoryForJdbcDriversAndJavaMigrations = properties.getProperty("flyway.jarDir");
         File dir = new File(directoryForJdbcDriversAndJavaMigrations);
         File[] files = dir.listFiles(new FilenameFilter() {
@@ -281,7 +289,7 @@ public class Main {
         try {
             URL url = new File(name).toURI().toURL();
             URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
             method.setAccessible(true);
             method.invoke(sysloader, url);
         } catch (Exception e) {
