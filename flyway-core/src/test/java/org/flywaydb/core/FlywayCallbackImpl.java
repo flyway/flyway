@@ -26,7 +26,6 @@ import org.flywaydb.core.api.MigrationInfo;
  * notifications are getting called correctly
  * 
  * @author Dan Bunker
- *
  */
 public class FlywayCallbackImpl implements FlywayCallback {
 	private boolean beforeClean = false;
@@ -38,7 +37,9 @@ public class FlywayCallbackImpl implements FlywayCallback {
 	private boolean beforeValidate = false;
 	private boolean afterValidate = false;
 	private boolean beforeInit = false;
+	private boolean beforeBaseline = false;
 	private boolean afterInit = false;
+	private boolean afterBaseline = false;
 	private boolean beforeRepair = false;
 	private boolean afterRepair = false;
 	private boolean beforeInfo = false;
@@ -107,6 +108,18 @@ public class FlywayCallbackImpl implements FlywayCallback {
 	}
 
 	@Override
+	public void beforeBaseline(Connection dataConnection) {
+		beforeBaseline = true;
+        assertNotNull(dataConnection);
+	}
+
+	@Override
+	public void afterBaseline(Connection dataConnection) {
+		afterBaseline = true;
+        assertNotNull(dataConnection);
+	}
+
+	@Override
 	public void beforeRepair(Connection dataConnection) {
 		beforeRepair = true;
         assertNotNull(dataConnection);
@@ -168,6 +181,14 @@ public class FlywayCallbackImpl implements FlywayCallback {
 
 	public boolean isAfterInit() {
 		return afterInit;
+	}
+
+	public boolean isBeforeBaseline() {
+		return beforeBaseline;
+	}
+
+	public boolean isAfterBaseline() {
+		return afterBaseline;
 	}
 
 	public boolean isBeforeRepair() {
