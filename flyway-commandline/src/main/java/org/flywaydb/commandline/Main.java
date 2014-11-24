@@ -83,10 +83,8 @@ public class Main {
             Flyway flyway = new Flyway();
             flyway.configure(properties);
 
-            int consoleWidth = PropertiesUtils.getIntProperty(properties, "flyway.consoleWidth", 80);
-
             for (String operation : operations) {
-                executeOperation(flyway, operation, consoleWidth);
+                executeOperation(flyway, operation);
             }
         } catch (Exception e) {
             if (debug) {
@@ -107,9 +105,8 @@ public class Main {
      *
      * @param flyway       The Flyway instance.
      * @param operation    The operation to execute.
-     * @param consoleWidth The width of the console (in chars).
      */
-    private static void executeOperation(Flyway flyway, String operation, int consoleWidth) {
+    private static void executeOperation(Flyway flyway, String operation) {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("init".equals(operation)) {
@@ -119,7 +116,7 @@ public class Main {
         } else if ("validate".equals(operation)) {
             flyway.validate();
         } else if ("info".equals(operation)) {
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all(), consoleWidth));
+            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
         } else if ("repair".equals(operation)) {
             flyway.repair();
         } else {

@@ -31,14 +31,7 @@ if "%JAVA_HOME%"=="" (
  set JAVA_CMD="%JAVA_HOME%\bin\java.exe"
 )
 
-@REM Detect the width of the console
-for /F "usebackq tokens=2* skip=4 delims=: " %%A in (`mode con`) do (
-  set CONSOLE_WIDTH=%%A
-  goto ExitLoop
-)
-:ExitLoop
-
-%JAVA_CMD% -cp "lib\*;drivers\*" org.flywaydb.commandline.Main %* -consoleWidth=%CONSOLE_WIDTH%
+%JAVA_CMD% -cp "lib\*;drivers\*" org.flywaydb.commandline.Main %*
 
 @REM Save the exit code
 set JAVA_EXIT_CODE=%ERRORLEVEL%
