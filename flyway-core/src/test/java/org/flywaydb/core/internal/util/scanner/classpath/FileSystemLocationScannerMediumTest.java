@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.util.scanner.classpath;
 
+import org.flywaydb.core.internal.util.UrlUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -31,11 +32,10 @@ public class FileSystemLocationScannerMediumTest {
     @Test
     public void findResourceNamesFromFileSystem() throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        String url = classLoader.getResources("migration").nextElement().getFile();
-        String path = URLDecoder.decode(url, "UTF-8") + "/";
+        String path = UrlUtils.toFilePath(classLoader.getResources("migration").nextElement()) + File.separator;
 
         Set<String> resourceNames =
-                new FileSystemClassPathLocationScanner().findResourceNamesFromFileSystem(path, "sql", new File(path + "sql"));
+                new FileSystemClassPathLocationScanner().findResourceNamesFromFileSystem(path, "sql", new File(path, "sql"));
 
         assertEquals(4, resourceNames.size());
         String[] names = resourceNames.toArray(new String[4]);
