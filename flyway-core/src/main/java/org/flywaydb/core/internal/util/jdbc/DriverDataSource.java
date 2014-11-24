@@ -299,7 +299,7 @@ public class DriverDataSource implements DataSource {
             connection = driver.connect(url, props);
         } catch (SQLException e) {
             throw new FlywayException(
-                    "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "'", e);
+                    "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "': " + e.getMessage(), e);
         }
 
         for (String initSql : initSqls) {
