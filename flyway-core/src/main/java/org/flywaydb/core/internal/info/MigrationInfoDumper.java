@@ -56,7 +56,7 @@ public class MigrationInfoDumper {
         table.append(ruler);
 
         if (migrationInfos.length == 0) {
-            table.append("| No migrations found                                                         |\n");
+            table.append(StringUtils.trimOrPad("| No migrations found", ruler.length() - 2, ' ')).append("|\n");
         } else {
             for (MigrationInfo migrationInfo : migrationInfos) {
                 table.append("| ").append(StringUtils.trimOrPad(migrationInfo.getVersion().toString(), versionWidth));
