@@ -164,20 +164,20 @@ public class Flyway {
     private boolean cleanOnValidationError;
 
     /**
-     * The version to tag an existing schema with when executing init. (default: 1)
+     * The version to tag an existing schema with when executing baseline. (default: 1)
      */
-    private MigrationVersion initVersion = MigrationVersion.fromVersion("1");
+    private MigrationVersion baselineVersion = MigrationVersion.fromVersion("1");
 
     /**
-     * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)
+     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
      */
-    private String initDescription = "<< Flyway Init >>";
+    private String baselineDescription = "<< Flyway Baseline >>";
 
     /**
      * <p>
-     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
-     * Only migrations above {@code initVersion} will then be applied.
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
+     * Only migrations above {@code baselineVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
@@ -187,7 +187,7 @@ public class Flyway {
      * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
      * </p>
      */
-    private boolean initOnMigrate;
+    private boolean baselineOnMigrate;
 
     /**
      * Allows migrations to be run "out of order".
@@ -405,28 +405,28 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the version to tag an existing schema with when executing init.
+     * Retrieves the version to tag an existing schema with when executing baseline.
      *
-     * @return The version to tag an existing schema with when executing init. (default: 1)
+     * @return The version to tag an existing schema with when executing baseline. (default: 1)
      */
-    public MigrationVersion getInitVersion() {
-        return initVersion;
+    public MigrationVersion getBaselineVersion() {
+        return baselineVersion;
     }
 
     /**
-     * Retrieves the description to tag an existing schema with when executing init.
+     * Retrieves the description to tag an existing schema with when executing baseline.
      *
-     * @return The description to tag an existing schema with when executing init. (default: << Flyway Init >>)
+     * @return The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
      */
-    public String getInitDescription() {
-        return initDescription;
+    public String getBaselineDescription() {
+        return baselineDescription;
     }
 
     /**
      * <p>
-     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
-     * Only migrations above {@code initVersion} will then be applied.
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
+     * Only migrations above {@code baselineVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
@@ -436,10 +436,57 @@ public class Flyway {
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
      *
-     * @return {@code true} if init should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * @return {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
      */
+    public boolean isBaselineOnMigrate() {
+        return baselineOnMigrate;
+    }
+
+    /**
+     * Retrieves the version to tag an existing schema with when executing baseline.
+     *
+     * @return The version to tag an existing schema with when executing baseline. (default: 1)
+     * @deprecated Use getBaselineVersion() instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
+    public MigrationVersion getInitVersion() {
+        LOG.warn("Flyway.getInitVersion() is deprecated. Use getBaselineVersion() instead. Will be removed in Flyway 4.0.");
+        return baselineVersion;
+    }
+
+    /**
+     * Retrieves the description to tag an existing schema with when executing baseline.
+     *
+     * @return The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * @deprecated Use getBaselineDescription() instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
+    public String getInitDescription() {
+        LOG.warn("Flyway.getBaselineDescription() is deprecated. Use getBaselineDescription() instead. Will be removed in Flyway 4.0.");
+        return baselineDescription;
+    }
+
+    /**
+     * <p>
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
+     * Only migrations above {@code baselineVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake!
+     * </p>
+     *
+     * @return {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * @deprecated Use getBaselineDescription() instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
     public boolean isInitOnMigrate() {
-        return initOnMigrate;
+        LOG.warn("Flyway.isInitOnMigrate() is deprecated. Use isBaselineOnMigrate() instead. Will be removed in Flyway 4.0.");
+        return baselineOnMigrate;
     }
 
     /**
@@ -696,37 +743,37 @@ public class Flyway {
     }
 
     /**
-     * Sets the version to tag an existing schema with when executing init.
+     * Sets the version to tag an existing schema with when executing baseline.
      *
-     * @param initVersion The version to tag an existing schema with when executing init. (default: 1)
+     * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
-    public void setInitVersion(MigrationVersion initVersion) {
-        this.initVersion = initVersion;
+    public void setBaselineVersion(MigrationVersion baselineVersion) {
+        this.baselineVersion = baselineVersion;
     }
 
     /**
-     * Sets the version to tag an existing schema with when executing init.
+     * Sets the version to tag an existing schema with when executing baseline.
      *
-     * @param initVersion The version to tag an existing schema with when executing init. (default: 1)
+     * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
-    public void setInitVersion(String initVersion) {
-        this.initVersion = MigrationVersion.fromVersion(initVersion);
+    public void setBaselineVersion(String baselineVersion) {
+        this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
     }
 
     /**
-     * Sets the description to tag an existing schema with when executing init.
+     * Sets the description to tag an existing schema with when executing baseline.
      *
-     * @param initDescription The description to tag an existing schema with when executing init. (default: << Flyway Init >>)
+     * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
      */
-    public void setInitDescription(String initDescription) {
-        this.initDescription = initDescription;
+    public void setBaselineDescription(String baselineDescription) {
+        this.baselineDescription = baselineDescription;
     }
 
     /**
      * <p>
-     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initVersion} before executing the migrations.
-     * Only migrations above {@code initVersion} will then be applied.
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
+     * Only migrations above {@code baselineVersion} will then be applied.
      * </p>
      * <p>
      * This is useful for initial Flyway production deployments on projects with an existing DB.
@@ -736,10 +783,69 @@ public class Flyway {
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
      *
-     * @param initOnMigrate {@code true} if init should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
      */
+    public void setBaselineOnMigrate(boolean baselineOnMigrate) {
+        this.baselineOnMigrate = baselineOnMigrate;
+    }
+
+    /**
+     * Sets the version to tag an existing schema with when executing baseline.
+     *
+     * @param initVersion The version to tag an existing schema with when executing baseline. (default: 1)
+     * @deprecated Use setBaselineVersion() instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
+    public void setInitVersion(MigrationVersion initVersion) {
+        LOG.warn("Flyway.setInitVersion() is deprecated. Use setBaselineVersion() instead. Will be removed in Flyway 4.0.");
+        this.baselineVersion = initVersion;
+    }
+
+    /**
+     * Sets the version to tag an existing schema with when executing baseline.
+     *
+     * @param initVersion The version to tag an existing schema with when executing baseline. (default: 1)
+     * @deprecated Use setBaselineVersion() instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
+    public void setInitVersion(String initVersion) {
+        LOG.warn("Flyway.setInitVersion() is deprecated. Use setBaselineVersion() instead. Will be removed in Flyway 4.0.");
+        this.baselineVersion = MigrationVersion.fromVersion(initVersion);
+    }
+
+    /**
+     * Sets the description to tag an existing schema with when executing baseline.
+     *
+     * @param initDescription The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * @deprecated Use setBaselineDescription() instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
+    public void setInitDescription(String initDescription) {
+        LOG.warn("Flyway.setInitDescription() is deprecated. Use setBaselineDescription() instead. Will be removed in Flyway 4.0.");
+        this.baselineDescription = initDescription;
+    }
+
+    /**
+     * <p>
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
+     * Only migrations above {@code baselineVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake!
+     * </p>
+     *
+     * @param initOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * @deprecated Use setBaselineOnMigrate() instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
     public void setInitOnMigrate(boolean initOnMigrate) {
-        this.initOnMigrate = initOnMigrate;
+        LOG.warn("Flyway.setInitOnMigrate() is deprecated. Use setBaselineOnMigrate() instead. Will be removed in Flyway 4.0.");
+        this.baselineOnMigrate = initOnMigrate;
     }
 
     /**
@@ -828,9 +934,9 @@ public class Flyway {
                         }
                     }
 
-                    if (initOnMigrate || nonEmptySchemas.isEmpty()) {
-                        if (initOnMigrate && !nonEmptySchemas.isEmpty()) {
-                            new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription, callbacks).init();
+                    if (baselineOnMigrate || nonEmptySchemas.isEmpty()) {
+                        if (baselineOnMigrate && !nonEmptySchemas.isEmpty()) {
+                            new DbBaseline(connectionMetaDataTable, metaDataTable, baselineVersion, baselineDescription, callbacks).baseline();
                         }
                     } else {
                         if (nonEmptySchemas.size() == 1) {
@@ -838,14 +944,14 @@ public class Flyway {
                             //Check whether we only have an empty metadata table in an otherwise empty schema
                             if (schema.allTables().length != 1 || !schema.getTable(table).exists()) {
                                 throw new FlywayException("Found non-empty schema " + schema
-                                        + " without metadata table! Use init()"
-                                        + " or set initOnMigrate to true to initialize the metadata table.");
+                                        + " without metadata table! Use baseline()"
+                                        + " or set baselineOnMigrate to true to initialize the metadata table.");
                             }
                         } else {
                             throw new FlywayException("Found non-empty schemas "
                                     + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                    + " without metadata table! Use init()"
-                                    + " or set initOnMigrate to true to initialize the metadata table.");
+                                    + " without metadata table! Use baseline()"
+                                    + " or set baselineOnMigrate to true to initialize the metadata table.");
                         }
                     }
                 }
@@ -962,16 +1068,28 @@ public class Flyway {
     }
 
     /**
-     * Creates and initializes the Flyway metadata table.
+     * Baselines an existing database, excluding all migrations up to and including baselineVersion.
      *
-     * @throws FlywayException when the schema initialization failed.
+     * @throws FlywayException when the schema baselining failed.
+     * @deprecated Use baseline() instead. Will be removed in Flyway 4.0.
      */
+    @Deprecated
     public void init() throws FlywayException {
+        LOG.warn("Flyway.init() is deprecated. Use baseline() instead. Will be removed in Flyway 4.0.");
+        baseline();
+    }
+
+    /**
+     * Baselines an existing database, excluding all migrations up to and including baselineVersion.
+     *
+     * @throws FlywayException when the schema baselining failed.
+     */
+    public void baseline() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
-                new DbInit(connectionMetaDataTable, metaDataTable, initVersion, initDescription, callbacks).init();
+                new DbBaseline(connectionMetaDataTable, metaDataTable, baselineVersion, baselineDescription, callbacks).baseline();
                 return null;
             }
         });
@@ -1079,15 +1197,30 @@ public class Flyway {
         }
         String initVersionProp = properties.getProperty("flyway.initVersion");
         if (initVersionProp != null) {
-            setInitVersion(MigrationVersion.fromVersion(initVersionProp));
+            LOG.warn("flyway.initVersion is deprecated and will be removed in Flyway 4.0. Use flyway.baselineVersion instead.");
+            setBaselineVersion(MigrationVersion.fromVersion(initVersionProp));
         }
         String initDescriptionProp = properties.getProperty("flyway.initDescription");
         if (initDescriptionProp != null) {
-            setInitDescription(initDescriptionProp);
+            LOG.warn("flyway.initDescription is deprecated and will be removed in Flyway 4.0. Use flyway.baselineDescription instead.");
+            setBaselineDescription(initDescriptionProp);
         }
         String initOnMigrateProp = properties.getProperty("flyway.initOnMigrate");
         if (initOnMigrateProp != null) {
-            setInitOnMigrate(Boolean.parseBoolean(initOnMigrateProp));
+            LOG.warn("flyway.initOnMigrate is deprecated and will be removed in Flyway 4.0. Use flyway.baselineOnMigrate instead.");
+            setBaselineOnMigrate(Boolean.parseBoolean(initOnMigrateProp));
+        }
+        String baselineVersionProp = properties.getProperty("flyway.baselineVersion");
+        if (baselineVersionProp != null) {
+            setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
+        }
+        String baselineDescriptionProp = properties.getProperty("flyway.baselineDescription");
+        if (baselineDescriptionProp != null) {
+            setBaselineDescription(baselineDescriptionProp);
+        }
+        String baselineOnMigrateProp = properties.getProperty("flyway.baselineOnMigrate");
+        if (baselineOnMigrateProp != null) {
+            setBaselineOnMigrate(Boolean.parseBoolean(baselineOnMigrateProp));
         }
         String ignoreFailedFutureMigrationProp = properties.getProperty("flyway.ignoreFailedFutureMigration");
         if (ignoreFailedFutureMigrationProp != null) {

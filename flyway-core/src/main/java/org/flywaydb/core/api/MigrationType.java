@@ -25,7 +25,7 @@ public enum MigrationType {
     SCHEMA,
 
     /**
-     * The type for the metadata init migration.
+     * The type for the metadata baseline migration.
      */
     INIT,
 

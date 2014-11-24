@@ -13,22 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.maven;
+package org.flywaydb.ant;
 
 import org.flywaydb.core.Flyway;
 
 /**
  * Baselines an existing database, excluding all migrations up to and including baselineVersion.
- *
- * @goal init
- * @deprecated Will be removed in Flyway 4.0. Use flyway:baseline instead.
  */
-@SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
-@Deprecated
-public class InitMojo extends AbstractFlywayMojo {
+@SuppressWarnings({"UnusedDeclaration"})
+public class BaselineTask extends AbstractFlywayTask {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        log.warn("flyway:init is deprecated and will be removed in Flyway 4.0. Use flyway:baseline instead.");
         flyway.baseline();
     }
 }

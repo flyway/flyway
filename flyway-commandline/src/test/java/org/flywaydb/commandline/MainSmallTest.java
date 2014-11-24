@@ -36,7 +36,7 @@ public class MainSmallTest {
     @Test
     public void isPropertyArgument() {
         assertTrue(Main.isPropertyArgument("-user=SA"));
-        assertFalse(Main.isPropertyArgument("init"));
+        assertFalse(Main.isPropertyArgument("baseline"));
     }
 
     @Test

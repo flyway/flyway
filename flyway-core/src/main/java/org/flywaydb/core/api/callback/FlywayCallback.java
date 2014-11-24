@@ -87,14 +87,14 @@ public interface FlywayCallback {
 	void afterValidate(Connection connection);
 
 	/**
-	 * Runs before the init task executes.
+	 * Runs before the baseline task executes.
 	 * 
 	 * @param connection A valid connection to the database.
 	 */
 	void beforeInit(Connection connection);
 
 	/**
-	 * Runs after the init task executes.
+	 * Runs after the baseline task executes.
 	 * 
 	 * @param connection A valid connection to the database.
 	 */

@@ -52,22 +52,22 @@ public interface MetaDataTable {
     /**
      * Creates and initializes the Flyway metadata table.
      *
-     * @param initVersion     The version to tag an existing schema with when executing init.
-     * @param initDescription The description to tag an existing schema with when executing init.
+     * @param initVersion     The version to tag an existing schema with when executing baseline.
+     * @param initDescription The description to tag an existing schema with when executing baseline.
      */
     void addInitMarker(MigrationVersion initVersion, String initDescription);
 
     /**
-     * Checks whether the metadata table contains a marker row for schema init.
+     * Checks whether the metadata table contains a marker row for schema baseline.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
     boolean hasInitMarker();
 
     /**
-     * Retrieves the init marker from the metadata table.
+     * Retrieves the baseline marker from the metadata table.
      *
-     * @return The init marker or {@code null} if none could be found.
+     * @return The baseline marker or {@code null} if none could be found.
      */
     AppliedMigration getInitMarker();
 

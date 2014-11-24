@@ -29,10 +29,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Handles Flyway's init command.
+ * Handles Flyway's baseline command.
  */
-public class DbInit {
-    private static final Log LOG = LogFactory.getLog(DbInit.class);
+public class DbBaseline {
+    private static final Log LOG = LogFactory.getLog(DbBaseline.class);
 
     /**
      * The database connection to use for accessing the metadata table.
@@ -45,42 +45,42 @@ public class DbInit {
     private final MetaDataTable metaDataTable;
 
     /**
-     * The version to tag an existing schema with when executing init.
+     * The version to tag an existing schema with when executing baseline.
      */
-    private final MigrationVersion initVersion;
+    private final MigrationVersion baselineVersion;
 
     /**
-     * The description to tag an existing schema with when executing init.
+     * The description to tag an existing schema with when executing baseline.
      */
-    private final String initDescription;
+    private final String baselineDescription;
 
     /**
-     * This is a list of callbacks that fire before or after the init task is executed.
+     * This is a list of callbacks that fire before or after the baseline task is executed.
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
     private final FlywayCallback[] callbacks;
 
     /**
-     * Creates a new DbInit.
+     * Creates a new DbBaseline.
      *
      * @param connection      The database connection to use for accessing the metadata table.
      * @param metaDataTable   The metadata table.
-     * @param initVersion     The version to tag an existing schema with when executing init.
-     * @param initDescription The description to tag an existing schema with when executing init.
+     * @param baselineVersion     The version to tag an existing schema with when executing baseline.
+     * @param baselineDescription The description to tag an existing schema with when executing baseline.
      */
-    public DbInit(Connection connection, MetaDataTable metaDataTable, MigrationVersion initVersion, String initDescription, FlywayCallback[] callbacks) {
+    public DbBaseline(Connection connection, MetaDataTable metaDataTable, MigrationVersion baselineVersion, String baselineDescription, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.metaDataTable = metaDataTable;
-        this.initVersion = initVersion;
-        this.initDescription = initDescription;
+        this.baselineVersion = baselineVersion;
+        this.baselineDescription = baselineDescription;
         this.callbacks = callbacks;
     }
 
     /**
-     * Initializes the database.
+     * Baselines the database.
      */
-    public void init() {
+    public void baseline() {
         for (final FlywayCallback callback : callbacks) {
             new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
                 @Override
@@ -94,31 +94,31 @@ public class DbInit {
         new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
             public Void doInTransaction() {
                 if (metaDataTable.hasAppliedMigrations()) {
-                    throw new FlywayException("Unable to init metadata table " + metaDataTable + " as it already contains migrations");
+                    throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
                 }
                 if (metaDataTable.hasInitMarker()) {
                     AppliedMigration initMarker = metaDataTable.getInitMarker();
-                    if (initVersion.equals(initMarker.getVersion())
-                            && initDescription.equals(initMarker.getDescription())) {
+                    if (baselineVersion.equals(initMarker.getVersion())
+                            && baselineDescription.equals(initMarker.getDescription())) {
                         LOG.info("Metadata table " + metaDataTable + " already initialized with ("
-                                + initVersion + "," + initDescription + "). Skipping.");
+                                + baselineVersion + "," + baselineDescription + "). Skipping.");
                         return null;
                     }
-                    throw new FlywayException("Unable to init metadata table " + metaDataTable + " with ("
-                            + initVersion + "," + initDescription
+                    throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with ("
+                            + baselineVersion + "," + baselineDescription
                             + ") as it has already been initialized with ("
                             + initMarker.getVersion() + "," + initMarker.getDescription() + ")");
                 }
-                if (metaDataTable.hasSchemasMarker() && initVersion.equals(MigrationVersion.fromVersion("0"))) {
-                    throw new FlywayException("Unable to init metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
+                if (metaDataTable.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
+                    throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
                 }
-                metaDataTable.addInitMarker(initVersion, initDescription);
+                metaDataTable.addInitMarker(baselineVersion, baselineDescription);
 
                 return null;
             }
         });
 
-        LOG.info("Schema initialized with version: " + initVersion);
+        LOG.info("Schema baselined with version: " + baselineVersion);
 
         for (final FlywayCallback callback : callbacks) {
             new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
