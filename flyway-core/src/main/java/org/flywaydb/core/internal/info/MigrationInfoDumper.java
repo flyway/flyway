@@ -23,6 +23,9 @@ import org.flywaydb.core.internal.util.StringUtils;
  * Dumps migrations in an ascii-art table in the logs and the console.
  */
 public class MigrationInfoDumper {
+    private static final String VERSION_TITLE = "Version";
+    private static final String DESCRIPTION_TITLE = "Description";
+
     /**
      * Prevent instantiation.
      */
@@ -37,8 +40,8 @@ public class MigrationInfoDumper {
      * @return The ascii table, as one big multi-line string.
      */
     public static String dumpToAsciiTable(MigrationInfo[] migrationInfos) {
-        int versionWidth = 7;
-        int descriptionWidth = 11;
+        int versionWidth = VERSION_TITLE.length();
+        int descriptionWidth = DESCRIPTION_TITLE.length();
 
         for (MigrationInfo migrationInfo : migrationInfos) {
             versionWidth = Math.max(versionWidth, migrationInfo.getVersion().toString().length());
@@ -50,8 +53,8 @@ public class MigrationInfoDumper {
 
         StringBuilder table = new StringBuilder();
         table.append(ruler);
-        table.append("| ").append(StringUtils.trimOrPad("Version", versionWidth, ' '))
-                .append(" | ").append(StringUtils.trimOrPad("Description", descriptionWidth))
+        table.append("| ").append(StringUtils.trimOrPad(VERSION_TITLE, versionWidth, ' '))
+                .append(" | ").append(StringUtils.trimOrPad(DESCRIPTION_TITLE, descriptionWidth))
                 .append(" | Installed on        | State   |\n");
         table.append(ruler);
 
