@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.util;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -37,18 +38,14 @@ public class UrlUtils {
      * @return The file path.
      */
     public static String toFilePath(URL url) {
-        String filePath;
-
         try {
-            filePath = URLDecoder.decode(url.getPath(), "UTF-8");
+            String filePath = new File(URLDecoder.decode(url.getPath().replace("+", "%2b"), "UTF-8")).getAbsolutePath();
+            if (filePath.endsWith("/")) {
+                return filePath.substring(0, filePath.length() - 1);
+            }
+            return filePath;
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("Can never happen", e);
         }
-
-        if (filePath.endsWith("/")) {
-            filePath = filePath.substring(0, filePath.length() - 1);
-        }
-
-        return filePath;
     }
 }
