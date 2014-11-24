@@ -74,6 +74,16 @@ class DefaultFlywayCallback implements FlywayCallback {
 	}
 
 	@Override
+	void beforeBaseline(Connection connection) {
+		LOG.info("beforeBaseline")
+	}
+
+	@Override
+	void afterBaseline(Connection connection) {
+		LOG.info("afterBaseline")
+	}
+
+	@Override
 	public void beforeInit(Connection dataConnection) {
 		LOG.info("beforeInit")
 	}
