@@ -73,9 +73,9 @@ public class DbValidate {
     private final boolean outOfOrder;
 
     /**
-     * Whether pending migrations are allowed.
+     * Whether pending or future migrations are allowed.
      */
-    private final boolean pending;
+    private final boolean pendingOrFuture;
 
     /**
      * This is a list of callbacks that fire before or after the validate task is executed.
@@ -92,19 +92,19 @@ public class DbValidate {
      * @param migrationResolver       The migration resolver.
      * @param target                  The target version of the migration.
      * @param outOfOrder              Allows migrations to be run "out of order".
-     * @param pending                 Whether pending migrations are allowed.
+     * @param pendingOrFuture         Whether pending or future migrations are allowed.
      * @param callbacks               The lifecycle callbacks.
      */
     public DbValidate(Connection connectionMetaDataTable, Connection connectionUserObjects,
                       MetaDataTable metaDataTable, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pending, FlywayCallback[] callbacks) {
+                      MigrationVersion target, boolean outOfOrder, boolean pendingOrFuture, FlywayCallback[] callbacks) {
         this.connectionMetaDataTable = connectionMetaDataTable;
         this.connectionUserObjects = connectionUserObjects;
         this.metaDataTable = metaDataTable;
         this.migrationResolver = migrationResolver;
         this.target = target;
         this.outOfOrder = outOfOrder;
-        this.pending = pending;
+        this.pendingOrFuture = pendingOrFuture;
         this.callbacks = callbacks;
     }
 
@@ -131,7 +131,7 @@ public class DbValidate {
         Pair<Integer, String> result = new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Pair<Integer, String>>() {
             public Pair<Integer, String> doInTransaction() {
                 MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending);
+                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pendingOrFuture);
 
                 migrationInfoService.refresh();
 

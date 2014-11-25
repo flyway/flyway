@@ -298,6 +298,8 @@ public class FlywayMediumTest {
         flyway.migrate();
 
         flyway.setLocations("migration/empty");
+        flyway.setValidateOnMigrate(true);
+        flyway.migrate();
         assertEquals(MigrationState.FUTURE_SUCCESS, flyway.info().applied()[0].getState());
     }
 
