@@ -1003,13 +1003,13 @@ public class Flyway {
      * @param migrationResolver       The migration resolver;
      * @param metaDataTable           The metadata table.
      * @param schemas                 The schemas managed by Flyway.
-     * @param pending                 Whether pending migrations are ok.
+     * @param pendingOrFuture         Whether pending or future migrations are ok.
      */
     private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver,
-                            MetaDataTable metaDataTable, Schema[] schemas, boolean pending) {
+                            MetaDataTable metaDataTable, Schema[] schemas, boolean pendingOrFuture) {
         String validationError =
                 new DbValidate(connectionMetaDataTable, connectionUserObjects, metaDataTable, migrationResolver,
-                        target, outOfOrder, pending, callbacks).validate();
+                        target, outOfOrder, pendingOrFuture, callbacks).validate();
 
         if (validationError != null) {
             if (cleanOnValidationError) {

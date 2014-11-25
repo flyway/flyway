@@ -174,14 +174,15 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
-        if ((resolvedMigration == null)
+        if (!context.pendingOrFuture
+                && (resolvedMigration == null)
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getType() != MigrationType.INIT)) {
             return "Detected applied migration missing on the classpath: " + getVersion();
         }
 
-        if ((!context.pending && (MigrationState.PENDING == getState()))
+        if ((!context.pendingOrFuture && (MigrationState.PENDING == getState()))
                 || (MigrationState.IGNORED == getState())) {
             return "Migration on the classpath has not been applied to database: " + getVersion();
         }
