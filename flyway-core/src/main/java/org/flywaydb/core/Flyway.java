@@ -21,6 +21,7 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
@@ -1122,10 +1123,16 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
-        PlaceholderReplacer placeholderReplacer =
-                new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
         return new CompositeMigrationResolver(dbSupport, classLoader, locations,
-                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, placeholderReplacer, resolvers);
+                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, createPlaceholderReplacer(),
+                resolvers);
+    }
+
+    /**
+     * @return A new, fully configured, PlaceholderReplacer.
+     */
+    private PlaceholderReplacer createPlaceholderReplacer() {
+        return new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
     }
 
     /**
@@ -1299,6 +1306,11 @@ public class Flyway {
             Schema[] schemas = new Schema[schemaNames.length];
             for (int i = 0; i < schemaNames.length; i++) {
                 schemas[i] = dbSupport.getSchema(schemaNames[i]);
+            }
+
+            if (callbacks.length == 0) {
+                setCallbacks(new SqlScriptFlywayCallback(dbSupport, classLoader, locations, createPlaceholderReplacer(),
+                        encoding, sqlMigrationSuffix));
             }
 
             result = command.execute(connectionMetaDataTable, connectionUserObjects, dbSupport, schemas);
