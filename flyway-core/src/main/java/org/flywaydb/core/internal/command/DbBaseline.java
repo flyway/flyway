@@ -97,10 +97,10 @@ public class DbBaseline {
                 if (metaDataTable.hasAppliedMigrations()) {
                     throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
                 }
-                if (metaDataTable.hasInitMarker()) {
-                    AppliedMigration initMarker = metaDataTable.getInitMarker();
-                    if (baselineVersion.equals(initMarker.getVersion())
-                            && baselineDescription.equals(initMarker.getDescription())) {
+                if (metaDataTable.hasBaselineMarker()) {
+                    AppliedMigration baselineMarker = metaDataTable.getBaselineMarker();
+                    if (baselineVersion.equals(baselineMarker.getVersion())
+                            && baselineDescription.equals(baselineMarker.getDescription())) {
                         LOG.info("Metadata table " + metaDataTable + " already initialized with ("
                                 + baselineVersion + "," + baselineDescription + "). Skipping.");
                         return null;
@@ -108,12 +108,12 @@ public class DbBaseline {
                     throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with ("
                             + baselineVersion + "," + baselineDescription
                             + ") as it has already been initialized with ("
-                            + initMarker.getVersion() + "," + initMarker.getDescription() + ")");
+                            + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
                 }
                 if (metaDataTable.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
                     throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
                 }
-                metaDataTable.addInitMarker(baselineVersion, baselineDescription);
+                metaDataTable.addBaselineMarker(baselineVersion, baselineDescription);
 
                 return null;
             }

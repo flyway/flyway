@@ -126,7 +126,7 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     @Test
-    public void preInit() {
+    public void belowBaseline() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
                         createMigrationResolver(createAvailableMigration(1)),
@@ -135,7 +135,7 @@ public class MigrationInfoServiceImplSmallTest {
         migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
-        assertEquals(MigrationState.PREINIT, migrationInfoService.all()[0].getState());
+        assertEquals(MigrationState.BELOW_BASELINE, migrationInfoService.all()[0].getState());
         assertEquals(2, migrationInfoService.all().length);
         assertEquals(0, migrationInfoService.pending().length);
     }
