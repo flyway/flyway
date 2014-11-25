@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -108,19 +107,13 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        Resource[] resources;
-        try {
-            resources = scanner.scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
+        Resource[] resources = scanner.scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
+        for (Resource resource : resources) {
+            ResolvedMigrationImpl resolvedMigration = extractMigrationInfo(resource);
+            resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
+            resolvedMigration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
 
-            for (Resource resource : resources) {
-                ResolvedMigrationImpl resolvedMigration = extractMigrationInfo(resource);
-                resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
-                resolvedMigration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
-
-                migrations.add(resolvedMigration);
-            }
-        } catch (Exception e) {
-            throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
+            migrations.add(resolvedMigration);
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());

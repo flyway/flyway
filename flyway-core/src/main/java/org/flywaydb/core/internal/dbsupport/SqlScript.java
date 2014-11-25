@@ -91,6 +91,13 @@ public class SqlScript {
     }
 
     /**
+     * @return The resource containing the statements.
+     */
+    public Resource getResource() {
+        return resource;
+    }
+
+    /**
      * Executes this script against the database.
      *
      * @param jdbcTemplate The jdbc template to use to execute this script.

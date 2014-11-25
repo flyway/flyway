@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.util.scanner;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.scanner.android.AndroidScanner;
@@ -38,18 +39,21 @@ public class Scanner {
      * @param prefix   The prefix of the resource names to match.
      * @param suffix   The suffix of the resource names to match.
      * @return The resources that were found.
-     * @throws java.io.IOException when the location could not be scanned.
      */
-    public Resource[] scanForResources(Location location, String prefix, String suffix) throws Exception {
-        if (location.isFileSystem()) {
-            return new FileSystemScanner().scanForResources(location.getPath(), prefix, suffix);
-        }
+    public Resource[] scanForResources(Location location, String prefix, String suffix) {
+        try {
+            if (location.isFileSystem()) {
+                return new FileSystemScanner().scanForResources(location.getPath(), prefix, suffix);
+            }
 
-        if (new FeatureDetector(classLoader).isAndroidAvailable()) {
-            return new AndroidScanner(classLoader).scanForResources(location.getPath(), prefix, suffix);
-        }
+            if (new FeatureDetector(classLoader).isAndroidAvailable()) {
+                return new AndroidScanner(classLoader).scanForResources(location.getPath(), prefix, suffix);
+            }
 
-        return new ClassPathScanner(classLoader).scanForResources(location.getPath(), prefix, suffix);
+            return new ClassPathScanner(classLoader).scanForResources(location.getPath(), prefix, suffix);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
+        }
     }
 
 

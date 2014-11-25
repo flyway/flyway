@@ -110,6 +110,22 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void callback() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_callback;DB_CLOSE_DELAY=-1", "sa", "", "SET AUTOCOMMIT OFF");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+
+        flyway.setLocations("migration/callback");
+        flyway.migrate();
+        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+
+        assertEquals("Mr Callback", new JdbcTemplate(dataSource.getConnection(), 0).queryForString("SELECT name FROM test_user"));
+    }
+
+    @Test
     public void repairFirst() throws Exception {
         DriverDataSource dataSource =
                 new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "", "SET AUTOCOMMIT OFF");
