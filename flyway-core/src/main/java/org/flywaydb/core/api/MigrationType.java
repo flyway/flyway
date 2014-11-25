@@ -27,7 +27,13 @@ public enum MigrationType {
     /**
      * The type for the metadata baseline migration.
      */
+    @Deprecated
     INIT,
+
+    /**
+     * The type for the metadata baseline migration.
+     */
+    BASELINE,
 
     /**
      * The type for sql migrations.
@@ -47,5 +53,5 @@ public enum MigrationType {
     /**
      * The type for other migrations by custom MigrationResolvers.
      */
-    CUSTOM;
+    CUSTOM
 }

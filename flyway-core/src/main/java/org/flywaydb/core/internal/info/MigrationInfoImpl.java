@@ -110,8 +110,8 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     public MigrationState getState() {
         if (appliedMigration == null) {
-            if (resolvedMigration.getVersion().compareTo(context.init) < 0) {
-                return MigrationState.PREINIT;
+            if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
+                return MigrationState.BELOW_BASELINE;
             }
             if (resolvedMigration.getVersion().compareTo(context.target) > 0) {
                 return MigrationState.ABOVE_TARGET;
@@ -127,8 +127,8 @@ public class MigrationInfoImpl implements MigrationInfo {
                 return MigrationState.SUCCESS;
             }
 
-            if (MigrationType.INIT == appliedMigration.getType()) {
-                return MigrationState.SUCCESS;
+            if ((MigrationType.BASELINE == appliedMigration.getType()) || (MigrationType.INIT == appliedMigration.getType())) {
+                return MigrationState.BASELINE;
             }
 
             if (getVersion().compareTo(context.lastResolved) < 0) {
@@ -176,6 +176,7 @@ public class MigrationInfoImpl implements MigrationInfo {
     public String validate() {
         if ((resolvedMigration == null)
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
+                && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getType() != MigrationType.INIT)) {
             return "Detected applied migration missing on the classpath: " + getVersion();
         }
@@ -186,7 +187,7 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (resolvedMigration != null && appliedMigration != null) {
-            if (getVersion().compareTo(context.init) > 0) {
+            if (getVersion().compareTo(context.baseline) > 0) {
                 if (resolvedMigration.getType() != appliedMigration.getType()) {
                     return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
                             appliedMigration.getScript(), appliedMigration.getType(), resolvedMigration.getType());

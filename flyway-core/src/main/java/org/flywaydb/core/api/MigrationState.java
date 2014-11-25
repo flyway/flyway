@@ -30,9 +30,21 @@ public enum MigrationState {
     ABOVE_TARGET(">Target", true, false, false),
 
     /**
-     * This migration was not applied against this DB, because the metadata table was initialized with a higher version.
+     * This migration was not applied against this DB, because the metadata table was baselined with a higher version.
+     * @deprecated Will be removed in Flyway 4.0. Use BELOW_BASELINE instead.
      */
-    PREINIT("PreInit", true, false, false),
+    @Deprecated
+    PREINIT("<Baseln", true, false, false),
+
+    /**
+     * This migration was not applied against this DB, because the metadata table was baselined with a higher version.
+     */
+    BELOW_BASELINE("<Baseln", true, false, false),
+
+    /**
+     * This migration has baselined this DB.
+     */
+    BASELINE("Baselin", true, true, false),
 
     /**
      * <p>This usually indicates a problem.</p>
