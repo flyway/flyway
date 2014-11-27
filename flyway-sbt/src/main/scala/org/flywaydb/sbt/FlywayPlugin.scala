@@ -32,7 +32,7 @@ import org.flywaydb.core.internal.util.ClassUtils
 import org.flywaydb.core.api.resolver.MigrationResolver
 import org.flywaydb.core.api.callback.FlywayCallback
 
-object FlywayPlugin extends Plugin {
+object FlywayPlugin extends AutoPlugin {
 
   //*********************
   // common migration settings for all tasks
