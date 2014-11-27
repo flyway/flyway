@@ -14,14 +14,15 @@ resolvers += (
     "Local Maven Repository" at Path.userHome.asFile.toURI.toURL + ".m2/repository"
 )
 
-seq(flywaySettings: _*)
-
 flywayUrl := "jdbc:hsqldb:file:target/flyway_sample;shutdown=true"
 
 flywayUser := "SA"
 
 flywayLocations += "db/sbt"
 
+flywayUrl in Test := "jdbc:hsqldb:file:target/flyway_sample;shutdown=true"
+
+flywayUser in Test := "SA"
 
 
 
