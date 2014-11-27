@@ -7,7 +7,7 @@
 Simple, focused and powerful.
 
 #### Works on
-Windows, Mac OSX, Linux, Java and Android, 
+Windows, Mac OSX, Linux, Java and Android
 
 #### Supported build tools
 Maven, Gradle, Ant and SBT
