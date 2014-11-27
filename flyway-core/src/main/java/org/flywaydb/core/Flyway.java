@@ -1276,6 +1276,8 @@ public class Flyway {
         Connection connectionMetaDataTable = null;
         Connection connectionUserObjects = null;
 
+        boolean callbackAutoAdded = false;
+
         try {
             if (dataSource == null) {
                 throw new FlywayException("DataSource not set! Check your configuration!");
@@ -1311,10 +1313,15 @@ public class Flyway {
             if (callbacks.length == 0) {
                 setCallbacks(new SqlScriptFlywayCallback(dbSupport, classLoader, locations, createPlaceholderReplacer(),
                         encoding, sqlMigrationSuffix));
+                callbackAutoAdded = true;
             }
 
             result = command.execute(connectionMetaDataTable, connectionUserObjects, dbSupport, schemas);
         } finally {
+            if (callbackAutoAdded) {
+                setCallbacks(new String[0]);
+            }
+
             JdbcUtils.closeConnection(connectionUserObjects);
             JdbcUtils.closeConnection(connectionMetaDataTable);
 
