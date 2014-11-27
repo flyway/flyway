@@ -45,8 +45,9 @@ import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
- * <p/>
+ * <p>
  * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
+ * </p>
  */
 public class Flyway {
     private static final Log LOG = LogFactory.getLog(Flyway.class);
@@ -58,13 +59,13 @@ public class Flyway {
 
     /**
      * The locations to scan recursively for migrations.
-     * <p/>
+     *
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
      * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
      * migrations.</p>
-     * <p/>
+     *
      * (default: db/migration)
      */
     private Locations locations = new Locations("db/migration");
@@ -116,7 +117,7 @@ public class Flyway {
 
     /**
      * The file name prefix for sql migrations. (default: V)
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -124,7 +125,7 @@ public class Flyway {
 
     /**
      * The file name separator for sql migrations. (default: __)
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -132,7 +133,7 @@ public class Flyway {
 
     /**
      * The file name suffix for sql migrations. (default: .sql)
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -155,7 +156,7 @@ public class Flyway {
     private boolean validateOnMigrate = true;
 
     /**
-     * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
+     * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})
      * <p> This is exclusively intended as a convenience for development. Even tough we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
@@ -170,7 +171,7 @@ public class Flyway {
     private MigrationVersion baselineVersion = MigrationVersion.fromVersion("1");
 
     /**
-     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      */
     private String baselineDescription = "<< Flyway Baseline >>";
 
@@ -239,7 +240,7 @@ public class Flyway {
 
     /**
      * Retrieves the locations to scan recursively for migrations.
-     * <p/>
+     *
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
@@ -332,7 +333,7 @@ public class Flyway {
 
     /**
      * Retrieves the file name prefix for sql migrations.
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -344,7 +345,7 @@ public class Flyway {
 
     /**
      * Retrieves the file name separator for sql migrations.
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -356,7 +357,7 @@ public class Flyway {
 
     /**
      * Retrieves the file name suffix for sql migrations.
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -392,7 +393,7 @@ public class Flyway {
     }
 
     /**
-     * Whether to automatically call clean or not when a validation error occurs.<br/>
+     * Whether to automatically call clean or not when a validation error occurs.
      * <p> This is exclusively intended as a convenience for development. Even tough we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
@@ -417,7 +418,7 @@ public class Flyway {
     /**
      * Retrieves the description to tag an existing schema with when executing baseline.
      *
-     * @return The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * @return The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      */
     public String getBaselineDescription() {
         return baselineDescription;
@@ -458,7 +459,7 @@ public class Flyway {
     /**
      * Retrieves the description to tag an existing schema with when executing baseline.
      *
-     * @return The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * @return The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      * @deprecated Use getBaselineDescription() instead. Will be removed in Flyway 4.0.
      */
     @Deprecated
@@ -556,7 +557,7 @@ public class Flyway {
     }
 
     /**
-     * Whether to automatically call clean or not when a validation error occurs.<br/>
+     * Whether to automatically call clean or not when a validation error occurs.
      * <p> This is exclusively intended as a convenience for development. Even tough we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
      * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
@@ -571,7 +572,7 @@ public class Flyway {
 
     /**
      * Sets the locations to scan recursively for migrations.
-     * <p/>
+     *
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
@@ -671,7 +672,7 @@ public class Flyway {
 
     /**
      * Sets the file name prefix for sql migrations.
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -683,7 +684,7 @@ public class Flyway {
 
     /**
      * Sets the file name separator for sql migrations.
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -699,7 +700,7 @@ public class Flyway {
 
     /**
      * Sets the file name suffix for sql migrations.
-     * <p/>
+     *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -721,7 +722,7 @@ public class Flyway {
 
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     * <p/>
+     *
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param url      The JDBC URL of the database.
@@ -764,7 +765,7 @@ public class Flyway {
     /**
      * Sets the description to tag an existing schema with when executing baseline.
      *
-     * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      */
     public void setBaselineDescription(String baselineDescription) {
         this.baselineDescription = baselineDescription;
@@ -817,7 +818,7 @@ public class Flyway {
     /**
      * Sets the description to tag an existing schema with when executing baseline.
      *
-     * @param initDescription The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * @param initDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
      * @deprecated Use setBaselineDescription() instead. Will be removed in Flyway 4.0.
      */
     @Deprecated
@@ -1138,7 +1139,7 @@ public class Flyway {
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
-     * <p/>
+     *
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
