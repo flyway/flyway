@@ -1,7 +1,7 @@
 # Flyway [![Build Status](https://travis-ci.org/flyway/flyway.png)](https://travis-ci.org/flyway/flyway)
 ### Database Migrations Made Easy.
 
-![alt text](http://flywaydb.org/assets/logo/flyway-logo-transparent-300.png "Flyway")
+![alt text](http://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
 
 #### Evolve your database schema easily and reliably across all your instances.
 Simple, focused and powerful.
