@@ -608,7 +608,7 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
                             <encoding>UTF-8</encoding>
-                            <failOnError>false</failOnError>
+                            <additionalparam>-Xdoclint:none</additionalparam>
                         </configuration>
                         <executions>
                             <execution>
