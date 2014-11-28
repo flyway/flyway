@@ -153,7 +153,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.baselineVersion"
      */
-    private String baselineVersion = flyway.getBaselineVersion().getVersion();
+    private String baselineVersion;
 
     /**
      * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)<br>
@@ -161,7 +161,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.baselineDescription"
      */
-    private String baselineDescription = flyway.getBaselineDescription();
+    private String baselineDescription;
 
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
@@ -340,7 +340,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.baselineOnMigrate"
      */
-    private boolean baselineOnMigrate = flyway.isBaselineOnMigrate();
+    private Boolean baselineOnMigrate;
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: {@code true})<br/>
@@ -448,8 +448,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 log.warn("flyway.initDescription is deprecated. Use baselineDescription instead. Will be removed in Flyway 4.0.");
                 flyway.setBaselineDescription(initDescription);
             }
-            flyway.setBaselineVersion(baselineVersion);
-            flyway.setBaselineDescription(baselineDescription);
+            if (baselineVersion != null) {
+                flyway.setBaselineVersion(baselineVersion);
+            }
+            if (baselineDescription != null) {
+                flyway.setBaselineDescription(baselineDescription);
+            }
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
                     if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
@@ -479,7 +483,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 log.warn("flyway.initOnMigrate is deprecated. Use baselineOnMigrate instead. Will be removed in Flyway 4.0.");
                 flyway.setBaselineOnMigrate(initOnMigrate);
             }
-            flyway.setBaselineOnMigrate(baselineOnMigrate);
+            if (baselineOnMigrate != null) {
+                flyway.setBaselineOnMigrate(baselineOnMigrate);
+            }
             flyway.setValidateOnMigrate(validateOnMigrate);
 
             Properties properties = new Properties();
