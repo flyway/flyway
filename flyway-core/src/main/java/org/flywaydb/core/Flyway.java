@@ -911,7 +911,7 @@ public class Flyway {
     /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
-     * <img src="http://flywaydb.org/assets/balsamiq/command-migrate.png">
+     * <img src="http://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
      *
      * @return The number of successfully applied migrations.
      * @throws FlywayException when the migration failed.
@@ -982,7 +982,7 @@ public class Flyway {
 
     /**
      * <p>Validate applied migration with classpath migrations to detect accidental changes.</p>
-     * <img src="http://flywaydb.org/assets/balsamiq/command-validate.png">
+     * <img src="http://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
      * @throws FlywayException when the validation failed.
      */
@@ -1027,7 +1027,7 @@ public class Flyway {
     /**
      * <p>Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
      * The schemas are cleaned in the order specified by the {@code schemas} property.</p>
-     * <img src="http://flywaydb.org/assets/balsamiq/command-clean.png">
+     * <img src="http://flywaydb.org/assets/balsamiq/command-clean.png" alt="clean">
      *
      * @throws FlywayException when the clean fails.
      */
@@ -1045,7 +1045,7 @@ public class Flyway {
     /**
      * <p>Retrieves the complete information about all the migrations including applied, pending and current migrations with
      * details and status.</p>
-     * <img src="http://flywaydb.org/assets/balsamiq/command-info.png">
+     * <img src="http://flywaydb.org/assets/balsamiq/command-info.png" alt="info">
      *
      * @return All migrations sorted by version, oldest first.
      * @throws FlywayException when the info retrieval failed.
@@ -1088,7 +1088,7 @@ public class Flyway {
     /**
      * <p>Baselines an existing database, excluding all migrations up to and including baselineVersion.</p>
      *
-     * <img src="http://flywaydb.org/assets/balsamiq/command-baseline.png">
+     * <img src="http://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
      * @throws FlywayException when the schema baselining failed.
      */
@@ -1109,7 +1109,7 @@ public class Flyway {
      *     <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
      *     <li>Correct wrong checksums</li>
      * </ul>
-     * <img src="http://flywaydb.org/assets/balsamiq/command-repair.png">
+     * <img src="http://flywaydb.org/assets/balsamiq/command-repair.png" alt="repair">
      *
      * @throws FlywayException when the metadata table repair failed.
      */
