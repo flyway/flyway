@@ -61,6 +61,12 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void ts() {
+        statementBuilder.addLine("insert into testDate values ({ts '2015-01-01 00:00:00'});");
+        assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
     public void multilineStringLiteralWithSemicolons() {
         String sqlScriptSource = "INSERT INTO address VALUES (1, '1. first;\n"
                 + "2. second;\n"
