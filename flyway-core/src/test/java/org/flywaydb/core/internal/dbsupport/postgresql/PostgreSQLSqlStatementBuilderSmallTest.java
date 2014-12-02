@@ -62,8 +62,10 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
 
     @Test
     public void ts() {
-        statementBuilder.addLine("insert into testDate values ({ts '2015-01-01 00:00:00'});");
+        String line = "insert into testDate values ({ts '2015-01-01 00:00:00'})";
+        statementBuilder.addLine(line + ";\n");
         assertTrue(statementBuilder.isTerminated());
+        assertEquals(line, statementBuilder.getSqlStatement().getSql());
     }
 
     @Test
