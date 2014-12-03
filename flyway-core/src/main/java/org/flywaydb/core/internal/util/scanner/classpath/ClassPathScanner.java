@@ -240,7 +240,7 @@ public class ClassPathScanner {
                 "bundle".equals(protocol) // Felix
                         || "bundleresource".equals(protocol)) //Equinox
                 ) {
-            return new OsgiClassPathLocationScanner();
+            return new OsgiClassPathLocationScanner(classLoader);
         }
 
         return null;

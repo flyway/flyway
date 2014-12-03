@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.util.scanner.classpath;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.BundleReference;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,18 +27,23 @@ import java.util.TreeSet;
 /**
  * OSGi specific scanner that performs the migration search in
  * the current bundle's classpath.
- *
+ * <p/>
  * <p>
  * The resources that this scanner returns can only be loaded if
  * Flyway's ClassLoader has access to the bundle that contains the migrations.
  * </p>
  */
 public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
+    private final ClassLoader classLoader;
+
+    public OsgiClassPathLocationScanner(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
     public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        Bundle bundle = BundleReference.class.cast(classLoader).getBundle();
         @SuppressWarnings({"unchecked"})
         Enumeration<URL> entries = bundle.findEntries(locationUrl.getPath(), "*", true);
 
