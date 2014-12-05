@@ -164,5 +164,12 @@ public class MigrationVersionSmallTest {
     public void alphaNumeric() {
         MigrationVersion.fromVersion("1.2.1a-3");
     }
+
+    @Test
+    public void testWouldOverflowLong() {
+        final String raw = "9999999999999999999999999999999999.8888888231231231231231298797298789132.22";
+        MigrationVersion longVersions = MigrationVersion.fromVersion(raw);
+        assertEquals(raw, longVersions.getVersion());
+    }
 }
 
