@@ -240,8 +240,8 @@ object FlywayPlugin extends Plugin {
     def configure(config: ConfigBase): Flyway = {
       flyway.setSchemas(config.schemas: _*)
       flyway.setTable(config.table)
-      flyway.setBaselineVersion(config.initVersion)
-      flyway.setBaselineVersion(config.baselineVersion)
+      flyway.setBaselineVersionAsString(config.initVersion)
+      flyway.setBaselineVersionAsString(config.baselineVersion)
       flyway.setBaselineDescription(config.initDescription)
       flyway.setBaselineDescription(config.baselineDescription)
       flyway
@@ -253,10 +253,10 @@ object FlywayPlugin extends Plugin {
       flyway.setSqlMigrationSeparator(config.sqlMigrationSeparator)
       flyway.setSqlMigrationSuffix(config.sqlMigrationSuffix)
       flyway.setCleanOnValidationError(config.cleanOnValidationError)
-      flyway.setTarget(config.target)
+      flyway.setTargetAsString(config.target)
       flyway.setOutOfOrder(config.outOfOrder)
-      flyway.setCallbacks(config.callbacks: _*)
-      flyway.setResolvers(config.resolvers: _*)
+      flyway.setCallbacksAsClassNames(config.callbacks: _*)
+      flyway.setResolversAsClassNames(config.resolvers: _*)
       flyway
     }
     def configure(config: ConfigMigrate): Flyway = {

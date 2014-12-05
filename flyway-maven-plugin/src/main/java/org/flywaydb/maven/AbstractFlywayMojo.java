@@ -442,14 +442,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setTable(table);
             if (initVersion != null) {
                 log.warn("flyway.initVersion is deprecated. Use baselineVersion instead. Will be removed in Flyway 4.0.");
-                flyway.setBaselineVersion(initVersion);
+                flyway.setBaselineVersionAsString(initVersion);
             }
             if (initDescription != null) {
                 log.warn("flyway.initDescription is deprecated. Use baselineDescription instead. Will be removed in Flyway 4.0.");
                 flyway.setBaselineDescription(initDescription);
             }
             if (baselineVersion != null) {
-                flyway.setBaselineVersion(baselineVersion);
+                flyway.setBaselineVersionAsString(baselineVersion);
             }
             if (baselineDescription != null) {
                 flyway.setBaselineDescription(baselineDescription);
@@ -467,15 +467,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 }
                 flyway.setLocations(locations);
             }
-            flyway.setResolvers(resolvers);
-            flyway.setCallbacks(callbacks);
+            flyway.setResolversAsClassNames(resolvers);
+            flyway.setCallbacksAsClassNames(callbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setOutOfOrder(outOfOrder);
-            flyway.setTarget(target);
+            flyway.setTargetAsString(target);
             flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
             flyway.setPlaceholderPrefix(placeholderPrefix);
 

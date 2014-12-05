@@ -200,7 +200,7 @@ public abstract class AbstractFlywayTask extends Task {
     @Deprecated
     public void setInitVersion(String initVersion) {
         log.warn("initVersion is deprecated and will be removed in Flyway 4.0. Use baselineVersion instead.");
-        flyway.setBaselineVersion(initVersion);
+        flyway.setBaselineVersionAsString(initVersion);
     }
 
     /**
@@ -218,7 +218,7 @@ public abstract class AbstractFlywayTask extends Task {
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)<br>Also configurable with Ant Property: ${flyway.baselineVersion}
      */
     public void setBaselineVersion(String baselineVersion) {
-        flyway.setBaselineVersion(baselineVersion);
+        flyway.setBaselineVersionAsString(baselineVersion);
     }
 
     /**
@@ -374,7 +374,7 @@ public abstract class AbstractFlywayTask extends Task {
      *               applied. (default: the latest version)<br>Also configurable with Ant Property: ${flyway.target}
      */
     public void setTarget(String target) {
-        flyway.setTarget(target);
+        flyway.setTargetAsString(target);
     }
 
     /**
@@ -505,10 +505,10 @@ public abstract class AbstractFlywayTask extends Task {
             flyway.setDataSource(createDataSource());
 
             if (resolvers != null) {
-                flyway.setResolvers(resolvers);
+                flyway.setResolversAsClassNames(resolvers);
             }
             if (callbacks != null) {
-                flyway.setCallbacks(callbacks);
+                flyway.setCallbacksAsClassNames(callbacks);
             }
 
             Properties projectProperties = new Properties();
