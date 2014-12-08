@@ -45,7 +45,11 @@ else
  JAVA_CMD=$JAVA_HOME/bin/java
 fi
 
-CP="$INSTALLDIR/lib/*:$INSTALLDIR/drivers/*"
+# Add extra jar files to classpath
+if [ ! -z "$CP" ] ; then
+  CP="$CP":
+fi
+CP="$CP""$INSTALLDIR/lib/*:$INSTALLDIR/drivers/*"
 
 if $cygwin; then
   CP=$(cygpath -pw "$CP")
