@@ -84,6 +84,10 @@
             <id>maven-central</id>
             <url>http://repo1.maven.org/maven2</url>
         </repository>
+        <repository>
+            <id>flyway-repo</id>
+            <url>s3://flyway-repo/release</url>
+        </repository>
     </repositories>
 
     <properties>
@@ -329,7 +333,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    
     <build>
+        <extensions>
+            <extension>
+                <groupId>com.allogy.maven.wagon</groupId>
+                <artifactId>maven-s3-wagon</artifactId>
+                <version>1.0.1</version>
+            </extension>
+        </extensions>
+
         <pluginManagement>
             <plugins>
                 <plugin>
