@@ -14,6 +14,8 @@
 -- limitations under the License.
 --
 
+set current sqlid = '${schema}';
+
 CREATE TABLESPACE SDBVERS
       IN "${schema}"
      USING STOGROUP SENSITIV PRIQTY -1 SECQTY -1 ERASE NO FREEPAGE 0 PCTFREE 10 DEFINE YES TRACKMOD YES
