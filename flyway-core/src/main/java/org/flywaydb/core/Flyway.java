@@ -239,6 +239,11 @@ public class Flyway {
      * Whether the database connection info has already been printed in the logs.
      */
     private boolean dbConnectionInfoPrinted;
+    
+    /**
+     * Whether or not to validate pending or future migrations on a database that contains some migrations already
+     */
+    private boolean validatePendingOrFuture = false;
 
     /**
      * Creates a new instance of Flyway. This is your starting point.
@@ -401,6 +406,15 @@ public class Flyway {
         return validateOnMigrate;
     }
 
+    /**
+     * Whether or not to validate pending or future migrations on a database that contains some migrations already
+     * 
+     * @return {@code true} if pending validations should be validated. {@code false} if not. (default: {@code false})
+     */
+    public boolean isValidatePendingOrFuture() {
+    	return validatePendingOrFuture;
+    }
+    
     /**
      * Whether to automatically call clean or not when a validation error occurs.
      * <p> This is exclusively intended as a convenience for development. Even tough we
@@ -968,6 +982,15 @@ public class Flyway {
         List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
         this.resolvers = resolverList.toArray(new MigrationResolver[resolvers.length]);
     }
+    
+    /**
+     * Sets whether to validate pending or future migrations against a database that already has applied migrations
+     * 
+     * @param validatePendingOrFuture
+     */
+    public void setValidatePendingOrFuture(boolean validatePendingOrFuture) {
+    	this.validatePendingOrFuture = validatePendingOrFuture;
+    }
 
     /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
@@ -1054,7 +1077,7 @@ public class Flyway {
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
 
                 doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable, schemas,
-                        false);
+                        validatePendingOrFuture);
                 return null;
             }
         });
@@ -1270,6 +1293,10 @@ public class Flyway {
         String validateOnMigrateProp = properties.getProperty("flyway.validateOnMigrate");
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
+        }
+        String validatePendingOrFutureProp = properties.getProperty("flyway.validatePendingOrFuture");
+        if (validatePendingOrFutureProp != null) {
+        	setValidatePendingOrFuture(Boolean.parseBoolean(validatePendingOrFutureProp));
         }
         String initVersionProp = properties.getProperty("flyway.initVersion");
         if (initVersionProp != null) {
