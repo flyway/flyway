@@ -35,6 +35,17 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * Latest version.
      */
     public static final MigrationVersion LATEST = new MigrationVersion(BigInteger.valueOf(-1), "<< Latest Version >>");
+    
+    /**
+     * Placeholder for current version in database. Will be replaced with that version in database
+     * when the database is read
+     */
+    public static final MigrationVersion CURRENT = new MigrationVersion(null, "<< Placeholder for Current Version >>");
+    
+    /**
+     * String literal for CURRENT
+     */
+    private static final String CURRENT_STRING = "current";
 
     /**
      * Compiled pattern for matching proper version format
@@ -58,6 +69,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return The MigrationVersion
      */
     public static MigrationVersion fromVersion(String version) {
+    	if (CURRENT_STRING.equalsIgnoreCase(version)) return CURRENT;
         if (LATEST.getVersion().equals(version)) return LATEST;
         if (version == null) return EMPTY;
         return new MigrationVersion(version);
@@ -128,6 +140,10 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         if (this == EMPTY) {
             return o == EMPTY ? 0 : Integer.MIN_VALUE;
         }
+        
+        if (this == CURRENT) {
+        	return o == CURRENT ? 0 : Integer.MIN_VALUE;
+        }
 
         if (this == LATEST) {
             return o == LATEST ? 0 : Integer.MAX_VALUE;
@@ -135,6 +151,10 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
 
         if (o == EMPTY) {
             return Integer.MAX_VALUE;
+        }
+        
+        if (o == CURRENT) {
+        	return Integer.MAX_VALUE;
         }
 
         if (o == LATEST) {
