@@ -180,6 +180,27 @@ public abstract class Schema<S extends DbSupport> {
     protected abstract Table[] doAllTables() throws SQLException;
 
     /**
+     * Retrieves all the views in this schema.
+     *
+     * @return All views in the schema.
+     */
+    public View[] allViews() {
+        try {
+            return doAllViews();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to retrieve all views in schema " + this, e);
+        }
+    }
+
+    /**
+     * Retrieves all the views in this schema.
+     *
+     * @return All views in the schema.
+     * @throws SQLException when the retrieval failed.
+     */
+    protected abstract View[] doAllViews() throws SQLException;
+    
+    /**
      * Retrieves all the types in this schema.
      *
      * @return All types in the schema.

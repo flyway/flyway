@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.dbsupport.db2;
 
 import org.flywaydb.core.internal.dbsupport.*;
 import org.flywaydb.core.internal.util.StringUtils;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -220,7 +219,12 @@ public class DB2Schema extends Schema<DB2DbSupport> {
     protected Table[] doAllTables() throws SQLException {
         return findTables("select TABNAME from SYSCAT.TABLES where TYPE='T' and TABSCHEMA = ?", name);
     }
-
+    
+    @Override
+    protected View[] doAllViews() throws SQLException {
+        return new View[0];
+    }
+    
     @Override
     protected Function[] doAllFunctions() throws SQLException {
         List<Map<String, String>> rows = jdbcTemplate.queryForList(
@@ -256,4 +260,5 @@ public class DB2Schema extends Schema<DB2DbSupport> {
     public Function getFunction(String functionName, String... args) {
         return new DB2Function(jdbcTemplate, dbSupport, this, functionName, args);
     }
+
 }
