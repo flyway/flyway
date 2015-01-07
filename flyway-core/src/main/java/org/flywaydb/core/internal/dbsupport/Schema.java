@@ -15,18 +15,18 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 
 /**
  * Represents a database schema.
  */
 public abstract class Schema<S extends DbSupport> {
+
     /**
      * The Jdbc Template for communicating with the DB.
      */
@@ -45,9 +45,12 @@ public abstract class Schema<S extends DbSupport> {
     /**
      * Creates a new schema.
      *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param dbSupport    The database-specific support.
-     * @param name         The name of the schema.
+     * @param jdbcTemplate
+     *            The Jdbc Template for communicating with the DB.
+     * @param dbSupport
+     *            The database-specific support.
+     * @param name
+     *            The name of the schema.
      */
     public Schema(JdbcTemplate jdbcTemplate, S dbSupport, String name) {
         this.jdbcTemplate = jdbcTemplate;
@@ -59,7 +62,7 @@ public abstract class Schema<S extends DbSupport> {
      * @return The name of the schema, quoted for the database it lives in.
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
@@ -79,7 +82,8 @@ public abstract class Schema<S extends DbSupport> {
      * Checks whether this schema exists.
      *
      * @return {@code true} if it does, {@code false} if not.
-     * @throws SQLException when the check failed.
+     * @throws SQLException
+     *             when the check failed.
      */
     protected abstract boolean doExists() throws SQLException;
 
@@ -100,7 +104,8 @@ public abstract class Schema<S extends DbSupport> {
      * Checks whether this schema is empty.
      *
      * @return {@code true} if it is, {@code false} if isn't.
-     * @throws SQLException when the check failed.
+     * @throws SQLException
+     *             when the check failed.
      */
     protected abstract boolean doEmpty() throws SQLException;
 
@@ -118,7 +123,8 @@ public abstract class Schema<S extends DbSupport> {
     /**
      * Creates this schema in the database.
      *
-     * @throws SQLException when the creation failed.
+     * @throws SQLException
+     *             when the creation failed.
      */
     protected abstract void doCreate() throws SQLException;
 
@@ -136,7 +142,8 @@ public abstract class Schema<S extends DbSupport> {
     /**
      * Drops this schema from the database.
      *
-     * @throws SQLException when the drop failed.
+     * @throws SQLException
+     *             when the drop failed.
      */
     protected abstract void doDrop() throws SQLException;
 
@@ -154,7 +161,8 @@ public abstract class Schema<S extends DbSupport> {
     /**
      * Cleans all the objects in this schema.
      *
-     * @throws SQLException when the clean failed.
+     * @throws SQLException
+     *             when the clean failed.
      */
     protected abstract void doClean() throws SQLException;
 
@@ -175,9 +183,32 @@ public abstract class Schema<S extends DbSupport> {
      * Retrieves all the tables in this schema.
      *
      * @return All tables in the schema.
-     * @throws SQLException when the retrieval failed.
+     * @throws SQLException
+     *             when the retrieval failed.
      */
     protected abstract Table[] doAllTables() throws SQLException;
+
+    /**
+     * Retrieves all the views in this schema.
+     *
+     * @return All views in the schema.
+     */
+    public View[] allViews() {
+        try {
+            return doAllViews();
+        } catch (SQLException e) {
+            throw new FlywayException("Unable to retrieve all views in schema " + this, e);
+        }
+    }
+
+    /**
+     * Retrieves all the views in this schema.
+     *
+     * @return All views in the schema.
+     * @throws SQLException
+     *             when the retrieval failed.
+     */
+    protected abstract View[] doAllViews() throws SQLException;
 
     /**
      * Retrieves all the types in this schema.
@@ -187,7 +218,7 @@ public abstract class Schema<S extends DbSupport> {
     public final Type[] allTypes() {
         ResultSet resultSet = null;
         try {
-            resultSet = jdbcTemplate.getMetaData().getUDTs(null, name, null, null);
+            resultSet = this.jdbcTemplate.getMetaData().getUDTs(null, this.name, null, null);
 
             List<Type> types = new ArrayList<Type>();
             while (resultSet.next()) {
@@ -205,7 +236,8 @@ public abstract class Schema<S extends DbSupport> {
     /**
      * Retrieves the type with this name in this schema.
      *
-     * @param typeName The name of the type.
+     * @param typeName
+     *            The name of the type.
      * @return The type.
      */
     protected Type getType(String typeName) {
@@ -215,7 +247,8 @@ public abstract class Schema<S extends DbSupport> {
     /**
      * Retrieves the table with this name in this schema.
      *
-     * @param tableName The name of the table.
+     * @param tableName
+     *            The name of the table.
      * @return The table.
      */
     public abstract Table getTable(String tableName);
@@ -223,7 +256,8 @@ public abstract class Schema<S extends DbSupport> {
     /**
      * Retrieves the function with this name in this schema.
      *
-     * @param functionName The name of the function.
+     * @param functionName
+     *            The name of the function.
      * @return The function.
      */
     public Function getFunction(String functionName, String... args) {
@@ -247,7 +281,8 @@ public abstract class Schema<S extends DbSupport> {
      * Retrieves all the functions in this schema.
      *
      * @return All functions in the schema.
-     * @throws SQLException when the retrieval failed.
+     * @throws SQLException
+     *             when the retrieval failed.
      */
     protected Function[] doAllFunctions() throws SQLException {
         return new Function[0];
@@ -255,20 +290,24 @@ public abstract class Schema<S extends DbSupport> {
 
     @Override
     public String toString() {
-        return dbSupport.quote(name);
+        return this.dbSupport.quote(this.name);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Schema schema = (Schema) o;
-        return name.equals(schema.name);
+        return this.name.equals(schema.name);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return this.name.hashCode();
     }
 }

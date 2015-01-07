@@ -19,11 +19,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.dbsupport.Type;
+import org.flywaydb.core.internal.dbsupport.View;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLTable;
 
 public class VerticaSchema extends Schema<VerticaDbSupport> {
@@ -161,6 +161,11 @@ public class VerticaSchema extends Schema<VerticaDbSupport> {
             tables[i] = new PostgreSQLTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    protected View[] doAllViews() throws SQLException {
+        return new View[0];
     }
 
     @Override

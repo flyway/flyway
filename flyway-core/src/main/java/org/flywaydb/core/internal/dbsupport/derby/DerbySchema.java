@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.dbsupport.derby;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.View;
 import org.flywaydb.core.internal.util.StringUtils;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,6 +132,11 @@ public class DerbySchema extends Schema<DerbyDbSupport> {
             tables[i] = new DerbyTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+    
+    @Override
+    protected View[] doAllViews() throws SQLException {
+        return new View[0];
     }
 
     /**

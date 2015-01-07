@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.dbsupport.mysql;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
-
+import org.flywaydb.core.internal.dbsupport.View;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,6 +156,11 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
             tables[i] = new MySQLTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    protected View[] doAllViews() throws SQLException {
+        return new View[0];
     }
 
     @Override
