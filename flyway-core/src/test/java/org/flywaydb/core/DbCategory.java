@@ -31,6 +31,7 @@ public class DbCategory {
     public interface H2 extends EmbeddedDB {}
     public interface HSQL extends EmbeddedDB {}
     public interface SQLite extends EmbeddedDB {}
+    public interface Phoenix extends EmbeddedDB {}
 
     public interface MySQL extends OpenSourceDB {}
     public interface MariaDB extends OpenSourceDB {}
@@ -45,4 +46,5 @@ public class DbCategory {
     public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}
     public interface SolidDB extends ContributorSupportedDB {}
+
 }
