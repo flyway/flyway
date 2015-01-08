@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
@@ -49,8 +50,8 @@ public class Main {
      *
      * @param debug {@code true} for also printing debug statements, {@code false} for only info and higher.
      */
-    static void initLogging(boolean debug) {
-        LogFactory.setLogCreator(new ConsoleLogCreator(debug));
+    static void initLogging(Level level) {
+        LogFactory.setLogCreator(new ConsoleLogCreator(level));
         LOG = LogFactory.getLog(Main.class);
     }
 
@@ -60,8 +61,8 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
-        boolean debug = isDebug(args);
-        initLogging(debug);
+        Level logLevel = getLogLevel(args);
+        initLogging(logLevel);
 
         try {
             printVersion();
@@ -87,7 +88,7 @@ public class Main {
                 executeOperation(flyway, operation);
             }
         } catch (Exception e) {
-            if (debug) {
+            if (logLevel == Level.DEBUG) {
                 LOG.error("Unexpected error", e);
             } else {
                 if (e instanceof FlywayException) {
@@ -128,21 +129,22 @@ public class Main {
             System.exit(1);
         }
     }
-
+    
     /**
-     * Checks whether we are in debug mode or not.
-     *
+     * Checks the desired log level.
+     * 
      * @param args The command-line arguments.
-     * @return {@code true} if we are in debug mode, {@code false} if not.
+     * @return The desired log level.
      */
-    private static boolean isDebug(String[] args) {
-        for (String arg : args) {
-            if ("-X".equals(arg)) {
-                return true;
-            }
-        }
-
-        return false;
+    private static Level getLogLevel(String[] args) {
+    	for(String arg : args) {
+    		if ("-X".equals(arg)) {
+    			return Level.DEBUG;
+    		} else if ("-q".equals(arg)) {
+    			return Level.WARN;
+    		}
+    	}
+    	return Level.INFO;
     }
 
     /**
@@ -218,6 +220,8 @@ public class Main {
         LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
         LOG.info("Add -X to print debug output");
+        LOG.info("");
+        LOG.info("Add -q to only print level output");
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
