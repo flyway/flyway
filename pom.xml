@@ -102,6 +102,8 @@
         <version.mariadb>1.1.7</version.mariadb>
         <version.postgresql>9.3-1102-jdbc4</version.postgresql>
         <version.sqlite>3.7.15-M1</version.sqlite>
+        <version.phoenix>4.2.2</version.phoenix>
+        <version.hbase>0.98.4-hadoop2</version.hbase>
         <version.equinox>3.6.0.v20100517</version.equinox>
         <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
@@ -251,6 +253,73 @@
                 <groupId>com.vertica</groupId>
                 <artifactId>vertica-jdbc</artifactId>
                 <version>7.0.0-0</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.phoenix</groupId>
+                <artifactId>phoenix-core</artifactId>
+                <version>${version.phoenix}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>org.slf4j</artifactId>
+                        <groupId>slf4j-api</groupId>
+                    </exclusion>
+                </exclusions>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-it</artifactId>
+                <version>${version.hbase}</version>
+                <type>test-jar</type>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
+                </exclusions>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-testing-util</artifactId>
+                <version>${version.hbase}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                </exclusions>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-hadoop-compat</artifactId>
+                <version>${version.hbase}</version>
+                <type>test-jar</type>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
+                </exclusions>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-hadoop2-compat</artifactId>
+                <version>${version.hbase}</version>
+                <type>test-jar</type>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
+                </exclusions>
                 <optional>true</optional>
             </dependency>
             <dependency>
