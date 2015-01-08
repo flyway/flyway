@@ -65,7 +65,8 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Factory for creating a MigrationVersion from a version String
      *
-     * @param version The version String
+     * @param version The version String. The string 'current' will be interpreted as MigrationVersion.CURRENT,
+     *               a placeholder for the latest version that has been applied to the database. 
      * @return The MigrationVersion
      */
     public static MigrationVersion fromVersion(String version) {
