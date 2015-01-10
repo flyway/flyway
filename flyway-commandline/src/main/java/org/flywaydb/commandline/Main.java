@@ -221,8 +221,7 @@ public class Main {
         LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
         LOG.info("Add -X to print debug output");
-        LOG.info("");
-        LOG.info("Add -q to only print level output");
+        LOG.info("Add -q to suppress all output, except for errors and warnings");
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
