@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2014 Axel Fontaine
+-- Copyright 2010-2015 Axel Fontaine
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 --
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> #885: Clean up source headers
 -- SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
@@ -27,6 +28,8 @@
 >>>>>>> Initial commit for SolidDB support (#885)
 =======
 >>>>>>> #885: Clean up source headers
+=======
+>>>>>>> Updated copyright to 2015
 
 CREATE TABLE ${schema}.${table} (
     version_rank INT NOT NULL,
