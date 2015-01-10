@@ -73,7 +73,9 @@ public class FlywaySqlScriptException extends FlywayException {
         String message = "\n" + title + "\n" + underline + "\n";
         message += "SQL State  : " + cause.getSQLState() + "\n";
         message += "Error Code : " + cause.getErrorCode() + "\n";
-        message += "Message    : " + cause.getMessage() + "\n";
+        if (cause.getMessage() != null) {
+            message += "Message    : " + cause.getMessage().trim() + "\n";
+        }
         if (resource != null) {
             message += "Location   : " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")\n";
         }
