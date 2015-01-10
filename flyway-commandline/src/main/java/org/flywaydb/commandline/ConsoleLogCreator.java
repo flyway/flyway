@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogCreator;
 
@@ -22,21 +23,18 @@ import org.flywaydb.core.internal.util.logging.LogCreator;
  * Log Creator for the Command-Line console.
  */
 public class ConsoleLogCreator implements LogCreator {
-    /**
-     * Is debug mode enabled?
-     */
-    private final boolean debug;
+    private final Level level;
 
     /**
      * Creates a new Console Log Creator.
      *
      * @param debug {@code true} for also printing debug statements, {@code false} for only info and higher.
      */
-    public ConsoleLogCreator(boolean debug) {
-        this.debug = debug;
+    public ConsoleLogCreator(Level level) {
+        this.level = level;
     }
 
     public Log createLogger(Class<?> clazz) {
-        return new ConsoleLog(debug);
+        return new ConsoleLog(level);
     }
 }

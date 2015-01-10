@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -42,7 +43,7 @@ public class MainClassLoaderSmallTest {
     @Before
     public void setUp() {
         oldClassLoader = getClassLoader();
-        Main.initLogging(false);
+        Main.initLogging(Level.INFO);
     }
 
     @After

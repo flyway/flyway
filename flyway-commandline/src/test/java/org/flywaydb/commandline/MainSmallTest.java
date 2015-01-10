@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class MainSmallTest {
     @Before
     public void setUp() {
-        Main.initLogging(false);
+        Main.initLogging(Level.INFO);
     }
 
     @Test

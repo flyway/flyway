@@ -58,6 +58,12 @@ public class CommandLineLargeTest {
         assertTrue(stdOut.contains("* Usage"));
         assertTrue(stdOut.contains("callback"));
     }
+    
+    @Test
+    public void quietMode() throws Exception {
+        String stdOut = runFlywayCommandLine(0, null, null, "-q");
+        assertTrue(stdOut.isEmpty());
+    }
 
     @Test
     public void migrateWithCustomLocations() throws Exception {
