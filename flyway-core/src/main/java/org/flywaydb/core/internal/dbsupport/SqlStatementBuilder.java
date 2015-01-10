@@ -317,7 +317,7 @@ public class SqlStatementBuilder {
     private List<TokenType> extractStringLiteralDelimitingTokens(String[] tokens) {
         List<TokenType> delimitingTokens = new ArrayList<TokenType>();
         for (String token : tokens) {
-            String cleanToken = removeCharsetCasting(removeEscapedQuotes(token));
+            String cleanToken = cleanToken(removeEscapedQuotes(token));
 
             if (alternateQuote == null) {
                 String alternateQuoteFromToken = extractAlternateOpenQuote(cleanToken);
@@ -386,13 +386,13 @@ public class SqlStatementBuilder {
     }
 
     /**
-     * Removes charset casting that prefixes string literals.
+     * Performs additional cleanup on this token, such as removing charset casting that prefixes string literals.
      * Must be implemented in dialect specific sub classes.
      *
-     * @param token The token to parse.
+     * @param token The token to clean.
      * @return The cleaned token.
      */
-    protected String removeCharsetCasting(String token) {
+    protected String cleanToken(String token) {
         return token;
     }
 
