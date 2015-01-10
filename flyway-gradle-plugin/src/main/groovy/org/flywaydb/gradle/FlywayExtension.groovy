@@ -120,8 +120,9 @@ public class FlywayExtension {
     String placeholderSuffix
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version
-     * number will not be applied.
+     * The target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * The special value {@code current} designates the current version of the schema.
      */
     String target
 

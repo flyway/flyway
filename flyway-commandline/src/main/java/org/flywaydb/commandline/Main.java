@@ -208,7 +208,7 @@ public class Main {
         LOG.info("placeholders           : Placeholders to replace in Sql migrations");
         LOG.info("placeholderPrefix      : Prefix of every placeholder");
         LOG.info("placeholderSuffix      : Suffix of every placeholder");
-        LOG.info("target                 : Target version up to which Flyway should migrate");
+        LOG.info("target                 : Target version up to which Flyway should use migrations");
         LOG.info("outOfOrder             : Allows migrations to be run \"out of order\"");
         LOG.info("callbacks              : Comma-separated list of FlywayCallback classes");
         LOG.info("validateOnMigrate      : Validate when running migrate");

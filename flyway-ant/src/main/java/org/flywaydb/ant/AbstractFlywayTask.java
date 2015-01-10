@@ -223,7 +223,7 @@ public abstract class AbstractFlywayTask extends Task {
 
     /**
      * @param baselineDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)<br>Also configurable with Ant Property:
-     *                        ${flyway.baselineDescription}
+     *                            ${flyway.baselineDescription}
      */
     public void setBaselineDescription(String baselineDescription) {
         flyway.setBaselineDescription(baselineDescription);
@@ -370,8 +370,9 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     *               applied. (default: the latest version)<br>Also configurable with Ant Property: ${flyway.target}
+     * @param target The target version up to which Flyway should consider migrations.
+     *               Migrations with a higher version number will be ignored.
+     *               The special value {@code current} designates the current version of the schema. (default: the latest version)<br>Also configurable with Ant Property: ${flyway.target}
      */
     public void setTarget(String target) {
         flyway.setTargetAsString(target);
