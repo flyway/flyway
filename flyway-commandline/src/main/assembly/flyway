@@ -52,7 +52,7 @@ if $cygwin; then
   CP=$(cygpath -pw "$CP")
 fi
 
-"$JAVA_CMD" -cp "$CP" org.flywaydb.commandline.Main $@
+"$JAVA_CMD" -cp "$CP" org.flywaydb.commandline.Main "$@"
 
 # Save the exit code
 JAVA_EXIT_CODE=$?
