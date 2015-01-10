@@ -108,6 +108,27 @@ public class SqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void oracleEndsWithOpenMultilineStringLiteralNoSpace() {
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("CREATE OR REPLACE PROCEDURE BARBAZ\n" +
+                "    (\n" +
+                "        BAR  IN OUT VARCHAR2,\n" +
+                "        BAZ  IN OUT VARCHAR2\n" +
+                "    )\n" +
+                "AS\n" +
+                "\n" +
+                "BEGIN\n" +
+                "    IF BAR = 'BAR'THEN\n" +
+                "        BAZ := 'BAZ';\n" +
+                "    END IF;\n" +
+                "END;\n" +
+                "/"));
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'HELLO'FROM DUAL;"));
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'HELLO SELECT'FROM DUAL;"));
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'FROM 'FROM DUAL;"));
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT' 'FROM DUAL;"));
+    }
+
+    @Test
     public void stripDelimiter() {
         StringBuilder sql = new StringBuilder("SELECT * FROM t WHERE a = 'Straßenpaß';");
         SqlStatementBuilder.stripDelimiter(sql, new Delimiter(";", false));

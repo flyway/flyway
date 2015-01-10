@@ -87,7 +87,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected String removeCharsetCasting(String token) {
+    protected String cleanToken(String token) {
         if (token.startsWith("_")) {
             for (String charSet : charSets) {
                 String cast = "_" + charSet;
