@@ -104,8 +104,8 @@ public class Flyway {
     private String table = "schema_version";
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)
+     * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
+     * be ignored. The special value {@code current} designates the current version of the schema (default: the latest version)
      */
     private MigrationVersion target = MigrationVersion.LATEST;
 
@@ -303,11 +303,11 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the target version up to which Flyway should run migrations. Migrations with a higher version number
-     * will not be applied.
+     * Retrieves the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * The special value {@code current} designates the current version of the schema.
      *
-     * @return The target version up to which Flyway should run migrations. Migrations with a higher version number will
-     * not be applied. (default: the latest version)
+     * @return The target version up to which Flyway should consider migrations. (default: the latest version)
      */
     public MigrationVersion getTarget() {
         return target;
@@ -631,23 +631,21 @@ public class Flyway {
     }
 
     /**
-     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
-     * not be applied.
+     * Sets the target version up to which Flyway should consider migrations. Migrations with a higher version number will
+     * be ignored.
      *
-     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
-     *               number will not be applied. (default: the latest version)
+     * @param target The target version up to which Flyway should consider migrations. (default: the latest version)
      */
     public void setTarget(MigrationVersion target) {
         this.target = target;
     }
 
     /**
-     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
-     * not be applied.
+     * Sets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
      *
-     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
-     *               number will not be applied. The string 'current' will be interpreted as MigrationVersion.CURRENT,
-     *               a placeholder for the latest version that has been applied to the database. (default: the latest 
+     * @param target The target version up to which Flyway should consider migrations.
+     *               The special value {@code current} designates the current version of the schema. (default: the latest
      *               version)
      * @deprecated Will be removed in Flyway 4.0. Use setTargetAsString(String) instead.
      */
@@ -658,13 +656,12 @@ public class Flyway {
     }
 
     /**
-     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
-     * not be applied.
+     * Sets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
      *
-     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
-     *               number will not be applied. The string 'current' will be interpreted as MigrationVersion.CURRENT,
-     *               a placeholder for the latest version that has been applied to the database. (default: the latest
- 	 *			     version)
+     * @param target The target version up to which Flyway should consider migrations.
+     *               The special value {@code current} designates the current version of the schema. (default: the latest
+     *               version)
      */
     public void setTargetAsString(String target) {
         this.target = MigrationVersion.fromVersion(target);

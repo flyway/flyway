@@ -237,8 +237,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean cleanOnValidationError = flyway.isCleanOnValidationError();
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)
+     * The target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * The special value {@code current} designates the current version of the schema. (default: the latest version)
      * <p>Also configurable with Maven or System Property: ${flyway.target}</p>
      *
      * @parameter property="flyway.target"
