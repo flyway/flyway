@@ -89,6 +89,17 @@ public class FlywaySmallTest {
 
         assertEquals(true, flyway.isOutOfOrder());
     }
+    
+    @Test
+    public void configureValidatePendingOrFuture() {
+    	Properties properties = new Properties();
+    	properties.setProperty("flyway.validatePendingOrFuture", "true");
+    	
+    	Flyway flyway = new Flyway();
+    	flyway.configure(properties);
+    	
+    	assertEquals(true, flyway.isValidatePendingOrFuture());
+    }
 
     @Test
     public void configureSchemas() {
