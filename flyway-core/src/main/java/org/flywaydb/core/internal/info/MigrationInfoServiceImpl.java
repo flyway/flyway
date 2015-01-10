@@ -51,7 +51,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     /**
      * The target version up to which to retrieve the info.
      */
-    private final MigrationVersion target;
+    private MigrationVersion target;
 
     /**
      * Allows migrations to be run "out of order".
@@ -97,6 +97,10 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         List<AppliedMigration> appliedMigrations = metaDataTable.allAppliedMigrations();
 
         migrationInfos = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
+        
+        if (MigrationVersion.CURRENT == target) {
+        	target = current().getVersion();
+        }
     }
 
     /**

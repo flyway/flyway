@@ -646,7 +646,9 @@ public class Flyway {
      * not be applied.
      *
      * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
-     *               number will not be applied. (default: the latest version)
+     *               number will not be applied. The string 'current' will be interpreted as MigrationVersion.CURRENT,
+     *               a placeholder for the latest version that has been applied to the database. (default: the latest 
+     *               version)
      * @deprecated Will be removed in Flyway 4.0. Use setTargetAsString(String) instead.
      */
     @Deprecated
@@ -660,7 +662,9 @@ public class Flyway {
      * not be applied.
      *
      * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
-     *               number will not be applied. (default: the latest version)
+     *               number will not be applied. The string 'current' will be interpreted as MigrationVersion.CURRENT,
+     *               a placeholder for the latest version that has been applied to the database. (default: the latest
+ 	 *			     version)
      */
     public void setTargetAsString(String target) {
         this.target = MigrationVersion.fromVersion(target);
