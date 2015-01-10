@@ -28,7 +28,7 @@ public class ConsoleLogCreator implements LogCreator {
     /**
      * Creates a new Console Log Creator.
      *
-     * @param debug {@code true} for also printing debug statements, {@code false} for only info and higher.
+     * @param level The minimum level to log at.
      */
     public ConsoleLogCreator(Level level) {
         this.level = level;

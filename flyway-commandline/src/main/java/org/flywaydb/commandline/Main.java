@@ -48,7 +48,7 @@ public class Main {
     /**
      * Initializes the logging.
      *
-     * @param debug {@code true} for also printing debug statements, {@code false} for only info and higher.
+     * @param level The minimum level to log at.
      */
     static void initLogging(Level level) {
         LogFactory.setLogCreator(new ConsoleLogCreator(level));
@@ -140,7 +140,8 @@ public class Main {
     	for(String arg : args) {
     		if ("-X".equals(arg)) {
     			return Level.DEBUG;
-    		} else if ("-q".equals(arg)) {
+    		}
+            if ("-q".equals(arg)) {
     			return Level.WARN;
     		}
     	}
