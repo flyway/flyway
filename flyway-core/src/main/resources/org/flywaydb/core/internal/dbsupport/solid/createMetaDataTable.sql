@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2014 Axel Fontaine
+-- Copyright 2010-2015 Axel Fontaine
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -12,11 +12,6 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
---
--- SolidDB support developed 2014 by Sabine Gallus & Michael Forstner
--- Media-Saturn IT Services GmbH
--- Wankelstr. 5
--- 85046 Ingolstadt, Germany
 --
 
 CREATE TABLE ${schema}.${table} (
