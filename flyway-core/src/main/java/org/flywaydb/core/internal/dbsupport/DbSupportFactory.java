@@ -103,6 +103,9 @@ public class DbSupportFactory {
                 return redshift;
             }
         }
+        if (databaseProductName.startsWith("TimesTen")) {
+        	return new TimesTenDbSupport(connection);
+        }
         if (databaseProductName.startsWith("PostgreSQL")) {
             return new PostgreSQLDbSupport(connection);
         }
