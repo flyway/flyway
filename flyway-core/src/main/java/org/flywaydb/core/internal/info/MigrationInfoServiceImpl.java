@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.metadatatable.AppliedMigration;
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,7 +51,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     /**
      * The target version up to which to retrieve the info.
      */
-    private final MigrationVersion target;
+    private MigrationVersion target;
 
     /**
      * Allows migrations to be run "out of order".
@@ -62,9 +62,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private boolean outOfOrder;
 
     /**
-     * Whether pending migrations are allowed.
+     * Whether pendingOrFuture migrations are allowed.
      */
-    private final boolean pending;
+    private final boolean pendingOrFuture;
 
     /**
      * The migrations infos calculated at the last refresh.
@@ -78,15 +78,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param metaDataTable     The metadata table for applied migrations.
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
-     * @param pending                 Whether pending migrations are allowed.
+     * @param pendingOrFuture   Whether pending or future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver, MetaDataTable metaDataTable,
-                                    MigrationVersion target, boolean outOfOrder, boolean pending) {
+                                    MigrationVersion target, boolean outOfOrder, boolean pendingOrFuture) {
         this.migrationResolver = migrationResolver;
         this.metaDataTable = metaDataTable;
         this.target = target;
         this.outOfOrder = outOfOrder;
-        this.pending = pending;
+        this.pendingOrFuture = pendingOrFuture;
     }
 
     /**
@@ -97,6 +97,10 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         List<AppliedMigration> appliedMigrations = metaDataTable.allAppliedMigrations();
 
         migrationInfos = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
+        
+        if (MigrationVersion.CURRENT == target) {
+        	target = current().getVersion();
+        }
     }
 
     /**
@@ -110,7 +114,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(Collection<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
         MigrationInfoContext context = new MigrationInfoContext();
         context.outOfOrder = outOfOrder;
-        context.pending = pending;
+        context.pendingOrFuture = pendingOrFuture;
         context.target = target;
 
         Map<MigrationVersion, ResolvedMigration> resolvedMigrationsMap = new TreeMap<MigrationVersion, ResolvedMigration>();
@@ -131,8 +135,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             if (appliedMigration.getType() == MigrationType.SCHEMA) {
                 context.schema = version;
             }
-            if (appliedMigration.getType() == MigrationType.INIT) {
+            if ((appliedMigration.getType() == MigrationType.INIT) || (appliedMigration.getType() == MigrationType.BASELINE)) {
                 context.init = version;
+                context.baseline = version;
             }
             appliedMigrationsMap.put(version, appliedMigration);
         }

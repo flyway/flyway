@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ public class ClassPathScanner {
             try {
                 ClassUtils.instantiate(className, classLoader);
             } catch (Exception e) {
-                throw new FlywayException("Unable to instantiate class: " + className);
+                throw new FlywayException("Unable to instantiate class: " + className, e);
             }
 
             classes.add(clazz);

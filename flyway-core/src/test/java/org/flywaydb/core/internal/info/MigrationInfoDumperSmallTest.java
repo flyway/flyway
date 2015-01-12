@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.flywaydb.core.internal.info;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.metadatatable.AppliedMigration;
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +45,7 @@ public class MigrationInfoDumperSmallTest {
 
         assertEquals(5, lines.length);
         for (String line : lines) {
-            assertEquals(line, 79, line.length());
+            assertEquals(lines[0].length(), line.length());
         }
     }
 
@@ -54,7 +53,7 @@ public class MigrationInfoDumperSmallTest {
     public void dump2pending() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
+                        createMigrationResolver(createAvailableMigration("1"), createAvailableMigration("2.2014.09.11.55.45613")),
                         createMetaDataTable(), MigrationVersion.LATEST, false, true);
         migrationInfoService.refresh();
 
@@ -63,8 +62,7 @@ public class MigrationInfoDumperSmallTest {
 
         assertEquals(6, lines.length);
         for (String line : lines) {
-            assertEquals(line, 79, line.length());
-            assertTrue((line.charAt(17) == '|') || (line.charAt(17) == '+'));
+            assertEquals(lines[0].length(), line.length());
         }
     }
 
@@ -74,10 +72,10 @@ public class MigrationInfoDumperSmallTest {
      * @param version The version of the migration.
      * @return The available migration.
      */
-    private ResolvedMigration createAvailableMigration(int version) {
+    private ResolvedMigration createAvailableMigration(String version) {
         ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
-        migration.setVersion(MigrationVersion.fromVersion(Integer.toString(version)));
-        migration.setDescription("abc");
+        migration.setVersion(MigrationVersion.fromVersion(version));
+        migration.setDescription("abc very very very very very very very very very very long");
         migration.setScript("x");
         migration.setType(MigrationType.SQL);
         return migration;

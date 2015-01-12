@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,12 +141,12 @@ public class CompositeMigrationResolver implements MigrationResolver {
             ResolvedMigration current = migrations.get(i);
             ResolvedMigration next = migrations.get(i + 1);
             if (current.getVersion().compareTo(next.getVersion()) == 0) {
-                throw new FlywayException(String.format("Found more than one migration with version '%s' (Offenders: %s '%s' and %s '%s')",
+                throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                         current.getVersion(),
-                        current.getType(),
                         current.getPhysicalLocation(),
-                        next.getType(),
-                        next.getPhysicalLocation()));
+                        current.getType(),
+                        next.getPhysicalLocation(),
+                        next.getType()));
             }
         }
     }

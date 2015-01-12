@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,8 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
         }
 
         String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
-        if (!classPathRootOnDisk.endsWith("/")) {
-            classPathRootOnDisk = classPathRootOnDisk + "/";
+        if (!classPathRootOnDisk.endsWith(File.separator)) {
+            classPathRootOnDisk = classPathRootOnDisk + File.separator;
         }
         LOG.debug("Scanning starting at classpath root in filesystem: " + classPathRootOnDisk);
         return findResourceNamesFromFileSystem(classPathRootOnDisk, location, folder);
@@ -87,7 +87,7 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
      * @throws IOException when the file could not be read.
      */
     private String toResourceNameOnClasspath(String classPathRootOnDisk, File file) throws IOException {
-        String fileName = URLDecoder.decode(file.toURI().toURL().getFile(), "UTF-8");
+        String fileName = file.getAbsolutePath().replace("\\", "/");
 
         //Cut off the part on disk leading to the root of the classpath
         //This leaves a resource name starting with the scanRootLocation,

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,9 +67,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(Connection connection) {
-        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
-        String sqlScriptSourceNoPlaceholders = placeholderReplacer.replacePlaceholders(sqlScriptSource);
-        SqlScript sqlScript = new SqlScript(sqlScriptSourceNoPlaceholders, dbSupport);
+        SqlScript sqlScript = new SqlScript(dbSupport, sqlScriptResource, placeholderReplacer, encoding);
         sqlScript.execute(new JdbcTemplate(connection, 0));
     }
 

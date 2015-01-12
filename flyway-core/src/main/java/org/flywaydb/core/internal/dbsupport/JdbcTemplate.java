@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -239,8 +239,12 @@ public class JdbcTemplate {
             } finally {
                 @SuppressWarnings("ThrowableResultOfMethodCallIgnored") SQLWarning warning = statement.getWarnings();
                 while (warning != null) {
-                    LOG.warn(warning.getMessage()
-                            + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
+                    if ("00000".equals(warning.getSQLState())) {
+                        LOG.info("DB: " + warning.getMessage());
+                    } else {
+                        LOG.warn("DB: " + warning.getMessage()
+                                + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
+                    }
                     warning = warning.getNextWarning();
                 }
                 // retrieve all results to ensure all errors are detected

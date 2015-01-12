@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,17 @@ package org.flywaydb.maven;
 import org.flywaydb.core.Flyway;
 
 /**
- * Maven goal that initializes the metadata table in an existing schema.
+ * Baselines an existing database, excluding all migrations up to and including baselineVersion.
  *
  * @goal init
+ * @deprecated Will be removed in Flyway 4.0. Use flyway:baseline instead.
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
+@Deprecated
 public class InitMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        flyway.init();
+        log.warn("flyway:init is deprecated and will be removed in Flyway 4.0. Use flyway:baseline instead.");
+        flyway.baseline();
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -251,8 +251,8 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     @Override
-    public void addInitMarker(final MigrationVersion initVersion, final String initDescription) {
-        addAppliedMigration(new AppliedMigration(initVersion, initDescription, MigrationType.INIT, initDescription, null,
+    public void addBaselineMarker(final MigrationVersion baselineVersion, final String baselineDescription) {
+        addAppliedMigration(new AppliedMigration(baselineVersion, baselineDescription, MigrationType.BASELINE, baselineDescription, null,
                 0, true));
     }
 
@@ -310,7 +310,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     @Override
-    public boolean hasInitMarker() {
+    public boolean hasBaselineMarker() {
         if (!table.exists()) {
             return false;
         }
@@ -319,16 +319,17 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         try {
             int count = jdbcTemplate.queryForInt(
-                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='INIT'");
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='INIT' OR" + dbSupport.quote("type") + "='BASELINE'");
             return count > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether the metadata table " + table + " has an init marker migration", e);
+            throw new FlywayException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
         }
     }
 
     @Override
-    public AppliedMigration getInitMarker() {
+    public AppliedMigration getBaselineMarker() {
         List<AppliedMigration> appliedMigrations = findAppliedMigrations(MigrationType.INIT);
+        appliedMigrations.addAll(findAppliedMigrations(MigrationType.BASELINE));
         return appliedMigrations.isEmpty() ? null : appliedMigrations.get(0);
     }
 
@@ -342,7 +343,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         try {
             int count = jdbcTemplate.queryForInt(
-                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + " NOT IN ('SCHEMA', 'INIT')");
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + " NOT IN ('SCHEMA', 'INIT', 'BASELINE')");
             return count > 0;
         } catch (SQLException e) {
             throw new FlywayException("Unable to check whether the metadata table " + table + " has applied migrations", e);

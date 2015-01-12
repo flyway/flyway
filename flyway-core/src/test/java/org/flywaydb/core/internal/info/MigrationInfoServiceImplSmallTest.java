@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,7 +126,7 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     @Test
-    public void preInit() {
+    public void belowBaseline() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
                         createMigrationResolver(createAvailableMigration(1)),
@@ -135,7 +135,7 @@ public class MigrationInfoServiceImplSmallTest {
         migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
-        assertEquals(MigrationState.PREINIT, migrationInfoService.all()[0].getState());
+        assertEquals(MigrationState.BELOW_BASELINE, migrationInfoService.all()[0].getState());
         assertEquals(2, migrationInfoService.all().length);
         assertEquals(0, migrationInfoService.pending().length);
     }
@@ -209,10 +209,10 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     /**
-     * Creates a new applied init migration with this version.
+     * Creates a new applied baseline migration with this version.
      *
      * @param version The version of the migration.
-     * @return The applied init migration.
+     * @return The applied baseline migration.
      */
     private AppliedMigration createAppliedInitMigration(int version) {
         return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",

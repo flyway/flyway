@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -63,7 +64,7 @@ public class ClassPathResource implements Comparable<ClassPathResource>, Resourc
             throw new FlywayException("Unable to location resource on disk: " + location);
         }
         try {
-            return URLDecoder.decode(url.getPath(), "UTF-8");
+            return new File(URLDecoder.decode(url.getPath(), "UTF-8")).getAbsolutePath();
         } catch (UnsupportedEncodingException e) {
             throw new FlywayException("Unknown encoding: UTF-8", e);
         }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,27 @@ import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * SqlStatementBuilder supporting Oracle-specific PL/SQL constructs.
  */
 public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     /**
+     * Regex for keywords that can appear before a string literal without being separated by a space.
+     */
+    private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("(N|IF|ELSIF|SELECT|IMMEDIATE|RETURN|IS)('.*)");
+
+    /**
+     * Regex for keywords that can appear after a string literal without being separated by a space.
+     */
+    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM)");
+
+    /**
      * Delimiter of PL/SQL blocks and statements.
      */
     private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
-
     /**
      * Holds the beginning of the statement.
      */
@@ -45,11 +57,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             statementStart = statementStart.replaceAll("\\s+", " ");
         }
 
-        if (statementStart.matches("CREATE( OR REPLACE)? FUNCTION.*")
-                || statementStart.matches("CREATE( OR REPLACE)? PROCEDURE.*")
-                || statementStart.matches("CREATE( OR REPLACE)? PACKAGE.*")
-                || statementStart.matches("CREATE( OR REPLACE)? TYPE.*")
-                || statementStart.matches("CREATE( OR REPLACE)? TRIGGER.*")
+        if (statementStart.matches("CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*")
                 || statementStart.matches("CREATE( OR REPLACE)?( AND (RESOLVE|COMPILE))?( NOFORCE)? JAVA (SOURCE|RESOURCE|CLASS).*")){
             return PLSQL_DELIMITER;
         }
@@ -58,10 +66,17 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected String removeCharsetCasting(String token) {
-        if (token.startsWith("N'")) {
-            return token.substring(1);
+    protected String cleanToken(String token) {
+        Matcher beforeMatcher = KEYWORDS_BEFORE_STRING_LITERAL_REGEX.matcher(token);
+        if (beforeMatcher.find()) {
+            token = beforeMatcher.group(2);
         }
+
+        Matcher afterMatcher = KEYWORDS_AFTER_STRING_LITERAL_REGEX.matcher(token);
+        if (afterMatcher.find()) {
+            token = afterMatcher.group(1);
+        }
+
         return token;
     }
 

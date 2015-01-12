@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,20 +128,40 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String table = flyway.getTable();
 
     /**
-     * The version to tag an existing schema with when executing init. (default: 1)<br/>
+     * The version to tag an existing schema with when executing baseline. (default: 1)<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.initVersion}</p>
      *
      * @parameter property="flyway.initVersion"
+     * @deprecated Use baselineVersion instead. Will be removed in Flyway 4.0.
      */
-    private String initVersion = flyway.getInitVersion().getVersion();
+    @Deprecated
+    private String initVersion;
 
     /**
-     * The description to tag an existing schema with when executing init. (default: << Flyway Init >>)<br>
+     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.initDescription}</p>
      *
      * @parameter property="flyway.initDescription"
+     * @deprecated Use baselineDescription instead. Will be removed in Flyway 4.0.
      */
-    private String initDescription = flyway.getInitDescription();
+    @Deprecated
+    private String initDescription;
+
+    /**
+     * The version to tag an existing schema with when executing baseline. (default: 1)<br/>
+     * <p>Also configurable with Maven or System Property: ${flyway.baselineVersion}</p>
+     *
+     * @parameter property="flyway.baselineVersion"
+     */
+    private String baselineVersion;
+
+    /**
+     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.baselineDescription}</p>
+     *
+     * @parameter property="flyway.baselineDescription"
+     */
+    private String baselineDescription;
 
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
@@ -217,8 +237,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean cleanOnValidationError = flyway.isCleanOnValidationError();
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)
+     * The target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * The special value {@code current} designates the current version of the schema. (default: the latest version)
      * <p>Also configurable with Maven or System Property: ${flyway.target}</p>
      *
      * @parameter property="flyway.target"
@@ -284,8 +305,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * <p>
-     * Whether to automatically call init when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code initialVersion} before executing the migrations.
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be baselined with the {@code initialVersion} before executing the migrations.
      * Only migrations above {@code initialVersion} will then be applied.
      * </p>
      * <p>
@@ -298,8 +319,29 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.initOnMigrate}</p>
      *
      * @parameter property="flyway.initOnMigrate"
+     * @deprecated Use baselineOnMigrate instead. Will be removed in Flyway 4.0.
      */
-    private boolean initOnMigrate = flyway.isInitOnMigrate();
+    @Deprecated
+    private Boolean initOnMigrate;
+
+    /**
+     * <p>
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be baselined with the {@code initialVersion} before executing the migrations.
+     * Only migrations above {@code initialVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
+     * </p>
+     * <p>Also configurable with Maven or System Property: ${flyway.baselineOnMigrate}</p>
+     *
+     * @parameter property="flyway.baselineOnMigrate"
+     */
+    private Boolean baselineOnMigrate;
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: {@code true})<br/>
@@ -399,8 +441,20 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setSchemas(schemas);
             flyway.setTable(table);
-            flyway.setInitVersion(initVersion);
-            flyway.setInitDescription(initDescription);
+            if (initVersion != null) {
+                log.warn("flyway.initVersion is deprecated. Use baselineVersion instead. Will be removed in Flyway 4.0.");
+                flyway.setBaselineVersionAsString(initVersion);
+            }
+            if (initDescription != null) {
+                log.warn("flyway.initDescription is deprecated. Use baselineDescription instead. Will be removed in Flyway 4.0.");
+                flyway.setBaselineDescription(initDescription);
+            }
+            if (baselineVersion != null) {
+                flyway.setBaselineVersionAsString(baselineVersion);
+            }
+            if (baselineDescription != null) {
+                flyway.setBaselineDescription(baselineDescription);
+            }
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
                     if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
@@ -414,19 +468,25 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 }
                 flyway.setLocations(locations);
             }
-            flyway.setResolvers(resolvers);
-            flyway.setCallbacks(callbacks);
+            flyway.setResolversAsClassNames(resolvers);
+            flyway.setCallbacksAsClassNames(callbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setOutOfOrder(outOfOrder);
-            flyway.setTarget(target);
+            flyway.setTargetAsString(target);
             flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
             flyway.setPlaceholderPrefix(placeholderPrefix);
 
-            flyway.setInitOnMigrate(initOnMigrate);
+            if (initOnMigrate != null) {
+                log.warn("flyway.initOnMigrate is deprecated. Use baselineOnMigrate instead. Will be removed in Flyway 4.0.");
+                flyway.setBaselineOnMigrate(initOnMigrate);
+            }
+            if (baselineOnMigrate != null) {
+                flyway.setBaselineOnMigrate(baselineOnMigrate);
+            }
             flyway.setValidateOnMigrate(validateOnMigrate);
 
             Properties properties = new Properties();

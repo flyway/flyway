@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,17 @@ package org.flywaydb.ant;
 
 import org.flywaydb.core.Flyway;
 
+
 /**
- * Ant task that initializes the metadata table in an existing schema.
+ * Baselines an existing database, excluding all migrations up to and including baselineVersion.
+ * @deprecated Use &lt;flyway:baseline/&gt; instead. Will be removed in Flyway 4.0.
  */
 @SuppressWarnings({"UnusedDeclaration"})
+@Deprecated
 public class InitTask extends AbstractFlywayTask {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        flyway.init();
+        log.warn("<flyway:init/> is deprecated and will be removed in Flyway 4.0. Use <flyway:baseline/> instead.");
+        flyway.baseline();
     }
 }

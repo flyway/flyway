@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ public abstract class MavenTestCase {
 
     @Test
     public void regular() throws Exception {
-        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:init", "flyway:info", "-Dflyway.initVersion=0.1", "-Dflyway.user=SA");
-        assertTrue(stdOut.contains("<< Flyway Init >>"));
+        String stdOut = runMaven(0, "regular", "clean", "compile", "flyway:baseline", "flyway:info", "-Dflyway.initVersion=0.1", "-Dflyway.user=SA");
+        assertTrue(stdOut.contains("<< Flyway Baseline >>"));
     }
 
     @Test
@@ -85,8 +85,8 @@ public abstract class MavenTestCase {
 
     @Test
     public void settings() throws Exception {
-        String stdOut = runMaven(0, "settings", "clean", "compile", "flyway:init", "flyway:info", "-s", pomInstallDir + "/settings/settings.xml");
-        assertTrue(stdOut.contains("<< Flyway Init >>"));
+        String stdOut = runMaven(0, "settings", "clean", "compile", "flyway:baseline", "flyway:info", "-s", pomInstallDir + "/settings/settings.xml");
+        assertTrue(stdOut.contains("<< Flyway Baseline >>"));
     }
 
     /**
@@ -94,8 +94,8 @@ public abstract class MavenTestCase {
      */
     @Test
     public void settingsDefault() throws Exception {
-        String stdOut = runMaven(0, "settings-default", "clean", "compile", "flyway:init", "flyway:info", "-s", pomInstallDir + "/settings-default/settings.xml");
-        assertTrue(stdOut.contains("<< Flyway Init >>"));
+        String stdOut = runMaven(0, "settings-default", "clean", "compile", "flyway:baseline", "flyway:info", "-s", pomInstallDir + "/settings-default/settings.xml");
+        assertTrue(stdOut.contains("<< Flyway Baseline >>"));
     }
 
     /**
@@ -104,10 +104,10 @@ public abstract class MavenTestCase {
     @Test
     public void settingsEncrypted() throws Exception {
         String dir = pomInstallDir + "/settings-encrypted";
-        String stdOut = runMaven(0, "settings-encrypted", "clean", "sql:execute", "flyway:init",
+        String stdOut = runMaven(0, "settings-encrypted", "clean", "sql:execute", "flyway:baseline",
                 "-s=" + dir + "/settings.xml",
                 "-Dsettings.security=" + dir + "/settings-security.xml");
-        assertTrue(stdOut.contains("Schema initialized with version: 1"));
+        assertTrue(stdOut.contains("Schema baselined with version: 1"));
     }
 
     @Test

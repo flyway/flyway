@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,12 @@ public class CommandLineLargeTest {
         assertTrue(stdOut.contains("* Usage"));
         assertTrue(stdOut.contains("callback"));
     }
+    
+    @Test
+    public void quietMode() throws Exception {
+        String stdOut = runFlywayCommandLine(0, null, null, "-q");
+        assertTrue(stdOut.isEmpty());
+    }
 
     @Test
     public void migrateWithCustomLocations() throws Exception {
@@ -76,9 +82,8 @@ public class CommandLineLargeTest {
     public void exitCodeForFailedMigration() throws Exception {
         String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=filesystem:sql/invalid");
         assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 failed!"));
-        assertTrue(stdOut.contains("ERROR: Error executing statement at line 17: InVaLiD SqL !!!\n"
-                + "ERROR: Caused by: org.hsqldb.HsqlException: unexpected token: INVALID\n"
-                + "ERROR: Occured in org.hsqldb.error.Error.parseError() at line -1"));
+        assertTrue(stdOut.contains("17"));
+        assertTrue(stdOut.contains("InVaLiD SqL !!!"));
     }
 
     @Test

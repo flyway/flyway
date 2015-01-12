@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -254,6 +254,7 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywaySqlScriptException e) {
+            System.out.println(e.getMessage());
             // root cause of exception must be defined, and it should be FlywaySqlScriptException
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof SQLException);
@@ -439,7 +440,7 @@ public abstract class MigrationTestCase {
 
         assertEquals(5, migrationInfos.length);
 
-        assertEquals(org.flywaydb.core.api.MigrationType.INIT, migrationInfos[0].getType());
+        assertEquals(MigrationType.BASELINE, migrationInfos[0].getType());
         assertEquals("0", migrationInfos[0].getVersion().toString());
 
         assertEquals("2.0", flyway.info().current().getVersion().toString());
@@ -461,10 +462,10 @@ public abstract class MigrationTestCase {
 
         assertEquals(MigrationType.SQL, migrationInfos[0].getType());
         assertEquals("1", migrationInfos[0].getVersion().toString());
-        assertEquals(org.flywaydb.core.api.MigrationState.PREINIT, migrationInfos[0].getState());
+        assertEquals(MigrationState.BELOW_BASELINE, migrationInfos[0].getState());
 
         MigrationInfo migrationInfo = flyway.info().current();
-        assertEquals(MigrationType.INIT, migrationInfo.getType());
+        assertEquals(MigrationType.BASELINE, migrationInfo.getType());
         assertEquals("99", migrationInfo.getVersion().toString());
     }
 

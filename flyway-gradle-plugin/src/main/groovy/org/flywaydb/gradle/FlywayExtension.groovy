@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,11 +41,29 @@ public class FlywayExtension {
     /** The case-sensitive list of schemas managed by Flyway */
     String[] schemas
 
-    /** The initial version to put in the database */
+    /**
+     * The version to tag an existing schema with when executing baseline. (default: 1)
+     * @deprecated Use baselineVersion instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
     String initVersion
 
-    /** The description of the initial version */
+    /**
+     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     * @deprecated Use baselineDescription instead. Will be removed in Flyway 4.0.
+     */
+    @Deprecated
     String initDescription
+
+    /**
+     * The version to tag an existing schema with when executing baseline. (default: 1)
+     */
+    String baselineVersion
+
+    /**
+     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)
+     */
+    String baselineDescription
 
     /**
      * Locations to scan recursively for migrations. The location type is determined by its prefix.
@@ -102,8 +120,9 @@ public class FlywayExtension {
     String placeholderSuffix
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version
-     * number will not be applied.
+     * The target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * The special value {@code current} designates the current version of the schema.
      */
     String target
 
@@ -120,8 +139,40 @@ public class FlywayExtension {
     Boolean cleanOnValidationError
 
     /**
-     * Whether to automatically call init when migrate is executed against a non-empty schema
-     * with no metadata table.
+     * <p>
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
+     * Only migrations above {@code baselineVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake!
+     * </p>
+     *
+     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * @deprecated Use baselineOnMigrate instead. Will be removed in Flyway 4.0.
      */
+    @Deprecated
     Boolean initOnMigrate
+
+    /**
+     * <p>
+     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
+     * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
+     * Only migrations above {@code baselineVersion} will then be applied.
+     * </p>
+     * <p>
+     * This is useful for initial Flyway production deployments on projects with an existing DB.
+     * </p>
+     * <p>
+     * Be careful when enabling this as it removes the safety net that ensures
+     * Flyway does not migrate the wrong database in case of a configuration mistake!
+     * </p>
+     *
+     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     */
+    Boolean baselineOnMigrate
 }

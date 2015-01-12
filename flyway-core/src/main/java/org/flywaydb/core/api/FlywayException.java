@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,15 @@ public class FlywayException extends RuntimeException {
      */
     public FlywayException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    /**
+     * Creates a new FlywayException with this cause. For use in subclasses that override getMessage().
+     *
+     * @param cause   The exception cause.
+     */
+    public FlywayException(Throwable cause) {
+        super(cause);
     }
 
     /**

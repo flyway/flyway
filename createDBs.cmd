@@ -1,5 +1,5 @@
 @REM
-@REM Copyright 2010-2014 Axel Fontaine
+@REM Copyright 2010-2015 Axel Fontaine
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -38,5 +38,8 @@ sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources
 
 echo DB2...
 db2cmd -c "db2 -tvf flyway-core/src/test/resources/migration/dbsupport/db2/createDatabase.sql"
+
+echo SolidDB...
+solsql -f flyway-core/src/test/resources/migration/dbsupport/solid/createDatabase.sql "tcp localhost 1313"
 
 echo Done.

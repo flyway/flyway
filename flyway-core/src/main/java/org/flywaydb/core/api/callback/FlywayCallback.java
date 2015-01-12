@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,17 +87,35 @@ public interface FlywayCallback {
 	void afterValidate(Connection connection);
 
 	/**
-	 * Runs before the init task executes.
+	 * Runs before the baseline task executes.
 	 * 
 	 * @param connection A valid connection to the database.
 	 */
+	void beforeBaseline(Connection connection);
+
+	/**
+	 * Runs after the baseline task executes.
+	 * 
+	 * @param connection A valid connection to the database.
+	 */
+	void afterBaseline(Connection connection);
+
+	/**
+	 * Runs before the baseline task executes.
+	 *
+	 * @param connection A valid connection to the database.
+	 * @deprecated Will be removed in Flyway 4.0. Use beforeBaseline() instead.
+	 */
+	@Deprecated
 	void beforeInit(Connection connection);
 
 	/**
-	 * Runs after the init task executes.
-	 * 
+	 * Runs after the baseline task executes.
+	 *
 	 * @param connection A valid connection to the database.
+	 * @deprecated Will be removed in Flyway 4.0. Use afterBaseline() instead.
 	 */
+	@Deprecated
 	void afterInit(Connection connection);
 
 	/**

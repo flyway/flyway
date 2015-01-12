@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,15 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     @Test
     public void function() throws Exception {
         flyway.setLocations("migration/dbsupport/db2/sql/function");
+        flyway.migrate();
+
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
+    public void expressionBasedIndex() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/index");
         flyway.migrate();
 
         flyway.clean();

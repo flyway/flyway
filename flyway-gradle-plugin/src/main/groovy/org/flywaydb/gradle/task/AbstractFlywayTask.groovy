@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,20 +86,35 @@ abstract class AbstractFlywayTask extends DefaultTask {
         def flyway = new Flyway()
         flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), prop("driver"), prop("url"), prop("user"), prop("password")))
 
-        propSet(flyway, 'table')
+        // Deprecated
         propSet(flyway, 'initVersion')
         propSet(flyway, 'initDescription')
+        propSetAsBoolean(flyway, 'initOnMigrate')
+
+        propSet(flyway, 'table')
+
+        String baselineVersion = prop('baselineVersion')
+        if (baselineVersion != null) {
+            flyway.setBaselineVersionAsString(baselineVersion)
+        }
+
+        propSet(flyway, 'baselineDescription')
         propSet(flyway, 'sqlMigrationPrefix')
         propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
         propSet(flyway, 'encoding')
         propSet(flyway, 'placeholderPrefix')
         propSet(flyway, 'placeholderSuffix')
-        propSet(flyway, 'target')
+
+        String target = prop('target')
+        if (target != null) {
+            flyway.setTargetAsString(target)
+        }
+
         propSetAsBoolean(flyway, 'outOfOrder')
         propSetAsBoolean(flyway, 'validateOnMigrate')
         propSetAsBoolean(flyway, 'cleanOnValidationError')
-        propSetAsBoolean(flyway, 'initOnMigrate')
+        propSetAsBoolean(flyway, 'baselineOnMigrate')
 
         def sysSchemas = System.getProperty("flyway.schemas")
         if (sysSchemas != null) {
@@ -121,11 +136,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         def sysResolvers = System.getProperty("flyway.resolvers")
         if (sysResolvers != null) {
-            flyway.setResolvers(StringUtils.tokenizeToStringArray(sysResolvers, ","))
+            flyway.setResolversAsClassNames(StringUtils.tokenizeToStringArray(sysResolvers, ","))
         } else if (project.hasProperty("flyway.resolvers")) {
-            flyway.setResolvers(StringUtils.tokenizeToStringArray(project["flyway.resolvers"].toString(), ","))
+            flyway.setResolversAsClassNames(StringUtils.tokenizeToStringArray(project["flyway.resolvers"].toString(), ","))
         } else if (extension.resolvers != null) {
-            flyway.setResolvers(extension.resolvers)
+            flyway.setResolversAsClassNames(extension.resolvers)
         }
 
         Map<String, String> placeholders = [:]
@@ -148,11 +163,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         def sysCallbacks = System.getProperty("flyway.callbacks")
         if (sysCallbacks != null) {
-            flyway.setCallbacks(StringUtils.tokenizeToStringArray(sysCallbacks, ","))
+            flyway.setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(sysCallbacks, ","))
         } else if (project.hasProperty("flyway.callbacks")) {
-            flyway.setCallbacks(StringUtils.tokenizeToStringArray(project["flyway.callbacks"].toString(), ","))
+            flyway.setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(project["flyway.callbacks"].toString(), ","))
         } else if (extension.callbacks != null) {
-            flyway.setCallbacks(extension.callbacks)
+            flyway.setCallbacksAsClassNames(extension.callbacks)
         }
 
 		flyway
@@ -161,8 +176,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * @param throwable Throwable instance to be handled
      */
-    private void handleException(Throwable throwable)
-    {
+    private void handleException(Throwable throwable) {
         String message = "Error occurred while executing ${this.getName()}${System.lineSeparator()}" 
         throw new FlywayException(collectMessages(throwable, message, 5), throwable)
     }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,8 +110,8 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     public MigrationState getState() {
         if (appliedMigration == null) {
-            if (resolvedMigration.getVersion().compareTo(context.init) < 0) {
-                return MigrationState.PREINIT;
+            if (resolvedMigration.getVersion().compareTo(context.baseline) < 0) {
+                return MigrationState.BELOW_BASELINE;
             }
             if (resolvedMigration.getVersion().compareTo(context.target) > 0) {
                 return MigrationState.ABOVE_TARGET;
@@ -127,8 +127,8 @@ public class MigrationInfoImpl implements MigrationInfo {
                 return MigrationState.SUCCESS;
             }
 
-            if (MigrationType.INIT == appliedMigration.getType()) {
-                return MigrationState.SUCCESS;
+            if ((MigrationType.BASELINE == appliedMigration.getType()) || (MigrationType.INIT == appliedMigration.getType())) {
+                return MigrationState.BASELINE;
             }
 
             if (getVersion().compareTo(context.lastResolved) < 0) {
@@ -174,19 +174,21 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
-        if ((resolvedMigration == null)
+        if (!context.pendingOrFuture
+                && (resolvedMigration == null)
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
+                && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getType() != MigrationType.INIT)) {
             return "Detected applied migration missing on the classpath: " + getVersion();
         }
 
-        if ((!context.pending && (MigrationState.PENDING == getState()))
+        if ((!context.pendingOrFuture && (MigrationState.PENDING == getState()))
                 || (MigrationState.IGNORED == getState())) {
             return "Migration on the classpath has not been applied to database: " + getVersion();
         }
 
         if (resolvedMigration != null && appliedMigration != null) {
-            if (getVersion().compareTo(context.init) > 0) {
+            if (getVersion().compareTo(context.baseline) > 0) {
                 if (resolvedMigration.getType() != appliedMigration.getType()) {
                     return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
                             appliedMigration.getScript(), appliedMigration.getType(), resolvedMigration.getType());

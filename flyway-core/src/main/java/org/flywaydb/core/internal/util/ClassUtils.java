@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class ClassUtils {
                 try {
                     clazzes.add(ClassUtils.<T>instantiate(clazz, classLoader));
                 } catch (Exception e) {
-                    throw new FlywayException("Unable to instantiate class: " + clazz);
+                    throw new FlywayException("Unable to instantiate class: " + clazz, e);
                 }
             }
         }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,16 @@ public class DefaultFlywayCallback implements FlywayCallback {
 	@Override
 	public void afterValidate(Connection dataConnection) {
 		LOG.info("afterValidate");
+	}
+
+	@Override
+	public void beforeBaseline(Connection connection) {
+		LOG.info("beforeBaseline");
+	}
+
+	@Override
+	public void afterBaseline(Connection connection) {
+		LOG.info("afterBaseline");
 	}
 
 	@Override

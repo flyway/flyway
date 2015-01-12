@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.PropertiesUtils;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -48,10 +48,10 @@ public class Main {
     /**
      * Initializes the logging.
      *
-     * @param debug {@code true} for also printing debug statements, {@code false} for only info and higher.
+     * @param level The minimum level to log at.
      */
-    static void initLogging(boolean debug) {
-        LogFactory.setLogCreator(new ConsoleLogCreator(debug));
+    static void initLogging(Level level) {
+        LogFactory.setLogCreator(new ConsoleLogCreator(level));
         LOG = LogFactory.getLog(Main.class);
     }
 
@@ -61,8 +61,8 @@ public class Main {
      * @param args The command-line arguments.
      */
     public static void main(String[] args) {
-        boolean debug = isDebug(args);
-        initLogging(debug);
+        Level logLevel = getLogLevel(args);
+        initLogging(logLevel);
 
         try {
             printVersion();
@@ -78,18 +78,17 @@ public class Main {
             loadConfigurationFile(properties, args);
             overrideConfiguration(properties, args);
 
-            loadJdbcDriversAndJavaMigrations(properties);
+            loadJdbcDrivers();
+            loadJavaMigrations(properties);
 
             Flyway flyway = new Flyway();
             flyway.configure(properties);
 
-            int consoleWidth = PropertiesUtils.getIntProperty(properties, "flyway.consoleWidth", 80);
-
             for (String operation : operations) {
-                executeOperation(flyway, operation, consoleWidth);
+                executeOperation(flyway, operation);
             }
         } catch (Exception e) {
-            if (debug) {
+            if (logLevel == Level.DEBUG) {
                 LOG.error("Unexpected error", e);
             } else {
                 if (e instanceof FlywayException) {
@@ -97,9 +96,6 @@ public class Main {
                 } else {
                     LOG.error(e.toString());
                 }
-                Throwable cause = ExceptionUtils.getRootCause(e);
-                LOG.error("Caused by: " + cause.toString());
-                outputFirstStackTraceElement(cause);
             }
             System.exit(1);
         }
@@ -110,19 +106,21 @@ public class Main {
      *
      * @param flyway       The Flyway instance.
      * @param operation    The operation to execute.
-     * @param consoleWidth The width of the console (in chars).
      */
-    private static void executeOperation(Flyway flyway, String operation, int consoleWidth) {
+    private static void executeOperation(Flyway flyway, String operation) {
         if ("clean".equals(operation)) {
             flyway.clean();
+        } else if ("baseline".equals(operation)) {
+            flyway.baseline();
         } else if ("init".equals(operation)) {
-            flyway.init();
+            LOG.warn("init is deprecated. Use baseline instead. Will be removed in Flyway 4.0.");
+            flyway.baseline();
         } else if ("migrate".equals(operation)) {
             flyway.migrate();
         } else if ("validate".equals(operation)) {
             flyway.validate();
         } else if ("info".equals(operation)) {
-            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all(), consoleWidth));
+            LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
         } else if ("repair".equals(operation)) {
             flyway.repair();
         } else {
@@ -131,34 +129,23 @@ public class Main {
             System.exit(1);
         }
     }
-
+    
     /**
-     * Checks whether we are in debug mode or not.
-     *
+     * Checks the desired log level.
+     * 
      * @param args The command-line arguments.
-     * @return {@code true} if we are in debug mode, {@code false} if not.
+     * @return The desired log level.
      */
-    private static boolean isDebug(String[] args) {
-        for (String arg : args) {
-            if ("-X".equals(arg)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Output class, method and line number infos of first stack trace element
-     * of the given {@link Throwable} using {@link Log#error(String)}.
-     *
-     * @param t {@link Throwable} to log
-     */
-    private static void outputFirstStackTraceElement(Throwable t) {
-        StackTraceElement firstStackTraceElement = t.getStackTrace()[0];
-        LOG.error("Occured in " + firstStackTraceElement.getClassName() + "."
-                + firstStackTraceElement.getMethodName() + "() at line "
-                + firstStackTraceElement.getLineNumber());
+    private static Level getLogLevel(String[] args) {
+    	for(String arg : args) {
+    		if ("-X".equals(arg)) {
+    			return Level.DEBUG;
+    		}
+            if ("-q".equals(arg)) {
+    			return Level.WARN;
+    		}
+    	}
+    	return Level.INFO;
     }
 
     /**
@@ -167,8 +154,8 @@ public class Main {
      * @param properties The properties object to initialize.
      */
     private static void initializeDefaults(Properties properties) {
-        properties.put("flyway.locations", "filesystem:" + getInstallationDir() + "/sql");
-        properties.put("flyway.jarDir", new File(getInstallationDir() + "/jars").getAbsolutePath());
+        properties.put("flyway.locations", "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
+        properties.put("flyway.jarDir", new File(getInstallationDir(), "jars").getAbsolutePath());
     }
 
     /**
@@ -201,7 +188,7 @@ public class Main {
         LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
-        LOG.info("init     : Creates and initializes the metadata table");
+        LOG.info("baseline : Baselines an existing database at the baselineVersion");
         LOG.info("repair   : Repairs the metadata table");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
@@ -221,19 +208,20 @@ public class Main {
         LOG.info("placeholders           : Placeholders to replace in Sql migrations");
         LOG.info("placeholderPrefix      : Prefix of every placeholder");
         LOG.info("placeholderSuffix      : Suffix of every placeholder");
-        LOG.info("target                 : Target version up to which Flyway should migrate");
+        LOG.info("target                 : Target version up to which Flyway should use migrations");
         LOG.info("outOfOrder             : Allows migrations to be run \"out of order\"");
         LOG.info("callbacks              : Comma-separated list of FlywayCallback classes");
         LOG.info("validateOnMigrate      : Validate when running migrate");
         LOG.info("cleanOnValidationError : Automatically clean on a validation error");
-        LOG.info("initVersion            : Version to tag schema with when executing init");
-        LOG.info("initDescription        : Description to tag schema with when executing init");
-        LOG.info("initOnMigrate          : Init on migrate against uninitialized non-empty schema");
+        LOG.info("baselineVersion        : Version to tag schema with when executing baseline");
+        LOG.info("baselineDescription    : Description to tag schema with when executing baseline");
+        LOG.info("baselineOnMigrate      : Baseline on migrate against uninitialized non-empty schema");
         LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
         LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
         LOG.info("Add -X to print debug output");
+        LOG.info("Add -q to suppress all output, except for errors and warnings");
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
@@ -243,12 +231,36 @@ public class Main {
     }
 
     /**
-     * Loads all the jars contained in the jars folder. (For Jdbc drivers and Java Migrations)
+     * Loads all the driver jars contained in the drivers folder. (For Jdbc drivers)
+     *
+     * @throws IOException When the jars could not be loaded.
+     */
+    private static void loadJdbcDrivers() throws IOException {
+        File driversDir = new File(getInstallationDir(), "drivers");
+        File[] files = driversDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".jar");
+            }
+        });
+
+        // see javadoc of listFiles(): null if given path is not a real directory
+        if (files == null) {
+            LOG.error("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
+            System.exit(1);
+        }
+
+        for (File file : files) {
+            addJarOrDirectoryToClasspath(file.getPath());
+        }
+    }
+
+    /**
+     * Loads all the jars contained in the jars folder. (For Java Migrations)
      *
      * @param properties The configured properties.
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJdbcDriversAndJavaMigrations(Properties properties) throws IOException {
+    private static void loadJavaMigrations(Properties properties) throws IOException {
         String directoryForJdbcDriversAndJavaMigrations = properties.getProperty("flyway.jarDir");
         File dir = new File(directoryForJdbcDriversAndJavaMigrations);
         File[] files = dir.listFiles(new FilenameFilter() {
@@ -281,7 +293,7 @@ public class Main {
         try {
             URL url = new File(name).toURI().toURL();
             URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
             method.setAccessible(true);
             method.invoke(sysloader, url);
         } catch (Exception e) {

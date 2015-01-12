@@ -24,7 +24,7 @@
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>
-        Flyway: The agile database migration framework for Java.
+        Flyway: Database Migrations Made Easy.
     </description>
     <url>http://flywaydb.org</url>
     <licenses>
@@ -83,6 +83,10 @@
         <repository>
             <id>maven-central</id>
             <url>http://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>flyway-repo</id>
+            <url>s3://flyway-repo/release</url>
         </repository>
     </repositories>
 
@@ -250,6 +254,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.ibm</groupId>
+                <artifactId>SolidDriver</artifactId>
+                <version>6.5.0.14_IF21</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>com.google.appengine</groupId>
                 <artifactId>appengine-api-1.0-sdk</artifactId>
                 <version>${version.appengine}</version>
@@ -317,7 +327,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    
     <build>
+        <extensions>
+            <extension>
+                <groupId>com.allogy.maven.wagon</groupId>
+                <artifactId>maven-s3-wagon</artifactId>
+                <version>1.0.1</version>
+            </extension>
+        </extensions>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -334,7 +353,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.1</version>
+                    <version>2.8.2</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -347,11 +366,11 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.17</version>
+                    <version>2.18</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.17</version>
+                    <version>2.18</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
@@ -368,7 +387,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.9.1</version>
+                    <version>2.10.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -560,6 +579,12 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <deployAtEnd>true</deployAtEnd>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -567,7 +592,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
+                <version>2.10.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
@@ -590,6 +615,7 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
                             <encoding>UTF-8</encoding>
+                            <additionalparam>-Xdoclint:none</additionalparam>
                         </configuration>
                         <executions>
                             <execution>

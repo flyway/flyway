@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,8 +180,7 @@ public class SqlStatementBuilder {
         statement.append(line);
 
         if (lineTerminatesStatement(lineSimplified, delimiter)) {
-            //TODO: Check if the delimiter can be stripped from the existing statement instead
-            statement = new StringBuilder(stripDelimiter(statement.toString(), delimiter));
+            stripDelimiter(statement, delimiter);
             terminated = true;
         }
     }
@@ -235,13 +234,18 @@ public class SqlStatementBuilder {
      *
      * @param sql       The statement to parse.
      * @param delimiter The delimiter to strip.
-     * @return The sql statement without delimiter.
      */
     /* private -> testing */
-    static String stripDelimiter(String sql, Delimiter delimiter) {
-        final int lowerCaseIndex = sql.lastIndexOf(delimiter.getDelimiter().toLowerCase());
-        final int upperCaseIndex = sql.lastIndexOf(delimiter.getDelimiter().toUpperCase());
-        return sql.substring(0, Math.max(lowerCaseIndex, upperCaseIndex));
+    static void stripDelimiter(StringBuilder sql, Delimiter delimiter) {
+        int last;
+
+        for (last = sql.length(); last > 0; last--) {
+            if (!Character.isWhitespace(sql.charAt(last - 1))) {
+                break;
+            }
+        }
+
+        sql.delete(last - delimiter.getDelimiter().length(), sql.length());
     }
 
     /**
@@ -313,7 +317,7 @@ public class SqlStatementBuilder {
     private List<TokenType> extractStringLiteralDelimitingTokens(String[] tokens) {
         List<TokenType> delimitingTokens = new ArrayList<TokenType>();
         for (String token : tokens) {
-            String cleanToken = removeCharsetCasting(removeEscapedQuotes(token));
+            String cleanToken = cleanToken(removeEscapedQuotes(token));
 
             if (alternateQuote == null) {
                 String alternateQuoteFromToken = extractAlternateOpenQuote(cleanToken);
@@ -382,13 +386,13 @@ public class SqlStatementBuilder {
     }
 
     /**
-     * Removes charset casting that prefixes string literals.
+     * Performs additional cleanup on this token, such as removing charset casting that prefixes string literals.
      * Must be implemented in dialect specific sub classes.
      *
-     * @param token The token to parse.
+     * @param token The token to clean.
      * @return The cleaned token.
      */
-    protected String removeCharsetCasting(String token) {
+    protected String cleanToken(String token) {
         return token;
     }
 
