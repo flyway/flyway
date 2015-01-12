@@ -111,10 +111,6 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("Vertica")) {
             return new VerticaDbSupport(connection);
         }
-        //Sybase ASE support
-        if (databaseProductName.startsWith("ASE")) {
-        	return new SybaseASEDbSupport(connection);
-        }
         if (databaseProductName.contains("solidDB")) {
             // SolidDB was originally developed by a company named Solid and was sold afterwards to IBM.
             // In the meanwhile IBM also sold solidDB to Unicom Systems.
