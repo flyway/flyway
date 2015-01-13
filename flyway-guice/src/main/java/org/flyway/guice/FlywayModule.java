@@ -39,7 +39,6 @@ public class FlywayModule extends AbstractModule {
         if(migrate){
             instance.migrate();
         }
-
         bind(Flyway.class).toInstance(instance);
     }
 }
