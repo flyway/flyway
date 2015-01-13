@@ -9,13 +9,17 @@ import javax.sql.DataSource;
 
 
 /**
- * Created by berndfarka on 13.01.15.
+ * Module binding Flayway to the Guice Context.
  */
 public class FlywayModule extends AbstractModule {
 
     private final boolean migrate;
     private final Flyway instance;
 
+    /**
+     *
+     * @param migrate if troe Flyway.migrate() is called while binding Flyway.
+     */
     public FlywayModule(boolean migrate){
         this(new Flyway(), migrate);
     }
