@@ -176,7 +176,11 @@ object FlywayPlugin extends AutoPlugin {
         (cp, config, s) => withPrepared(cp, s) { Flyway(config).validate() }
       },
       flywayInfo <<= (fullClasspath in conf, flywayConfig, streams) map {
-        (cp, config, s) => withPrepared(cp, s) { s.log.info(MigrationInfoDumper.dumpToAsciiTable(Flyway(config).info().all())) }
+        (cp, config, s) => withPrepared(cp, s) {
+          val info = Flyway(config).info()
+          s.log.info(MigrationInfoDumper.dumpToAsciiTable(info.all()))
+          info
+        }
       },
       flywayRepair <<= (fullClasspath in conf, flywayConfig, streams) map {
         (cp, config, s) => withPrepared(cp, s) { Flyway(config).repair() }
