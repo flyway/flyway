@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,14 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
         }
 
         assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
+    public void ts() {
+        String line = "insert into testDate values (TIMESTAMP '2004-10-19 10:23:54')";
+        statementBuilder.addLine(line + ";\n");
+        assertTrue(statementBuilder.isTerminated());
+        assertEquals(line, statementBuilder.getSqlStatement().getSql());
     }
 
     @Test

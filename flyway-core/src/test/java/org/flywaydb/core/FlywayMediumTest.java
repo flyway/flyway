@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ public class FlywayMediumTest {
         assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
 
         flyway.migrate();
-        assertEquals(-1336099243, flyway.info().current().getChecksum().intValue());
+        assertEquals(-1232301195, flyway.info().current().getChecksum().intValue());
         assertEquals("1.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
         assertEquals(4, flyway.info().all().length);
@@ -367,6 +367,66 @@ public class FlywayMediumTest {
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.validate();
+    }
+    
+    @Test(expected = FlywayException.class)
+    public void validateWithPendingWithoutTarget() {
+    	// Populate database up to version 1.2
+    	Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setTarget(MigrationVersion.fromVersion("1.2"));
+        flyway.migrate();
+        
+        // Validate migrations with pending migration 2.0 on classpath
+        flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.validate();
+    }
+    
+    @Test
+    public void validateWithPendingWithTarget() {
+    	// Populate database up to version 1.2
+    	Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setTarget(MigrationVersion.fromVersion("1.2"));
+        flyway.migrate();
+        
+        // Validate migrations with pending migration 2.0 on classpath
+        flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setTarget(MigrationVersion.CURRENT);
+        flyway.validate();    	
+    }
+    
+    @Test
+    public void migrateWithTargetCurrent() {
+    	// Populate database up to version 1.2
+    	Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setTarget(MigrationVersion.fromVersion("1.2"));
+        flyway.migrate();
+        
+        assertEquals(4, flyway.info().all().length);
+        assertEquals(3, flyway.info().applied().length);
+        assertEquals(0, flyway.info().pending().length);
+        assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
+        
+        // This should be a no-op as target=current will ignore future migrations 
+        flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setTarget(MigrationVersion.CURRENT);
+        flyway.migrate();
+        
+        assertEquals(4, flyway.info().all().length);
+        assertEquals(3, flyway.info().applied().length);
+        assertEquals(0, flyway.info().pending().length);
+        assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
     }
 
     @Test

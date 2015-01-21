@@ -84,6 +84,10 @@
             <id>maven-central</id>
             <url>http://repo1.maven.org/maven2</url>
         </repository>
+        <repository>
+            <id>flyway-repo</id>
+            <url>s3://flyway-repo/release</url>
+        </repository>
     </repositories>
 
     <properties>
@@ -250,6 +254,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.ibm</groupId>
+                <artifactId>SolidDriver</artifactId>
+                <version>6.5.0.14_IF21</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>com.google.appengine</groupId>
                 <artifactId>appengine-api-1.0-sdk</artifactId>
                 <version>${version.appengine}</version>
@@ -317,7 +327,16 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    
     <build>
+        <extensions>
+            <extension>
+                <groupId>com.allogy.maven.wagon</groupId>
+                <artifactId>maven-s3-wagon</artifactId>
+                <version>1.0.1</version>
+            </extension>
+        </extensions>
+
         <pluginManagement>
             <plugins>
                 <plugin>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,9 @@ public class FlywaySqlScriptException extends FlywayException {
         String message = "\n" + title + "\n" + underline + "\n";
         message += "SQL State  : " + cause.getSQLState() + "\n";
         message += "Error Code : " + cause.getErrorCode() + "\n";
-        message += "Message    : " + cause.getMessage() + "\n";
+        if (cause.getMessage() != null) {
+            message += "Message    : " + cause.getMessage().trim() + "\n";
+        }
         if (resource != null) {
             message += "Location   : " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")\n";
         }

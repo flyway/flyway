@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,12 @@ public class CommandLineLargeTest {
         String stdOut = runFlywayCommandLine(0, null, null);
         assertTrue(stdOut.contains("* Usage"));
         assertTrue(stdOut.contains("callback"));
+    }
+    
+    @Test
+    public void quietMode() throws Exception {
+        String stdOut = runFlywayCommandLine(0, null, null, "-q");
+        assertTrue(stdOut.isEmpty());
     }
 
     @Test

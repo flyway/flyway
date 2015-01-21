@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,32 +21,35 @@ import org.flywaydb.core.internal.util.logging.Log;
  * Wrapper around a simple Console output.
  */
 public class ConsoleLog implements Log {
-    /**
-     * Whether to also print debug statement.
-     */
-    private final boolean debug;
+ 	public static enum Level {
+ 		DEBUG, INFO, WARN
+ 	}
+	
+    private final Level level;
 
     /**
      * Creates a new Console Log.
      *
-     * @param debug {@code true} for also printing debug statements, {@code false} for only info and higher.
+     * @param level the log level.
      */
-    public ConsoleLog(boolean debug) {
-        this.debug = debug;
+    public ConsoleLog(Level level) {
+        this.level = level;
     }
 
     public void debug(String message) {
-        if (debug) {
+        if (level == Level.DEBUG) {
             System.out.println("DEBUG: " + message);
         }
     }
 
     public void info(String message) {
-        System.out.println(message);
+    	if (level.compareTo(Level.INFO) <= 0) {
+	        System.out.println(message);
+	    }
     }
 
     public void warn(String message) {
-        System.out.println("WARNING: " + message);
+    	System.out.println("WARNING: " + message);
     }
 
     public void error(String message) {

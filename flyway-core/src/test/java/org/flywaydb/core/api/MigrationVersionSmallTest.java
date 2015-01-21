@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,6 +163,13 @@ public class MigrationVersionSmallTest {
     @Test(expected = FlywayException.class)
     public void alphaNumeric() {
         MigrationVersion.fromVersion("1.2.1a-3");
+    }
+
+    @Test
+    public void testWouldOverflowLong() {
+        final String raw = "9999999999999999999999999999999999.8888888231231231231231298797298789132.22";
+        MigrationVersion longVersions = MigrationVersion.fromVersion(raw);
+        assertEquals(raw, longVersions.getVersion());
     }
 }
 

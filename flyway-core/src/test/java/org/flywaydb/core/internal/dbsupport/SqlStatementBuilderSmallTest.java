@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,6 +105,27 @@ public class SqlStatementBuilderSmallTest {
                 "CHECK ((NUMBER_DISPLAY_CONVERSION='FX_RATE' AND CURRENCY IS NOT NULL) OR (NUMBER_DISPLAY_CONVERSION<>'FX_RATE' AND CURRENCY IS NULL))\n" +
                 "ENABLE VALIDATE);"));
 
+    }
+
+    @Test
+    public void oracleEndsWithOpenMultilineStringLiteralNoSpace() {
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("CREATE OR REPLACE PROCEDURE BARBAZ\n" +
+                "    (\n" +
+                "        BAR  IN OUT VARCHAR2,\n" +
+                "        BAZ  IN OUT VARCHAR2\n" +
+                "    )\n" +
+                "AS\n" +
+                "\n" +
+                "BEGIN\n" +
+                "    IF BAR = 'BAR'THEN\n" +
+                "        BAZ := 'BAZ';\n" +
+                "    END IF;\n" +
+                "END;\n" +
+                "/"));
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'HELLO'FROM DUAL;"));
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'HELLO SELECT'FROM DUAL;"));
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'FROM 'FROM DUAL;"));
+        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT' 'FROM DUAL;"));
     }
 
     @Test

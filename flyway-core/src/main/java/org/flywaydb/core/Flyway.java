@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,12 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
-import org.flywaydb.core.internal.command.*;
+import org.flywaydb.core.internal.command.DbBaseline;
+import org.flywaydb.core.internal.command.DbClean;
+import org.flywaydb.core.internal.command.DbMigrate;
+import org.flywaydb.core.internal.command.DbRepair;
+import org.flywaydb.core.internal.command.DbSchemas;
+import org.flywaydb.core.internal.command.DbValidate;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -41,7 +46,11 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -59,13 +68,13 @@ public class Flyway {
 
     /**
      * The locations to scan recursively for migrations.
-     *
+     * <p/>
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
      * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
      * migrations.</p>
-     *
+     * <p/>
      * (default: db/migration)
      */
     private Locations locations = new Locations("db/migration");
@@ -95,8 +104,8 @@ public class Flyway {
     private String table = "schema_version";
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)
+     * The target version up to which Flyway should consider migrations. Migrations with a higher version number will
+     * be ignored. The special value {@code current} designates the current version of the schema (default: the latest version)
      */
     private MigrationVersion target = MigrationVersion.LATEST;
 
@@ -117,7 +126,7 @@ public class Flyway {
 
     /**
      * The file name prefix for sql migrations. (default: V)
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -125,7 +134,7 @@ public class Flyway {
 
     /**
      * The file name separator for sql migrations. (default: __)
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -133,7 +142,7 @@ public class Flyway {
 
     /**
      * The file name suffix for sql migrations. (default: .sql)
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
@@ -240,7 +249,7 @@ public class Flyway {
 
     /**
      * Retrieves the locations to scan recursively for migrations.
-     *
+     * <p/>
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
@@ -294,11 +303,11 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the target version up to which Flyway should run migrations. Migrations with a higher version number
-     * will not be applied.
+     * Retrieves the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * The special value {@code current} designates the current version of the schema.
      *
-     * @return The target version up to which Flyway should run migrations. Migrations with a higher version number will
-     * not be applied. (default: the latest version)
+     * @return The target version up to which Flyway should consider migrations. (default: the latest version)
      */
     public MigrationVersion getTarget() {
         return target;
@@ -333,7 +342,7 @@ public class Flyway {
 
     /**
      * Retrieves the file name prefix for sql migrations.
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -345,7 +354,7 @@ public class Flyway {
 
     /**
      * Retrieves the file name separator for sql migrations.
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -357,7 +366,7 @@ public class Flyway {
 
     /**
      * Retrieves the file name suffix for sql migrations.
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -572,7 +581,7 @@ public class Flyway {
 
     /**
      * Sets the locations to scan recursively for migrations.
-     *
+     * <p/>
      * <p>The location type is determined by its prefix.
      * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
      * contain both sql and java-based migrations.
@@ -622,24 +631,39 @@ public class Flyway {
     }
 
     /**
-     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
-     * not be applied.
+     * Sets the target version up to which Flyway should consider migrations. Migrations with a higher version number will
+     * be ignored.
      *
-     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
-     *               number will not be applied. (default: the latest version)
+     * @param target The target version up to which Flyway should consider migrations. (default: the latest version)
      */
     public void setTarget(MigrationVersion target) {
         this.target = target;
     }
 
     /**
-     * Sets the target version up to which Flyway should run migrations. Migrations with a higher version number will
-     * not be applied.
+     * Sets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
      *
-     * @param target The target version up to which Flyway should run migrations. Migrations with a higher version
-     *               number will not be applied. (default: the latest version)
+     * @param target The target version up to which Flyway should consider migrations.
+     *               The special value {@code current} designates the current version of the schema. (default: the latest
+     *               version)
+     * @deprecated Will be removed in Flyway 4.0. Use setTargetAsString(String) instead.
      */
+    @Deprecated
     public void setTarget(String target) {
+        LOG.warn("Flyway.setTarget(String) is deprecated and will be removed in Flyway 4.0. Use setTargetAsString(String) instead.");
+        this.target = MigrationVersion.fromVersion(target);
+    }
+
+    /**
+     * Sets the target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     *
+     * @param target The target version up to which Flyway should consider migrations.
+     *               The special value {@code current} designates the current version of the schema. (default: the latest
+     *               version)
+     */
+    public void setTargetAsString(String target) {
         this.target = MigrationVersion.fromVersion(target);
     }
 
@@ -672,7 +696,7 @@ public class Flyway {
 
     /**
      * Sets the file name prefix for sql migrations.
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -684,7 +708,7 @@ public class Flyway {
 
     /**
      * Sets the file name separator for sql migrations.
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -700,7 +724,7 @@ public class Flyway {
 
     /**
      * Sets the file name suffix for sql migrations.
-     *
+     * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -722,7 +746,7 @@ public class Flyway {
 
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
-     *
+     * <p/>
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param url      The JDBC URL of the database.
@@ -757,8 +781,20 @@ public class Flyway {
      * Sets the version to tag an existing schema with when executing baseline.
      *
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
+     * @deprecated Will be removed in Flyway 4.0. Use setBaselineVersionAsString(String) instead.
      */
+    @Deprecated
     public void setBaselineVersion(String baselineVersion) {
+        LOG.warn("Flyway.setBaselineVersion(String) is deprecated and will be removed in Flyway 4.0. Use setBaselineVersionAsString(String) instead.");
+        this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
+    }
+
+    /**
+     * Sets the version to tag an existing schema with when executing baseline.
+     *
+     * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
+     */
+    public void setBaselineVersionAsString(String baselineVersion) {
         this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
     }
 
@@ -883,8 +919,21 @@ public class Flyway {
      * Set the callbacks for lifecycle notifications.
      *
      * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     * @deprecated Will be removed in Flyway 4.0. Use setCallbacksAsClassNames(String...) instead.
      */
+    @Deprecated
     public void setCallbacks(String... callbacks) {
+        LOG.warn("Flyway.setCallbacks(String...) is deprecated and will be removed in Flyway 4.0. Use setCallbacksAsClassNames(String...) instead.");
+        List<FlywayCallback> callbackList = ClassUtils.instantiateAll(callbacks, classLoader);
+        this.callbacks = callbackList.toArray(new FlywayCallback[callbacks.length]);
+    }
+
+    /**
+     * Set the callbacks for lifecycle notifications.
+     *
+     * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     */
+    public void setCallbacksAsClassNames(String... callbacks) {
         List<FlywayCallback> callbackList = ClassUtils.instantiateAll(callbacks, classLoader);
         this.callbacks = callbackList.toArray(new FlywayCallback[callbacks.length]);
     }
@@ -902,15 +951,29 @@ public class Flyway {
      * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
      * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
+     * @deprecated Will be removed in Flyway 4.0. Use setResolversAsClassNames(String...) instead.
      */
+    @Deprecated
     public void setResolvers(String... resolvers) {
+        LOG.warn("Flyway.setResolvers(String...) is deprecated and will be removed in Flyway 4.0. Use setResolversAsClassNames(String...) instead.");
         List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
         this.resolvers = resolverList.toArray(new MigrationResolver[resolvers.length]);
     }
 
     /**
-     * Starts the database migration. All pending migrations will be applied in order.
-     * Calling migrate on an up-to-date database has no effect.
+     * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     *
+     * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
+     */
+    public void setResolversAsClassNames(String... resolvers) {
+        List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
+        this.resolvers = resolverList.toArray(new MigrationResolver[resolvers.length]);
+    }
+
+    /**
+     * <p>Starts the database migration. All pending migrations will be applied in order.
+     * Calling migrate on an up-to-date database has no effect.</p>
+     * <img src="http://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
      *
      * @return The number of successfully applied migrations.
      * @throws FlywayException when the migration failed.
@@ -980,7 +1043,8 @@ public class Flyway {
     }
 
     /**
-     * Validate applied migration with classpath migrations to detect accidental changes.
+     * <p>Validate applied migration with classpath migrations to detect accidental changes.</p>
+     * <img src="http://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
      * @throws FlywayException when the validation failed.
      */
@@ -1023,8 +1087,9 @@ public class Flyway {
     }
 
     /**
-     * Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
-     * The schemas are cleaned in the order specified by the {@code schemas} property.
+     * <p>Drops all objects (tables, views, procedures, triggers, ...) in the configured schemas.
+     * The schemas are cleaned in the order specified by the {@code schemas} property.</p>
+     * <img src="http://flywaydb.org/assets/balsamiq/command-clean.png" alt="clean">
      *
      * @throws FlywayException when the clean fails.
      */
@@ -1040,8 +1105,9 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the complete information about all the migrations including applied, pending and current migrations with
-     * details and status.
+     * <p>Retrieves the complete information about all the migrations including applied, pending and current migrations with
+     * details and status.</p>
+     * <img src="http://flywaydb.org/assets/balsamiq/command-info.png" alt="info">
      *
      * @return All migrations sorted by version, oldest first.
      * @throws FlywayException when the info retrieval failed.
@@ -1082,7 +1148,9 @@ public class Flyway {
     }
 
     /**
-     * Baselines an existing database, excluding all migrations up to and including baselineVersion.
+     * <p>Baselines an existing database, excluding all migrations up to and including baselineVersion.</p>
+     * <p/>
+     * <img src="http://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
      *
      * @throws FlywayException when the schema baselining failed.
      */
@@ -1100,9 +1168,10 @@ public class Flyway {
     /**
      * Repairs the Flyway metadata table. This will perform the following actions:
      * <ul>
-     *     <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
-     *     <li>Correct wrong checksums</li>
+     * <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
+     * <li>Correct wrong checksums</li>
      * </ul>
+     * <img src="http://flywaydb.org/assets/balsamiq/command-repair.png" alt="repair">
      *
      * @throws FlywayException when the metadata table repair failed.
      */
@@ -1139,7 +1208,7 @@ public class Flyway {
     /**
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
-     *
+     * <p/>
      * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
      *
      * @param properties Properties used for configuration.
@@ -1244,11 +1313,11 @@ public class Flyway {
         }
         String resolversProp = properties.getProperty("flyway.resolvers");
         if (StringUtils.hasLength(resolversProp)) {
-            setResolvers(StringUtils.tokenizeToStringArray(resolversProp, ","));
+            setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
         }
         String callbacksProp = properties.getProperty("flyway.callbacks");
         if (StringUtils.hasLength(callbacksProp)) {
-            setCallbacks(StringUtils.tokenizeToStringArray(callbacksProp, ","));
+            setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>(placeholders);
@@ -1320,7 +1389,7 @@ public class Flyway {
             result = command.execute(connectionMetaDataTable, connectionUserObjects, dbSupport, schemas);
         } finally {
             if (callbackAutoAdded) {
-                setCallbacks(new String[0]);
+                setCallbacksAsClassNames();
             }
 
             JdbcUtils.closeConnection(connectionUserObjects);

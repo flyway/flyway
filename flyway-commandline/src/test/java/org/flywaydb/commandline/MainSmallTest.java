@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.commandline.ConsoleLog.Level;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class MainSmallTest {
     @Before
     public void setUp() {
-        Main.initLogging(false);
+        Main.initLogging(Level.INFO);
     }
 
     @Test

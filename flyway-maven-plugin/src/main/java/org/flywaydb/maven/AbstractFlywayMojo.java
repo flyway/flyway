@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.baselineVersion"
      */
-    private String baselineVersion = flyway.getBaselineVersion().getVersion();
+    private String baselineVersion;
 
     /**
      * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)<br>
@@ -161,7 +161,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.baselineDescription"
      */
-    private String baselineDescription = flyway.getBaselineDescription();
+    private String baselineDescription;
 
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
@@ -237,8 +237,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean cleanOnValidationError = flyway.isCleanOnValidationError();
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version number will not be
-     * applied. (default: the latest version)
+     * The target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * The special value {@code current} designates the current version of the schema. (default: the latest version)
      * <p>Also configurable with Maven or System Property: ${flyway.target}</p>
      *
      * @parameter property="flyway.target"
@@ -340,7 +341,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter property="flyway.baselineOnMigrate"
      */
-    private boolean baselineOnMigrate = flyway.isBaselineOnMigrate();
+    private Boolean baselineOnMigrate;
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: {@code true})<br/>
@@ -442,14 +443,18 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setTable(table);
             if (initVersion != null) {
                 log.warn("flyway.initVersion is deprecated. Use baselineVersion instead. Will be removed in Flyway 4.0.");
-                flyway.setBaselineVersion(initVersion);
+                flyway.setBaselineVersionAsString(initVersion);
             }
             if (initDescription != null) {
                 log.warn("flyway.initDescription is deprecated. Use baselineDescription instead. Will be removed in Flyway 4.0.");
                 flyway.setBaselineDescription(initDescription);
             }
-            flyway.setBaselineVersion(baselineVersion);
-            flyway.setBaselineDescription(baselineDescription);
+            if (baselineVersion != null) {
+                flyway.setBaselineVersionAsString(baselineVersion);
+            }
+            if (baselineDescription != null) {
+                flyway.setBaselineDescription(baselineDescription);
+            }
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
                     if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
@@ -463,15 +468,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 }
                 flyway.setLocations(locations);
             }
-            flyway.setResolvers(resolvers);
-            flyway.setCallbacks(callbacks);
+            flyway.setResolversAsClassNames(resolvers);
+            flyway.setCallbacksAsClassNames(callbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setOutOfOrder(outOfOrder);
-            flyway.setTarget(target);
+            flyway.setTargetAsString(target);
             flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
             flyway.setPlaceholderPrefix(placeholderPrefix);
 
@@ -479,7 +484,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 log.warn("flyway.initOnMigrate is deprecated. Use baselineOnMigrate instead. Will be removed in Flyway 4.0.");
                 flyway.setBaselineOnMigrate(initOnMigrate);
             }
-            flyway.setBaselineOnMigrate(baselineOnMigrate);
+            if (baselineOnMigrate != null) {
+                flyway.setBaselineOnMigrate(baselineOnMigrate);
+            }
             flyway.setValidateOnMigrate(validateOnMigrate);
 
             Properties properties = new Properties();

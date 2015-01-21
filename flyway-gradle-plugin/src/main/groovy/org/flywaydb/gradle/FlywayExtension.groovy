@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,8 +120,9 @@ public class FlywayExtension {
     String placeholderSuffix
 
     /**
-     * The target version up to which Flyway should run migrations. Migrations with a higher version
-     * number will not be applied.
+     * The target version up to which Flyway should consider migrations.
+     * Migrations with a higher version number will be ignored.
+     * The special value {@code current} designates the current version of the schema.
      */
     String target
 

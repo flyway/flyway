@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2014 Axel Fontaine
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,8 +244,8 @@ object FlywayPlugin extends AutoPlugin {
     def configure(config: ConfigBase): Flyway = {
       flyway.setSchemas(config.schemas: _*)
       flyway.setTable(config.table)
-      flyway.setBaselineVersion(config.initVersion)
-      flyway.setBaselineVersion(config.baselineVersion)
+      flyway.setBaselineVersionAsString(config.initVersion)
+      flyway.setBaselineVersionAsString(config.baselineVersion)
       flyway.setBaselineDescription(config.initDescription)
       flyway.setBaselineDescription(config.baselineDescription)
       flyway
@@ -257,10 +257,10 @@ object FlywayPlugin extends AutoPlugin {
       flyway.setSqlMigrationSeparator(config.sqlMigrationSeparator)
       flyway.setSqlMigrationSuffix(config.sqlMigrationSuffix)
       flyway.setCleanOnValidationError(config.cleanOnValidationError)
-      flyway.setTarget(config.target)
+      flyway.setTargetAsString(config.target)
       flyway.setOutOfOrder(config.outOfOrder)
-      flyway.setCallbacks(config.callbacks: _*)
-      flyway.setResolvers(config.resolvers: _*)
+      flyway.setCallbacksAsClassNames(config.callbacks: _*)
+      flyway.setResolversAsClassNames(config.resolvers: _*)
       flyway
     }
     def configure(config: ConfigMigrate): Flyway = {
