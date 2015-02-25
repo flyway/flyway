@@ -21,8 +21,8 @@ import org.gradle.api.Project;
 public class UnqualifiedFlywayPlugin extends FlywayPlugin {
   @Override
   public void apply(Project project) {
-    project.getLogger().warn("The 'flyway' plugin ID is deprecated; " +
-        "please update your build to use 'org.flywaydb.flyway' instead.");
+    project.getLogger().warn("The 'flyway' plugin ID is deprecated and will be removed in Flyway 4.0. " +
+        "Update your build to use 'org.flywaydb.flyway' instead.");
     super.apply(project);
   }
 }
