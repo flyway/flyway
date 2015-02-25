@@ -18,11 +18,8 @@
 
 setlocal
 
-@REM Save current directory
-set OLDDIR=%CD%
-
-@REM Set the current directory to the installation directory
-chdir /d %~dp0
+@REM Assign installation directory to variable
+set INSTALL_DIR=%~dp0
 
 @REM Use JAVA_HOME if it is set
 if "%JAVA_HOME%"=="" (
@@ -31,13 +28,15 @@ if "%JAVA_HOME%"=="" (
  set JAVA_CMD="%JAVA_HOME%\bin\java.exe"
 )
 
-%JAVA_CMD% -cp "lib\*;drivers\*" org.flywaydb.commandline.Main %*
+if "%CP%" == "" goto emptyClasspath
+set "CP=%CP%;"
+:emptyClasspath
+set "CP=%CP%%INSTALL_DIR%\lib\*;%INSTALL_DIR%\drivers\*" 
+
+%JAVA_CMD% -cp %CP% org.flywaydb.commandline.Main %*
 
 @REM Save the exit code
 set JAVA_EXIT_CODE=%ERRORLEVEL%
-
-@REM Restore current directory
-chdir /d %OLDDIR%
 
 @REM Exit using the same code returned from Java
 EXIT /B %JAVA_EXIT_CODE%
