@@ -23,7 +23,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Before
 import org.junit.Test
 
-class FlywayPluginSmallTest {
+class UnqualifiedFlywayPluginSmallTest {
 
     private String defaultUrl = "jdbc:hsqldb:file:/db/flyway_test;shutdown=true"
     protected Project project;
@@ -39,7 +39,7 @@ class FlywayPluginSmallTest {
     @Before
     public void setup() {
         project = ProjectBuilder.builder().build()
-        project.apply plugin: 'org.flywaydb.flyway'
+        project.apply plugin: 'flyway'
     }
 
     @Test
