@@ -135,18 +135,21 @@
                     <artifactId>server-jre</artifactId>
                     <classifier>windows-x64</classifier>
                     <type>tar.gz</type>
+                    <scope>provided</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.oracle</groupId>
                     <artifactId>server-jre</artifactId>
                     <classifier>linux-x64</classifier>
                     <type>tar.gz</type>
+                    <scope>provided</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.oracle</groupId>
                     <artifactId>jre</artifactId>
                     <classifier>macosx-x64</classifier>
                     <type>tar.gz</type>
+                    <scope>provided</scope>
                 </dependency>
             </dependencies>
             <build>
