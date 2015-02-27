@@ -1,4 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!--
+    Detailed information how to contribute: http://flywaydb.org/contribute/code/
+
+    The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
+    Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
+
+    To avoid building the OS-specific flyway-commandline assemblies you can run the build with:
+    mvn -P-CommandlinePlatformAssemblies
+    -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.flywaydb</groupId>
@@ -15,6 +25,9 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <properties>
+        <jreversion>1.8.0_31</jreversion>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -102,7 +115,7 @@
                         </goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
-                            <descriptorSourceDirectory>src/main/assembly</descriptorSourceDirectory>
+                            <descriptor>src/main/assembly/no-jre.xml</descriptor>
                             <encoding>UTF-8</encoding>
                         </configuration>
                     </execution>
@@ -110,4 +123,74 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>CommandlinePlatformAssemblies</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.oracle</groupId>
+                    <artifactId>server-jre</artifactId>
+                    <classifier>windows-x64</classifier>
+                    <type>tar.gz</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle</groupId>
+                    <artifactId>server-jre</artifactId>
+                    <classifier>linux-x64</classifier>
+                    <type>tar.gz</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.oracle</groupId>
+                    <artifactId>jre</artifactId>
+                    <classifier>macosx-x64</classifier>
+                    <type>tar.gz</type>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-jres</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <ignorePermissions>true</ignorePermissions>
+                                    <includeTypes>tar.gz</includeTypes>
+                                    <stripVersion>true</stripVersion>
+                                    <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-windows</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/windows.xml</descriptor>
+                                        <descriptor>src/main/assembly/linux.xml</descriptor>
+                                        <descriptor>src/main/assembly/macosx.xml</descriptor>
+                                    </descriptors>
+                                    <encoding>UTF-8</encoding>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
