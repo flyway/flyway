@@ -16,6 +16,7 @@
 package org.flywaydb.maven;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfo;
 
 /**
  * Maven goal that triggers the migration of the configured database to the latest version.
@@ -32,6 +33,8 @@ public class MigrateMojo extends AbstractFlywayMojo {
 
         flyway.migrate();
 
-        mavenProject.getProperties().setProperty("flyway.current", flyway.info().current().getVersion().toString());
+        MigrationInfo current = flyway.info().current();
+        String currentVersion = current == null ? null : current.getVersion().toString();
+        mavenProject.getProperties().setProperty("flyway.current", currentVersion);
     }
 }
