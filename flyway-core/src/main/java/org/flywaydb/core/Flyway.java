@@ -991,7 +991,7 @@ public class Flyway {
 
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
 
-                if (!metaDataTable.hasBaselineMarker() && !metaDataTable.hasAppliedMigrations()) {
+                if (!metaDataTable.hasSchemasMarker() && !metaDataTable.hasBaselineMarker() && !metaDataTable.hasAppliedMigrations()) {
                     List<Schema> nonEmptySchemas = new ArrayList<Schema>();
                     for (Schema schema : schemas) {
                         if (!schema.empty()) {
