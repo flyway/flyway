@@ -40,9 +40,7 @@ public class SqlStatementBuilderSmallTest {
     public void sqlServerEndsWithOpenMultilineStringLiteral() {
         assertFalse(endsWithOpenMultilineStringLiteral(new SQLServerSqlStatementBuilder(), "print 'baz'+"));
         assertFalse(endsWithOpenMultilineStringLiteral(new SQLServerSqlStatementBuilder(), "CUSTOMER set creaon_date = {ts '3099-01-01 00:00:00'} FROM CUSTOMER c inner join inserted i on c.id=i.id"));
-
-        //Currently broken:
-        //assertFalse(endsWithOpenMultilineStringLiteral(new SQLServerSqlStatementBuilder(), "print 'baz'-- Oops"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new SQLServerSqlStatementBuilder(), "print 'baz'-- Oops"));
     }
 
     @Test
@@ -170,7 +168,7 @@ public class SqlStatementBuilderSmallTest {
     }
     
     private boolean endsWithOpenMultilineStringLiteral(SqlStatementBuilder builder, String line) {
-        builder.applyStateChanges(line);
+        builder.applyStateChanges(builder.simplifyLine(line));
         return builder.endWithOpenMultilineStringLiteral();
     }
 }
