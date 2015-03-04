@@ -140,7 +140,6 @@ public class SqlScript {
     List<SqlStatement> linesToStatements(List<String> lines) {
         List<SqlStatement> statements = new ArrayList<SqlStatement>();
 
-        boolean inMultilineComment = false;
         Delimiter nonStandardDelimiter = null;
         SqlStatementBuilder sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
 
@@ -151,27 +150,6 @@ public class SqlScript {
                 if (!StringUtils.hasText(line)) {
                     // Skip empty line between statements.
                     continue;
-                }
-
-                String trimmedLine = line.trim();
-
-                if (!sqlStatementBuilder.isCommentDirective(trimmedLine)) {
-                    if (trimmedLine.startsWith("/*")) {
-                        inMultilineComment = true;
-                    }
-
-                    if (inMultilineComment) {
-                        if (trimmedLine.endsWith("*/")) {
-                            inMultilineComment = false;
-                        }
-                        // Skip line part of a multi-line comment
-                        continue;
-                    }
-
-                    if (sqlStatementBuilder.isSingleLineComment(trimmedLine)) {
-                        // Skip single-line comment
-                        continue;
-                    }
                 }
 
                 Delimiter newDelimiter = sqlStatementBuilder.extractNewDelimiterFromLine(line);
@@ -196,6 +174,8 @@ public class SqlScript {
                 statements.add(sqlStatement);
                 LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql());
 
+                sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
+            } else if (sqlStatementBuilder.canDiscard()) {
                 sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
             }
         }

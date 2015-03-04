@@ -31,64 +31,64 @@ import static org.junit.Assert.assertTrue;
 public class SqlStatementBuilderSmallTest {
     @Test
     public void postgreSqlEndsWithOpenMultilineStringLiteral() {
-        assertTrue(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first"));
-        assertFalse(new PostgreSQLSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO address VALUES (1, '1. first\n" +
+        assertTrue(endsWithOpenMultilineStringLiteral(new PostgreSQLSqlStatementBuilder(), "INSERT INTO address VALUES (1, '1. first"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new PostgreSQLSqlStatementBuilder(), "INSERT INTO address VALUES (1, '1. first\n" +
                 "2. second');"));
     }
 
     @Test
     public void sqlServerEndsWithOpenMultilineStringLiteral() {
-        assertFalse(new SQLServerSqlStatementBuilder().endsWithOpenMultilineStringLiteral("print 'baz'+"));
-        assertFalse(new SQLServerSqlStatementBuilder().endsWithOpenMultilineStringLiteral("CUSTOMER set creaon_date = {ts '3099-01-01 00:00:00'} FROM CUSTOMER c inner join inserted i on c.id=i.id"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new SQLServerSqlStatementBuilder(), "print 'baz'+"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new SQLServerSqlStatementBuilder(), "CUSTOMER set creaon_date = {ts '3099-01-01 00:00:00'} FROM CUSTOMER c inner join inserted i on c.id=i.id"));
 
         //Currently broken:
-        //assertFalse(new SQLServerSqlStatementBuilder().endsWithOpenMultilineStringLiteral("print 'baz'-- Oops"));
+        //assertFalse(endsWithOpenMultilineStringLiteral(new SQLServerSqlStatementBuilder(), "print 'baz'-- Oops"));
     }
 
     @Test
     public void h2EndsWithOpenMultilineStringLiteral() {
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t;"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='xyz';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a= 'xyz';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='xyz'"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='$$';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='xy''z';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='xyz' and b like 'abc%';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a=' xyz ';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a=';';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='$$''$$';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='$$' || '$$';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='$$'||'$$';"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. T');"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. Semicolon;');"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO test_user (id, name) VALUES (1, 'Mr. Semicolon;');"));
-        assertFalse(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("insert into TAB1 (GUID, UID, VAL) values (1, '0100', 100);"));
-        assertTrue(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='$$||''$$;"));
-        assertTrue(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='"));
-        assertTrue(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='abc"));
-        assertTrue(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='abc''"));
-        assertTrue(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("select * from t where a='abc'''||'"));
-        assertTrue(new H2SqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO test_user (name) VALUES ('Mr. Semicolon+Linebreak;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='xyz';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a= 'xyz';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='xyz'"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='$$';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='xy''z';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='xyz' and b like 'abc%';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a=' xyz ';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a=';';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='$$''$$';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='$$' || '$$';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='$$'||'$$';"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "INSERT INTO test_user (name) VALUES ('Mr. T');"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "INSERT INTO test_user (name) VALUES ('Mr. Semicolon;');"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "INSERT INTO test_user (id, name) VALUES (1, 'Mr. Semicolon;');"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "insert into TAB1 (GUID, UID, VAL) values (1, '0100', 100);"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='$$||''$$;"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='abc"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='abc''"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "select * from t where a='abc'''||'"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new H2SqlStatementBuilder(), "INSERT INTO test_user (name) VALUES ('Mr. Semicolon+Linebreak;"));
     }
 
     @Test
     public void oracleEndsWithOpenMultilineStringLiteral() {
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']' from dual;"));
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')' from dual;"));
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}' from dual;"));
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>' from dual;"));
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'[Hello 'quotes']' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'(Hello 'quotes')' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'{Hello 'quotes'}' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'<Hello 'quotes'>' from dual;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'$Hello 'quotes'$' from dual;"));
 
-        assertTrue(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'[Hello 'quotes']"));
-        assertTrue(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'(Hello 'quotes')"));
-        assertTrue(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'{Hello 'quotes'}"));
-        assertTrue(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'<Hello 'quotes'>"));
-        assertTrue(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("select q'$Hello 'quotes'$"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'[Hello 'quotes']"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'(Hello 'quotes')"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'{Hello 'quotes'}"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'<Hello 'quotes'>"));
+        assertTrue(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'$Hello 'quotes'$"));
     }
 
     @Test
     public void oracleEndsWithOpenMultilineStringLiteralComplex() {
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID)\n" +
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "INSERT INTO USER_SDO_GEOM_METADATA (TABLE_NAME, COLUMN_NAME, DIMINFO, SRID)\n" +
                 "VALUES ('GEO_TEST', 'GEO',\n" +
                 "MDSYS.SDO_DIM_ARRAY\n" +
                 "(MDSYS.SDO_DIM_ELEMENT('LONG', -180.0, 180.0, 0.05),\n" +
@@ -100,7 +100,7 @@ public class SqlStatementBuilderSmallTest {
 
     @Test
     public void oracleEndsWithOpenMultilineStringLiteralAngularBrackets() {
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("ALTER TABLE VALUATION_PROPERTY_FORMATTING ADD (\n" +
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "ALTER TABLE VALUATION_PROPERTY_FORMATTING ADD (\n" +
                 "CONSTRAINT VAL_PROPERTY_FORMAT_CURR_CK\n" +
                 "CHECK ((NUMBER_DISPLAY_CONVERSION='FX_RATE' AND CURRENCY IS NOT NULL) OR (NUMBER_DISPLAY_CONVERSION<>'FX_RATE' AND CURRENCY IS NULL))\n" +
                 "ENABLE VALIDATE);"));
@@ -109,7 +109,7 @@ public class SqlStatementBuilderSmallTest {
 
     @Test
     public void oracleEndsWithOpenMultilineStringLiteralNoSpace() {
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("CREATE OR REPLACE PROCEDURE BARBAZ\n" +
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "CREATE OR REPLACE PROCEDURE BARBAZ\n" +
                 "    (\n" +
                 "        BAR  IN OUT VARCHAR2,\n" +
                 "        BAZ  IN OUT VARCHAR2\n" +
@@ -122,10 +122,10 @@ public class SqlStatementBuilderSmallTest {
                 "    END IF;\n" +
                 "END;\n" +
                 "/"));
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'HELLO'FROM DUAL;"));
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'HELLO SELECT'FROM DUAL;"));
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT'FROM 'FROM DUAL;"));
-        assertFalse(new OracleSqlStatementBuilder().endsWithOpenMultilineStringLiteral("SELECT' 'FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "SELECT'HELLO'FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "SELECT'HELLO SELECT'FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "SELECT'FROM 'FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "SELECT' 'FROM DUAL;"));
     }
 
     @Test
@@ -167,5 +167,10 @@ public class SqlStatementBuilderSmallTest {
         StringBuilder sql = new StringBuilder("SELECT * FROM t WHERE a = 'BİRİNİ';");
         SqlStatementBuilder.stripDelimiter(sql, new Delimiter(";", false));
         assertEquals("SELECT * FROM t WHERE a = 'BİRİNİ'", sql.toString());
+    }
+    
+    private boolean endsWithOpenMultilineStringLiteral(SqlStatementBuilder builder, String line) {
+        builder.applyStateChanges(line);
+        return builder.endWithOpenMultilineStringLiteral();
     }
 }
