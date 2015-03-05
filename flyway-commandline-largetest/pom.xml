@@ -78,7 +78,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>flyway-sample</includeArtifactIds>
-                            <outputDirectory>${unpackDir}/flyway-${project.version}/jars</outputDirectory>
+                            <outputDirectory>${unpackDir}/flyway-${project.version}/jardir</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

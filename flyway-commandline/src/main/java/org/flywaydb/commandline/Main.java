@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.PropertiesUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -79,7 +80,8 @@ public class Main {
             overrideConfiguration(properties, args);
 
             loadJdbcDrivers();
-            loadJavaMigrations(properties);
+            loadJavaMigrationsFromJarDir(properties);
+            loadJavaMigrationsFromJarDirs(properties);
 
             Flyway flyway = new Flyway();
             flyway.configure(properties);
@@ -155,7 +157,7 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.locations", "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
-        properties.put("flyway.jarDir", new File(getInstallationDir(), "jars").getAbsolutePath());
+        properties.put("flyway.jarDirs", new File(getInstallationDir(), "jars").getAbsolutePath());
     }
 
     /**
@@ -165,7 +167,7 @@ public class Main {
      */
     private static void printVersion() throws IOException {
         String version = new ClassPathResource("version.txt", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
-        LOG.info("Flyway (Command-line Tool) v." + version);
+        LOG.info("Flyway " + version + " by Boxfuse");
         LOG.info("");
     }
 
@@ -218,7 +220,7 @@ public class Main {
         LOG.info("baselineOnMigrate      : Baseline on migrate against uninitialized non-empty schema");
         LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
-        LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");
+        LOG.info("jarDirs                : Dirs for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
@@ -260,9 +262,14 @@ public class Main {
      * @param properties The configured properties.
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJavaMigrations(Properties properties) throws IOException {
-        String directoryForJdbcDriversAndJavaMigrations = properties.getProperty("flyway.jarDir");
-        File dir = new File(directoryForJdbcDriversAndJavaMigrations);
+    private static void loadJavaMigrationsFromJarDir(Properties properties) throws IOException {
+        String jarDir = properties.getProperty("flyway.jarDir");
+        if (!StringUtils.hasLength(jarDir)) {
+            return;
+        }
+        LOG.warn("flyway.jarDir is deprecated and will be removed in Flyway 4.0. Use flyway.jarDirs instead.");
+
+        File dir = new File(jarDir);
         File[] files = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.endsWith(".jar");
@@ -271,12 +278,47 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.error("Directory for Java Migrations not found: " + directoryForJdbcDriversAndJavaMigrations);
+            LOG.error("Directory for Java Migrations not found: " + jarDir);
             System.exit(1);
         }
 
         for (File file : files) {
             addJarOrDirectoryToClasspath(file.getPath());
+        }
+    }
+
+    /**
+     * Loads all the jars contained in the jars folder. (For Java Migrations)
+     *
+     * @param properties The configured properties.
+     * @throws IOException When the jars could not be loaded.
+     */
+    private static void loadJavaMigrationsFromJarDirs(Properties properties) throws IOException {
+        String jarDirs = properties.getProperty("flyway.jarDirs");
+        if (!StringUtils.hasLength(jarDirs)) {
+            return;
+        }
+
+        jarDirs = jarDirs.replace(File.pathSeparator, ",");
+        String[] dirs = StringUtils.tokenizeToStringArray(jarDirs, ",");
+
+        for (String dirName : dirs) {
+            File dir = new File(dirName);
+            File[] files = dir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".jar");
+                }
+            });
+
+            // see javadoc of listFiles(): null if given path is not a real directory
+            if (files == null) {
+                LOG.error("Directory for Java Migrations not found: " + dirName);
+                System.exit(1);
+            }
+
+            for (File file : files) {
+                addJarOrDirectoryToClasspath(file.getPath());
+            }
         }
     }
 
