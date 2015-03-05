@@ -14,6 +14,8 @@
 -- limitations under the License.
 --
 
+select q'[Hello no quotes]' from dual;
+select q'[Hello 'no quotes]' from dual;
 select q'[Hello 'quotes']' from dual;
 select q'(Hello 'quotes')' from dual;
 select q'{Hello 'quotes'}' from dual;

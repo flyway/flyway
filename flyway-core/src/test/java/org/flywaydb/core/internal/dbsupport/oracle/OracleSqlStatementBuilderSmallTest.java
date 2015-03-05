@@ -55,4 +55,10 @@ public class OracleSqlStatementBuilderSmallTest {
         builder.addLine("INSERT INTO nvarchar2_test VALUES ( ' N' );");
         assertTrue(builder.isTerminated());
     }
+
+    @Test
+    public void qQuote() {
+        builder.addLine("select q'[Hello 'no quotes]' from dual;");
+        assertTrue(builder.isTerminated());
+    }
 }

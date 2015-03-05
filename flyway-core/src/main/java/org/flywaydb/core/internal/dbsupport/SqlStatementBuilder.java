@@ -222,7 +222,7 @@ public class SqlStatementBuilder {
      * @return The simplified line.
      */
     protected String simplifyLine(String line) {
-        return line.replace("--", " -- ").replaceAll("\\s+", " ").trim().toUpperCase();
+        return removeEscapedQuotes(line).replace("--", " -- ").replaceAll("\\s+", " ").trim().toUpperCase();
     }
 
     /**
@@ -349,7 +349,7 @@ public class SqlStatementBuilder {
     private List<TokenType> extractStringLiteralDelimitingTokens(String[] tokens) {
         List<TokenType> delimitingTokens = new ArrayList<TokenType>();
         for (String token : tokens) {
-            String cleanToken = cleanToken(removeEscapedQuotes(token));
+            String cleanToken = cleanToken(token);
             boolean handled = false;
 
             if (alternateQuote == null) {
@@ -364,11 +364,6 @@ public class SqlStatementBuilder {
 
                     alternateQuote = closeQuote;
                     delimitingTokens.add(TokenType.ALTERNATE_QUOTE);
-
-                    if (cleanToken.startsWith("\"") && cleanToken.endsWith("'")) {
-                        // add QUOTE token for cases where token starts with a " and ends with a '
-                        delimitingTokens.add(TokenType.QUOTE);
-                    }
 
                     continue;
                 }

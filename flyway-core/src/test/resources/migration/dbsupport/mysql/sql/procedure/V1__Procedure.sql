@@ -61,3 +61,23 @@ DELIMITER ;
 
 CALL sp_temp;
 DROP PROCEDURE IF EXISTS sp_temp;
+
+DELIMITER //
+CREATE PROCEDURE get_stats_bonus_cumul (isdn BIGINT, bid VARCHAR(100), dt0 DATE, dt1 DATE)
+
+BEGIN
+DECLARE sql_cmd VARCHAR(10000);
+SET sql_cmd = CONCAT(
+    'SELECT
+    "',dt0,'" AS from_date,
+FROM stats_bonus s1
+WHERE s1.agg_date="',dt1,'"');
+
+SET @sqlstatement = sql_cmd;
+PREPARE sqlquery FROM @sqlstatement;
+EXECUTE sqlquery;
+DEALLOCATE PREPARE sqlquery;
+END
+//
+
+DELIMITER ;

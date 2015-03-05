@@ -83,7 +83,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
     protected String removeEscapedQuotes(String token) {
         String noEscapedBackslashes = StringUtils.replaceAll(token, "\\\\", "");
         String noBackslashEscapes = StringUtils.replaceAll(StringUtils.replaceAll(noEscapedBackslashes, "\\'", ""), "\\\"", "");
-        return StringUtils.replaceAll(noBackslashEscapes, "''", "");
+        return StringUtils.replaceAll(noBackslashEscapes, "''", "").replace("'", " ' ");
     }
 
     @Override
