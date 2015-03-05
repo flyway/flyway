@@ -110,6 +110,11 @@ public class Flyway {
     private MigrationVersion target = MigrationVersion.LATEST;
 
     /**
+     * Whether placeholders should be replaced. (default: true)
+     */
+    private boolean placeholderReplacement = true;
+
+    /**
      * The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      */
     private Map<String, String> placeholders = new HashMap<String, String>();
@@ -311,6 +316,15 @@ public class Flyway {
      */
     public MigrationVersion getTarget() {
         return target;
+    }
+
+    /**
+     * Checks whether placeholders should be replaced.
+     *
+     * @return Whether placeholders should be replaced. (default: true)
+     */
+    public boolean isPlaceholderReplacement() {
+        return placeholderReplacement;
     }
 
     /**
@@ -665,6 +679,15 @@ public class Flyway {
      */
     public void setTargetAsString(String target) {
         this.target = MigrationVersion.fromVersion(target);
+    }
+
+    /**
+     * Sets whether placeholders should be replaced.
+     *
+     * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
+     */
+    public void setPlaceholderReplacement(boolean placeholderReplacement) {
+        this.placeholderReplacement = placeholderReplacement;
     }
 
     /**
@@ -1202,7 +1225,10 @@ public class Flyway {
      * @return A new, fully configured, PlaceholderReplacer.
      */
     private PlaceholderReplacer createPlaceholderReplacer() {
-        return new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+        if (placeholderReplacement) {
+            return new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+        }
+        return PlaceholderReplacer.NO_PLACEHOLDERS;
     }
 
     /**

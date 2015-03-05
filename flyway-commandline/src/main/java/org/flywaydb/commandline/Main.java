@@ -207,6 +207,7 @@ public class Main {
         LOG.info("sqlMigrationSeparator  : File name separator for Sql migrations");
         LOG.info("sqlMigrationSuffix     : File name suffix for Sql migrations");
         LOG.info("encoding               : Encoding of Sql migrations");
+        LOG.info("placeholderReplacement : Whether placeholders should be replaced");
         LOG.info("placeholders           : Placeholders to replace in Sql migrations");
         LOG.info("placeholderPrefix      : Prefix of every placeholder");
         LOG.info("placeholderSuffix      : Suffix of every placeholder");

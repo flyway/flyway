@@ -70,6 +70,7 @@ object FlywayPlugin extends Plugin {
   //*********************
 
   val flywayIgnoreFailedFutureMigration = settingKey[Boolean]("Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a newer deployment of the application that are not yet available in this version. For example: we have migrations available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0 (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not an option. An older version of the application can then be redeployed, even though a newer one failed due to a bad migration. (default: false)")
+  val flywayPlaceholderReplacement = settingKey[Boolean]("Whether placeholders should be replaced. (default: true)")
   val flywayPlaceholders = settingKey[Map[String, String]]("A map of <placeholder, replacementValue> to apply to sql migration scripts.")
   val flywayPlaceholderPrefix = settingKey[String]("The prefix of every placeholder. (default: ${ )")
   val flywayPlaceholderSuffix = settingKey[String]("The suffix of every placeholder. (default: } )")
@@ -91,7 +92,7 @@ object FlywayPlugin extends Plugin {
   private case class ConfigMigrationLoading(locations: Seq[String], resolvers: Seq[String], encoding: String,
                                             sqlMigrationPrefix: String, sqlMigrationSeparator: String, sqlMigrationSuffix: String,
                                            cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean, callbacks: Seq[String])
-  private case class ConfigMigrate(ignoreFailedFutureMigration: Boolean, placeholders: Map[String, String],
+  private case class ConfigMigrate(ignoreFailedFutureMigration: Boolean, placeholderReplacement: Boolean, placeholders: Map[String, String],
                                          placeholderPrefix: String, placeholderSuffix: String, initOnMigrate: Boolean, baselineOnMigrate: Boolean, validateOnMigrate: Boolean)
   private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading, migrate: ConfigMigrate)
 
@@ -140,6 +141,7 @@ object FlywayPlugin extends Plugin {
       flywayOutOfOrder := defaults.isOutOfOrder,
       flywayCallbacks := new Array[String](0),
       flywayIgnoreFailedFutureMigration := defaults.isIgnoreFailedFutureMigration,
+      flywayPlaceholderReplacement := defaults.isPlaceholderReplacement,
       flywayPlaceholders := defaults.getPlaceholders.asScala.toMap,
       flywayPlaceholderPrefix := defaults.getPlaceholderPrefix,
       flywayPlaceholderSuffix := defaults.getPlaceholderSuffix,
@@ -158,9 +160,9 @@ object FlywayPlugin extends Plugin {
         (locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks) =>
           ConfigMigrationLoading(locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks)
       },
-      flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayBaselineOnMigrate, flywayValidateOnMigrate) map {
-        (ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate) =>
-          ConfigMigrate(ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate)
+      flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayBaselineOnMigrate, flywayValidateOnMigrate) map {
+        (ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate) =>
+          ConfigMigrate(ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate)
       },
       flywayConfig <<= (flywayConfigDataSource, flywayConfigBase, flywayConfigMigrationLoading, flywayConfigMigrate) map {
         (dataSource, base, migrationLoading, migrate) => Config(dataSource, base, migrationLoading, migrate)

@@ -103,6 +103,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
         propSet(flyway, 'encoding')
+        propSet(flyway, 'placeholderReplacement')
         propSet(flyway, 'placeholderPrefix')
         propSet(flyway, 'placeholderSuffix')
 
