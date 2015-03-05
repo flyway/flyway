@@ -388,14 +388,14 @@ public class FlywayMediumTest {
             flyway.validate();
             fail();
         } catch (FlywayException e) {
-            //expected
+            assertTrue(e.getMessage().contains("not applied"));
         }
         flyway.setOutOfOrder(true);
         try {
             flyway.validate();
             fail();
         } catch (FlywayException e) {
-            //expected
+            assertTrue(e.getMessage().contains("not applied"));
         }
         flyway.migrate();
         flyway.validate();

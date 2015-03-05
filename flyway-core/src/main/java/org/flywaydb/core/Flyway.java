@@ -1081,7 +1081,7 @@ public class Flyway {
             if (cleanOnValidationError) {
                 new DbClean(connectionMetaDataTable, metaDataTable, schemas, callbacks).clean();
             } else {
-                throw new FlywayException("Validate failed. Found differences between applied migrations and available migrations: " + validationError);
+                throw new FlywayException("Validate failed. " + validationError);
             }
         }
     }
