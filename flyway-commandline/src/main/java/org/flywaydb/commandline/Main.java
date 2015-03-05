@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.PropertiesUtils;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -166,8 +167,7 @@ public class Main {
      * @throws IOException when the version could not be read.
      */
     private static void printVersion() throws IOException {
-        String version = new ClassPathResource("version.txt", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
-        LOG.info("Flyway " + version + " by Boxfuse");
+        VersionPrinter.printVersion(Thread.currentThread().getContextClassLoader());
         LOG.info("");
     }
 

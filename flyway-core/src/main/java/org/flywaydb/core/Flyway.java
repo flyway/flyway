@@ -39,6 +39,7 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -1369,6 +1370,8 @@ public class Flyway {
     /*private -> testing*/ <T> T execute(Command<T> command) {
         T result;
 
+        VersionPrinter.printVersion(classLoader);
+
         Connection connectionMetaDataTable = null;
         Connection connectionUserObjects = null;
 
@@ -1376,7 +1379,7 @@ public class Flyway {
 
         try {
             if (dataSource == null) {
-                throw new FlywayException("DataSource not set! Check your configuration!");
+                throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");
             }
 
             connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
