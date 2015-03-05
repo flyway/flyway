@@ -60,7 +60,7 @@ public class MainClassLoaderSmallTest {
         String filename = new ClassPathResource("test.properties", getClassLoader()).getLocationOnDisk();
         String[] args = new String[]{"-configFile=" + filename, "-configFileEncoding=UTF-8"};
 
-        Main.loadConfigurationFile(properties, args);
+        Main.loadConfiguration(properties, args);
 
         assertEquals(4, properties.size());
         assertEquals("still there!", properties.getProperty("existing"));

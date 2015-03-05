@@ -49,7 +49,7 @@
             <directory>src/main/assembly</directory>
             <outputDirectory>/conf</outputDirectory>
             <includes>
-                <include>flyway.properties</include>
+                <include>flyway.conf</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>

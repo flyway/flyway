@@ -76,7 +76,7 @@ public class Main {
 
             Properties properties = new Properties();
             initializeDefaults(properties);
-            loadConfigurationFile(properties, args);
+            loadConfiguration(properties, args);
             overrideConfiguration(properties, args);
 
             loadJdbcDrivers();
@@ -106,8 +106,8 @@ public class Main {
     /**
      * Executes this operation on this Flyway instance.
      *
-     * @param flyway       The Flyway instance.
-     * @param operation    The operation to execute.
+     * @param flyway    The Flyway instance.
+     * @param operation The operation to execute.
      */
     private static void executeOperation(Flyway flyway, String operation) {
         if ("clean".equals(operation)) {
@@ -131,23 +131,23 @@ public class Main {
             System.exit(1);
         }
     }
-    
+
     /**
      * Checks the desired log level.
-     * 
+     *
      * @param args The command-line arguments.
      * @return The desired log level.
      */
     private static Level getLogLevel(String[] args) {
-    	for(String arg : args) {
-    		if ("-X".equals(arg)) {
-    			return Level.DEBUG;
-    		}
+        for (String arg : args) {
+            if ("-X".equals(arg)) {
+                return Level.DEBUG;
+            }
             if ("-q".equals(arg)) {
-    			return Level.WARN;
-    		}
-    	}
-    	return Level.INFO;
+                return Level.WARN;
+            }
+        }
+        return Level.INFO;
     }
 
     /**
@@ -181,7 +181,7 @@ public class Main {
         LOG.info("");
         LOG.info("flyway [options] command");
         LOG.info("");
-        LOG.info("By default, the configuration will be read from conf/flyway.properties.");
+        LOG.info("By default, the configuration will be read from conf/flyway.conf.");
         LOG.info("Options passed from the command-line override the configuration.");
         LOG.info("");
         LOG.info("Commands");
@@ -345,27 +345,60 @@ public class Main {
     }
 
     /**
-     * Loads the configuration from the configuration file. If a configuration file is specified using the -configfile
-     * argument it will be used, otherwise the default config file (conf/flyway.properties) will be loaded.
+     * Loads the configuration from the various possible locations.
      *
      * @param properties The properties object to load to configuration into.
      * @param args       The command-line arguments passed in.
-     * @throws FlywayException when the configuration file could not be loaded.
      */
     /* private -> for testing */
-    static void loadConfigurationFile(Properties properties, String[] args) throws FlywayException {
-        String configFile = determineConfigurationFile(args);
+    static void loadConfiguration(Properties properties, String[] args) {
+        String encoding = determineConfigurationFileEncoding(args);
 
+        if (loadConfigurationFile(properties, getInstallationDir() + "/conf/flyway.properties", encoding, false)) {
+            LOG.warn("conf/flyway.properties usage is deprecated and will be removed in Flyway 4.0. Use conf/flyway.conf instead.");
+        }
+        loadConfigurationFile(properties, getInstallationDir() + "/conf/flyway.conf", encoding, false);
+        loadConfigurationFile(properties, System.getProperty("user.home") + "/flyway.conf", encoding, false);
+        loadConfigurationFile(properties, "flyway.conf", encoding, false);
+
+        String configFile = determineConfigurationFileArgument(args);
         if (configFile != null) {
-            try {
-                String encoding = determineConfigurationFileEncoding(args);
-                Reader fileReader = new InputStreamReader(new FileInputStream(configFile), encoding);
-                String propertiesData = FileCopyUtils.copyToString(fileReader);
+            loadConfigurationFile(properties, configFile, encoding, true);
+        }
+    }
 
-                properties.putAll(PropertiesUtils.loadPropertiesFromString(propertiesData));
-            } catch (IOException e) {
-                throw new FlywayException("Unable to load config file: " + configFile, e);
+    /**
+     * Loads the configuration from the configuration file. If a configuration file is specified using the -configfile
+     * argument it will be used, otherwise the default config file (conf/flyway.properties) will be loaded.
+     *
+     * @param properties    The properties object to load to configuration into.
+     * @param file          The configuration file to load.
+     * @param encoding      The encoding of the configuration file.
+     * @param failIfMissing Whether to fail if the file is missing.
+     * @return Whether the file was loaded successfully.
+     * @throws FlywayException when the configuration file could not be loaded.
+     */
+    private static boolean loadConfigurationFile(Properties properties, String file, String encoding, boolean failIfMissing) throws FlywayException {
+        File configFile = new File(file);
+        String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
+
+        if (!configFile.isFile() || !configFile.canRead()) {
+            if (!failIfMissing) {
+                LOG.debug(errorMessage);
+                return false;
             }
+            throw new FlywayException(errorMessage);
+        }
+
+        LOG.debug("Loading config file: " + configFile.getAbsolutePath());
+        try {
+            Reader fileReader = new InputStreamReader(new FileInputStream(configFile), encoding);
+            String propertiesData = FileCopyUtils.copyToString(fileReader);
+
+            properties.putAll(PropertiesUtils.loadPropertiesFromString(propertiesData));
+            return true;
+        } catch (IOException e) {
+            throw new FlywayException(errorMessage, e);
         }
     }
 
@@ -375,14 +408,14 @@ public class Main {
      * @param args The command-line arguments passed in.
      * @return The path of the configuration file on disk.
      */
-    private static String determineConfigurationFile(String[] args) {
+    private static String determineConfigurationFileArgument(String[] args) {
         for (String arg : args) {
             if (isPropertyArgument(arg) && "configFile".equals(getArgumentProperty(arg))) {
                 return getArgumentValue(arg);
             }
         }
 
-        return getInstallationDir() + "/conf/flyway.properties";
+        return null;
     }
 
     /**

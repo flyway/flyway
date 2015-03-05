@@ -16,7 +16,6 @@
 #
 
 # Save current directory
-OLDDIR=`pwd`
 cygwin=false
 case "`uname`" in
   CYGWIN*) cygwin=true;;
