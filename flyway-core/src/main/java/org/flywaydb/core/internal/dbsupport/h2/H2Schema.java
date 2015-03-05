@@ -18,10 +18,10 @@ package org.flywaydb.core.internal.dbsupport.h2;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.View;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,6 +139,11 @@ public class H2Schema extends Schema<H2DbSupport> {
             tables[i] = new H2Table(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    protected View[] doAllViews() throws SQLException {
+        return new View[0];
     }
 
     /**

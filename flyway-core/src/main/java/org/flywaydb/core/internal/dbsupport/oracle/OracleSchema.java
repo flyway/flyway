@@ -19,9 +19,9 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.View;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -342,6 +342,11 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         return tables;
     }
 
+    @Override
+    protected View[] doAllViews() throws SQLException {
+        return new View[0];
+    }
+    
     @Override
     public Table getTable(String tableName) {
         return new OracleTable(jdbcTemplate, dbSupport, this, tableName);

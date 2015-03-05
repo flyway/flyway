@@ -18,9 +18,9 @@ package org.flywaydb.core.internal.dbsupport.sqlite;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.View;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
-
 import java.sql.SQLException;
 import java.util.List;
 
@@ -88,6 +88,11 @@ public class SQLiteSchema extends Schema<SQLiteDbSupport> {
             tables[i] = new SQLiteTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    @Override
+    protected View[] doAllViews() throws SQLException {
+        return new View[0];
     }
 
     @Override

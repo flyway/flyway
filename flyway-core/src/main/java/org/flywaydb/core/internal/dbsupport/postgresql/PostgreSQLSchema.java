@@ -15,26 +15,30 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.dbsupport.Type;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.Type;
+import org.flywaydb.core.internal.dbsupport.View;
 
 /**
  * PostgreSQL implementation of Schema.
  */
 public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
+
     /**
      * Creates a new PostgreSQL schema.
      *
-     * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param dbSupport    The database-specific support.
-     * @param name         The name of the schema.
+     * @param jdbcTemplate
+     *            The Jdbc Template for communicating with the DB.
+     * @param dbSupport
+     *            The database-specific support.
+     * @param name
+     *            The name of the schema.
      */
     public PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
@@ -71,6 +75,10 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
 
         for (Table table : allTables()) {
             table.drop();
+        }
+
+        for (View view : allViews()) {
+            view.drop();
         }
 
         for (String statement : generateDropStatementsForSequences()) {
@@ -110,7 +118,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
      * Generates the statements for dropping the sequences in this schema.
      *
      * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
+     * @throws SQLException
+     *             when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForSequences() throws SQLException {
         List<String> sequenceNames =
@@ -128,9 +137,11 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     /**
      * Generates the statements for dropping the types in this schema.
      *
-     * @param recreate Flag indicating whether the types should be recreated. Necessary for type-function chicken and egg problem.
+     * @param recreate
+     *            Flag indicating whether the types should be recreated. Necessary for type-function chicken and egg problem.
      * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
+     * @throws SQLException
+     *             when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForBaseTypes(boolean recreate) throws SQLException {
         List<String> typeNames =
@@ -156,7 +167,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
      * Generates the statements for dropping the aggregates in this schema.
      *
      * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
+     * @throws SQLException
+     *             when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForAggregates() throws SQLException {
         List<Map<String, String>> rows =
@@ -164,8 +176,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                                 + "WHERE pg_proc.proisagg = true AND ns.nspname = ?",
-                        name
-                );
+                                name
+                        );
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {
@@ -178,7 +190,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
      * Generates the statements for dropping the routines in this schema.
      *
      * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
+     * @throws SQLException
+     *             when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForRoutines() throws SQLException {
         List<Map<String, String>> rows =
@@ -186,8 +199,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
                                 + "WHERE pg_proc.proisagg = false AND ns.nspname = ?",
-                        name
-                );
+                                name
+                        );
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : rows) {
@@ -200,7 +213,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
      * Generates the statements for dropping the enums in this schema.
      *
      * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
+     * @throws SQLException
+     *             when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForEnums() throws SQLException {
         List<String> enumNames =
@@ -219,7 +233,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
      * Generates the statements for dropping the domains in this schema.
      *
      * @return The drop statements.
-     * @throws SQLException when the clean statements could not be generated.
+     * @throws SQLException
+     *             when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForDomains() throws SQLException {
         List<String> domainNames =
@@ -259,15 +274,15 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
                 jdbcTemplate.queryForStringList(
                         //Search for all the table names
                         "SELECT t.table_name FROM information_schema.tables t" +
-                                //in this schema
-                                " WHERE table_schema=?" +
-                                //that are real tables (as opposed to views)
-                                " AND table_type='BASE TABLE'" +
-                                //and are not child tables (= do not inherit from another table).
-                                " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
-                                " WHERE inhrelid = ('\"'||t.table_schema||'\".\"'||t.table_name||'\"')::regclass::oid))",
+                        //in this schema
+                        " WHERE table_schema=?" +
+                        //that are real tables (as opposed to views)
+                        " AND table_type='BASE TABLE'" +
+                        //and are not child tables (= do not inherit from another table).
+                        " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
+                        " WHERE inhrelid = ('\"'||t.table_schema||'\".\"'||t.table_name||'\"')::regclass::oid))",
                         name
-                );
+                        );
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
         Table[] tables = new Table[tableNames.size()];
@@ -286,4 +301,21 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     protected Type getType(String typeName) {
         return new PostgreSQLType(jdbcTemplate, dbSupport, this, typeName);
     }
+
+    @Override
+    protected View[] doAllViews() throws SQLException {
+        List<String> viewNames =
+                jdbcTemplate.queryForStringList(
+                        //Search for all the table names
+                        "SELECT v.table_name FROM information_schema.views v WHERE v.table_schema=?",
+                        name
+                        );
+
+        View[] views = new View[viewNames.size()];
+        for (int i = 0; i < viewNames.size(); i++) {
+            views[i] = new PostgreSQLView(jdbcTemplate, dbSupport, this, viewNames.get(i));
+        }
+        return views;
+    }
+
 }
