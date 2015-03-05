@@ -259,6 +259,32 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void baselineRepair() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_repair;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setSchemas("new1");
+        flyway.setLocations("migration/sql");
+        flyway.setBaselineVersionAsString("2");
+        flyway.baseline();
+
+        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
+
+        flyway.repair();
+
+        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
+
+        flyway.migrate();
+
+        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
+    }
+
+    @Test
     public void baselineOnMigrateCheck() throws Exception {
         DriverDataSource dataSource =
                 new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_migrate_check;DB_CLOSE_DELAY=-1", "sa", "");
