@@ -393,7 +393,7 @@ public class Main {
         LOG.debug("Loading config file: " + configFile.getAbsolutePath());
         try {
             Reader fileReader = new InputStreamReader(new FileInputStream(configFile), encoding);
-            String propertiesData = FileCopyUtils.copyToString(fileReader);
+            String propertiesData = FileCopyUtils.copyToString(fileReader).replace("\\", "\\\\");
 
             properties.putAll(PropertiesUtils.loadPropertiesFromString(propertiesData));
             return true;

@@ -68,20 +68,33 @@ public class MainClassLoaderSmallTest {
         assertEquals("wins :-)", properties.getProperty("override"));
     }
 
+    @Test
+    public void loadConfigurationFileBackslash() throws Exception {
+        Properties properties = new Properties();
+
+        String filename = new ClassPathResource("dynamic/pkg/runtime.conf", getClassLoader()).getLocationOnDisk();
+        String[] args = new String[]{"-configFile=" + filename, "-configFileEncoding=UTF-8"};
+
+        Main.loadConfiguration(properties, args);
+
+        assertEquals(1, properties.size());
+        assertEquals("at\\runtime", properties.getProperty("loaded"));
+    }
+
     /**
      * Tests dynamically adding a directory to the classpath.
      */
     @Test
     public void addDirectoryToClasspath() throws Exception {
-        assertFalse(new ClassPathResource("pkg/runtime.properties", getClassLoader()).exists());
+        assertFalse(new ClassPathResource("pkg/runtime.conf", getClassLoader()).exists());
 
         String folder = new ClassPathResource("dynamic", getClassLoader()).getLocationOnDisk();
         Main.addJarOrDirectoryToClasspath(folder);
 
-        assertTrue(new ClassPathResource("pkg/runtime.properties", getClassLoader()).exists());
+        assertTrue(new ClassPathResource("pkg/runtime.conf", getClassLoader()).exists());
 
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources("pkg", "run", ".properties");
-        assertEquals("pkg/runtime.properties", resources[0].getLocation());
+        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources("pkg", "run", ".conf");
+        assertEquals("pkg/runtime.conf", resources[0].getLocation());
     }
 
     /**
@@ -89,7 +102,7 @@ public class MainClassLoaderSmallTest {
      */
     @Test
     public void addDirectoryToClasspathDefaultPackage() throws Exception {
-        assertFalse(new ClassPathResource("runtime.properties", getClassLoader()).exists());
+        assertFalse(new ClassPathResource("runtime.conf", getClassLoader()).exists());
 
         String folder = new ClassPathResource("dynamic/pkg2", getClassLoader()).getLocationOnDisk();
         Main.addJarOrDirectoryToClasspath(folder);
