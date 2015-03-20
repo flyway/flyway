@@ -77,6 +77,8 @@ public class SqlStatementBuilderSmallTest {
         assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'<Hello 'quotes'>' from dual;"));
         assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'$Hello 'quotes'$' from dual;"));
 
+        assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "COMMENT ON COLUMN SATZ_MARKE.KURZZEICHEN IS 'Kurzzeichen';"));
+
         assertTrue(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'[Hello 'quotes']"));
         assertTrue(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'(Hello 'quotes')"));
         assertTrue(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "select q'{Hello 'quotes'}"));
