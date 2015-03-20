@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
+import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
 import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
@@ -115,6 +116,9 @@ public class DbSupportFactory {
             // In the meanwhile IBM also sold solidDB to Unicom Systems.
             // Therefore no vendor string in search criteria
             return new SolidDbSupport(connection);
+        }
+        if (databaseProductName.startsWith("Phoenix")) {
+            return new PhoenixDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
