@@ -182,8 +182,6 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- attach must be false until https://issues.sonatype.org/browse/MVNCENTRAL-631 is fixed -->
-                                    <attach>false</attach>
                                     <descriptors>
                                         <descriptor>src/main/assembly/windows.xml</descriptor>
                                         <descriptor>src/main/assembly/linux.xml</descriptor>
