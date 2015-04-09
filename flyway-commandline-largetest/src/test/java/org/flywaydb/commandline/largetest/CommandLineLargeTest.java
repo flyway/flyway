@@ -88,7 +88,7 @@ public class CommandLineLargeTest {
 
     @Test
     public void sqlFolderRoot() throws Exception {
-        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db",
+        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-jarDirs=jardir",
                 "-driver=org.hsqldb.jdbcDriver", "-sqlMigrationPrefix=Mig", "-resolvers=");
         assertTrue(stdOut.contains("777"));
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
@@ -96,7 +96,7 @@ public class CommandLineLargeTest {
 
     @Test
     public void jarFile() throws Exception {
-        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db",
+        String stdOut = runFlywayCommandLine(0, null, "migrate", "-user=SA", "-url=jdbc:hsqldb:mem:flyway_db", "-jarDirs=jardir",
                 "-driver=org.hsqldb.jdbcDriver", "-locations=db/migration,org/flywaydb/sample/migration", "-resolvers=");
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }
@@ -127,7 +127,7 @@ public class CommandLineLargeTest {
         args.addAll(Arrays.asList(extraArgs));
 
         //Debug mode
-        //args.add("-X");
+        args.add("-X");
 
         ProcessBuilder builder = new ProcessBuilder(args);
         builder.directory(new File(installDir));

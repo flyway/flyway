@@ -179,31 +179,47 @@ public class MigrationInfoImpl implements MigrationInfo {
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getType() != MigrationType.INIT)) {
-            return "Detected applied migration missing on the classpath: " + getVersion();
+            return "Detected applied migration not resolved locally: " + getVersion();
         }
 
         if ((!context.pendingOrFuture && (MigrationState.PENDING == getState()))
                 || (MigrationState.IGNORED == getState())) {
-            return "Migration on the classpath has not been applied to database: " + getVersion();
+            return "Detected resolved migration not applied to database: " + getVersion();
         }
 
         if (resolvedMigration != null && appliedMigration != null) {
             if (getVersion().compareTo(context.baseline) > 0) {
                 if (resolvedMigration.getType() != appliedMigration.getType()) {
-                    return String.format("Migration Type mismatch for migration %s: DB=%s, Classpath=%s",
-                            appliedMigration.getScript(), appliedMigration.getType(), resolvedMigration.getType());
+                    return createMismatchMessage("Type", appliedMigration.getVersion(),
+                            appliedMigration.getType(), resolvedMigration.getType());
                 }
                 if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
-                    return String.format("Migration Checksum mismatch for migration %s: DB=%s, Classpath=%s",
-                            appliedMigration.getScript(), appliedMigration.getChecksum(), resolvedMigration.getChecksum());
+                    return createMismatchMessage("Checksum", appliedMigration.getVersion(),
+                            appliedMigration.getChecksum(), resolvedMigration.getChecksum());
                 }
                 if (!resolvedMigration.getDescription().equals(appliedMigration.getDescription())) {
-                    return String.format("Migration Description mismatch for migration %s: DB=%s, Classpath=%s",
-                            appliedMigration.getScript(), appliedMigration.getDescription(), resolvedMigration.getDescription());
+                    return createMismatchMessage("Description", appliedMigration.getVersion(),
+                            appliedMigration.getDescription(), resolvedMigration.getDescription());
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * Creates a message for a mismatch.
+     *
+     * @param mismatch The type of mismatch.
+     * @param version  The offending version.
+     * @param applied  The applied value.
+     * @param resolved The resolved value.
+     * @return The message.
+     */
+    private String createMismatchMessage(String mismatch, MigrationVersion version, Object applied, Object resolved) {
+        return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
+                        "-> Applied to database : %s\n" +
+                        "-> Resolved locally    : %s",
+                version, applied, resolved);
     }
 
     @SuppressWarnings("NullableProblems")

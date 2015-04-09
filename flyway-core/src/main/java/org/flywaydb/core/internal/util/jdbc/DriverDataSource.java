@@ -152,6 +152,10 @@ public class DriverDataSource implements DataSource {
             return "com.ibm.db2.jcc.DB2Driver";
         }
 
+        if (url.startsWith("jdbc:derby://")) {
+            return "org.apache.derby.jdbc.ClientDriver";
+        }
+
         if (url.startsWith("jdbc:derby:")) {
             return "org.apache.derby.jdbc.EmbeddedDriver";
         }

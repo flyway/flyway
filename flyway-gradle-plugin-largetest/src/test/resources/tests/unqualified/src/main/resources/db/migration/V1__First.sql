@@ -14,8 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE TABLE """t""" (qty INT, price INT);
-INSERT INTO """t""" VALUES(3, 50);
-CREATE VIEW """v""" AS SELECT qty, price, qty*price AS value FROM """t""";
-
-CREATE VIEW features AS SELECT * FROM information_schema.sql_features;
+CREATE TABLE test_user (
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+);

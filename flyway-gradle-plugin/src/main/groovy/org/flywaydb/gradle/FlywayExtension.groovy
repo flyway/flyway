@@ -113,6 +113,9 @@ public class FlywayExtension {
     /** Placeholders to replace in Sql migrations */
     Map<String, String> placeholders
 
+    /** Whether placeholders should be replaced. */
+    Boolean placeholderReplacement
+
     /** The prefix of every placeholder */
     String placeholderPrefix
 

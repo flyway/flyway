@@ -271,6 +271,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean ignoreFailedFutureMigration = flyway.isIgnoreFailedFutureMigration();
 
     /**
+     * Whether placeholders should be replaced. (default: true)<br>
+     * <p>Also configurable with Maven or System Property: ${flyway.placeholderReplacement}</p>
+     *
+     * @parameter property="flyway.placeholderReplacement"
+     */
+    private boolean placeholderReplacement = flyway.isPlaceholderReplacement();
+
+    /**
      * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
      * <p/>
      * <p>Also configurable with Maven or System Properties like ${flyway.placeholders.myplaceholder} or ${flyway.placeholders.otherone}</p>
@@ -478,7 +486,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setOutOfOrder(outOfOrder);
             flyway.setTargetAsString(target);
             flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
+            flyway.setPlaceholderReplacement(placeholderReplacement);
             flyway.setPlaceholderPrefix(placeholderPrefix);
+            flyway.setPlaceholderSuffix(placeholderSuffix);
 
             if (initOnMigrate != null) {
                 log.warn("flyway.initOnMigrate is deprecated. Use baselineOnMigrate instead. Will be removed in Flyway 4.0.");
