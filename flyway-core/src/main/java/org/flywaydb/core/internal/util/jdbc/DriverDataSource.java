@@ -124,6 +124,10 @@ public class DriverDataSource implements DataSource {
 
         this.user = user;
         this.password = password;
+
+        if (initSqls == null) {
+            initSqls = new String[0];
+        }
         this.initSqls = initSqls;
     }
 
