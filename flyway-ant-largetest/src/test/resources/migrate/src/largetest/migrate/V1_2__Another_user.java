@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2013 the original author or authors.
+ * Copyright 2010-2015 Axel Fontaine
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package largetest.migrate;
 
-import com.googlecode.flyway.core.migration.java.JavaMigration;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
+
+import java.sql.Connection;
 
 /**
  * Example of a Java-based migration.
  */
-public class V1_2__Another_user implements JavaMigration {
-    public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-        jdbcTemplate.execute("INSERT INTO test_user (name) VALUES ('Obelix')");
+public class V1_2__Another_user implements JdbcMigration {
+    public void migrate(Connection connection) throws Exception {
+        connection.createStatement().execute("INSERT INTO test_user (name) VALUES ('Obelix')");
     }
 }

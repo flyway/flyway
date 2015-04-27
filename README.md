@@ -1,19 +1,31 @@
-flyway
-======
+# Flyway [![Build Status](https://travis-ci.org/flyway/flyway.png)](https://travis-ci.org/flyway/flyway)
+### Database Migrations Made Easy.
 
-Flyway - The Agile Database Migration Framework for Java
+![alt text](http://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
 
-Documentation
-=============
+#### Evolve your database schema easily and reliably across all your instances.
+Simple, focused and powerful.
+
+#### Works on
+Windows, Mac OSX, Linux, Java and Android
+
+#### Supported build tools
+Maven, Gradle, Ant and SBT
+
+#### Supported databases
+Oracle, SQL Server, SQL Azure, DB2, DB2 z/OS, MySQL, MariaDB, Google Cloud SQL, PostgreSQL, Redshift, Vertica, H2, Hsql, Derby, SQLite
+
+#### Third party plugins
+Grails, Play!, Grunt, Griffon, Ninja, ...
+
+## Documentation
 http://flywaydb.org
 
-How to contribute
-=================
-http://flywaydb.org/contribute/howToContribute.html
+## How to contribute
+http://flywaydb.org/contribute/
 
-License
-=======
-Copyright (C) 2010-2013 the original author or authors.
+## License
+Copyright (C) 2010-2015 Axel Fontaine
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,3 +38,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+## Trademark
+Flyway is a registered trademark of Boxfuse GmbH.

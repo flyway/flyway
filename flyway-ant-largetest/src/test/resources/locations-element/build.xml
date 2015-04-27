@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 
-    Copyright (C) 2010-2013 the original author or authors.
+    Copyright 2010-2015 Axel Fontaine
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
     limitations under the License.
 
 -->
-<project name="LocationsElementLargeTest" basedir="." xmlns:flyway="antlib:com.googlecode.flyway.ant">
+<project name="LocationsElementLargeTest" basedir="." xmlns:flyway="antlib:org.flywaydb.ant">
     <path id="lib.path">
         <fileset dir="${installDir}/flyway-ant-${pomVersion}" includes="*.jar"/>
     </path>
-    <taskdef uri="antlib:com.googlecode.flyway.ant" resource="com/googlecode/flyway/ant/antlib.xml"
+    <taskdef uri="antlib:org.flywaydb.ant" resource="org/flywaydb/ant/antlib.xml"
              classpathref="lib.path"/>
 
     <property name="flyway.url" value="jdbc:hsqldb:file:target/db/flyway_db;shutdown=true"/>
