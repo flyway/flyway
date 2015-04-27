@@ -107,7 +107,7 @@ public class PostgreSQLDbSupport extends DbSupport {
         String statement = sql.substring(0, split);
         String data = sql.substring(split + 1).trim();
 
-        CopyManager copyManager = new CopyManager((BaseConnection) connection.unwrap(Connection.class));
+        CopyManager copyManager = new CopyManager((BaseConnection) connection.unwrap(BaseConnection.class));
         try {
             copyManager.copyIn(statement, new StringReader(data));
         } catch (IOException e) {
