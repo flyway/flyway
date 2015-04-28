@@ -15,7 +15,7 @@ Here is the info on how you can contribute in various ways to the project: http:
 
 License
 -------
-Copyright (C) 2010-2014 Axel Fontaine
+Copyright (C) 2010-2015 Axel Fontaine
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
