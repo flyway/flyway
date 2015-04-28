@@ -413,7 +413,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 } catch (SecDispatcherException e) {
                     throw new FlywayException("Unable to decrypt password", e);
                 } catch (PlexusCipherException e) {
-                    throw new FlywayException("Unable to initialized password decryption", e);
+                    throw new FlywayException("Unable to initialize password decryption", e);
                 }
             }
         }
