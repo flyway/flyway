@@ -488,7 +488,7 @@ public class Flyway {
      */
     @Deprecated
     public String getInitDescription() {
-        LOG.warn("Flyway.getBaselineDescription() is deprecated. Use getBaselineDescription() instead. Will be removed in Flyway 4.0.");
+        LOG.warn("Flyway.getInitDescription() is deprecated. Use getBaselineDescription() instead. Will be removed in Flyway 4.0.");
         return baselineDescription;
     }
 
