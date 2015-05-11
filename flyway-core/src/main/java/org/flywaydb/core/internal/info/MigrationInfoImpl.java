@@ -22,14 +22,13 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.util.ObjectUtils;
 
 import java.util.Date;
 
 /**
  * Default implementation of MigrationInfo.
  */
-public class MigrationInfoImpl implements MigrationInfo {
+public class MigrationInfoImpl implements MigrationInfoData, MigrationInfo {
     /**
      * The resolved migration to aggregate the info from.
      */
@@ -168,60 +167,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
-    /**
-     * Validates this migrationInfo for consistency.
-     *
-     * @return The error message, or {@code null} if everything is fine.
-     */
-    public String validate() {
-        if (!context.pendingOrFuture
-                && (resolvedMigration == null)
-                && (appliedMigration.getType() != MigrationType.SCHEMA)
-                && (appliedMigration.getType() != MigrationType.BASELINE)
-                && (appliedMigration.getType() != MigrationType.INIT)) {
-            return "Detected applied migration not resolved locally: " + getVersion();
-        }
-
-        if ((!context.pendingOrFuture && (MigrationState.PENDING == getState()))
-                || (MigrationState.IGNORED == getState())) {
-            return "Detected resolved migration not applied to database: " + getVersion();
-        }
-
-        if (resolvedMigration != null && appliedMigration != null) {
-            if (getVersion().compareTo(context.baseline) > 0) {
-                if (resolvedMigration.getType() != appliedMigration.getType()) {
-                    return createMismatchMessage("Type", appliedMigration.getVersion(),
-                            appliedMigration.getType(), resolvedMigration.getType());
-                }
-                if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
-                    return createMismatchMessage("Checksum", appliedMigration.getVersion(),
-                            appliedMigration.getChecksum(), resolvedMigration.getChecksum());
-                }
-                if (!resolvedMigration.getDescription().equals(appliedMigration.getDescription())) {
-                    return createMismatchMessage("Description", appliedMigration.getVersion(),
-                            appliedMigration.getDescription(), resolvedMigration.getDescription());
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Creates a message for a mismatch.
-     *
-     * @param mismatch The type of mismatch.
-     * @param version  The offending version.
-     * @param applied  The applied value.
-     * @param resolved The resolved value.
-     * @return The message.
-     */
-    private String createMismatchMessage(String mismatch, MigrationVersion version, Object applied, Object resolved) {
-        return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
-                        "-> Applied to database : %s\n" +
-                        "-> Resolved locally    : %s",
-                version, applied, resolved);
-    }
-
     @SuppressWarnings("NullableProblems")
     public int compareTo(MigrationInfo o) {
         return getVersion().compareTo(o.getVersion());
@@ -247,5 +192,9 @@ public class MigrationInfoImpl implements MigrationInfo {
         result = 31 * result + (appliedMigration != null ? appliedMigration.hashCode() : 0);
         result = 31 * result + context.hashCode();
         return result;
+    }
+
+    public MigrationInfoContext getMigrationInfoContext() {
+        return context;
     }
 }
