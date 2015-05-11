@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.info.validation.StrictValidationStrategy;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
@@ -39,9 +40,15 @@ public class MigrationInfoImplSmallTest {
 
         MigrationInfoImpl migrationInfo =
                 new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext());
-        String message = migrationInfo.validate();
+        StrictValidationStrategy strictValidationStrategy = new StrictValidationStrategy();
 
-        assertTrue(message.contains("123"));
-        assertTrue(message.contains("456"));
+        assertTrue("validataion fauilure not detected.",strictValidationStrategy.validationFailed(migrationInfo));
+
+        String message = strictValidationStrategy.getValidationError(migrationInfo);
+
+
+        assertNotNull("message should not be null", message);
+        assertTrue("message miss 123",message.contains("123"));
+        assertTrue("message miss 456", message.contains("456"));
     }
 }
