@@ -231,6 +231,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.nuodb.jdbc</groupId>
+                <artifactId>nuodb-jdbc</artifactId>
+                <version>2.2.0</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>com.oracle</groupId>
                 <artifactId>ojdbc6</artifactId>
                 <version>12.1.0.1</version>
