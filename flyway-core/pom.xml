@@ -388,5 +388,29 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>NuoDBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.nuodb.jdbc</groupId>
+                    <artifactId>nuodb-jdbc</artifactId>
+                    <version>2.2.0</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>

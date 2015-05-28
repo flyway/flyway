@@ -32,7 +32,7 @@ public class NuoDBConcurrentMigrationTest extends ConcurrentMigrationTestCase {
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("nuodb.user", "flyway");
         String password = customProperties.getProperty("nuodb.password", "flyway");
-        String url = customProperties.getProperty("nuodb.url", "jdbc:com.nuodb://localhost/flyway");
+        String url = customProperties.getProperty("nuodb.url", "jdbc:com.nuodb://localhost/flyway?schema=flyway");
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
     }
 }

@@ -216,6 +216,9 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:vertica:")) {
             return "com.vertica.jdbc.Driver";
         }
+        if (url.startsWith("jdbc:com.nuodb:")) {
+            return "com.nuodb.jdbc.Driver";
+        }
 
         return null;
     }

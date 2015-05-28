@@ -24,15 +24,22 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * Test to demonstrate the migration functionality using Vertica.
+ * Test to demonstrate the migration functionality using NuoDB.
  */
 @Category(DbCategory.NuoDB.class)
 public class NuoDBMigrationTest extends MigrationTestCase {
     @Override
+    public void tearDown() throws Exception {
+        flyway.clean();
+        super.tearDown();
+    }
+
+
+    @Override
     protected DataSource createDataSource(Properties customProperties) {
         String user = customProperties.getProperty("nuodb.user", "flyway");
         String password = customProperties.getProperty("nuodb.password", "flyway");
-        String url = customProperties.getProperty("nuodb.url", "jdbc:com.nuodb://localhost/flyway");
+        String url = customProperties.getProperty("nuodb.url", "jdbc:com.nuodb://localhost/flyway?schema=flyway");
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
     }
 

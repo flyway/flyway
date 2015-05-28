@@ -35,7 +35,7 @@ public class NuoDBDbSupport extends DbSupport {
 
     @Override
     public Schema getSchema(String name) {
-        return null;
+        return new NuoDBSchema(jdbcTemplate, this, name);
     }
 
     @Override
