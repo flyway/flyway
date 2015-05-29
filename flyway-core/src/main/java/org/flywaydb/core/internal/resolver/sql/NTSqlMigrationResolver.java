@@ -36,7 +36,7 @@ import java.util.zip.CRC32;
 
 /**
  * Migration resolver for sql files on the classpath. The sql files must have names like
- * V1__Description.sql.notxn
+ * NTV1__Description.sql
  */
 public class NTSqlMigrationResolver implements MigrationResolver {
     /**
