@@ -107,6 +107,7 @@ object FlywayPlugin extends Plugin {
   //*********************
 
   val flywayMigrate = taskKey[Unit]("Migrates of the configured database to the latest version.")
+  val flywayCurrentVersion = taskKey[String]("Returns the current database version.")
   val flywayValidate = taskKey[Unit]("Validates the applied migrations in the database against the available classpath migrations in order to detect accidental migration changes.")
   val flywayInfo = taskKey[Unit]("Retrieves the complete information about the migrations including applied, pending and current migrations with details and status.")
   val flywayClean = taskKey[Unit]("Drops all database objects.")
@@ -169,6 +170,9 @@ object FlywayPlugin extends Plugin {
       },
       flywayMigrate <<= (fullClasspath in Runtime, flywayConfig, streams) map {
         (cp, config, s) => withPrepared(cp, s) { Flyway(config).migrate() }
+      },
+      flywayCurrentVersion <<= (fullClasspath in Runtime, flywayConfig, streams) map {
+        (cp, config, s) => withPrepared(cp, s) { Flyway(config).info().current().getVersion.getVersion }
       },
       flywayValidate <<= (fullClasspath in Runtime, flywayConfig, streams) map {
         (cp, config, s) => withPrepared(cp, s) { Flyway(config).validate() }
