@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-# Save current directory
+# Detect cygwin
 cygwin=false
 case "`uname`" in
   CYGWIN*) cygwin=true;;
@@ -34,7 +34,7 @@ while [ -h "$PRG" ] ; do
   fi
 done
 
-# Set the current directory to the installation directory
+# Detect the installation directory
 INSTALLDIR=`dirname "$PRG"`
 
 if [ -x "$INSTALLDIR/jre/bin/java" ]; then
