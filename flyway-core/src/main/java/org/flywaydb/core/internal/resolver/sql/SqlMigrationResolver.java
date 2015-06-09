@@ -29,6 +29,9 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -156,15 +159,53 @@ public class SqlMigrationResolver implements MigrationResolver {
         return resource.getLocation().substring(location.getPath().length() + 1);
     }
 
-    /**
-     * Calculates the checksum of these bytes.
-     *
-     * @param bytes The bytes to calculate the checksum for.
-     * @return The crc-32 checksum of the bytes.
-     */
-    private static int calculateChecksum(byte[] bytes) {
+    private int calculateChecksum(byte[] bytes) {
+        final CRC32 crc = new CRC32();
+        crc.update(bytes);
+
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+        if ("UTF-8".equalsIgnoreCase(encoding)) {
+            ignoreUtf8BOM(inputStream);
+        }
+
         final CRC32 crc32 = new CRC32();
-        crc32.update(bytes);
+
+        while (true) {
+            final int value = inputStream.read();
+
+            if (value == -1) {
+                break;
+            }
+
+            if (value == 13) {
+                continue;
+            }
+
+            crc32.update((byte) value);
+        }
+
         return (int) crc32.getValue();
+    }
+
+    private static void ignoreUtf8BOM(InputStream inputStream) {
+        inputStream.mark(3);
+
+        try {
+            if (inputStream.read() == 0xEF) {
+                if (inputStream.read() == 0xBB) {
+                    if (inputStream.read() == 0xBF) {
+                        return;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            inputStream.reset();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
