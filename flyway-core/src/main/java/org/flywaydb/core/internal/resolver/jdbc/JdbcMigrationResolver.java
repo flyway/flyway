@@ -51,15 +51,20 @@ public class JdbcMigrationResolver implements MigrationResolver {
      */
     private ClassLoader classLoader;
 
+    private final String javaMigrationPrefix;
+    private final String javaMigrationSeparator;
+
     /**
      * Creates a new instance.
      *
      * @param location    The base package on the classpath where to migrations are located.
      * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
-    public JdbcMigrationResolver(ClassLoader classLoader, Location location) {
+    public JdbcMigrationResolver(ClassLoader classLoader, Location location, String javaMigrationPrefix, String javaMigrationSeparator) {
         this.location = location;
         this.classLoader = classLoader;
+        this.javaMigrationPrefix = javaMigrationPrefix;
+        this.javaMigrationSeparator = javaMigrationSeparator;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
@@ -113,7 +118,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
         } else {
             Pair<MigrationVersion, String> info =
                     MigrationInfoHelper.extractVersionAndDescription(
-                            ClassUtils.getShortName(jdbcMigration.getClass()), "V", "__", "");
+                            ClassUtils.getShortName(jdbcMigration.getClass()), javaMigrationPrefix, javaMigrationSeparator, "");
             version = info.getLeft();
             description = info.getRight();
         }

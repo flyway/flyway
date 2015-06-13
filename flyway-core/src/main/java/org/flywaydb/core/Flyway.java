@@ -155,6 +155,22 @@ public class Flyway {
     private String sqlMigrationSuffix = ".sql";
 
     /**
+     * The file name prefix for java migrations. (default: V)
+     * <p/>
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTION ,
+     * which using the defaults translates to V1_1__My_description</p>
+     */
+    private String javaMigrationPrefix = "V";
+
+    /**
+     * The file name separator for java migrations. (default: __)
+     * <p/>
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTION ,
+     * which using the defaults translates to V1_1__My_description</p>
+     */
+    private String javaMigrationSeparator = "__";
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -389,6 +405,30 @@ public class Flyway {
      */
     public String getSqlMigrationSuffix() {
         return sqlMigrationSuffix;
+    }
+
+    /**
+     * Retrieves the file name prefix for java migrations.
+     * <p/>
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTION ,
+     * which using the defaults translates to V1_1__My_description</p>
+     *
+     * @return The file name prefix for java migrations. (default: V)
+     */
+    public String getJavaMigrationPrefix() {
+        return javaMigrationPrefix;
+    }
+
+    /**
+     * Retrieves the file name separator for java migrations.
+     * <p/>
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTION ,
+     * which using the defaults translates to V1_1__My_description</p>
+     *
+     * @return The file name separator for java migrations. (default: __)
+     */
+    public String getJavaMigrationSeparator() {
+        return javaMigrationSeparator;
     }
 
     /**
@@ -756,6 +796,34 @@ public class Flyway {
      */
     public void setSqlMigrationSuffix(String sqlMigrationSuffix) {
         this.sqlMigrationSuffix = sqlMigrationSuffix;
+    }
+
+    /**
+     * Sets the file name prefix for java migrations.
+     * <p/>
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTION ,
+     * which using the defaults translates to V1_1__My_description</p>
+     *
+     * @param javaMigrationPrefix The file name prefix for java migrations (default: V)
+     */
+    public void setJavaMigrationPrefix(String javaMigrationPrefix) {
+        this.javaMigrationPrefix = javaMigrationPrefix;
+    }
+
+    /**
+     * Sets the file name separator for java migrations.
+     * <p/>
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTION ,
+     * which using the defaults translates to V1_1__My_description</p>
+     *
+     * @param javaMigrationSeparator The file name separator for java migrations (default: __)
+     */
+    public void setJavaMigrationSeparator(String javaMigrationSeparator) {
+        if (!StringUtils.hasLength(javaMigrationSeparator)) {
+            throw new FlywayException("javaMigrationSeparator cannot be empty!");
+        }
+
+        this.javaMigrationSeparator = javaMigrationSeparator;
     }
 
     /**
@@ -1218,7 +1286,7 @@ public class Flyway {
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
         return new CompositeMigrationResolver(dbSupport, classLoader, locations,
-                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, createPlaceholderReplacer(),
+                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, javaMigrationPrefix, javaMigrationSeparator, createPlaceholderReplacer(),
                 resolvers);
     }
 
@@ -1278,6 +1346,14 @@ public class Flyway {
         String sqlMigrationSuffixProp = properties.getProperty("flyway.sqlMigrationSuffix");
         if (sqlMigrationSuffixProp != null) {
             setSqlMigrationSuffix(sqlMigrationSuffixProp);
+        }
+        String javaMigrationPrefixProp = properties.getProperty("flyway.javaMigrationPrefix");
+        if (javaMigrationPrefixProp != null) {
+            setJavaMigrationPrefix(javaMigrationPrefixProp);
+        }
+        String javaMigrationSeparatorProp = properties.getProperty("flyway.javaMigrationSeparator");
+        if (javaMigrationSeparatorProp != null) {
+            setJavaMigrationSeparator(javaMigrationSeparatorProp);
         }
         String encodingProp = properties.getProperty("flyway.encoding");
         if (encodingProp != null) {
