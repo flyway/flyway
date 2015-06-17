@@ -68,7 +68,7 @@ public class DB2AS400DbSupport extends DbSupport {
 
     @Override
     protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        LOG.info(String.format("doSetCurrentSchema:%s", schema.getName()));
+        LOG.debug(String.format("doSetCurrentSchema:%s", schema.getName()));
         if(!schema.getName().contains("*")) {
             jdbcTemplate.execute("SET CURRENT SCHEMA " + schema.getName());
         } else {
