@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
+import org.flywaydb.core.internal.dbsupport.db2as400.DB2AS400DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
@@ -101,7 +102,13 @@ public class DbSupportFactory {
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-			if (getDatabaseProductVersion(connection).startsWith("DSN")){
+            final String db2Version = getDatabaseProductVersion(connection);
+            LOG.debug("DB2:" + databaseProductName + ":" + db2Version);
+            if(databaseProductName.contains("AS/400")) {
+                LOG.info("Detected DB2 on AS/400");
+                return new DB2AS400DbSupport(connection);
+            } else if (db2Version.startsWith("DSN")) {
+                LOG.info("Detected DB2 on zOS");
 				return new DB2zosDbSupport(connection);
 			} else {
 				return new DB2DbSupport(connection);
