@@ -107,6 +107,22 @@ public class FlywayExtension {
      */
     String sqlMigrationSuffix
 
+    /**
+     * The file name prefix for Java migrations
+     *
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description</p>
+     */
+    String javaMigrationPrefix
+
+    /**
+     * The file name prefix for Java migrations
+     *
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description</p>
+     */
+    String javaMigrationSeparator
+
     /** The encoding of Sql migrations */
     String encoding
 
