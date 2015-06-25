@@ -205,6 +205,8 @@ public class Main {
         LOG.info("resolvers              : Comma-separated list of custom MigrationResolvers");
         LOG.info("sqlMigrationPrefix     : File name prefix for Sql migrations");
         LOG.info("sqlMigrationSeparator  : File name separator for Sql migrations");
+        LOG.info("javaMigrationPrefix     : File name prefix for Java migrations");
+        LOG.info("javaMigrationSeparator  : File name separator for Java migrations");
         LOG.info("sqlMigrationSuffix     : File name suffix for Sql migrations");
         LOG.info("encoding               : Encoding of Sql migrations");
         LOG.info("placeholderReplacement : Whether placeholders should be replaced");
