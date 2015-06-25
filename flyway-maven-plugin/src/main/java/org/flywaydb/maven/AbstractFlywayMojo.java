@@ -224,6 +224,27 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String sqlMigrationSuffix = flyway.getSqlMigrationSuffix();
 
     /**
+     * The file name prefix for Java migrations (default: V) <p>Also configurable with Maven or System Property:
+     * ${flyway.javaMigrationPrefix}</p>
+     *
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description</p>
+     *
+     * @parameter property="flyway.javaMigrationPrefix"
+     */
+    private String javaMigrationPrefix = flyway.getJavaMigrationPrefix();
+
+    /**
+     * The file name separator for java migrations (default: __) <p>Also configurable with Maven or System Property:
+     * ${flyway.javaMigrationSeparator}</p>
+     *
+     * <p>Java migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to V1_1__My_description</p>
+     *
+     * @parameter property="flyway.javaMigrationSeparator"
+     */
+    private String javaMigrationSeparator = flyway.getJavaMigrationSeparator();
+    /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
      * <p> This is exclusively intended as a convenience for development. Even tough we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
@@ -482,6 +503,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
+            flyway.setJavaMigrationPrefix(javaMigrationPrefix);
+            flyway.setJavaMigrationSeparator(javaMigrationSeparator);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setOutOfOrder(outOfOrder);
             flyway.setTargetAsString(target);
