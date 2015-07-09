@@ -319,7 +319,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         try {
             int count = jdbcTemplate.queryForInt(
-                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='INIT' OR" + dbSupport.quote("type") + "='BASELINE'");
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='INIT' OR " + dbSupport.quote("type") + "='BASELINE'");
             return count > 0;
         } catch (SQLException e) {
             throw new FlywayException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);

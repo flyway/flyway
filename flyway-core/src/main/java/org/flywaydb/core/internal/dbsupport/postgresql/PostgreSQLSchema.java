@@ -65,6 +65,10 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
 
     @Override
     protected void doClean() throws SQLException {
+        for (String statement : generateDropStatementsForViews()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (Table table : allTables()) {
             table.drop();
         }
@@ -225,6 +229,25 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
         List<String> statements = new ArrayList<String>();
         for (String domainName : domainNames) {
             statements.add("DROP DOMAIN " + dbSupport.quote(name, domainName));
+        }
+
+        return statements;
+    }
+
+    /**
+     * Generates the statements for dropping the views in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> generateDropStatementsForViews() throws SQLException {
+        List<String> viewNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT table_name FROM information_schema.views WHERE table_schema=?", name);
+
+        List<String> statements = new ArrayList<String>();
+        for (String domainName : viewNames) {
+            statements.add("DROP VIEW IF EXISTS " + dbSupport.quote(name, domainName) + " CASCADE");
         }
 
         return statements;

@@ -402,6 +402,13 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * @param placeholderReplacement Whether placeholders should be replaced. (default: true)<br>Also configurable with Ant Property: ${flyway.placeholderReplacement}
+     */
+    public void setPlaceholderReplacement(boolean placeholderReplacement) {
+        flyway.setPlaceholderReplacement(placeholderReplacement);
+    }
+
+    /**
      * @param placeholderPrefix The prefix of every placeholder. (default: ${ )<br>Also configurable with Ant Property: ${flyway.placeholderPrefix}
      */
     public void setPlaceholderPrefix(String placeholderPrefix) {

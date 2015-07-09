@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.command;
 
-import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
@@ -260,11 +260,8 @@ public class DbMigrate {
      */
     private MigrationVersion applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
         MigrationVersion version = migration.getVersion();
-        if (isOutOfOrder) {
-            LOG.info("Migrating schema " + schema + " to version " + version + " (out of order)");
-        } else {
-            LOG.info("Migrating schema " + schema + " to version " + version);
-        }
+        LOG.info("Migrating schema " + schema + " to version " + version + " - " + migration.getDescription() +
+                (isOutOfOrder ? " (out of order)" : ""));
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();

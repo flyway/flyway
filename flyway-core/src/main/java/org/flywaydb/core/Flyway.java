@@ -39,6 +39,7 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -108,6 +109,11 @@ public class Flyway {
      * be ignored. The special value {@code current} designates the current version of the schema (default: the latest version)
      */
     private MigrationVersion target = MigrationVersion.LATEST;
+
+    /**
+     * Whether placeholders should be replaced. (default: true)
+     */
+    private boolean placeholderReplacement = true;
 
     /**
      * The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -311,6 +317,15 @@ public class Flyway {
      */
     public MigrationVersion getTarget() {
         return target;
+    }
+
+    /**
+     * Checks whether placeholders should be replaced.
+     *
+     * @return Whether placeholders should be replaced. (default: true)
+     */
+    public boolean isPlaceholderReplacement() {
+        return placeholderReplacement;
     }
 
     /**
@@ -668,6 +683,15 @@ public class Flyway {
     }
 
     /**
+     * Sets whether placeholders should be replaced.
+     *
+     * @param placeholderReplacement Whether placeholders should be replaced. (default: true)
+     */
+    public void setPlaceholderReplacement(boolean placeholderReplacement) {
+        this.placeholderReplacement = placeholderReplacement;
+    }
+
+    /**
      * Sets the placeholders to replace in sql migration scripts.
      *
      * @param placeholders The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -991,7 +1015,7 @@ public class Flyway {
 
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
 
-                if (!metaDataTable.hasBaselineMarker() && !metaDataTable.hasAppliedMigrations()) {
+                if (!metaDataTable.hasSchemasMarker() && !metaDataTable.hasBaselineMarker() && !metaDataTable.hasAppliedMigrations()) {
                     List<Schema> nonEmptySchemas = new ArrayList<Schema>();
                     for (Schema schema : schemas) {
                         if (!schema.empty()) {
@@ -1081,7 +1105,7 @@ public class Flyway {
             if (cleanOnValidationError) {
                 new DbClean(connectionMetaDataTable, metaDataTable, schemas, callbacks).clean();
             } else {
-                throw new FlywayException("Validate failed. Found differences between applied migrations and available migrations: " + validationError);
+                throw new FlywayException("Validate failed. " + validationError);
             }
         }
     }
@@ -1202,7 +1226,10 @@ public class Flyway {
      * @return A new, fully configured, PlaceholderReplacer.
      */
     private PlaceholderReplacer createPlaceholderReplacer() {
-        return new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+        if (placeholderReplacement) {
+            return new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
+        }
+        return PlaceholderReplacer.NO_PLACEHOLDERS;
     }
 
     /**
@@ -1343,6 +1370,8 @@ public class Flyway {
     /*private -> testing*/ <T> T execute(Command<T> command) {
         T result;
 
+        VersionPrinter.printVersion(classLoader);
+
         Connection connectionMetaDataTable = null;
         Connection connectionUserObjects = null;
 
@@ -1350,7 +1379,7 @@ public class Flyway {
 
         try {
             if (dataSource == null) {
-                throw new FlywayException("DataSource not set! Check your configuration!");
+                throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");
             }
 
             connectionMetaDataTable = JdbcUtils.openConnection(dataSource);

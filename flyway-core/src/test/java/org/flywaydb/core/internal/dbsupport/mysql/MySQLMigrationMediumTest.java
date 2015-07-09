@@ -42,10 +42,20 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
     }
 
     @Test
-    public void migrateWithSchemaSetInPropertyButNotInUrl() throws Exception {
+    public void migrateWithNonExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:mysql://localhost/", "flyway", "flyway");
-        flyway.setSchemas("non-existant-schema");
+        flyway.setSchemas("non-existing-schema");
+        flyway.setLocations(BASEDIR);
+        flyway.clean();
+        assertEquals(4, flyway.migrate());
+    }
+
+    @Test
+    public void migrateWithExistingSchemaSetInPropertyButNotInUrl() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:mysql://localhost/", "flyway", "flyway");
+        flyway.setSchemas("flyway_db");
         flyway.setLocations(getBasedir());
         flyway.clean();
         assertEquals(4, flyway.migrate());

@@ -243,11 +243,85 @@ public class FlywayMediumTest {
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
-        flyway.setLocations("migration/validate");
+        flyway.setLocations("migration/sql");
+        flyway.setBaselineVersionAsString("3");
+        flyway.migrate();
+
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.SQL, flyway.info().current().getType());
+
+        flyway.setTable("other_metadata");
         flyway.setBaselineOnMigrate(true);
         flyway.migrate();
 
-        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals("3", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
+    }
+
+    @Test
+    public void baselineRepair() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_repair;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setSchemas("new1");
+        flyway.setLocations("migration/sql");
+        flyway.setBaselineVersionAsString("2");
+        flyway.baseline();
+
+        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
+
+        flyway.repair();
+
+        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
+
+        flyway.migrate();
+
+        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
+    }
+
+    @Test
+    public void baselineOnMigrateCheck() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_migrate_check;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setSchemas("new1");
+        flyway.setLocations("migration/sql");
+        flyway.setBaselineVersionAsString("3");
+        flyway.setBaselineOnMigrate(true);
+        flyway.migrate();
+
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.SQL, flyway.info().current().getType());
+    }
+
+    @Test
+    public void baselineOnMigrateSkipFailed() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_migrate_failed;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setSchemas("new1");
+        flyway.setLocations("migration/sql");
+        flyway.setBaselineVersionAsString("3");
+        flyway.migrate();
+
+        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals(MigrationType.SQL, flyway.info().current().getType());
+
+        flyway.setTable("other_metadata");
+        flyway.setLocations("migration/failed");
+        flyway.setBaselineOnMigrate(true);
+        flyway.migrate();
+
+        assertEquals("3", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
     }
 
@@ -340,14 +414,14 @@ public class FlywayMediumTest {
             flyway.validate();
             fail();
         } catch (FlywayException e) {
-            //expected
+            assertTrue(e.getMessage().contains("not applied"));
         }
         flyway.setOutOfOrder(true);
         try {
             flyway.validate();
             fail();
         } catch (FlywayException e) {
-            //expected
+            assertTrue(e.getMessage().contains("not applied"));
         }
         flyway.migrate();
         flyway.validate();

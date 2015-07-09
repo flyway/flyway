@@ -124,6 +124,10 @@ public class DriverDataSource implements DataSource {
 
         this.user = user;
         this.password = password;
+
+        if (initSqls == null) {
+            initSqls = new String[0];
+        }
         this.initSqls = initSqls;
     }
 
@@ -150,6 +154,10 @@ public class DriverDataSource implements DataSource {
     private String detectDriverForUrl(String url) {
         if (url.startsWith("jdbc:db2:")) {
             return "com.ibm.db2.jcc.DB2Driver";
+        }
+
+        if (url.startsWith("jdbc:derby://")) {
+            return "org.apache.derby.jdbc.ClientDriver";
         }
 
         if (url.startsWith("jdbc:derby:")) {

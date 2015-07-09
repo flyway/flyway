@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-apply plugin: 'org.flywaydb.flyway'
+apply plugin: 'flyway'
 apply plugin: 'java'
 apply plugin: 'maven'
 
