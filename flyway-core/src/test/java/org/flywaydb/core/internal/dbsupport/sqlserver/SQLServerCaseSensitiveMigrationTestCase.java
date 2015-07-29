@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.sqlserver;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.DbSupportFactoryImpl;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -52,7 +53,7 @@ public abstract class SQLServerCaseSensitiveMigrationTestCase {
         assertEquals(4, flyway.info().applied().length);
 
         Connection connection = dataSource.getConnection();
-        DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, true);
+        DbSupport dbSupport = new DbSupportFactoryImpl().createDbSupport(connection, true);
 
         assertEquals(2, dbSupport.getJdbcTemplate().queryForInt("select count(*) from all_misters"));
 
