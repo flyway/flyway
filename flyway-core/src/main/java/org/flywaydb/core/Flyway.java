@@ -825,8 +825,7 @@ public class Flyway {
      */
     @Deprecated
     public void setBaselineVersion(String baselineVersion) {
-        LOG.warn("Flyway.setBaselineVersion(String) is deprecated and will be removed in Flyway 4.0. Use setBaselineVersionAsString(String) instead" +
-                ".");
+        LOG.warn("Flyway.setBaselineVersion(String) is deprecated and will be removed in Flyway 4.0. Use setBaselineVersionAsString(String) instead.");
         this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
     }
 
@@ -862,8 +861,7 @@ public class Flyway {
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
      *
-     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code
-     * false})
+     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
      */
     public void setBaselineOnMigrate(boolean baselineOnMigrate) {
         this.baselineOnMigrate = baselineOnMigrate;
@@ -983,8 +981,7 @@ public class Flyway {
     /**
      * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
-     * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default:
-     *                  empty list)
+     * @param resolvers The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
      */
     public void setResolvers(MigrationResolver... resolvers) {
         this.resolvers = resolvers;
@@ -993,8 +990,7 @@ public class Flyway {
     /**
      * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
-     * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving
-     *                  Migrations to apply. (default: empty list)
+     * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
      * @deprecated Will be removed in Flyway 4.0. Use setResolversAsClassNames(String...) instead.
      */
     @Deprecated
@@ -1007,8 +1003,7 @@ public class Flyway {
     /**
      * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
-     * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving
-     *                  Migrations to apply. (default: empty list)
+     * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
      */
     public void setResolversAsClassNames(String... resolvers) {
         List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
@@ -1159,8 +1154,7 @@ public class Flyway {
      */
     public MigrationInfoService info() {
         return execute(new Command<MigrationInfoService>() {
-            public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[]
-                    schemas) {
+            public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 for (FlywayCallback callback : getCallbacks()) {
                     callback.beforeInfo(connectionUserObjects);
                 }
