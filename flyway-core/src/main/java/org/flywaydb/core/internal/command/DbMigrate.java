@@ -278,7 +278,7 @@ public class DbMigrate {
             }
 
             final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
-            if (migrationExecutor.executeInTransaction()) {
+            if (dbSupport.supportsDdlTransactions() && migrationExecutor.executeInTransaction()) {
                 new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
                     public Void doInTransaction() throws SQLException {
                         migrationExecutor.execute(connectionUserObjects);
