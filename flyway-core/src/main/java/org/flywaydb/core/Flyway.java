@@ -1225,7 +1225,7 @@ public class Flyway {
     /**
      * @return A new, fully configured, PlaceholderReplacer.
      */
-    private PlaceholderReplacer createPlaceholderReplacer() {
+    protected PlaceholderReplacer createPlaceholderReplacer() {
         if (placeholderReplacement) {
             return new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
         }
