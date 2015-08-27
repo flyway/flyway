@@ -53,11 +53,11 @@ public class ConsoleLog implements Log {
     }
 
     public void error(String message) {
-        System.out.println("ERROR: " + message);
+        System.err.println("ERROR: " + message);
     }
 
     public void error(String message, Exception e) {
-        System.out.println("ERROR: " + message);
-        e.printStackTrace();
+        System.err.println("ERROR: " + message);
+        e.printStackTrace(System.err);
     }
 }
