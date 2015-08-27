@@ -248,7 +248,11 @@ public class JdbcTemplate {
                     warning = warning.getNextWarning();
                 }
                 // retrieve all results to ensure all errors are detected
-                while (hasResults || statement.getUpdateCount() != -1) {
+                int updateCount = -1;
+                while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {
+                    if (updateCount != -1) {
+                        LOG.debug("Update Count: " + updateCount);
+                    }
                     hasResults = statement.getMoreResults();
                 }
             }
