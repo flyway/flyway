@@ -72,13 +72,25 @@ public class OracleSqlScriptSmallTest {
     }
 
     @Test
+    public void parsePackages() throws Exception {
+        String source = new ClassPathResource("migration/dbsupport/oracle/sql/package/V1__Package.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
+
+        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        assertEquals(2, sqlStatements.size());
+        assertEquals(17, sqlStatements.get(0).getLineNumber());
+        assertEquals(33, sqlStatements.get(1).getLineNumber());
+    }
+
+    @Test
     public void parseQQuotes() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/qquote/V1__Q_Quote.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
         SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(10, sqlStatements.size());
+        assertEquals(12, sqlStatements.size());
     }
 
     @Test

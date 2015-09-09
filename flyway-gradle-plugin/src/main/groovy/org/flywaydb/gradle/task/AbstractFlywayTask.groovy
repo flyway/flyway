@@ -103,6 +103,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
         propSet(flyway, 'encoding')
+        propSet(flyway, 'placeholderReplacement')
         propSet(flyway, 'placeholderPrefix')
         propSet(flyway, 'placeholderSuffix')
 
@@ -177,8 +178,8 @@ abstract class AbstractFlywayTask extends DefaultTask {
      * @param throwable Throwable instance to be handled
      */
     private void handleException(Throwable throwable) {
-        String message = "Error occurred while executing ${this.getName()}${System.lineSeparator()}" 
-        throw new FlywayException(collectMessages(throwable, message, 5), throwable)
+        String message = "Error occurred while executing ${this.getName()}"
+        throw new FlywayException(collectMessages(throwable, message), throwable)
     }
 
     /**
@@ -188,12 +189,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
      * @param depth number of levels in the stack trace
      * @return a String containing the composed messages
      */
-    private String collectMessages(Throwable throwable, String message, int depth) {
-        if (depth > 0 && throwable != null) {
-            message += throwable.getMessage() + System.lineSeparator()
-            collectMessages(throwable.getCause(), message, depth--)
-        }
-        else{
+    private String collectMessages(Throwable throwable, String message) {
+        if (throwable != null) {
+            message += "\n" + throwable.getMessage()
+            collectMessages(throwable.getCause(), message)
+        } else {
             message
         }
     }

@@ -144,6 +144,7 @@ object FlywayPlugin extends AutoPlugin {
       flywayOutOfOrder := defaults.isOutOfOrder,
       flywayCallbacks := new Array[String](0),
       flywayIgnoreFailedFutureMigration := defaults.isIgnoreFailedFutureMigration,
+      flywayPlaceholderReplacement := defaults.isPlaceholderReplacement,
       flywayPlaceholders := defaults.getPlaceholders.asScala.toMap,
       flywayPlaceholderPrefix := defaults.getPlaceholderPrefix,
       flywayPlaceholderSuffix := defaults.getPlaceholderSuffix,
@@ -162,9 +163,9 @@ object FlywayPlugin extends AutoPlugin {
         (locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks) =>
           ConfigMigrationLoading(locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks)
       },
-      flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayBaselineOnMigrate, flywayValidateOnMigrate) map {
-        (ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate) =>
-          ConfigMigrate(ignoreFailedFutureMigration, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate)
+      flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayBaselineOnMigrate, flywayValidateOnMigrate) map {
+        (ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate) =>
+          ConfigMigrate(ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate)
       },
       flywayConfig <<= (flywayConfigDataSource, flywayConfigBase, flywayConfigMigrationLoading, flywayConfigMigrate) map {
         (dataSource, base, migrationLoading, migrate) => Config(dataSource, base, migrationLoading, migrate)
@@ -298,8 +299,6 @@ object FlywayPlugin extends AutoPlugin {
     def error(message: String) { streams map (_.log.error(message)) }
     def error(message: String, e: Exception) { streams map (_.log.error(message)); streams map (_.log.trace(e)) }
   }
-
-
 }
 
 

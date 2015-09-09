@@ -135,6 +135,32 @@ public class MySQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void stringEndingInSingleQuote() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (\"' '\");");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void stringMixedQuotes() throws Exception {
+        builder.addLine("SET sql_cmd = CONCAT(");
+        assertFalse(builder.isTerminated());
+        builder.addLine("    'SELECT");
+        assertFalse(builder.isTerminated());
+        builder.addLine("    \"',dt0,'\" AS from_date");
+        assertFalse(builder.isTerminated());
+        builder.addLine("FROM stats_bonus s1");
+        assertFalse(builder.isTerminated());
+        builder.addLine("WHERE s1.agg_date=\"',dt1,'\"');");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void stringBeginningWithInSingleQuote() throws Exception {
+        builder.addLine("INSERT INTO Tablename (id) VALUES (\"' \");");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
     public void stringEndingInDoubleQuoteMultiple() throws Exception {
         builder.addLine("insert into sample_table_a(id, string)\n" +
                 "values (1, '[\"GIF\", \"JPG\", \"PNG\"]');");

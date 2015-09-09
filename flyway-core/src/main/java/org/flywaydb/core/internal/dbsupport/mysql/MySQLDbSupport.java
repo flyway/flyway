@@ -57,7 +57,7 @@ public class MySQLDbSupport extends DbSupport {
 
     @Override
     protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        if ("".equals(schema.getName())) {
+        if (schema == null || "".equals(schema.getName())) {
             try {
                 // Weird hack to switch back to no database selected...
                 String newDb = quote(UUID.randomUUID().toString());
@@ -65,10 +65,10 @@ public class MySQLDbSupport extends DbSupport {
                 jdbcTemplate.execute("USE " + newDb);
                 jdbcTemplate.execute("DROP SCHEMA " + newDb);
             } catch (Exception e) {
-                LOG.warn("Unable to restore connection to having no default schema");
+                LOG.warn("Unable to restore connection to having no default schema: " + e.getMessage());
             }
         } else {
-            jdbcTemplate.execute("USE " + schema);
+            jdbcTemplate.getConnection().setCatalog(schema.getName());
         }
     }
 

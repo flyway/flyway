@@ -22,6 +22,8 @@ import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.PropertiesUtils;
+import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -75,11 +77,12 @@ public class Main {
 
             Properties properties = new Properties();
             initializeDefaults(properties);
-            loadConfigurationFile(properties, args);
+            loadConfiguration(properties, args);
             overrideConfiguration(properties, args);
 
             loadJdbcDrivers();
-            loadJavaMigrations(properties);
+            loadJavaMigrationsFromJarDir(properties);
+            loadJavaMigrationsFromJarDirs(properties);
 
             Flyway flyway = new Flyway();
             flyway.configure(properties);
@@ -104,8 +107,8 @@ public class Main {
     /**
      * Executes this operation on this Flyway instance.
      *
-     * @param flyway       The Flyway instance.
-     * @param operation    The operation to execute.
+     * @param flyway    The Flyway instance.
+     * @param operation The operation to execute.
      */
     private static void executeOperation(Flyway flyway, String operation) {
         if ("clean".equals(operation)) {
@@ -129,23 +132,23 @@ public class Main {
             System.exit(1);
         }
     }
-    
+
     /**
      * Checks the desired log level.
-     * 
+     *
      * @param args The command-line arguments.
      * @return The desired log level.
      */
     private static Level getLogLevel(String[] args) {
-    	for(String arg : args) {
-    		if ("-X".equals(arg)) {
-    			return Level.DEBUG;
-    		}
+        for (String arg : args) {
+            if ("-X".equals(arg)) {
+                return Level.DEBUG;
+            }
             if ("-q".equals(arg)) {
-    			return Level.WARN;
-    		}
-    	}
-    	return Level.INFO;
+                return Level.WARN;
+            }
+        }
+        return Level.INFO;
     }
 
     /**
@@ -155,7 +158,7 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.locations", "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
-        properties.put("flyway.jarDir", new File(getInstallationDir(), "jars").getAbsolutePath());
+        properties.put("flyway.jarDirs", new File(getInstallationDir(), "jars").getAbsolutePath());
     }
 
     /**
@@ -164,8 +167,7 @@ public class Main {
      * @throws IOException when the version could not be read.
      */
     private static void printVersion() throws IOException {
-        String version = new ClassPathResource("version.txt", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
-        LOG.info("Flyway (Command-line Tool) v." + version);
+        VersionPrinter.printVersion(Thread.currentThread().getContextClassLoader());
         LOG.info("");
     }
 
@@ -179,7 +181,7 @@ public class Main {
         LOG.info("");
         LOG.info("flyway [options] command");
         LOG.info("");
-        LOG.info("By default, the configuration will be read from conf/flyway.properties.");
+        LOG.info("By default, the configuration will be read from conf/flyway.conf.");
         LOG.info("Options passed from the command-line override the configuration.");
         LOG.info("");
         LOG.info("Commands");
@@ -205,6 +207,7 @@ public class Main {
         LOG.info("sqlMigrationSeparator  : File name separator for Sql migrations");
         LOG.info("sqlMigrationSuffix     : File name suffix for Sql migrations");
         LOG.info("encoding               : Encoding of Sql migrations");
+        LOG.info("placeholderReplacement : Whether placeholders should be replaced");
         LOG.info("placeholders           : Placeholders to replace in Sql migrations");
         LOG.info("placeholderPrefix      : Prefix of every placeholder");
         LOG.info("placeholderSuffix      : Suffix of every placeholder");
@@ -218,7 +221,7 @@ public class Main {
         LOG.info("baselineOnMigrate      : Baseline on migrate against uninitialized non-empty schema");
         LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
         LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
-        LOG.info("jarDir                 : Dir for Jdbc drivers & Java migrations (default: jars)");
+        LOG.info("jarDirs                : Dirs for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
@@ -260,9 +263,14 @@ public class Main {
      * @param properties The configured properties.
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJavaMigrations(Properties properties) throws IOException {
-        String directoryForJdbcDriversAndJavaMigrations = properties.getProperty("flyway.jarDir");
-        File dir = new File(directoryForJdbcDriversAndJavaMigrations);
+    private static void loadJavaMigrationsFromJarDir(Properties properties) throws IOException {
+        String jarDir = properties.getProperty("flyway.jarDir");
+        if (!StringUtils.hasLength(jarDir)) {
+            return;
+        }
+        LOG.warn("flyway.jarDir is deprecated and will be removed in Flyway 4.0. Use flyway.jarDirs instead.");
+
+        File dir = new File(jarDir);
         File[] files = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.endsWith(".jar");
@@ -271,12 +279,47 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.error("Directory for Java Migrations not found: " + directoryForJdbcDriversAndJavaMigrations);
+            LOG.error("Directory for Java Migrations not found: " + jarDir);
             System.exit(1);
         }
 
         for (File file : files) {
             addJarOrDirectoryToClasspath(file.getPath());
+        }
+    }
+
+    /**
+     * Loads all the jars contained in the jars folder. (For Java Migrations)
+     *
+     * @param properties The configured properties.
+     * @throws IOException When the jars could not be loaded.
+     */
+    private static void loadJavaMigrationsFromJarDirs(Properties properties) throws IOException {
+        String jarDirs = properties.getProperty("flyway.jarDirs");
+        if (!StringUtils.hasLength(jarDirs)) {
+            return;
+        }
+
+        jarDirs = jarDirs.replace(File.pathSeparator, ",");
+        String[] dirs = StringUtils.tokenizeToStringArray(jarDirs, ",");
+
+        for (String dirName : dirs) {
+            File dir = new File(dirName);
+            File[] files = dir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".jar");
+                }
+            });
+
+            // see javadoc of listFiles(): null if given path is not a real directory
+            if (files == null) {
+                LOG.error("Directory for Java Migrations not found: " + dirName);
+                System.exit(1);
+            }
+
+            for (File file : files) {
+                addJarOrDirectoryToClasspath(file.getPath());
+            }
         }
     }
 
@@ -302,27 +345,60 @@ public class Main {
     }
 
     /**
-     * Loads the configuration from the configuration file. If a configuration file is specified using the -configfile
-     * argument it will be used, otherwise the default config file (conf/flyway.properties) will be loaded.
+     * Loads the configuration from the various possible locations.
      *
      * @param properties The properties object to load to configuration into.
      * @param args       The command-line arguments passed in.
-     * @throws FlywayException when the configuration file could not be loaded.
      */
     /* private -> for testing */
-    static void loadConfigurationFile(Properties properties, String[] args) throws FlywayException {
-        String configFile = determineConfigurationFile(args);
+    static void loadConfiguration(Properties properties, String[] args) {
+        String encoding = determineConfigurationFileEncoding(args);
 
+        if (loadConfigurationFile(properties, getInstallationDir() + "/conf/flyway.properties", encoding, false)) {
+            LOG.warn("conf/flyway.properties usage is deprecated and will be removed in Flyway 4.0. Use conf/flyway.conf instead.");
+        }
+        loadConfigurationFile(properties, getInstallationDir() + "/conf/flyway.conf", encoding, false);
+        loadConfigurationFile(properties, System.getProperty("user.home") + "/flyway.conf", encoding, false);
+        loadConfigurationFile(properties, "flyway.conf", encoding, false);
+
+        String configFile = determineConfigurationFileArgument(args);
         if (configFile != null) {
-            try {
-                String encoding = determineConfigurationFileEncoding(args);
-                Reader fileReader = new InputStreamReader(new FileInputStream(configFile), encoding);
-                String propertiesData = FileCopyUtils.copyToString(fileReader);
+            loadConfigurationFile(properties, configFile, encoding, true);
+        }
+    }
 
-                properties.putAll(PropertiesUtils.loadPropertiesFromString(propertiesData));
-            } catch (IOException e) {
-                throw new FlywayException("Unable to load config file: " + configFile, e);
+    /**
+     * Loads the configuration from the configuration file. If a configuration file is specified using the -configfile
+     * argument it will be used, otherwise the default config file (conf/flyway.properties) will be loaded.
+     *
+     * @param properties    The properties object to load to configuration into.
+     * @param file          The configuration file to load.
+     * @param encoding      The encoding of the configuration file.
+     * @param failIfMissing Whether to fail if the file is missing.
+     * @return Whether the file was loaded successfully.
+     * @throws FlywayException when the configuration file could not be loaded.
+     */
+    private static boolean loadConfigurationFile(Properties properties, String file, String encoding, boolean failIfMissing) throws FlywayException {
+        File configFile = new File(file);
+        String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
+
+        if (!configFile.isFile() || !configFile.canRead()) {
+            if (!failIfMissing) {
+                LOG.debug(errorMessage);
+                return false;
             }
+            throw new FlywayException(errorMessage);
+        }
+
+        LOG.debug("Loading config file: " + configFile.getAbsolutePath());
+        try {
+            Reader fileReader = new InputStreamReader(new FileInputStream(configFile), encoding);
+            String propertiesData = FileCopyUtils.copyToString(fileReader).replace("\\", "\\\\");
+
+            properties.putAll(PropertiesUtils.loadPropertiesFromString(propertiesData));
+            return true;
+        } catch (IOException e) {
+            throw new FlywayException(errorMessage, e);
         }
     }
 
@@ -332,14 +408,14 @@ public class Main {
      * @param args The command-line arguments passed in.
      * @return The path of the configuration file on disk.
      */
-    private static String determineConfigurationFile(String[] args) {
+    private static String determineConfigurationFileArgument(String[] args) {
         for (String arg : args) {
             if (isPropertyArgument(arg) && "configFile".equals(getArgumentProperty(arg))) {
                 return getArgumentValue(arg);
             }
         }
 
-        return getInstallationDir() + "/conf/flyway.properties";
+        return null;
     }
 
     /**

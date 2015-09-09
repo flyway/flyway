@@ -15,8 +15,7 @@
 # limitations under the License.
 #
 
-# Save current directory
-OLDDIR=`pwd`
+# Detect cygwin
 cygwin=false
 case "`uname`" in
   CYGWIN*) cygwin=true;;
@@ -35,18 +34,21 @@ while [ -h "$PRG" ] ; do
   fi
 done
 
-# Set the current directory to the installation directory
+# Detect the installation directory
 INSTALLDIR=`dirname "$PRG"`
-cd "$INSTALLDIR"
 
-# Use JAVA_HOME if it is set
-if [ -z "$JAVA_HOME" ]; then
- JAVA_CMD=java
+if [ -x "$INSTALLDIR/jre/bin/java" ]; then
+ JAVA_CMD=$INSTALLDIR/jre/bin/java
 else
- JAVA_CMD=$JAVA_HOME/bin/java
+ # Use JAVA_HOME if it is set
+ if [ -z "$JAVA_HOME" ]; then
+  JAVA_CMD=java
+ else
+  JAVA_CMD=$JAVA_HOME/bin/java
+ fi
 fi
 
-CP="./lib/*:./drivers/*"
+CP="$INSTALLDIR/lib/*:$INSTALLDIR/drivers/*"
 
 if $cygwin; then
   CP=$(cygpath -pw "$CP")
@@ -54,11 +56,5 @@ fi
 
 "$JAVA_CMD" -cp "$CP" org.flywaydb.commandline.Main "$@"
 
-# Save the exit code
-JAVA_EXIT_CODE=$?
-
-# Restore current directory
-cd "$OLDDIR"
-
 # Exit using the same code returned from Java
-exit $JAVA_EXIT_CODE
+exit $?
