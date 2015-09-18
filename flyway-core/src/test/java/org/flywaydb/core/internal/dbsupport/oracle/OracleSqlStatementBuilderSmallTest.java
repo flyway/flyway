@@ -67,4 +67,9 @@ public class OracleSqlStatementBuilderSmallTest {
         builder.addLine("insert into table (COLUMN) values 'VALUE_WITH_N';");
         assertTrue(builder.isTerminated());
     }
+    @Test
+    public void quotedWithFrom() {
+        builder.addLine("insert into table (COLUMN) values 'FROM';");
+        assertTrue(builder.isTerminated());
+    }
 }
