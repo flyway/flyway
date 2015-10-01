@@ -38,6 +38,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -83,6 +84,11 @@ public class Main {
             loadJdbcDrivers();
             loadJavaMigrationsFromJarDir(properties);
             loadJavaMigrationsFromJarDirs(properties);
+
+            if(Arrays.asList( args ).contains( "-c" )){
+                LogFactory.setLogCreator(null);
+                LOG = LogFactory.getLog(Main.class);
+            }
 
             Flyway flyway = new Flyway();
             flyway.configure(properties);
@@ -225,6 +231,7 @@ public class Main {
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
+        LOG.info("Add -c to enable custom logging using logging framework jars on the classpath");
         LOG.info("");
         LOG.info("Example");
         LOG.info("=======");
