@@ -15,7 +15,7 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
@@ -26,7 +26,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,7 +53,7 @@ public class Main {
      * @param level The minimum level to log at.
      */
     static void initLogging(Level level) {
-        LogFactory.setLogCreator(new ConsoleLogCreator(level));
+        LogFactory.setFallbackLogCreator(new ConsoleLogCreator(level));
         LOG = LogFactory.getLog(Main.class);
     }
 

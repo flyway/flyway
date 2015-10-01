@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Axel Fontaine
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,6 +31,11 @@ public class LogFactory {
     private static LogCreator logCreator;
 
     /**
+     * The factory for implementation-specific loggers to be used as a fallback when no other suitable loggers were found.
+     */
+    private static LogCreator fallbackLogCreator;
+
+    /**
      * Prevent instantiation.
      */
     private LogFactory() {
@@ -42,6 +47,14 @@ public class LogFactory {
      */
     public static void setLogCreator(LogCreator logCreator) {
         LogFactory.logCreator = logCreator;
+    }
+
+    /**
+     * @param fallbackLogCreator The factory for implementation-specific loggers to be used as a fallback when no other
+     *                           suitable loggers were found.
+     */
+    public static void setFallbackLogCreator(LogCreator fallbackLogCreator) {
+        LogFactory.fallbackLogCreator = fallbackLogCreator;
     }
 
     /**
@@ -59,8 +72,10 @@ public class LogFactory {
                 logCreator = new Slf4jLogCreator();
             } else if (featureDetector.isApacheCommonsLoggingAvailable()) {
                 logCreator = new ApacheCommonsLogCreator();
-            } else {
+            } else if (fallbackLogCreator == null) {
                 logCreator = new JavaUtilLogCreator();
+            } else {
+                logCreator = fallbackLogCreator;
             }
         }
 

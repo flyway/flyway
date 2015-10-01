@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.core.internal.util.logging.console.ConsoleLog;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.commandline;
+package org.flywaydb.core.internal.util.logging.console;
 
 import org.flywaydb.core.internal.util.logging.Log;
 
