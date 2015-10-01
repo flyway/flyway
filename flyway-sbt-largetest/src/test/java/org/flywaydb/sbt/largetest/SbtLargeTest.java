@@ -48,6 +48,12 @@ public class SbtLargeTest {
     }
 
     @Test
+    public void useTestScope() throws Exception {
+        String stdOut = runSbt("test1", 0, "test:flywayClean", "test:flywayMigrate");
+        assertTrue(stdOut.contains("Successfully applied 2 migration"));
+    }
+
+    @Test
     public void flywayUrlAsSysProps() throws Exception {
         String stdOut = runSbt("test2", 0, "-Dflyway.url=jdbc:hsqldb:file:target/flyway_sample;shutdown=true", "flywayClean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 2 migration"));
