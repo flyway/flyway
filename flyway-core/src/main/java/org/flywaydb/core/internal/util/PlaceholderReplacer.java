@@ -88,18 +88,20 @@ public class PlaceholderReplacer {
      * @throws FlywayException An exception listing the unmatched expressions.
      */
     private void checkForUnmatchedPlaceholderExpression(String input) {
-        String regex = Pattern.quote(placeholderPrefix) + "(.+?)" + Pattern.quote(placeholderSuffix);
-        Matcher matcher = Pattern.compile(regex).matcher(input);
-
-        Set<String> unmatchedPlaceHolderExpressions = new TreeSet<String>();
-        while (matcher.find()) {
-            unmatchedPlaceHolderExpressions.add(matcher.group());
-        }
-
-        if (!unmatchedPlaceHolderExpressions.isEmpty()) {
-            throw new FlywayException("No value provided for placeholder expressions: "
-                    + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions)
-                    + ".  Check your configuration!");
-        }
+    	if(StringUtils.hasLength(placeholderPrefix) && StringUtils.hasLength(placeholderSuffix)) {
+	        String regex = Pattern.quote(placeholderPrefix) + "(.+?)" + Pattern.quote(placeholderSuffix);
+	        Matcher matcher = Pattern.compile(regex).matcher(input);
+	
+	        Set<String> unmatchedPlaceHolderExpressions = new TreeSet<String>();
+	        while (matcher.find()) {
+	            unmatchedPlaceHolderExpressions.add(matcher.group());
+	        }
+	
+	        if (!unmatchedPlaceHolderExpressions.isEmpty()) {
+	            throw new FlywayException("No value provided for placeholder expressions: "
+	                    + StringUtils.collectionToCommaDelimitedString(unmatchedPlaceHolderExpressions)
+	                    + ".  Check your configuration!");
+	        }
+    	}
     }
 }
