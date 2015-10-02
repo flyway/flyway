@@ -381,6 +381,15 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void noPlaceholderReplacement() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_no_placeholder_replacement;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setPlaceholderReplacement(false);
+        assertEquals(4, flyway.migrate());
+    }
+
+    @Test
     public void futureMigrations() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_future;DB_CLOSE_DELAY=-1", "sa", "");
