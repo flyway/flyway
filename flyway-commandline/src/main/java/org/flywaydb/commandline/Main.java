@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Axel Fontaine
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,17 +15,15 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.FileCopyUtils;
-import org.flywaydb.core.internal.util.PropertiesUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
 
 import java.io.File;
@@ -33,7 +31,6 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -392,10 +389,7 @@ public class Main {
 
         LOG.debug("Loading config file: " + configFile.getAbsolutePath());
         try {
-            Reader fileReader = new InputStreamReader(new FileInputStream(configFile), encoding);
-            String propertiesData = FileCopyUtils.copyToString(fileReader).replace("\\", "\\\\");
-
-            properties.putAll(PropertiesUtils.loadPropertiesFromString(propertiesData));
+            properties.load(new InputStreamReader(new FileInputStream(configFile), encoding));
             return true;
         } catch (IOException e) {
             throw new FlywayException(errorMessage, e);
@@ -421,6 +415,7 @@ public class Main {
     /**
      * @return The installation directory of the Flyway Command-line tool.
      */
+    @SuppressWarnings("ConstantConditions")
     private static String getInstallationDir() {
         String path = ClassUtils.getLocationOnDisk(Main.class);
         return new File(path).getParentFile().getParentFile().getAbsolutePath();
