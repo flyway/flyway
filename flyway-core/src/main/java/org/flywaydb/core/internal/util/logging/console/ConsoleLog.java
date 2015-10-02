@@ -21,7 +21,7 @@ import org.flywaydb.core.internal.util.logging.Log;
  * Wrapper around a simple Console output.
  */
 public class ConsoleLog implements Log {
- 	public static enum Level {
+ 	public enum Level {
  		DEBUG, INFO, WARN
  	}
 	
