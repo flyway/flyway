@@ -20,7 +20,7 @@
     <fileSets>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
             </includes>
@@ -29,7 +29,7 @@
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway</include>
             </includes>
@@ -39,7 +39,7 @@
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>/drivers</outputDirectory>
+            <outputDirectory>drivers</outputDirectory>
             <includes>
                 <include>put-your-jdbc-drivers-here.txt</include>
             </includes>
@@ -47,7 +47,7 @@
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>/conf</outputDirectory>
+            <outputDirectory>conf</outputDirectory>
             <includes>
                 <include>flyway.conf</include>
             </includes>
@@ -55,7 +55,7 @@
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>/sql</outputDirectory>
+            <outputDirectory>sql</outputDirectory>
             <includes>
                 <include>put-your-sql-migrations-here.txt</include>
             </includes>
@@ -63,7 +63,7 @@
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>/jars</outputDirectory>
+            <outputDirectory>jars</outputDirectory>
             <includes>
                 <include>put-your-java-migration-jars-here.txt</include>
             </includes>
@@ -71,7 +71,7 @@
         </fileSet>
         <fileSet>
             <directory>src/main/assembly</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
             <includes>
                 <include>LICENSES-THIRD-PARTY.txt</include>
             </includes>
@@ -80,7 +80,7 @@
         </fileSet>
         <fileSet>
             <directory>..</directory>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory></outputDirectory>
             <includes>
                 <include>LICENSE.txt</include>
                 <include>README.txt</include>
@@ -102,7 +102,6 @@
             </includes>
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
-                <exclude>com.oracle:*</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

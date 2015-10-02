@@ -411,6 +411,10 @@ public class Main {
      */
     private static void promptForCredentialsIfMissing(Properties properties) {
         Console console = System.console();
+        if (console == null) {
+            // We are running in an automated build. Prompting is not possible.
+            return;
+        }
 
         if (!properties.containsKey("flyway.user")) {
             properties.put("flyway.user", console.readLine("Database user: "));

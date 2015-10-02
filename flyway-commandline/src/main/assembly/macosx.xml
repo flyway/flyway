@@ -29,7 +29,7 @@
     <fileSets>
         <fileSet>
             <directory>target/dependency/jre-macosx-x64-tar.gz/jre${jreversion}.jre/Contents/Home</directory>
-            <outputDirectory>/jre</outputDirectory>
+            <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
     </fileSets>
