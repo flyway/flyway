@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Axel Fontaine
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 public class DriverDataSource implements DataSource {
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
+    private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
 
     /**
      * The JDBC Driver instance to use.
@@ -63,6 +64,11 @@ public class DriverDataSource implements DataSource {
      * The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
     private final String[] initSqls;
+
+    /**
+     * The properties to be passed to a new connection.
+     */
+    private final Properties defaultProps;
 
     /**
      * The ClassLoader to use.
@@ -107,10 +113,12 @@ public class DriverDataSource implements DataSource {
             }
         }
 
+        this.defaultProps = detectPropsForUrl(url);
+
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
         } catch (Exception e) {
-            String backupDriverClass = getBackupDriverForUrl(url);
+            String backupDriverClass = detectBackupDriverForUrl(url);
             if (backupDriverClass == null) {
                 throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass, e);
             }
@@ -132,12 +140,30 @@ public class DriverDataSource implements DataSource {
     }
 
     /**
+     * Detect the default connection properties for this url.
+     *
+     * @param url The Jdbc url.
+     * @return The properties.
+     */
+    private Properties detectPropsForUrl(String url) {
+        Properties result = new Properties();
+
+        if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
+            String osUser = System.getProperty("user.name");
+            result.put("v$session.osuser", osUser.substring(0, Math.min(osUser.length(), 30)));
+            result.put("v$session.program", "Flyway by Boxfuse");
+        }
+
+        return result;
+    }
+
+    /**
      * Retrieves a second choice backup driver for a jdbc url, in case the primary driver is not available.
      *
      * @param url The Jdbc url.
      * @return The Jdbc driver. {@code null} if none.
      */
-    private String getBackupDriverForUrl(String url) {
+    private String detectBackupDriverForUrl(String url) {
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
             return MARIADB_JDBC_DRIVER;
         }
@@ -196,7 +222,7 @@ public class DriverDataSource implements DataSource {
             return "com.google.appengine.api.rdbms.AppEngineDriver";
         }
 
-        if (url.startsWith("jdbc:oracle:")) {
+        if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
             return "oracle.jdbc.OracleDriver";
         }
 
@@ -261,6 +287,7 @@ public class DriverDataSource implements DataSource {
      *
      * @see #getConnectionFromDriver(String, String)
      */
+    @Override
     public Connection getConnection() throws SQLException {
         return getConnectionFromDriver(getUser(), getPassword());
     }
@@ -271,6 +298,7 @@ public class DriverDataSource implements DataSource {
      *
      * @see #getConnectionFromDriver(String, String)
      */
+    @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return getConnectionFromDriver(username, password);
     }
@@ -291,7 +319,7 @@ public class DriverDataSource implements DataSource {
             return singleConnection;
         }
 
-        Properties props = new Properties();
+        Properties props = new Properties(this.defaultProps);
         if (username != null) {
             props.setProperty("user", username);
         }
