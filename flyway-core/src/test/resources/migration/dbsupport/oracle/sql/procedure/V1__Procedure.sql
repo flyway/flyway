@@ -340,3 +340,43 @@ procedure add_sub_portfolio (
              values (firm_subportfolios_seq.nextval, p_pf_id, p_name, p_approach, v_rating_id, p_db, p_ead, p_rwa, p_pd, p_lgd, p_el) returning id into p_sub_pf_id;
 end add_sub_portfolio;
 /
+
+CREATE OR REPLACE PROCEDURE set_right_value_for_sequence(seq_name in VARCHAR2, table_name in VARCHAR2, column_id in VARCHAR2)
+IS
+  seq_val NUMBER(6);
+  row_count NUMBER(6);
+  BEGIN
+    EXECUTE IMMEDIATE
+    'select ' || seq_name || '.nextval from dual' INTO seq_val;
+
+    EXECUTE IMMEDIATE
+    'alter sequence  ' || seq_name || ' increment by -' || seq_val || ' minvalue 0';
+
+    EXECUTE IMMEDIATE
+    'select ' || seq_name || '.nextval from dual' INTO seq_val;
+
+    EXECUTE IMMEDIATE
+    'select case when max(' || column_id || ') is null then 1 else max(' || column_id || ') end from ' || table_name INTO row_count;
+
+    EXECUTE IMMEDIATE
+    'alter sequence ' || seq_name || ' increment by ' || row_count || ' minvalue 0';
+
+    EXECUTE IMMEDIATE
+    'select ' || seq_name || '.nextval from dual' INTO seq_val;
+
+    EXECUTE IMMEDIATE
+    'alter sequence ' || seq_name || ' increment by 1 minvalue 1';
+  END;
+/
+
+CREATE OR REPLACE PROCEDURE dummy_proc(seq_name in VARCHAR2, table_name in VARCHAR2, column_id in VARCHAR2)
+IS
+  seq_val NUMBER(6);
+  row_count NUMBER(6);
+  BEGIN
+    EXECUTE IMMEDIATE
+    'select ''abc'' from dual';
+  END;
+/
+
+CALL dummy_proc('SEQ_ATR', 'TOTCATTRIB', 'ATTRIB_ID');

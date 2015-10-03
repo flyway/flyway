@@ -152,4 +152,41 @@ public class OracleSqlScriptSmallTest {
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
     }
+
+    @Test
+    public void parseProcedure() throws Exception {
+        String source = "CREATE OR REPLACE PROCEDURE set_right_value_for_sequence(seq_name in VARCHAR2, table_name in VARCHAR2, column_id in VARCHAR2)\n" +
+                "IS\n" +
+                "    seq_val NUMBER(6);\n" +
+                "    row_count NUMBER(6);\n" +
+                "BEGIN\n" +
+                "    EXECUTE IMMEDIATE\n" +
+                "    'select ' || seq_name || '.nextval from dual' INTO seq_val;\n" +
+                "\n" +
+                "    EXECUTE IMMEDIATE\n" +
+                "    'alter sequence  ' || seq_name || ' increment by -' || seq_val || ' minvalue 0';\n" +
+                "\n" +
+                "    EXECUTE IMMEDIATE\n" +
+                "    'select ' || seq_name || '.nextval from dual' INTO seq_val;\n" +
+                "\n" +
+                "    EXECUTE IMMEDIATE\n" +
+                "    'select case when max(' || column_id || ') is null then 1 else max(' || column_id || ') end from ' || table_name INTO row_count;\n" +
+                "\n" +
+                "    EXECUTE IMMEDIATE\n" +
+                "    'alter sequence ' || seq_name || ' increment by ' || row_count || ' minvalue 0';\n" +
+                "\n" +
+                "    EXECUTE IMMEDIATE\n" +
+                "    'select ' || seq_name || '.nextval from dual' INTO seq_val;\n" +
+                "\n" +
+                "    EXECUTE IMMEDIATE\n" +
+                "    'alter sequence ' || seq_name || ' increment by 1 minvalue 1';\n" +
+                "END;\n" +
+                "/\n" +
+                "\n" +
+                "EXECUTE set_right_value_for_sequence('SEQ_ATR', 'TOTCATTRIB', 'ATTRIB_ID');";
+
+        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        assertEquals(2, sqlStatements.size());
+    }
 }
