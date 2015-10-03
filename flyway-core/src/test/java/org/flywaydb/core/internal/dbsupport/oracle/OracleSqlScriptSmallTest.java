@@ -129,4 +129,27 @@ public class OracleSqlScriptSmallTest {
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(1, sqlStatements.size());
     }
+
+    @Test
+    public void parseMergeInsert() throws Exception {
+        String source = "INSERT INTO ss.CODETBL(FIELDNAME,FIELDVALUE,IDS)\n" +
+                "SELECT FIELDNAME,FIELDVALUE,IDS FROM\n" +
+                "(\n" +
+                "SELECT 'ACCT_TYPE_CD' FIELDNAME, '$' FIELDVALUE,'SAMP' IDS FROM DUAL UNION ALL\n" +
+                "SELECT 'ACCT_TYPE_CD', 'L','SAMP' FROM DUAL UNION ALL\n" +
+                "SELECT 'ACCT_TYPE_CD', 'C','SAMP' FROM DUAL \n" +
+                ")\n" +
+                "D\n" +
+                "WHERE NOT EXISTS\n" +
+                "(\n" +
+                "SELECT 1 FROM SS.CODETBL \n" +
+                "WHERE D.FIELDNAME = FIELDNAME \n" +
+                "AND D.FIELDVALUE = FIELDVALUE\n" +
+                "AND D.IDS = IDS\n" +
+                ");";
+
+        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        assertEquals(1, sqlStatements.size());
+    }
 }
