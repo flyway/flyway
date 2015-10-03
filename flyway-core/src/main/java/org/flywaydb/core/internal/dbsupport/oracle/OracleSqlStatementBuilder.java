@@ -67,9 +67,10 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected String cleanToken(String token) {
-    	if(token.startsWith("'") && token.endsWith("'")){
+    	if (token.startsWith("'") && token.endsWith("'")){
     		return token;
     	}
+
         Matcher beforeMatcher = KEYWORDS_BEFORE_STRING_LITERAL_REGEX.matcher(token);
         if (beforeMatcher.find()) {
             token = beforeMatcher.group(2);
