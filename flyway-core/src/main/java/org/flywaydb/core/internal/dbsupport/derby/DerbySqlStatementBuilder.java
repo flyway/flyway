@@ -26,6 +26,17 @@ public class DerbySqlStatementBuilder extends SqlStatementBuilder {
         if (token.startsWith("$$")) {
             return "$$";
         }
+        if (token.startsWith("X'")) {
+            return "X'";
+        }
         return null;
+    }
+
+    @Override
+    protected String computeAlternateCloseQuote(String openQuote) {
+        if (openQuote.equals("X'")) {
+            return "'";
+        }
+        return openQuote;
     }
 }

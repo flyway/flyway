@@ -34,6 +34,22 @@ public class DB2zosSqlStatementBuilder extends SqlStatementBuilder {
     private String statementStart = "";
 
     @Override
+    protected String extractAlternateOpenQuote(String token) {
+        if (token.startsWith("X'")) {
+            return "X'";
+        }
+        return null;
+    }
+
+    @Override
+    protected String computeAlternateCloseQuote(String openQuote) {
+        if (openQuote.equals("X'")) {
+            return "'";
+        }
+        return openQuote;
+    }
+
+    @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
             statementStart += line;
