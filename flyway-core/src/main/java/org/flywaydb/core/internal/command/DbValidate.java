@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
+import org.flywaydb.core.internal.info.validation.ValidationStrategy;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
@@ -111,9 +112,10 @@ public class DbValidate {
     /**
      * Starts the actual migration.
      *
+     * @param validationStrategy used for validation processing
      * @return The validation error, if any.
      */
-    public String validate() {
+    public String validate(final ValidationStrategy validationStrategy) {
         for (final FlywayCallback callback : callbacks) {
             new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
                 @Override
@@ -136,7 +138,7 @@ public class DbValidate {
                 migrationInfoService.refresh();
 
                 int count = migrationInfoService.all().length;
-                String validationError = migrationInfoService.validate();
+                String validationError = migrationInfoService.validate(validationStrategy);
                 return Pair.of(count, validationError);
             }
         });

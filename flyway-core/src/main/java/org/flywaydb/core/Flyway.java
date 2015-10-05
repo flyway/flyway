@@ -32,6 +32,8 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
+import org.flywaydb.core.internal.info.validation.StrictValidationStrategy;
+import org.flywaydb.core.internal.info.validation.ValidationStrategy;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
@@ -219,6 +221,12 @@ public class Flyway {
      * add as many custom callbacks as you want.
      */
     private FlywayCallback[] callbacks = new FlywayCallback[0];
+
+    /**
+     * This is the validation strategy that will be used during migration validation processing.
+     * The default is {@link StrictValidationStrategy}.
+     */
+    private ValidationStrategy validationStrategy = new StrictValidationStrategy();
 
     /**
      * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
@@ -968,6 +976,19 @@ public class Flyway {
         this.callbacks = callbackList.toArray(new FlywayCallback[callbacks.length]);
     }
 
+    public void setValidationStrategy(ValidationStrategy validationStrategy) {
+        this.validationStrategy = validationStrategy;
+    }
+
+    public void setValidationStrategy(String validationStrategy) {
+
+        try {
+            this.validationStrategy = ClassUtils.instantiate(validationStrategy, classLoader);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to instantiate class " + validationStrategy, e);
+        }
+    }
+
     /**
      * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
      *
@@ -1015,8 +1036,9 @@ public class Flyway {
 
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 if (validateOnMigrate) {
+                    ValidationStrategy validationStrategy = getValidationStrategy();
                     doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable,
-                            schemas, true);
+                            schemas, true, validationStrategy);
                 }
 
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
@@ -1083,9 +1105,10 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
+                ValidationStrategy validationStrategy = getValidationStrategy();
 
                 doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable, schemas,
-                        false);
+                        false, validationStrategy);
                 return null;
             }
         });
@@ -1100,12 +1123,13 @@ public class Flyway {
      * @param metaDataTable           The metadata table.
      * @param schemas                 The schemas managed by Flyway.
      * @param pendingOrFuture         Whether pending or future migrations are ok.
+     * @param validationStrategy      validation strategy for migration validation
      */
     private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver,
-                            MetaDataTable metaDataTable, Schema[] schemas, boolean pendingOrFuture) {
+                            MetaDataTable metaDataTable, Schema[] schemas, boolean pendingOrFuture, final ValidationStrategy validationStrategy) {
         String validationError =
                 new DbValidate(connectionMetaDataTable, connectionUserObjects, metaDataTable, migrationResolver,
-                        target, outOfOrder, pendingOrFuture, callbacks).validate();
+                        target, outOfOrder, pendingOrFuture, callbacks).validate(validationStrategy);
 
         if (validationError != null) {
             if (cleanOnValidationError) {
@@ -1226,6 +1250,10 @@ public class Flyway {
         return new CompositeMigrationResolver(dbSupport, classLoader, locations,
                 encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, createPlaceholderReplacer(),
                 resolvers);
+    }
+
+    private ValidationStrategy getValidationStrategy() {
+        return validationStrategy;
     }
 
     /**
@@ -1351,6 +1379,11 @@ public class Flyway {
         String callbacksProp = properties.getProperty("flyway.callbacks");
         if (StringUtils.hasLength(callbacksProp)) {
             setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
+        }
+        // TODO flyway.validationStrategy is new nnd must be added to documentaion and plugins
+        String validationStrategyProp = properties.getProperty("flyway.validationStrategy");
+        if (StringUtils.hasLength(validationStrategyProp)) {
+            setValidationStrategy(validationStrategyProp);
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>(placeholders);

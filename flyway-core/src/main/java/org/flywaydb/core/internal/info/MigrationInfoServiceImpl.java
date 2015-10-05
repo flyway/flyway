@@ -22,6 +22,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.info.validation.ValidationStrategy;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 
@@ -265,11 +266,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      *
      * @return The error message, or {@code null} if everything is fine.
      */
-    public String validate() {
+    public String validate(ValidationStrategy validationStrategy) {
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            String message = migrationInfo.validate();
-            if (message != null) {
-                return message;
+
+            if ( validationStrategy.validationFailed(migrationInfo)) {
+                return validationStrategy.getValidationError(migrationInfo);
             }
         }
         return null;
