@@ -17,6 +17,7 @@ package org.flywaydb.core.migration;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.DbSupportFactoryImpl;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -78,7 +79,7 @@ public abstract class ConcurrentMigrationTestCase {
         concurrentMigrationDataSource = createDataSource(customProperties);
 
         Connection connection = concurrentMigrationDataSource.getConnection();
-        schemaQuoted = DbSupportFactory.createDbSupport(connection, false).quote("concurrent_test");
+        schemaQuoted = new DbSupportFactoryImpl().createDbSupport(connection, false).quote("concurrent_test");
         connection.close();
 
         flyway = createFlyway();

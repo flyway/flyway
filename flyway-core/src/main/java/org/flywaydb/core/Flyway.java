@@ -30,6 +30,7 @@ import org.flywaydb.core.internal.command.DbSchemas;
 import org.flywaydb.core.internal.command.DbValidate;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.DbSupportFactoryImpl;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
@@ -235,6 +236,11 @@ public class Flyway {
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     private DataSource dataSource;
+
+    /**
+     * DbSupportFactory used to create DbSupport.
+     */
+    private DbSupportFactory dbSupportFactory = new DbSupportFactoryImpl();
 
     /**
      * The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
@@ -774,6 +780,16 @@ public class Flyway {
         createdDataSource = false;
     }
 
+
+    /**
+     * Sets the db support factory to use. Hook to produce custom db support instances.
+     *
+     * @param dbSupportFactory The db ssupport factory to use.
+     */
+    public void setDbSupportFactory(DbSupportFactory dbSupportFactory) {
+        this.dbSupportFactory = dbSupportFactory;
+    }
+
     /**
      * Sets the datasource to use. Must have the necessary privileges to execute ddl.
      * <p/>
@@ -1051,7 +1067,7 @@ public class Flyway {
                     }
                 }
 
-                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
+                DbSupport dbSupportUserObjects = dbSupportFactory.createDbSupport(connectionUserObjects, false);
                 Schema originalSchemaUserObjects = dbSupportUserObjects.getCurrentSchema();
                 boolean schemaChange = !schemas[0].equals(originalSchemaUserObjects);
                 if (schemaChange) {
@@ -1391,7 +1407,7 @@ public class Flyway {
             connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
             connectionUserObjects = JdbcUtils.openConnection(dataSource);
 
-            DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
+            DbSupport dbSupport = dbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
