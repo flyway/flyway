@@ -50,6 +50,22 @@ public class VerticaDbSupport extends DbSupport {
     }
 
     @Override
+    public Schema getOriginalSchema() {
+        if (originalSchema == null) {
+            return null;
+        }
+
+        String result = originalSchema.replace(doQuote("$user"), "").trim();
+        if (result.startsWith(",")) {
+            result = result.substring(1);
+        }
+        if (result.contains(",")) {
+            return getSchema(result.substring(0, result.indexOf(",")));
+        }
+        return getSchema(result);
+    }
+
+    @Override
     protected String doGetCurrentSchemaName() throws SQLException {
         return jdbcTemplate.query("SHOW search_path", new RowMapper<String>() {
             @Override
@@ -85,7 +101,7 @@ public class VerticaDbSupport extends DbSupport {
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        if (schema == null) {
+        if (!StringUtils.hasLength(schema)) {
             jdbcTemplate.execute("SET search_path = v_catalog");
             return;
         }
