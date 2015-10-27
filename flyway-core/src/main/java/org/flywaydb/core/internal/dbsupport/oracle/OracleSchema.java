@@ -77,9 +77,16 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         }
 
         for (String statement : generateDropStatementsForQueueTables()) {
-            //for dropping queue tables, a special grant is required:
-            //GRANT EXECUTE ON DBMS_AQADM TO flyway;
-            jdbcTemplate.execute(statement);
+            try {
+                jdbcTemplate.execute(statement);
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 65040) {
+                    //for dropping queue tables, a special grant is required:
+                    //GRANT EXECUTE ON DBMS_AQADM TO flyway;
+                    LOG.error("Missing required grant to clean queue tables: GRANT EXECUTE ON DBMS_AQADM");
+                }
+                throw e;
+            }
         }
 
         if (flashbackAvailable()) {
