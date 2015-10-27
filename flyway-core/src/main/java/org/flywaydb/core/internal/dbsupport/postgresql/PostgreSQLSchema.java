@@ -265,7 +265,7 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
                                 " AND table_type='BASE TABLE'" +
                                 //and are not child tables (= do not inherit from another table).
                                 " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
-                                " WHERE inhrelid = ('\"'||t.table_schema||'\".\"'||t.table_name||'\"')::regclass::oid))",
+                                " WHERE inhrelid = (quote_ident(t.table_schema)||'.'||quote_ident(t.table_name))::regclass::oid))",
                         name
                 );
         //Views and child tables are excluded as they are dropped with the parent table when using cascade.
