@@ -28,6 +28,7 @@ import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
 import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
+import org.flywaydb.core.internal.dbsupport.sybase.ase.SybaseASEDbSupport;
 import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
@@ -117,6 +118,11 @@ public class DbSupportFactory {
             return new SolidDbSupport(connection);
         }
 
+		//Sybase ASE support
+        if (databaseProductName.startsWith("ASE")) {
+        	return new SybaseASEDbSupport(connection);
+        }
+        
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
