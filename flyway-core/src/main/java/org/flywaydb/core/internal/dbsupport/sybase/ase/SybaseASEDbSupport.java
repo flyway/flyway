@@ -15,18 +15,14 @@
  */
 package org.flywaydb.core.internal.dbsupport.sybase.ase;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.List;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
@@ -57,7 +53,7 @@ public class SybaseASEDbSupport extends DbSupport {
 		};
 		
 		try {
-			String currentName = doGetCurrentSchema();
+			String currentName = doGetCurrentSchemaName();
 			if (currentName.equals(name)) {
 				schema = new SybaseASESchema(jdbcTemplate, this, name);
 			}
@@ -84,18 +80,18 @@ public class SybaseASEDbSupport extends DbSupport {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#doGetCurrentSchema()
+	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#doGetCurrentSchemaName()
 	 */
 	@Override
-	protected String doGetCurrentSchema() throws SQLException {
+	protected String doGetCurrentSchemaName() throws SQLException {
 		return jdbcTemplate.queryForString("select USER_NAME()");
 	}
 
 	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#doSetCurrentSchema(org.flywaydb.core.internal.dbsupport.Schema)
+	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#doChangeCurrentSchemaTo(org.flywaydb.core.internal.dbsupport.Schema)
 	 */
 	@Override
-	protected void doSetCurrentSchema(Schema schema) throws SQLException {
+	protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
 		LOG.info("Sybase does not support setting the schema for the current session. Default schema NOT changed to " + schema);
         // Not currently supported.
 	}

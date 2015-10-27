@@ -266,7 +266,7 @@ public abstract class MigrationTestCase {
         MigrationInfo migration = flyway.info().current();
         assertEquals(
                 dbSupport.supportsDdlTransactions(),
-                !dbSupport.getCurrentSchema().getTable(tableName).exists());
+                !dbSupport.getSchema(dbSupport.getCurrentSchemaName()).getTable(tableName).exists());
         if (dbSupport.supportsDdlTransactions()) {
             assertNull(migration);
         } else {
@@ -348,7 +348,7 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.init();
-		assertTrue(dbSupport.getCurrentSchema().getTable(flyway.getTable()).exists());
+		assertTrue(dbSupport.getOriginalSchema().getTable(flyway.getTable()).exists());
         assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 
@@ -390,7 +390,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void isSchemaEmpty() throws Exception {
-        Schema schema = dbSupport.getCurrentSchema();
+        Schema schema = dbSupport.getOriginalSchema();
 
         assertTrue(schema.empty());
 
@@ -559,7 +559,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void schemaExists() throws SQLException {
-        assertTrue(dbSupport.getCurrentSchema().exists());
+        assertTrue(dbSupport.getOriginalSchema().exists());
         assertFalse(dbSupport.getSchema("InVaLidScHeMa").exists());
     }
 

@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Axel Fontaine
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,11 +42,14 @@ import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
+import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1015,8 +1018,7 @@ public class Flyway {
 
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 if (validateOnMigrate) {
-                    doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable,
-                            schemas, true);
+                    doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas, true);
                 }
 
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
@@ -1031,7 +1033,7 @@ public class Flyway {
 
                     if (baselineOnMigrate || nonEmptySchemas.isEmpty()) {
                         if (baselineOnMigrate && !nonEmptySchemas.isEmpty()) {
-                            new DbBaseline(connectionMetaDataTable, metaDataTable, baselineVersion, baselineDescription, callbacks).baseline();
+                            new DbBaseline(connectionMetaDataTable, dbSupport, metaDataTable, schemas[0], baselineVersion, baselineDescription, callbacks).baseline();
                         }
                     } else {
                         if (nonEmptySchemas.size() == 1) {
@@ -1051,23 +1053,10 @@ public class Flyway {
                     }
                 }
 
-                DbSupport dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
-                Schema originalSchemaUserObjects = dbSupportUserObjects.getCurrentSchema();
-                boolean schemaChange = !schemas[0].equals(originalSchemaUserObjects);
-                if (schemaChange) {
-                    dbSupportUserObjects.setCurrentSchema(schemas[0]);
-                }
-
                 DbMigrate dbMigrate =
                         new DbMigrate(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable,
                                 schemas[0], migrationResolver, target, ignoreFailedFutureMigration, outOfOrder, callbacks);
-                try {
-                    return dbMigrate.migrate();
-                } finally {
-                    if (schemaChange) {
-                        dbSupportUserObjects.setCurrentSchema(originalSchemaUserObjects);
-                    }
-                }
+                return dbMigrate.migrate();
             }
         });
     }
@@ -1084,8 +1073,7 @@ public class Flyway {
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
 
-                doValidate(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable, schemas,
-                        false);
+                doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas, false);
                 return null;
             }
         });
@@ -1095,21 +1083,21 @@ public class Flyway {
      * Performs the actual validation. All set up must have taken place beforehand.
      *
      * @param connectionMetaDataTable The database connection for the metadata table.
-     * @param connectionUserObjects   The database connection for the data.
+     * @param dbSupport               The database-specific support.
      * @param migrationResolver       The migration resolver;
      * @param metaDataTable           The metadata table.
      * @param schemas                 The schemas managed by Flyway.
      * @param pendingOrFuture         Whether pending or future migrations are ok.
      */
-    private void doValidate(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver,
+    private void doValidate(Connection connectionMetaDataTable, DbSupport dbSupport, MigrationResolver migrationResolver,
                             MetaDataTable metaDataTable, Schema[] schemas, boolean pendingOrFuture) {
         String validationError =
-                new DbValidate(connectionMetaDataTable, connectionUserObjects, metaDataTable, migrationResolver,
+                new DbValidate(connectionMetaDataTable, dbSupport, metaDataTable, schemas[0], migrationResolver,
                         target, outOfOrder, pendingOrFuture, callbacks).validate();
 
         if (validationError != null) {
             if (cleanOnValidationError) {
-                new DbClean(connectionMetaDataTable, metaDataTable, schemas, callbacks).clean();
+                new DbClean(connectionMetaDataTable, dbSupport, metaDataTable, schemas, callbacks).clean();
             } else {
                 throw new FlywayException("Validate failed. " + validationError);
             }
@@ -1128,7 +1116,7 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTableImpl metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
-                new DbClean(connectionMetaDataTable, metaDataTable, schemas, callbacks).clean();
+                new DbClean(connectionMetaDataTable, dbSupport, metaDataTable, schemas, callbacks).clean();
                 return null;
             }
         });
@@ -1144,23 +1132,43 @@ public class Flyway {
      */
     public MigrationInfoService info() {
         return execute(new Command<MigrationInfoService>() {
-            public MigrationInfoService execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
-                for (FlywayCallback callback : getCallbacks()) {
-                    callback.beforeInfo(connectionUserObjects);
+            public MigrationInfoService execute(final Connection connectionMetaDataTable, Connection connectionUserObjects,
+                                                final DbSupport dbSupport, final Schema[] schemas) {
+                try {
+                    for (final FlywayCallback callback : getCallbacks()) {
+                        new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Object>() {
+                            @Override
+                            public Object doInTransaction() throws SQLException {
+                                dbSupport.changeCurrentSchemaTo(schemas[0]);
+                                callback.beforeInfo(connectionMetaDataTable);
+                                return null;
+                            }
+                        });
+                    }
+
+                    dbSupport.changeCurrentSchemaTo(schemas[0]);
+                    MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
+                    MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+
+                    MigrationInfoServiceImpl migrationInfoService =
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true);
+                    migrationInfoService.refresh();
+
+                    for (final FlywayCallback callback : getCallbacks()) {
+                        new TransactionTemplate(connectionMetaDataTable).execute(new TransactionCallback<Object>() {
+                            @Override
+                            public Object doInTransaction() throws SQLException {
+                                dbSupport.changeCurrentSchemaTo(schemas[0]);
+                                callback.afterInfo(connectionMetaDataTable);
+                                return null;
+                            }
+                        });
+                    }
+
+                    return migrationInfoService;
+                } finally {
+                    dbSupport.restoreCurrentSchema();
                 }
-
-                MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
-                MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
-
-                MigrationInfoServiceImpl migrationInfoService =
-                        new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true);
-                migrationInfoService.refresh();
-
-                for (FlywayCallback callback : getCallbacks()) {
-                    callback.afterInfo(connectionUserObjects);
-                }
-
-                return migrationInfoService;
             }
         });
     }
@@ -1189,7 +1197,7 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
-                new DbBaseline(connectionMetaDataTable, metaDataTable, baselineVersion, baselineDescription, callbacks).baseline();
+                new DbBaseline(connectionMetaDataTable, dbSupport, metaDataTable, schemas[0], baselineVersion, baselineDescription, callbacks).baseline();
                 return null;
             }
         });
@@ -1210,7 +1218,7 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
                 MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
                 MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
-                new DbRepair(dbSupport, connectionMetaDataTable, migrationResolver, metaDataTable, callbacks).repair();
+                new DbRepair(dbSupport, connectionMetaDataTable, schemas[0], migrationResolver, metaDataTable, callbacks).repair();
                 return null;
             }
         });
@@ -1396,7 +1404,7 @@ public class Flyway {
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
             if (schemaNames.length == 0) {
-                Schema currentSchema = dbSupport.getCurrentSchema();
+                Schema currentSchema = dbSupport.getOriginalSchema();
                 if (currentSchema == null) {
                     throw new FlywayException("Unable to determine schema for the metadata table." +
                             " Set a default schema for the connection or specify one using the schemas property!");

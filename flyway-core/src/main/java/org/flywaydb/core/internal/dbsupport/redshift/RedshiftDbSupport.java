@@ -44,22 +44,15 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
     }
 
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        if (schema == null) {
-            jdbcTemplate.execute("SELECT set_config('search_path', '', false)");
-            return;
-        }
-
-        String searchPath = jdbcTemplate.queryForString("SHOW search_path");
+    protected String doGetCurrentSchemaName() throws SQLException {
+        String searchPath = super.doGetCurrentSchemaName();
         if (StringUtils.hasText(searchPath) && !searchPath.equals("unset")) {
-             // Redshift throws an error on the $ character of $user when setting search_path. It needs to be quoted.
-             if (searchPath.contains("$user") && !searchPath.contains(doQuote("$user"))) {
-                 searchPath = searchPath.replace("$user", doQuote("$user"));
-             }
-            jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
-        } else {
-            jdbcTemplate.execute("SET search_path = " + schema);
+            // Redshift throws an error on the $ character of $user when setting search_path. It needs to be quoted.
+            if (searchPath.contains("$user") && !searchPath.contains(doQuote("$user"))) {
+                searchPath = searchPath.replace("$user", doQuote("$user"));
+            }
         }
+        return searchPath;
     }
 
     @Override

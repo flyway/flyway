@@ -259,7 +259,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
             return statements;
         }
-        if (!dbSupport.getCurrentSchema().getName().equalsIgnoreCase(name)) {
+        if (!dbSupport.getCurrentSchemaName().equalsIgnoreCase(name)) {
             int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", name);
             count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", name);
             if (count > 0) {

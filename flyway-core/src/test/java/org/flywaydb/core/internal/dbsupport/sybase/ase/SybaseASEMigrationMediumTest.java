@@ -32,16 +32,13 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.flywaydb.core.DbCategory;
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
-import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerMigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 /**
@@ -139,7 +136,7 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
         MigrationInfo migration = flyway.info().current();
         assertEquals(
                 dbSupport.supportsDdlTransactions(),
-                !dbSupport.getCurrentSchema().getTable(tableName).exists());
+                !dbSupport.getSchema(dbSupport.getCurrentSchemaName()).getTable(tableName).exists());
         if (dbSupport.supportsDdlTransactions()) {
             assertNull(migration);
         } else {

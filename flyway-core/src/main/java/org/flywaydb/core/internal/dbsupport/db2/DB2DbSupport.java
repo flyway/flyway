@@ -57,12 +57,12 @@ public class DB2DbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchemaName() throws SQLException {
         return jdbcTemplate.queryForString("select current_schema from sysibm.sysdummy1");
     }
 
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 

@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Axel Fontaine
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.dbsupport.oracle;
 
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.flywaydb.core.DbCategory;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -37,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 @Category(DbCategory.Oracle.class)
 public class OracleDbSupportMediumTest {
     /**
-     * Checks the result of the getCurrentSchema call.
+     * Checks the result of the getCurrentSchemaName call.
      *
      * @param useProxy Flag indicating whether to check it using a proxy user or not.
      */
@@ -52,10 +51,11 @@ public class OracleDbSupportMediumTest {
         DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, dataSourceUser, password);
 
         Connection connection = dataSource.getConnection();
-        Schema currentSchema = new OracleDbSupport(connection).getCurrentSchema();
+        OracleDbSupport dbSupport = new OracleDbSupport(connection);
+        String currentSchema = dbSupport.getCurrentSchemaName();
         connection.close();
 
-        assertEquals(user.toUpperCase(), currentSchema.getName());
+        assertEquals(user.toUpperCase(), currentSchema);
     }
 
     private Properties getConnectionProperties() throws IOException {
@@ -102,7 +102,7 @@ public class OracleDbSupportMediumTest {
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
         for (int i = 0; i < 200; i++) {
-            dbSupport.getCurrentSchema().getTable("schema_version").exists();
+            dbSupport.getSchema(dbSupport.getCurrentSchemaName()).getTable("schema_version").exists();
         }
         connection.close();
     }
@@ -117,7 +117,7 @@ public class OracleDbSupportMediumTest {
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
         for (int i = 0; i < 200; i++) {
-            dbSupport.getCurrentSchema().empty();
+            dbSupport.getSchema(dbSupport.getCurrentSchemaName()).empty();
         }
         connection.close();
     }

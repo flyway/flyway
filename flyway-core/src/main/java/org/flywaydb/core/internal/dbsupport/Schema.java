@@ -253,6 +253,9 @@ public abstract class Schema<S extends DbSupport> {
         return new Function[0];
     }
 
+    /**
+     * @return The quoted name of the schema.
+     */
     @Override
     public String toString() {
         return dbSupport.quote(name);
