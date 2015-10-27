@@ -57,6 +57,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE USER " + dbSupport.quote(name) + " IDENTIFIED BY flyway");
         jdbcTemplate.execute("GRANT RESOURCE TO " + dbSupport.quote(name));
+        jdbcTemplate.execute("GRANT UNLIMITED TABLESPACE TO " + dbSupport.quote(name));
     }
 
     @Override
