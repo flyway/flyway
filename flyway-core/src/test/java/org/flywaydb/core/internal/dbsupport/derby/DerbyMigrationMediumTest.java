@@ -64,4 +64,13 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
 
         assertEquals("1", flyway.info().current().getVersion().toString());
     }
+
+    @Test
+    public void trigger() throws Exception {
+        flyway.setLocations("migration/dbsupport/derby/sql/trigger");
+        flyway.migrate();
+
+        // Fails if triggers aren't cleaned properly
+        flyway.clean();
+    }
 }
