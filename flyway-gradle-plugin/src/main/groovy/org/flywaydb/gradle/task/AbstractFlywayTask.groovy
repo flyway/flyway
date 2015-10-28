@@ -86,11 +86,6 @@ abstract class AbstractFlywayTask extends DefaultTask {
         def flyway = new Flyway()
         flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), prop("driver"), prop("url"), prop("user"), prop("password")))
 
-        // Deprecated
-        propSet(flyway, 'initVersion')
-        propSet(flyway, 'initDescription')
-        propSetAsBoolean(flyway, 'initOnMigrate')
-
         propSet(flyway, 'table')
 
         String baselineVersion = prop('baselineVersion')

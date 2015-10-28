@@ -42,14 +42,6 @@ public class MigrationInfoContext {
     public MigrationVersion schema;
 
     /**
-     * The INIT migration version that was applied.
-     *
-     * @deprecated Will be removed in Flyway 4.0. Use baseline instead.
-     */
-    @Deprecated
-    public MigrationVersion init;
-
-    /**
      * The BASELINE migration version that was applied.
      */
     public MigrationVersion baseline;
@@ -75,7 +67,6 @@ public class MigrationInfoContext {
         if (outOfOrder != context.outOfOrder) return false;
         if (pendingOrFuture != context.pendingOrFuture) return false;
         if (schema != null ? !schema.equals(context.schema) : context.schema != null) return false;
-        if (init != null ? !init.equals(context.init) : context.init != null) return false;
         if (baseline != null ? !baseline.equals(context.baseline) : context.baseline != null) return false;
         if (!lastApplied.equals(context.lastApplied)) return false;
         if (!lastResolved.equals(context.lastResolved)) return false;
@@ -88,7 +79,6 @@ public class MigrationInfoContext {
         result = 31 * result + (pendingOrFuture ? 1 : 0);
         result = 31 * result + target.hashCode();
         result = 31 * result + (schema != null ? schema.hashCode() : 0);
-        result = 31 * result + (init != null ? init.hashCode() : 0);
         result = 31 * result + (baseline != null ? baseline.hashCode() : 0);
         result = 31 * result + lastResolved.hashCode();
         result = 31 * result + lastApplied.hashCode();

@@ -194,27 +194,6 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * @param initVersion The version to tag an existing schema with when executing baseline. (default: 1)<br>Also configurable with Ant Property: ${flyway.initVersion}
-     * @deprecated Use baselineVersion instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public void setInitVersion(String initVersion) {
-        log.warn("initVersion is deprecated and will be removed in Flyway 4.0. Use baselineVersion instead.");
-        flyway.setBaselineVersionAsString(initVersion);
-    }
-
-    /**
-     * @param initDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)<br>Also configurable with Ant Property:
-     *                        ${flyway.initDescription}
-     * @deprecated Use baselineDescription instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public void setInitDescription(String initDescription) {
-        log.warn("initDescription is deprecated and will be removed in Flyway 4.0. Use baselineDescription instead.");
-        flyway.setBaselineDescription(initDescription);
-    }
-
-    /**
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)<br>Also configurable with Ant Property: ${flyway.baselineVersion}
      */
     public void setBaselineVersion(String baselineVersion) {
@@ -450,30 +429,6 @@ public abstract class AbstractFlywayTask extends Task {
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
         flyway.setValidateOnMigrate(validateOnMigrate);
-    }
-
-    /**
-     * <p>
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be baselined with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
-     * </p>
-     * <p>
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake!
-     * </p>
-     * Also configurable with Ant Property: ${flyway.initOnMigrate}
-     *
-     * @param initOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
-     * @deprecated Will be removed in Flyway 4.0. Use baselineOnMigrate instead.
-     */
-    @Deprecated
-    public void setInitOnMigrate(boolean initOnMigrate) {
-        log.warn("initOnMigrate is deprecated and will be removed in Flyway 4.0. Use baselineOnMigrate instead.");
-        flyway.setBaselineOnMigrate(initOnMigrate);
     }
 
     /**

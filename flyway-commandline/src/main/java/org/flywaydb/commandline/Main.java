@@ -87,7 +87,6 @@ public class Main {
             dumpConfiguration(properties);
 
             loadJdbcDrivers();
-            loadJavaMigrationsFromJarDir(properties);
             loadJavaMigrationsFromJarDirs(properties);
 
             Flyway flyway = new Flyway();
@@ -129,9 +128,6 @@ public class Main {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("baseline".equals(operation)) {
-            flyway.baseline();
-        } else if ("init".equals(operation)) {
-            LOG.warn("init is deprecated. Use baseline instead. Will be removed in Flyway 4.0.");
             flyway.baseline();
         } else if ("migrate".equals(operation)) {
             flyway.migrate();
@@ -281,37 +277,6 @@ public class Main {
      * @param properties The configured properties.
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJavaMigrationsFromJarDir(Properties properties) throws IOException {
-        String jarDir = properties.getProperty("flyway.jarDir");
-        if (!StringUtils.hasLength(jarDir)) {
-            return;
-        }
-        LOG.warn("flyway.jarDir is deprecated and will be removed in Flyway 4.0. Use flyway.jarDirs instead.");
-
-        File dir = new File(jarDir);
-        File[] files = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
-            }
-        });
-
-        // see javadoc of listFiles(): null if given path is not a real directory
-        if (files == null) {
-            LOG.error("Directory for Java Migrations not found: " + jarDir);
-            System.exit(1);
-        }
-
-        for (File file : files) {
-            addJarOrDirectoryToClasspath(file.getPath());
-        }
-    }
-
-    /**
-     * Loads all the jars contained in the jars folder. (For Java Migrations)
-     *
-     * @param properties The configured properties.
-     * @throws IOException When the jars could not be loaded.
-     */
     private static void loadJavaMigrationsFromJarDirs(Properties properties) throws IOException {
         String jarDirs = properties.getProperty("flyway.jarDirs");
         if (!StringUtils.hasLength(jarDirs)) {
@@ -372,9 +337,6 @@ public class Main {
     static void loadConfiguration(Properties properties, String[] args) {
         String encoding = determineConfigurationFileEncoding(args);
 
-        if (loadConfigurationFile(properties, getInstallationDir() + "/conf/flyway.properties", encoding, false)) {
-            LOG.warn("conf/flyway.properties usage is deprecated and will be removed in Flyway 4.0. Use conf/flyway.conf instead.");
-        }
         loadConfigurationFile(properties, getInstallationDir() + "/conf/flyway.conf", encoding, false);
         loadConfigurationFile(properties, System.getProperty("user.home") + "/flyway.conf", encoding, false);
         loadConfigurationFile(properties, "flyway.conf", encoding, false);

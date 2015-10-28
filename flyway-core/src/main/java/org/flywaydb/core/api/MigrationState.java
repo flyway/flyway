@@ -31,13 +31,6 @@ public enum MigrationState {
 
     /**
      * This migration was not applied against this DB, because the metadata table was baselined with a higher version.
-     * @deprecated Will be removed in Flyway 4.0. Use BELOW_BASELINE instead.
-     */
-    @Deprecated
-    PREINIT("<Baseln", true, false, false),
-
-    /**
-     * This migration was not applied against this DB, because the metadata table was baselined with a higher version.
      */
     BELOW_BASELINE("<Baseln", true, false, false),
 

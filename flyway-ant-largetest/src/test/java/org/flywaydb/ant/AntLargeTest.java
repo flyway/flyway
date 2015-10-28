@@ -37,8 +37,8 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings({"JavaDoc"})
 public class AntLargeTest {
     @Test
-    public void init() throws Exception {
-        String stdOut = runAnt(0, "init");
+    public void baseline() throws Exception {
+        String stdOut = runAnt(0, "baseline");
         assertTrue(stdOut.contains("A new beginning!"));
     }
 

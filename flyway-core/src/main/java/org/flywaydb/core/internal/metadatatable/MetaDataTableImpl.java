@@ -328,8 +328,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     @Override
     public AppliedMigration getBaselineMarker() {
-        List<AppliedMigration> appliedMigrations = findAppliedMigrations(MigrationType.INIT);
-        appliedMigrations.addAll(findAppliedMigrations(MigrationType.BASELINE));
+        List<AppliedMigration> appliedMigrations = findAppliedMigrations(MigrationType.BASELINE);
         return appliedMigrations.isEmpty() ? null : appliedMigrations.get(0);
     }
 

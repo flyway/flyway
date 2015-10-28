@@ -41,7 +41,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 		super.configureFlyway();
 		flyway.setTable("SCHEMA_VERSION");
 		flyway.setSchemas("TESTADM");
-		flyway.setInitOnMigrate(true);
+		flyway.setBaselineOnMigrate(true);
 		try {
 			jdbcTemplate.update("SET CURRENT SQLID = 'TESTADM';");
 		} catch (SQLException e) {
@@ -71,7 +71,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
 		query = "select count(*) from sysibm.systables where dbname = 'TESTADM'";
 
-		flyway.init();
+		flyway.baseline();
 		int countTablesAfterInit = jdbcTemplate.queryForInt(query);
 		assertEquals(1, countTablesAfterInit);
 	}
@@ -85,7 +85,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
 		int countTablesBeforeMigration = jdbcTemplate.queryForInt(query);
 		assertEquals(0, countTablesBeforeMigration);
-		flyway.init();
+		flyway.baseline();
 		flyway.migrate();
 		int countTablesAfterMigration = jdbcTemplate.queryForInt(query);
 		assertEquals(2, countTablesAfterMigration);
@@ -100,54 +100,49 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 	@Test
 	public void sequence() throws Exception {
 		flyway.setLocations("migration/dbsupport/db2zos/sql/sequence");
-		flyway.init();
+		flyway.baseline();
 		flyway.migrate();
 
 		MigrationVersion migrationVersion = flyway.info().current().getVersion();
 		assertEquals("1.1", migrationVersion.toString());
 		assertEquals("Sequence", flyway.info().current().getDescription());
 		assertEquals(666, jdbcTemplate.queryForInt("SELECT NEXTVAL FOR TESTADM.BEAST_SEQ from sysibm.sysdummy1"));
-
 	}
 
 	@Test
 	public void type() throws Exception {
 		flyway.setLocations("migration/dbsupport/db2zos/sql/type");
-		flyway.init();
+		flyway.baseline();
 		flyway.migrate();
-
 	}
 
 	@Test
 	public void view() throws Exception {
 		flyway.setLocations("migration/dbsupport/db2zos/sql/view");
-		flyway.init();
+		flyway.baseline();
 		flyway.migrate();
 	}
 
 	@Test
 	public void trigger() throws Exception {
 		flyway.setLocations("migration/dbsupport/db2zos/sql/trigger");
-		flyway.init();
+		flyway.baseline();
 		flyway.migrate();
-
 	}
 
 	@Test
 	public void routines() throws Exception {
 		flyway.setLocations("migration/dbsupport/db2zos/sql/routines");
-		flyway.init();
+		flyway.baseline();
 		flyway.migrate();
-
 	}
 
 
 	@Test
 	public void alias() throws Exception {
 		flyway.setLocations("migration/dbsupport/db2zos/sql/alias");
-		flyway.init();
+		flyway.baseline();
 		flyway.migrate();
-
 	}
 
 
@@ -209,9 +204,9 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 				"  PRIMARY KEY(name))");
 
 		flyway.setLocations(BASEDIR);
-		flyway.setInitVersion("0_1");
-		flyway.setInitOnMigrate(false);
-		flyway.init();
+		flyway.setBaselineVersionAsString("0_1");
+		flyway.setBaselineOnMigrate(false);
+		flyway.baseline();
 		flyway.migrate();
 	}
 
@@ -228,9 +223,9 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
         jdbcTemplate.update("DROP TABLE " + dbSupport.quote(flyway.getTable()));
         jdbcTemplate.update("DROP TABLESPACE " + dbSupport.quote(flyway.getSchemas()) + ".SDBVERS");
-        flyway.setInitVersion("1.1");
-        flyway.setInitDescription("initial version 1.1");
-        flyway.init();
+        flyway.setBaselineVersionAsString("1.1");
+        flyway.setBaselineDescription("initial version 1.1");
+        flyway.baseline();
 
         flyway.setTarget(MigrationVersion.LATEST);
         flyway.migrate();

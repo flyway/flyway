@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.BaseFlywayCallback;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.junit.Test;
@@ -53,7 +52,6 @@ public class FlywayCallbackSmallTest {
         //make sure no other lifecycle events were fired
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -61,7 +59,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -90,7 +87,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertTrue(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -98,7 +94,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertTrue(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -118,18 +113,15 @@ public class FlywayCallbackSmallTest {
 
         assertNotNull(flyway.getDataSource());
 
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
 
-        flyway.init();
+        flyway.baseline();
 
         assertFalse(callbackImpl.isBeforeClean());
         assertFalse(callbackImpl.isAfterClean());
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertTrue(callbackImpl.isAfterInit());
         assertTrue(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -137,7 +129,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertTrue(callbackImpl.isBeforeInit());
         assertTrue(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -166,7 +157,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertTrue(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertTrue(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -174,7 +164,6 @@ public class FlywayCallbackSmallTest {
 
         assertTrue(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertTrue(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -203,7 +192,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertTrue(callbackImpl.isAfterRepair());
@@ -211,7 +199,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertTrue(callbackImpl.isBeforeRepair());
@@ -241,7 +228,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -249,7 +235,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -279,7 +264,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertTrue(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertTrue(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -287,7 +271,6 @@ public class FlywayCallbackSmallTest {
 
         assertTrue(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertTrue(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());

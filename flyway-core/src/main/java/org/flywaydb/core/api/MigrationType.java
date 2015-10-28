@@ -27,12 +27,6 @@ public enum MigrationType {
     /**
      * The type for the metadata baseline migration.
      */
-    @Deprecated
-    INIT,
-
-    /**
-     * The type for the metadata baseline migration.
-     */
     BASELINE,
 
     /**

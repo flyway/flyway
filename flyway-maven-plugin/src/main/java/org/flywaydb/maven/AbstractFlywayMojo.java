@@ -129,26 +129,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The version to tag an existing schema with when executing baseline. (default: 1)<br/>
-     * <p>Also configurable with Maven or System Property: ${flyway.initVersion}</p>
-     *
-     * @parameter property="flyway.initVersion"
-     * @deprecated Use baselineVersion instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    private String initVersion;
-
-    /**
-     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)<br>
-     * <p>Also configurable with Maven or System Property: ${flyway.initDescription}</p>
-     *
-     * @parameter property="flyway.initDescription"
-     * @deprecated Use baselineDescription instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    private String initDescription;
-
-    /**
-     * The version to tag an existing schema with when executing baseline. (default: 1)<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.baselineVersion}</p>
      *
      * @parameter property="flyway.baselineVersion"
@@ -324,27 +304,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
      * </p>
-     * <p>Also configurable with Maven or System Property: ${flyway.initOnMigrate}</p>
-     *
-     * @parameter property="flyway.initOnMigrate"
-     * @deprecated Use baselineOnMigrate instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    private Boolean initOnMigrate;
-
-    /**
-     * <p>
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be baselined with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
-     * </p>
-     * <p>
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
-     * </p>
      * <p>Also configurable with Maven or System Property: ${flyway.baselineOnMigrate}</p>
      *
      * @parameter property="flyway.baselineOnMigrate"
@@ -449,14 +408,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setSchemas(schemas);
             flyway.setTable(table);
-            if (initVersion != null) {
-                log.warn("flyway.initVersion is deprecated. Use baselineVersion instead. Will be removed in Flyway 4.0.");
-                flyway.setBaselineVersionAsString(initVersion);
-            }
-            if (initDescription != null) {
-                log.warn("flyway.initDescription is deprecated. Use baselineDescription instead. Will be removed in Flyway 4.0.");
-                flyway.setBaselineDescription(initDescription);
-            }
             if (baselineVersion != null) {
                 flyway.setBaselineVersionAsString(baselineVersion);
             }
@@ -490,10 +441,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setPlaceholderPrefix(placeholderPrefix);
             flyway.setPlaceholderSuffix(placeholderSuffix);
 
-            if (initOnMigrate != null) {
-                log.warn("flyway.initOnMigrate is deprecated. Use baselineOnMigrate instead. Will be removed in Flyway 4.0.");
-                flyway.setBaselineOnMigrate(initOnMigrate);
-            }
             if (baselineOnMigrate != null) {
                 flyway.setBaselineOnMigrate(baselineOnMigrate);
             }

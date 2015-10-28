@@ -83,7 +83,7 @@ public abstract class ConcurrentMigrationTestCase {
 
         flyway = createFlyway();
         flyway.clean();
-        flyway.init();
+        flyway.baseline();
     }
 
     /**
@@ -143,7 +143,7 @@ public abstract class ConcurrentMigrationTestCase {
         placeholders.put("schema", schemaQuoted);
 
         newFlyway.setPlaceholders(placeholders);
-        newFlyway.setInitVersion("0.1");
+        newFlyway.setBaselineVersionAsString("0.1");
         return newFlyway;
     }
 }

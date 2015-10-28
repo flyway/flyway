@@ -347,14 +347,14 @@ public abstract class MigrationTestCase {
 
     @Test
     public void tableExists() throws Exception {
-        flyway.init();
+        flyway.baseline();
 		assertTrue(dbSupport.getOriginalSchema().getTable(flyway.getTable()).exists());
         assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 
     @Test
     public void columnExists() throws Exception {
-        flyway.init();
+        flyway.baseline();
         assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("version_rank"));
         assertFalse(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
     }
@@ -378,9 +378,9 @@ public abstract class MigrationTestCase {
         assertEquals("1.1", flyway.info().current().getVersion().toString());
 
         jdbcTemplate.update("DROP TABLE " + dbSupport.quote(flyway.getTable()));
-        flyway.setInitVersion(MigrationVersion.fromVersion("1.1"));
-        flyway.setInitDescription("initial version 1.1");
-        flyway.init();
+        flyway.setBaselineVersion(MigrationVersion.fromVersion("1.1"));
+        flyway.setBaselineDescription("initial version 1.1");
+        flyway.baseline();
 
         flyway.setTarget(MigrationVersion.LATEST);
         flyway.migrate();
@@ -421,8 +421,8 @@ public abstract class MigrationTestCase {
                 "  PRIMARY KEY(name))");
 
         flyway.setLocations(getBasedir());
-        flyway.setInitVersion("0");
-        flyway.init();
+        flyway.setBaselineVersionAsString("0");
+        flyway.baseline();
         flyway.migrate();
     }
 
@@ -433,8 +433,8 @@ public abstract class MigrationTestCase {
                 "  PRIMARY KEY(name))");
 
         flyway.setLocations(getBasedir());
-        flyway.setInitVersion("0");
-        flyway.setInitOnMigrate(true);
+        flyway.setBaselineVersionAsString("0");
+        flyway.setBaselineOnMigrate(true);
         flyway.migrate();
         MigrationInfo[] migrationInfos = flyway.info().all();
 
@@ -453,8 +453,8 @@ public abstract class MigrationTestCase {
                 "  PRIMARY KEY(name))");
 
         flyway.setLocations(getBasedir());
-        flyway.setInitOnMigrate(true);
-        flyway.setInitVersion(MigrationVersion.fromVersion("99"));
+        flyway.setBaselineOnMigrate(true);
+        flyway.setBaselineVersion(MigrationVersion.fromVersion("99"));
         flyway.migrate();
         MigrationInfo[] migrationInfos = flyway.info().all();
 

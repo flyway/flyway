@@ -44,8 +44,6 @@ object FlywayPlugin extends AutoPlugin {
 
     val flywaySchemas = settingKey[Seq[String]]("List of the schemas managed by Flyway. The first schema in the list will be automatically set as the default one during the migration. It will also be the one containing the metadata table. These schema names are case-sensitive. (default: The default schema for the datasource connection)")
     val flywayTable = settingKey[String]("The name of the metadata table that will be used by Flyway. (default: schema_version) By default (single-schema mode) the metadata table is placed in the default schema for the connection provided by the datasource. When the flyway.schemas property is set (multi-schema mode), the metadata table is placed in the first schema of the list.")
-    val flywayInitVersion = settingKey[String]("Deprecated and will be removed in Flyway 4.0. Use flywayBaselineVersion instead.")
-    val flywayInitDescription = settingKey[String]("Deprecated and will be removed in Flyway 4.0. Use flywayBaselineDescription instead.")
     val flywayBaselineVersion = settingKey[String]("The version to tag an existing schema with when executing baseline. (default: 1)")
     val flywayBaselineDescription = settingKey[String]("The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)")
 
@@ -73,7 +71,6 @@ object FlywayPlugin extends AutoPlugin {
     val flywayPlaceholders = settingKey[Map[String, String]]("A map of <placeholder, replacementValue> to apply to sql migration scripts.")
     val flywayPlaceholderPrefix = settingKey[String]("The prefix of every placeholder. (default: ${ )")
     val flywayPlaceholderSuffix = settingKey[String]("The suffix of every placeholder. (default: } )")
-    val flywayInitOnMigrate = settingKey[Boolean]("Deprecated and will be removed in Flyway 4.0. Use flywayBaselineOnMigrate instead.")
     val flywayBaselineOnMigrate = settingKey[Boolean]("Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table. This schema will then be baselined with the {@code baselineVersion} before executing the migrations. Only migrations above {@code baselineVersion} will then be applied. This is useful for initial Flyway production deployments on projects with an existing DB. Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})")
     val flywayValidateOnMigrate = settingKey[Boolean]("Whether to automatically call validate or not when running migrate. (default: {@code true})")
 
@@ -85,7 +82,6 @@ object FlywayPlugin extends AutoPlugin {
     val flywayValidate = taskKey[Unit]("Validates the applied migrations in the database against the available classpath migrations in order to detect accidental migration changes.")
     val flywayInfo = taskKey[Unit]("Retrieves the complete information about the migrations including applied, pending and current migrations with details and status.")
     val flywayClean = taskKey[Unit]("Drops all database objects.")
-    val flywayInit = taskKey[Unit]("Deprecated and will be removed in Flyway 4.0. Use flywayBaseline instead.")
     val flywayBaseline = taskKey[Unit]("Baselines an existing database, excluding all migrations up to and including baselineVersion.")
     val flywayRepair = taskKey[Unit]("Repairs the metadata table.")
   }
@@ -100,12 +96,12 @@ object FlywayPlugin extends AutoPlugin {
       case false => Map("flyway.driver" -> driver)
     }) ++ Map("flyway.url" -> url, "flyway.user" -> user, "flyway.password" -> password)
   }
-  private case class ConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String, baselineVersion: String, baselineDescription: String)
+  private case class ConfigBase(schemas: Seq[String], table: String, baselineVersion: String, baselineDescription: String)
   private case class ConfigMigrationLoading(locations: Seq[String], resolvers: Seq[String], encoding: String,
                                             sqlMigrationPrefix: String, sqlMigrationSeparator: String, sqlMigrationSuffix: String,
                                             cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean, callbacks: Seq[String])
   private case class ConfigMigrate(ignoreFailedFutureMigration: Boolean, placeholderReplacement: Boolean, placeholders: Map[String, String],
-                                   placeholderPrefix: String, placeholderSuffix: String, initOnMigrate: Boolean, baselineOnMigrate: Boolean, validateOnMigrate: Boolean)
+                                   placeholderPrefix: String, placeholderSuffix: String, baselineOnMigrate: Boolean, validateOnMigrate: Boolean)
   private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading, migrate: ConfigMigrate)
 
 
@@ -133,9 +129,7 @@ object FlywayPlugin extends AutoPlugin {
       flywayResolvers := Array.empty[String],
       flywaySchemas := defaults.getSchemas.toSeq,
       flywayTable := defaults.getTable,
-      flywayInitVersion := defaults.getBaselineVersion.getVersion,
       flywayBaselineVersion := defaults.getBaselineVersion.getVersion,
-      flywayInitDescription := defaults.getBaselineDescription,
       flywayBaselineDescription := defaults.getBaselineDescription,
       flywayEncoding := defaults.getEncoding,
       flywaySqlMigrationPrefix := defaults.getSqlMigrationPrefix,
@@ -149,24 +143,23 @@ object FlywayPlugin extends AutoPlugin {
       flywayPlaceholders := defaults.getPlaceholders.asScala.toMap,
       flywayPlaceholderPrefix := defaults.getPlaceholderPrefix,
       flywayPlaceholderSuffix := defaults.getPlaceholderSuffix,
-      flywayInitOnMigrate := defaults.isBaselineOnMigrate,
       flywayBaselineOnMigrate := defaults.isBaselineOnMigrate,
       flywayValidateOnMigrate := defaults.isValidateOnMigrate,
       flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayConfigDataSource <<= (flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
         (driver, url, user, password) => ConfigDataSource(driver, url, user, password)
       },
-      flywayConfigBase <<= (flywaySchemas, flywayTable, flywayInitVersion, flywayInitDescription, flywayBaselineVersion, flywayBaselineDescription) map {
-        (schemas, table, initVersion, initDescription, baselineVersion, baselineDescription) =>
-          ConfigBase(schemas, table, initVersion, initDescription, baselineVersion, baselineDescription)
+      flywayConfigBase <<= (flywaySchemas, flywayTable, flywayBaselineVersion, flywayBaselineDescription) map {
+        (schemas, table, baselineVersion, baselineDescription) =>
+          ConfigBase(schemas, table, baselineVersion, baselineDescription)
       },
       flywayConfigMigrationLoading <<= (flywayLocations, flywayResolvers, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSeparator, flywaySqlMigrationSuffix, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder, flywayCallbacks) map {
         (locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks) =>
           ConfigMigrationLoading(locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks)
       },
-      flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayBaselineOnMigrate, flywayValidateOnMigrate) map {
-        (ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate) =>
-          ConfigMigrate(ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate)
+      flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayBaselineOnMigrate, flywayValidateOnMigrate) map {
+        (ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, baselineOnMigrate, validateOnMigrate) =>
+          ConfigMigrate(ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, baselineOnMigrate, validateOnMigrate)
       },
       flywayConfig <<= (flywayConfigDataSource, flywayConfigBase, flywayConfigMigrationLoading, flywayConfigMigrate) map {
         (dataSource, base, migrationLoading, migrate) => Config(dataSource, base, migrationLoading, migrate)
@@ -189,9 +182,6 @@ object FlywayPlugin extends AutoPlugin {
       },
       flywayClean <<= (fullClasspath in conf, flywayConfig, streams) map {
         (cp, config, s) => withPrepared(cp, s) { Flyway(config).clean() }
-      },
-      flywayInit <<= (fullClasspath in conf, flywayConfig, streams) map {
-        (cp, config, s) => withPrepared(cp, s) { Flyway(config).init() }
       },
       flywayBaseline <<= (fullClasspath in conf, flywayConfig, streams) map {
         (cp, config, s) => withPrepared(cp, s) { Flyway(config).baseline() }
@@ -250,9 +240,7 @@ object FlywayPlugin extends AutoPlugin {
     def configure(config: ConfigBase): Flyway = {
       flyway.setSchemas(config.schemas: _*)
       flyway.setTable(config.table)
-      flyway.setBaselineVersionAsString(config.initVersion)
       flyway.setBaselineVersionAsString(config.baselineVersion)
-      flyway.setBaselineDescription(config.initDescription)
       flyway.setBaselineDescription(config.baselineDescription)
       flyway
     }
@@ -274,7 +262,6 @@ object FlywayPlugin extends AutoPlugin {
       flyway.setPlaceholders(config.placeholders)
       flyway.setPlaceholderPrefix(config.placeholderPrefix)
       flyway.setPlaceholderSuffix(config.placeholderSuffix)
-      flyway.setBaselineOnMigrate(config.initOnMigrate)
       flyway.setBaselineOnMigrate(config.baselineOnMigrate)
       flyway.setValidateOnMigrate(config.validateOnMigrate)
       flyway

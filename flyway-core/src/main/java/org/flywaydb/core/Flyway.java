@@ -472,53 +472,6 @@ public class Flyway {
     }
 
     /**
-     * Retrieves the version to tag an existing schema with when executing baseline.
-     *
-     * @return The version to tag an existing schema with when executing baseline. (default: 1)
-     * @deprecated Use getBaselineVersion() instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public MigrationVersion getInitVersion() {
-        LOG.warn("Flyway.getInitVersion() is deprecated. Use getBaselineVersion() instead. Will be removed in Flyway 4.0.");
-        return baselineVersion;
-    }
-
-    /**
-     * Retrieves the description to tag an existing schema with when executing baseline.
-     *
-     * @return The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
-     * @deprecated Use getBaselineDescription() instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public String getInitDescription() {
-        LOG.warn("Flyway.getBaselineDescription() is deprecated. Use getBaselineDescription() instead. Will be removed in Flyway 4.0.");
-        return baselineDescription;
-    }
-
-    /**
-     * <p>
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
-     * Only migrations above {@code baselineVersion} will then be applied.
-     * </p>
-     * <p>
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake!
-     * </p>
-     *
-     * @return {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
-     * @deprecated Use getBaselineDescription() instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public boolean isInitOnMigrate() {
-        LOG.warn("Flyway.isInitOnMigrate() is deprecated. Use isBaselineOnMigrate() instead. Will be removed in Flyway 4.0.");
-        return baselineOnMigrate;
-    }
-
-    /**
      * Allows migrations to be run "out of order".
      * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
      * it will be applied too instead of being ignored.</p>
@@ -665,21 +618,6 @@ public class Flyway {
      * @param target The target version up to which Flyway should consider migrations.
      *               The special value {@code current} designates the current version of the schema. (default: the latest
      *               version)
-     * @deprecated Will be removed in Flyway 4.0. Use setTargetAsString(String) instead.
-     */
-    @Deprecated
-    public void setTarget(String target) {
-        LOG.warn("Flyway.setTarget(String) is deprecated and will be removed in Flyway 4.0. Use setTargetAsString(String) instead.");
-        this.target = MigrationVersion.fromVersion(target);
-    }
-
-    /**
-     * Sets the target version up to which Flyway should consider migrations.
-     * Migrations with a higher version number will be ignored.
-     *
-     * @param target The target version up to which Flyway should consider migrations.
-     *               The special value {@code current} designates the current version of the schema. (default: the latest
-     *               version)
      */
     public void setTargetAsString(String target) {
         this.target = MigrationVersion.fromVersion(target);
@@ -814,18 +752,6 @@ public class Flyway {
      * Sets the version to tag an existing schema with when executing baseline.
      *
      * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
-     * @deprecated Will be removed in Flyway 4.0. Use setBaselineVersionAsString(String) instead.
-     */
-    @Deprecated
-    public void setBaselineVersion(String baselineVersion) {
-        LOG.warn("Flyway.setBaselineVersion(String) is deprecated and will be removed in Flyway 4.0. Use setBaselineVersionAsString(String) instead.");
-        this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
-    }
-
-    /**
-     * Sets the version to tag an existing schema with when executing baseline.
-     *
-     * @param baselineVersion The version to tag an existing schema with when executing baseline. (default: 1)
      */
     public void setBaselineVersionAsString(String baselineVersion) {
         this.baselineVersion = MigrationVersion.fromVersion(baselineVersion);
@@ -861,65 +787,6 @@ public class Flyway {
     }
 
     /**
-     * Sets the version to tag an existing schema with when executing baseline.
-     *
-     * @param initVersion The version to tag an existing schema with when executing baseline. (default: 1)
-     * @deprecated Use setBaselineVersion() instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public void setInitVersion(MigrationVersion initVersion) {
-        LOG.warn("Flyway.setInitVersion() is deprecated. Use setBaselineVersion() instead. Will be removed in Flyway 4.0.");
-        this.baselineVersion = initVersion;
-    }
-
-    /**
-     * Sets the version to tag an existing schema with when executing baseline.
-     *
-     * @param initVersion The version to tag an existing schema with when executing baseline. (default: 1)
-     * @deprecated Use setBaselineVersion() instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public void setInitVersion(String initVersion) {
-        LOG.warn("Flyway.setInitVersion() is deprecated. Use setBaselineVersion() instead. Will be removed in Flyway 4.0.");
-        this.baselineVersion = MigrationVersion.fromVersion(initVersion);
-    }
-
-    /**
-     * Sets the description to tag an existing schema with when executing baseline.
-     *
-     * @param initDescription The description to tag an existing schema with when executing baseline. (default: &lt;&lt; Flyway Baseline &gt;&gt;)
-     * @deprecated Use setBaselineDescription() instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public void setInitDescription(String initDescription) {
-        LOG.warn("Flyway.setInitDescription() is deprecated. Use setBaselineDescription() instead. Will be removed in Flyway 4.0.");
-        this.baselineDescription = initDescription;
-    }
-
-    /**
-     * <p>
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.
-     * Only migrations above {@code baselineVersion} will then be applied.
-     * </p>
-     * <p>
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake!
-     * </p>
-     *
-     * @param initOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
-     * @deprecated Use setBaselineOnMigrate() instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public void setInitOnMigrate(boolean initOnMigrate) {
-        LOG.warn("Flyway.setInitOnMigrate() is deprecated. Use setBaselineOnMigrate() instead. Will be removed in Flyway 4.0.");
-        this.baselineOnMigrate = initOnMigrate;
-    }
-
-    /**
      * Allows migrations to be run "out of order".
      * <p>If you already have versions 1 and 3 applied, and now a version 2 is found,
      * it will be applied too instead of being ignored.</p>
@@ -952,19 +819,6 @@ public class Flyway {
      * Set the callbacks for lifecycle notifications.
      *
      * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
-     * @deprecated Will be removed in Flyway 4.0. Use setCallbacksAsClassNames(String...) instead.
-     */
-    @Deprecated
-    public void setCallbacks(String... callbacks) {
-        LOG.warn("Flyway.setCallbacks(String...) is deprecated and will be removed in Flyway 4.0. Use setCallbacksAsClassNames(String...) instead.");
-        List<FlywayCallback> callbackList = ClassUtils.instantiateAll(callbacks, classLoader);
-        this.callbacks = callbackList.toArray(new FlywayCallback[callbacks.length]);
-    }
-
-    /**
-     * Set the callbacks for lifecycle notifications.
-     *
-     * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
      */
     public void setCallbacksAsClassNames(String... callbacks) {
         List<FlywayCallback> callbackList = ClassUtils.instantiateAll(callbacks, classLoader);
@@ -978,19 +832,6 @@ public class Flyway {
      */
     public void setResolvers(MigrationResolver... resolvers) {
         this.resolvers = resolvers;
-    }
-
-    /**
-     * Sets custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
-     *
-     * @param resolvers The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply. (default: empty list)
-     * @deprecated Will be removed in Flyway 4.0. Use setResolversAsClassNames(String...) instead.
-     */
-    @Deprecated
-    public void setResolvers(String... resolvers) {
-        LOG.warn("Flyway.setResolvers(String...) is deprecated and will be removed in Flyway 4.0. Use setResolversAsClassNames(String...) instead.");
-        List<MigrationResolver> resolverList = ClassUtils.instantiateAll(resolvers, classLoader);
-        this.resolvers = resolverList.toArray(new MigrationResolver[resolvers.length]);
     }
 
     /**
@@ -1174,18 +1015,6 @@ public class Flyway {
     }
 
     /**
-     * Baselines an existing database, excluding all migrations up to and including baselineVersion.
-     *
-     * @throws FlywayException when the schema baselining failed.
-     * @deprecated Use baseline() instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    public void init() throws FlywayException {
-        LOG.warn("Flyway.init() is deprecated. Use baseline() instead. Will be removed in Flyway 4.0.");
-        baseline();
-    }
-
-    /**
      * <p>Baselines an existing database, excluding all migrations up to and including baselineVersion.</p>
      * <p/>
      * <img src="http://flywaydb.org/assets/balsamiq/command-baseline.png" alt="baseline">
@@ -1312,21 +1141,6 @@ public class Flyway {
         String validateOnMigrateProp = properties.getProperty("flyway.validateOnMigrate");
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
-        }
-        String initVersionProp = properties.getProperty("flyway.initVersion");
-        if (initVersionProp != null) {
-            LOG.warn("flyway.initVersion is deprecated and will be removed in Flyway 4.0. Use flyway.baselineVersion instead.");
-            setBaselineVersion(MigrationVersion.fromVersion(initVersionProp));
-        }
-        String initDescriptionProp = properties.getProperty("flyway.initDescription");
-        if (initDescriptionProp != null) {
-            LOG.warn("flyway.initDescription is deprecated and will be removed in Flyway 4.0. Use flyway.baselineDescription instead.");
-            setBaselineDescription(initDescriptionProp);
-        }
-        String initOnMigrateProp = properties.getProperty("flyway.initOnMigrate");
-        if (initOnMigrateProp != null) {
-            LOG.warn("flyway.initOnMigrate is deprecated and will be removed in Flyway 4.0. Use flyway.baselineOnMigrate instead.");
-            setBaselineOnMigrate(Boolean.parseBoolean(initOnMigrateProp));
         }
         String baselineVersionProp = properties.getProperty("flyway.baselineVersion");
         if (baselineVersionProp != null) {

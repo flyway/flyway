@@ -103,7 +103,6 @@ public class DbBaseline {
                     @Override
                     public Object doInTransaction() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schema);
-                        callback.beforeInit(connection);
                         callback.beforeBaseline(connection);
                         return null;
                     }
@@ -145,7 +144,6 @@ public class DbBaseline {
                     @Override
                     public Object doInTransaction() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schema);
-                        callback.afterInit(connection);
                         callback.afterBaseline(connection);
                         return null;
                     }

@@ -65,14 +65,6 @@ public abstract class BaseFlywayCallback implements FlywayCallback {
     }
 
     @Override
-    public void beforeInit(Connection connection) {
-    }
-
-    @Override
-    public void afterInit(Connection connection) {
-    }
-
-    @Override
     public void beforeRepair(Connection connection) {
     }
 

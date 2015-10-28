@@ -46,7 +46,7 @@ class FlywayPluginSmallTest {
     public void checkIfTaskArePresent() {
         assert project.tasks.findByName('flywayClean')
         assert project.tasks.findByName('flywayInfo')
-        assert project.tasks.findByName('flywayInit')
+        assert project.tasks.findByName('flywayBaseline')
         assert project.tasks.findByName('flywayMigrate')
         assert project.tasks.findByName('flywayRepair')
         assert project.tasks.findByName('flywayValidate')
@@ -97,7 +97,7 @@ class FlywayPluginSmallTest {
         project.flyway {
             url = defaultUrl
             table = 'table'
-            initDescription = 'initDescription'
+            baselineDescription = 'baselineDescription'
             sqlMigrationPrefix = 'sqlMigrationPrefix'
             sqlMigrationSeparator = 'sqlMigrationSeparator'
             sqlMigrationSuffix = 'sqlMigrationSuffix'
@@ -108,7 +108,7 @@ class FlywayPluginSmallTest {
 
         Flyway flyway = getFlyway()
         assert flyway.table == 'table'
-        assert flyway.initDescription == 'initDescription'
+        assert flyway.baselineDescription == 'baselineDescription'
         assert flyway.sqlMigrationPrefix == 'sqlMigrationPrefix'
         assert flyway.sqlMigrationSeparator == 'sqlMigrationSeparator'
         assert flyway.sqlMigrationSuffix == 'sqlMigrationSuffix'
@@ -123,25 +123,25 @@ class FlywayPluginSmallTest {
         // as strings
         project.flyway {
             url = defaultUrl
-            initVersion = '1.3'
+            baselineVersion = '1.3'
             target = '2.3'
         }
 
         Flyway flyway = getFlyway()
 
-        assert flyway.initVersion.toString() == '1.3'
+        assert flyway.baselineVersion.toString() == '1.3'
         assert flyway.target.toString() == '2.3'
 
         // as numbers
         project.flyway {
             url = defaultUrl
-            initVersion = 2
+            baselineVersion = 2
             target = 3
         }
 
         flyway = getFlyway()
 
-        assert flyway.initVersion.toString() == '2'
+        assert flyway.baselineVersion.toString() == '2'
         assert flyway.target.toString() == '3'
     }
 
@@ -152,28 +152,28 @@ class FlywayPluginSmallTest {
             outOfOrder = true
             validateOnMigrate = true
             cleanOnValidationError = true
-            initOnMigrate = true
+            baselineOnMigrate = true
         }
 
         Flyway flyway = getFlyway()
         assert flyway.outOfOrder
         assert flyway.validateOnMigrate
         assert flyway.cleanOnValidationError
-        assert flyway.initOnMigrate
+        assert flyway.baselineOnMigrate
 
         project.flyway {
             url = defaultUrl
             outOfOrder = false
             validateOnMigrate = false
             cleanOnValidationError = false
-            initOnMigrate = false
+            baselineOnMigrate = false
         }
 
         flyway = getFlyway()
         assert !flyway.outOfOrder
         assert !flyway.validateOnMigrate
         assert !flyway.cleanOnValidationError
-        assert !flyway.initOnMigrate
+        assert !flyway.baselineOnMigrate
     }
 
     @Test

@@ -36,9 +36,7 @@ public class FlywayCallbackImpl implements FlywayCallback {
 	private boolean afterEachMigrate = false;
 	private boolean beforeValidate = false;
 	private boolean afterValidate = false;
-	private boolean beforeInit = false;
 	private boolean beforeBaseline = false;
-	private boolean afterInit = false;
 	private boolean afterBaseline = false;
 	private boolean beforeRepair = false;
 	private boolean afterRepair = false;
@@ -92,18 +90,6 @@ public class FlywayCallbackImpl implements FlywayCallback {
 	@Override
 	public void afterValidate(Connection dataConnection) {
 		afterValidate = true;
-        assertNotNull(dataConnection);
-	}
-
-	@Override
-	public void beforeInit(Connection dataConnection) {
-		beforeInit = true;
-        assertNotNull(dataConnection);
-	}
-
-	@Override
-	public void afterInit(Connection dataConnection) {
-		afterInit = true;
         assertNotNull(dataConnection);
 	}
 
@@ -173,14 +159,6 @@ public class FlywayCallbackImpl implements FlywayCallback {
 
 	public boolean isAfterValidate() {
 		return afterValidate;
-	}
-
-	public boolean isBeforeInit() {
-		return beforeInit;
-	}
-
-	public boolean isAfterInit() {
-		return afterInit;
 	}
 
 	public boolean isBeforeBaseline() {
