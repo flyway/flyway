@@ -36,6 +36,13 @@ COPY copy_test (c1, c2, c3) FROM stdin;
 3	text	123.234444444444449
 \.
 
+COPY copy_test (c1, c2, c3)
+  FROM stdin;
+4	utf8: ümlaute: äüß	NaN
+5	\N	123
+6	text	123.234444444444449
+\.
+
 
 --
 -- Name: copy_test_c1_seq; Type: SEQUENCE SET; Schema: public; Owner: arnd

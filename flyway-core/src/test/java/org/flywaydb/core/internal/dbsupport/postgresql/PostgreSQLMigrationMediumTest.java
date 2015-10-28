@@ -320,7 +320,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     public void copy() throws Exception {
         flyway.setLocations("migration/dbsupport/postgresql/sql/copy");
         flyway.migrate();
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from copy_test"));
+        assertEquals(6, jdbcTemplate.queryForInt("select count(*) from copy_test"));
     }
 
     /**
