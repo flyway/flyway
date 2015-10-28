@@ -69,6 +69,9 @@ public class Main {
 
         try {
             printVersion();
+            if (isPrintVersionAndExit(args)) {
+                System.exit(0);
+            }
 
             List<String> operations = determineOperations(args);
             if (operations.isEmpty()) {
@@ -105,6 +108,15 @@ public class Main {
             }
             System.exit(1);
         }
+    }
+
+    private static boolean isPrintVersionAndExit(String[] args) {
+        for (String arg : args) {
+            if ("-v".equals(arg)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -172,15 +184,17 @@ public class Main {
     private static void printVersion() throws IOException {
         VersionPrinter.printVersion(Thread.currentThread().getContextClassLoader());
         LOG.info("");
+
+        LOG.debug("Java " + System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
+        LOG.debug(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch") + "\n");
     }
 
     /**
      * Prints the usage instructions on the console.
      */
     private static void printUsage() {
-        LOG.info("********");
-        LOG.info("* Usage");
-        LOG.info("********");
+        LOG.info("Usage");
+        LOG.info("=====");
         LOG.info("");
         LOG.info("flyway [options] command");
         LOG.info("");
@@ -188,7 +202,7 @@ public class Main {
         LOG.info("Options passed from the command-line override the configuration.");
         LOG.info("");
         LOG.info("Commands");
-        LOG.info("========");
+        LOG.info("--------");
         LOG.info("migrate  : Migrates the database");
         LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
@@ -197,7 +211,7 @@ public class Main {
         LOG.info("repair   : Repairs the metadata table");
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
-        LOG.info("=======");
+        LOG.info("-------");
         LOG.info("driver                 : Fully qualified classname of the jdbc driver");
         LOG.info("url                    : Jdbc url to use to connect to the database");
         LOG.info("user                   : User to use to connect to the database");
@@ -228,10 +242,11 @@ public class Main {
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
+        LOG.info("Add -v to print the Flyway version and exit");
         LOG.info("");
         LOG.info("Example");
-        LOG.info("=======");
-        LOG.info("flyway -target=1.5 -placeholders.user=my_user info");
+        LOG.info("-------");
+        LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
         LOG.info("More info at http://flywaydb.org/documentation/commandline");
     }
