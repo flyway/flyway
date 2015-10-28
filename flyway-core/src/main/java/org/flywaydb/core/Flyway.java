@@ -1384,7 +1384,7 @@ public class Flyway {
     /*private -> testing*/ <T> T execute(Command<T> command) {
         T result;
 
-        VersionPrinter.printVersion(classLoader);
+        VersionPrinter.printVersion();
 
         Connection connectionMetaDataTable = null;
         Connection connectionUserObjects = null;

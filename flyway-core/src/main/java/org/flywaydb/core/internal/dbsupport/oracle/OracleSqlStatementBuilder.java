@@ -40,6 +40,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      * Delimiter of PL/SQL blocks and statements.
      */
     private static final Delimiter PLSQL_DELIMITER = new Delimiter("/", true);
+
     /**
      * Holds the beginning of the statement.
      */
