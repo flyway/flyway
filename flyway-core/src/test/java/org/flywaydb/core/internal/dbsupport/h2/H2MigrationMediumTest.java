@@ -48,7 +48,15 @@ public class H2MigrationMediumTest extends MigrationTestCase {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:mysql_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setSchemas("mysql_schema");
-        flyway.init();
+        flyway.baseline();
+    }
+
+    @Test
+    public void mysqlModePublic() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:mysql_public_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setSchemas("PUBLIC");
+        flyway.baseline();
     }
 
     @Test
