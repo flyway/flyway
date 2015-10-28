@@ -71,8 +71,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
         }
 
-        jdbcTemplate.execute("PURGE RECYCLEBIN");
-
         for (String statement : generateDropStatementsForSpatialExtensions()) {
             jdbcTemplate.execute(statement);
         }
@@ -149,6 +147,8 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         for (String statement : generateDropStatementsForObjectType("JAVA SOURCE", "")) {
             jdbcTemplate.execute(statement);
         }
+
+        jdbcTemplate.execute("PURGE RECYCLEBIN");
     }
 
     /**
@@ -236,7 +236,9 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     private List<String> generateDropStatementsForObjectType(String objectType, String extraArguments) throws SQLException {
         String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?"
                 // Ignore Spatial Index Sequences as they get dropped automatically when the index gets dropped.
-                + " AND object_name NOT LIKE 'MDRS_%$'";
+                + " AND object_name NOT LIKE 'MDRS_%$'"
+                // Ignore Oracle 12 Identity Sequences as they get dropped automatically when the recycle bin gets purged.
+                + " AND object_name NOT LIKE 'ISEQ$$_%'";
 
         List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, name);
         List<String> dropStatements = new ArrayList<String>();
