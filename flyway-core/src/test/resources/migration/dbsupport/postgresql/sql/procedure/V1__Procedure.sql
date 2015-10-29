@@ -15,7 +15,7 @@
 --
 
 CREATE TABLE test_data (
-  value VARCHAR(25) NOT NULL PRIMARY KEY
+  value/*test*/ /*test*/VARCHAR(25) NOT NULL PRIMARY KEY
 );
 
 CREATE FUNCTION AddData() RETURNS INTEGER
@@ -29,7 +29,7 @@ AS $$
 SELECT *  INTO TEMP adddata_temp_table FROM AddData() ;
 
 CREATE FUNCTION add(integer, integer) RETURNS integer
-    LANGUAGE sql IMMUTABLE STRICT
+    LANGUAGE sql/*test*/ IMMUTABLE STRICT
     AS $_$select $1 + $2;$_$;
 
 CREATE FUNCTION inc(i integer) RETURNS VARCHAR(25)
