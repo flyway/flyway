@@ -20,14 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
-import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLSchema;
 
 /**
  * Redshift implementation of Schema.
  */
-public class RedshiftSchema extends PostgreSQLSchema {
+public class RedshiftSchema extends Schema<RedshiftDbSupport> {
     /**
      * Creates a new Redshift schema.
      *
@@ -35,8 +34,31 @@ public class RedshiftSchema extends PostgreSQLSchema {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public RedshiftSchema(JdbcTemplate jdbcTemplate, PostgreSQLDbSupport dbSupport, String name) {
+    public RedshiftSchema(JdbcTemplate jdbcTemplate, RedshiftDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
+    }
+
+    @Override
+    protected boolean doExists() throws SQLException {
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM pg_namespace WHERE nspname=?", name) > 0;
+    }
+
+    @Override
+    protected boolean doEmpty() throws SQLException {
+        int objectCount = jdbcTemplate.queryForInt(
+                "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
+                name);
+        return objectCount == 0;
+    }
+
+    @Override
+    protected void doCreate() throws SQLException {
+        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
+    }
+
+    @Override
+    protected void doDrop() throws SQLException {
+        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " CASCADE");
     }
 
     @Override
@@ -85,6 +107,7 @@ public class RedshiftSchema extends PostgreSQLSchema {
                                 " AND table_type = 'VIEW'",
                                 //No need for further predicates, since Redshift does not support inheritance
                         name);
+        //Views are normally dropped with the parent table when using cascade, unless the view is based on a system table
 
         List<String> statements = new ArrayList<String>();
         for (String viewName : viewNames) {
