@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.redshift;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -44,6 +45,23 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
     }
 
     @Override
+    public Schema getOriginalSchema() {
+        if (originalSchema == null) {
+            return null;
+        }
+
+        // Defaults to: "$user", public
+        String result = originalSchema.replace(doQuote("$user"), "").trim();
+        if (result.startsWith(",")) {
+            result = result.substring(2);
+        }
+        if (result.contains(",")) {
+            return getSchema(result.substring(0, result.indexOf(",")));
+        }
+        return getSchema(result);
+    }
+
+    @Override
     protected String doGetCurrentSchemaName() throws SQLException {
         String searchPath = super.doGetCurrentSchemaName();
         if (StringUtils.hasText(searchPath) && !searchPath.equals("unset")) {
@@ -53,6 +71,33 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
             }
         }
         return searchPath;
+    }
+
+    @Override
+    public void changeCurrentSchemaTo(Schema schema) {
+        if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
+            return;
+        }
+
+        try {
+            if (StringUtils.hasText(originalSchema) && !originalSchema.equals("unset")) {
+                doChangeCurrentSchemaTo(schema.toString() + "," + originalSchema);
+            } else {
+                doChangeCurrentSchemaTo(schema.toString());
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Error setting current schema to " + schema, e);
+        }
+    }
+
+    @Override
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
+        if (!StringUtils.hasLength(schema) || schema.equals("unset")) {
+            // After running the following, the "SHOW search_path" command will return "unset"
+            jdbcTemplate.execute("SELECT set_config('search_path', '', false)");
+            return;
+        }
+        jdbcTemplate.execute("SET search_path = " + schema);
     }
 
     @Override

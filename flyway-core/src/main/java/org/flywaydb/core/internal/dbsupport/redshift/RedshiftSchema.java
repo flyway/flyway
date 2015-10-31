@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.redshift;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -44,6 +45,11 @@ public class RedshiftSchema extends PostgreSQLSchema {
             table.drop();
         }
 
+        //Drop views that are based on a system table (views are normally dropped with the parent table when using cascade)
+        for (String statement : generateDropStatementsForViews()) {
+            jdbcTemplate.execute(statement);
+        }
+
         // Custom sequences, functions, domains and types are not supported by Redshift.
     }
 
@@ -56,16 +62,35 @@ public class RedshiftSchema extends PostgreSQLSchema {
                                 //in this schema
                                 " WHERE table_schema=?" +
                                 //that are real tables (as opposed to views)
-                                " AND table_type='BASE TABLE'",
+                                " AND table_type = 'BASE TABLE'",
                                 //No need for further predicates, since Redshift does not support inheritance
                         name);
-        //Views and child tables are excluded as they are dropped with the parent table when using cascade.
+        //Child tables are dropped with the parent table when using cascade
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new RedshiftTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    protected List<String> generateDropStatementsForViews() throws SQLException {
+        List<String> viewNames =
+                jdbcTemplate.queryForStringList(
+                        //Search for all the table names
+                        "SELECT t.table_name FROM information_schema.tables t" +
+                                //in this schema
+                                " WHERE table_schema=?" +
+                                //that are real tables (as opposed to views)
+                                " AND table_type = 'VIEW'",
+                                //No need for further predicates, since Redshift does not support inheritance
+                        name);
+
+        List<String> statements = new ArrayList<String>();
+        for (String viewName : viewNames) {
+            statements.add("DROP VIEW " + dbSupport.quote(name, viewName) + " CASCADE");
+        }
+        return statements;
     }
 
     @Override
