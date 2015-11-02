@@ -15,9 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.redshift;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Types;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
@@ -32,7 +30,7 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 /**
  * Redshift-specific support.
  */
-public class RedshiftDbSupport extends DbSupport {
+public abstract class RedshiftDbSupport extends DbSupport {
     private static final Log LOG = LogFactory.getLog(RedshiftDbSupport.class);
 
     /**
@@ -40,8 +38,8 @@ public class RedshiftDbSupport extends DbSupport {
      *
      * @param connection The connection to use.
      */
-    public RedshiftDbSupport(Connection connection) {
-        super(new JdbcTemplate(connection, Types.NULL));
+    public RedshiftDbSupport(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
     }
 
     public String getDbName() {

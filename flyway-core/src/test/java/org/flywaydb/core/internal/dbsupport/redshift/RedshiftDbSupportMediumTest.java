@@ -41,7 +41,7 @@ public class RedshiftDbSupportMediumTest {
     @Test
     public void setCurrentSchema() throws Exception {
         Connection connection = createDataSource().getConnection();
-        RedshiftDbSupport dbSupport = new RedshiftDbSupport(connection);
+        RedshiftDbSupport dbSupport = new RedshfitDbSupportViaPostgreSQLDriver(connection);
         Schema schema = dbSupport.getSchema("search_path_test");
         schema.create();
         dbSupport.changeCurrentSchemaTo(dbSupport.getSchema("search_path_test"));
