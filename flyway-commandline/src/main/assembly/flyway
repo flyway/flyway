@@ -19,7 +19,7 @@
 cygwin=false
 linux=false
 case "`uname`" in
-  CYGWIN*) cygwin=true;;
+  CYGWIN*|MINGW*) cygwin=true;;
   Linux*) linux=true;;
 esac
 
