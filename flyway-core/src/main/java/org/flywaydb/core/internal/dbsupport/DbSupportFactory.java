@@ -119,7 +119,7 @@ public class DbSupportFactory {
         }
 
 		//Sybase ASE support
-        if (databaseProductName.startsWith("ASE")) {
+        if (databaseProductName.startsWith("Adaptive Server Enterprise")) {
         	return new SybaseASEDbSupport(connection);
         }
         
