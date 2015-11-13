@@ -19,10 +19,13 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
 import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Derby.
@@ -52,5 +55,22 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
+    }
+
+    @Test
+    public void bitdata() throws Exception {
+        flyway.setLocations("migration/dbsupport/derby/sql/bitdata");
+        flyway.migrate();
+
+        assertEquals("1", flyway.info().current().getVersion().toString());
+    }
+
+    @Test
+    public void trigger() throws Exception {
+        flyway.setLocations("migration/dbsupport/derby/sql/trigger");
+        flyway.migrate();
+
+        // Fails if triggers aren't cleaned properly
+        flyway.clean();
     }
 }

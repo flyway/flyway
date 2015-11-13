@@ -15,8 +15,9 @@
  */
 package org.flywaydb.core.internal.command;
 
-import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.StopWatch;
@@ -58,14 +59,21 @@ public class DbClean {
     private final FlywayCallback[] callbacks;
 
     /**
+     * The DB support for the connection.
+     */
+    private final DbSupport dbSupport;
+
+    /**
      * Creates a new database cleaner.
      *
      * @param connection    The connection to use.
+     * @param dbSupport     The DB support for the connection.
      * @param metaDataTable The metadata table.
      * @param schemas       The schemas to clean.
      */
-    public DbClean(Connection connection, MetaDataTable metaDataTable, Schema[] schemas, FlywayCallback[] callbacks) {
+    public DbClean(Connection connection, DbSupport dbSupport, MetaDataTable metaDataTable, Schema[] schemas, FlywayCallback[] callbacks) {
         this.connection = connection;
+        this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
         this.schemas = schemas;
         this.callbacks = callbacks;
@@ -77,44 +85,51 @@ public class DbClean {
      * @throws FlywayException when clean failed.
      */
     public void clean() throws FlywayException {
-        for (final FlywayCallback callback : callbacks) {
-            new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
-                @Override
-                public Object doInTransaction() throws SQLException {
-                    callback.beforeClean(connection);
-                    return null;
-                }
-            });
-        }
-
-        boolean dropSchemas = false;
         try {
-            dropSchemas = metaDataTable.hasSchemasMarker();
-        } catch (Exception e) {
-            LOG.error("Error while checking whether the schemas should be dropped", e);
-        }
-
-        for (Schema schema : schemas) {
-            if (!schema.exists()) {
-                LOG.warn("Unable to clean unknown schema: " + schema);
-                continue;
+            for (final FlywayCallback callback : callbacks) {
+                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                    @Override
+                    public Object doInTransaction() throws SQLException {
+                        dbSupport.changeCurrentSchemaTo(schemas[0]);
+                        callback.beforeClean(connection);
+                        return null;
+                    }
+                });
             }
 
-            if (dropSchemas) {
-                dropSchema(schema);
-            } else {
-                cleanSchema(schema);
+            dbSupport.changeCurrentSchemaTo(schemas[0]);
+            boolean dropSchemas = false;
+            try {
+                dropSchemas = metaDataTable.hasSchemasMarker();
+            } catch (Exception e) {
+                LOG.error("Error while checking whether the schemas should be dropped", e);
             }
-        }
 
-        for (final FlywayCallback callback : callbacks) {
-            new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
-                @Override
-                public Object doInTransaction() throws SQLException {
-                    callback.afterClean(connection);
-                    return null;
+            for (Schema schema : schemas) {
+                if (!schema.exists()) {
+                    LOG.warn("Unable to clean unknown schema: " + schema);
+                    continue;
                 }
-            });
+
+                if (dropSchemas) {
+                    dropSchema(schema);
+                } else {
+                    cleanSchema(schema);
+                }
+            }
+
+            for (final FlywayCallback callback : callbacks) {
+                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                    @Override
+                    public Object doInTransaction() throws SQLException {
+                        dbSupport.changeCurrentSchemaTo(schemas[0]);
+                        callback.afterClean(connection);
+                        return null;
+                    }
+                });
+            }
+        } finally {
+            dbSupport.restoreCurrentSchema();
         }
     }
 

@@ -29,6 +29,8 @@ import org.mockito.MockSettings;
 import org.mockito.internal.creation.MockSettingsImpl;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -46,7 +48,7 @@ public class ClassPathScannerSmallTest {
 
         assertEquals(4, resources.length);
 
-        assertEquals("migration/sql/V1_1__View.sql", resources[0].getLocation());
+        assertEquals("migration/sql/V1.1__View.sql", resources[0].getLocation());
         assertEquals("migration/sql/V1_2__Populate_table.sql", resources[1].getLocation());
         assertEquals("migration/sql/V1__First.sql", resources[2].getLocation());
         assertEquals("migration/sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", resources[3].getLocation());
@@ -55,19 +57,31 @@ public class ClassPathScannerSmallTest {
     @Test
     public void scanForResourcesRoot() throws Exception {
         Resource[] resources = classPathScanner.scanForResources("", "CheckValidate", ".sql");
+        
+        //changed to 2 as new test cases are added for SybaseASE
+        assertEquals(2, resources.length);
 
-        assertEquals(1, resources.length);
-
-        assertEquals("migration/validate/CheckValidate1__First.sql", resources[0].getLocation());
+        Set<String> validPaths = new HashSet<String>();
+        validPaths.add("migration/validate/CheckValidate1__First.sql");
+        validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
+        
+        assertEquals(true, validPaths.contains(resources[0].getLocation()));
+        assertEquals(true, validPaths.contains(resources[1].getLocation()));
     }
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
         Resource[] resources = classPathScanner.scanForResources("migration", "CheckValidate", ".sql");
 
-        assertEquals(1, resources.length);
-
-        assertEquals("migration/validate/CheckValidate1__First.sql", resources[0].getLocation());
+        //changed to 2 as new test cases are added for SybaseASE
+        assertEquals(2, resources.length);
+        
+        Set<String> validPaths = new HashSet<String>();
+        validPaths.add("migration/validate/CheckValidate1__First.sql");
+        validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
+        
+        assertEquals(true, validPaths.contains(resources[0].getLocation()));
+        assertEquals(true, validPaths.contains(resources[1].getLocation()));
     }
 
     @Test

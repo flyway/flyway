@@ -130,7 +130,7 @@ public class MigrationInfoServiceImplSmallTest {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
                         createMigrationResolver(createAvailableMigration(1)),
-                        createMetaDataTable(createAppliedInitMigration(2)),
+                        createMetaDataTable(createAppliedBaselineMigration(2)),
                         MigrationVersion.LATEST, false, true);
         migrationInfoService.refresh();
 
@@ -214,9 +214,9 @@ public class MigrationInfoServiceImplSmallTest {
      * @param version The version of the migration.
      * @return The applied baseline migration.
      */
-    private AppliedMigration createAppliedInitMigration(int version) {
+    private AppliedMigration createAppliedBaselineMigration(int version) {
         return new AppliedMigration(version, version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
-                MigrationType.INIT, "x", null, new Date(), "sa", 0, true);
+                MigrationType.BASELINE, "x", null, new Date(), "sa", 0, true);
     }
 
     /**

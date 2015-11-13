@@ -15,9 +15,11 @@
  */
 package org.flywaydb.core;
 
+import org.flywaydb.core.api.callback.BaseFlywayCallback;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -28,7 +30,7 @@ import static org.junit.Assert.*;
 public class FlywayCallbackSmallTest {
     @Test
     public void cleanTest() {
-        Properties properties = createProperties(0);
+        Properties properties = createProperties("clean");
 
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
         FlywayCallback[] callbacks = new FlywayCallback[]{callbackImpl};
@@ -50,7 +52,6 @@ public class FlywayCallbackSmallTest {
         //make sure no other lifecycle events were fired
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -58,7 +59,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -67,7 +67,7 @@ public class FlywayCallbackSmallTest {
 
     @Test
     public void infoTest() {
-        Properties properties = createProperties(1);
+        Properties properties = createProperties("info");
 
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
         FlywayCallback[] callbacks = new FlywayCallback[]{callbackImpl};
@@ -87,7 +87,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertTrue(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -95,7 +94,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertTrue(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -103,8 +101,8 @@ public class FlywayCallbackSmallTest {
     }
 
     @Test
-    public void initTest() {
-        Properties properties = createProperties(2);
+    public void baselineTest() {
+        Properties properties = createProperties("baseline");
 
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
         FlywayCallback[] callbacks = new FlywayCallback[]{callbackImpl};
@@ -115,18 +113,15 @@ public class FlywayCallbackSmallTest {
 
         assertNotNull(flyway.getDataSource());
 
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
 
-        flyway.init();
+        flyway.baseline();
 
         assertFalse(callbackImpl.isBeforeClean());
         assertFalse(callbackImpl.isAfterClean());
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertTrue(callbackImpl.isAfterInit());
         assertTrue(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -134,7 +129,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertTrue(callbackImpl.isBeforeInit());
         assertTrue(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -143,7 +137,7 @@ public class FlywayCallbackSmallTest {
 
     @Test
     public void migrateTest() {
-        Properties properties = createProperties(3);
+        Properties properties = createProperties("migrate");
 
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
         FlywayCallback[] callbacks = new FlywayCallback[]{callbackImpl};
@@ -163,7 +157,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertTrue(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertTrue(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -171,7 +164,6 @@ public class FlywayCallbackSmallTest {
 
         assertTrue(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertTrue(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -180,7 +172,7 @@ public class FlywayCallbackSmallTest {
 
     @Test
     public void repairTest() {
-        Properties properties = createProperties(4);
+        Properties properties = createProperties("repair");
 
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
         FlywayCallback[] callbacks = new FlywayCallback[]{callbackImpl};
@@ -200,7 +192,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertTrue(callbackImpl.isAfterRepair());
@@ -208,7 +199,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertTrue(callbackImpl.isBeforeRepair());
@@ -217,7 +207,7 @@ public class FlywayCallbackSmallTest {
 
     @Test
     public void validateTest() {
-        Properties properties = createProperties(5);
+        Properties properties = createProperties("validate");
 
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
         FlywayCallback[] callbacks = new FlywayCallback[]{callbackImpl};
@@ -238,7 +228,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertFalse(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertFalse(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -246,7 +235,6 @@ public class FlywayCallbackSmallTest {
 
         assertFalse(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertFalse(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
@@ -256,7 +244,7 @@ public class FlywayCallbackSmallTest {
     @Test
     public void migrateEachTest() {
         cleanTest();
-        Properties properties = createProperties(6);
+        Properties properties = createProperties("migrate_each");
 
         FlywayCallbackImpl callbackImpl = new FlywayCallbackImpl();
         FlywayCallback[] callbacks = new FlywayCallback[]{callbackImpl};
@@ -276,7 +264,6 @@ public class FlywayCallbackSmallTest {
         assertFalse(callbackImpl.isAfterClean());
         assertTrue(callbackImpl.isAfterEachMigrate());
         assertFalse(callbackImpl.isAfterInfo());
-        assertFalse(callbackImpl.isAfterInit());
         assertFalse(callbackImpl.isAfterBaseline());
         assertTrue(callbackImpl.isAfterMigrate());
         assertFalse(callbackImpl.isAfterRepair());
@@ -284,16 +271,32 @@ public class FlywayCallbackSmallTest {
 
         assertTrue(callbackImpl.isBeforeEachMigrate());
         assertFalse(callbackImpl.isBeforeInfo());
-        assertFalse(callbackImpl.isBeforeInit());
         assertFalse(callbackImpl.isBeforeBaseline());
         assertTrue(callbackImpl.isBeforeMigrate());
         assertFalse(callbackImpl.isBeforeRepair());
         assertFalse(callbackImpl.isBeforeValidate());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void failingCallbackTest() {
+        FlywayCallback failingCallback = new BaseFlywayCallback() {
+            @Override
+            public void beforeMigrate(Connection connection) {
+                throw new IllegalStateException("Failing");
+            }
+        };
+
+        final Flyway flyway = new Flyway();
+        flyway.configure(createProperties("failing"));
+        flyway.setCallbacks(failingCallback);
+
+        assertNotNull(flyway.getDataSource());
+        flyway.migrate();
+    }
+
     @Test
     public void propertyInstantiationTest() {
-        Properties properties = createProperties(7);
+        Properties properties = createProperties("property");
         properties.setProperty("flyway.callbacks", "org.flywaydb.core.FlywayCallbackImpl");
 
         final Flyway flyway = new Flyway();
@@ -304,11 +307,11 @@ public class FlywayCallbackSmallTest {
         flyway.clean();
     }
 
-    private Properties createProperties(int num) {
+    private Properties createProperties(String name) {
         Properties properties = new Properties();
         properties.setProperty("flyway.user", "sa");
         properties.setProperty("flyway.password", "");
-        properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_test_callback_" + num + ";DB_CLOSE_DELAY=-1");
+        properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_test_callback_" + name + ";DB_CLOSE_DELAY=-1");
         properties.setProperty("flyway.driver", "org.h2.Driver");
         properties.setProperty("flyway.locations", "migration/dbsupport/h2/sql/domain");
         properties.setProperty("flyway.validateOnMigrate", "false");

@@ -87,4 +87,10 @@ public class PlaceholderReplacerSmallTest {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
         placeholderReplacer.replacePlaceholders(TEST_STR + TEST_STR);
     }
+
+    @Test
+    public void noPlaceholders() {
+        PlaceholderReplacer placeholderReplacer = PlaceholderReplacer.NO_PLACEHOLDERS;
+        assertEquals(TEST_STR, placeholderReplacer.replacePlaceholders(TEST_STR));
+    }
 }

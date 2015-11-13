@@ -15,7 +15,7 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.ClassUtils;

@@ -67,4 +67,16 @@ public class OracleSqlStatementBuilderSmallTest {
         builder.addLine("insert into table (COLUMN) values 'VALUE_WITH_N';");
         assertTrue(builder.isTerminated());
     }
+
+    @Test
+    public void quotedWithFrom() {
+        builder.addLine("insert into table (COLUMN) values 'FROM';");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void quotedWithFromComplex() {
+        builder.addLine("DELETE FROM TEST.TABLE1 where CFG_AREA_ID_1 like '%NAME%' AND SOME_ID='NITS'AND CFG_AREA_CD IN ('COND_TXT','FORM');");
+        assertTrue(builder.isTerminated());
+    }
 }

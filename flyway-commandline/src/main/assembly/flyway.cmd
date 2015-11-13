@@ -21,8 +21,8 @@ setlocal
 @REM Set the current directory to the installation directory
 set INSTALLDIR=%~dp0
 
-if exist %INSTALLDIR%\jre\bin\java.exe (
- set JAVA_CMD=%INSTALLDIR%\jre\bin\java.exe
+if exist "%INSTALLDIR%\jre\bin\java.exe" (
+ set JAVA_CMD="%INSTALLDIR%\jre\bin\java.exe"
 ) else (
  @REM Use JAVA_HOME if it is set
  if "%JAVA_HOME%"=="" (

@@ -31,7 +31,12 @@ public class PlaceholderReplacer {
     /**
      * PlaceholderReplacer that doesn't replace any placeholders.
      */
-    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<String, String>(), "", "");
+    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<String, String>(), "", "") {
+        @Override
+        public String replacePlaceholders(String input) {
+            return input;
+        }
+    };
 
     /**
      * A map of <placeholder, replacementValue> to apply to sql migration scripts.

@@ -54,12 +54,12 @@ public class SolidDbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchemaName() throws SQLException {
         return jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA()");
     }
 
     @Override
-    protected void doSetCurrentSchema(final Schema schema) throws SQLException {
+    protected void doChangeCurrentSchemaTo(final String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 

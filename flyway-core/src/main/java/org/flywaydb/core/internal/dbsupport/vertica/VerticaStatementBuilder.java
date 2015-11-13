@@ -41,7 +41,8 @@ public class VerticaStatementBuilder extends PostgreSQLSqlStatementBuilder {
             statementStart += " ";
         }
 
-        if (statementStart.startsWith("CREATE FUNCTION")) {
+        if (statementStart.startsWith("CREATE FUNCTION")
+                || statementStart.startsWith("CREATE OR REPLACE FUNCTION")) {
             if (line.startsWith("BEGIN") || line.endsWith("BEGIN")) {
                 insideBeginEndBlock = true;
             }

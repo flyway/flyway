@@ -320,7 +320,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     public void copy() throws Exception {
         flyway.setLocations("migration/dbsupport/postgresql/sql/copy");
         flyway.migrate();
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from copy_test"));
+        assertEquals(6, jdbcTemplate.queryForInt("select count(*) from copy_test"));
     }
 
     /**
@@ -352,7 +352,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
                 return connection;
             }
         });
-        flyway1.setLocations(BASEDIR);
+        flyway1.setLocations(getBasedir());
         flyway1.setSchemas("public");
         flyway1.migrate();
     }

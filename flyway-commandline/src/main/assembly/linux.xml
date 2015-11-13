@@ -29,7 +29,7 @@
     <fileSets>
         <fileSet>
             <directory>target/dependency/server-jre-linux-x64-tar.gz/jdk${jreversion}/jre</directory>
-            <outputDirectory>/jre</outputDirectory>
+            <outputDirectory>jre</outputDirectory>
             <fileMode>755</fileMode>
         </fileSet>
     </fileSets>

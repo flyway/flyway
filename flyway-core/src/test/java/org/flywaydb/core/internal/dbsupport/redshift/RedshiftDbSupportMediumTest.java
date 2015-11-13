@@ -44,7 +44,7 @@ public class RedshiftDbSupportMediumTest {
         RedshiftDbSupport dbSupport = new RedshiftDbSupport(connection);
         Schema schema = dbSupport.getSchema("search_path_test");
         schema.create();
-        dbSupport.setCurrentSchema(dbSupport.getSchema("search_path_test"));
+        dbSupport.changeCurrentSchemaTo(dbSupport.getSchema("search_path_test"));
         String searchPath = dbSupport.getJdbcTemplate().queryForString("SHOW search_path");
         assertEquals("search_path_test, \"$user\", public", searchPath);
         schema.drop();

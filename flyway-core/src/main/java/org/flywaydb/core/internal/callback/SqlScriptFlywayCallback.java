@@ -145,16 +145,6 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
     }
 
     @Override
-    public void beforeInit(Connection connection) {
-        //Deprecated, not implemented.
-    }
-
-    @Override
-    public void afterInit(Connection connection) {
-        //Deprecated, not implemented.
-    }
-
-    @Override
     public void beforeRepair(Connection connection) {
         execute("beforeRepair", connection);
     }

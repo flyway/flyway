@@ -155,7 +155,7 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.init();
+        flyway.baseline();
 
         flyway.setLocations();
         assertEquals(1, flyway.info().all().length);
@@ -171,9 +171,9 @@ public class FlywayMediumTest {
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/sql");
-        flyway.setInitVersion("0.5");
-        flyway.init();
-        flyway.init();
+        flyway.setBaselineVersionAsString("0.5");
+        flyway.baseline();
+        flyway.baseline();
 
         assertEquals(1, flyway.info().applied().length);
         MigrationInfo current = flyway.info().current();
@@ -189,10 +189,10 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.init();
+        flyway.baseline();
 
-        flyway.setInitVersion("2");
-        flyway.init();
+        flyway.setBaselineVersionAsString("2");
+        flyway.baseline();
     }
 
     @Test
@@ -225,14 +225,14 @@ public class FlywayMediumTest {
         flyway.setLocations("migration/validate");
         flyway.baseline();
 
-        new JdbcTemplate(dataSource.getConnection(), 0).executeStatement("UPDATE \"new1\".\"schema_version\" SET \"type\"='INIT' WHERE \"type\"='BASELINE'");
+        new JdbcTemplate(dataSource.getConnection(), 0).executeStatement("UPDATE \"new1\".\"schema_version\" SET \"type\"='BASELINE' WHERE \"type\"='BASELINE'");
         assertEquals("1", flyway.info().current().getVersion().toString());
-        assertEquals(MigrationType.INIT, flyway.info().current().getType());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
 
         flyway.baseline();
 
         assertEquals("1", flyway.info().current().getVersion().toString());
-        assertEquals(MigrationType.INIT, flyway.info().current().getType());
+        assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
     }
 
     @Test
@@ -378,6 +378,15 @@ public class FlywayMediumTest {
         assertEquals(0, flyway.migrate());
         // Used to fail with exception due to non-empty schema and empty metadata table.
         assertEquals(0, flyway.migrate());
+    }
+
+    @Test
+    public void noPlaceholderReplacement() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_no_placeholder_replacement;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setPlaceholderReplacement(false);
+        assertEquals(4, flyway.migrate());
     }
 
     @Test

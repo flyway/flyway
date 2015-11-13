@@ -360,7 +360,7 @@ CREATE OR REPLACE PACKAGE BODY PRJ_UTIL AS
       END;
       --  Check if record has correct status
       IF vnImportStatus <> 0 THEN
-          RAISE_APPLICATION_ERROR (-20003, 'Import job pinImpJobID=['||pinImpJobID||'] has wrong status ['||vnImportStatus||'] ');
+          RAISE_APPLICATION_ERROR (/*test*/-20003, 'Import job pinImpJobID=['||pinImpJobID||'] has wrong status ['||vnImportStatus||'] ');
       END IF;
       -- #6469 Check for unusable indexes and recreate
       FOR recIndex IN curIndex(vcTableName)

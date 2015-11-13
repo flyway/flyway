@@ -63,6 +63,11 @@ public class DerbySchema extends Schema<DerbyDbSupport> {
 
     @Override
     protected void doClean() throws SQLException {
+        List<String> triggerNames = listObjectNames("TRIGGER", "");
+        for (String statement : generateDropStatements("TRIGGER", triggerNames, "")) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : generateDropStatementsForConstraints()) {
             jdbcTemplate.execute(statement);
         }

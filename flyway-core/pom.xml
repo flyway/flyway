@@ -193,11 +193,19 @@
                             org.flywaydb.core.api.*;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            org.springframework.*;version="[2.5,5.0)";resolution:=optional,
+                            android.content;version="[4.0.1.2,5)";resolution:=optional,
+                            android.content.pm;version="[4.0.1.2,5)";resolution:=optional,
+                            android.content.res;version="[4.0.1.2,5)";resolution:=optional,
+                            android.util;version="[4.0.1.2,5)";resolution:=optional,
+                            dalvik.system;version="[4.0.1.2,5)";resolution:=optional,
+                            javax.sql,
                             org.apache.commons.logging;version="[1.1,2)";resolution:=optional,
-                            org.slf4j;version="[1.6,2)";resolution:=optional,
+                            org.jboss.vfs;version="[3.1.0,4)";resolution:=optional,
+                            org.postgresql.copy;version="[9.3.1102,10.0)";resolution:=optional,
+                            org.postgresql.core;version="[9.3.1102,10.0)";resolution:=optional,
                             org.osgi.framework;version="1.3.0";resolution:=mandatory,
-                            javax.sql
+                            org.slf4j;version="[1.6,2)";resolution:=optional,
+                            org.springframework.*;version="[2.5,5.0)";resolution:=optional
                         </Import-Package>
                     </instructions>
                 </configuration>

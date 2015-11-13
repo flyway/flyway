@@ -45,4 +45,5 @@ public class DbCategory {
     public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}
     public interface SolidDB extends ContributorSupportedDB {}
+    public interface SybaseASE extends ContributorSupportedDB {}
 }

@@ -135,8 +135,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             if (appliedMigration.getType() == MigrationType.SCHEMA) {
                 context.schema = version;
             }
-            if ((appliedMigration.getType() == MigrationType.INIT) || (appliedMigration.getType() == MigrationType.BASELINE)) {
-                context.init = version;
+            if (appliedMigration.getType() == MigrationType.BASELINE) {
                 context.baseline = version;
             }
             appliedMigrationsMap.put(version, appliedMigration);

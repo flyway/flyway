@@ -47,13 +47,6 @@ public class GradleLargeTest {
     }
 
     @Test
-    public void unqualified() throws Exception {
-        String stdOut = runGradle(0, "unqualified", "clean", "flywayMigrate", "-Pflyway.placeholders.name=James");
-        assertTrue(stdOut.contains("Successfully applied 2 migrations"));
-        assertTrue(stdOut.contains("deprecated"));
-    }
-
-    @Test
     public void error() throws Exception {
         String stdOut = runGradle(1, "error", "clean", "flywayMigrate");
         assertTrue(stdOut.contains("Unable to determine URL for classpath location"));

@@ -19,7 +19,6 @@
 <antlib>
     <taskdef name="clean" classname="org.flywaydb.ant.CleanTask"/>
     <taskdef name="baseline" classname="org.flywaydb.ant.BaselineTask"/>
-    <taskdef name="init" classname="org.flywaydb.ant.InitTask"/>
     <taskdef name="migrate" classname="org.flywaydb.ant.MigrateTask"/>
     <taskdef name="validate" classname="org.flywaydb.ant.ValidateTask"/>
     <taskdef name="info" classname="org.flywaydb.ant.InfoTask"/>

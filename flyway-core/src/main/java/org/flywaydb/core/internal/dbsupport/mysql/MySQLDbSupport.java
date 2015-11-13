@@ -15,10 +15,12 @@
  */
 package org.flywaydb.core.internal.dbsupport.mysql;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
@@ -51,13 +53,30 @@ public class MySQLDbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchemaName() throws SQLException {
         return jdbcTemplate.getConnection().getCatalog();
     }
 
+    /**
+     * Sets the current schema to this schema.
+     *
+     * @param schema The new current schema for this connection.
+     */
+    public void changeCurrentSchemaTo(Schema schema) {
+        if (schema.getName().equals(originalSchema) || !schema.exists()) {
+            return;
+        }
+
+        try {
+            doChangeCurrentSchemaTo(schema.getName());
+        } catch (SQLException e) {
+            throw new FlywayException("Error setting current schema to " + schema, e);
+        }
+    }
+
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        if (schema == null || "".equals(schema.getName())) {
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
+        if (!StringUtils.hasLength(schema)) {
             try {
                 // Weird hack to switch back to no database selected...
                 String newDb = quote(UUID.randomUUID().toString());
@@ -68,7 +87,7 @@ public class MySQLDbSupport extends DbSupport {
                 LOG.warn("Unable to restore connection to having no default schema: " + e.getMessage());
             }
         } else {
-            jdbcTemplate.getConnection().setCatalog(schema.getName());
+            jdbcTemplate.getConnection().setCatalog(schema);
         }
     }
 

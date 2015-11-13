@@ -55,7 +55,7 @@ public class CommandLineLargeTest {
     @Test
     public void showUsage() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null);
-        assertTrue(stdOut.contains("* Usage"));
+        assertTrue(stdOut.contains("Usage"));
         assertTrue(stdOut.contains("callback"));
     }
     

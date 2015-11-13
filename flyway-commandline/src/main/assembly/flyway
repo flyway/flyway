@@ -17,8 +17,10 @@
 
 # Detect cygwin
 cygwin=false
+linux=false
 case "`uname`" in
   CYGWIN*) cygwin=true;;
+  Linux*) linux=true;;
 esac
 
 # resolve links - $0 may be a softlink
@@ -48,13 +50,18 @@ else
  fi
 fi
 
+JAVA_ARGS=
 CP="$INSTALLDIR/lib/*:$INSTALLDIR/drivers/*"
+
+if $linux; then
+  JAVA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
+fi
 
 if $cygwin; then
   CP=$(cygpath -pw "$CP")
 fi
 
-"$JAVA_CMD" -cp "$CP" org.flywaydb.commandline.Main "$@"
+"$JAVA_CMD" $JAVA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@"
 
 # Exit using the same code returned from Java
 exit $?

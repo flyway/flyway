@@ -15,7 +15,7 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.commandline.ConsoleLog.Level;
+import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.junit.Before;
 import org.junit.Test;
 
