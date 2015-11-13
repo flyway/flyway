@@ -92,9 +92,8 @@ object FlywayPlugin extends Plugin {
   }
   private case class ConfigBase(schemas: Seq[String], table: String, initVersion: String, initDescription: String, baselineVersion: String, baselineDescription: String)
   private case class ConfigMigrationLoading(locations: Seq[String], resolvers: Seq[String], encoding: String,
-                                            sqlMigrationPrefix: String, sqlMigrationSeparator: String, sqlMigrationSuffix: String,
-                                            javaMigrationPrefix: String, javaMigrationSeparator: String,
-                                           cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean, callbacks: Seq[String])
+                                            cleanOnValidationError: Boolean, target: String, outOfOrder: Boolean, callbacks: Seq[String])
+  private case class ConfigMigrationFileExtensions(sqlMigrationPrefix: String, sqlMigrationSeparator: String, sqlMigrationSuffix: String, javaMigrationPrefix: String, javaMigrationSeparator: String)
   private case class ConfigMigrate(ignoreFailedFutureMigration: Boolean, placeholderReplacement: Boolean, placeholders: Map[String, String],
                                          placeholderPrefix: String, placeholderSuffix: String, initOnMigrate: Boolean, baselineOnMigrate: Boolean, validateOnMigrate: Boolean)
   private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading, migrate: ConfigMigrate)
@@ -102,6 +101,7 @@ object FlywayPlugin extends Plugin {
   private lazy val flywayConfigDataSource = taskKey[ConfigDataSource]("The flyway data source configuration.")
   private lazy val flywayConfigBase = taskKey[ConfigBase]("The flyway base configuration.")
   private lazy val flywayConfigMigrationLoading = taskKey[ConfigMigrationLoading]("The flyway migration loading configuration.")
+  private lazy val flywayConfigMigrationFileExtensions = taskKey[ConfigMigrationFileExtensions]("The flyway migration file extension loading Configuration.")
   private lazy val flywayConfigMigrate = taskKey[ConfigMigrate]("The flyway migrate configuration.")
   private lazy val flywayConfig = taskKey[Config]("The flyway configuration.")
 
@@ -161,9 +161,13 @@ object FlywayPlugin extends Plugin {
         (schemas, table, initVersion, initDescription, baselineVersion, baselineDescription) =>
           ConfigBase(schemas, table, initVersion, initDescription, baselineVersion, baselineDescription)
       },
-      flywayConfigMigrationLoading <<= (flywayLocations, flywayResolvers, flywayEncoding, flywaySqlMigrationPrefix, flywaySqlMigrationSeparator, flywaySqlMigrationSuffix, flywayJavaMigrationPrefix, flywayJavaMigrationSeparator, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder, flywayCallbacks) map {
-        (locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, javaMigrationPrefix, javaMigrationSeparator, cleanOnValidationError, target, outOfOrder, callbacks) =>
-          ConfigMigrationLoading(locations, resolvers, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, cleanOnValidationError, target, outOfOrder, callbacks)
+      flywayConfigMigrationLoading <<= (flywayLocations, flywayResolvers, flywayEncoding, flywayCleanOnValidationError, flywayTarget, flywayOutOfOrder, flywayCallbacks) map {
+        (locations, resolvers, encoding, cleanOnValidationError, target, outOfOrder, callbacks) =>
+          ConfigMigrationLoading(locations, resolvers, encoding, cleanOnValidationError, target, outOfOrder, callbacks)
+      },
+      flywayConfigMigrationFileExtensions <<= (flywaySqlMigrationPrefix, flywaySqlMigrationSeparator, flywaySqlMigrationSuffix, flywayJavaMigrationPrefix, flywayJavaMigrationSeparator) map {
+        (sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, javaMigrationPrefix, javaMigrationSeparator) =>
+          ConfigMigrationFileExtensions(sqlMigrationPrefix,sqlMigrationSeparator,sqlMigrationSuffix,javaMigrationPrefix,javaMigrationSeparator)
       },
       flywayConfigMigrate <<= (flywayIgnoreFailedFutureMigration, flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayInitOnMigrate, flywayBaselineOnMigrate, flywayValidateOnMigrate) map {
         (ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, initOnMigrate, baselineOnMigrate, validateOnMigrate) =>
@@ -256,16 +260,20 @@ object FlywayPlugin extends Plugin {
     def configure(config: ConfigMigrationLoading): Flyway = {
       flyway.setLocations(config.locations: _*)
       flyway.setEncoding(config.encoding)
-      flyway.setSqlMigrationPrefix(config.sqlMigrationPrefix)
-      flyway.setSqlMigrationSeparator(config.sqlMigrationSeparator)
-      flyway.setSqlMigrationSuffix(config.sqlMigrationSuffix)
-      flyway.setJavaMigrationPrefix(config.javaMigrationPrefix)
-      flyway.setJavaMigrationSeparator(config.javaMigrationSeparator)
+
       flyway.setCleanOnValidationError(config.cleanOnValidationError)
       flyway.setTargetAsString(config.target)
       flyway.setOutOfOrder(config.outOfOrder)
       flyway.setCallbacksAsClassNames(config.callbacks: _*)
       flyway.setResolversAsClassNames(config.resolvers: _*)
+      flyway
+    }
+    def configure(config: ConfigMigrationFileExtensions): Flyway = {
+      flyway.setSqlMigrationPrefix(config.sqlMigrationPrefix)
+      flyway.setSqlMigrationSeparator(config.sqlMigrationSeparator)
+      flyway.setSqlMigrationSuffix(config.sqlMigrationSuffix)
+      flyway.setJavaMigrationPrefix(config.javaMigrationPrefix)
+      flyway.setJavaMigrationSeparator(config.javaMigrationSeparator)
       flyway
     }
     def configure(config: ConfigMigrate): Flyway = {
