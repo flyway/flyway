@@ -13,26 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api;
+package org.flywaydb.core.internal.resolver;
 
-import java.util.Date;
+import org.flywaydb.core.api.BaseMigration;
+
+import java.util.Comparator;
 
 /**
- * Info about a migration.
+ * Comparator for BaseMigration.
+ * Renamed from ResolvedMigrationComparator
  */
-public interface MigrationInfo extends BaseMigration, Comparable<MigrationInfo> {
-    /**
-     * @return The state of the migration (PENDING, SUCCESS, ...)
-     */
-    MigrationState getState();
-
-    /**
-     * @return The timestamp when this migration was installed. (Only for applied migrations)
-     */
-    Date getInstalledOn();
-
-    /**
-     * @return The execution time (in millis) of this migration. (Only for applied migrations)
-     */
-    Integer getExecutionTime();
+public class BaseMigrationComparator implements Comparator<BaseMigration> {
+    @Override
+    public int compare(BaseMigration o1, BaseMigration o2) {
+        return o1.getVersion().compareTo(o2.getVersion());
+    }
 }

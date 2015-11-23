@@ -21,10 +21,10 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
-import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.resolver.BaseMigrationResolver;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
-import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
+import org.flywaydb.core.internal.resolver.BaseMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Location;
@@ -41,7 +41,7 @@ import java.util.List;
  * Migration resolver for Spring Jdbc migrations. The classes must have a name like V1 or V1_1_3 or V1__Description
  * or V1_1_3__Description.
  */
-public class SpringJdbcMigrationResolver implements MigrationResolver {
+public class SpringJdbcMigrationResolver extends BaseMigrationResolver {
     /**
      * The base package on the classpath where to migrations are located.
      */
@@ -85,7 +85,9 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
             throw new FlywayException("Unable to resolve Spring Jdbc Java migrations in location: " + location, e);
         }
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        if (migrationComparator == null)
+            migrationComparator = new BaseMigrationComparator();
+        Collections.sort(migrations, migrationComparator);
         return migrations;
     }
 

@@ -15,7 +15,10 @@
  */
 package org.flywaydb.core;
 
+import org.flywaydb.core.api.BaseMigration;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
@@ -25,6 +28,9 @@ import org.junit.Test;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Properties;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 import static org.junit.Assert.*;
 
@@ -192,5 +198,60 @@ public class FlywaySmallTest {
         } catch (FlywayException e) {
             //expected
         }
+    }
+
+    @Test
+    public void setComparator() {
+        final DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                        "jdbc:h2:mem:flyway_db_comparator;DB_CLOSE_DELAY=-1", "sa", null);
+
+        final Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql");
+
+        final ArrayList<String> actualOrder = new ArrayList<String>();
+        final ArrayList<String> expectedOrder = new ArrayList<String>();
+        MigrationInfoService mInfoService = flyway.info();
+        for (MigrationInfo mInfo : mInfoService.all()) {
+            actualOrder.add(mInfo.getScript());
+            expectedOrder.add(mInfo.getScript());
+        }
+
+        assertEquals(expectedOrder, actualOrder);
+
+        actualOrder.clear();
+        assertEquals(0, actualOrder.size());
+
+        final String sqlMigrationSeparator = flyway.getSqlMigrationSeparator();
+
+        // Set up string comparator
+        final Comparator<String> migrationScriptComparator = new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                int i1 = o1.lastIndexOf(sqlMigrationSeparator) + 1;
+                int i2 = o2.lastIndexOf(sqlMigrationSeparator) + 1;
+                return o1.substring(i1).compareTo(o2.substring(i2));
+            }
+        };
+
+        // Compare resolved migrations using migration script comparator
+        final Comparator<BaseMigration> resolvedMigrationComparator = new Comparator<BaseMigration>() {
+            @Override
+            public int compare(BaseMigration o1, BaseMigration o2) {
+                return migrationScriptComparator.compare(o1.getScript(), o2.getScript());
+            }
+        };
+
+        // Re-sort entries
+        Collections.sort(expectedOrder, migrationScriptComparator);
+        flyway.setComparator(resolvedMigrationComparator);
+
+        mInfoService = flyway.info();
+        for (MigrationInfo mInfo : mInfoService.all()) {
+            actualOrder.add(mInfo.getScript());
+        }
+
+        assertEquals(expectedOrder, actualOrder);
     }
 }
