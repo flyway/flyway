@@ -23,6 +23,8 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * OSGi specific scanner that performs the migration search in
@@ -35,10 +37,14 @@ import java.util.TreeSet;
  */
 public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
 
+    //Felix and Equinox "host" resource url pattern starts with bundleId, which is
+    // long according osgi core specification
+    private static final Pattern bundleIdPattern = Pattern.compile("^\\d+");
+
     public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        Bundle bundle = getTargetBundleOrCurrent(FrameworkUtil.getBundle(getClass()), locationUrl);
         @SuppressWarnings({"unchecked"})
         Enumeration<URL> entries = bundle.findEntries(locationUrl.getPath(), "*", true);
 
@@ -52,6 +58,23 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
         }
 
         return resourceNames;
+    }
+
+    private Bundle getTargetBundleOrCurrent(Bundle currentBundle, URL locationUrl) {
+        try {
+            Bundle targetBundle = currentBundle.getBundleContext().getBundle(getBundleId(locationUrl.getHost()));
+            return targetBundle != null ? targetBundle : currentBundle;
+        } catch (Exception e) {
+            return currentBundle;
+        }
+    }
+
+    private long getBundleId(String host) {
+        final Matcher matcher = bundleIdPattern.matcher(host);
+        if (matcher.find()) {
+            return Double.valueOf(matcher.group()).longValue();
+        }
+        throw new IllegalArgumentException("There's no bundleId in passed URL");
     }
 
     private String getPathWithoutLeadingSlash(URL entry) {
