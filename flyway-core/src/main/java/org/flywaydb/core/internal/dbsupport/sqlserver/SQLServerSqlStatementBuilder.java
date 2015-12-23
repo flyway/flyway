@@ -28,15 +28,10 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected String extractAlternateOpenQuote(String token) {
+    protected String cleanToken(String token) {
         if (token.startsWith("N'")) {
-            return "N'";
+            return token.substring(token.indexOf("'"));
         }
-        return null;
-    }
-
-    @Override
-    protected String computeAlternateCloseQuote(String openQuote) {
-        return "'";
+        return super.cleanToken(token);
     }
 }

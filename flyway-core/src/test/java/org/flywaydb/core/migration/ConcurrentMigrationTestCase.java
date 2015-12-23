@@ -16,6 +16,9 @@
 package org.flywaydb.core.migration;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
@@ -67,6 +70,7 @@ public abstract class ConcurrentMigrationTestCase {
      * The instance under test.
      */
     private Flyway flyway;
+    private String schemaName;
 
     @Before
     public void setUp() throws Exception {
@@ -78,12 +82,22 @@ public abstract class ConcurrentMigrationTestCase {
         concurrentMigrationDataSource = createDataSource(customProperties);
 
         Connection connection = concurrentMigrationDataSource.getConnection();
-        schemaQuoted = DbSupportFactory.createDbSupport(connection, false).quote("concurrent_test");
+        final DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
+        schemaName = getSchemaName(dbSupport);
+        schemaQuoted = dbSupport.quote(schemaName);
         connection.close();
 
         flyway = createFlyway();
         flyway.clean();
         flyway.baseline();
+    }
+
+    protected String getBasedir() {
+        return "migration/concurrent";
+    }
+
+    protected String getSchemaName(DbSupport dbSupport) {
+        return "concurrent_test";
     }
 
     /**
@@ -119,7 +133,12 @@ public abstract class ConcurrentMigrationTestCase {
         }
 
         assertFalse(failed);
-        assertEquals(6, flyway.info().applied().length);
+        final MigrationInfo[] applied = flyway.info().applied();
+        if (applied[0].getType() == MigrationType.SCHEMA) {
+            assertEquals(6, applied.length);
+        } else {
+            assertEquals(5, applied.length);
+        }
         assertEquals("2.0", flyway.info().current().getVersion().toString());
         assertEquals(0, flyway.migrate());
 
@@ -136,8 +155,8 @@ public abstract class ConcurrentMigrationTestCase {
     private Flyway createFlyway() throws SQLException {
         Flyway newFlyway = new Flyway();
         newFlyway.setDataSource(concurrentMigrationDataSource);
-        newFlyway.setLocations("migration/concurrent");
-        newFlyway.setSchemas("concurrent_test");
+        newFlyway.setLocations(getBasedir());
+        newFlyway.setSchemas(schemaName);
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", schemaQuoted);

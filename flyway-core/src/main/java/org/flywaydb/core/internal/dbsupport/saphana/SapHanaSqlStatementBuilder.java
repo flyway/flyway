@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.db2;
+package org.flywaydb.core.internal.dbsupport.saphana;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 /**
- * SqlStatementBuilder supporting DB2-specific delimiter changes.
+ * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.
  */
-public class DB2SqlStatementBuilder extends SqlStatementBuilder {
+public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Are we currently inside a BEGIN END; block?
      */
@@ -35,7 +35,8 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected String cleanToken(String token) {
-        if (token.startsWith("X'")) {
+        if (token.startsWith("N'") || token.startsWith("X'")
+                || token.startsWith("DATE'") || token.startsWith("TIME'") || token.startsWith("TIMESTAMP'")) {
             return token.substring(token.indexOf("'"));
         }
         return super.cleanToken(token);
@@ -48,12 +49,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             statementStart += " ";
         }
 
-        if (statementStart.startsWith("CREATE FUNCTION")
-                || statementStart.startsWith("CREATE PROCEDURE")
-                || statementStart.startsWith("CREATE TRIGGER")
-                || statementStart.startsWith("CREATE OR REPLACE FUNCTION")
-                || statementStart.startsWith("CREATE OR REPLACE PROCEDURE")
-                || statementStart.startsWith("CREATE OR REPLACE TRIGGER")) {
+        if (statementStart.startsWith("CREATE TRIGGER")) {
             if (line.startsWith("BEGIN")) {
                 insideBeginEndBlock = true;
             }

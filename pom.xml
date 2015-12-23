@@ -273,6 +273,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>com.sap.db.jdbc</groupId>
+                <artifactId>ngdbc</artifactId>
+                <version>1.103.0</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>com.google.appengine</groupId>
                 <artifactId>appengine-api-1.0-sdk</artifactId>
                 <version>${version.appengine}</version>
@@ -567,7 +573,7 @@
                     <parallel>methods</parallel>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <threadCount>2</threadCount>
-                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <!--perCoreThreadCount>true</perCoreThreadCount-->
                 </configuration>
             </plugin>
             <plugin>

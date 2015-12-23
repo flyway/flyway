@@ -19,12 +19,15 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.*;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 
@@ -44,6 +47,7 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"JavaDoc"})
 public abstract class MigrationTestCase {
+    private static final Logger LOG = LoggerFactory.getLogger(MigrationTestCase.class);
 
     /**
      * The base directory for the regular test migrations.
@@ -105,6 +109,7 @@ public abstract class MigrationTestCase {
             //Expected
         }
 
+        LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
         if (dbSupport.supportsDdlTransactions()) {
             assertEquals("2.0", flyway.info().current().getVersion().toString());
             assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());

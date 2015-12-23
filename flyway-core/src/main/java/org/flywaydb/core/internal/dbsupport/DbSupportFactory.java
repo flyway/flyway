@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
+import org.flywaydb.core.internal.dbsupport.saphana.SapHanaDbSupport;
 import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
@@ -117,12 +118,13 @@ public class DbSupportFactory {
             // Therefore no vendor string in search criteria
             return new SolidDbSupport(connection);
         }
-
-		//Sybase ASE support
         if (databaseProductName.startsWith("ASE")) {
         	return new SybaseASEDbSupport(connection);
         }
-        
+        if (databaseProductName.startsWith("HDB")) {
+        	return new SapHanaDbSupport(connection);
+        }
+
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 

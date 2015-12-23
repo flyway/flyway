@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.oracle;
+package org.flywaydb.core.internal.dbsupport.saphana;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -25,34 +25,38 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * Oracle-specific support.
+ * SAP HANA Support.
  */
-public class OracleDbSupport extends DbSupport {
+public class SapHanaDbSupport extends DbSupport {
     /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
      */
-    public OracleDbSupport(Connection connection) {
+    public SapHanaDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
-    public String getDbName() {
-        return "oracle";
+    public SqlStatementBuilder createSqlStatementBuilder() {
+        return new SapHanaSqlStatementBuilder();
     }
 
-    public String getCurrentUserFunction() {
-        return "USER";
+    public String getDbName() {
+        return "saphana";
     }
 
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT USER FROM dual");
+        return jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA FROM DUMMY");
     }
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + schema);
+        jdbcTemplate.execute("SET SCHEMA " + schema);
+    }
+
+    public String getCurrentUserFunction() {
+        return "CURRENT_USER";
     }
 
     public boolean supportsDdlTransactions() {
@@ -67,10 +71,6 @@ public class OracleDbSupport extends DbSupport {
         return "0";
     }
 
-    public SqlStatementBuilder createSqlStatementBuilder() {
-        return new OracleSqlStatementBuilder();
-    }
-
     @Override
     public String doQuote(String identifier) {
         return "\"" + identifier + "\"";
@@ -78,7 +78,7 @@ public class OracleDbSupport extends DbSupport {
 
     @Override
     public Schema getSchema(String name) {
-        return new OracleSchema(jdbcTemplate, this, name);
+        return new SapHanaSchema(jdbcTemplate, this, name);
     }
 
     @Override

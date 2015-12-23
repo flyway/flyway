@@ -248,6 +248,10 @@ public class DriverDataSource implements DataSource {
             return "com.vertica.jdbc.Driver";
         }
 
+        if (url.startsWith("jdbc:sap:")) {
+            return "com.sap.db.jdbc.Driver";
+        }
+
         return null;
     }
 

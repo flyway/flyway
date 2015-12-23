@@ -147,7 +147,7 @@ public abstract class DbSupport {
     public abstract String getCurrentUserFunction();
 
     /**
-     * Checks whether ddl transactions are supported for this database.
+     * Checks whether ddl transactions are supported by this database.
      *
      * @return {@code true} if ddl transactions are supported, {@code false} if not.
      */
