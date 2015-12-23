@@ -22,7 +22,7 @@ import org.junit.Test;
 public class RedshiftDbSupportSmallTest {
     @Test
     public void doQuote() {
-        RedshiftDbSupport dbSupport = new RedshiftDbSupport(null);
+        RedshiftDbSupport dbSupport = new RedshfitDbSupportViaPostgreSQLDriver(null);
         assertEquals("\"abc\"", dbSupport.doQuote("abc"));
         assertEquals("\"a\"\"b\"\"c\"", dbSupport.doQuote("a\"b\"c"));
     }

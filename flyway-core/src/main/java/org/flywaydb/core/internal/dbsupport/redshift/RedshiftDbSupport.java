@@ -15,11 +15,14 @@
  */
 package org.flywaydb.core.internal.dbsupport.redshift;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
+import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLSqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
@@ -27,7 +30,7 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 /**
  * Redshift-specific support.
  */
-public class RedshiftDbSupport extends PostgreSQLDbSupport {
+public abstract class RedshiftDbSupport extends DbSupport {
     private static final Log LOG = LogFactory.getLog(RedshiftDbSupport.class);
 
     /**
@@ -35,17 +38,38 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
      *
      * @param connection The connection to use.
      */
-    public RedshiftDbSupport(Connection connection) {
-        super(connection);
+    public RedshiftDbSupport(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
     }
 
     public String getDbName() {
         return "redshift";
     }
 
+    public String getCurrentUserFunction() {
+        return "current_user";
+    }
+
+    @Override
+    public Schema getOriginalSchema() {
+        if (originalSchema == null) {
+            return null;
+        }
+
+        // Defaults to: "$user", public
+        String result = originalSchema.replace(doQuote("$user"), "").trim();
+        if (result.startsWith(",")) {
+            result = result.substring(2);
+        }
+        if (result.contains(",")) {
+            return getSchema(result.substring(0, result.indexOf(",")));
+        }
+        return getSchema(result);
+    }
+
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        String searchPath = super.doGetCurrentSchemaName();
+        String searchPath = jdbcTemplate.queryForString("SHOW search_path");
         if (StringUtils.hasText(searchPath) && !searchPath.equals("unset")) {
             // Redshift throws an error on the $ character of $user when setting search_path. It needs to be quoted.
             if (searchPath.contains("$user") && !searchPath.contains(doQuote("$user"))) {
@@ -56,8 +80,61 @@ public class RedshiftDbSupport extends PostgreSQLDbSupport {
     }
 
     @Override
+    public void changeCurrentSchemaTo(Schema schema) {
+        if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
+            return;
+        }
+
+        try {
+            if (StringUtils.hasText(originalSchema) && !originalSchema.equals("unset")) {
+                doChangeCurrentSchemaTo(schema.toString() + "," + originalSchema);
+            } else {
+                doChangeCurrentSchemaTo(schema.toString());
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Error setting current schema to " + schema, e);
+        }
+    }
+
+    @Override
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
+        if (!StringUtils.hasLength(schema) || schema.equals("unset")) {
+            // After running the following, the "SHOW search_path" command will return "unset"
+            jdbcTemplate.execute("SELECT set_config('search_path', '', false)");
+            return;
+        }
+        jdbcTemplate.execute("SET search_path = " + schema);
+    }
+
+    public boolean supportsDdlTransactions() {
+        return true;
+    }
+
+    public String getBooleanTrue() {
+        return "TRUE";
+    }
+
+    public String getBooleanFalse() {
+        return "FALSE";
+    }
+
+    public SqlStatementBuilder createSqlStatementBuilder() {
+        return new PostgreSQLSqlStatementBuilder();
+    }
+
+    @Override
+    public String doQuote(String identifier) {
+        return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
+    }
+
+    @Override
     public Schema getSchema(String name) {
         return new RedshiftSchema(jdbcTemplate, this, name);
+    }
+
+    @Override
+    public boolean catalogIsSchema() {
+        return false;
     }
 
     /**

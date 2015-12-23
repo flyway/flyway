@@ -174,7 +174,7 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
     public void dollarQuote() throws Exception {
         flyway.setLocations("migration/dbsupport/redshift/sql/dollar");
         flyway.migrate();
-        assertEquals(9, jdbcTemplate.queryForInt("select count(*) from dollar"));
+        assertEquals(5, jdbcTemplate.queryForInt("select count(*) from dollar"));
     }
 
     /**

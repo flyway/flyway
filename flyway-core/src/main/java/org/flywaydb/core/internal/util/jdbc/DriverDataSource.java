@@ -173,6 +173,10 @@ public class DriverDataSource implements DataSource {
             return MARIADB_JDBC_DRIVER;
         }
 
+        if (url.startsWith("jdbc:redshift:")) {
+            return "com.amazon.redshift.jdbc4.Driver";
+        }
+
         return null;
     }
 
@@ -232,8 +236,13 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:postgresql:")) {
-            // The format of Redshift JDBC urls is the same as PostgreSQL, and Redshift uses the same JDBC driver
+            // The old format of Redshift JDBC urls is the same as PostgreSQL, and Redshift can still use the same JDBC driver:
             return "org.postgresql.Driver";
+        }
+
+        if (url.startsWith("jdbc:redshift:")) {
+            // The new format of Redshift JDBC urls, using the new Redshift-specific JDBC driver:
+            return "com.amazon.redshift.jdbc41.Driver";
         }
 
         if (url.startsWith("jdbc:jtds:")) {
