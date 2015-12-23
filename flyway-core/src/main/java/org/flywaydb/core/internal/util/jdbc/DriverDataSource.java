@@ -235,6 +235,10 @@ public class DriverDataSource implements DataSource {
             return "oracle.jdbc.OracleDriver";
         }
 
+        if (url.startsWith("jdbc:phoenix")) {
+            return "org.apache.phoenix.jdbc.PhoenixDriver";
+        }
+
         if (url.startsWith("jdbc:postgresql:")) {
             // The old format of Redshift JDBC urls is the same as PostgreSQL, and Redshift can still use the same JDBC driver:
             return "org.postgresql.Driver";

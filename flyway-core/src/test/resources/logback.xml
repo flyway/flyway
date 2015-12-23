@@ -28,4 +28,15 @@
     </root>
 
     <logger name="org.springframework" level="INFO"/>
+
+    <!-- Phoenix and the HBase minicluster are extremely verbose by default -->
+    <logger name="org.mortbay" level="WARN"/>
+    <logger name="org.apache.commons" level="WARN"/>
+    <logger name="org.apache.hadoop" level="ERROR"/>
+    <logger name="org.apache.jasper" level="WARN"/>
+    <logger name="org.apache.phoenix" level="WARN"/>
+    <logger name="org.apache.phoenix.metrics" level="ERROR"/>
+    <logger name="org.apache.phoenix.memory" level="ERROR"/>
+    <logger name="org.apache.zookeeper" level="ERROR"/>
+    <logger name="BlockStateChange" level="WARN"/>
 </configuration>

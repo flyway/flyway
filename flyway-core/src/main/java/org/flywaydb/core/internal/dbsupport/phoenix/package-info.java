@@ -13,22 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.redshift;
-
-import java.sql.Connection;
-import java.sql.Types;
-
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-
-public class RedshfitDbSupportViaRedshiftDriver extends RedshiftDbSupport {
-
-    /**
-     * Creates a new instance.
-     *
-     * @param connection The connection to use.
-     */
-    public RedshfitDbSupportViaRedshiftDriver(Connection connection) {
-        super(new JdbcTemplate(connection, Types.VARCHAR));
-    }
-
-}
+/**
+ * Private API. No compatibility guarantees provided.
+ */
+package org.flywaydb.core.internal.dbsupport.phoenix;
