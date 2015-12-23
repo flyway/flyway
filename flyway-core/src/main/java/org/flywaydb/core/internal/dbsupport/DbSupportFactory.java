@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
+import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaPostgreSQLDriver;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaRedshiftDriver;
@@ -125,6 +126,11 @@ public class DbSupportFactory {
             // Therefore no vendor string in search criteria
             return new SolidDbSupport(connection);
         }
+        if (databaseProductName.startsWith("Phoenix")) {
+            return new PhoenixDbSupport(connection);
+        }
+
+		//Sybase ASE support
         if (databaseProductName.startsWith("ASE")) {
         	return new SybaseASEDbSupport(connection);
         }
