@@ -39,7 +39,7 @@ import java.util.Set;
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
  * resolvers.
  */
-public class CompositeMigrationResolver implements MigrationResolver {
+public class CompositeMigrationResolver extends BaseMigrationResolver {
     /**
      * The migration resolvers to use internally.
      */
@@ -47,7 +47,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
 
     /**
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
-     * found.
+     * found. If comparator is set, migrations are sorted by given comparator instead of by version.
      */
     private List<ResolvedMigration> availableMigrations;
 
@@ -86,7 +86,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
      * @return The available migrations, sorted by version, oldest first. An empty list is returned when no migrations
-     * can be found.
+     * can be found. If comparator is set, migrations are sorted by given comparator instead of by version.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     public List<ResolvedMigration> resolveMigrations() {
@@ -101,12 +101,15 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *
      * @return The available migrations, sorted by version, oldest first. An empty list is returned when no migrations
-     * can be found.
+     * can be found. If comparator is set, migrations are sorted by given comparator instead of by version.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>(collectMigrations(migrationResolvers));
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+
+        if (migrationComparator == null)
+            migrationComparator = new BaseMigrationComparator();
+        Collections.sort(migrations, migrationComparator);
 
         checkForIncompatibilities(migrations);
 

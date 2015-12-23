@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2015 Darnell Henry
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,22 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.api.BaseMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import java.util.Comparator;
 
 /**
-* Comparator for ResolvedMigration.
-*/
-public class ResolvedMigrationComparator implements Comparator<ResolvedMigration> {
-    @Override
-    public int compare(ResolvedMigration o1, ResolvedMigration o2) {
-        return o1.getVersion().compareTo(o2.getVersion());
+ * Abstract base class for migration resolvers.
+ */
+public abstract class BaseMigrationResolver implements MigrationResolver {
+
+    /**
+     * The Migration comparator to use.
+     */
+    protected Comparator<BaseMigration> migrationComparator = null;
+
+    public void setMigrationComparator(Comparator<BaseMigration> comparator) {
+        migrationComparator = comparator;
     }
 }

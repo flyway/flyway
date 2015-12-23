@@ -20,10 +20,12 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.BaseMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.resolver.BaseMigrationComparator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Comparator;
 
 /**
  * Default implementation of MigrationInfoService.
@@ -70,6 +73,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * The migrations infos calculated at the last refresh.
      */
     private List<MigrationInfoImpl> migrationInfos;
+
+    /**
+     * The comparator to use for migrations
+     */
+    private Comparator<BaseMigration> baseMigrationComparator;
 
     /**
      * Creates a new MigrationInfoServiceImpl.
@@ -152,9 +160,15 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedMigration, context));
         }
 
-        Collections.sort(migrationInfos);
+        if (baseMigrationComparator == null)
+            baseMigrationComparator = new BaseMigrationComparator();
+        Collections.sort(migrationInfos, baseMigrationComparator);
 
         return migrationInfos;
+    }
+
+    public void setComparator(Comparator<BaseMigration> comparable) {
+        baseMigrationComparator = comparable;
     }
 
     public MigrationInfo[] all() {

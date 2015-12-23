@@ -16,11 +16,13 @@
 package org.flywaydb.core;
 
 
+import org.flywaydb.core.api.BaseMigration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.command.DbBaseline;
 import org.flywaydb.core.internal.command.DbClean;
@@ -55,6 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Comparator;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -248,6 +251,11 @@ public class Flyway {
      * Whether the database connection info has already been printed in the logs.
      */
     private boolean dbConnectionInfoPrinted;
+
+    /**
+     * The comparator to use for migrations
+     */
+    private Comparator<BaseMigration> baseMigrationComparator;
 
     /**
      * Creates a new instance of Flyway. This is your starting point.
@@ -845,6 +853,15 @@ public class Flyway {
     }
 
     /**
+     * Sets the comparator for resolved migrations, ignoring the default order by version number
+     *
+     * @param comparator A comparator used for ordering migrations.
+     */
+    public void setComparator(Comparator<BaseMigration> comparator) {
+        baseMigrationComparator = comparator;
+    }
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="http://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -969,6 +986,7 @@ public class Flyway {
      * <img src="http://flywaydb.org/assets/balsamiq/command-info.png" alt="info">
      *
      * @return All migrations sorted by version, oldest first.
+     * If comparator is set, migrations are sorted by given comparator instead of by version.
      * @throws FlywayException when the info retrieval failed.
      */
     public MigrationInfoService info() {
@@ -993,6 +1011,7 @@ public class Flyway {
 
                     MigrationInfoServiceImpl migrationInfoService =
                             new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true);
+                    migrationInfoService.setComparator(baseMigrationComparator);
                     migrationInfoService.refresh();
 
                     for (final FlywayCallback callback : getCallbacks()) {
@@ -1060,9 +1079,14 @@ public class Flyway {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
-        return new CompositeMigrationResolver(dbSupport, classLoader, locations,
+        final CompositeMigrationResolver cmr = new CompositeMigrationResolver(dbSupport, classLoader, locations,
                 encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, createPlaceholderReplacer(),
                 resolvers);
+
+        if (baseMigrationComparator != null)
+            cmr.setMigrationComparator(baseMigrationComparator);
+
+        return cmr;
     }
 
     /**

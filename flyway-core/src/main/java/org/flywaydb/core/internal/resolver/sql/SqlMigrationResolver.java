@@ -17,11 +17,11 @@ package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.resolver.BaseMigrationResolver;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
-import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
+import org.flywaydb.core.internal.resolver.BaseMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Pair;
@@ -38,7 +38,7 @@ import java.util.zip.CRC32;
  * Migration resolver for sql files on the classpath. The sql files must have names like
  * V1__Description.sql or V1_1__Description.sql.
  */
-public class SqlMigrationResolver implements MigrationResolver {
+public class SqlMigrationResolver extends BaseMigrationResolver {
     /**
      * Database-specific support.
      */
@@ -116,7 +116,9 @@ public class SqlMigrationResolver implements MigrationResolver {
             migrations.add(resolvedMigration);
         }
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        if (migrationComparator == null)
+            migrationComparator = new BaseMigrationComparator();
+        Collections.sort(migrations, migrationComparator);
         return migrations;
     }
 
