@@ -114,7 +114,7 @@
         <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.6.6</version.slf4j>
-        <version.jre>8.31</version.jre>
+        <version.jre>8.66</version.jre>
     </properties>
 
     <dependencyManagement>
