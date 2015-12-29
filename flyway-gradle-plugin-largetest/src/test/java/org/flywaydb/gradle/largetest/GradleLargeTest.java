@@ -48,7 +48,7 @@ public class GradleLargeTest {
 
     @Test
     public void error() throws Exception {
-        String stdOut = runGradle(1, "error", "clean", "flywayMigrate");
+        String stdOut = runGradle(0, "error", "clean", "flywayMigrate");
         assertTrue(stdOut.contains("Unable to determine URL for classpath location"));
     }
 

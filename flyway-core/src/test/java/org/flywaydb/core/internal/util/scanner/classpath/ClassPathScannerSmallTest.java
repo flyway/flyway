@@ -104,7 +104,7 @@ public class ClassPathScannerSmallTest {
         assertEquals("migration/subdir/dir2/V2_0__Add_foreign_key.sql", resources[2].getLocation());
     }
 
-    @Test(expected = FlywayException.class)
+    @Test
     public void scanForResourcesInvalidPath() throws Exception {
         classPathScanner.scanForResources("invalid", "V", ".sql");
     }

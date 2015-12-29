@@ -63,7 +63,7 @@ public class SqlMigrationResolverSmallTest {
         assertEquals(2, sqlMigrationResolver.resolveMigrations().size());
     }
 
-    @Test(expected = FlywayException.class)
+    @Test
     public void resolveMigrationsNonExisting() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, Thread.currentThread().getContextClassLoader(),

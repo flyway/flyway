@@ -179,7 +179,7 @@ public class ClassPathScanner {
             // WebSphere
             Enumeration<URL> urls = classLoader.getResources(path + "/flyway.location");
             if (!urls.hasMoreElements()) {
-                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + classLoader + ")"
+                LOG.warn("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + classLoader + ")"
                         + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
             }
             while (urls.hasMoreElements()) {
@@ -189,7 +189,7 @@ public class ClassPathScanner {
         } else {
             Enumeration<URL> urls = classLoader.getResources(path);
             if (!urls.hasMoreElements()) {
-                throw new FlywayException("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + classLoader + ")");
+                LOG.warn("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + classLoader + ")");
             }
 
             while (urls.hasMoreElements()) {
