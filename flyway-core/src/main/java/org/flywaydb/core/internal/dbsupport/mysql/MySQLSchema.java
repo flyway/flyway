@@ -51,8 +51,9 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
                         + "(Select count(*) from information_schema.VIEWS Where TABLE_SCHEMA=?) + "
                         + "(Select count(*) from information_schema.TABLE_CONSTRAINTS Where TABLE_SCHEMA=?) + "
                         + "(Select count(*) from information_schema.EVENTS Where EVENT_SCHEMA=?) + "
+                        + "(Select count(*) from information_schema.TRIGGERS Where TRIGGER_SCHEMA=?) + "
                         + "(Select count(*) from information_schema.ROUTINES Where ROUTINE_SCHEMA=?)",
-                name, name, name, name, name
+                name, name, name, name, name, name
         );
         return objectCount == 0;
     }
