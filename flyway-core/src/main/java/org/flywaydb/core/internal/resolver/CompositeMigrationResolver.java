@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
+import org.flywaydb.core.internal.resolver.sql.NTSqlMigrationResolver;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
@@ -72,6 +73,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
         for (Location location : locations.getLocations()) {
             migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer,
                     encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
+
+            migrationResolvers.add(new NTSqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer,
+                    encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
+
             migrationResolvers.add(new JdbcMigrationResolver(classLoader, location));
 
             if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {
