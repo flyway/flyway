@@ -26,6 +26,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -226,6 +227,21 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
 
         assertEquals(150, jdbcTemplate.queryForInt("SELECT value FROM \"\"\"v\"\"\""));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for PostgreSQL Materialized Views.
+     */
+    @Ignore("PostgreSQL 9.3 and newer only")
+    @Test
+    public void materializedview() throws Exception {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/materializedview");
+        flyway.migrate();
 
         flyway.clean();
 

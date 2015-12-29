@@ -65,6 +65,16 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
 
     @Override
     protected void doClean() throws SQLException {
+        int databaseMajorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+        int databaseMinorVersion = jdbcTemplate.getMetaData().getDatabaseMinorVersion();
+
+        if ((databaseMajorVersion > 9) || ((databaseMajorVersion == 9) && (databaseMinorVersion >= 3))) {
+            // PostgreSQL 9.3 and newer only
+            for (String statement : generateDropStatementsForMaterializedViews()) {
+                jdbcTemplate.execute(statement);
+            }
+        }
+
         for (String statement : generateDropStatementsForViews()) {
             jdbcTemplate.execute(statement);
         }
@@ -229,6 +239,26 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
         List<String> statements = new ArrayList<String>();
         for (String domainName : domainNames) {
             statements.add("DROP DOMAIN " + dbSupport.quote(name, domainName));
+        }
+
+        return statements;
+    }
+
+    /**
+     * Generates the statements for dropping the materialized views in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> generateDropStatementsForMaterializedViews() throws SQLException {
+        List<String> viewNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT relname FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace"
+                                + " WHERE c.relkind = 'm' AND n.nspname = ?", name);
+
+        List<String> statements = new ArrayList<String>();
+        for (String domainName : viewNames) {
+            statements.add("DROP MATERIALIZED VIEW IF EXISTS " + dbSupport.quote(name, domainName) + " CASCADE");
         }
 
         return statements;
