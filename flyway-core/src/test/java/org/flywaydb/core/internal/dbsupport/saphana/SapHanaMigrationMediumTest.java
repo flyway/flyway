@@ -36,9 +36,9 @@ import static org.junit.Assert.assertEquals;
 public class SapHanaMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("saphana.user", "DEV_EYAG1KQXD862XSACB0SG0N1H1");
-        String password = customProperties.getProperty("saphana.password", "f2PeCDTwX7Ze5UTZmS11");
-        String url = customProperties.getProperty("saphana.url", "jdbc:sap://localhost:30115");
+        String user = customProperties.getProperty("saphana.user", "DEV_XXXXXXXXXXXXXXXXXXXXXXXXX");
+        String password = customProperties.getProperty("saphana.password", "XXXXXXXXXXXXXXXXXXXX");
+        String url = customProperties.getProperty("saphana.url", "jdbc:sap://localhost:30XXX");
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
     }
