@@ -1,0 +1,2 @@
+﻿Test checksum calculation here
+Ignoring bom and cr symbols
