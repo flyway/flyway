@@ -602,6 +602,7 @@
                         <exclude>**/*.sh</exclude>
                         <exclude>**/*.txt</exclude>
                         <exclude>**/*.cnf</exclude>
+                        <exclude>**/*.conf</exclude>
                         <exclude>**/*.releaseBackup</exclude>
                         <exclude>**/*.nofilter</exclude>
                         <exclude>**/*.ini</exclude>

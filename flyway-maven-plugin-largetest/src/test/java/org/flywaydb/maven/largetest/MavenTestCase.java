@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2015 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ public abstract class MavenTestCase {
         List<String> args = new ArrayList<String>();
         args.add(mavenHome + "/bin/mvn" + extension);
         args.add("-Dflyway.version=" + flywayVersion);
-        //args.add("-X");
+        args.add("-X");
         args.addAll(Arrays.asList(extraArgs));
 
         ProcessBuilder builder = new ProcessBuilder(args);

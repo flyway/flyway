@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2015 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -1181,12 +1182,17 @@ public class Flyway {
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>(placeholders);
-        for (String propertyName : props.keySet()) {
+        Iterator<Map.Entry<String, String>> iterator = props.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            String propertyName = entry.getKey();
+
             if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
                     && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
                 String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
-                String placeholderValue = getValueAndRemoveEntry(props, propertyName);
+                String placeholderValue = entry.getValue();
                 placeholdersFromProps.put(placeholderName, placeholderValue);
+                iterator.remove();
             }
         }
         setPlaceholders(placeholdersFromProps);
