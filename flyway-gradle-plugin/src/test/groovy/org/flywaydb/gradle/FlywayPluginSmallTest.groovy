@@ -153,6 +153,7 @@ class FlywayPluginSmallTest {
             validateOnMigrate = true
             cleanOnValidationError = true
             baselineOnMigrate = true
+            placeholderReplacement = true
         }
 
         Flyway flyway = getFlyway()
@@ -160,6 +161,7 @@ class FlywayPluginSmallTest {
         assert flyway.validateOnMigrate
         assert flyway.cleanOnValidationError
         assert flyway.baselineOnMigrate
+        assert flyway.placeholderReplacement
 
         project.flyway {
             url = defaultUrl
@@ -167,6 +169,7 @@ class FlywayPluginSmallTest {
             validateOnMigrate = false
             cleanOnValidationError = false
             baselineOnMigrate = false
+            placeholderReplacement = false
         }
 
         flyway = getFlyway()
@@ -174,6 +177,7 @@ class FlywayPluginSmallTest {
         assert !flyway.validateOnMigrate
         assert !flyway.cleanOnValidationError
         assert !flyway.baselineOnMigrate
+        assert !flyway.placeholderReplacement
     }
 
     @Test

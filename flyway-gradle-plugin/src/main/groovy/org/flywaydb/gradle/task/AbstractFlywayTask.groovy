@@ -26,9 +26,6 @@ import org.gradle.api.tasks.TaskAction
 
 /**
  * A base class for all flyway tasks.
- *
- * @author Ben Manes (ben.manes@gmail.com)
- * @author Allan Morstein (alkamo@gmail.com)
  */
 abstract class AbstractFlywayTask extends DefaultTask {
     /**
@@ -98,7 +95,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
         propSet(flyway, 'encoding')
-        propSet(flyway, 'placeholderReplacement')
+        propSetAsBoolean(flyway, 'placeholderReplacement')
         propSet(flyway, 'placeholderPrefix')
         propSet(flyway, 'placeholderSuffix')
 
