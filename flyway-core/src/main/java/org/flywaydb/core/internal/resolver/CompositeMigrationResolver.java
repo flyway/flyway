@@ -69,17 +69,22 @@ public class CompositeMigrationResolver implements MigrationResolver {
                                       String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
+        List<MigrationResolver> customMigrationResolversList = Arrays.asList(customMigrationResolvers);
         for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer,
-                    encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
-            migrationResolvers.add(new JdbcMigrationResolver(classLoader, location));
+            if (!customReplacementFor(customMigrationResolversList, SqlMigrationResolver.class)) {
+                migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer,
+                        encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
+            }
+            if (!customReplacementFor(customMigrationResolversList, JdbcMigrationResolver.class)) {
+                migrationResolvers.add(new JdbcMigrationResolver(classLoader, location));
+            }
 
-            if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {
+            if (new FeatureDetector(classLoader).isSpringJdbcAvailable() && !customReplacementFor(customMigrationResolversList, SpringJdbcMigrationResolver.class) ) {
                 migrationResolvers.add(new SpringJdbcMigrationResolver(classLoader, location));
             }
         }
 
-        migrationResolvers.addAll(Arrays.asList(customMigrationResolvers));
+        migrationResolvers.addAll(customMigrationResolversList);
     }
 
     /**
@@ -126,6 +131,23 @@ public class CompositeMigrationResolver implements MigrationResolver {
             migrations.addAll(migrationResolver.resolveMigrations());
         }
         return migrations;
+    }
+
+    /**
+     * check whether custom Migration resolvers contains subclass of the migration resolver
+     *
+     *
+     * @param customMigrationResolversList
+     * @param migrationResolverClass - class to check subclasses in custom migration resolvers
+     * @return true if there is subclass of resolver in the resolvers list, false otherwise
+     */
+    private boolean customReplacementFor(List<MigrationResolver> customMigrationResolversList, Class<? extends MigrationResolver> migrationResolverClass) {
+        for (MigrationResolver migrationResolver : customMigrationResolversList) {
+            if (migrationResolverClass.isAssignableFrom(migrationResolver.getClass())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -20,6 +20,9 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
+import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
+import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.junit.Test;
@@ -29,8 +32,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 /**
  * Test for CompositeMigrationResolver.
@@ -108,6 +111,30 @@ public class CompositeMigrationResolverSmallTest {
         CompositeMigrationResolver.checkForIncompatibilities(migrations);
     }
 
+    @Test
+    public void testDefaultMigrationResolversReplacement() {
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
+        MigrationResolver defaultMigrationResolver = new CompositeMigrationResolver(null,
+                Thread.currentThread().getContextClassLoader(),
+                new Locations(),
+                "UTF-8", "V", "__", ".sql", placeholderReplacer);
+
+        Collection<ResolvedMigration> defaultResolvedMigrations = defaultMigrationResolver.resolveMigrations();
+        assertThat(defaultResolvedMigrations.isEmpty(), is(true));
+
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
+                Thread.currentThread().getContextClassLoader(),
+                new Locations(),
+                "UTF-8", "V", "__", ".sql", placeholderReplacer,
+                new CustomSqlMigrationResolver(),
+                new CustomJdbcMigrationResolver(),
+                new CustomSpringMigrationResolver());
+
+        Collection<ResolvedMigration> resolvedMigrations = migrationResolver.resolveMigrations();
+
+        assertThat("There must be 3 artificial resolved migrations", resolvedMigrations.size(), is(3));
+    }
+
     /**
      * Creates a migration for our tests.
      *
@@ -128,4 +155,54 @@ public class CompositeMigrationResolverSmallTest {
         return migration;
     }
 
+    private class CustomSqlMigrationResolver extends SqlMigrationResolver {
+        public CustomSqlMigrationResolver() {
+            super(null, null, null, null, null, null, null, null);
+        }
+
+        @Override
+        public List<ResolvedMigration> resolveMigrations() {
+            List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+            ResolvedMigrationImpl resolvedMigration = getResolvedMigration(MigrationVersion.fromVersion("1"));
+            migrations.add(resolvedMigration);
+            return migrations;
+        }
+    }
+
+    private ResolvedMigrationImpl getResolvedMigration(MigrationVersion version) {
+        ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
+        resolvedMigration.setVersion(version);
+        resolvedMigration.setType(MigrationType.CUSTOM);
+        return resolvedMigration;
+    }
+
+    private class CustomJdbcMigrationResolver extends JdbcMigrationResolver {
+
+        public CustomJdbcMigrationResolver() {
+            super(null, null);
+        }
+
+        @Override
+        public List<ResolvedMigration> resolveMigrations() {
+            List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+            ResolvedMigrationImpl resolvedMigration = getResolvedMigration(MigrationVersion.fromVersion("2"));
+            migrations.add(resolvedMigration);
+            return migrations;
+        }
+    }
+
+    private class CustomSpringMigrationResolver extends SpringJdbcMigrationResolver {
+
+        public CustomSpringMigrationResolver() {
+            super(null, null);
+        }
+
+        @Override
+        public List<ResolvedMigration> resolveMigrations() {
+            List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+            ResolvedMigrationImpl resolvedMigration = getResolvedMigration(MigrationVersion.fromVersion("3"));
+            migrations.add(resolvedMigration);
+            return migrations;
+        }
+    }
 }
