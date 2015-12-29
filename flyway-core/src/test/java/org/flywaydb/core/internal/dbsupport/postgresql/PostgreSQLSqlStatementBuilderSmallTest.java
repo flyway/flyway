@@ -69,6 +69,15 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void copy() {
+        String line = "COPY CSV_FILES FROM '/path/to/filename.csv' DELIMITER ';' CSV HEADER";
+        statementBuilder.addLine(line + ";\n");
+        assertTrue(statementBuilder.isTerminated());
+        assertFalse(statementBuilder.isPgCopyFromStdIn());
+        assertEquals(line, statementBuilder.getSqlStatement().getSql());
+    }
+
+    @Test
     public void multilineStringLiteralWithSemicolons() {
         String sqlScriptSource = "INSERT INTO address VALUES (1, '1. first;\n"
                 + "2. second;\n"

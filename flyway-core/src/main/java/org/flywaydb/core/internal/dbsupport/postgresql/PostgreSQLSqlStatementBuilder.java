@@ -84,7 +84,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    public boolean isPgCopy() {
+    public boolean isPgCopyFromStdIn() {
         return pgCopy;
     }
 }

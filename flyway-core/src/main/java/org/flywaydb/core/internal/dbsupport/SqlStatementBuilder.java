@@ -123,7 +123,7 @@ public class SqlStatementBuilder {
      */
     public SqlStatement getSqlStatement() {
         String sql = statement.toString();
-        return new SqlStatement(lineNumber, sql, isPgCopy());
+        return new SqlStatement(lineNumber, sql, isPgCopyFromStdIn());
     }
 
     /**
@@ -142,7 +142,7 @@ public class SqlStatementBuilder {
      *
      * @return {@code true} if it is, {@code false} if not.
      */
-    public boolean isPgCopy() {
+    public boolean isPgCopyFromStdIn() {
         return false;
     }
 
