@@ -1193,7 +1193,7 @@ public class Flyway {
 
         for (String key : props.keySet()) {
             if (key.startsWith("flyway.")) {
-                throw new FlywayException("Unknown configuration property: " + key);
+                LOG.warn("Unknown configuration property: " + key);
             }
         }
     }
