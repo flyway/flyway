@@ -412,6 +412,15 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void placeholderDisabled() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_placeholder;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/placeholder");
+        flyway.setPlaceholderReplacement(false);
+        flyway.migrate();
+    }
+
+    @Test
     public void validateOutOfOrder() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_outoforder;DB_CLOSE_DELAY=-1", "sa", "");
