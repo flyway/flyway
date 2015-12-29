@@ -21,7 +21,7 @@ import org.flywaydb.core.Flyway;
  * Maven goal that drops all database objects (tables, views, procedures, triggers, ...) in the configured schemas.
  * The schemas are cleaned in the order specified by the {@code schemas} property..
  *
- * @phase pre-integration-test
+ * @phase clean
  * @goal clean
  * @since 0.7
  */
