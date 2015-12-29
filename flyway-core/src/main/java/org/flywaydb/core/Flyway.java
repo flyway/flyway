@@ -1086,10 +1086,15 @@ public class Flyway {
      */
     @SuppressWarnings("ConstantConditions")
     public void configure(Properties properties) {
-        String driverProp = properties.getProperty("flyway.driver");
-        String urlProp = properties.getProperty("flyway.url");
-        String userProp = properties.getProperty("flyway.user");
-        String passwordProp = properties.getProperty("flyway.password");
+        Map<String, String> props = new HashMap<String, String>();
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            props.put(entry.getKey().toString(), entry.getValue().toString());
+        }
+
+        String driverProp = getValueAndRemoveEntry(props, "flyway.driver");
+        String urlProp = getValueAndRemoveEntry(props, "flyway.url");
+        String userProp = getValueAndRemoveEntry(props, "flyway.user");
+        String passwordProp = getValueAndRemoveEntry(props, "flyway.password");
 
         if (StringUtils.hasText(urlProp)) {
             setDataSource(new DriverDataSource(classLoader, driverProp, urlProp, userProp, passwordProp));
@@ -1098,94 +1103,111 @@ public class Flyway {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! flyway.url must be set.");
         }
 
-        String locationsProp = properties.getProperty("flyway.locations");
+        String locationsProp = getValueAndRemoveEntry(props, "flyway.locations");
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
         }
-        String placeholderPrefixProp = properties.getProperty("flyway.placeholderPrefix");
+        String placeholderPrefixProp = getValueAndRemoveEntry(props, "flyway.placeholderPrefix");
         if (placeholderPrefixProp != null) {
             setPlaceholderPrefix(placeholderPrefixProp);
         }
-        String placeholderSuffixProp = properties.getProperty("flyway.placeholderSuffix");
+        String placeholderSuffixProp = getValueAndRemoveEntry(props, "flyway.placeholderSuffix");
         if (placeholderSuffixProp != null) {
             setPlaceholderSuffix(placeholderSuffixProp);
         }
-        String sqlMigrationPrefixProp = properties.getProperty("flyway.sqlMigrationPrefix");
+        String sqlMigrationPrefixProp = getValueAndRemoveEntry(props, "flyway.sqlMigrationPrefix");
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
         }
-        String sqlMigrationSeparatorProp = properties.getProperty("flyway.sqlMigrationSeparator");
+        String sqlMigrationSeparatorProp = getValueAndRemoveEntry(props, "flyway.sqlMigrationSeparator");
         if (sqlMigrationSeparatorProp != null) {
             setSqlMigrationSeparator(sqlMigrationSeparatorProp);
         }
-        String sqlMigrationSuffixProp = properties.getProperty("flyway.sqlMigrationSuffix");
+        String sqlMigrationSuffixProp = getValueAndRemoveEntry(props, "flyway.sqlMigrationSuffix");
         if (sqlMigrationSuffixProp != null) {
             setSqlMigrationSuffix(sqlMigrationSuffixProp);
         }
-        String encodingProp = properties.getProperty("flyway.encoding");
+        String encodingProp = getValueAndRemoveEntry(props, "flyway.encoding");
         if (encodingProp != null) {
             setEncoding(encodingProp);
         }
-        String schemasProp = properties.getProperty("flyway.schemas");
+        String schemasProp = getValueAndRemoveEntry(props, "flyway.schemas");
         if (schemasProp != null) {
             setSchemas(StringUtils.tokenizeToStringArray(schemasProp, ","));
         }
-        String tableProp = properties.getProperty("flyway.table");
+        String tableProp = getValueAndRemoveEntry(props, "flyway.table");
         if (tableProp != null) {
             setTable(tableProp);
         }
-        String cleanOnValidationErrorProp = properties.getProperty("flyway.cleanOnValidationError");
+        String cleanOnValidationErrorProp = getValueAndRemoveEntry(props, "flyway.cleanOnValidationError");
         if (cleanOnValidationErrorProp != null) {
             setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
         }
-        String validateOnMigrateProp = properties.getProperty("flyway.validateOnMigrate");
+        String validateOnMigrateProp = getValueAndRemoveEntry(props, "flyway.validateOnMigrate");
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
         }
-        String baselineVersionProp = properties.getProperty("flyway.baselineVersion");
+        String baselineVersionProp = getValueAndRemoveEntry(props, "flyway.baselineVersion");
         if (baselineVersionProp != null) {
             setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
         }
-        String baselineDescriptionProp = properties.getProperty("flyway.baselineDescription");
+        String baselineDescriptionProp = getValueAndRemoveEntry(props, "flyway.baselineDescription");
         if (baselineDescriptionProp != null) {
             setBaselineDescription(baselineDescriptionProp);
         }
-        String baselineOnMigrateProp = properties.getProperty("flyway.baselineOnMigrate");
+        String baselineOnMigrateProp = getValueAndRemoveEntry(props, "flyway.baselineOnMigrate");
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(Boolean.parseBoolean(baselineOnMigrateProp));
         }
-        String ignoreFailedFutureMigrationProp = properties.getProperty("flyway.ignoreFailedFutureMigration");
+        String ignoreFailedFutureMigrationProp = getValueAndRemoveEntry(props, "flyway.ignoreFailedFutureMigration");
         if (ignoreFailedFutureMigrationProp != null) {
             setIgnoreFailedFutureMigration(Boolean.parseBoolean(ignoreFailedFutureMigrationProp));
         }
-        String targetProp = properties.getProperty("flyway.target");
+        String targetProp = getValueAndRemoveEntry(props, "flyway.target");
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
         }
-        String outOfOrderProp = properties.getProperty("flyway.outOfOrder");
+        String outOfOrderProp = getValueAndRemoveEntry(props, "flyway.outOfOrder");
         if (outOfOrderProp != null) {
             setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
         }
-        String resolversProp = properties.getProperty("flyway.resolvers");
+        String resolversProp = getValueAndRemoveEntry(props, "flyway.resolvers");
         if (StringUtils.hasLength(resolversProp)) {
             setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
         }
-        String callbacksProp = properties.getProperty("flyway.callbacks");
+        String callbacksProp = getValueAndRemoveEntry(props, "flyway.callbacks");
         if (StringUtils.hasLength(callbacksProp)) {
             setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
         }
 
         Map<String, String> placeholdersFromProps = new HashMap<String, String>(placeholders);
-        for (Object property : properties.keySet()) {
-            String propertyName = (String) property;
+        for (String propertyName : props.keySet()) {
             if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
                     && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
                 String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
-                String placeholderValue = properties.getProperty(propertyName);
+                String placeholderValue = getValueAndRemoveEntry(props, propertyName);
                 placeholdersFromProps.put(placeholderName, placeholderValue);
             }
         }
         setPlaceholders(placeholdersFromProps);
+
+        for (String key : props.keySet()) {
+            if (key.startsWith("flyway.")) {
+                throw new FlywayException("Unknown configuration property: " + key);
+            }
+        }
+    }
+
+    /**
+     * Retrieves the value for this key in this map and removes the corresponding entry from the map.
+     * @param map The map.
+     * @param key The key.
+     * @return The value. {@code null} if not found.
+     */
+    private String getValueAndRemoveEntry(Map<String, String> map, String key) {
+        String value = map.get(key);
+        map.remove(key);
+        return value;
     }
 
     /**

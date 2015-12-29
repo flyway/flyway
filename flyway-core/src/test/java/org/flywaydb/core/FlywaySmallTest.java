@@ -79,6 +79,15 @@ public class FlywaySmallTest {
         assertEquals("666", flyway.getTarget().toString());
     }
 
+    @Test(expected = FlywayException.class)
+    public void configureUnknown() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.unknown", "should fail fast");
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+    }
+
     @Test
     public void configureOutOfOrder() {
         Properties properties = new Properties();
