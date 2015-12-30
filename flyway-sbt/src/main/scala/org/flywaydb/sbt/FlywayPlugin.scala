@@ -51,7 +51,7 @@ object FlywayPlugin extends AutoPlugin {
     // common settings for migration loading tasks (used by migrate, validate, info)
     //*********************
 
-    val flywayLocations = settingKey[Seq[String]]("Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: db/migration)")
+    val flywayLocations = settingKey[Seq[String]]("Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: filesystem:src/main/resources/db/migration)")
     val flywayResolvers = settingKey[Seq[String]](" The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.")
     val flywayEncoding = settingKey[String]("The encoding of Sql migrations. (default: UTF-8)")
     val flywaySqlMigrationPrefix = settingKey[String]("The file name prefix for Sql migrations (default: V) ")

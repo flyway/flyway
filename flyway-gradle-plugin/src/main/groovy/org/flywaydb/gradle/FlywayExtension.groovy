@@ -53,6 +53,7 @@ public class FlywayExtension {
 
     /**
      * Locations to scan recursively for migrations. The location type is determined by its prefix.
+     * (default: filesystem:src/main/resources/db/migration)
      *
      * <tt>Unprefixed locations or locations starting with classpath:</tt>
      * point to a package on the classpath and may contain both sql and java-based migrations.
