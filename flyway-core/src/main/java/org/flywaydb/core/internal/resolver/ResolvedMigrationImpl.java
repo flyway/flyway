@@ -159,8 +159,6 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
         if (description != null ? !description.equals(migration.description) : migration.description != null)
             return false;
-        if (physicalLocation != null ? !physicalLocation.equals(migration.physicalLocation) : migration.physicalLocation != null)
-            return false;
         if (script != null ? !script.equals(migration.script) : migration.script != null) return false;
         if (type != migration.type) return false;
         return version.equals(migration.version);
@@ -173,7 +171,6 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         result = 31 * result + (script != null ? script.hashCode() : 0);
         result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
         result = 31 * result + type.hashCode();
-        result = 31 * result + (physicalLocation != null ? physicalLocation.hashCode() : 0);
         return result;
     }
 }

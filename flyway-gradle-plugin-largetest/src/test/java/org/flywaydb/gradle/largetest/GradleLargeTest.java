@@ -49,7 +49,8 @@ public class GradleLargeTest {
     @Test
     public void error() throws Exception {
         String stdOut = runGradle(0, "error", "clean", "flywayMigrate");
-        assertTrue(stdOut.contains("Unable to determine URL for classpath location"));
+        assertTrue(stdOut.contains("Validated 0 migrations"));
+        assertTrue(stdOut.contains("Unable to resolve location"));
     }
 
     /**
@@ -73,8 +74,9 @@ public class GradleLargeTest {
         addShellIfNeeded(args);
         args.add(installDir + "/install/gradlew" + extension);
         args.add("-PflywayVersion=" + flywayVersion);
-        args.add("--info");
+        //args.add("--debug");
         //args.add("--stacktrace");
+        args.add("-i");
         args.add("-b");
         args.add(installDir + "/tests/" + dir + "/build.gradle");
         args.addAll(Arrays.asList(extraArgs));

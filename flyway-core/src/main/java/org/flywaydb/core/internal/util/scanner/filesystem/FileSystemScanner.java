@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,17 +35,20 @@ public class FileSystemScanner {
      * Scans the FileSystem for resources under the specified location, starting with the specified prefix and ending with
      * the specified suffix.
      *
-     * @param path   The path in the filesystem to start searching. Subdirectories are also searched.
-     * @param prefix The prefix of the resource names to match.
-     * @param suffix The suffix of the resource names to match.
+     * @param location The location in the filesystem to start searching. Subdirectories are also searched.
+     * @param prefix   The prefix of the resource names to match.
+     * @param suffix   The suffix of the resource names to match.
      * @return The resources that were found.
      * @throws java.io.IOException when the location could not be scanned.
      */
-    public Resource[] scanForResources(String path, String prefix, String suffix) throws IOException {
+    public Resource[] scanForResources(Location location, String prefix, String suffix) throws IOException {
+        String path = location.getPath();
         LOG.debug("Scanning for filesystem resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
 
-        if (!new File(path).isDirectory()) {
-            throw new FlywayException("Invalid filesystem path: " + path);
+        File dir = new File(path);
+        if (!dir.isDirectory() || !dir.canRead()) {
+            LOG.warn("Unable to resolve location filesystem:" + path);
+            return new Resource[0];
         }
 
         Set<Resource> resources = new TreeSet<Resource>();

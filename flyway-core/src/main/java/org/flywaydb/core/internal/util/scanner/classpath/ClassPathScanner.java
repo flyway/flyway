@@ -18,10 +18,11 @@ package org.flywaydb.core.internal.util.scanner.classpath;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
 
@@ -31,20 +32,37 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
  * ClassPath scanner.
  */
-public class ClassPathScanner {
+public class ClassPathScanner implements ResourceAndClassScanner {
     private static final Log LOG = LogFactory.getLog(ClassPathScanner.class);
 
     /**
      * The ClassLoader for loading migrations on the classpath.
      */
     private final ClassLoader classLoader;
+
+    /**
+     * Cache location lookups.
+     */
+    private final Map<Location, List<URL>> locationUrlCache = new HashMap<Location, List<URL>>();
+
+    /**
+     * Cache location scanners.
+     */
+    private final Map<String, ClassPathLocationScanner> locationScannerCache = new HashMap<String, ClassPathLocationScanner>();
+
+    /**
+     * Cache resource names.
+     */
+    private final Map<ClassPathLocationScanner, Map<URL, Set<String>>> resourceNameCache = new HashMap<ClassPathLocationScanner, Map<URL, Set<String>>>();
 
     /**
      * Creates a new Classpath scanner.
@@ -55,17 +73,8 @@ public class ClassPathScanner {
         this.classLoader = classLoader;
     }
 
-    /**
-     * Scans the classpath for resources under the specified location, starting with the specified prefix and ending with
-     * the specified suffix.
-     *
-     * @param path   The path in the classpath to start searching. Subdirectories are also searched.
-     * @param prefix The prefix of the resource names to match.
-     * @param suffix The suffix of the resource names to match.
-     * @return The resources that were found.
-     * @throws IOException when the location could not be scanned.
-     */
-    public Resource[] scanForResources(String path, String prefix, String suffix) throws IOException {
+    @Override
+    public Resource[] scanForResources(Location path, String prefix, String suffix) throws IOException {
         LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
 
         Set<Resource> resources = new TreeSet<Resource>();
@@ -79,17 +88,8 @@ public class ClassPathScanner {
         return resources.toArray(new Resource[resources.size()]);
     }
 
-    /**
-     * Scans the classpath for concrete classes under the specified package implementing this interface.
-     * Non-instantiable abstract classes are filtered out.
-     *
-     * @param location             The location (package) in the classpath to start scanning.
-     *                             Subpackages are also scanned.
-     * @param implementedInterface The interface the matching classes should implement.
-     * @return The non-abstract classes that were found.
-     * @throws Exception when the location could not be scanned.
-     */
-    public Class<?>[] scanForClasses(String location, Class<?> implementedInterface) throws Exception {
+    @Override
+    public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {
         LOG.debug("Scanning for classes at '" + location + "' (Implementing: '" + implementedInterface.getName() + "')");
 
         List<Class<?>> classes = new ArrayList<Class<?>>();
@@ -136,16 +136,16 @@ public class ClassPathScanner {
      * Finds the resources names present at this location and below on the classpath starting with this prefix and
      * ending with this suffix.
      *
-     * @param path   The path on the classpath to scan.
-     * @param prefix The filename prefix to match.
-     * @param suffix The filename suffix to match.
+     * @param location The location on the classpath to scan.
+     * @param prefix   The filename prefix to match.
+     * @param suffix   The filename suffix to match.
      * @return The resource names.
      * @throws IOException when scanning this location failed.
      */
-    private Set<String> findResourceNames(String path, String prefix, String suffix) throws IOException {
+    private Set<String> findResourceNames(Location location, String prefix, String suffix) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        List<URL> locationsUrls = getLocationUrlsForPath(path);
+        List<URL> locationsUrls = getLocationUrlsForPath(location);
         for (URL locationUrl : locationsUrls) {
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
@@ -158,7 +158,12 @@ public class ClassPathScanner {
                 String scanRoot = UrlUtils.toFilePath(resolvedUrl);
                 LOG.warn("Unable to scan location: " + scanRoot + " (unsupported protocol: " + protocol + ")");
             } else {
-                resourceNames.addAll(classPathLocationScanner.findResourceNames(path, resolvedUrl));
+                Set<String> names = resourceNameCache.get(classPathLocationScanner).get(resolvedUrl);
+                if (names == null) {
+                    names = classPathLocationScanner.findResourceNames(location.getPath(), resolvedUrl);
+                    resourceNameCache.get(classPathLocationScanner).put(resolvedUrl, names);
+                }
+                resourceNames.addAll(names);
             }
         }
 
@@ -168,18 +173,24 @@ public class ClassPathScanner {
     /**
      * Gets the physical location urls for this logical path on the classpath.
      *
-     * @param path The path on the classpath.
+     * @param location The location on the classpath.
      * @return The underlying physical URLs.
      * @throws IOException when the lookup fails.
      */
-    private List<URL> getLocationUrlsForPath(String path) throws IOException {
+    private List<URL> getLocationUrlsForPath(Location location) throws IOException {
+        if (locationUrlCache.containsKey(location)) {
+            return locationUrlCache.get(location);
+        }
+
+        LOG.debug("Determining location urls for " + location + " using ClassLoader " + classLoader + " ...");
+
         List<URL> locationUrls = new ArrayList<URL>();
 
         if (classLoader.getClass().getName().startsWith("com.ibm")) {
             // WebSphere
-            Enumeration<URL> urls = classLoader.getResources(path + "/flyway.location");
+            Enumeration<URL> urls = classLoader.getResources(location + "/flyway.location");
             if (!urls.hasMoreElements()) {
-                LOG.warn("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + classLoader + ")"
+                LOG.warn("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
                         + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
             }
             while (urls.hasMoreElements()) {
@@ -187,15 +198,17 @@ public class ClassPathScanner {
                 locationUrls.add(new URL(URLDecoder.decode(url.toExternalForm(), "UTF-8").replace("/flyway.location", "")));
             }
         } else {
-            Enumeration<URL> urls = classLoader.getResources(path);
+            Enumeration<URL> urls = classLoader.getResources(location.getPath());
             if (!urls.hasMoreElements()) {
-                LOG.warn("Unable to determine URL for classpath location: " + path + " (ClassLoader: " + classLoader + ")");
+                LOG.warn("Unable to resolve location " + location);
             }
 
             while (urls.hasMoreElements()) {
                 locationUrls.add(urls.nextElement());
             }
         }
+
+        locationUrlCache.put(location, locationUrls);
 
         return locationUrls;
     }
@@ -221,26 +234,42 @@ public class ClassPathScanner {
      * @return The location scanner or {@code null} if it could not be created.
      */
     private ClassPathLocationScanner createLocationScanner(String protocol) {
+        if (locationScannerCache.containsKey(protocol)) {
+            return locationScannerCache.get(protocol);
+        }
+
         if ("file".equals(protocol)) {
-            return new FileSystemClassPathLocationScanner();
+            FileSystemClassPathLocationScanner locationScanner = new FileSystemClassPathLocationScanner();
+            locationScannerCache.put(protocol, locationScanner);
+            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            return locationScanner;
         }
 
         if ("jar".equals(protocol)
                 || "zip".equals(protocol) //WebLogic
                 || "wsjar".equals(protocol) //WebSphere
                 ) {
-            return new JarFileClassPathLocationScanner();
+            JarFileClassPathLocationScanner locationScanner = new JarFileClassPathLocationScanner();
+            locationScannerCache.put(protocol, locationScanner);
+            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            return locationScanner;
         }
 
         FeatureDetector featureDetector = new FeatureDetector(classLoader);
         if (featureDetector.isJBossVFSv3Available() && "vfs".equals(protocol)) {
-            return new JBossVFSv3ClassPathLocationScanner();
+            JBossVFSv3ClassPathLocationScanner locationScanner = new JBossVFSv3ClassPathLocationScanner();
+            locationScannerCache.put(protocol, locationScanner);
+            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            return locationScanner;
         }
         if (featureDetector.isOsgiFrameworkAvailable() && (
                 "bundle".equals(protocol) // Felix
                         || "bundleresource".equals(protocol)) //Equinox
                 ) {
-            return new OsgiClassPathLocationScanner();
+            OsgiClassPathLocationScanner locationScanner = new OsgiClassPathLocationScanner();
+            locationScannerCache.put(protocol, locationScanner);
+            resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
+            return locationScanner;
         }
 
         return null;

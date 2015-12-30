@@ -26,6 +26,7 @@ import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * Creates a new CompositeMigrationResolver.
      *
      * @param dbSupport                The database-specific support.
-     * @param classLoader              The ClassLoader for loading migrations on the classpath.
+     * @param scanner                  The Scanner for loading migrations on the classpath.
      * @param locations                The locations where migrations are located.
      * @param encoding                 The encoding of Sql migrations.
      * @param sqlMigrationPrefix       The file name prefix for sql migrations.
@@ -64,18 +65,18 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param placeholderReplacer      The placeholder replacer to use.
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Locations locations,
+    public CompositeMigrationResolver(DbSupport dbSupport, Scanner scanner, Locations locations,
                                       String encoding,
                                       String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
         for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer,
+            migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, location, placeholderReplacer,
                     encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
-            migrationResolvers.add(new JdbcMigrationResolver(classLoader, location));
+            migrationResolvers.add(new JdbcMigrationResolver(scanner, location));
 
-            if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(classLoader, location));
+            if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {
+                migrationResolvers.add(new SpringJdbcMigrationResolver(scanner, location));
             }
         }
 

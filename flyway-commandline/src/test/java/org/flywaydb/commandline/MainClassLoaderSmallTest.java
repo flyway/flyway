@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -93,7 +94,7 @@ public class MainClassLoaderSmallTest {
 
         assertTrue(new ClassPathResource("pkg/runtime.conf", getClassLoader()).exists());
 
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources("pkg", "run", ".conf");
+        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:pkg"), "run", ".conf");
         assertEquals("pkg/runtime.conf", resources[0].getLocation());
     }
 
@@ -109,7 +110,7 @@ public class MainClassLoaderSmallTest {
 
         assertTrue(new ClassPathResource("funtime.properties", getClassLoader()).exists());
 
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources("", "fun", ".properties");
+        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:"), "fun", ".properties");
         assertEquals("funtime.properties", resources[1].getLocation());
     }
 
@@ -132,10 +133,10 @@ public class MainClassLoaderSmallTest {
         assertTrue(new ClassPathResource("db/migration/V1__Initial_structure.sql", getClassLoader()).exists());
         assertTrue(ClassUtils.isPresent("org.flywaydb.sample.migration.V1_2__Another_user", getClassLoader()));
 
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources("db/migration", "V1__", ".sql");
+        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:db/migration"), "V1__", ".sql");
         assertEquals("db/migration/V1__Initial_structure.sql", resources[0].getLocation());
 
-        Class<?>[] classes = new ClassPathScanner(getClassLoader()).scanForClasses("org/flywaydb/sample/migration", SpringJdbcMigration.class);
+        Class<?>[] classes = new ClassPathScanner(getClassLoader()).scanForClasses(new Location("classpath:org/flywaydb/sample/migration"), SpringJdbcMigration.class);
         assertEquals("org.flywaydb.sample.migration.V1_2__Another_user", classes[0].getName());
     }
 }

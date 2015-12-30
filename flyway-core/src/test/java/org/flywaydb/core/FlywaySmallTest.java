@@ -16,6 +16,7 @@
 package org.flywaydb.core;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
@@ -46,7 +47,7 @@ public class FlywaySmallTest {
         assertNotNull(flyway.getDataSource());
 
         flyway.execute(new Flyway.Command<Void>() {
-            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport, Schema[] schemas) {
+            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver, DbSupport dbSupport, Schema[] schemas) {
                 assertEquals("PUBLIC", flyway.getSchemas()[0]);
                 return null;
             }

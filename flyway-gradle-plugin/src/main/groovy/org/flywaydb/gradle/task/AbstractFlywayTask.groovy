@@ -18,6 +18,7 @@ package org.flywaydb.gradle.task
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.callback.FlywayCallback
 import org.flywaydb.core.api.FlywayException
+import org.flywaydb.core.internal.util.Location
 import org.flywaydb.core.internal.util.StringUtils
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource
 import org.flywaydb.gradle.FlywayExtension
@@ -40,11 +41,6 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
     AbstractFlywayTask() {
         group = 'Flyway'
-        project.afterEvaluate {
-            if (isJavaProject()) {
-                this.dependsOn(project.tasks.testClasses)
-            }
-        }
         extension = project.flyway
     }
 
@@ -118,6 +114,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
             flyway.schemas = extension.schemas
         }
 
+        flyway.setLocations(Location.FILESYSTEM_PREFIX + project.projectDir + '/src/main/resources/db/migration')
         def sysLocations = System.getProperty("flyway.locations")
         if (sysLocations != null) {
             flyway.locations = StringUtils.tokenizeToStringArray(sysLocations, ",")

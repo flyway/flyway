@@ -150,7 +150,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      *
      * @parameter
      */
-    private String[] locations = flyway.getLocations();
+    private String[] locations;
 
     /**
      * The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for
@@ -426,6 +426,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     }
                 }
                 flyway.setLocations(locations);
+            } else {
+                locations = new String[] { Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"};
             }
             flyway.setResolversAsClassNames(resolvers);
             flyway.setCallbacksAsClassNames(callbacks);

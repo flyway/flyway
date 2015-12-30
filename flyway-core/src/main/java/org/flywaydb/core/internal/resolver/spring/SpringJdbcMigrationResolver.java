@@ -48,20 +48,21 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
     private final Location location;
 
     /**
-     * The ClassLoader to use.
+     * The Scanner to use.
      */
-    private ClassLoader classLoader;
+    private Scanner scanner;
 
     /**
      * Creates a new instance.
      *
-     * @param location    The base package on the classpath where to migrations are located.
-     * @param classLoader The ClassLoader for loading migrations on the classpath.
+     * @param location The base package on the classpath where to migrations are located.
+     * @param scanner  The Scanner for loading migrations on the classpath.
      */
-    public SpringJdbcMigrationResolver(ClassLoader classLoader, Location location) {
+    public SpringJdbcMigrationResolver(Scanner scanner, Location location) {
         this.location = location;
-        this.classLoader = classLoader;
+        this.scanner = scanner;
     }
+
 
     public Collection<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
@@ -71,9 +72,9 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         }
 
         try {
-            Class<?>[] classes = new Scanner(classLoader).scanForClasses(location, SpringJdbcMigration.class);
+            Class<?>[] classes = scanner.scanForClasses(location, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
-                SpringJdbcMigration springJdbcMigration = ClassUtils.instantiate(clazz.getName(), classLoader);
+                SpringJdbcMigration springJdbcMigration = ClassUtils.instantiate(clazz.getName(), scanner.getClassLoader());
 
                 ResolvedMigrationImpl migrationInfo = extractMigrationInfo(springJdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));

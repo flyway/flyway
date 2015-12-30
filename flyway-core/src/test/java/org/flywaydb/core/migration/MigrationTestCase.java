@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -224,7 +225,7 @@ public abstract class MigrationTestCase {
      */
     private void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, Thread.currentThread().getContextClassLoader(),
+                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
                 new Location(getBasedir()),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",

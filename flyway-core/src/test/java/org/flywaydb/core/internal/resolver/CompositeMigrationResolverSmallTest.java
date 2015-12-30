@@ -22,9 +22,11 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +42,7 @@ public class CompositeMigrationResolverSmallTest {
     public void resolveMigrationsMultipleLocations() {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                Thread.currentThread().getContextClassLoader(),
+                new Scanner(Thread.currentThread().getContextClassLoader()),
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
                 "UTF-8", "V", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
 
@@ -74,6 +76,39 @@ public class CompositeMigrationResolverSmallTest {
 
         Collection<ResolvedMigration> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
         assertEquals(2, migrations.size());
+    }
+
+    /**
+     * Checks that migrations are properly collected, eliminating all exact duplicates.
+     */
+    @Test
+    public void collectMigrationsExactDuplicatesInDifferentLocations() {
+        MigrationResolver migrationResolver = new MigrationResolver() {
+            public List<ResolvedMigration> resolveMigrations() {
+                ResolvedMigrationImpl testMigration = createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234);
+                testMigration.setPhysicalLocation("abc");
+                ResolvedMigrationImpl testMigration2 = createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234);
+                testMigration2.setPhysicalLocation("xyz");
+
+                List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+                migrations.add(testMigration);
+                migrations.add(testMigration2);
+                return migrations;
+            }
+        };
+        MigrationResolver migrationResolver2 = new MigrationResolver() {
+            public List<ResolvedMigration> resolveMigrations() {
+                List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+
+                ResolvedMigrationImpl testMigration = createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234);
+                testMigration.setPhysicalLocation("def");
+                migrations.add(testMigration);
+                return migrations;
+            }
+        };
+        Collection<MigrationResolver> migrationResolvers = Arrays.asList(migrationResolver, migrationResolver2);
+        Collection<ResolvedMigration> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
+        assertEquals(1, migrations.size());
     }
 
     @Test

@@ -125,7 +125,7 @@ object FlywayPlugin extends AutoPlugin {
       flywayUrl := "",
       flywayUser := "",
       flywayPassword := "",
-      flywayLocations := defaults.getLocations.toSeq,
+      flywayLocations := List("filesystem:src/main/resources/db/migration"),
       flywayResolvers := Array.empty[String],
       flywaySchemas := defaults.getSchemas.toSeq,
       flywayTable := defaults.getTable,

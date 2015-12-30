@@ -21,6 +21,8 @@ import org.h2.Driver;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -51,6 +53,7 @@ public class AbstractFlywayMojoSmallTest {
         mojo.url = "jdbc:h2:mem:dummy";
         mojo.user = "sa";
         mojo.mavenProject = new MavenProject();
+        mojo.mavenProject.setBasedir(new File("."));
         mojo.mavenProject.getProperties().setProperty("flyway.schemas", "first,second");
         mojo.execute();
     }

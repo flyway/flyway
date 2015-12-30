@@ -429,6 +429,14 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void invalidLocations() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_invalid;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("abcd", "efgh");
+        flyway.migrate();
+    }
+
+    @Test
     public void validateOutOfOrder() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_outoforder;DB_CLOSE_DELAY=-1", "sa", "");

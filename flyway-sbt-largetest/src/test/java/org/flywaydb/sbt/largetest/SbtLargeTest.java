@@ -49,7 +49,7 @@ public class SbtLargeTest {
 
     @Test
     public void useTestScope() throws Exception {
-        String stdOut = runSbt("test1", 0, "test:flywayClean", "test:flywayMigrate");
+        String stdOut = runSbt("test1", 0, "-Dflyway.locations=filesystem:src/main/resources/db/migration,filesystem:src/test/resources/db/migration", "test:flywayClean", "test:flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 2 migration"));
     }
 
