@@ -15,10 +15,13 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.dbsupport.Type;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,6 +32,9 @@ import java.util.Map;
  * PostgreSQL implementation of Schema.
  */
 public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
+    
+    private static final Log LOG = LogFactory.getLog(PostgreSQLSchema.class);
+    
     /**
      * Creates a new PostgreSQL schema.
      *
@@ -112,7 +118,11 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
         }
 
         for (Type type : allTypes()) {
-            type.drop();
+            try {
+                type.drop();
+            } catch (FlywayException e) {
+                LOG.warn("Unable to drop type " + type + ": " + e.getClass() + "-" + e.getMessage());
+            }
         }
     }
 
@@ -193,9 +203,12 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     private List<String> generateDropStatementsForRoutines() throws SQLException {
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
+                        //Search for all functions
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
-                                + "WHERE pg_proc.proisagg = false AND ns.nspname = ?",
+                                //that don't depend on an extension
+                                + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
+                                + "WHERE pg_proc.proisagg = false AND ns.nspname = ? AND dep.objid IS NULL",
                         name
                 );
 
@@ -273,8 +286,12 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     private List<String> generateDropStatementsForViews() throws SQLException {
         List<String> viewNames =
                 jdbcTemplate.queryForStringList(
-                        "SELECT table_name FROM information_schema.views WHERE table_schema=?", name);
-
+                        //Search for all views
+                        "SELECT table_name FROM information_schema.views" +
+                        //that don't depend on an extension
+                        " LEFT JOIN pg_depend dep ON dep.objid = (table_schema || '.' || table_name)::regclass::oid AND dep.deptype = 'e'" +
+                        " WHERE table_schema=? AND dep.objid IS NULL",
+                name);
         List<String> statements = new ArrayList<String>();
         for (String domainName : viewNames) {
             statements.add("DROP VIEW IF EXISTS " + dbSupport.quote(name, domainName) + " CASCADE");
