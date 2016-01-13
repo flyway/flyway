@@ -444,7 +444,7 @@ public class SqlStatementBuilder {
     /**
      * The types of tokens relevant for string delimiter related parsing.
      */
-    private static enum TokenType {
+    private enum TokenType {
         /**
          * Some other token.
          */

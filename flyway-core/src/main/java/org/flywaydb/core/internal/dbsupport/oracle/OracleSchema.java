@@ -100,10 +100,10 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             if (flashbackAvailable()) {
                 executeAlterStatementsForFlashbackTables();
             }
+        }
 
-            for (String statement : generateDropStatementsForScheduledJobs()) {
-                jdbcTemplate.execute(statement);
-            }
+        for (String statement : generateDropStatementsForScheduledJobs()) {
+            jdbcTemplate.execute(statement);
         }
 
         for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
@@ -302,7 +302,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     private List<String> generateDropStatementsForScheduledJobs() throws SQLException {
         List<String> statements = new ArrayList<String>();
 
-        List<String> jobNames = jdbcTemplate.queryForStringList("select JOB_NAME from USER_SCHEDULER_JOBS");
+        List<String> jobNames = jdbcTemplate.queryForStringList("select JOB_NAME from ALL_SCHEDULER_JOBS WHERE owner=?", name);
         for (String jobName : jobNames) {
             statements.add("begin DBMS_SCHEDULER.DROP_JOB(job_name => '" + jobName + "', defer => false, force => true); end;");
         }

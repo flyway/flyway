@@ -63,6 +63,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      *                a marker for the latest version that has been applied to the database.
      * @return The MigrationVersion
      */
+    @SuppressWarnings("ConstantConditions")
     public static MigrationVersion fromVersion(String version) {
         if ("current".equalsIgnoreCase(version)) return CURRENT;
         if (LATEST.getVersion().equals(version)) return LATEST;
@@ -127,6 +128,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         return versionParts == null ? 0 : versionParts.hashCode();
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(MigrationVersion o) {
         if (o == null) {
             return 1;

@@ -22,7 +22,7 @@ import java.util.Date;
  */
 public interface MigrationInfo extends Comparable<MigrationInfo> {
     /**
-     * @return The type of migration (INIT, SQL or JAVA)
+     * @return The type of migration (BASELINE, SQL, JDBC, ...)
      */
     MigrationType getType();
 

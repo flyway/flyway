@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,6 +47,11 @@ import java.util.Properties;
  */
 public class Main {
     private static Log LOG;
+
+    /**
+     * The property name for the directory containing a list of jars to load on the classpath.
+     */
+    private static final String PROPERTY_JAR_DIRS = "flyway.jarDirs";
 
     /**
      * Initializes the logging.
@@ -90,6 +95,7 @@ public class Main {
             loadJavaMigrationsFromJarDirs(properties);
 
             Flyway flyway = new Flyway();
+            filterProperties(properties);
             flyway.configure(properties);
 
             for (String operation : operations) {
@@ -169,7 +175,16 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.locations", "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
-        properties.put("flyway.jarDirs", new File(getInstallationDir(), "jars").getAbsolutePath());
+        properties.put(PROPERTY_JAR_DIRS, new File(getInstallationDir(), "jars").getAbsolutePath());
+    }
+
+    /**
+     * Filters there properties to remove the Flyway Commandline-specific ones.
+     *
+     * @param properties The properties to filter.
+     */
+    private static void filterProperties(Properties properties) {
+        properties.remove(PROPERTY_JAR_DIRS);
     }
 
     /**
@@ -278,7 +293,7 @@ public class Main {
      * @throws IOException When the jars could not be loaded.
      */
     private static void loadJavaMigrationsFromJarDirs(Properties properties) throws IOException {
-        String jarDirs = properties.getProperty("flyway.jarDirs");
+        String jarDirs = properties.getProperty(PROPERTY_JAR_DIRS);
         if (!StringUtils.hasLength(jarDirs)) {
             return;
         }
