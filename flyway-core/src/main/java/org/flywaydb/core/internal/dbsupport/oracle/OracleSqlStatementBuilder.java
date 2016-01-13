@@ -115,4 +115,9 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
                 return specialChar + "'";
         }
     }
+
+    @Override
+    public boolean canDiscard() {
+        return super.canDiscard() || statementStart.startsWith("SET DEFINE OFF");
+    }
 }

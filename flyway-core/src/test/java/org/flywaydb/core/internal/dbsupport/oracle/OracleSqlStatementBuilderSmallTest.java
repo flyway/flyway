@@ -26,6 +26,12 @@ public class OracleSqlStatementBuilderSmallTest {
     private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder();
 
     @Test
+    public void setDefineOff() {
+        builder.addLine("set define off;");
+        assertTrue(builder.canDiscard());
+    }
+
+    @Test
     public void changeDelimiterRegEx() {
         assertNull(builder.changeDelimiterIfNecessary("BEGIN_DATE", null));
         assertEquals("/", builder.changeDelimiterIfNecessary("BEGIN DATE", null).getDelimiter());
