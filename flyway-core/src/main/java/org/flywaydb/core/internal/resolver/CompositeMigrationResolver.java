@@ -61,13 +61,16 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param config                   The configuration object.
      */
     public CompositeMigrationResolver(DbSupport dbSupport, FlywayConfiguration config) {
-        PlaceholderReplacer placeholderReplacer = config.createPlaceholderReplacer();
-        for (Location location : new Locations(config.getLocations()).getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, config, location, placeholderReplacer));
-            migrationResolvers.add(new JdbcMigrationResolver(config, location));
 
-            if (new FeatureDetector(config.getClassLoader()).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(config, location));
+        if (!config.isSkipDefaultResolvers()) {
+            PlaceholderReplacer placeholderReplacer = config.createPlaceholderReplacer();
+            for (Location location : new Locations(config.getLocations()).getLocations()) {
+                migrationResolvers.add(new SqlMigrationResolver(dbSupport, config, location, placeholderReplacer));
+                migrationResolvers.add(new JdbcMigrationResolver(config, location));
+
+                if (new FeatureDetector(config.getClassLoader()).isSpringJdbcAvailable()) {
+                    migrationResolvers.add(new SpringJdbcMigrationResolver(config, location));
+                }
             }
         }
 
@@ -103,6 +106,11 @@ public class CompositeMigrationResolver implements MigrationResolver {
         checkForIncompatibilities(migrations);
 
         return migrations;
+    }
+
+    /* private -> for testing */
+    Collection<MigrationResolver> getMigrationResolvers() {
+        return migrationResolvers;
     }
 
     /**

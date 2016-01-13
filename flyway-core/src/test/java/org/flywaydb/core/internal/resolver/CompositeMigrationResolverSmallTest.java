@@ -24,6 +24,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -32,7 +33,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -41,7 +45,6 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
         FlywayConfiguration config = new FlywayConfigurationForTests(
                 Thread.currentThread().getContextClassLoader(),
                 new String[] {"migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"},
@@ -147,6 +150,21 @@ public class CompositeMigrationResolverSmallTest {
         CompositeMigrationResolver.checkForIncompatibilities(migrations);
     }
 
+    @Test
+    public void skipDefaultResolvers() {
+        FlywayConfigurationForTests config = new FlywayConfigurationForTests(
+                Thread.currentThread().getContextClassLoader(),
+                new String[] {"migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"},
+                "UTF-8", "V", "__", ".sql",
+                new MyCustomMigrationResolver());
+        config.setSkipDefaultResolvers(true);
+
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(null, config);
+
+        assertThat(migrationResolver.getMigrationResolvers().size(), is(1));
+        assertThat(migrationResolver.getMigrationResolvers().iterator().next(), instanceOf(MyCustomMigrationResolver.class));
+    }
+
     /**
      * Creates a migration for our tests.
      *
@@ -166,5 +184,4 @@ public class CompositeMigrationResolverSmallTest {
         migration.setType(aMigrationType);
         return migration;
     }
-
 }

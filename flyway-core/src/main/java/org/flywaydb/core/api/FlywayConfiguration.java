@@ -33,6 +33,8 @@ public interface FlywayConfiguration {
 
     ClassLoader getClassLoader();
 
+    boolean isSkipDefaultResolvers();
+
     DataSource getDataSource();
 
     MigrationVersion getBaselineVersion();
