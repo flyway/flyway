@@ -244,6 +244,7 @@ public class Main {
         LOG.info("callbacks              : Comma-separated list of FlywayCallback classes");
         LOG.info("validateOnMigrate      : Validate when running migrate");
         LOG.info("cleanOnValidationError : Automatically clean on a validation error");
+        LOG.info("cleanDisabled          : Whether to disable clean");
         LOG.info("baselineVersion        : Version to tag schema with when executing baseline");
         LOG.info("baselineDescription    : Description to tag schema with when executing baseline");
         LOG.info("baselineOnMigrate      : Baseline on migrate against uninitialized non-empty schema");

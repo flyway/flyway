@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,11 +52,17 @@ public class DbClean {
     private final Schema[] schemas;
 
     /**
-     * This is a list of callbacks that fire before or after the validate task is executed.
+     * The list of callbacks that fire before or after the clean task is executed.
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
      */
     private final FlywayCallback[] callbacks;
+
+    /**
+     * Whether to disable clean.
+     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     */
+    private boolean cleanDisabled;
 
     /**
      * The DB support for the connection.
@@ -70,13 +76,17 @@ public class DbClean {
      * @param dbSupport     The DB support for the connection.
      * @param metaDataTable The metadata table.
      * @param schemas       The schemas to clean.
+     * @param callbacks     The list of callbacks that fire before or after the clean task is executed.
+     * @param cleanDisabled Whether to disable clean.
      */
-    public DbClean(Connection connection, DbSupport dbSupport, MetaDataTable metaDataTable, Schema[] schemas, FlywayCallback[] callbacks) {
+    public DbClean(Connection connection, DbSupport dbSupport, MetaDataTable metaDataTable, Schema[] schemas,
+                   FlywayCallback[] callbacks, boolean cleanDisabled) {
         this.connection = connection;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
         this.schemas = schemas;
         this.callbacks = callbacks;
+        this.cleanDisabled = cleanDisabled;
     }
 
     /**
@@ -85,6 +95,9 @@ public class DbClean {
      * @throws FlywayException when clean failed.
      */
     public void clean() throws FlywayException {
+        if (cleanDisabled) {
+            throw new FlywayException("Unable to execute clean as it has been disabled with the \"flyway.cleanDisabled\" property.");
+        }
         try {
             for (final FlywayCallback callback : callbacks) {
                 new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {

@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -184,6 +184,12 @@ public class Flyway {
      * <p><b>Warning ! Do not enable in production !</b></p>
      */
     private boolean cleanOnValidationError;
+
+    /**
+     * Whether to disable clean. (default: {@code false})
+     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     */
+    private boolean cleanDisabled;
 
     /**
      * The version to tag an existing schema with when executing baseline. (default: 1)
@@ -436,6 +442,15 @@ public class Flyway {
     }
 
     /**
+     * Whether to disable clean.
+     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     * @return {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
+     */
+    public boolean isCleanDisabled() {
+        return cleanDisabled;
+    }
+
+    /**
      * Retrieves the version to tag an existing schema with when executing baseline.
      *
      * @return The version to tag an existing schema with when executing baseline. (default: 1)
@@ -550,6 +565,15 @@ public class Flyway {
      */
     public void setCleanOnValidationError(boolean cleanOnValidationError) {
         this.cleanOnValidationError = cleanOnValidationError;
+    }
+
+    /**
+     * Whether to disable clean.
+     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     * @param cleanDisabled {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
+     */
+    public void setCleanDisabled(boolean cleanDisabled) {
+        this.cleanDisabled = cleanDisabled;
     }
 
     /**
@@ -938,7 +962,7 @@ public class Flyway {
 
         if (validationError != null) {
             if (cleanOnValidationError) {
-                new DbClean(connectionMetaDataTable, dbSupport, metaDataTable, schemas, callbacks).clean();
+                new DbClean(connectionMetaDataTable, dbSupport, metaDataTable, schemas, callbacks, cleanDisabled).clean();
             } else {
                 throw new FlywayException("Validate failed. " + validationError);
             }
@@ -957,7 +981,7 @@ public class Flyway {
             public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver, DbSupport dbSupport, Schema[] schemas) {
                 MetaDataTableImpl metaDataTable =
                         new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
-                new DbClean(connectionMetaDataTable, dbSupport, metaDataTable, schemas, callbacks).clean();
+                new DbClean(connectionMetaDataTable, dbSupport, metaDataTable, schemas, callbacks, cleanDisabled).clean();
                 return null;
             }
         });
@@ -1141,6 +1165,10 @@ public class Flyway {
         String cleanOnValidationErrorProp = getValueAndRemoveEntry(props, "flyway.cleanOnValidationError");
         if (cleanOnValidationErrorProp != null) {
             setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
+        }
+        String cleanDisabledProp = getValueAndRemoveEntry(props, "flyway.cleanDisabled");
+        if (cleanDisabledProp != null) {
+            setCleanDisabled(Boolean.parseBoolean(cleanDisabledProp));
         }
         String validateOnMigrateProp = getValueAndRemoveEntry(props, "flyway.validateOnMigrate");
         if (validateOnMigrateProp != null) {

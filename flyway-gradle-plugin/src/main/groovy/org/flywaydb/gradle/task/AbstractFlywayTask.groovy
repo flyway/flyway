@@ -103,6 +103,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSetAsBoolean(flyway, 'outOfOrder')
         propSetAsBoolean(flyway, 'validateOnMigrate')
         propSetAsBoolean(flyway, 'cleanOnValidationError')
+        propSetAsBoolean(flyway, 'cleanDisabled')
         propSetAsBoolean(flyway, 'baselineOnMigrate')
 
         def sysSchemas = System.getProperty("flyway.schemas")

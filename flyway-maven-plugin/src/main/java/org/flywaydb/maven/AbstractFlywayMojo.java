@@ -217,6 +217,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean cleanOnValidationError = flyway.isCleanOnValidationError();
 
     /**
+     * Whether to disable clean. (default: {@code false})
+     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.cleanDisabled}</p>
+     *
+     * @parameter property="flyway.cleanDisabled"
+     */
+    private boolean cleanDisabled;
+
+    /**
      * The target version up to which Flyway should consider migrations.
      * Migrations with a higher version number will be ignored.
      * The special value {@code current} designates the current version of the schema. (default: the latest version)
@@ -436,6 +445,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
             flyway.setCleanOnValidationError(cleanOnValidationError);
+            flyway.setCleanDisabled(cleanDisabled);
             flyway.setOutOfOrder(outOfOrder);
             flyway.setTargetAsString(target);
             flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);

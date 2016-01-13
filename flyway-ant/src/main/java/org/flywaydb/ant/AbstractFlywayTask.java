@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -368,6 +368,14 @@ public abstract class AbstractFlywayTask extends Task {
      */
     public void setCleanOnValidationError(boolean cleanOnValidationError) {
         flyway.setCleanOnValidationError(cleanOnValidationError);
+    }
+
+    /**
+     * @param cleanDisabled Whether to disable clean. (default: {@code false})
+     *                      <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     */
+    public void setCleanDisabled(boolean cleanDisabled) {
+        flyway.setCleanDisabled(cleanDisabled);
     }
 
     /**

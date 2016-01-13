@@ -195,6 +195,22 @@ public class FlywayMediumTest {
         flyway.baseline();
     }
 
+    @Test(expected = FlywayException.class)
+    public void cleanDisabled() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_clean_disabled;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        try {
+            flyway.clean();
+        } catch (FlywayException e) {
+            fail("clean should succeed when cleanDisabled is false");
+        }
+        flyway.setCleanDisabled(true);
+        flyway.clean();
+    }
+
     @Test
     public void cleanOnValidate() throws Exception {
         DriverDataSource dataSource =

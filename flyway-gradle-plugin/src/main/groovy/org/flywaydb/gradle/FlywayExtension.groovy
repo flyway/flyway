@@ -129,6 +129,12 @@ public class FlywayExtension {
     Boolean cleanOnValidationError
 
     /**
+     * Whether to disable clean. (default: {@code false})
+     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     */
+    Boolean cleanDisabled;
+
+    /**
      * <p>
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
      * This schema will then be baselined with the {@code baselineVersion} before executing the migrations.
