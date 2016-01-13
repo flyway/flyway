@@ -180,6 +180,10 @@ public class SqlStatementBuilder {
 
         String lineSimplified = simplifyLine(line);
 
+        if (isCommentDirective(lineSimplified)) {
+            nonCommentStatementPartSeen = true;
+        }
+
         applyStateChanges(lineSimplified);
         if (endWithOpenMultilineStringLiteral() || insideMultiLineComment) {
             statement.append(line);
@@ -189,10 +193,6 @@ public class SqlStatementBuilder {
         delimiter = changeDelimiterIfNecessary(lineSimplified, delimiter);
 
         statement.append(line);
-
-        if (isCommentDirective(lineSimplified)) {
-            nonCommentStatementPartSeen = true;
-        }
 
         if (!lineEndsWithSingleLineComment && lineTerminatesStatement(lineSimplified, delimiter)) {
             stripDelimiter(statement, delimiter);

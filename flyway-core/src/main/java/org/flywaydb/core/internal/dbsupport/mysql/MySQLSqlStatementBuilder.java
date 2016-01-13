@@ -61,14 +61,14 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
         if (line.matches("^" + Pattern.quote("/*!") + "\\d{5} .*" + Pattern.quote("*/") + "\\s*;?")) {
             return true;
         }
-        // last line of multi-line comment directive
-        if (isInMultiLineCommentDirective && line.matches(".*" + Pattern.quote("*/") + "\\s*;?")) {
-            isInMultiLineCommentDirective = false;
-            return true;
-        }
         // start of multi-line comment directive
         if (line.matches("^" + Pattern.quote("/*!") + "\\d{5} .*")) {
             isInMultiLineCommentDirective = true;
+            return true;
+        }
+        // last line of multi-line comment directive
+        if (isInMultiLineCommentDirective && line.matches(".*" + Pattern.quote("*/") + "\\s*;?")) {
+            isInMultiLineCommentDirective = false;
             return true;
         }
         return isInMultiLineCommentDirective;
