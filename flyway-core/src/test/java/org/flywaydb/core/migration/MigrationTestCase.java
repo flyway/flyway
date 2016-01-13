@@ -20,6 +20,7 @@ import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.*;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -160,7 +161,7 @@ public abstract class MigrationTestCase {
 
     protected String getMigrationDir() { return MIGRATIONDIR; }
     protected String getBasedir() { return BASEDIR; }
-    
+
 
     @Test
     public void migrate() throws Exception {
@@ -224,12 +225,11 @@ public abstract class MigrationTestCase {
      * @param migrationInfo The migration to check.
      */
     private void assertChecksum(MigrationInfo migrationInfo) {
+        FlywayConfiguration config = new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "V", "__", ".sql");
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
+                dbSupport, config,
                 new Location(getBasedir()),
-                PlaceholderReplacer.NO_PLACEHOLDERS,
-                "UTF-8",
-                "V", "__", ".sql");
+                PlaceholderReplacer.NO_PLACEHOLDERS);
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {
@@ -597,7 +597,7 @@ public abstract class MigrationTestCase {
         assertTrue(dbSupport.getOriginalSchema().exists());
         assertFalse(dbSupport.getSchema("InVaLidScHeMa").exists());
     }
-	
+
     protected void createTestTable() throws SQLException {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
@@ -607,15 +607,15 @@ public abstract class MigrationTestCase {
 	protected String getFutureFailedLocation() {
 		return "migration/future_failed";
 	}
-	
+
 	protected String getValidateLocation() {
 		return "migration/validate";
 	}
-	
+
 	protected String getSemiColonLocation() {
 		return "migration/semicolon";
 	}
-	
+
 	protected String getCommentLocation() {
 		return "migration/comment";
 	}

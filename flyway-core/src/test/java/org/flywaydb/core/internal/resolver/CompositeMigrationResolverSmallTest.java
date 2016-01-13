@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import org.flywaydb.core.api.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -41,10 +42,13 @@ public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                new Scanner(Thread.currentThread().getContextClassLoader()),
-                new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
+        FlywayConfiguration config = new FlywayConfigurationForTests(
+                Thread.currentThread().getContextClassLoader(),
+                new String[] {"migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"},
+                "UTF-8", "V", "__", ".sql",
+                new MyCustomMigrationResolver());
+
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null, config);
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);

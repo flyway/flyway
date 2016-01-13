@@ -13,32 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resolver.jdbc.dummy;
+package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.ConfigurationAware;
 import org.flywaydb.core.api.FlywayConfiguration;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
+import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Test migration. Doubles as test for {@link ConfigurationAware} migration.
- */
-public class V2__InterfaceBasedMigration implements JdbcMigration, ConfigurationAware {
+* Created by Axel on 3/7/14.
+*/
+public class MyConfigurationAwareCustomMigrationResolver extends MyCustomMigrationResolver implements ConfigurationAware {
 
     private FlywayConfiguration flywayConfiguration;
 
     @Override
     public void setFlywayConfiguration(FlywayConfiguration flywayConfiguration) {
         this.flywayConfiguration = flywayConfiguration;
-    }
-
-    public void migrate(Connection connection) throws Exception {
-        if (flywayConfiguration == null) {
-            throw new FlywayException("Flyway configuration has not been set on migration");
-        }
-        // Do nothing else
     }
 
     public boolean isFlywayConfigurationSet() {
