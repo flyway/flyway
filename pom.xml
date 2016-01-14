@@ -434,6 +434,11 @@
                 <classifier>macosx-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
+            <dependency>
+                <groupId>sqlline</groupId>
+                <artifactId>sqlline</artifactId>
+                <version>1.1.9</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

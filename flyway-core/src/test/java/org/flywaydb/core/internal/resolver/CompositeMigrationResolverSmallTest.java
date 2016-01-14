@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import org.flywaydb.core.api.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -23,6 +24,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -31,7 +33,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -40,11 +45,13 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                new Scanner(Thread.currentThread().getContextClassLoader()),
-                new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
+        FlywayConfiguration config = new FlywayConfigurationForTests(
+                Thread.currentThread().getContextClassLoader(),
+                new String[] {"migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"},
+                "UTF-8", "V", "__", ".sql",
+                new MyCustomMigrationResolver());
+
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null, config);
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
@@ -143,6 +150,21 @@ public class CompositeMigrationResolverSmallTest {
         CompositeMigrationResolver.checkForIncompatibilities(migrations);
     }
 
+    @Test
+    public void skipDefaultResolvers() {
+        FlywayConfigurationForTests config = new FlywayConfigurationForTests(
+                Thread.currentThread().getContextClassLoader(),
+                new String[] {"migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"},
+                "UTF-8", "V", "__", ".sql",
+                new MyCustomMigrationResolver());
+        config.setSkipDefaultResolvers(true);
+
+        CompositeMigrationResolver migrationResolver = new CompositeMigrationResolver(null, config);
+
+        assertThat(migrationResolver.getMigrationResolvers().size(), is(1));
+        assertThat(migrationResolver.getMigrationResolvers().iterator().next(), instanceOf(MyCustomMigrationResolver.class));
+    }
+
     /**
      * Creates a migration for our tests.
      *
@@ -162,5 +184,4 @@ public class CompositeMigrationResolverSmallTest {
         migration.setType(aMigrationType);
         return migration;
     }
-
 }

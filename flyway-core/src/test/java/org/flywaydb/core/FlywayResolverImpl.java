@@ -13,35 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resolver.jdbc.dummy;
+package org.flywaydb.core;
 
 import org.flywaydb.core.api.ConfigurationAware;
 import org.flywaydb.core.api.FlywayConfiguration;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.junit.Assert;
 
-import java.sql.Connection;
+import java.util.Collection;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
- * Test migration. Doubles as test for {@link ConfigurationAware} migration.
+ * Dummy implementation for Resolvers to check configuration injection.
  */
-public class V2__InterfaceBasedMigration implements JdbcMigration, ConfigurationAware {
+public class FlywayResolverImpl implements MigrationResolver, ConfigurationAware {
 
     private FlywayConfiguration flywayConfiguration;
 
     @Override
     public void setFlywayConfiguration(FlywayConfiguration flywayConfiguration) {
+
         this.flywayConfiguration = flywayConfiguration;
     }
 
-    public void migrate(Connection connection) throws Exception {
-        if (flywayConfiguration == null) {
-            throw new FlywayException("Flyway configuration has not been set on migration");
-        }
-        // Do nothing else
+    @Override
+    public Collection<ResolvedMigration> resolveMigrations() {
+        return null;
     }
 
-    public boolean isFlywayConfigurationSet() {
-        return flywayConfiguration != null;
+    public void assertFlywayConfigurationSet() {
+        assertNotNull("Configuration must have been set", flywayConfiguration);
     }
 }

@@ -15,7 +15,10 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import org.flywaydb.core.api.FlywayConfiguration;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
@@ -34,13 +37,13 @@ import static org.junit.Assert.assertEquals;
  */
 public class SqlMigrationResolverSmallTest {
 
-    private final Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader());
-
     @Test
     public void resolveMigrations() {
+        FlywayConfiguration config = new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "V", "__", ".sql");
+
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, scanner,
-                        new Location("migration/subdir"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", "__", ".sql");
+                new SqlMigrationResolver(null, config,
+                        new Location("migration/subdir"), PlaceholderReplacer.NO_PLACEHOLDERS);
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
@@ -58,9 +61,10 @@ public class SqlMigrationResolverSmallTest {
 
     @Test
     public void resolveMigrationsRoot() {
+        FlywayConfiguration config = new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "CheckValidate", "__", ".sql");
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, scanner, new Location(""),
-                        PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", "__", ".sql");
+                new SqlMigrationResolver(null, config, new Location(""),
+                        PlaceholderReplacer.NO_PLACEHOLDERS);
 
         //changed to 2 as new test cases are added for SybaseASE
         assertEquals(2, sqlMigrationResolver.resolveMigrations().size());
@@ -68,19 +72,20 @@ public class SqlMigrationResolverSmallTest {
 
     @Test
     public void resolveMigrationsNonExisting() {
+        FlywayConfiguration config = new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "CheckValidate", "__", ".sql");
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, scanner,
-                        new Location("non/existing"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8",
-                        "CheckValidate", "__", ".sql");
+                new SqlMigrationResolver(null, config,
+                        new Location("non/existing"), PlaceholderReplacer.NO_PLACEHOLDERS);
 
         sqlMigrationResolver.resolveMigrations();
     }
 
     @Test
     public void extractScriptName() {
+        FlywayConfiguration config = new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "db_", "__", ".sql");
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, scanner,
-                        new Location("db/migration"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", "__", ".sql");
+                new SqlMigrationResolver(null, config,
+                        new Location("db/migration"), PlaceholderReplacer.NO_PLACEHOLDERS);
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(
                 new ClassPathResource("db/migration/db_0__init.sql", Thread.currentThread().getContextClassLoader())));
@@ -88,9 +93,10 @@ public class SqlMigrationResolverSmallTest {
 
     @Test
     public void extractScriptNameRootLocation() {
+        FlywayConfiguration config = new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "db_", "__", ".sql");
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, scanner, new Location(""),
-                        PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", "__", ".sql");
+                new SqlMigrationResolver(null, config, new Location(""),
+                        PlaceholderReplacer.NO_PLACEHOLDERS);
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(
                 new ClassPathResource("db_0__init.sql", Thread.currentThread().getContextClassLoader())));
@@ -98,10 +104,10 @@ public class SqlMigrationResolverSmallTest {
 
     @Test
     public void extractScriptNameFileSystemPrefix() {
+        FlywayConfiguration config = new FlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0], "UTF-8", "V", "__", ".sql");
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, scanner,
-                        new Location("filesystem:/some/dir"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8",
-                        "V", "__", ".sql");
+                new SqlMigrationResolver(null, config,
+                        new Location("filesystem:/some/dir"), PlaceholderReplacer.NO_PLACEHOLDERS);
 
         assertEquals("V3.171__patch.sql", sqlMigrationResolver.extractScriptName(new FileSystemResource("/some/dir/V3.171__patch.sql")));
     }
