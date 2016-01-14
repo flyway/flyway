@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -100,12 +100,14 @@ public class MetaDataTableImpl implements MetaDataTable {
         MigrationVersion version = appliedMigration.getVersion();
 
         try {
-            int versionRank = calculateVersionRank(version);
+            String versionStr = version == null ? null : version.toString();
+            Integer versionRank = version == null ? null : calculateVersionRank(version);
 
             // Try load an updateMetaDataTable.sql file if it exists
-            try {
-                String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateMetaDataTable.sql";
-                String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateMetaDataTable.sql";
+            ClassPathResource classPathResource = new ClassPathResource(resourceName, getClass().getClassLoader());
+            if (classPathResource.exists()) {
+                String source = classPathResource.loadAsString("UTF-8");
                 Map<String, String> placeholders = new HashMap<String, String>();
 
                 // Placeholders for schema and table
@@ -115,7 +117,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 // Placeholders for column values
                 placeholders.put("version_rank_val", String.valueOf(versionRank));
                 placeholders.put("installed_rank_val", String.valueOf(calculateInstalledRank()));
-                placeholders.put("version_val", version.toString());
+                placeholders.put("version_val", versionStr);
                 placeholders.put("description_val", appliedMigration.getDescription());
                 placeholders.put("type_val", appliedMigration.getType().name());
                 placeholders.put("script_val", appliedMigration.getScript());
@@ -129,11 +131,8 @@ public class MetaDataTableImpl implements MetaDataTable {
                 SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
 
                 sqlScript.execute(jdbcTemplate);
-
-            }
-            // Fall back to hard-coded statements
-            catch (FlywayException e) {
-                LOG.info(e.getMessage());
+            } else {
+                // Fall back to hard-coded statements
                 jdbcTemplate.update("UPDATE " + table
                         + " SET " + dbSupport.quote("version_rank") + " = " + dbSupport.quote("version_rank")
                         + " + 1 WHERE " + dbSupport.quote("version_rank") + " >= ?", versionRank);
@@ -152,7 +151,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                                 + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
                         versionRank,
                         calculateInstalledRank(),
-                        version.toString(),
+                        versionStr,
                         appliedMigration.getDescription(),
                         appliedMigration.getType().name(),
                         appliedMigration.getScript(),
@@ -257,9 +256,9 @@ public class MetaDataTableImpl implements MetaDataTable {
                     }
 
                     return new AppliedMigration(
-                            rs.getInt("version_rank"),
+                            rs.getObject("version_rank") != null ? rs.getInt("version_rank") : null,
                             rs.getInt("installed_rank"),
-                            MigrationVersion.fromVersion(rs.getString("version")),
+                            rs.getString("version") != null ? MigrationVersion.fromVersion(rs.getString("version")) : null,
                             rs.getString("description"),
                             MigrationType.valueOf(rs.getString("type")),
                             rs.getString("script"),
@@ -404,8 +403,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             try {
                 jdbcTemplate.update("UPDATE " + table + " SET " + dbSupport.quote("checksum") + "=" + checksum
                         + " WHERE " + dbSupport.quote("version") + "='" + version + "'");
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new FlywayException("Unable to update checksum in metadata table " + table
                         + " for version " + version + " to " + checksum, e);
             }

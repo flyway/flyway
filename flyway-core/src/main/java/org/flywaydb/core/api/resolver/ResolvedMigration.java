@@ -23,7 +23,7 @@ import org.flywaydb.core.api.MigrationVersion;
  */
 public interface ResolvedMigration {
     /**
-     * @return The version of the database after applying this migration.
+     * @return The version of the database after applying this migration. {@code null} for repeatable migrations.
      */
     MigrationVersion getVersion();
 

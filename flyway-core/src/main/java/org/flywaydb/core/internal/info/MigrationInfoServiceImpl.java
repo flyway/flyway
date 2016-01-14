@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -97,9 +97,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         List<AppliedMigration> appliedMigrations = metaDataTable.allAppliedMigrations();
 
         migrationInfos = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
-        
+
         if (MigrationVersion.CURRENT == target) {
-        	target = current().getVersion();
+            target = current().getVersion();
         }
     }
 
@@ -118,18 +118,24 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         context.target = target;
 
         Map<MigrationVersion, ResolvedMigration> resolvedMigrationsMap = new TreeMap<MigrationVersion, ResolvedMigration>();
+        Map<String, ResolvedMigration> resolvedRepeatableMigrationsMap = new TreeMap<String, ResolvedMigration>();
         for (ResolvedMigration resolvedMigration : resolvedMigrations) {
             MigrationVersion version = resolvedMigration.getVersion();
-            if (version.compareTo(context.lastResolved) > 0) {
-                context.lastResolved = version;
+            if (version != null) {
+                if (version.compareTo(context.lastResolved) > 0) {
+                    context.lastResolved = version;
+                }
+                resolvedMigrationsMap.put(version, resolvedMigration);
+            } else {
+                resolvedRepeatableMigrationsMap.put(resolvedMigration.getDescription(), resolvedMigration);
             }
-            resolvedMigrationsMap.put(version, resolvedMigration);
         }
 
         Map<MigrationVersion, AppliedMigration> appliedMigrationsMap = new TreeMap<MigrationVersion, AppliedMigration>();
+        List<AppliedMigration> appliedRepeatableMigrations = new ArrayList<AppliedMigration>();
         for (AppliedMigration appliedMigration : appliedMigrations) {
             MigrationVersion version = appliedMigration.getVersion();
-            if (version.compareTo(context.lastApplied) > 0) {
+            if (version != null && version.compareTo(context.lastApplied) > 0) {
                 context.lastApplied = version;
             }
             if (appliedMigration.getType() == MigrationType.SCHEMA) {
@@ -138,7 +144,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             if (appliedMigration.getType() == MigrationType.BASELINE) {
                 context.baseline = version;
             }
-            appliedMigrationsMap.put(version, appliedMigration);
+            if (version != null) {
+                appliedMigrationsMap.put(version, appliedMigration);
+            } else {
+                appliedRepeatableMigrations.add(appliedMigration);
+            }
         }
 
         Set<MigrationVersion> allVersions = new HashSet<MigrationVersion>();
@@ -150,6 +160,23 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             ResolvedMigration resolvedMigration = resolvedMigrationsMap.get(version);
             AppliedMigration appliedMigration = appliedMigrationsMap.get(version);
             migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedMigration, context));
+        }
+
+        Set<ResolvedMigration> pendingResolvedRepeatableMigrations = new HashSet<ResolvedMigration>(resolvedRepeatableMigrationsMap.values());
+        for (AppliedMigration appliedRepeatableMigration : appliedRepeatableMigrations) {
+            ResolvedMigration resolvedMigration = resolvedRepeatableMigrationsMap.get(appliedRepeatableMigration.getDescription());
+            if (resolvedMigration != null) {
+                pendingResolvedRepeatableMigrations.remove(resolvedMigration);
+            }
+            if (!context.latestRepeatableRuns.containsKey(appliedRepeatableMigration.getDescription())
+                    || (appliedRepeatableMigration.getInstalledRank() > context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription()))) {
+                context.latestRepeatableRuns.put(appliedRepeatableMigration.getDescription(), appliedRepeatableMigration.getInstalledRank());
+            }
+            migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context));
+        }
+
+        for (ResolvedMigration pendingResolvedRepeatableMigration : pendingResolvedRepeatableMigrations) {
+            migrationInfos.add(new MigrationInfoImpl(pendingResolvedRepeatableMigration, null, context));
         }
 
         Collections.sort(migrationInfos);
@@ -164,7 +191,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     public MigrationInfo current() {
         for (int i = migrationInfos.size() - 1; i >= 0; i--) {
             MigrationInfo migrationInfo = migrationInfos.get(i);
-            if (migrationInfo.getState().isApplied()) {
+            if (migrationInfo.getState().isApplied() && migrationInfo.getVersion() != null) {
                 return migrationInfo;
             }
         }
@@ -175,7 +202,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     public MigrationInfoImpl[] pending() {
         List<MigrationInfoImpl> pendingMigrations = new ArrayList<MigrationInfoImpl>();
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            if (MigrationState.PENDING == migrationInfo.getState()) {
+            if (MigrationState.PENDING == migrationInfo.getState()
+                    || MigrationState.OUTDATED == migrationInfo.getState()) {
                 pendingMigrations.add(migrationInfo);
             }
         }

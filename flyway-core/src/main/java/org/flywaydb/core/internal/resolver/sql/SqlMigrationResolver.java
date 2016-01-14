@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -107,39 +107,28 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        Resource[] resources = scanner.scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
-        for (Resource resource : resources) {
-            ResolvedMigrationImpl resolvedMigration = extractMigrationInfo(resource);
-            resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
-            resolvedMigration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
-
-            migrations.add(resolvedMigration);
-        }
+        scanForMigrations(migrations, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
+        scanForMigrations(migrations, "R", sqlMigrationSeparator, sqlMigrationSuffix);
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    /**
-     * Extracts the migration info for this resource.
-     *
-     * @param resource The resource to analyse.
-     * @return The migration info.
-     */
-    private ResolvedMigrationImpl extractMigrationInfo(Resource resource) {
-        ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
+    public void scanForMigrations(List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
+        for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
+            Pair<MigrationVersion, String> info =
+                    MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(), prefix, separator, suffix);
 
-        Pair<MigrationVersion, String> info =
-                MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(),
-                        sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
-        migration.setVersion(info.getLeft());
-        migration.setDescription(info.getRight());
-
-        migration.setScript(extractScriptName(resource));
-
-        migration.setChecksum(calculateChecksum(resource.loadAsBytes()));
-        migration.setType(MigrationType.SQL);
-        return migration;
+            ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
+            migration.setVersion(info.getLeft());
+            migration.setDescription(info.getRight());
+            migration.setScript(extractScriptName(resource));
+            migration.setChecksum(calculateChecksum(resource.loadAsBytes()));
+            migration.setType(MigrationType.SQL);
+            migration.setPhysicalLocation(resource.getLocationOnDisk());
+            migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
+            migrations.add(migration);
+        }
     }
 
     /**

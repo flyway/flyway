@@ -190,9 +190,14 @@ public class DbMigrate {
                                 LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
                                         + ", but no migration could be resolved in the configured locations !");
                             } else {
+                                int offset = resolved.length - 1;
+                                while (resolved[offset].getVersion() == null) {
+                                    // Skip repeatable migrations
+                                    offset--;
+                                }
                                 LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
                                         + ") that is newer than the latest available migration ("
-                                        + resolved[resolved.length - 1].getVersion() + ") !");
+                                        + resolved[offset].getVersion() + ") !");
                             }
                         }
 
@@ -213,7 +218,8 @@ public class DbMigrate {
                             return null;
                         }
 
-                        boolean isOutOfOrder = pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
+                        boolean isOutOfOrder = pendingMigrations[0].getVersion() != null
+                                && pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
                         return applyMigration(pendingMigrations[0], isOutOfOrder);
                     }
                 });
@@ -274,8 +280,14 @@ public class DbMigrate {
      */
     private MigrationVersion applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
         MigrationVersion version = migration.getVersion();
-        LOG.info("Migrating schema " + schema + " to version " + version + " - " + migration.getDescription() +
-                (isOutOfOrder ? " (out of order)" : ""));
+        String migrationText;
+        if (version != null) {
+            migrationText = "schema " + schema + " to version " + version + " - " + migration.getDescription() +
+                            (isOutOfOrder ? " (out of order)" : "");
+        } else {
+            migrationText = "schema " + schema + " with repeatable migration " + migration.getDescription();
+        }
+        LOG.info("Migrating " + migrationText);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -309,7 +321,7 @@ public class DbMigrate {
                     throw new FlywayException("Unable to apply migration", e);
                 }
             }
-            LOG.debug("Successfully completed and committed migration of schema " + schema + " to version " + version);
+            LOG.debug("Successfully completed and committed migration of " + migrationText);
 
             for (final FlywayCallback callback : callbacks) {
                 new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
@@ -322,7 +334,7 @@ public class DbMigrate {
                 });
             }
         } catch (FlywayException e) {
-            String failedMsg = "Migration of schema " + schema + " to version " + version + " failed!";
+            String failedMsg = "Migration of " + migrationText + " failed!";
             if (dbSupport.supportsDdlTransactions()) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
             } else {
@@ -331,7 +343,7 @@ public class DbMigrate {
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
                 AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                        migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, false);
+                        migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
                 metaDataTable.addAppliedMigration(appliedMigration);
             }
             throw e;
@@ -341,7 +353,7 @@ public class DbMigrate {
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
         AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
-                migration.getType(), migration.getScript(), migration.getChecksum(), executionTime, true);
+                migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
         metaDataTable.addAppliedMigration(appliedMigration);
 
         return version;

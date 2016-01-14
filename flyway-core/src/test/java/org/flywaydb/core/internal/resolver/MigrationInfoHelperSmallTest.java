@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@ import org.flywaydb.core.internal.util.Pair;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test for MigrationInfoHelper.
@@ -32,6 +33,15 @@ public class MigrationInfoHelperSmallTest {
     @Test(expected = FlywayException.class)
     public void extractSchemaVersionNoDescription() {
         MigrationInfoHelper.extractVersionAndDescription("9_4", "", "__", "");
+    }
+
+    @Test
+    public void repeatableMigration() {
+        Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription("R__EmailAxel.sql", "R", "__", ".sql");
+        MigrationVersion version = info.getLeft();
+        String description = info.getRight();
+        assertNull(version);
+        assertEquals("EmailAxel", description);
     }
 
     @Test
