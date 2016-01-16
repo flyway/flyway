@@ -221,8 +221,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         createIfNotExists();
 
-        String query = "SELECT " + dbSupport.quote("version_rank")
-                + "," + dbSupport.quote("installed_rank")
+        String query = "SELECT " + dbSupport.quote("installed_rank")
                 + "," + dbSupport.quote("version")
                 + "," + dbSupport.quote("description")
                 + "," + dbSupport.quote("type")
@@ -245,7 +244,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             query += ")";
         }
 
-        query += " ORDER BY " + dbSupport.quote("version_rank");
+        query += " ORDER BY " + dbSupport.quote("installed_rank");
 
         try {
             return jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
@@ -256,7 +255,6 @@ public class MetaDataTableImpl implements MetaDataTable {
                     }
 
                     return new AppliedMigration(
-                            rs.getObject("version_rank") != null ? rs.getInt("version_rank") : null,
                             rs.getInt("installed_rank"),
                             rs.getString("version") != null ? MigrationVersion.fromVersion(rs.getString("version")) : null,
                             rs.getString("description"),

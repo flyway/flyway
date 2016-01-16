@@ -44,8 +44,8 @@ public interface MetaDataTable {
     boolean hasAppliedMigrations();
 
     /**
-     * @return The list of all migrations applied on the schema (oldest first). An empty list if no migration has been
-     * applied so far.
+     * @return The list of all migrations applied on the schema in the order they were applied (oldest first).
+     * An empty list if no migration has been applied so far.
      */
     List<AppliedMigration> allAppliedMigrations();
 

@@ -44,7 +44,7 @@ public class CompositeMigrationResolverSmallTest {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
                 new Scanner(Thread.currentThread().getContextClassLoader()),
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
+                "UTF-8", "V", "R", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);

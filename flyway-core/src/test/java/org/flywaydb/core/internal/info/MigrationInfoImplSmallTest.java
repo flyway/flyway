@@ -20,7 +20,10 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.util.Date;
+
+import static org.junit.Assert.assertTrue;
 
 public class MigrationInfoImplSmallTest {
     @Test
@@ -35,10 +38,10 @@ public class MigrationInfoImplSmallTest {
         resolvedMigration.setType(type);
         resolvedMigration.setChecksum(456);
 
-        AppliedMigration appliedMigration = new AppliedMigration(version, description, type, null, 123, 0, true);
+        AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, true);
 
         MigrationInfoImpl migrationInfo =
-                new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext());
+                new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext(), false);
         String message = migrationInfo.validate();
 
         assertTrue(message.contains("123"));

@@ -229,7 +229,7 @@ public abstract class MigrationTestCase {
                 new Location(getBasedir()),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",
-                "V", "__", ".sql");
+                "V", "R", "__", ".sql");
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {

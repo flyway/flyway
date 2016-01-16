@@ -46,17 +46,24 @@ public class MigrationInfoImpl implements MigrationInfo {
     private final MigrationInfoContext context;
 
     /**
+     * Whether this migration was applied out of order.
+     */
+    private final boolean outOfOrder;
+
+    /**
      * Creates a new MigrationInfoImpl.
      *
      * @param resolvedMigration The resolved migration to aggregate the info from.
      * @param appliedMigration  The applied migration to aggregate the info from.
      * @param context           The current context.
+     * @param outOfOrder        Whether this migration was applied out of order.
      */
     public MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                             MigrationInfoContext context) {
+                             MigrationInfoContext context, boolean outOfOrder) {
         this.resolvedMigration = resolvedMigration;
         this.appliedMigration = appliedMigration;
         this.context = context;
+        this.outOfOrder = outOfOrder;
     }
 
     /**
@@ -146,28 +153,45 @@ public class MigrationInfoImpl implements MigrationInfo {
             }
         }
 
-        if (appliedMigration.isSuccess()) {
-            if (appliedMigration.getVersion() == null) {
-                if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
-                    return MigrationState.SUCCESS;
-                }
-                if (appliedMigration.getInstalledRank() == context.latestRepeatableRuns.get(appliedMigration.getDescription())) {
-                    return MigrationState.OUTDATED;
-                }
-                return MigrationState.SUPERSEEDED;
-            }
+        if (!appliedMigration.isSuccess()) {
+            return MigrationState.FAILED;
+        }
 
-            if (appliedMigration.getVersionRank() == appliedMigration.getInstalledRank()) {
+        if (appliedMigration.getVersion() == null) {
+            if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
                 return MigrationState.SUCCESS;
             }
+            if (appliedMigration.getInstalledRank() == context.latestRepeatableRuns.get(appliedMigration.getDescription())) {
+                return MigrationState.OUTDATED;
+            }
+            return MigrationState.SUPERSEEDED;
+        }
+
+        if (outOfOrder) {
             return MigrationState.OUT_OF_ORDER;
         }
-        return MigrationState.FAILED;
+        return MigrationState.SUCCESS;
     }
 
     public Date getInstalledOn() {
         if (appliedMigration != null) {
             return appliedMigration.getInstalledOn();
+        }
+        return null;
+    }
+
+    @Override
+    public String getInstalledBy() {
+        if (appliedMigration != null) {
+            return appliedMigration.getInstalledBy();
+        }
+        return null;
+    }
+
+    @Override
+    public Integer getInstalledRank() {
+        if (appliedMigration != null) {
+            return appliedMigration.getInstalledRank();
         }
         return null;
     }
@@ -251,6 +275,9 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     @SuppressWarnings("NullableProblems")
     public int compareTo(MigrationInfo o) {
+        if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
+            return getInstalledRank() - o.getInstalledRank();
+        }
         if (getVersion() != null && o.getVersion() != null) {
             return getVersion().compareTo(o.getVersion());
         }
@@ -261,17 +288,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return Integer.MAX_VALUE;
         }
 
-        if ((appliedMigration != null)
-                && (o instanceof MigrationInfoImpl)
-                && (((MigrationInfoImpl) o).appliedMigration != null)) {
-            return appliedMigration.getInstalledRank() - ((MigrationInfoImpl) o).appliedMigration.getInstalledRank();
-        }
-        if (appliedMigration != null) {
-            return Integer.MIN_VALUE;
-        }
-
-        // Ensure pending repeatable migrations are at the bottom of the list
-        return Integer.MAX_VALUE;
+        return getDescription().compareTo(o.getDescription());
     }
 
     @SuppressWarnings("SimplifiableIfStatement")

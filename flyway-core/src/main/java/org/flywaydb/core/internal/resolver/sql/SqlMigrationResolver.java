@@ -70,6 +70,11 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final String sqlMigrationPrefix;
 
     /**
+     * The prefix for repeatable sql migrations
+     */
+    private final String repeatableSqlMigrationPrefix;
+
+    /**
      * The separator for sql migrations
      */
     private final String sqlMigrationSeparator;
@@ -82,24 +87,27 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param dbSupport             The database-specific support.
-     * @param scanner               The Scanner for loading migrations on the classpath.
-     * @param location              The location on the classpath where to migrations are located.
-     * @param placeholderReplacer   The placeholder replacer to apply to sql migration scripts.
-     * @param encoding              The encoding of Sql migrations.
-     * @param sqlMigrationPrefix    The prefix for sql migrations
-     * @param sqlMigrationSeparator The separator for sql migrations
-     * @param sqlMigrationSuffix    The suffix for sql migrations
+     * @param dbSupport                    The database-specific support.
+     * @param scanner                      The Scanner for loading migrations on the classpath.
+     * @param location                     The location on the classpath where to migrations are located.
+     * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
+     * @param encoding                     The encoding of Sql migrations.
+     * @param sqlMigrationPrefix           The prefix for sql migrations
+     * @param repeatableSqlMigrationPrefix The prefix for repeatable sql migrations
+     * @param sqlMigrationSeparator        The separator for sql migrations
+     * @param sqlMigrationSuffix           The suffix for sql migrations
      */
     public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
                                 PlaceholderReplacer placeholderReplacer, String encoding,
-                                String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix) {
+                                String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
+                                String sqlMigrationSeparator, String sqlMigrationSuffix) {
         this.dbSupport = dbSupport;
         this.scanner = scanner;
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
+        this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
         this.sqlMigrationSeparator = sqlMigrationSeparator;
         this.sqlMigrationSuffix = sqlMigrationSuffix;
     }
@@ -108,7 +116,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         scanForMigrations(migrations, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
-        scanForMigrations(migrations, "R", sqlMigrationSeparator, sqlMigrationSuffix);
+        scanForMigrations(migrations, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;

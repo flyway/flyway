@@ -144,6 +144,14 @@ public class Flyway {
     private String sqlMigrationPrefix = "V";
 
     /**
+     * The file name prefix for repeatable sql migrations. (default: R)
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     */
+    private String repeatableSqlMigrationPrefix = "R";
+
+    /**
      * The file name separator for sql migrations. (default: __)
      * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
@@ -379,6 +387,18 @@ public class Flyway {
     }
 
     /**
+     * Retrieves the file name prefix for repeatable sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     *
+     * @return The file name prefix for repeatable sql migrations. (default: R)
+     */
+    public String getRepeatableSqlMigrationPrefix() {
+        return repeatableSqlMigrationPrefix;
+    }
+
+    /**
      * Retrieves the file name separator for sql migrations.
      * <p/>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
@@ -444,6 +464,7 @@ public class Flyway {
     /**
      * Whether to disable clean.
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     *
      * @return {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
      */
     public boolean isCleanDisabled() {
@@ -570,6 +591,7 @@ public class Flyway {
     /**
      * Whether to disable clean.
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     *
      * @param cleanDisabled {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
      */
     public void setCleanDisabled(boolean cleanDisabled) {
@@ -701,6 +723,18 @@ public class Flyway {
      */
     public void setSqlMigrationPrefix(String sqlMigrationPrefix) {
         this.sqlMigrationPrefix = sqlMigrationPrefix;
+    }
+
+    /**
+     * Sets the file name prefix for repeatable sql migrations.
+     * <p/>
+     * <p>Sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     *
+     * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)
+     */
+    public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefix) {
+        this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
     }
 
     /**
@@ -1084,8 +1118,8 @@ public class Flyway {
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport, Scanner scanner) {
         return new CompositeMigrationResolver(dbSupport, scanner, locations,
-                encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, createPlaceholderReplacer(),
-                resolvers);
+                encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix,
+                createPlaceholderReplacer(), resolvers);
     }
 
     /**
@@ -1141,6 +1175,10 @@ public class Flyway {
         String sqlMigrationPrefixProp = getValueAndRemoveEntry(props, "flyway.sqlMigrationPrefix");
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
+        }
+        String repeatableSqlMigrationPrefixProp = getValueAndRemoveEntry(props, "flyway.repeatableSqlMigrationPrefix");
+        if (repeatableSqlMigrationPrefixProp != null) {
+            setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefixProp);
         }
         String sqlMigrationSeparatorProp = getValueAndRemoveEntry(props, "flyway.sqlMigrationSeparator");
         if (sqlMigrationSeparatorProp != null) {
@@ -1328,8 +1366,8 @@ public class Flyway {
          *
          * @param connectionMetaDataTable The database connection for the metadata table changes.
          * @param connectionUserObjects   The database connection for user object changes.
-         * @param migrationResolver
-         *@param dbSupport               The database-specific support for these connections.
+         * @param migrationResolver       The migration resolver to use.
+         * @param dbSupport               The database-specific support for these connections.
          * @param schemas                 The schemas managed by Flyway.   @return The result of the operation.
          */
         T execute(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver, DbSupport dbSupport, Schema[] schemas);

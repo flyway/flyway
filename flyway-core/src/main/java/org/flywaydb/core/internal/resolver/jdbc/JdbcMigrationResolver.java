@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Migration resolver for Jdbc migrations. The classes must have a name like V1 or V1_1_3 or V1__Description
+ * Migration resolver for Jdbc migrations. The classes must have a name like R__My_description, V1__Description
  * or V1_1_3__Description.
  */
 public class JdbcMigrationResolver implements MigrationResolver {
@@ -111,20 +111,24 @@ public class JdbcMigrationResolver implements MigrationResolver {
                 throw new FlywayException("Missing description for migration " + version);
             }
         } else {
-            Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(
-                            ClassUtils.getShortName(jdbcMigration.getClass()), "V", "__", "");
+            String shortName = ClassUtils.getShortName(jdbcMigration.getClass());
+            String prefix;
+            if (shortName.startsWith("V") || shortName.startsWith("R")) {
+                prefix = shortName.substring(0, 1);
+            } else {
+                throw new FlywayException("Invalid Jdbc migration class name: " + jdbcMigration.getClass().getName()
+                        + " => ensure it starts with V or R," +
+                        " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
+            }
+            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
             version = info.getLeft();
             description = info.getRight();
         }
 
-        String script = jdbcMigration.getClass().getName();
-
-
         ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
         resolvedMigration.setVersion(version);
         resolvedMigration.setDescription(description);
-        resolvedMigration.setScript(script);
+        resolvedMigration.setScript(jdbcMigration.getClass().getName());
         resolvedMigration.setChecksum(checksum);
         resolvedMigration.setType(MigrationType.JDBC);
         return resolvedMigration;

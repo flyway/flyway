@@ -26,11 +26,6 @@ import java.util.Date;
  */
 public class AppliedMigration implements Comparable<AppliedMigration> {
     /**
-     * The position of this version amongst all others. (For easy order by sorting)
-     */
-    private Integer versionRank;
-
-    /**
      * The order in which this migration was applied amongst all others. (For out of order detection)
      */
     private int installedRank;
@@ -83,7 +78,6 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
     /**
      * Creates a new applied migration. Only called from the RowMapper.
      *
-     * @param versionRank   The position of this version amongst all others. (For easy order by sorting)
      * @param installedRank The order in which this migration was applied amongst all others. (For out of order detection)
      * @param version       The target version of this migration.
      * @param description   The description of the migration.
@@ -95,10 +89,9 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
      * @param executionTime The execution time (in millis) of this migration.
      * @param success       Flag indicating whether the migration was successful or not.
      */
-    public AppliedMigration(Integer versionRank, int installedRank, MigrationVersion version, String description,
+    public AppliedMigration(int installedRank, MigrationVersion version, String description,
                      MigrationType type, String script, Integer checksum, Date installedOn,
                      String installedBy, int executionTime, boolean success) {
-        this.versionRank = versionRank;
         this.installedRank = installedRank;
         this.version = version;
         this.description = description;
@@ -167,13 +160,6 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         }
 
         return "..." + script.substring(3, 1000);
-    }
-
-    /**
-     * @return The position of this version amongst all others. (For easy order by sorting)
-     */
-    public Integer getVersionRank() {
-        return versionRank;
     }
 
     /**
@@ -257,7 +243,6 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         if (executionTime != that.executionTime) return false;
         if (installedRank != that.installedRank) return false;
         if (success != that.success) return false;
-        if (!ObjectUtils.nullSafeEquals(versionRank, that.versionRank)) return false;
         if (checksum != null ? !checksum.equals(that.checksum) : that.checksum != null) return false;
         if (!description.equals(that.description)) return false;
         if (installedBy != null ? !installedBy.equals(that.installedBy) : that.installedBy != null) return false;
@@ -269,8 +254,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
 
     @Override
     public int hashCode() {
-        int result = (versionRank != null ? versionRank.hashCode() : 0);
-        result = 31 * result + installedRank;
+        int result = installedRank;
         result = 31 * result + (version != null ? version.hashCode() : 0);
         result = 31 * result + description.hashCode();
         result = 31 * result + type.hashCode();

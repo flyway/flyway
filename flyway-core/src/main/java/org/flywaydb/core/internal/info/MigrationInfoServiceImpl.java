@@ -15,24 +15,14 @@
  */
 package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationInfoService;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Default implementation of MigrationInfoService.
@@ -131,12 +121,19 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        Map<MigrationVersion, AppliedMigration> appliedMigrationsMap = new TreeMap<MigrationVersion, AppliedMigration>();
+        Map<MigrationVersion, Pair<AppliedMigration, Boolean>> appliedMigrationsMap =
+                new TreeMap<MigrationVersion, Pair<AppliedMigration, Boolean>>();
         List<AppliedMigration> appliedRepeatableMigrations = new ArrayList<AppliedMigration>();
+        MigrationVersion newestVersion = null;
         for (AppliedMigration appliedMigration : appliedMigrations) {
             MigrationVersion version = appliedMigration.getVersion();
-            if (version != null && version.compareTo(context.lastApplied) > 0) {
-                context.lastApplied = version;
+            boolean outOfOrder = false;
+            if (version != null) {
+                if (version.compareTo(context.lastApplied) > 0) {
+                    context.lastApplied = version;
+                } else {
+                    outOfOrder = true;
+                }
             }
             if (appliedMigration.getType() == MigrationType.SCHEMA) {
                 context.schema = version;
@@ -145,7 +142,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
                 context.baseline = version;
             }
             if (version != null) {
-                appliedMigrationsMap.put(version, appliedMigration);
+                appliedMigrationsMap.put(version, Pair.of(appliedMigration, outOfOrder));
             } else {
                 appliedRepeatableMigrations.add(appliedMigration);
             }
@@ -158,8 +155,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         List<MigrationInfoImpl> migrationInfos = new ArrayList<MigrationInfoImpl>();
         for (MigrationVersion version : allVersions) {
             ResolvedMigration resolvedMigration = resolvedMigrationsMap.get(version);
-            AppliedMigration appliedMigration = appliedMigrationsMap.get(version);
-            migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedMigration, context));
+            Pair<AppliedMigration, Boolean> appliedMigrationInfo = appliedMigrationsMap.get(version);
+            if (appliedMigrationInfo == null) {
+                migrationInfos.add(new MigrationInfoImpl(resolvedMigration, null, context, false));
+            } else {
+                migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedMigrationInfo.getLeft(), context, appliedMigrationInfo.getRight()));
+            }
         }
 
         Set<ResolvedMigration> pendingResolvedRepeatableMigrations = new HashSet<ResolvedMigration>(resolvedRepeatableMigrationsMap.values());
@@ -172,11 +173,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
                     || (appliedRepeatableMigration.getInstalledRank() > context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription()))) {
                 context.latestRepeatableRuns.put(appliedRepeatableMigration.getDescription(), appliedRepeatableMigration.getInstalledRank());
             }
-            migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context));
+            migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false));
         }
 
         for (ResolvedMigration pendingResolvedRepeatableMigration : pendingResolvedRepeatableMigrations) {
-            migrationInfos.add(new MigrationInfoImpl(pendingResolvedRepeatableMigration, null, context));
+            migrationInfos.add(new MigrationInfoImpl(pendingResolvedRepeatableMigration, null, context, false));
         }
 
         Collections.sort(migrationInfos);
