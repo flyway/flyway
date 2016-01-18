@@ -583,13 +583,8 @@ public abstract class MigrationTestCase {
         flyway.setOutOfOrder(true);
         flyway.migrate();
 
-        // With schema markers, we'll have 4 migrations instead of 3
-        if(flyway.info().applied()[0].getType() == MigrationType.SCHEMA) {
-            assertEquals(org.flywaydb.core.api.MigrationState.OUT_OF_ORDER, flyway.info().all()[3].getState());
-        }
-        else {
-            assertEquals(org.flywaydb.core.api.MigrationState.OUT_OF_ORDER, flyway.info().all()[2].getState());
-        }
+        MigrationInfo[] all = flyway.info().all();
+        assertEquals(org.flywaydb.core.api.MigrationState.OUT_OF_ORDER, all[all.length-1].getState());
     }
 
     @Test

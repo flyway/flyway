@@ -81,7 +81,7 @@ public class CommandLineLargeTest {
     @Test
     public void exitCodeForFailedMigration() throws Exception {
         String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=filesystem:sql/invalid");
-        assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 failed!"));
+        assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 - Invalid failed!"));
         assertTrue(stdOut.contains("17"));
         assertTrue(stdOut.contains("InVaLiD SqL !!!"));
     }

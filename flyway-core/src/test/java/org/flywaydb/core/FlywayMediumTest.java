@@ -382,7 +382,8 @@ public class FlywayMediumTest {
         assertEquals(MigrationState.PENDING, flyway.info().all()[2].getState());
         assertEquals(2, flyway.migrate());
 
-        assertEquals(MigrationState.OUT_OF_ORDER, flyway.info().all()[2].getState());
+        MigrationInfo[] all = flyway.info().all();
+        assertEquals(MigrationState.OUT_OF_ORDER, all[3].getState());
         assertEquals(MigrationState.SUCCESS, flyway.info().all()[4].getState());
     }
 
