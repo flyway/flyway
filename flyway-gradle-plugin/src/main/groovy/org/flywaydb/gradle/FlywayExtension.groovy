@@ -79,6 +79,14 @@ public class FlywayExtension {
     String sqlMigrationPrefix
 
     /**
+     * The file name prefix for repeatable sql migrations (default: R).
+     *
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     */
+    String repeatableSqlMigrationPrefix
+
+    /**
      * The file name prefix for Sql migrations
      *
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,

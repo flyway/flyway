@@ -146,7 +146,7 @@ public class Flyway {
     /**
      * The file name prefix for repeatable sql migrations. (default: R)
      * <p/>
-     * <p>Sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      */
     private String repeatableSqlMigrationPrefix = "R";
@@ -389,7 +389,7 @@ public class Flyway {
     /**
      * Retrieves the file name prefix for repeatable sql migrations.
      * <p/>
-     * <p>Sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      *
      * @return The file name prefix for repeatable sql migrations. (default: R)
@@ -728,7 +728,7 @@ public class Flyway {
     /**
      * Sets the file name prefix for repeatable sql migrations.
      * <p/>
-     * <p>Sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      *
      * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)

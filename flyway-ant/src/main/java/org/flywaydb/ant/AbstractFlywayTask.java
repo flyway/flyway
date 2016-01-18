@@ -329,6 +329,16 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     *
+     * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)<br>Also configurable with Ant Property: ${flyway.repeatableSqlMigrationPrefix}
+     */
+    public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefix) {
+        flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
+    }
+
+    /**
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *

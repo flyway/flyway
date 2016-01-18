@@ -88,6 +88,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         propSet(flyway, 'baselineDescription')
         propSet(flyway, 'sqlMigrationPrefix')
+        propSet(flyway, 'repeatableSqlMigrationPrefix')
         propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
         propSet(flyway, 'encoding')

@@ -182,6 +182,17 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String sqlMigrationPrefix = flyway.getSqlMigrationPrefix();
 
     /**
+     * The file name prefix for repeatable sql migrations (default: R) <p>Also configurable with Maven or System Property:
+     * ${flyway.repeatableSqlMigrationPrefix}</p>
+     *
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     *
+     * @parameter property="flyway.repeatableSqlMigrationPrefix"
+     */
+    private String repeatableSqlMigrationPrefix = flyway.getRepeatableSqlMigrationPrefix();
+
+    /**
      * The file name separator for Sql migrations (default: __) <p>Also configurable with Maven or System Property:
      * ${flyway.sqlMigrationSeparator}</p>
      *
@@ -442,6 +453,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setCallbacksAsClassNames(callbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
+            flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
             flyway.setCleanOnValidationError(cleanOnValidationError);
