@@ -14,27 +14,9 @@
 -- limitations under the License.
 --
 
--- Update version ranks if needed
-UPSERT INTO "${schema}"."${table}"
-SELECT     "version",
-           "version_rank" + 1 AS "version_rank",
-           "installed_rank"
-           "version",
-           "description",
-           "type",
-           "script",
-           "checksum",
-           "installed_by",
-           CURRENT_TIME(),
-           "execution_time",
-           "success"
-FROM       "${schema}"."${table}"
-WHERE      "version_rank" >= ${version_rank_val};
-
 -- Add new metadata row
 UPSERT INTO "${schema}"."${table}" VALUES (
     '${version_val}',
-    ${version_rank_val},
     ${installed_rank_val},
     '${description_val}',
     '${type_val}',

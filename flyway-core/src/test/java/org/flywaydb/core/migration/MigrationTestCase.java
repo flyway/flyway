@@ -395,7 +395,7 @@ public abstract class MigrationTestCase {
     @Test
     public void columnExists() throws Exception {
         flyway.baseline();
-        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("version_rank"));
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("installed_rank"));
         assertFalse(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
     }
 

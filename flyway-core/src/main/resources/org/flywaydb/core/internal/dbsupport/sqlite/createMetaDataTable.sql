@@ -15,9 +15,8 @@
 --
 
 CREATE TABLE "${schema}"."${table}" (
-    "version_rank" INT NOT NULL,
-    "installed_rank" INT NOT NULL,
-    "version" VARCHAR(50) NOT NULL PRIMARY KEY,
+    "installed_rank" INT NOT NULL PRIMARY KEY,
+    "version" VARCHAR(50),
     "description" VARCHAR(200) NOT NULL,
     "type" VARCHAR(20) NOT NULL,
     "script" VARCHAR(1000) NOT NULL,
@@ -28,6 +27,4 @@ CREATE TABLE "${schema}"."${table}" (
     "success" BOOLEAN NOT NULL
 );
 
-CREATE INDEX "${schema}"."${table}_vr_idx" ON "${table}" ("version_rank");
-CREATE INDEX "${schema}"."${table}_ir_idx" ON "${table}" ("installed_rank");
 CREATE INDEX "${schema}"."${table}_s_idx" ON "${table}" ("success");

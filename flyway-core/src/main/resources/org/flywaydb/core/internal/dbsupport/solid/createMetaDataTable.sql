@@ -15,9 +15,8 @@
 --
 
 CREATE TABLE ${schema}.${table} (
-    version_rank INT NOT NULL,
     installed_rank INT NOT NULL,
-    version VARCHAR(50) NOT NULL,
+    version VARCHAR(50),
     description VARCHAR(200) NOT NULL,
     type VARCHAR(20) NOT NULL,
     script VARCHAR(1000) NOT NULL,
@@ -26,7 +25,7 @@ CREATE TABLE ${schema}.${table} (
     installed_on TIMESTAMP,
     execution_time INT NOT NULL,
     success SMALLINT NOT NULL,
-    PRIMARY KEY(version)
+    PRIMARY KEY(installed_rank)
 ) STORE DISK;
 
 "CREATE TRIGGER ${schema}.${table}_create ON ${schema}.${table}
@@ -35,8 +34,6 @@ CREATE TABLE ${schema}.${table} (
     SET new_installed_on = NOW();
     END";
 
-CREATE INDEX ${table}_vr_idx ON ${schema}.${table} (version_rank);
-CREATE INDEX ${table}_ir_idx ON ${schema}.${table} (installed_rank);
 CREATE INDEX ${table}_s_idx ON ${schema}.${table} (success);
 
 COMMIT WORK;

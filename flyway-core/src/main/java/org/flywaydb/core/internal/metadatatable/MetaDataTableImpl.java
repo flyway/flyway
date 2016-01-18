@@ -101,7 +101,6 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         try {
             String versionStr = version == null ? null : version.toString();
-            Integer versionRank = version == null ? null : calculateVersionRank(version);
 
             // Try load an updateMetaDataTable.sql file if it exists
             String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateMetaDataTable.sql";
@@ -115,7 +114,6 @@ public class MetaDataTableImpl implements MetaDataTable {
                 placeholders.put("table", table.getName());
 
                 // Placeholders for column values
-                placeholders.put("version_rank_val", String.valueOf(versionRank));
                 placeholders.put("installed_rank_val", String.valueOf(calculateInstalledRank()));
                 placeholders.put("version_val", versionStr);
                 placeholders.put("description_val", appliedMigration.getDescription());
@@ -133,12 +131,8 @@ public class MetaDataTableImpl implements MetaDataTable {
                 sqlScript.execute(jdbcTemplate);
             } else {
                 // Fall back to hard-coded statements
-                jdbcTemplate.update("UPDATE " + table
-                        + " SET " + dbSupport.quote("version_rank") + " = " + dbSupport.quote("version_rank")
-                        + " + 1 WHERE " + dbSupport.quote("version_rank") + " >= ?", versionRank);
                 jdbcTemplate.update("INSERT INTO " + table
-                                + " (" + dbSupport.quote("version_rank")
-                                + "," + dbSupport.quote("installed_rank")
+                                + " (" + dbSupport.quote("installed_rank")
                                 + "," + dbSupport.quote("version")
                                 + "," + dbSupport.quote("description")
                                 + "," + dbSupport.quote("type")
@@ -148,8 +142,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                                 + "," + dbSupport.quote("execution_time")
                                 + "," + dbSupport.quote("success")
                                 + ")"
-                                + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
-                        versionRank,
+                                + " VALUES (?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
                         calculateInstalledRank(),
                         versionStr,
                         appliedMigration.getDescription(),
@@ -176,31 +169,6 @@ public class MetaDataTableImpl implements MetaDataTable {
         int currentMax = jdbcTemplate.queryForInt("SELECT MAX(" + dbSupport.quote("installed_rank") + ")"
                 + " FROM " + table);
         return currentMax + 1;
-    }
-
-    /**
-     * Calculate the rank for this new version about to be inserted.
-     *
-     * @param version The version to calculated for.
-     * @return The rank.
-     */
-    private int calculateVersionRank(MigrationVersion version) throws SQLException {
-        List<String> versions = jdbcTemplate.queryForStringList("select " + dbSupport.quote("version") + " from " + table);
-
-        List<MigrationVersion> migrationVersions = new ArrayList<MigrationVersion>();
-        for (String versionStr : versions) {
-            migrationVersions.add(MigrationVersion.fromVersion(versionStr));
-        }
-
-        Collections.sort(migrationVersions);
-
-        for (int i = 0; i < migrationVersions.size(); i++) {
-            if (version.compareTo(migrationVersions.get(i)) < 0) {
-                return i + 1;
-            }
-        }
-
-        return migrationVersions.size() + 1;
     }
 
     @Override

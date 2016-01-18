@@ -31,9 +31,8 @@ CREATE TABLESPACE SDBVERS
 
 
 CREATE TABLE "${schema}"."${table}" (
-    "version_rank" INT NOT NULL,
     "installed_rank" INT NOT NULL,
-    "version" VARCHAR(50) NOT NULL,
+    "version" VARCHAR(50),
     "description" VARCHAR(200) NOT NULL,
     "type" VARCHAR(20) NOT NULL,
     "script" VARCHAR(1000) NOT NULL,
@@ -48,12 +47,8 @@ IN "${schema}".SDBVERS
   CCSID UNICODE
 ;
 
--- Indekser og constraints
-CREATE UNIQUE INDEX "${schema}"."${table}_VPK_IDX" ON ${schema}."${table}" ("version" ASC);
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_PK" PRIMARY KEY ("version");
+ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_PK" PRIMARY KEY ("installed_rank");
 
-CREATE INDEX "${schema}"."${table}_VR_IDX" ON "${schema}"."${table}" ("version_rank");
-CREATE INDEX "${schema}"."${table}_IR_IDX" ON "${schema}"."${table}" ("installed_rank");
 CREATE INDEX "${schema}"."${table}_S_IDX" ON "${schema}"."${table}" ("success");
 
 

@@ -15,9 +15,8 @@
 --
 
 CREATE TABLE "${schema}"."${table}" (
-    "version_rank" INT NOT NULL,
     "installed_rank" INT NOT NULL,
-    "version" VARCHAR(50) NOT NULL,
+    "version" VARCHAR(50),
     "description" VARCHAR(200) NOT NULL,
     "type" VARCHAR(20) NOT NULL,
     "script" VARCHAR(1000) NOT NULL,
@@ -29,8 +28,6 @@ CREATE TABLE "${schema}"."${table}" (
 ) WITH (
   OIDS=FALSE
 );
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("version");
+ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
 
-CREATE INDEX "${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
-CREATE INDEX "${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
 CREATE INDEX "${table}_s_idx" ON "${schema}"."${table}" ("success");

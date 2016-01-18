@@ -16,7 +16,6 @@
 
 CREATE TABLE "${schema}"."${table}" (
     "installed_rank" INT NOT NULL,
-    "version_rank" INT,
     "version" VARCHAR2(50),
     "description" VARCHAR2(200) NOT NULL,
     "type" VARCHAR2(20) NOT NULL,
@@ -29,5 +28,4 @@ CREATE TABLE "${schema}"."${table}" (
 );
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
 
-CREATE INDEX "${schema}"."${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
 CREATE INDEX "${schema}"."${table}_s_idx" ON "${schema}"."${table}" ("success");
