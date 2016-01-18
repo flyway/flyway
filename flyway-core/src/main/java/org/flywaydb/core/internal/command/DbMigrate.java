@@ -163,8 +163,8 @@ public class DbMigrate {
             int migrationSuccessCount = 0;
             while (true) {
                 final boolean firstRun = migrationSuccessCount == 0;
-                MigrationVersion result = new TransactionTemplate(connectionMetaDataTable, false).execute(new TransactionCallback<MigrationVersion>() {
-                    public MigrationVersion doInTransaction() {
+                boolean done = new TransactionTemplate(connectionMetaDataTable, false).execute(new TransactionCallback<Boolean>() {
+                    public Boolean doInTransaction() {
                         metaDataTable.lock();
 
                         MigrationInfoServiceImpl infoService =
@@ -215,7 +215,7 @@ public class DbMigrate {
                         MigrationInfoImpl[] pendingMigrations = infoService.pending();
 
                         if (pendingMigrations.length == 0) {
-                            return null;
+                            return true;
                         }
 
                         boolean isOutOfOrder = pendingMigrations[0].getVersion() != null
@@ -223,7 +223,7 @@ public class DbMigrate {
                         return applyMigration(pendingMigrations[0], isOutOfOrder);
                     }
                 });
-                if (result == null) {
+                if (done) {
                     // No further migrations available
                     break;
                 }
@@ -278,7 +278,7 @@ public class DbMigrate {
      * @param isOutOfOrder If this migration is being applied out of order.
      * @return The result of the migration.
      */
-    private MigrationVersion applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
+    private Boolean applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
         MigrationVersion version = migration.getVersion();
         String migrationText;
         if (version != null) {
@@ -356,6 +356,6 @@ public class DbMigrate {
                 migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
         metaDataTable.addAppliedMigration(appliedMigration);
 
-        return version;
+        return false;
     }
 }

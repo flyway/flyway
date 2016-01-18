@@ -388,6 +388,38 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void repeatable() {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable;DB_CLOSE_DELAY=-1", "sa", "");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql", "migration/repeatable");
+        assertEquals(6, flyway.migrate());
+        assertEquals(0, flyway.info().pending().length);
+
+        for (MigrationInfo migrationInfo : flyway.info().all()) {
+            assertEquals(MigrationState.SUCCESS, migrationInfo.getState());
+        }
+
+        flyway.setLocations("migration/sql", "migration/repeatable2");
+        MigrationInfo[] all = flyway.info().all();
+        assertEquals(MigrationState.OUTDATED, all[all.length - 2].getState());
+        assertEquals(MigrationState.OUTDATED, all[all.length - 1].getState());
+        assertEquals(2, flyway.info().pending().length);
+
+        assertEquals(2, flyway.migrate());
+        assertEquals(0, flyway.info().pending().length);
+        all = flyway.info().all();
+        assertEquals(MigrationState.SUPERSEEDED, all[all.length - 4].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[all.length - 3].getState());
+        assertEquals(MigrationState.SUCCESS, all[all.length - 2].getState());
+        assertEquals(MigrationState.SUCCESS, all[all.length - 1].getState());
+
+        assertEquals(0, flyway.migrate());
+    }
+
+    @Test
     public void emptyLocations() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_empty;DB_CLOSE_DELAY=-1", "sa", "");
