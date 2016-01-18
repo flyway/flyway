@@ -60,7 +60,7 @@ public class SqlMigrationResolverSmallTest {
     public void resolveMigrationsRoot() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner, new Location(""),
-                        PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", "R", "__", ".sql");
+                        PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", "X", "__", ".sql");
 
         //changed to 2 as new test cases are added for SybaseASE
         assertEquals(2, sqlMigrationResolver.resolveMigrations().size());
