@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
@@ -124,8 +125,12 @@ public class SqlMigrationResolver implements MigrationResolver {
 
     public void scanForMigrations(List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
         for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
+            String filename = resource.getFilename();
+            if (isSqlCallback(filename, suffix)) {
+                continue;
+            }
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(), prefix, separator, suffix);
+                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());
@@ -137,6 +142,18 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
             migrations.add(migration);
         }
+    }
+
+    /**
+     * Checks whether this filename is actually a sql-based callback instead of a regular migration.
+     *
+     * @param filename The filename to check.
+     * @param suffix   The sql migration suffix.
+     * @return {@code true} if it is, {@code false} if it isn't.
+     */
+    /* private -> testing */ static boolean isSqlCallback(String filename, String suffix) {
+        String baseName = filename.substring(0, filename.length() - suffix.length());
+        return SqlScriptFlywayCallback.ALL_CALLBACKS.contains(baseName);
     }
 
     /**

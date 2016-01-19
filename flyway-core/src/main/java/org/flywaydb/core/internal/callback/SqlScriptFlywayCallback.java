@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,9 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +40,28 @@ import java.util.Map;
  */
 public class SqlScriptFlywayCallback implements FlywayCallback {
     private static final Log LOG = LogFactory.getLog(SqlScriptFlywayCallback.class);
+    private static final String BEFORE_CLEAN = "beforeClean";
+    private static final String AFTER_CLEAN = "afterClean";
+    private static final String BEFORE_MIGRATE = "beforeMigrate";
+    private static final String AFTER_MIGRATE = "afterMigrate";
+    private static final String BEFORE_EACH_MIGRATE = "beforeEachMigrate";
+    private static final String AFTER_EACH_MIGRATE = "afterEachMigrate";
+    private static final String BEFORE_VALIDATE = "beforeValidate";
+    private static final String AFTER_VALIDATE = "afterValidate";
+    private static final String BEFORE_BASELINE = "beforeBaseline";
+    private static final String AFTER_BASELINE = "afterBaseline";
+    private static final String BEFORE_REPAIR = "beforeRepair";
+    private static final String AFTER_REPAIR = "afterRepair";
+    private static final String BEFORE_INFO = "beforeInfo";
+    private static final String AFTER_INFO = "afterInfo";
+
+    public static final List<String> ALL_CALLBACKS = Arrays.asList(
+            BEFORE_CLEAN, AFTER_CLEAN,
+            BEFORE_MIGRATE, BEFORE_EACH_MIGRATE, AFTER_EACH_MIGRATE, AFTER_MIGRATE,
+            BEFORE_VALIDATE, AFTER_VALIDATE,
+            BEFORE_BASELINE, AFTER_BASELINE,
+            BEFORE_REPAIR, AFTER_REPAIR,
+            BEFORE_CLEAN, AFTER_CLEAN);
 
     private final Map<String, SqlScript> scripts = new HashMap<String, SqlScript>();
 
@@ -53,20 +77,9 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
      */
     public SqlScriptFlywayCallback(DbSupport dbSupport, Scanner scanner, Locations locations,
                                    PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationSuffix) {
-        scripts.put("beforeClean", null);
-        scripts.put("afterClean", null);
-        scripts.put("beforeMigrate", null);
-        scripts.put("afterMigrate", null);
-        scripts.put("beforeEachMigrate", null);
-        scripts.put("afterEachMigrate", null);
-        scripts.put("beforeValidate", null);
-        scripts.put("afterValidate", null);
-        scripts.put("beforeBaseline", null);
-        scripts.put("afterBaseline", null);
-        scripts.put("beforeRepair", null);
-        scripts.put("afterRepair", null);
-        scripts.put("beforeInfo", null);
-        scripts.put("afterInfo", null);
+        for (String callback : ALL_CALLBACKS) {
+            scripts.put(callback, null);
+        }
 
         for (Location location : locations.getLocations()) {
             Resource[] resources;
@@ -94,72 +107,72 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
 
     @Override
     public void beforeClean(Connection connection) {
-        execute("beforeClean", connection);
+        execute(BEFORE_CLEAN, connection);
     }
 
     @Override
     public void afterClean(Connection connection) {
-        execute("afterClean", connection);
+        execute(AFTER_CLEAN, connection);
     }
 
     @Override
     public void beforeMigrate(Connection connection) {
-        execute("beforeMigrate", connection);
+        execute(BEFORE_MIGRATE, connection);
     }
 
     @Override
     public void afterMigrate(Connection connection) {
-        execute("afterMigrate", connection);
+        execute(AFTER_MIGRATE, connection);
     }
 
     @Override
     public void beforeEachMigrate(Connection connection, MigrationInfo info) {
-        execute("beforeEachMigrate", connection);
+        execute(BEFORE_EACH_MIGRATE, connection);
     }
 
     @Override
     public void afterEachMigrate(Connection connection, MigrationInfo info) {
-        execute("afterEachMigrate", connection);
+        execute(AFTER_EACH_MIGRATE, connection);
     }
 
     @Override
     public void beforeValidate(Connection connection) {
-        execute("beforeValidate", connection);
+        execute(BEFORE_VALIDATE, connection);
     }
 
     @Override
     public void afterValidate(Connection connection) {
-        execute("afterValidate", connection);
+        execute(AFTER_VALIDATE, connection);
     }
 
     @Override
     public void beforeBaseline(Connection connection) {
-        execute("beforeBaseline", connection);
+        execute(BEFORE_BASELINE, connection);
     }
 
     @Override
     public void afterBaseline(Connection connection) {
-        execute("afterBaseline", connection);
+        execute(AFTER_BASELINE, connection);
     }
 
     @Override
     public void beforeRepair(Connection connection) {
-        execute("beforeRepair", connection);
+        execute(BEFORE_REPAIR, connection);
     }
 
     @Override
     public void afterRepair(Connection connection) {
-        execute("afterRepair", connection);
+        execute(AFTER_REPAIR, connection);
     }
 
     @Override
     public void beforeInfo(Connection connection) {
-        execute("beforeInfo", connection);
+        execute(BEFORE_INFO, connection);
     }
 
     @Override
     public void afterInfo(Connection connection) {
-        execute("afterInfo", connection);
+        execute(AFTER_INFO, connection);
     }
 
     private void execute(String key, Connection connection) {

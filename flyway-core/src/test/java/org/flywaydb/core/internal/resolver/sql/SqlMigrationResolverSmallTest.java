@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Testcase for SqlMigration.
@@ -104,5 +106,11 @@ public class SqlMigrationResolverSmallTest {
                         "V", "R", "__", ".sql");
 
         assertEquals("V3.171__patch.sql", sqlMigrationResolver.extractScriptName(new FileSystemResource("/some/dir/V3.171__patch.sql")));
+    }
+
+    @Test
+    public void isSqlCallback() {
+        assertTrue(SqlMigrationResolver.isSqlCallback("afterMigrate.sql", ".sql"));
+        assertFalse(SqlMigrationResolver.isSqlCallback("V1__afterMigrate.sql", ".sql"));
     }
 }
