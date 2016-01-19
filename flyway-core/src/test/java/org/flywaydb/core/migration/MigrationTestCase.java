@@ -20,6 +20,7 @@ import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.*;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -160,7 +161,7 @@ public abstract class MigrationTestCase {
 
     protected String getMigrationDir() { return MIGRATIONDIR; }
     protected String getBasedir() { return BASEDIR; }
-    
+
 
     @Test
     public void migrate() throws Exception {

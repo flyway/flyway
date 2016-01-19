@@ -28,6 +28,7 @@ import static org.junit.Assert.*;
  * Tests for Flyway Callbacks
  */
 public class FlywayCallbackSmallTest {
+
     @Test
     public void cleanTest() {
         Properties properties = createProperties("clean");

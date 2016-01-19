@@ -15,9 +15,9 @@
  */
 package org.flywaydb.core.api.callback;
 
-import org.flywaydb.core.api.MigrationInfo;
-
 import java.sql.Connection;
+
+import org.flywaydb.core.api.MigrationInfo;
 
 /**
  * This is the main callback interface that should be implemented to get access to flyway lifecycle notifications.

@@ -21,7 +21,8 @@ import java.sql.Connection;
  * Interface to be implemented by Jdbc Java Migrations. By default the migration version and description will be extracted
  * from the class name. This can be overriden by also implementing the MigrationInfoProvider interface, in which
  * case it can be specified programmatically. The checksum of this migration (for validation) will also be null, unless
- * the migration also implements the MigrationChecksumProvider, in which case it can be returned programmatically.
+ * the migration also implements the MigrationChecksumProvider, in which case it can be returned programmatically. When
+ * the JdbcMigration implements ConfigurationAware, the master flyway configuration is automatically injected upon creation.
  */
 public interface JdbcMigration {
     /**
