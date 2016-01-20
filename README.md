@@ -2,7 +2,7 @@
 
 ### Database Migrations Made Easy.
 
-![alt text](http://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
+![Flyway](http://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
 
 #### Evolve your database schema easily and reliably across all your instances.
 Simple, focused and powerful.
@@ -25,8 +25,11 @@ http://flywaydb.org
 ## How to contribute
 http://flywaydb.org/contribute/
 
+## About
+Flyway is brought to you by [Axel Fontaine](https://axelfontaine.com) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](http://flywaydb.org/contribute/hallOfFame.html).
+
 ## License
-Copyright (C) 2010-2015 Axel Fontaine
+Copyright (C) 2010-2016 [Boxfuse GmbH](https://boxfuse.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,4 +44,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ## Trademark
-Flyway is a registered trademark of Boxfuse GmbH.
+Flyway is a registered trademark of [Boxfuse GmbH](https://boxfuse.com).

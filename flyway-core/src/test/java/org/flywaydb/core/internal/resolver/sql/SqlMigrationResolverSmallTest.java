@@ -113,4 +113,10 @@ public class SqlMigrationResolverSmallTest {
         assertTrue(SqlMigrationResolver.isSqlCallback("afterMigrate.sql", ".sql"));
         assertFalse(SqlMigrationResolver.isSqlCallback("V1__afterMigrate.sql", ".sql"));
     }
+
+    @Test
+    public void calculateChecksum() {
+        assertEquals(SqlMigrationResolver.calculateChecksum(null, "abc\ndef efg\nxyz"),
+                SqlMigrationResolver.calculateChecksum(null, "abc \r\n   def efg  \nxyz\r\n"));
+    }
 }

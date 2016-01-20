@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2015 Boxfuse GmbH
- * <p/>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -30,6 +31,9 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -136,7 +140,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setVersion(info.getLeft());
             migration.setDescription(info.getRight());
             migration.setScript(extractScriptName(resource));
-            migration.setChecksum(calculateChecksum(resource.loadAsBytes()));
+            migration.setChecksum(calculateChecksum(resource, resource.loadAsString(encoding)));
             migration.setType(MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
             migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
@@ -171,14 +175,28 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
     /**
-     * Calculates the checksum of these bytes.
+     * Calculates the checksum of this string.
      *
-     * @param bytes The bytes to calculate the checksum for.
+     * @param str The string to calculate the checksum for.
      * @return The crc-32 checksum of the bytes.
      */
-    private static int calculateChecksum(byte[] bytes) {
+    /* private -> for testing */ static int calculateChecksum(Resource resource, String str) {
         final CRC32 crc32 = new CRC32();
-        crc32.update(bytes);
+
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(str));
+        try {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                crc32.update(line.trim().getBytes("UTF-8"));
+            }
+        } catch (IOException e) {
+            String message = "Unable to calculate checksum";
+            if (resource != null) {
+                message += " for " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")";
+            }
+            throw new FlywayException(message, e);
+        }
+
         return (int) crc32.getValue();
     }
 }
