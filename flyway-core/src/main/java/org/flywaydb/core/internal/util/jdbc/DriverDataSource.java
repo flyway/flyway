@@ -228,7 +228,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:google:")) {
-            return "com.google.appengine.api.rdbms.AppEngineDriver";
+            return "com.mysql.jdbc.GoogleDriver";
         }
 
         if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
