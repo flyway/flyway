@@ -40,8 +40,8 @@ public class DbCategory {
     public interface DB2 extends CommercialDB {}
     public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
-    public interface GoogleCloudSQL extends CommercialDB {}
 
+    public interface GoogleCloudSQL extends ContributorSupportedDB {}
     public interface SapHana extends ContributorSupportedDB {}
     public interface DB2zOS extends ContributorSupportedDB {}
     public interface Vertica extends ContributorSupportedDB {}

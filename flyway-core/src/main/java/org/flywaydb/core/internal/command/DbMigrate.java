@@ -280,10 +280,10 @@ public class DbMigrate {
      */
     private Boolean applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
         MigrationVersion version = migration.getVersion();
-        String migrationText;
+        final String migrationText;
         if (version != null) {
             migrationText = "schema " + schema + " to version " + version + " - " + migration.getDescription() +
-                            (isOutOfOrder ? " (out of order)" : "");
+                    (isOutOfOrder ? " (out of order)" : "");
         } else {
             migrationText = "schema " + schema + " with repeatable migration " + migration.getDescription();
         }
@@ -293,45 +293,21 @@ public class DbMigrate {
         stopWatch.start();
 
         try {
-            for (final FlywayCallback callback : callbacks) {
+            final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
+            if (migrationExecutor.executeInTransaction()) {
                 new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
                     @Override
                     public Object doInTransaction() throws SQLException {
-                        dbSupportUserObjects.changeCurrentSchemaTo(schema);
-                        callback.beforeEachMigrate(connectionUserObjects, migration);
-                        return null;
-                    }
-                });
-            }
-
-            final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
-            if (migrationExecutor.executeInTransaction()) {
-                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Void>() {
-                    public Void doInTransaction() throws SQLException {
-                        dbSupportUserObjects.changeCurrentSchemaTo(schema);
-                        migrationExecutor.execute(connectionUserObjects);
+                        doMigrate(migration, migrationExecutor, migrationText);
                         return null;
                     }
                 });
             } else {
                 try {
-                    dbSupportUserObjects.changeCurrentSchemaTo(schema);
-                    migrationExecutor.execute(connectionUserObjects);
+                    doMigrate(migration, migrationExecutor, migrationText);
                 } catch (SQLException e) {
                     throw new FlywayException("Unable to apply migration", e);
                 }
-            }
-            LOG.debug("Successfully completed and committed migration of " + migrationText);
-
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
-                    @Override
-                    public Object doInTransaction() throws SQLException {
-                        dbSupportUserObjects.changeCurrentSchemaTo(schema);
-                        callback.afterEachMigrate(connectionUserObjects, migration);
-                        return null;
-                    }
-                });
             }
         } catch (FlywayException e) {
             String failedMsg = "Migration of " + migrationText + " failed!";
@@ -357,5 +333,21 @@ public class DbMigrate {
         metaDataTable.addAppliedMigration(appliedMigration);
 
         return false;
+    }
+
+    private void doMigrate(MigrationInfoImpl migration, MigrationExecutor migrationExecutor, String migrationText) throws SQLException {
+        for (final FlywayCallback callback : callbacks) {
+            dbSupportUserObjects.changeCurrentSchemaTo(schema);
+            callback.beforeEachMigrate(connectionUserObjects, migration);
+        }
+        
+        dbSupportUserObjects.changeCurrentSchemaTo(schema);
+        migrationExecutor.execute(connectionUserObjects);
+        LOG.debug("Successfully completed migration of " + migrationText);
+
+        for (final FlywayCallback callback : callbacks) {
+            dbSupportUserObjects.changeCurrentSchemaTo(schema);
+            callback.afterEachMigrate(connectionUserObjects, migration);
+        }
     }
 }
