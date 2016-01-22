@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver.spring;
 
-import org.flywaydb.core.api.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.spring.dummy.V2__InterfaceBasedMigration;

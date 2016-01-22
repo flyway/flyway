@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core;
 
-import org.flywaydb.core.api.ConfigurationAware;
-import org.flywaydb.core.api.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.junit.Assert;
 
 import java.util.Collection;
 

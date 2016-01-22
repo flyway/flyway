@@ -20,8 +20,8 @@ import static org.junit.Assert.assertNotNull;
 import java.sql.Connection;
 
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.ConfigurationAware;
-import org.flywaydb.core.api.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationInfo;
 
 /**

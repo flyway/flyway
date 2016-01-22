@@ -15,17 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.ConfigurationAware;
-import org.flywaydb.core.api.FlywayConfiguration;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.resolver.ResolvedMigration;
-
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 
 /**
 * Created by Axel on 3/7/14.

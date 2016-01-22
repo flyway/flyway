@@ -15,8 +15,6 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.api.ConfigurationAware;
-import org.flywaydb.core.api.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 
 import java.io.UnsupportedEncodingException;

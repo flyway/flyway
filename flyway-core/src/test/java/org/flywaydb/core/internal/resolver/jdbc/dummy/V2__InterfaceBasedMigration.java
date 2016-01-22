@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver.jdbc.dummy;
 
-import org.flywaydb.core.api.ConfigurationAware;
-import org.flywaydb.core.api.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 

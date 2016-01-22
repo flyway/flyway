@@ -19,13 +19,10 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.flywaydb.core.api.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 
 /**
  * Dummy Implementation of {@link FlywayConfiguration} for unit tests.

@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api;
+package org.flywaydb.core.api.configuration;
 
 /**
- * Marks a class as configuration aware (callbacks and migrations). Configuration aware classes
+ * Marks a class as configuration aware (callbacks, resolvers and migrations). Configuration aware classes
  * get the flyway master configuration injected upon creation.
  */
 public interface ConfigurationAware {
-
     /**
      * Sets the current configuration. This method should not be called directly, it is called by the Flyway.
      *
      * @param flywayConfiguration The current Flyway configuration.
      */
     void setFlywayConfiguration(FlywayConfiguration flywayConfiguration);
-
 }

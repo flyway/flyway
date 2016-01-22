@@ -18,6 +18,7 @@ package org.flywaydb.core;
 
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.command.DbBaseline;

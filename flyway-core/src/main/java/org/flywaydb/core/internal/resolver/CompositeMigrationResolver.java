@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;

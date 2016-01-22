@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.api.ConfigurationAware;
-import org.flywaydb.core.api.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 
 /**
  * Utility class for interfaced based injection.
