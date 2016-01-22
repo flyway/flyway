@@ -19,11 +19,13 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.resolver.MyConfigurationAwareCustomMigrationResolver;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+
 import java.sql.Connection;
 import java.util.Properties;
 
