@@ -15,19 +15,15 @@
  */
 package org.flywaydb.core.internal.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.flywaydb.core.api.ConfigurationAware;
 import org.flywaydb.core.api.FlywayConfiguration;
-import org.flywaydb.core.api.FlywayException;
 
 /**
  * Utility class for interfaced based injection.
  */
-public class InjectionUtils {
+public class ConfigurationInjectionUtils {
 
-    private InjectionUtils() {
+    private ConfigurationInjectionUtils() {
         // Utility class
     }
 
@@ -42,12 +38,5 @@ public class InjectionUtils {
         if (target instanceof ConfigurationAware) {
             ((ConfigurationAware) target).setFlywayConfiguration(configuration);
         }
-    }
-
-    // Must be synchronized for the Maven Parallel Junit runner to work
-    public static synchronized <T> T instantiateAndInjectConfiguration(String className, ClassLoader classLoader, FlywayConfiguration config) throws Exception {
-        T result = ClassUtils.instantiate(className, classLoader);
-        injectFlywayConfiguration(result, config);
-        return result;
     }
 }

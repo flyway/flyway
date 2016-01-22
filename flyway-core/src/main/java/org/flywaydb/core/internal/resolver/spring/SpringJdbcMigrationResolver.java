@@ -28,7 +28,7 @@ import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.InjectionUtils;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -54,13 +54,17 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
      */
     private Scanner scanner;
 
+    /**
+     * The configuration to inject (if necessary) in the migration classes.
+     */
     private FlywayConfiguration configuration;
 
     /**
      * Creates a new instance.
      *
-     * @param location The base package on the classpath where to migrations are located.
-     * @param scanner  The Scanner for loading migrations on the classpath.
+     * @param location      The base package on the classpath where to migrations are located.
+     * @param scanner       The Scanner for loading migrations on the classpath.
+     * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
     public SpringJdbcMigrationResolver(Scanner scanner, Location location, FlywayConfiguration configuration) {
         this.location = location;
@@ -68,6 +72,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         this.configuration = configuration;
     }
 
+    @Override
     public Collection<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
@@ -78,7 +83,8 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         try {
             Class<?>[] classes = scanner.scanForClasses(location, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
-                SpringJdbcMigration springJdbcMigration = InjectionUtils.instantiateAndInjectConfiguration(clazz.getName(), scanner.getClassLoader(), configuration);
+                SpringJdbcMigration springJdbcMigration = ClassUtils.instantiate(clazz.getName(), scanner.getClassLoader());
+                ConfigurationInjectionUtils.injectFlywayConfiguration(springJdbcMigration, configuration);
 
                 ResolvedMigrationImpl migrationInfo = extractMigrationInfo(springJdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));

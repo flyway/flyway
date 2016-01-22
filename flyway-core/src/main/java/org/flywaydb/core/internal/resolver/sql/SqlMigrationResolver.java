@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.api.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -156,7 +155,8 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param suffix   The sql migration suffix.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
-    /* private -> testing */ static boolean isSqlCallback(String filename, String suffix) {
+    /* private -> testing */
+    static boolean isSqlCallback(String filename, String suffix) {
         String baseName = filename.substring(0, filename.length() - suffix.length());
         return SqlScriptFlywayCallback.ALL_CALLBACKS.contains(baseName);
     }
@@ -181,7 +181,8 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param str The string to calculate the checksum for.
      * @return The crc-32 checksum of the bytes.
      */
-    /* private -> for testing */ static int calculateChecksum(Resource resource, String str) {
+    /* private -> for testing */
+    static int calculateChecksum(Resource resource, String str) {
         final CRC32 crc32 = new CRC32();
 
         BufferedReader bufferedReader = new BufferedReader(new StringReader(str));

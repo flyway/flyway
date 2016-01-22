@@ -34,7 +34,7 @@ import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.InjectionUtils;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -1018,6 +1018,10 @@ public class Flyway implements FlywayConfiguration {
      * @return A new, fully configured, MigrationResolver instance.
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport, Scanner scanner) {
+        for (MigrationResolver resolver : resolvers) {
+            ConfigurationInjectionUtils.injectFlywayConfiguration(resolver, this);
+        }
+
         return new CompositeMigrationResolver(dbSupport, scanner, this, locations,
                 encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix,
                 createPlaceholderReplacer(), resolvers);
@@ -1240,8 +1244,8 @@ public class Flyway implements FlywayConfiguration {
                 callbackAutoAdded = true;
             }
 
-            for (Object callback : callbacks) {
-                InjectionUtils.injectFlywayConfiguration(callback, this);
+            for (FlywayCallback callback : callbacks) {
+                ConfigurationInjectionUtils.injectFlywayConfiguration(callback, this);
             }
 
             result = command.execute(connectionMetaDataTable, connectionUserObjects, migrationResolver, dbSupport, schemas);
