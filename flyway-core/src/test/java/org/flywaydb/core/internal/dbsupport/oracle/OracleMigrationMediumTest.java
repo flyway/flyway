@@ -111,6 +111,12 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
     }
 
+    @Test
+    public void count() throws FlywayException {
+        flyway.setLocations("migration/dbsupport/oracle/sql/count");
+        flyway.migrate();
+    }
+
     /**
      * Tests parsing of object names that contain keywords such as MY_TABLE.
      */
