@@ -194,4 +194,15 @@ public class FlywaySmallTest {
             //expected
         }
     }
+
+    @Test
+    public void locationCount() {
+        Flyway flyway = new Flyway();
+        flyway.addLocation("db.migrate2");
+        assertEquals(2, flyway.getLocations().length);
+
+        flyway.setLocations(flyway.getLocations());
+        flyway.addLocation("db.migrate3");
+        assertEquals(3, flyway.getLocations().length);
+    }
 }

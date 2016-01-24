@@ -46,18 +46,7 @@ public class Locations {
         Collections.sort(normalizedLocations);
 
         for (Location normalizedLocation : normalizedLocations) {
-            if (locations.contains(normalizedLocation)) {
-                LOG.warn("Discarding duplicate location '" + normalizedLocation + "'");
-                continue;
-            }
-
-            Location parentLocation = getParentLocationIfExists(normalizedLocation, locations);
-            if (parentLocation != null) {
-                LOG.warn("Discarding location '" + normalizedLocation + "' as it is a sublocation of '" + parentLocation + "'");
-                continue;
-            }
-
-            locations.add(normalizedLocation);
+            addLocation(normalizedLocation);
         }
     }
 
@@ -66,6 +55,26 @@ public class Locations {
      */
     public List<Location> getLocations() {
         return locations;
+    }
+
+    public void addLocation(String rawLocation) {
+        Location normalizedLocation = new Location(rawLocation);
+        addLocation(normalizedLocation);
+    }
+
+    private void addLocation(Location location) {
+        if (locations.contains(location)) {
+            LOG.warn("Discarding duplicate location '" + location + "'");
+            return;
+        }
+
+        Location parentLocation = getParentLocationIfExists(location, locations);
+        if (parentLocation != null) {
+            LOG.warn("Discarding location '" + location + "' as it is a sublocation of '" + parentLocation + "'");
+            return;
+        }
+
+        locations.add(location);
     }
 
     /**

@@ -292,6 +292,21 @@ public class Flyway {
     }
 
     /**
+     * Add a location to the list of locations.
+     * <p/>
+     * <p>The location type is determined by its prefix.
+     * Unprefixed locations or locations starting with {@code classpath:} point to a package on the classpath and may
+     * contain both sql and java-based migrations.
+     * Locations starting with {@code filesystem:} point to a directory on the filesystem and may only contain sql
+     * migrations.</p>
+     *
+     * @param location Location to scan recursively for migrations. (default: db/migration)
+     */
+    public void addLocation(String location) {
+        locations.addLocation(location);
+    }
+
+    /**
      * Retrieves the encoding of Sql migrations.
      *
      * @return The encoding of Sql migrations. (default: UTF-8)
