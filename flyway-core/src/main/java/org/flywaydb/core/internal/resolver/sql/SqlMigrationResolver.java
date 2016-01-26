@@ -75,18 +75,24 @@ public class SqlMigrationResolver implements MigrationResolver {
      * Creates a new instance.
      *
      * @param dbSupport                    The database-specific support.
-     * @param classloader                  The classloader for loading migrations from the classpath.
-     * @param locations                    The locations on the classpath where to migrations are located.
-     * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
-     * @param configuration                The Flyway configuration.
+     * @param configuration                The configuration object.
      */
-    public SqlMigrationResolver(DbSupport dbSupport, ClassLoader classloader, Locations locations,
-                                PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+    public SqlMigrationResolver(DbSupport dbSupport, FlywayConfiguration configuration) {
         this.dbSupport = dbSupport;
-        this.scanner = Scanner.create(classloader);
-        this.locations = locations;
-        this.placeholderReplacer = placeholderReplacer;
+        this.scanner = Scanner.create(configuration.getClassLoader());
+        this.locations = new Locations(configuration.getLocations());
+        this.placeholderReplacer = createPlaceholderReplacer(configuration);
         this.configuration = configuration;
+    }
+
+    /**
+     * @return A new, fully configured, PlaceholderReplacer.
+     */
+    private PlaceholderReplacer createPlaceholderReplacer(FlywayConfiguration config) {
+        if (config.isPlaceholderReplacement()) {
+            return new PlaceholderReplacer(config.getPlaceholders(), config.getPlaceholderPrefix(), config.getPlaceholderSuffix());
+        }
+        return PlaceholderReplacer.NO_PLACEHOLDERS;
     }
 
     public List<ResolvedMigration> resolveMigrations() {

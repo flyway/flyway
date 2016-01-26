@@ -22,7 +22,6 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.Test;
 
 import java.util.*;
@@ -36,13 +35,10 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
-        FlywayConfigurationForTests config = FlywayConfigurationForTests.create();
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1");
+        config.setResolvers(new MyCustomMigrationResolver());
 
-        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                Thread.currentThread().getContextClassLoader(), config,
-                new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                placeholderReplacer, new MyCustomMigrationResolver());
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null, config);
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
@@ -143,13 +139,10 @@ public class CompositeMigrationResolverSmallTest {
 
     @Test
     public void skipDefaultResolvers() {
-        FlywayConfigurationForTests config = FlywayConfigurationForTests.create();
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations("migration/outoforder", "org/flywaydb/core/internal/resolver/jdbc/dummy");
         config.setSkipDefaultResolvers(true);
 
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                Thread.currentThread().getContextClassLoader(), config,
-                new Locations("migration/outoforder", "org/flywaydb/core/internal/resolver/jdbc/dummy"),
-                PlaceholderReplacer.NO_PLACEHOLDERS);
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null, config);
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
 
