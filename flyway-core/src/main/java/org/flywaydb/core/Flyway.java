@@ -306,11 +306,7 @@ public class Flyway implements FlywayConfiguration {
         return target;
     }
 
-    /**
-     * Checks whether placeholders should be replaced.
-     *
-     * @return Whether placeholders should be replaced. (default: true)
-     */
+    @Override
     public boolean isPlaceholderReplacement() {
         return placeholderReplacement;
     }
