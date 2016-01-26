@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
@@ -49,11 +50,13 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param config                       The configuration object.
      */
     public CompositeMigrationResolver(FlywayConfiguration config) {
-        migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SqlMigrationResolver(), config));
-        migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), config));
+        if (!config.isSkipDefaultResolvers()) {
+            migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SqlMigrationResolver(), config));
+            migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), config));
 
-        if (new FeatureDetector(config.getClassLoader()).isSpringJdbcAvailable()) {
-            migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config));
+            if (new FeatureDetector(config.getClassLoader()).isSpringJdbcAvailable()) {
+                migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config));
+            }
         }
 
         migrationResolvers.addAll(Arrays.asList(config.getResolvers()));
@@ -88,6 +91,11 @@ public class CompositeMigrationResolver implements MigrationResolver {
         checkForIncompatibilities(migrations);
 
         return migrations;
+    }
+
+    /* private -> for testing */
+    Collection<MigrationResolver> getMigrationResolvers() {
+        return migrationResolvers;
     }
 
     /**
