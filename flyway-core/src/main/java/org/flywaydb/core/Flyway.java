@@ -1022,9 +1022,7 @@ public class Flyway implements FlywayConfiguration {
             ConfigurationInjectionUtils.injectFlywayConfiguration(resolver, this);
         }
 
-        return new CompositeMigrationResolver(dbSupport, classLoader, this, locations,
-                encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix,
-                createPlaceholderReplacer(), resolvers);
+        return new CompositeMigrationResolver(dbSupport, this);
     }
 
     /**

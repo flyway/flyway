@@ -20,9 +20,8 @@ import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.*;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -222,12 +221,9 @@ public abstract class MigrationTestCase {
      * @param migrationInfo The migration to check.
      */
     private void assertChecksum(MigrationInfo migrationInfo) {
-        SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, Thread.currentThread().getContextClassLoader(),
-                new Locations(getBasedir()),
-                PlaceholderReplacer.NO_PLACEHOLDERS,
-                "UTF-8",
-                "V", "R", "__", ".sql");
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations(getBasedir());
+
+        SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(dbSupport, config);
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {

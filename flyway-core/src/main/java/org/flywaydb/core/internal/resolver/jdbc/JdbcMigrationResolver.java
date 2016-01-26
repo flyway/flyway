@@ -57,13 +57,11 @@ public class JdbcMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param locations     The locations where to migrations are located. Non classpath locations are ignored.
-     * @param classLoader   The classloader for loading migrations on the classpath.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public JdbcMigrationResolver(ClassLoader classLoader, Locations locations, FlywayConfiguration configuration) {
-        this.locations = locations;
-        this.scanner = Scanner.create(classLoader);
+    public JdbcMigrationResolver(FlywayConfiguration configuration) {
+        this.locations = new Locations(configuration.getLocations());
+        this.scanner = Scanner.create(configuration.getClassLoader());
         this.configuration = configuration;
     }
 
