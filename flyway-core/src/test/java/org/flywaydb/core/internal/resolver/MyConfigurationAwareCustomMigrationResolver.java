@@ -17,6 +17,14 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /**
 * Created by Axel on 3/7/14.
@@ -30,7 +38,13 @@ public class MyConfigurationAwareCustomMigrationResolver extends MyCustomMigrati
         this.flywayConfiguration = flywayConfiguration;
     }
 
-    public boolean isFlywayConfigurationSet() {
-        return flywayConfiguration != null;
+    @Override
+    public List<ResolvedMigration> resolveMigrations() {
+        assertFlywayConfigurationIsSet();
+        return new ArrayList<ResolvedMigration>();
+    }
+
+    public void assertFlywayConfigurationIsSet() {
+        assertThat(flywayConfiguration, is(notNullValue()));
     }
 }

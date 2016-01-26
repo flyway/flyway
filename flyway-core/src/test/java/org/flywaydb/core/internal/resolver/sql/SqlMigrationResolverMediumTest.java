@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class SqlMigrationResolverMediumTest {
         String path = URLDecoder.decode(getClass().getClassLoader().getResource("migration/subdir").getPath(), "UTF-8");
 
         FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations("filesystem:" + new File(path).getPath());
-        SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(null, config);
+        SqlMigrationResolver sqlMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SqlMigrationResolver(), config);
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());

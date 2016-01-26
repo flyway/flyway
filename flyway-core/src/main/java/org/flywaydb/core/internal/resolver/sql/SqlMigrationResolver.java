@@ -18,11 +18,11 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
@@ -45,60 +45,50 @@ import java.util.zip.CRC32;
  * Migration resolver for sql files on the classpath. The sql files must have names like
  * V1__Description.sql or V1_1__Description.sql.
  */
-public class SqlMigrationResolver implements MigrationResolver {
-    /**
-     * Database-specific support.
-     */
-    private final DbSupport dbSupport;
+public class SqlMigrationResolver implements MigrationResolver, ConfigurationAware {
 
     /**
      * The scanner to use.
      */
-    private final Scanner scanner;
+    private Scanner scanner;
 
     /**
      * The base directory on the classpath where to migrations are located.
      */
-    private final Locations locations;
+    private Locations locations;
 
     /**
      * The placeholder replacer to apply to sql migration scripts.
      */
-    private final PlaceholderReplacer placeholderReplacer;
+    private PlaceholderReplacer placeholderReplacer;
 
     /**
      * The encoding of Sql migrations.
      */
-    private final String encoding;
+    private String encoding;
 
     /**
      * The prefix for sql migrations
      */
-    private final String sqlMigrationPrefix;
+    private String sqlMigrationPrefix;
 
     /**
      * The prefix for repeatable sql migrations
      */
-    private final String repeatableSqlMigrationPrefix;
+    private String repeatableSqlMigrationPrefix;
 
     /**
      * The separator for sql migrations
      */
-    private final String sqlMigrationSeparator;
+    private String sqlMigrationSeparator;
 
     /**
      * The suffix for sql migrations
      */
-    private final String sqlMigrationSuffix;
+    private String sqlMigrationSuffix;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param dbSupport                    The database-specific support.
-     * @param configuration                The configuration object.
-     */
-    public SqlMigrationResolver(DbSupport dbSupport, FlywayConfiguration configuration) {
-        this.dbSupport = dbSupport;
+    @Override
+    public void setFlywayConfiguration(FlywayConfiguration configuration) {
         this.scanner = Scanner.create(configuration.getClassLoader());
         this.locations = new Locations(configuration.getLocations());
         this.placeholderReplacer = createPlaceholderReplacer(configuration);
@@ -147,7 +137,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setChecksum(calculateChecksum(resource, resource.loadAsString(encoding)));
             migration.setType(MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
-            migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
+            migration.setExecutor(new SqlMigrationExecutor(resource, placeholderReplacer, encoding));
             migrations.add(migration);
         }
     }

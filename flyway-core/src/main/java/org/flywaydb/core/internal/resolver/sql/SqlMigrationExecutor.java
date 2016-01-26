@@ -15,10 +15,9 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
@@ -28,11 +27,6 @@ import java.sql.Connection;
  * Database migration based on a sql file.
  */
 public class SqlMigrationExecutor implements MigrationExecutor {
-    /**
-     * Database-specific support.
-     */
-    private final DbSupport dbSupport;
-
     /**
      * The placeholder replacer to apply to sql migration scripts.
      */
@@ -52,14 +46,11 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     /**
      * Creates a new sql script migration based on this sql script.
-     *
-     * @param dbSupport           The database-specific support.
-     * @param sqlScriptResource   The resource containing the sql script.
+     *  @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of this Sql migration.
      */
-    public SqlMigrationExecutor(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
-        this.dbSupport = dbSupport;
+    public SqlMigrationExecutor(Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
         this.sqlScriptResource = sqlScriptResource;
         this.encoding = encoding;
         this.placeholderReplacer = placeholderReplacer;
@@ -67,7 +58,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(Connection connection) {
-        SqlScript sqlScript = new SqlScript(dbSupport, sqlScriptResource, placeholderReplacer, encoding);
+        SqlScript sqlScript = new SqlScript(sqlScriptResource, placeholderReplacer, encoding);
         sqlScript.execute(new JdbcTemplate(connection, 0));
     }
 
