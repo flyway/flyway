@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.resolver.jdbc;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.Version3dot5;
 import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -37,18 +36,17 @@ import static org.junit.Assert.assertNull;
  * Test for JdbcMigrationResolver.
  */
 public class JdbcMigrationResolverSmallTest {
-    private final Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader());
     private final FlywayConfiguration config = FlywayConfigurationForTests.create();
 
     @Test(expected = FlywayException.class)
     public void broken() {
-        new JdbcMigrationResolver(scanner, new Location("org/flywaydb/core/internal/resolver/jdbc/error"), config).resolveMigrations();
+        new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Location("org/flywaydb/core/internal/resolver/jdbc/error"), config).resolveMigrations();
     }
 
     @Test
     public void resolveMigrations() throws SQLException {
         JdbcMigrationResolver jdbcMigrationResolver =
-                new JdbcMigrationResolver(scanner, new Location("org/flywaydb/core/internal/resolver/jdbc/dummy"), config);
+                new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Location("org/flywaydb/core/internal/resolver/jdbc/dummy"), config);
         Collection<ResolvedMigration> migrations = jdbcMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
@@ -75,7 +73,7 @@ public class JdbcMigrationResolverSmallTest {
 
     @Test
     public void conventionOverConfiguration() {
-        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(scanner, null, null);
+        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), null, null);
         ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
@@ -84,7 +82,7 @@ public class JdbcMigrationResolverSmallTest {
 
     @Test
     public void explicitInfo() {
-        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(scanner, null, null);
+        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), null, null);
         ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
         assertEquals("3.5", migrationInfo.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo.getDescription());

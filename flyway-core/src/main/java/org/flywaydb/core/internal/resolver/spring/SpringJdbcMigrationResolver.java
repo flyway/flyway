@@ -63,12 +63,12 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
      * Creates a new instance.
      *
      * @param location      The base package on the classpath where to migrations are located.
-     * @param scanner       The Scanner for loading migrations on the classpath.
+     * @param classLoader   The classloader for loading migrations on the classpath.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public SpringJdbcMigrationResolver(Scanner scanner, Location location, FlywayConfiguration configuration) {
+    public SpringJdbcMigrationResolver(ClassLoader classLoader, Location location, FlywayConfiguration configuration) {
         this.location = location;
-        this.scanner = scanner;
+        this.scanner = Scanner.create(classLoader);
         this.configuration = configuration;
     }
 

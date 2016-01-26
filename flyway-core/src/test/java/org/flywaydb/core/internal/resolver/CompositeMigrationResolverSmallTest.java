@@ -40,7 +40,7 @@ public class CompositeMigrationResolverSmallTest {
 
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                new Scanner(Thread.currentThread().getContextClassLoader()), config,
+                Thread.currentThread().getContextClassLoader(), config,
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
                 "UTF-8", "V", "R", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
 

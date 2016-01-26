@@ -93,7 +93,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * Creates a new instance.
      *
      * @param dbSupport                    The database-specific support.
-     * @param scanner                      The Scanner for loading migrations on the classpath.
+     * @param classloader                  The classloader for loading migrations from the classpath.
      * @param location                     The location on the classpath where to migrations are located.
      * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
      * @param encoding                     The encoding of Sql migrations.
@@ -102,12 +102,12 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param sqlMigrationSeparator        The separator for sql migrations
      * @param sqlMigrationSuffix           The suffix for sql migrations
      */
-    public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
+    public SqlMigrationResolver(DbSupport dbSupport, ClassLoader classloader, Location location,
                                 PlaceholderReplacer placeholderReplacer, String encoding,
                                 String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
                                 String sqlMigrationSeparator, String sqlMigrationSuffix) {
         this.dbSupport = dbSupport;
-        this.scanner = scanner;
+        this.scanner = Scanner.create(classloader);
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;

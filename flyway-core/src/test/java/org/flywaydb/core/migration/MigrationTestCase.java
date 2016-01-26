@@ -20,11 +20,9 @@ import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.*;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
-import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
@@ -226,7 +223,7 @@ public abstract class MigrationTestCase {
      */
     private void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
+                dbSupport, Thread.currentThread().getContextClassLoader(),
                 new Location(getBasedir()),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",
