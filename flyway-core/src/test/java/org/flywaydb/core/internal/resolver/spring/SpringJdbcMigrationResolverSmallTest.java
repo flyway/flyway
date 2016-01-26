@@ -20,7 +20,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.spring.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.spring.dummy.Version3dot5;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.Locations;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class SpringJdbcMigrationResolverSmallTest {
     @Test
     public void resolveMigrations() {
         SpringJdbcMigrationResolver springJdbcMigrationResolver =
-                new SpringJdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Location("org/flywaydb/core/internal/resolver/spring/dummy"), config);
+                new SpringJdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Locations("org/flywaydb/core/internal/resolver/spring/dummy"), config);
         Collection<ResolvedMigration> migrations = springJdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());

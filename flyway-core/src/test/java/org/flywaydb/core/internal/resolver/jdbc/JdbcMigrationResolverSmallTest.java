@@ -21,7 +21,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.Version3dot5;
-import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.Locations;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -40,13 +40,13 @@ public class JdbcMigrationResolverSmallTest {
 
     @Test(expected = FlywayException.class)
     public void broken() {
-        new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Location("org/flywaydb/core/internal/resolver/jdbc/error"), config).resolveMigrations();
+        new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Locations("org/flywaydb/core/internal/resolver/jdbc/error"), config).resolveMigrations();
     }
 
     @Test
     public void resolveMigrations() throws SQLException {
         JdbcMigrationResolver jdbcMigrationResolver =
-                new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Location("org/flywaydb/core/internal/resolver/jdbc/dummy"), config);
+                new JdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Locations("org/flywaydb/core/internal/resolver/jdbc/dummy"), config);
         Collection<ResolvedMigration> migrations = jdbcMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
