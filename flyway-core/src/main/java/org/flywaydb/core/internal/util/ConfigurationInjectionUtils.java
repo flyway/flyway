@@ -19,7 +19,7 @@ import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 
 /**
- * Utility class for interfaced based injection.
+ * Utility class for interface based injection.
  */
 public class ConfigurationInjectionUtils {
 
@@ -30,13 +30,13 @@ public class ConfigurationInjectionUtils {
     /**
      * Injects the given flyway configuration into the target object if target implements the
      * {@link ConfigurationAware} interface. Does nothing if target is not configuration aware.
-     *
      * @param target The object to inject the configuration into.
      * @param configuration The configuration to inject.
      */
-    public static void injectFlywayConfiguration(Object target, FlywayConfiguration configuration) {
+    public static <T> T injectFlywayConfiguration(T target, FlywayConfiguration configuration) {
         if (target instanceof ConfigurationAware) {
             ((ConfigurationAware) target).setFlywayConfiguration(configuration);
         }
+        return target;
     }
 }

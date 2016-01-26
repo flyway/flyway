@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 
 import java.util.*;
@@ -51,10 +52,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     public CompositeMigrationResolver(DbSupport dbSupport, FlywayConfiguration config) {
         migrationResolvers.add(new SqlMigrationResolver(dbSupport, config));
-        migrationResolvers.add(new JdbcMigrationResolver(config));
+        migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), config));
 
         if (new FeatureDetector(config.getClassLoader()).isSpringJdbcAvailable()) {
-            migrationResolvers.add(new SpringJdbcMigrationResolver(config));
+            migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config));
         }
 
         migrationResolvers.addAll(Arrays.asList(config.getResolvers()));
