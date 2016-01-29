@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.mysql;
 
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.dbsupport.SqlStatement;
 import org.junit.Test;
@@ -22,20 +23,22 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test for MySQL SqlScript.
  */
 public class MySQLSqlScriptSmallTest {
+
+    private DbSupport dbSupport = new MySQLDbSupport(null);;
+
     @Test
     public void multiLineCommentDirective() throws Exception {
         String source = "/*!50001 CREATE ALGORITHM=UNDEFINED */\n" +
                 "/*!50013 DEFINER=`user`@`%` SQL SECURITY DEFINER */\n" +
                 "/*!50001 VIEW `viewname` AS select `t`.`id` AS `someId`,`t`.`name` AS `someName` from `someTable` `t` where `t`.`state` = 0 */;\n";
 
-        SqlScript sqlScript = new SqlScript(source, new MySQLDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(1, sqlStatements.size());
         assertEquals(1, sqlStatements.get(0).getLineNumber());
     }
@@ -48,8 +51,8 @@ public class MySQLSqlScriptSmallTest {
                 "`name` varchar(10)\n" +
                 ") ENGINE=MyISAM */;\n" +                
                 "INSERT INTO tablename VALUES ('a','b');";
-        SqlScript sqlScript = new SqlScript(source, new MySQLDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(3, sqlStatements.size());
         assertEquals(1, sqlStatements.get(0).getLineNumber());
         assertEquals(2, sqlStatements.get(1).getLineNumber());

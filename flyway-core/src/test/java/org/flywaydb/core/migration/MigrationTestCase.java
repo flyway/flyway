@@ -22,9 +22,7 @@ import org.flywaydb.core.internal.dbsupport.*;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
-import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
@@ -225,12 +222,9 @@ public abstract class MigrationTestCase {
      * @param migrationInfo The migration to check.
      */
     private void assertChecksum(MigrationInfo migrationInfo) {
-        SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
-                new Location(getBasedir()),
-                PlaceholderReplacer.NO_PLACEHOLDERS,
-                "UTF-8",
-                "V", "R", "__", ".sql");
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations(getBasedir());
+
+        SqlMigrationResolver sqlMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SqlMigrationResolver(), config);
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {

@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resolver.jdbc;
+package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
+import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.Version3dot5;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -37,18 +37,19 @@ import static org.junit.Assert.assertNull;
  * Test for JdbcMigrationResolver.
  */
 public class JdbcMigrationResolverSmallTest {
-    private final Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader());
     private final FlywayConfiguration config = FlywayConfigurationForTests.create();
 
     @Test(expected = FlywayException.class)
     public void broken() {
-        new JdbcMigrationResolver(scanner, new Location("org/flywaydb/core/internal/resolver/jdbc/error"), config).resolveMigrations();
+        FlywayConfiguration config = FlywayConfigurationForTests.createWithLocations("org/flywaydb/core/internal/resolver/jdbc/error");
+        ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), config).resolveMigrations();
     }
 
     @Test
     public void resolveMigrations() throws SQLException {
-        JdbcMigrationResolver jdbcMigrationResolver =
-                new JdbcMigrationResolver(scanner, new Location("org/flywaydb/core/internal/resolver/jdbc/dummy"), config);
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations("org/flywaydb/core/internal/resolver/jdbc/dummy");
+
+        JdbcMigrationResolver jdbcMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), config);
         Collection<ResolvedMigration> migrations = jdbcMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
@@ -75,8 +76,8 @@ public class JdbcMigrationResolverSmallTest {
 
     @Test
     public void conventionOverConfiguration() {
-        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(scanner, null, null);
-        ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
+        JdbcMigrationResolver jdbcMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), FlywayConfigurationForTests.create());
+        ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration(), new Location(""));
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
         assertNull(migrationInfo.getChecksum());
@@ -84,8 +85,8 @@ public class JdbcMigrationResolverSmallTest {
 
     @Test
     public void explicitInfo() {
-        JdbcMigrationResolver jdbcMigrationResolver = new JdbcMigrationResolver(scanner, null, null);
-        ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
+        JdbcMigrationResolver jdbcMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), FlywayConfigurationForTests.create());
+        ResolvedMigration migrationInfo = jdbcMigrationResolver.extractMigrationInfo(new Version3dot5(), new Location(""));
         assertEquals("3.5", migrationInfo.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo.getDescription());
         assertEquals(35, migrationInfo.getChecksum().intValue());

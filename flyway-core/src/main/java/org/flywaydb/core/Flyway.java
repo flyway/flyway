@@ -246,6 +246,11 @@ public class Flyway implements FlywayConfiguration {
     private MigrationResolver[] resolvers = new MigrationResolver[0];
 
     /**
+     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
+     */
+    private boolean skipDefaultResolvers;
+
+    /**
      * Whether Flyway created the DataSource.
      */
     private boolean createdDataSource;
@@ -301,11 +306,7 @@ public class Flyway implements FlywayConfiguration {
         return target;
     }
 
-    /**
-     * Checks whether placeholders should be replaced.
-     *
-     * @return Whether placeholders should be replaced. (default: true)
-     */
+    @Override
     public boolean isPlaceholderReplacement() {
         return placeholderReplacement;
     }
@@ -440,6 +441,16 @@ public class Flyway implements FlywayConfiguration {
         return resolvers;
     }
 
+    @Override
+    public boolean isSkipDefaultResolvers() {
+        return skipDefaultResolvers;
+    }
+
+    /**
+     * Retrieves the dataSource to use to access the database. Must have the necessary privileges to execute ddl.
+     *
+     * @return The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
+     */
     @Override
     public DataSource getDataSource() {
         return dataSource;
@@ -807,6 +818,15 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
+     *
+     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped.
+     */
+    public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
+        this.skipDefaultResolvers = skipDefaultResolvers;
+    }
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="http://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -1014,18 +1034,14 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Creates the MigrationResolver.
      *
-     * @param dbSupport The database-specific support.
-     * @param scanner   The Scanner for resolving migrations.
      * @return A new, fully configured, MigrationResolver instance.
      */
-    private MigrationResolver createMigrationResolver(DbSupport dbSupport, Scanner scanner) {
+    private MigrationResolver createMigrationResolver() {
         for (MigrationResolver resolver : resolvers) {
             ConfigurationInjectionUtils.injectFlywayConfiguration(resolver, this);
         }
 
-        return new CompositeMigrationResolver(dbSupport, scanner, this, locations,
-                encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix,
-                createPlaceholderReplacer(), resolvers);
+        return new CompositeMigrationResolver(this);
     }
 
     /**
@@ -1146,6 +1162,10 @@ public class Flyway implements FlywayConfiguration {
         if (StringUtils.hasLength(resolversProp)) {
             setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
         }
+        String skipDefaultResolverProp = getValueAndRemoveEntry(props, "flyway.skipDefaultResolvers");
+        if (skipDefaultResolverProp != null) {
+            setSkipDefaultResolvers(Boolean.parseBoolean(skipDefaultResolverProp));
+        }
         String callbacksProp = getValueAndRemoveEntry(props, "flyway.callbacks");
         if (StringUtils.hasLength(callbacksProp)) {
             setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
@@ -1236,8 +1256,9 @@ public class Flyway implements FlywayConfiguration {
                 schemas[i] = dbSupport.getSchema(schemaNames[i]);
             }
 
-            Scanner scanner = new Scanner(classLoader);
-            MigrationResolver migrationResolver = createMigrationResolver(dbSupport, scanner);
+            // force creation of a new Scanner to prevent location caching, because the classpath might have been changed
+            Scanner scanner = Scanner.createNew(classLoader);
+            MigrationResolver migrationResolver = createMigrationResolver();
 
             if (callbacks.length == 0) {
                 setCallbacks(new SqlScriptFlywayCallback(dbSupport, scanner, locations, createPlaceholderReplacer(),

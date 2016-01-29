@@ -16,17 +16,21 @@
 package org.flywaydb.core;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.resolver.CustomSqlMigrationResolver;
 import org.flywaydb.core.internal.resolver.MyConfigurationAwareCustomMigrationResolver;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-
 import java.sql.Connection;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -196,4 +200,37 @@ public class FlywaySmallTest {
             //expected
         }
     }
+
+    @Test
+    public void customResolversHaveConfigurationInjected() {
+        MyConfigurationAwareCustomMigrationResolver configResolver = new MyConfigurationAwareCustomMigrationResolver();
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setResolvers(configResolver);
+
+        flyway.migrate();
+
+        configResolver.assertFlywayConfigurationIsSet();
+    }
+
+    @Test
+    public void replaceResolverWithSubclass() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setResolvers(new CustomSqlMigrationResolver());
+        flyway.setLocations("migration/subdir");
+        flyway.setSkipDefaultResolvers(true);
+
+        MigrationInfoService info = flyway.info();
+
+        List<MigrationInfo> migrationInfos = Arrays.asList(info.all());
+
+        assertEquals(3, migrationInfos.size());
+        assertEquals("99.1", migrationInfos.get(0).getVersion().getVersion());
+        assertEquals("99.1.1", migrationInfos.get(1).getVersion().getVersion());
+        assertEquals("99.2.0", migrationInfos.get(2).getVersion().getVersion());
+    }
+
+
 }
