@@ -45,12 +45,12 @@ public class SpringJdbcMigrationResolver implements MigrationResolver, Configura
     /**
      * The Scanner to use.
      */
-    private Scanner scanner;
+    protected Scanner scanner;
 
     /**
      * The configuration to inject (if necessary) in the migration classes.
      */
-    private FlywayConfiguration configuration;
+    protected FlywayConfiguration configuration;
 
     public void setFlywayConfiguration(FlywayConfiguration configuration) {
         this.configuration = configuration;
@@ -70,7 +70,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver, Configura
         return migrations;
     }
 
-    private void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
+    protected void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
         try {
             Class<?>[] classes = scanner.scanForClasses(location, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
@@ -94,7 +94,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver, Configura
      * @param springJdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ ResolvedMigrationImpl extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
+    protected ResolvedMigrationImpl extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
         Integer checksum = null;
         if (springJdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) springJdbcMigration;

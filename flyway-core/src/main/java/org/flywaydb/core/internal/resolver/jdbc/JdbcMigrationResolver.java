@@ -44,12 +44,12 @@ public class JdbcMigrationResolver implements MigrationResolver, ConfigurationAw
     /**
      * The Scanner to use.
      */
-    private Scanner scanner;
+    protected Scanner scanner;
 
     /**
      * The configuration to inject (if necessary) in the migration classes.
      */
-    private FlywayConfiguration configuration;
+    protected FlywayConfiguration configuration;
 
     public void setFlywayConfiguration(FlywayConfiguration configuration) {
         this.configuration = configuration;
@@ -69,7 +69,7 @@ public class JdbcMigrationResolver implements MigrationResolver, ConfigurationAw
         return migrations;
     }
 
-    private void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
+    protected void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
         try {
             Class<?>[] classes = scanner.scanForClasses(location, JdbcMigration.class);
             for (Class<?> clazz : classes) {
@@ -93,7 +93,7 @@ public class JdbcMigrationResolver implements MigrationResolver, ConfigurationAw
      * @param jdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ ResolvedMigrationImpl extractMigrationInfo(JdbcMigration jdbcMigration) {
+    protected ResolvedMigrationImpl extractMigrationInfo(JdbcMigration jdbcMigration) {
         Integer checksum = null;
         if (jdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
