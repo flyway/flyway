@@ -29,7 +29,6 @@ import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -63,12 +62,7 @@ public class SqlMigrationResolver implements MigrationResolver, ConfigurationAwa
     /**
      * The scanner to use.
      */
-    private Scanner scanner;
-
-    /**
-     * The base directories on the classpath where the migrations are located.
-     */
-    private Locations locations;
+    protected Scanner scanner;
 
     /**
      * The Flyway configuration.
@@ -77,31 +71,29 @@ public class SqlMigrationResolver implements MigrationResolver, ConfigurationAwa
 
     @Override
     public void setFlywayConfiguration(FlywayConfiguration configuration) {
-        this.scanner = Scanner.create(configuration.getClassLoader());
-        this.locations = new Locations(configuration.getLocations());
         this.configuration = configuration;
+        this.scanner = Scanner.create(configuration.getClassLoader());
     }
 
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        for (Location location: locations.getLocations()) {
-            scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
-            scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
+        for (Location location : new Locations(configuration.getLocations()).getLocations()) {
+            scanForMigrationsInSingleLocation(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
+            scanForMigrationsInSingleLocation(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
+    protected void scanForMigrationsInSingleLocation(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
         for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
-            String filename = resource.getFilename();
-            if (isSqlCallback(filename, suffix)) {
+            if (isSqlCallback(resource.getFilename(), suffix)) {
                 continue;
             }
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix);
+                    extractVersionAndDescription(prefix, separator, suffix, resource, location);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());
@@ -116,25 +108,40 @@ public class SqlMigrationResolver implements MigrationResolver, ConfigurationAwa
     }
 
     /**
-     * Checks whether this filename is actually a sql-based callback instead of a regular migration.
+     * Hook method to implement custom Version reader mechanisms. By default, only the filename is considered.
+     * @param prefix The prefix for sql migration files
+     * @param separator the separator for sql migration files
+     * @param suffix the suffix sql migration files
+     * @param resource the resource whose metadata should be obtained
+     * @param location The location from which the resource is obtained. This can be used to base the version
+     *                 on the relative path of the migration instead of only the filename.
+     * @return A pair containing a version and a description.
+     */
+    protected Pair<MigrationVersion, String> extractVersionAndDescription(String prefix, String separator, String suffix, Resource resource, Location location) {
+        return MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(), prefix, separator, suffix);
+    }
+
+    /**
+     * Checks whether this filename is actually a sql-based callback instead of a regular migration. This can be overriden
+     * to implement addtional tests.
      *
      * @param filename The filename to check.
      * @param suffix   The sql migration suffix.
      * @return {@code true} if it is, {@code false} if it isn't.
      */
-    /* private -> testing */
-    static boolean isSqlCallback(String filename, String suffix) {
+    protected static boolean isSqlCallback(String filename, String suffix) {
         String baseName = filename.substring(0, filename.length() - suffix.length());
         return SqlScriptFlywayCallback.ALL_CALLBACKS.contains(baseName);
     }
 
     /**
-     * Extracts the script name from this resource.
+     * Extracts the script name from this resource. This can be overridden to include additional information
+     * from the path. By the default, only the filename itself is considered.
      *
      * @param resource The resource to process.
      * @return The script name.
      */
-    /* private -> for testing */ String extractScriptName(Resource resource, Location location) {
+    protected String extractScriptName(Resource resource, Location location) {
         if (location.getPath().isEmpty()) {
             return resource.getLocation();
         }
@@ -148,8 +155,7 @@ public class SqlMigrationResolver implements MigrationResolver, ConfigurationAwa
      * @param str The string to calculate the checksum for.
      * @return The crc-32 checksum of the bytes.
      */
-    /* private -> for testing */
-    static int calculateChecksum(Resource resource, String str) {
+    protected static int calculateChecksum(Resource resource, String str) {
         final CRC32 crc32 = new CRC32();
 
         BufferedReader bufferedReader = new BufferedReader(new StringReader(str));

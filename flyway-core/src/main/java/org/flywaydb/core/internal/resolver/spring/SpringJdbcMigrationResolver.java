@@ -58,13 +58,14 @@ public class SpringJdbcMigrationResolver implements MigrationResolver, Configura
     /**
      * The Scanner to use.
      */
-    private Scanner scanner;
+    protected Scanner scanner;
 
     /**
      * The configuration to inject (if necessary) in the migration classes.
      */
-    private FlywayConfiguration configuration;
+    protected FlywayConfiguration configuration;
 
+    @Override
     public void setFlywayConfiguration(FlywayConfiguration configuration) {
         this.configuration = configuration;
         this.scanner = Scanner.create(configuration.getClassLoader());
@@ -85,6 +86,11 @@ public class SpringJdbcMigrationResolver implements MigrationResolver, Configura
         return migrations;
     }
 
+    /**
+     * Resolves the migrations for a single location. This can be overridden by subclasses.
+     * @param location the location to scan.
+     * @param migrations an existing List to add the results to.
+     */
     protected void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
         try {
             Class<?>[] classes = scanner.scanForClasses(location, SpringJdbcMigration.class);
@@ -104,12 +110,13 @@ public class SpringJdbcMigrationResolver implements MigrationResolver, Configura
     }
 
     /**
-     * Extracts the migration info from this migration.
+     * Extracts the migration info from this migration. This can be overridden to include custom mechanisms to
+     * retrieve the meta data (for example from annotations or the package name).
      *
      * @param springJdbcMigration The migration to analyse.
      * @return The migration info.
      */
-    /* private -> testing */ ResolvedMigrationImpl extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
+    protected ResolvedMigrationImpl extractMigrationInfo(SpringJdbcMigration springJdbcMigration) {
         Integer checksum = null;
         if (springJdbcMigration instanceof MigrationChecksumProvider) {
             MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) springJdbcMigration;
