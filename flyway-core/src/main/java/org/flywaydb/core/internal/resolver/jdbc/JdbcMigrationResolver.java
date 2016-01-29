@@ -15,121 +15,27 @@
  */
 package org.flywaydb.core.internal.resolver.jdbc;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.configuration.ConfigurationAware;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
-import org.flywaydb.core.api.migration.MigrationChecksumProvider;
-import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
-import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
-import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.util.*;
-import org.flywaydb.core.internal.util.scanner.Scanner;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.internal.resolver.AbstractJdbcResolver;
 
 /**
  * Migration resolver for Jdbc migrations. The classes must have a name like R__My_description, V1__Description
  * or V1_1_3__Description.
  */
-public class JdbcMigrationResolver implements MigrationResolver, ConfigurationAware {
+public class JdbcMigrationResolver extends AbstractJdbcResolver<JdbcMigration> {
 
-    /**
-     * The Scanner to use.
-     */
-    protected Scanner scanner;
-
-    /**
-     * The configuration to inject (if necessary) in the migration classes.
-     */
-    protected FlywayConfiguration configuration;
-
-    public void setFlywayConfiguration(FlywayConfiguration configuration) {
-        this.configuration = configuration;
-        this.scanner = Scanner.create(configuration.getClassLoader());
+    @Override
+    protected Class<JdbcMigration> getTargetInterface() {
+        return JdbcMigration.class;
     }
 
     @Override
-    public List<ResolvedMigration> resolveMigrations() {
-        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
-
-        for (Location location : new Locations(configuration.getLocations()).getLocations()) {
-            if (!location.isClassPath()) continue;
-            resolveMigrationsForSingleLocation(location, migrations);
-        }
-
-        Collections.sort(migrations, new ResolvedMigrationComparator());
-        return migrations;
+    protected MigrationExecutor createExecutor(JdbcMigration migration) {
+        return new JdbcMigrationExecutor(migration);
     }
 
-    protected void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
-        try {
-            Class<?>[] classes = scanner.scanForClasses(location, JdbcMigration.class);
-            for (Class<?> clazz : classes) {
-                JdbcMigration jdbcMigration = ClassUtils.instantiate(clazz.getName(), scanner.getClassLoader());
-                ConfigurationInjectionUtils.injectFlywayConfiguration(jdbcMigration, configuration);
-
-                ResolvedMigrationImpl migrationInfo = extractMigrationInfo(jdbcMigration);
-                migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
-                migrationInfo.setExecutor(new JdbcMigrationExecutor(jdbcMigration));
-
-                migrations.add(migrationInfo);
-            }
-        } catch (Exception e) {
-            throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + location, e);
-        }
-    }
-
-    /**
-     * Extracts the migration info from this migration.
-     *
-     * @param jdbcMigration The migration to analyse.
-     * @return The migration info.
-     */
-    protected ResolvedMigrationImpl extractMigrationInfo(JdbcMigration jdbcMigration) {
-        Integer checksum = null;
-        if (jdbcMigration instanceof MigrationChecksumProvider) {
-            MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
-            checksum = checksumProvider.getChecksum();
-        }
-
-        MigrationVersion version;
-        String description;
-        if (jdbcMigration instanceof MigrationInfoProvider) {
-            MigrationInfoProvider infoProvider = (MigrationInfoProvider) jdbcMigration;
-            version = infoProvider.getVersion();
-            description = infoProvider.getDescription();
-            if (!StringUtils.hasText(description)) {
-                throw new FlywayException("Missing description for migration " + version);
-            }
-        } else {
-            String shortName = ClassUtils.getShortName(jdbcMigration.getClass());
-            String prefix;
-            if (shortName.startsWith("V") || shortName.startsWith("R")) {
-                prefix = shortName.substring(0, 1);
-            } else {
-                throw new FlywayException("Invalid Jdbc migration class name: " + jdbcMigration.getClass().getName()
-                        + " => ensure it starts with V or R," +
-                        " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
-            }
-            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
-            version = info.getLeft();
-            description = info.getRight();
-        }
-
-        ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
-        resolvedMigration.setVersion(version);
-        resolvedMigration.setDescription(description);
-        resolvedMigration.setScript(jdbcMigration.getClass().getName());
-        resolvedMigration.setChecksum(checksum);
-        resolvedMigration.setType(MigrationType.JDBC);
-        return resolvedMigration;
-    }
-}
+    protected MigrationType getMigrationType() {
+        return MigrationType.JDBC;
+    }}

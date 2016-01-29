@@ -19,8 +19,15 @@ import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
 
 import java.sql.Connection;
+
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Test migration. Doubles as test for {@link ConfigurationAware} migration.
@@ -35,13 +42,11 @@ public class V2__InterfaceBasedMigration implements JdbcMigration, Configuration
     }
 
     public void migrate(Connection connection) throws Exception {
-        if (flywayConfiguration == null) {
-            throw new FlywayException("Flyway configuration has not been set on migration");
-        }
+        assertFlywayConfigurationHasBeenSet();
         // Do nothing else
     }
 
-    public boolean isFlywayConfigurationSet() {
-        return flywayConfiguration != null;
+    public void assertFlywayConfigurationHasBeenSet() {
+        assertThat("Flyway configuration has not been set on migration", flywayConfiguration, is(notNullValue()));
     }
 }

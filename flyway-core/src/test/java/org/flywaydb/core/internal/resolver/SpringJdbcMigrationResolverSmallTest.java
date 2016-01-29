@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resolver.spring;
+package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
+import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.spring.dummy.Version3dot5;
 import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
+import org.flywaydb.core.internal.util.Location;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class SpringJdbcMigrationResolverSmallTest {
     @Test
     public void conventionOverConfiguration() {
         SpringJdbcMigrationResolver springJdbcMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config);
-        ResolvedMigration migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
+        ResolvedMigration migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration(), new Location(""));
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
         assertNull(migrationInfo.getChecksum());
@@ -68,7 +69,7 @@ public class SpringJdbcMigrationResolverSmallTest {
     @Test
     public void explicitInfo() {
         SpringJdbcMigrationResolver springJdbcMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config);
-        ResolvedMigration migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
+        ResolvedMigration migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new Version3dot5(), new Location(""));
         assertEquals("3.5", migrationInfo.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo.getDescription());
         assertEquals(35, migrationInfo.getChecksum().intValue());
