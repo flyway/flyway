@@ -36,7 +36,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     private String repeatableSqlMigrationPrefix;
     private String sqlMigrationSeparator;
     private String sqlMigrationSuffix;
-    private MyCustomMigrationResolver[] migrationResolvers = new MyCustomMigrationResolver[0];
+    private MigrationResolver[] migrationResolvers = new MigrationResolver[0];
     private boolean skipDefaultResolvers;
     private boolean skipDefaultCallbacks;
 
@@ -259,7 +259,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
         this.sqlMigrationPrefix = sqlMigrationPrefix;
     }
 
-    public void setResolvers(MyCustomMigrationResolver... myCustomMigrationResolver) {
+    public void setResolvers(MigrationResolver... myCustomMigrationResolver) {
         this.migrationResolvers = myCustomMigrationResolver;
     }
 }

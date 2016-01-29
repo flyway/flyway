@@ -1,0 +1,168 @@
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.flywaydb.core.internal.resolver;
+
+import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.migration.MigrationChecksumProvider;
+import org.flywaydb.core.api.migration.MigrationInfoProvider;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.util.*;
+import org.flywaydb.core.internal.util.scanner.Scanner;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Abstract migration resolver for jdbc based migration taken from classes. The classes must have a name like R__My_description,
+ * V1__Description or V1_1_3__Description.
+ *
+ * <p>Subclasses who follow the default behaviour (version is taken from simple classname or {@link org.flywaydb.core.api.MigrationInfo}
+ * interface if present, description is taken from simple classname), only overriding of the three abstract
+ * methods is necessary.</p>
+ *
+ * @param <T> the base type of the migrations to be resolved by this resolver. This is usually (but not necessarily)
+ *           and interface
+ */
+public abstract class AbstractJdbcResolver<T> implements MigrationResolver, ConfigurationAware {
+    /**
+     * The Scanner to use.
+     */
+    protected Scanner scanner;
+
+    /**
+     * The configuration to inject (if necessary) in the migration classes.
+     */
+    protected FlywayConfiguration configuration;
+
+    /**
+     * The base class of the migrations produced. Usually an interface.
+     * @return The class object
+     */
+    protected abstract Class<T> getMigrationBaseType();
+
+    /**
+     * The type of migrations to be generated. For custom migrations, this is
+     * always {@link MigrationType#CUSTOM}
+     * @return The type of the created migration.
+     */
+    protected abstract MigrationType getMigrationType();
+
+    /**
+     * Create a new {@link MigrationExecutor} instance for a given migration.
+     * @param migration The migration to execute.
+     * @return The created MigrationExecutor
+     */
+    protected abstract MigrationExecutor createMigrationExecutor(T migration);
+
+    @Override
+    public void setFlywayConfiguration(FlywayConfiguration configuration) {
+        this.configuration = configuration;
+        this.scanner = Scanner.create(configuration.getClassLoader());
+    }
+
+    @Override
+    public List<ResolvedMigration> resolveMigrations() {
+        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+
+        for (Location location : new Locations(configuration.getLocations()).getLocations()) {
+            if (!location.isClassPath()) {
+                continue;
+            }
+            resolveMigrationsForSingleLocation(location, migrations);
+        }
+
+        Collections.sort(migrations, new ResolvedMigrationComparator());
+        return migrations;
+    }
+
+    /**
+     * Resolves the migrations for a single location. This can be overridden by subclasses.
+     * @param location the location to scan.
+     * @param migrations an existing List to add the results to.
+     */
+    protected void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
+        try {
+            Class<?>[] classes = scanner.scanForClasses(location, getMigrationBaseType());
+            for (Class<?> clazz : classes) {
+                T jdbcMigration = ClassUtils.instantiate(clazz.getName(), scanner.getClassLoader());
+                ConfigurationInjectionUtils.injectFlywayConfiguration(jdbcMigration, configuration);
+
+                ResolvedMigrationImpl migrationInfo = extractMigrationInfo(jdbcMigration);
+                migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
+                migrationInfo.setExecutor(createMigrationExecutor(jdbcMigration));
+
+                migrations.add(migrationInfo);
+            }
+        } catch (Exception e) {
+            throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + location + " (" + e.getMessage() + ")", e);
+        }
+    }
+
+    /**
+     * Extracts the migration info from this migration. This can be overridden to include custom mechanisms to
+     * retrieve the meta data (for example from annotations or the package name).
+     *
+     * @param jdbcMigration The migration to analyse.
+     * @return The migration info.
+     */
+    protected ResolvedMigrationImpl extractMigrationInfo(T jdbcMigration) {
+        Integer checksum = null;
+        if (jdbcMigration instanceof MigrationChecksumProvider) {
+            MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) jdbcMigration;
+            checksum = checksumProvider.getChecksum();
+        }
+
+        MigrationVersion version;
+        String description;
+        if (jdbcMigration instanceof MigrationInfoProvider) {
+            MigrationInfoProvider infoProvider = (MigrationInfoProvider) jdbcMigration;
+            version = infoProvider.getVersion();
+            description = infoProvider.getDescription();
+            if (!StringUtils.hasText(description)) {
+                throw new FlywayException("Missing description for migration " + version);
+            }
+        } else {
+            String shortName = ClassUtils.getShortName(jdbcMigration.getClass());
+            String prefix;
+            if (shortName.startsWith("V") || shortName.startsWith("R")) {
+                prefix = shortName.substring(0, 1);
+            } else {
+                throw new FlywayException("Invalid migration class name: " + jdbcMigration.getClass().getName()
+                        + " => ensure it starts with V or R," +
+                        " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
+            }
+            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
+            version = info.getLeft();
+            description = info.getRight();
+        }
+
+        ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
+        resolvedMigration.setVersion(version);
+        resolvedMigration.setDescription(description);
+        resolvedMigration.setScript(jdbcMigration.getClass().getName());
+        resolvedMigration.setChecksum(checksum);
+        resolvedMigration.setType(getMigrationType());
+        return resolvedMigration;
+    }
+
+}

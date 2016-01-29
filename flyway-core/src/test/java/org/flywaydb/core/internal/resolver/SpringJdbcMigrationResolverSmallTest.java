@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.resolver.spring;
+package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
+import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.spring.dummy.Version3dot5;
 import org.flywaydb.core.internal.util.Location;
