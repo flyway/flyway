@@ -121,7 +121,7 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     public Schema getSchema(String name) {
-        return new PostgreSQLSchema(jdbcTemplate, this, name);
+        return new PostgreSQLSchema(jdbcTemplate, this, name.trim());
     }
 
     @Override
