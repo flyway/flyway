@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -102,14 +102,8 @@ public class DriverDataSource implements DataSource {
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, String... initSqls) throws FlywayException {
-        if (!StringUtils.hasText(url)) {
-            throw new FlywayException("Missing required JDBC URL. Unable to create DataSource!");
-        }
-        if (!url.toLowerCase().startsWith("jdbc:")) {
-            throw new FlywayException("Invalid JDBC URL (should start with jdbc:) : " + url);
-        }
         this.classLoader = classLoader;
-        this.url = url;
+        this.url = detectFallbackUrl(url);
 
         if (!StringUtils.hasLength(driverClass)) {
             driverClass = detectDriverForUrl(url);
@@ -135,13 +129,70 @@ public class DriverDataSource implements DataSource {
             }
         }
 
-        this.user = user;
-        this.password = password;
+        this.user = detectFallbackUser(user);
+        this.password = detectFallbackPassword(password);
 
         if (initSqls == null) {
             initSqls = new String[0];
         }
         this.initSqls = initSqls;
+    }
+
+    /**
+     * Detects a fallback url in case this one is missing.
+     *
+     * @param url The url to check.
+     * @return The url to use.
+     */
+    private String detectFallbackUrl(String url) {
+        if (!StringUtils.hasText(url)) {
+            // Attempt fallback to the automatically provided Boxfuse database URL (https://boxfuse.com/docs/databases#envvars)
+            String boxfuseDatabaseUrl = System.getenv("BOXFUSE_DATABASE_URL");
+            if (StringUtils.hasText(boxfuseDatabaseUrl)) {
+                return boxfuseDatabaseUrl;
+            }
+
+            throw new FlywayException("Missing required JDBC URL. Unable to create DataSource!");
+        }
+
+        if (!url.toLowerCase().startsWith("jdbc:")) {
+            throw new FlywayException("Invalid JDBC URL (should start with jdbc:) : " + url);
+        }
+        return url;
+    }
+
+    /**
+     * Detects a fallback user in case this one is missing.
+     *
+     * @param user The user to check.
+     * @return The user to use.
+     */
+    private String detectFallbackUser(String user) {
+        if (!StringUtils.hasText(user)) {
+            // Attempt fallback to the automatically provided Boxfuse database user (https://boxfuse.com/docs/databases#envvars)
+            String boxfuseDatabaseUser = System.getenv("BOXFUSE_DATABASE_USER");
+            if (StringUtils.hasText(boxfuseDatabaseUser)) {
+                return boxfuseDatabaseUser;
+            }
+        }
+        return user;
+    }
+
+    /**
+     * Detects a fallback password in case this one is missing.
+     *
+     * @param password The password to check.
+     * @return The password to use.
+     */
+    private String detectFallbackPassword(String password) {
+        if (!StringUtils.hasText(password)) {
+            // Attempt fallback to the automatically provided Boxfuse database password (https://boxfuse.com/docs/databases#envvars)
+            String boxfuseDatabasePassword = System.getenv("BOXFUSE_DATABASE_PASSWORD");
+            if (StringUtils.hasText(boxfuseDatabasePassword)) {
+                return boxfuseDatabasePassword;
+            }
+        }
+        return password;
     }
 
     /**
