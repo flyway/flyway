@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Boxfuse GmbH
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,7 +189,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         try {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                crc32.update(line.trim().getBytes("UTF-8"));
+                crc32.update(line.getBytes("UTF-8"));
             }
         } catch (IOException e) {
             String message = "Unable to calculate checksum";

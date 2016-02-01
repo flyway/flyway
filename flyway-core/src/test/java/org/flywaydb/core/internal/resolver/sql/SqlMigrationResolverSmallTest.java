@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Boxfuse GmbH
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,6 +117,6 @@ public class SqlMigrationResolverSmallTest {
     @Test
     public void calculateChecksum() {
         assertEquals(SqlMigrationResolver.calculateChecksum(null, "abc\ndef efg\nxyz"),
-                SqlMigrationResolver.calculateChecksum(null, "abc \r\n   def efg  \nxyz\r\n"));
+                SqlMigrationResolver.calculateChecksum(null, "abc\r\ndef efg\nxyz\r\n"));
     }
 }
