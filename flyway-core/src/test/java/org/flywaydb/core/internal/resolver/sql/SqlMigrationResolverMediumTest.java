@@ -16,9 +16,8 @@
 package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
+import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,10 +38,8 @@ public class SqlMigrationResolverMediumTest {
         @SuppressWarnings("ConstantConditions")
         String path = URLDecoder.decode(getClass().getClassLoader().getResource("migration/subdir").getPath(), "UTF-8");
 
-        SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, new Scanner(Thread.currentThread().getContextClassLoader()),
-                        new Location("filesystem:" + new File(path).getPath()), PlaceholderReplacer.NO_PLACEHOLDERS,
-                        "UTF-8", "V", "R", "__", ".sql");
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations("filesystem:" + new File(path).getPath());
+        SqlMigrationResolver sqlMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SqlMigrationResolver(), config);
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());

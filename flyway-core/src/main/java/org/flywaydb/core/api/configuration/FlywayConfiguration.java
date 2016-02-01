@@ -43,6 +43,13 @@ public interface FlywayConfiguration {
     ClassLoader getClassLoader();
 
     /**
+     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
+     *
+     * @return Whether default built-in resolvers should be skipped.
+     */
+    boolean isSkipDefaultResolvers();
+
+    /**
      * Retrieves the dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      *
      * @return The dataSource to use to access the database. Must have the necessary privileges to execute ddl.

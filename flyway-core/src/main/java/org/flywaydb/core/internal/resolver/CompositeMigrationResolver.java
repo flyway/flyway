@@ -15,27 +15,18 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
-import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -56,34 +47,19 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param dbSupport                    The database-specific support.
-     * @param scanner                      The Scanner for loading migrations on the classpath.
-     * @param locations                    The locations where migrations are located.
-     * @param encoding                     The encoding of Sql migrations.
-     * @param sqlMigrationPrefix           The file name prefix for sql migrations.
-     * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations.
-     * @param sqlMigrationSeparator        The file name separator for sql migrations.
-     * @param sqlMigrationSuffix           The file name suffix for sql migrations.
-     * @param placeholderReplacer          The placeholder replacer to use.
-     * @param customMigrationResolvers     Custom Migration Resolvers.
+     * @param config                       The configuration object.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, Scanner scanner, FlywayConfiguration config, Locations locations,
-                                      String encoding,
-                                      String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
-                                      String sqlMigrationSeparator, String sqlMigrationSuffix,
-                                      PlaceholderReplacer placeholderReplacer,
-                                      MigrationResolver... customMigrationResolvers) {
-        for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, location, placeholderReplacer,
-                    encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
-            migrationResolvers.add(new JdbcMigrationResolver(scanner, location, config));
+    public CompositeMigrationResolver(FlywayConfiguration config) {
+        if (!config.isSkipDefaultResolvers()) {
+            migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SqlMigrationResolver(), config));
+            migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), config));
 
-            if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(scanner, location, config));
+            if (new FeatureDetector(config.getClassLoader()).isSpringJdbcAvailable()) {
+                migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config));
             }
         }
 
-        migrationResolvers.addAll(Arrays.asList(customMigrationResolvers));
+        migrationResolvers.addAll(Arrays.asList(config.getResolvers()));
     }
 
     /**
@@ -115,6 +91,11 @@ public class CompositeMigrationResolver implements MigrationResolver {
         checkForIncompatibilities(migrations);
 
         return migrations;
+    }
+
+    /* private -> for testing */
+    Collection<MigrationResolver> getMigrationResolvers() {
+        return migrationResolvers;
     }
 
     /**

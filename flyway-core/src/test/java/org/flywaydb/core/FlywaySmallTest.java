@@ -25,7 +25,6 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-
 import java.sql.Connection;
 import java.util.Properties;
 
@@ -195,5 +194,18 @@ public class FlywaySmallTest {
         } catch (FlywayException e) {
             //expected
         }
+    }
+
+    @Test
+    public void customResolversHaveConfigurationInjected() {
+        MyConfigurationAwareCustomMigrationResolver configResolver = new MyConfigurationAwareCustomMigrationResolver();
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setResolvers(configResolver);
+
+        flyway.migrate();
+
+        configResolver.assertFlywayConfigurationIsSet();
     }
 }
