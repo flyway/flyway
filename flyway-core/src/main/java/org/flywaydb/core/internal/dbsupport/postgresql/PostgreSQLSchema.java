@@ -29,13 +29,12 @@ import java.util.Map;
  * PostgreSQL implementation of Schema.
  */
 public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
-
     /**
      * Creates a new PostgreSQL schema.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param dbSupport The database-specific support.
-     * @param name The name of the schema.
+     * @param dbSupport    The database-specific support.
+     * @param name         The name of the schema.
      */
     public PostgreSQLSchema(JdbcTemplate jdbcTemplate, PostgreSQLDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
@@ -112,6 +111,9 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
+        for (Type type : allTypes()) {
+            type.drop();
+        }
     }
 
     /**
@@ -143,8 +145,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     private List<String> generateDropStatementsForBaseTypes(boolean recreate) throws SQLException {
         List<String> typeNames =
                 jdbcTemplate.queryForStringList(
-                "select typname from pg_catalog.pg_type where typcategory in ('P', 'U') and typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?)",
-                name);
+                        "select typname from pg_catalog.pg_type where typcategory in ('P', 'U') and typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?)",
+                        name);
 
         List<String> statements = new ArrayList<String>();
         for (String typeName : typeNames) {
@@ -191,12 +193,9 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     private List<String> generateDropStatementsForRoutines() throws SQLException {
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
-                // Search for all functions
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
-                // that don't depend on an extension
-                        + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
-                        + "WHERE pg_proc.proisagg = false AND ns.nspname = ? AND dep.objid IS NULL",
+                                + "WHERE pg_proc.proisagg = false AND ns.nspname = ?",
                         name
                 );
 
@@ -274,12 +273,8 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     private List<String> generateDropStatementsForViews() throws SQLException {
         List<String> viewNames =
                 jdbcTemplate.queryForStringList(
-                // Search for all views
-                "SELECT table_name FROM information_schema.views" +
-                        // that don't depend on an extension
-                        " LEFT JOIN pg_depend dep ON dep.objid = (table_schema || '.' || table_name)::regclass::oid AND dep.deptype = 'e'" +
-                        " WHERE table_schema=? AND dep.objid IS NULL",
-                name);
+                        "SELECT table_name FROM information_schema.views WHERE table_schema=?", name);
+
         List<String> statements = new ArrayList<String>();
         for (String domainName : viewNames) {
             statements.add("DROP VIEW IF EXISTS " + dbSupport.quote(name, domainName) + " CASCADE");
@@ -292,18 +287,18 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     protected Table[] doAllTables() throws SQLException {
         List<String> tableNames =
                 jdbcTemplate.queryForStringList(
-                // Search for all the table names
-                "SELECT t.table_name FROM information_schema.tables t" +
-                        // in this schema
-                        " WHERE table_schema=?" +
-                        // that are real tables (as opposed to views)
-                        " AND table_type='BASE TABLE'" +
-                        // and are not child tables (= do not inherit from another table).
+                        //Search for all the table names
+                        "SELECT t.table_name FROM information_schema.tables t" +
+                                //in this schema
+                                " WHERE table_schema=?" +
+                                //that are real tables (as opposed to views)
+                                " AND table_type='BASE TABLE'" +
+                                //and are not child tables (= do not inherit from another table).
                                 " AND NOT (SELECT EXISTS (SELECT inhrelid FROM pg_catalog.pg_inherits" +
                                 " WHERE inhrelid = (quote_ident(t.table_schema)||'.'||quote_ident(t.table_name))::regclass::oid))",
                         name
                 );
-        // Views and child tables are excluded as they are dropped with the parent table when using cascade.
+        //Views and child tables are excluded as they are dropped with the parent table when using cascade.
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
