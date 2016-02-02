@@ -88,7 +88,8 @@ public abstract class AbstractFlywayTask extends Task {
     private String[] locations = flyway.getLocations();
 
     /**
-     * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     * The custom MigrationResolvers to be used in addition or as replacement to the built-in (as determined by the
+     * skipDefaultResolvers property) ones for resolving Migrations to apply.
      * <p>(default: none)</p>
      */
     private String[] resolvers;
@@ -173,6 +174,15 @@ public abstract class AbstractFlywayTask extends Task {
      */
     public void setResolvers(String resolvers) {
         this.resolvers = StringUtils.tokenizeToStringArray(resolvers, ",");
+    }
+
+    /**
+     * Configures whether default built-in resolvers should be skipped. If true, only custom resolvers are used.
+     *
+     * @param skipDefaultResolvers Whether built-int resolvers should be skipped.
+     */
+    public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
+        flyway.setSkipDefaultResolvers(skipDefaultResolvers);
     }
 
     /**

@@ -153,14 +153,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String[] locations;
 
     /**
-     * The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for
-     * resolving Migrations to apply.
+     * The fully qualified class names of the custom MigrationResolvers to be used in addition or as replacement
+     * (if skipDefaultResolvers is true) to the built-in ones for resolving Migrations to apply.
      * <p>(default: none)</p>
      * <p>Also configurable with Maven or System Property: ${flyway.resolvers} (Comma-separated list)</p>
      *
      * @parameter
      */
     private String[] resolvers = new String[0];
+
+    /**
+     * When set to true, default resolvers are skipped, i.e. only custom resolvers as defined by 'resolvers'
+     * are used.
+     *
+     * @parameter
+     */
+    private boolean skipDefaultResolvers;
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
@@ -450,6 +458,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 locations = new String[] { Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"};
             }
             flyway.setResolversAsClassNames(resolvers);
+            flyway.setSkipDefaultResolvers(skipDefaultResolvers);
             flyway.setCallbacksAsClassNames(callbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);

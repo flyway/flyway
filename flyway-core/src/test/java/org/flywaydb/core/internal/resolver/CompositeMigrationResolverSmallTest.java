@@ -141,6 +141,21 @@ public class CompositeMigrationResolverSmallTest {
         CompositeMigrationResolver.checkForIncompatibilities(migrations);
     }
 
+    @Test
+    public void skipDefaultResolvers() {
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.create();
+        config.setSkipDefaultResolvers(true);
+
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
+                new Scanner(Thread.currentThread().getContextClassLoader()), config,
+                new Locations("migration/outoforder", "org/flywaydb/core/internal/resolver/jdbc/dummy"),
+                "UTF-8", "V", "R", "__", ".sql", PlaceholderReplacer.NO_PLACEHOLDERS);
+
+        Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
+
+        assertTrue(migrations.isEmpty());
+    }
+
     /**
      * Creates a migration for our tests.
      *
@@ -160,5 +175,4 @@ public class CompositeMigrationResolverSmallTest {
         migration.setType(aMigrationType);
         return migration;
     }
-
 }

@@ -231,6 +231,7 @@ public class Main {
         LOG.info("table                        : Name of Flyway's metadata table");
         LOG.info("locations                    : Classpath locations to scan recursively for migrations");
         LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
+        LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
         LOG.info("sqlMigrationPrefix           : File name prefix for sql migrations");
         LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable sql migrations");
         LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
