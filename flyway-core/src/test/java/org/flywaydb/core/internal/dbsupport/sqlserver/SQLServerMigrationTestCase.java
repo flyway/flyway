@@ -79,6 +79,20 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for SQL Server Functions.
+     */
+    @Test
+    public void function() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/function");
+        flyway.migrate();
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
      * Tests clean and migrate for SQL Server Triggers.
      */
     @Test
