@@ -73,13 +73,15 @@ public class CompositeMigrationResolver implements MigrationResolver {
                                       String sqlMigrationSeparator, String sqlMigrationSuffix,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
-        for (Location location : locations.getLocations()) {
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, location, placeholderReplacer,
-                    encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
-            migrationResolvers.add(new JdbcMigrationResolver(scanner, location, config));
+        if (!config.isSkipDefaultResolvers()) {
+            for (Location location : locations.getLocations()) {
+                migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, location, placeholderReplacer,
+                        encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
+                migrationResolvers.add(new JdbcMigrationResolver(scanner, location, config));
 
-            if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(scanner, location, config));
+                if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {
+                    migrationResolvers.add(new SpringJdbcMigrationResolver(scanner, location, config));
+                }
             }
         }
 
