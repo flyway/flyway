@@ -31,6 +31,10 @@ SELECT *  INTO TEMP adddata_temp_table FROM AddData() ;
 CREATE FUNCTION add(integer, integer) RETURNS integer
     LANGUAGE sql/*test*/ IMMUTABLE STRICT
     AS $_$select $1 + $2;$_$;
+    
+CREATE FUNCTION """add2"""(integer, integer) RETURNS integer
+    LANGUAGE sql/*test*/ IMMUTABLE STRICT
+    AS $_$select $1 + $2;$_$;
 
 CREATE FUNCTION inc(i integer) RETURNS VARCHAR(25)
     LANGUAGE sql

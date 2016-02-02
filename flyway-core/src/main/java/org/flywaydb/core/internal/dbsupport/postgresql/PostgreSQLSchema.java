@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.dbsupport.Type;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -143,19 +144,26 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> generateDropStatementsForBaseTypes(boolean recreate) throws SQLException {
-        List<String> typeNames =
-                jdbcTemplate.queryForStringList(
-                        "select typname from pg_catalog.pg_type where typcategory in ('P', 'U') and typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?)",
-                        name);
+
+        List<Map<String, String>> rows =
+                jdbcTemplate.queryForList(
+                "select typname, typcategory from pg_catalog.pg_type t "
+                + "where (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid)) and "
+                + "NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid) and "
+                + "t.typnamespace in (select oid from pg_catalog.pg_namespace where nspname = ?)",
+                name);
 
         List<String> statements = new ArrayList<String>();
-        for (String typeName : typeNames) {
-            statements.add("DROP TYPE IF EXISTS " + dbSupport.quote(name, typeName) + " CASCADE");
+        for (Map<String, String> row : rows) {
+            statements.add("DROP TYPE IF EXISTS " + dbSupport.quote(name, row.get("typname")) + " CASCADE");
         }
 
         if (recreate) {
-            for (String typeName : typeNames) {
-                statements.add("CREATE TYPE " + dbSupport.quote(name, typeName));
+            for (Map<String, String> row : rows) {
+                // Only recreate Pseudo-types (P) and User-defined types (U)
+                if (Arrays.asList("P", "U").contains(row.get("typcategory"))) {
+                    statements.add("CREATE TYPE " + dbSupport.quote(name, row.get("typname")));
+                }
             }
         }
 
@@ -193,9 +201,12 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     private List<String> generateDropStatementsForRoutines() throws SQLException {
         List<Map<String, String>> rows =
                 jdbcTemplate.queryForList(
+                // Search for all functions
                         "SELECT proname, oidvectortypes(proargtypes) AS args "
                                 + "FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) "
-                                + "WHERE pg_proc.proisagg = false AND ns.nspname = ?",
+                // that don't depend on an extension
+                        + "LEFT JOIN pg_depend dep ON dep.objid = pg_proc.oid AND dep.deptype = 'e' "
+                        + "WHERE pg_proc.proisagg = false AND ns.nspname = ? AND dep.objid IS NULL",
                         name
                 );
 
@@ -273,8 +284,12 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
     private List<String> generateDropStatementsForViews() throws SQLException {
         List<String> viewNames =
                 jdbcTemplate.queryForStringList(
-                        "SELECT table_name FROM information_schema.views WHERE table_schema=?", name);
-
+                // Search for all views
+                "SELECT relname FROM pg_catalog.pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace" +
+                        // that don't depend on an extension
+                        " LEFT JOIN pg_depend dep ON dep.objid = c.oid AND dep.deptype = 'e'" +
+                        " WHERE c.relkind = 'v' AND  n.nspname = ? AND dep.objid IS NULL",
+                name);
         List<String> statements = new ArrayList<String>();
         for (String domainName : viewNames) {
             statements.add("DROP VIEW IF EXISTS " + dbSupport.quote(name, domainName) + " CASCADE");
