@@ -53,7 +53,7 @@ object FlywayPlugin extends AutoPlugin {
 
     val flywayLocations = settingKey[Seq[String]]("Locations on the classpath to scan recursively for migrations. Locations may contain both sql and code-based migrations. (default: filesystem:src/main/resources/db/migration)")
     val flywayResolvers = settingKey[Seq[String]](" The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.")
-    val flywaySkipDefaultResolvers = settingKey[Boolean]("Whether default built-in resolvers should be skipped.")
+    val flywaySkipDefaultResolvers = settingKey[Boolean]("Whether default built-in resolvers should be skipped. (default: false)")
     val flywayEncoding = settingKey[String]("The encoding of Sql migrations. (default: UTF-8)")
     val flywaySqlMigrationPrefix = settingKey[String]("The file name prefix for Sql migrations (default: V)")
     val flywayRepeatableSqlMigrationPrefix = settingKey[String]("The file name prefix for repeatable sql migrations (default: R)")
@@ -131,7 +131,7 @@ object FlywayPlugin extends AutoPlugin {
       flywayPassword := "",
       flywayLocations := List("filesystem:src/main/resources/db/migration"),
       flywayResolvers := Array.empty[String],
-      flywaySkipDefaultResolvers := defaults.skipDefaultResolvers,
+      flywaySkipDefaultResolvers := defaults.isSkipDefaultResolvers,
       flywaySchemas := defaults.getSchemas.toSeq,
       flywayTable := defaults.getTable,
       flywayBaselineVersion := defaults.getBaselineVersion.getVersion,

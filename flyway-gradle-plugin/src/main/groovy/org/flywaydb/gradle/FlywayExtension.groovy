@@ -73,6 +73,7 @@ public class FlywayExtension {
 
     /**
      * If set to true, default built-in resolvers will be skipped, only custom migration resolvers will be used.
+     * <p>(default: false)</p>
      */
     Boolean skipDefaultResolvers
 

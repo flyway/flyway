@@ -247,6 +247,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
+     * <p>(default: false)</p>
      */
     private boolean skipDefaultResolvers;
 
@@ -824,7 +825,7 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
      *
-     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped.
+     * @param skipDefaultResolvers Whether default built-in resolvers should be skipped. <p>(default: false)</p>
      */
     public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
         this.skipDefaultResolvers = skipDefaultResolvers;

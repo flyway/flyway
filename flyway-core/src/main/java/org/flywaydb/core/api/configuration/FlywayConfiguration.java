@@ -45,7 +45,7 @@ public interface FlywayConfiguration {
     /**
      * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
      *
-     * @return Whether default built-in resolvers should be skipped.
+     * @return Whether default built-in resolvers should be skipped. (default: false)
      */
     boolean isSkipDefaultResolvers();
 

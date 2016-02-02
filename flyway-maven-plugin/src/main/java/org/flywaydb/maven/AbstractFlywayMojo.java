@@ -164,9 +164,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * When set to true, default resolvers are skipped, i.e. only custom resolvers as defined by 'resolvers'
-     * are used.
+     * are used. (default: false)<br> <p>Also configurable with Maven or System Property:
+     * ${flyway.skipDefaultResolvers}</p>
      *
-     * @parameter
+     * @parameter property="flyway.skipDefaultResolvers"
      */
     private boolean skipDefaultResolvers;
 

@@ -177,9 +177,9 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
-     * Configures whether default built-in resolvers should be skipped. If true, only custom resolvers are used.
-     *
      * @param skipDefaultResolvers Whether built-int resolvers should be skipped.
+     *                             If true, only custom resolvers are used.<p>(default: false)</p>
+     *                             <br>Also configurable with Ant Property: ${flyway.skipDefaultResolvers}
      */
     public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
         flyway.setSkipDefaultResolvers(skipDefaultResolvers);
