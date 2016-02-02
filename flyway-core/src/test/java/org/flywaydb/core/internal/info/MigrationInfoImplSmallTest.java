@@ -47,4 +47,19 @@ public class MigrationInfoImplSmallTest {
         assertTrue(message.contains("123"));
         assertTrue(message.contains("456"));
     }
+
+    @Test
+    public void validateFuture() {
+        MigrationVersion version = MigrationVersion.fromVersion("1");
+        String description = "test";
+        MigrationType type = MigrationType.SQL;
+
+        AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, true);
+
+        MigrationInfoImpl migrationInfo =
+                new MigrationInfoImpl(null, appliedMigration, new MigrationInfoContext(), false);
+        String message = migrationInfo.validate();
+
+        assertTrue(message, message.contains("not resolved"));
+    }
 }

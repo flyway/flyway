@@ -38,6 +38,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     private String sqlMigrationSuffix;
     private MyCustomMigrationResolver[] migrationResolvers = new MyCustomMigrationResolver[0];
     private boolean skipDefaultResolvers;
+    private boolean skipDefaultCallbacks;
 
     public FlywayConfigurationForTests(ClassLoader contextClassLoader, String[] locations, String encoding,
             String sqlMigrationPrefix, String repeatableSqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
@@ -67,6 +68,15 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     @Override
     public FlywayCallback[] getCallbacks() {
         return null;
+    }
+
+    @Override
+    public boolean isSkipDefaultCallbacks() {
+        return skipDefaultCallbacks;
+    }
+
+    public void setSkipDefaultCallbacks(boolean skipDefaultCallbacks) {
+        this.skipDefaultCallbacks = skipDefaultCallbacks;
     }
 
     @Override

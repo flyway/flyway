@@ -134,6 +134,12 @@ public class FlywayExtension {
     /** An array of fully qualified FlywayCallback class implementations */
     String[] callbacks
 
+    /**
+     * If set to true, default built-in callbacks will be skipped, only custom migration callbacks will be used.
+     * <p>(default: false)</p>
+     */
+    Boolean skipDefaultCallbacks
+
     /** Allows migrations to be run "out of order" */
     Boolean outOfOrder
 

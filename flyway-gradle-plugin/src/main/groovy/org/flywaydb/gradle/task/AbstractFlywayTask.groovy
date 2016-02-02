@@ -107,6 +107,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSetAsBoolean(flyway, 'cleanDisabled')
         propSetAsBoolean(flyway, 'baselineOnMigrate')
         propSetAsBoolean(flyway, 'skipDefaultResolvers')
+        propSetAsBoolean(flyway, 'skipDefaultCallbacks')
 
         def sysSchemas = System.getProperty("flyway.schemas")
         if (sysSchemas != null) {

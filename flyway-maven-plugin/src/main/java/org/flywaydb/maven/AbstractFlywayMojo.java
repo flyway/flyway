@@ -321,6 +321,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String[] callbacks = new String[0];
 
     /**
+     * When set to true, default callbacks are skipped, i.e. only custom callbacks as defined by 'resolvers'
+     * are used. (default: false)<br> <p>Also configurable with Maven or System Property:
+     * ${flyway.skipDefaultCallbacks}</p>
+     *
+     * @parameter property="flyway.skipDefaultCallbacks"
+     */
+    private boolean skipDefaultCallbacks;
+
+    /**
      * <p>
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
      * This schema will then be baselined with the {@code initialVersion} before executing the migrations.
@@ -461,6 +470,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setResolversAsClassNames(resolvers);
             flyway.setSkipDefaultResolvers(skipDefaultResolvers);
             flyway.setCallbacksAsClassNames(callbacks);
+            flyway.setSkipDefaultCallbacks(skipDefaultCallbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
             flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);

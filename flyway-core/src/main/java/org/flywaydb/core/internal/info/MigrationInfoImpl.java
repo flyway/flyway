@@ -209,24 +209,24 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
-        if (!context.pendingOrFuture
-                && (resolvedMigration == null)
-                && (appliedMigration.getType() != MigrationType.SCHEMA)
-                && (appliedMigration.getType() != MigrationType.BASELINE)
-                && (appliedMigration.getVersion() != null)) {
-            return "Detected applied migration not resolved locally: " + getVersion();
-        }
-
-        if ((!context.pendingOrFuture && (MigrationState.PENDING == getState()))
-                || (MigrationState.IGNORED == getState())) {
-            if (getVersion() != null) {
-                return "Detected resolved migration not applied to database: " + getVersion();
+        if (!context.pendingOrFuture) {
+            if ((resolvedMigration == null)
+                    && (appliedMigration.getType() != MigrationType.SCHEMA)
+                    && (appliedMigration.getType() != MigrationType.BASELINE)
+                    && (appliedMigration.getVersion() != null)) {
+                return "Detected applied migration not resolved locally: " + getVersion();
             }
-            return "Detected resolved repeatable migration not applied to database: " + getDescription();
-        }
 
-        if (!context.pendingOrFuture && (MigrationState.OUTDATED == getState())) {
-            return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
+            if (MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
+                if (getVersion() != null) {
+                    return "Detected resolved migration not applied to database: " + getVersion();
+                }
+                return "Detected resolved repeatable migration not applied to database: " + getDescription();
+            }
+
+            if (MigrationState.OUTDATED == getState()) {
+                return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
+            }
         }
 
         if (resolvedMigration != null && appliedMigration != null) {

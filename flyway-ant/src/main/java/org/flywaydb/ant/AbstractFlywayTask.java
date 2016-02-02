@@ -194,6 +194,15 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * @param skipDefaultCallbacks Whether built-int callbacks should be skipped.
+     *                             If true, only custom callbacks are used.<p>(default: false)</p>
+     *                             <br>Also configurable with Ant Property: ${flyway.skipDefaultCallbacks}
+     */
+    public void setSkipDefaultCallbacks(boolean skipDefaultCallbacks) {
+        flyway.setSkipDefaultCallbacks(skipDefaultCallbacks);
+    }
+
+    /**
      * @param table <p>The name of the schema metadata table that will be used by Flyway.</p><p> By default (single-schema mode) the
      *              metadata table is placed in the default schema for the connection provided by the datasource. </p> <p> When the
      *              <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is placed in the first schema of

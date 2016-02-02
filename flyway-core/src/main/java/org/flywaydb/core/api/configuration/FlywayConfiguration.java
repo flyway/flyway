@@ -28,26 +28,12 @@ import java.util.Map;
 public interface FlywayConfiguration {
 
     /**
-     * Gets the callbacks for lifecycle notifications.
-     *
-     * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
-     */
-    FlywayCallback[] getCallbacks();
-
-    /**
      * Retrieves the ClassLoader to use for resolving migrations on the classpath.
      *
      * @return The ClassLoader to use for resolving migrations on the classpath.
      * (default: Thread.currentThread().getContextClassLoader() )
      */
     ClassLoader getClassLoader();
-
-    /**
-     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
-     *
-     * @return Whether default built-in resolvers should be skipped. (default: false)
-     */
-    boolean isSkipDefaultResolvers();
 
     /**
      * Retrieves the dataSource to use to access the database. Must have the necessary privileges to execute ddl.
@@ -77,6 +63,27 @@ public interface FlywayConfiguration {
      * (default: none)
      */
     MigrationResolver[] getResolvers();
+
+    /**
+     * Whether Flyway should skip the default resolvers. If true, only custom resolvers are used.
+     *
+     * @return Whether default built-in resolvers should be skipped. (default: false)
+     */
+    boolean isSkipDefaultResolvers();
+
+    /**
+     * Gets the callbacks for lifecycle notifications.
+     *
+     * @return The callbacks for lifecycle notifications. An empty array if none. (default: none)
+     */
+    FlywayCallback[] getCallbacks();
+
+    /**
+     * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
+     *
+     * @return Whether default built-in callbacks should be skipped. (default: false)
+     */
+    boolean isSkipDefaultCallbacks();
 
     /**
      * Retrieves the file name suffix for sql migrations.
