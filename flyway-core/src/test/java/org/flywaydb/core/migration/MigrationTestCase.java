@@ -343,6 +343,7 @@ public abstract class MigrationTestCase {
             //Expected
         }
 
+        flyway.setIgnoreFutureMigrations(false);
         flyway.setLocations(getBasedir());
         if (dbSupport.supportsDdlTransactions()) {
             flyway.migrate();
