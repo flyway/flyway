@@ -75,9 +75,14 @@ public class DbValidate {
     private final boolean outOfOrder;
 
     /**
-     * Whether pending or future migrations are allowed.
+     * Whether pending migrations are allowed.
      */
-    private final boolean pendingOrFuture;
+    private final boolean pending;
+
+    /**
+     * Whether future migrations are allowed.
+     */
+    private final boolean future;
 
     /**
      * This is a list of callbacks that fire before or after the validate task is executed.
@@ -101,12 +106,13 @@ public class DbValidate {
      * @param migrationResolver The migration resolver.
      * @param target            The target version of the migration.
      * @param outOfOrder        Allows migrations to be run "out of order".
-     * @param pendingOrFuture   Whether pending or future migrations are allowed.
+     * @param pending           Whether pending migrations are allowed.
+     * @param future            Whether future migrations are allowed.
      * @param callbacks         The lifecycle callbacks.
      */
     public DbValidate(Connection connection,
                       DbSupport dbSupport, MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pendingOrFuture, FlywayCallback[] callbacks) {
+                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean future, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
@@ -114,7 +120,8 @@ public class DbValidate {
         this.migrationResolver = migrationResolver;
         this.target = target;
         this.outOfOrder = outOfOrder;
-        this.pendingOrFuture = pendingOrFuture;
+        this.pending = pending;
+        this.future = future;
         this.callbacks = callbacks;
     }
 
@@ -144,7 +151,7 @@ public class DbValidate {
                 public Pair<Integer, String> doInTransaction() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pendingOrFuture);
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future);
 
                     migrationInfoService.refresh();
 

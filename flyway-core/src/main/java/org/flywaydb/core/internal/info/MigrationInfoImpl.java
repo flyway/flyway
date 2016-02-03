@@ -213,12 +213,12 @@ public class MigrationInfoImpl implements MigrationInfo {
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getVersion() != null)
-                && (!context.pendingOrFuture ||
+                && (!context.future ||
                 (MigrationState.FUTURE_SUCCESS != getState() && MigrationState.FUTURE_FAILED != getState()))) {
             return "Detected applied migration not resolved locally: " + getVersion();
         }
 
-        if (!context.pendingOrFuture) {
+        if (!context.pending) {
             if (MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
                 if (getVersion() != null) {
                     return "Detected resolved migration not applied to database: " + getVersion();
@@ -243,7 +243,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                             appliedMigration.getType(), resolvedMigration.getType());
                 }
                 if (resolvedMigration.getVersion() != null
-                        || (context.pendingOrFuture &&
+                        || (context.pending &&
                         ((MigrationState.OUTDATED != getState()) && (MigrationState.SUPERSEEDED != getState())))) {
                     if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
                         return createMismatchMessage("checksum", migrationIdentifier,

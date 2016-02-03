@@ -104,6 +104,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSetAsBoolean(flyway, 'outOfOrder')
         propSetAsBoolean(flyway, 'validateOnMigrate')
         propSetAsBoolean(flyway, 'cleanOnValidationError')
+        propSetAsBoolean(flyway, 'ignoreFutureMigrations')
         propSetAsBoolean(flyway, 'cleanDisabled')
         propSetAsBoolean(flyway, 'baselineOnMigrate')
         propSetAsBoolean(flyway, 'skipDefaultResolvers')

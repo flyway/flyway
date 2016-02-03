@@ -451,6 +451,18 @@ public class FlywayMediumTest {
         assertEquals(MigrationState.FUTURE_SUCCESS, flyway.info().applied()[0].getState());
     }
 
+    @Test(expected = FlywayException.class)
+    public void futureMigrationsNotAllowed() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_future_not_allowed;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+
+        flyway.setLocations("migration/empty");
+        flyway.setIgnoreFutureMigrations(false);
+        flyway.migrate();
+    }
+
     @Test
     public void validateApplied() {
         Flyway flyway = new Flyway();

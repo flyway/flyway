@@ -15,14 +15,25 @@
  */
 package org.flywaydb.core.internal.info;
 
-import org.flywaydb.core.api.*;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.MigrationInfoService;
+import org.flywaydb.core.api.MigrationState;
+import org.flywaydb.core.api.MigrationType;
+import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Default implementation of MigrationInfoService.
@@ -52,9 +63,14 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private boolean outOfOrder;
 
     /**
-     * Whether pendingOrFuture migrations are allowed.
+     * Whether pending migrations are allowed.
      */
-    private final boolean pendingOrFuture;
+    private final boolean pending;
+
+    /**
+     * Whether future migrations are allowed.
+     */
+    private final boolean future;
 
     /**
      * The migrations infos calculated at the last refresh.
@@ -68,15 +84,17 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param metaDataTable     The metadata table for applied migrations.
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
-     * @param pendingOrFuture   Whether pending or future migrations are allowed.
+     * @param pending           Whether pending migrations are allowed.
+     * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver, MetaDataTable metaDataTable,
-                                    MigrationVersion target, boolean outOfOrder, boolean pendingOrFuture) {
+                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean future) {
         this.migrationResolver = migrationResolver;
         this.metaDataTable = metaDataTable;
         this.target = target;
         this.outOfOrder = outOfOrder;
-        this.pendingOrFuture = pendingOrFuture;
+        this.pending = pending;
+        this.future = future;
     }
 
     /**
@@ -104,7 +122,8 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(Collection<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
         MigrationInfoContext context = new MigrationInfoContext();
         context.outOfOrder = outOfOrder;
-        context.pendingOrFuture = pendingOrFuture;
+        context.pending = pending;
+        context.future = future;
         context.target = target;
 
         Map<MigrationVersion, ResolvedMigration> resolvedMigrationsMap = new TreeMap<MigrationVersion, ResolvedMigration>();

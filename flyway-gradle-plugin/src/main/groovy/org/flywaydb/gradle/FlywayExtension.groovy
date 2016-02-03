@@ -150,6 +150,16 @@ public class FlywayExtension {
     Boolean cleanOnValidationError
 
     /**
+     * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
+     */
+    Boolean ignoreFutureMigrations;
+
+    /**
      * Whether to disable clean. (default: {@code false})
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      */

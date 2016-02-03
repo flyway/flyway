@@ -173,6 +173,16 @@ public class Flyway implements FlywayConfiguration {
     private String sqlMigrationSuffix = ".sql";
 
     /**
+     * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
+     */
+    private boolean ignoreFutureMigrations = true;
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -180,7 +190,10 @@ public class Flyway implements FlywayConfiguration {
      * warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
      * an option. An older version of the application can then be redeployed, even though a newer one failed due to a
      * bad migration. (default: {@code false})
+     *
+     * @deprecated Use the more generic <code>ignoreFutureMigrations</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     private boolean ignoreFailedFutureMigration;
 
     /**
@@ -363,6 +376,21 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one.
+     *
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
+     * (default: {@code true})
+     */
+    public boolean isIgnoreFutureMigrations() {
+        return ignoreFutureMigrations;
+    }
+
+    /**
      * Whether to ignore failed future migrations when reading the metadata table. These are migrations that
      * were performed by a newer deployment of the application that are not yet available in this version. For example:
      * we have migrations available on the classpath up to version 3.0. The metadata table indicates that a migration to
@@ -373,8 +401,11 @@ public class Flyway implements FlywayConfiguration {
      *
      * @return {@code true} to terminate normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
+     * @deprecated Use the more generic <code>isIgnoreFutureMigration()</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public boolean isIgnoreFailedFutureMigration() {
+        LOG.warn("ignoreFailedFutureMigration has been deprecated and will be removed in Flyway 5.0. Use the more generic ignoreFutureMigrations instead.");
         return ignoreFailedFutureMigration;
     }
 
@@ -478,6 +509,21 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * Whether to ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one.
+     *
+     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail
+     *                               fast with an exception. (default: {@code true})
+     */
+    public void setIgnoreFutureMigrations(boolean ignoreFutureMigrations) {
+        this.ignoreFutureMigrations = ignoreFutureMigrations;
+    }
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -488,8 +534,11 @@ public class Flyway implements FlywayConfiguration {
      *
      * @param ignoreFailedFutureMigration {@code true} to terminate normally and log a warning, {@code false} to fail
      *                                    fast with an exception. (default: {@code false})
+     * @deprecated Use the more generic <code>setIgnoreFutureMigrations()</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
+        LOG.warn("ignoreFailedFutureMigration has been deprecated and will be removed in Flyway 5.0. Use the more generic ignoreFutureMigrations instead.");
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
     }
 
@@ -908,7 +957,7 @@ public class Flyway implements FlywayConfiguration {
 
                 DbMigrate dbMigrate =
                         new DbMigrate(connectionMetaDataTable, connectionUserObjects, dbSupport, metaDataTable,
-                                schemas[0], migrationResolver, target, ignoreFailedFutureMigration, outOfOrder, flywayCallbacks);
+                                schemas[0], migrationResolver, target, ignoreFutureMigrations, ignoreFailedFutureMigration, outOfOrder, flywayCallbacks);
                 return dbMigrate.migrate();
             }
         });
@@ -940,13 +989,13 @@ public class Flyway implements FlywayConfiguration {
      * @param migrationResolver       The migration resolver;
      * @param metaDataTable           The metadata table.
      * @param schemas                 The schemas managed by Flyway.
-     * @param pendingOrFuture         Whether pending or future migrations are ok.
+     * @param pending                 Whether pending migrations are ok.
      */
     private void doValidate(Connection connectionMetaDataTable, DbSupport dbSupport, MigrationResolver migrationResolver,
-                            MetaDataTable metaDataTable, Schema[] schemas, FlywayCallback[] flywayCallbacks, boolean pendingOrFuture) {
+                            MetaDataTable metaDataTable, Schema[] schemas, FlywayCallback[] flywayCallbacks, boolean pending) {
         String validationError =
                 new DbValidate(connectionMetaDataTable, dbSupport, metaDataTable, schemas[0], migrationResolver,
-                        target, outOfOrder, pendingOrFuture, flywayCallbacks).validate();
+                        target, outOfOrder, pending, ignoreFutureMigrations, flywayCallbacks).validate();
 
         if (validationError != null) {
             if (cleanOnValidationError) {
@@ -1005,7 +1054,7 @@ public class Flyway implements FlywayConfiguration {
                     MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
 
                     MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true);
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true);
                     migrationInfoService.refresh();
 
                     for (final FlywayCallback callback : flywayCallbacks) {
@@ -1183,6 +1232,10 @@ public class Flyway implements FlywayConfiguration {
         String baselineOnMigrateProp = getValueAndRemoveEntry(props, "flyway.baselineOnMigrate");
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(Boolean.parseBoolean(baselineOnMigrateProp));
+        }
+        String ignoreFutureMigrationsProp = getValueAndRemoveEntry(props, "flyway.ignoreFutureMigrations");
+        if (ignoreFutureMigrationsProp != null) {
+            setIgnoreFutureMigrations(Boolean.parseBoolean(ignoreFutureMigrationsProp));
         }
         String ignoreFailedFutureMigrationProp = getValueAndRemoveEntry(props, "flyway.ignoreFailedFutureMigration");
         if (ignoreFailedFutureMigrationProp != null) {
