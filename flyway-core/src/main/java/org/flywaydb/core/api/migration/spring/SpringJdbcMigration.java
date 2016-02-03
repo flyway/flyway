@@ -27,6 +27,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * <p>When the JdbcMigration implements {@link org.flywaydb.core.api.configuration.ConfigurationAware},
  * the master {@link org.flywaydb.core.api.configuration.FlywayConfiguration} is automatically injected upon creation,
  * which is especially useful for getting placeholder and schema information.</p>
+ *
+ * It is encouraged not to implement this interface directly, subclass {@link BaseSpringJdbcMigration} instead.
  */
 public interface SpringJdbcMigration {
     /**

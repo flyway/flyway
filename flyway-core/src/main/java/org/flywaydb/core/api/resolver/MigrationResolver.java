@@ -27,6 +27,9 @@ import java.util.Collection;
  * a {@link org.flywaydb.core.api.configuration.FlywayConfiguration} object will automatically be injected before
  * calling {@link #resolveMigrations()}, giving the resolver access to the core flyway configuration, which provides
  * useful data like resolve locations or placeholder configuration.</p>
+ *
+ * An abstract implementation is provided in {@link BaseMigrationResolver} which handles the storing of the
+ * configuration. It is encouraged to subclass that class instead of implementing this interface directly.
  */
 public interface MigrationResolver {
     /**
