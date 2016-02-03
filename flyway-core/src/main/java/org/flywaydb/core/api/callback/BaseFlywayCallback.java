@@ -16,14 +16,26 @@
 package org.flywaydb.core.api.callback;
 
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 
 import java.sql.Connection;
 
 /**
  * Convenience base no-op implementation of FlywayCallback. Extend this class if you want to implement just a few
  * callback methods without having to provide no-op methods yourself.
+ *
+ * <p>This implementation also provides direct access to the {@link FlywayConfiguration} as field.</p>
  */
-public abstract class BaseFlywayCallback implements FlywayCallback {
+public abstract class BaseFlywayCallback implements FlywayCallback, ConfigurationAware {
+
+    protected FlywayConfiguration flywayConfiguration;
+
+    @Override
+    public void setFlywayConfiguration(FlywayConfiguration flywayConfiguration) {
+        this.flywayConfiguration = flywayConfiguration;
+    }
+
     @Override
     public void beforeClean(Connection connection) {
     }
