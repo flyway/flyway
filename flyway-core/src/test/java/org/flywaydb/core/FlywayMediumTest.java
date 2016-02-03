@@ -464,10 +464,10 @@ public class FlywayMediumTest {
     public void validateMissing() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_missing;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql", "migration/outoforder");
+        flyway.migrate();
         flyway.setLocations("migration/sql");
         flyway.migrate();
-        flyway.setLocations("migration/empty");
-        flyway.validate();
     }
 
     @Test
