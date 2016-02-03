@@ -460,6 +460,16 @@ public class FlywayMediumTest {
         flyway.validate();
     }
 
+    @Test(expected = FlywayException.class)
+    public void validateMissing() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_missing;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+        flyway.setLocations("migration/empty");
+        flyway.validate();
+    }
+
     @Test
     public void placeholderDisabled() {
         Flyway flyway = new Flyway();
