@@ -26,6 +26,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-sample-osgi-separate</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>flyway-sample-osgi-fragment</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

@@ -5,7 +5,7 @@
         <artifactId>flyway-parent</artifactId>
         <version>0-SNAPSHOT</version>
     </parent>
-    <artifactId>flyway-sample-osgi</artifactId>
+    <artifactId>flyway-sample-osgi-separate</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
@@ -15,13 +15,14 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>flyway-sample-osgi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>core</artifactId>
             <version>4.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -45,14 +46,12 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>org.flywaydb.sample.osgi.OsgiActivator</Bundle-Activator>
-                        <Export-Package>
-                            org.flywaydb.sample.osgi
-                        </Export-Package>
+                        <Bundle-Activator>org.flywaydb.sample.osgi.separate.OsgiActivator</Bundle-Activator>
                         <Import-Package>
                             org.osgi.framework;version="[1.0.0,2.0.0)",
-                            org.flywaydb.core.*;version=${project.version}
+                            *
                         </Import-Package>
+                        <Export-Package/>
                     </instructions>
                 </configuration>
                 <executions>

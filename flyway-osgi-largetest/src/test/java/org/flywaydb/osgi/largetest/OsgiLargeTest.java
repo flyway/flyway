@@ -16,6 +16,7 @@
 package org.flywaydb.osgi.largetest;
 
 import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.io.File;
@@ -23,7 +24,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -33,7 +36,10 @@ public class OsgiLargeTest {
     @Test
     public void migrate() throws Exception {
         String stdOut = runFlywayOsgi(0);
-        assertTrue(stdOut.contains("New schema version: 1.3"));
+        // Fragment migration
+        assertThat(stdOut, containsString("New schema version: 1.3"));
+        // Separate bundle migration
+        assertThat(stdOut, containsString("Separate bundle new schema version: 2.3"));
     }
 
     /**
