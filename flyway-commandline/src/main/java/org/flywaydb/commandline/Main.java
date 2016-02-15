@@ -266,7 +266,7 @@ public class Main {
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at http://flywaydb.org/documentation/commandline");
+        LOG.info("More info at https://flywaydb.org/documentation/commandline");
     }
 
     /**
