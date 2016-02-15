@@ -25,13 +25,33 @@ import org.flywaydb.core.api.MigrationInfo;
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class MigrateMojo extends AbstractFlywayMojo {
+    /**
+     * <p>
+     * Whether to automatically call an own migrate instance for each passed schema. If you have multiple
+     * identical schemas, say one per tenant, you enable this option and give a comma separated list of
+     * schemas to manage one schema_version table per tenant. (default: {@code false}).
+     * </p>
+     * <p>Also configurable with Maven or System Property: ${flyway.multipleTenants}</p>
+     *
+     * @parameter property="flyway.multipleTenants"
+     */
+    private Boolean multipleTenants;
+
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
         if (flyway.info().all().length == 0) {
             log.warn("Possible solution: run mvn compile first so Flyway can find the migrations");
         }
 
-        flyway.migrate();
+        if (multipleTenants != null && multipleTenants && flyway.getSchemas().length > 1) {
+            String[] schemas = flyway.getSchemas();
+            for(String schema : schemas) {
+                flyway.setSchemas(schema);
+                flyway.migrate();
+            }
+        } else {
+            flyway.migrate();
+        }
 
         MigrationInfo current = flyway.info().current();
         if (current != null) {
