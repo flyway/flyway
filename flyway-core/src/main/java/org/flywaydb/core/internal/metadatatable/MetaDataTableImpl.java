@@ -66,7 +66,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     @Override
     public boolean upgradeIfNecessary() {
         if (table.exists() && table.hasColumn("version_rank")) {
-            LOG.debug("Upgrading metadata table " + table + " to the Flyway 4.0 format ...");
+            LOG.info("Upgrading metadata table " + table + " to the Flyway 4.0 format ...");
             String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/upgradeMetaDataTable.sql";
             String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
 
@@ -77,8 +77,6 @@ public class MetaDataTableImpl implements MetaDataTable {
 
             SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
             sqlScript.execute(jdbcTemplate);
-
-            LOG.debug("Metadata table " + table + " successfully upgraded to the Flyway 4.0 format.");
             return true;
         }
         return false;

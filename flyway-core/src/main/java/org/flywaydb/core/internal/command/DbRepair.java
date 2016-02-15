@@ -117,21 +117,7 @@ public class DbRepair {
                 public Void doInTransaction() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     metaDataTable.removeFailedMigrations();
-
-                    migrationInfoService.refresh();
-                    for (MigrationInfo migrationInfo : migrationInfoService.all()) {
-                        MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
-
-                        ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
-                        AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
-                        if ((resolved != null) && (applied != null)) {
-                            if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
-                                    && resolved.getVersion() != null) {
-                                metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
-                            }
-                        }
-                    }
-
+                    repairChecksums();
                     return null;
                 }
             });
@@ -156,6 +142,22 @@ public class DbRepair {
             }
         } finally {
             dbSupport.restoreCurrentSchema();
+        }
+    }
+
+    public void repairChecksums() {
+        migrationInfoService.refresh();
+        for (MigrationInfo migrationInfo : migrationInfoService.all()) {
+            MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
+
+            ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
+            AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
+            if ((resolved != null) && (applied != null)) {
+                if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
+                        && resolved.getVersion() != null) {
+                    metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
+                }
+            }
         }
     }
 }
