@@ -185,6 +185,8 @@ public class Main {
      */
     private static void filterProperties(Properties properties) {
         properties.remove(PROPERTY_JAR_DIRS);
+        properties.remove("flyway.configFile");
+        properties.remove("flyway.configFileEncoding");
     }
 
     /**
