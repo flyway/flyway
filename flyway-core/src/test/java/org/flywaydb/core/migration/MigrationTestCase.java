@@ -108,7 +108,7 @@ public abstract class MigrationTestCase {
     protected void createFlyway3MetadataTable() throws Exception {
     }
 
-    private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank, String version, String description, String type, String script, Integer checksum, String installedBy, int executionTime, String success) throws SQLException {
+    private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank, String version, String description, String type, String script, Integer checksum, String installedBy, int executionTime, boolean success) throws SQLException {
         jdbcTemplate.execute("INSERT INTO " + dbSupport.quote("schema_version")
                 + " (" + dbSupport.quote("version_rank")
                 + "," + dbSupport.quote("installed_rank")
@@ -132,8 +132,8 @@ public abstract class MigrationTestCase {
                 "  name VARCHAR(25) NOT NULL,\n" +
                 "  PRIMARY KEY(name)\n" +
                 ")");
-        insertIntoFlyway3MetadataTable(jdbcTemplate, 1, 1, "0.1", "<< INIT >>", "INIT", "<< INIT >>", null, "flyway3", 0, dbSupport.getBooleanTrue());
-        insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__First.sql", 1234, "flyway3", 15, dbSupport.getBooleanTrue());
+        insertIntoFlyway3MetadataTable(jdbcTemplate, 1, 1, "0.1", "<< INIT >>", "INIT", "<< INIT >>", null, "flyway3", 0, true);
+        insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__First.sql", 1234, "flyway3", 15, true);
         flyway.setLocations(getBasedir());
         assertEquals(3, flyway.migrate());
         flyway.validate();

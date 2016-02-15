@@ -381,7 +381,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Override
-    public void upgradeMetadataTableTo40Format() throws Exception {
+    protected void createFlyway3MetadataTable() throws Exception {
         jdbcTemplate.execute("CREATE TABLE \"schema_version\" (\n" +
                 "    \"version_rank\" INT NOT NULL,\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
