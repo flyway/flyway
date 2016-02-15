@@ -20,10 +20,10 @@ Oracle, SQL Server, SQL Azure, DB2, DB2 z/OS, MySQL, MariaDB, Google Cloud SQL, 
 Grails, Play!, Grunt, Griffon, Ninja, ...
 
 ## Documentation
-http://flywaydb.org
+https://flywaydb.org
 
 ## How to contribute
-http://flywaydb.org/contribute/
+https://flywaydb.org/contribute/
 
 ## About
 Flyway is brought to you by [Axel Fontaine](https://axelfontaine.com) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](https://flywaydb.org/contribute/hallOfFame.html).

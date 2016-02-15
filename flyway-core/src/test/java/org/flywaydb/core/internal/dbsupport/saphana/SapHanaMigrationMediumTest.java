@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.dbsupport.saphana;
 
 import org.flywaydb.core.DbCategory;
-import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
@@ -139,5 +138,10 @@ public class SapHanaMigrationMediumTest extends MigrationTestCase {
     @Test
     @Ignore("Ignored due SAP HANA syntax compatibility issues")
     public void outOfOrderMultipleRankIncrease() {
+    }
+
+    @Ignore("Not needed as SAP HANA support was first introduced in Flyway 4.0")
+    @Override
+    public void upgradeMetadataTableTo40Format() throws Exception {
     }
 }

@@ -90,7 +90,6 @@ public abstract class MigrationTestCase {
     protected void configureFlyway() {
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
-        flyway.setValidateOnMigrate(true);
     }
 
     /**
@@ -104,6 +103,42 @@ public abstract class MigrationTestCase {
     @After
     public void tearDown() throws Exception {
         connection.close();
+    }
+
+    protected void createFlyway3MetadataTable() throws Exception {
+    }
+
+    private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank, String version, String description, String type, String script, Integer checksum, String installedBy, int executionTime, String success) throws SQLException {
+        jdbcTemplate.execute("INSERT INTO " + dbSupport.quote("schema_version")
+                + " (" + dbSupport.quote("version_rank")
+                + "," + dbSupport.quote("installed_rank")
+                + "," + dbSupport.quote("version")
+                + "," + dbSupport.quote("description")
+                + "," + dbSupport.quote("type")
+                + "," + dbSupport.quote("script")
+                + "," + dbSupport.quote("checksum")
+                + "," + dbSupport.quote("installed_by")
+                + "," + dbSupport.quote("execution_time")
+                + "," + dbSupport.quote("success")
+                + ") VALUES (?,?,?,?,?,?,?,?,?,?)",
+                versionRank, installedRank, version, description, type, script, checksum, installedBy, executionTime, success);
+    }
+
+    @Test
+    public void upgradeMetadataTableTo40Format() throws Exception {
+        createFlyway3MetadataTable();
+        jdbcTemplate.execute("CREATE TABLE test_user (\n" +
+                "  id INT NOT NULL,\n" +
+                "  name VARCHAR(25) NOT NULL,\n" +
+                "  PRIMARY KEY(name)\n" +
+                ")");
+        insertIntoFlyway3MetadataTable(jdbcTemplate, 1, 1, "0.1", "<< INIT >>", "INIT", "<< INIT >>", null, "flyway3", 0, dbSupport.getBooleanTrue());
+        insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__First.sql", 1234, "flyway3", 15, dbSupport.getBooleanTrue());
+        flyway.setLocations(getBasedir());
+        assertEquals(3, flyway.migrate());
+        flyway.validate();
+        assertEquals(5, flyway.info().applied().length);
+        assertEquals(814278929, flyway.info().applied()[1].getChecksum().intValue());
     }
 
     @Test

@@ -63,6 +63,27 @@ public class MetaDataTableImpl implements MetaDataTable {
         this.table = table;
     }
 
+    @Override
+    public boolean upgradeIfNecessary() {
+        if (table.exists() && table.hasColumn("version_rank")) {
+            LOG.debug("Upgrading metadata table " + table + " to the Flyway 4.0 format ...");
+            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/upgradeMetaDataTable.sql";
+            String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+
+            Map<String, String> placeholders = new HashMap<String, String>();
+            placeholders.put("schema", table.getSchema().getName());
+            placeholders.put("table", table.getName());
+            String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+
+            SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+            sqlScript.execute(jdbcTemplate);
+
+            LOG.debug("Metadata table " + table + " successfully upgraded to the Flyway 4.0 format.");
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Creates the metatable if it doesn't exist, upgrades it if it does.
      */
