@@ -69,7 +69,7 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SHOW search_path");
+        return unQuote(jdbcTemplate.queryForString("SHOW search_path"));
     }
 
     @Override
@@ -119,6 +119,14 @@ public class PostgreSQLDbSupport extends DbSupport {
         return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
     }
 
+    public String unQuote(final String quoted) {
+    	if (quoted==null||quoted.length()<=2) {
+    		return quoted;
+    	}
+    	String result = quoted.startsWith("\"")?quoted.substring(1):quoted;
+    	return result.endsWith("\"")?result.substring(0,result.length()-1):result;
+    }
+    
     @Override
     public Schema getSchema(String name) {
         return new PostgreSQLSchema(jdbcTemplate, this, name);
