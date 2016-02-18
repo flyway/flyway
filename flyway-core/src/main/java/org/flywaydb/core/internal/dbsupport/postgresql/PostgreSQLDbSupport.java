@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -119,7 +119,15 @@ public class PostgreSQLDbSupport extends DbSupport {
         return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
     }
 
-    public String unQuote(final String quoted) {
+    /**
+     * unQuote
+     *
+     * Remove the quotes from the beginning and end of a given string. If the provided string isn't quoted, it will be returned unchanged.
+     *
+     * @param quoted
+     * @return the quoted string without a leading and trailing "
+     */
+    String unQuote(final String quoted) {
         if (quoted == null || quoted.length() <= 2) {
             return quoted;
         }
