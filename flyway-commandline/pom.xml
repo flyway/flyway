@@ -26,7 +26,7 @@
         </license>
     </licenses>
     <properties>
-        <jreversion>1.8.0_66</jreversion>
+        <jreversion>1.8.0_74</jreversion>
     </properties>
     <dependencies>
         <dependency>
