@@ -61,7 +61,7 @@ public abstract class MavenTestCase {
     @Test
     public void executions() throws Exception {
         String stdOut = runMaven(0, "executions", "clean", "install", "-Dflyway.user=SA");
-        assertTrue(stdOut.contains("[INFO] Cleaned schema \"PUBLIC\""));
+        assertTrue(stdOut.contains("[INFO] Successfully cleaned schema \"PUBLIC\""));
         assertTrue(stdOut.contains("[echo] Property: flyway.current = 1.1"));
     }
 
@@ -107,7 +107,7 @@ public abstract class MavenTestCase {
         String stdOut = runMaven(0, "settings-encrypted", "clean", "sql:execute", "flyway:baseline",
                 "-s=" + dir + "/settings.xml",
                 "-Dsettings.security=" + dir + "/settings-security.xml");
-        assertTrue(stdOut.contains("Schema baselined with version: 1"));
+        assertTrue(stdOut.contains("Successfully baselined schema with version: 1"));
     }
 
     @Test

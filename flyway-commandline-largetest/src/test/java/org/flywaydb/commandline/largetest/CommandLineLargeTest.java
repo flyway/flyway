@@ -48,7 +48,7 @@ public class CommandLineLargeTest {
     @Test
     public void multipleCommands() throws Exception {
         String stdOut = runFlywayCommandLine(0, "largeTest.properties", "clean", "migrate");
-        assertTrue(stdOut.contains("Cleaned schema"));
+        assertTrue(stdOut.contains("Successfully cleaned schema"));
         assertTrue(stdOut.contains("Successfully applied 4 migrations"));
     }
 
