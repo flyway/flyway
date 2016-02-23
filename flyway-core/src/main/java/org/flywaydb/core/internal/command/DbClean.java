@@ -163,7 +163,7 @@ public class DbClean {
             }
         });
         stopWatch.stop();
-        LOG.info(String.format("Dropped schema %s (execution time %s)",
+        LOG.info(String.format("Successfully dropped schema %s (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 
@@ -184,7 +184,7 @@ public class DbClean {
             }
         });
         stopWatch.stop();
-        LOG.info(String.format("Cleaned schema %s (execution time %s)",
+        LOG.info(String.format("Successfully cleaned schema %s (execution time %s)",
                 schema, TimeFormat.format(stopWatch.getTotalTimeMillis())));
     }
 }

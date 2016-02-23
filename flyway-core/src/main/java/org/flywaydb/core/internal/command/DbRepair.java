@@ -124,7 +124,7 @@ public class DbRepair {
 
             stopWatch.stop();
 
-            LOG.info("Metadata table " + metaDataTable + " successfully repaired (execution time "
+            LOG.info("Successfully repaired metadata table " + metaDataTable + " (execution time "
                     + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
             if (!dbSupport.supportsDdlTransactions()) {
                 LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");

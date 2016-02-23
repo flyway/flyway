@@ -997,7 +997,7 @@ public class Flyway implements FlywayConfiguration {
             if (cleanOnValidationError) {
                 new DbClean(connectionMetaDataTable, dbSupport, metaDataTable, schemas, flywayCallbacks, cleanDisabled).clean();
             } else {
-                throw new FlywayException("Validate failed. " + validationError);
+                throw new FlywayException("Validate failed: " + validationError);
             }
         }
     }

@@ -415,6 +415,11 @@ public class Main {
             return;
         }
 
+        if (!properties.contains("flyway.url")) {
+            // URL is not set. We are doomed for failure anyway.
+            return;
+        }
+
         if (!properties.containsKey("flyway.user")) {
             properties.put("flyway.user", console.readLine("Database user: "));
         }

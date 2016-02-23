@@ -163,13 +163,16 @@ public class DbValidate {
 
             stopWatch.stop();
 
-            int count = result.getLeft();
-            if (count == 1) {
-                LOG.info(String.format("Validated 1 migration (execution time %s)",
-                        TimeFormat.format(stopWatch.getTotalTimeMillis())));
-            } else {
-                LOG.info(String.format("Validated %d migrations (execution time %s)",
-                        count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+            String error = result.getRight();
+            if (error == null) {
+                int count = result.getLeft();
+                if (count == 1) {
+                    LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
+                            TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                } else {
+                    LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
+                            count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                }
             }
 
             for (final FlywayCallback callback : callbacks) {
@@ -183,7 +186,7 @@ public class DbValidate {
                 });
             }
 
-            return result.getRight();
+            return error;
         } finally {
             dbSupport.restoreCurrentSchema();
         }
