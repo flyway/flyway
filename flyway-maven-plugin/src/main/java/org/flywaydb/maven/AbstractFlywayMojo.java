@@ -479,10 +479,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                         locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
                     }
                 }
-                flyway.setLocations(locations);
             } else {
-                locations = new String[] { Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"};
+                locations = new String[] {
+                        Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"
+                };
             }
+            flyway.setLocations(locations);
             flyway.setResolversAsClassNames(resolvers);
             flyway.setSkipDefaultResolvers(skipDefaultResolvers);
             flyway.setCallbacksAsClassNames(callbacks);
