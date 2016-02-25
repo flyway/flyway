@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -28,3 +28,9 @@ CREATE TRIGGER uniqueidx_trigger BEFORE INSERT ON usertable
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'duplicate name';
       END IF;
     END;
+
+CREATE TRIGGER TESTTRIGGER
+  NO CASCADE BEFORE INSERT
+  ON usertable
+  FOR EACH ROW
+SELECT * FROM usertable;

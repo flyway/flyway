@@ -1,0 +1,40 @@
+buildscript {
+    def mavenXml = new XmlParser().parseText(file("${projectDir}/pom.xml").getText('UTF-8'))
+    group = mavenXml.parent.groupId.text()
+    version = mavenXml.parent.version.text()
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.hsqldb:hsqldb:2.2.8'
+        classpath "${group}:flyway-gradle-plugin:${version}"
+    }
+}
+
+apply plugin: 'org.flywaydb.flyway'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+def mavenXml = new XmlParser().parseText(file("${projectDir}/pom.xml").getText('UTF-8'))
+group = mavenXml.parent.groupId.text()
+version = mavenXml.parent.version.text()
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.springframework:spring-jdbc:3.0.5.RELEASE'
+    compile "${group}:flyway-core:${version}"
+}
+
+flyway {
+    url = "jdbc:hsqldb:file:${buildDir}/db/flyway_sample;shutdown=true"
+    locations = [
+            'classpath:org.flywaydb.sample.migration',
+            "filesystem:${project.sourceSets.main.output.resourcesDir.path}"
+    ]
+}

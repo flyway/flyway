@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 --
 
 CREATE TABLE test_data (
-  value VARCHAR(25) NOT NULL PRIMARY KEY
+  value/*test*/ /*test*/VARCHAR(25) NOT NULL PRIMARY KEY
 );
 
 CREATE FUNCTION AddData() RETURNS INTEGER
@@ -29,7 +29,11 @@ AS $$
 SELECT *  INTO TEMP adddata_temp_table FROM AddData() ;
 
 CREATE FUNCTION add(integer, integer) RETURNS integer
-    LANGUAGE sql IMMUTABLE STRICT
+    LANGUAGE sql/*test*/ IMMUTABLE STRICT
+    AS $_$select $1 + $2;$_$;
+    
+CREATE FUNCTION """add2"""(integer, integer) RETURNS integer
+    LANGUAGE sql/*test*/ IMMUTABLE STRICT
     AS $_$select $1 + $2;$_$;
 
 CREATE FUNCTION inc(i integer) RETURNS VARCHAR(25)

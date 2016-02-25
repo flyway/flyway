@@ -1,0 +1,41 @@
+apply plugin: 'groovy'
+
+def pomProject = new XmlSlurper().parse(file('pom.xml'))
+
+group = pomProject.parent.groupId
+version = pomProject.parent.version
+
+sourceCompatibility = JavaVersion.VERSION_1_6
+targetCompatibility = JavaVersion.VERSION_1_6
+
+repositories {
+     mavenLocal()
+}
+
+dependencies {
+    compile "${group}:flyway-core:${version}"
+    compile gradleApi()
+    compile localGroovy()
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.hsqldb:hsqldb:2.3.3'
+}
+
+jar {
+    from ('..') {
+        include 'LICENSE.txt' into('META-INF')
+        include 'README.txt' into('META-INF')
+    }
+}
+
+test.dependsOn cleanTest
+
+test {
+    beforeTest { descriptor ->
+        println("Running: " + descriptor)
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}

@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -22,3 +22,6 @@ GRANT create session TO "FLYWAY";
 GRANT create session TO "flyway_proxy";
 
 ALTER USER "FLYWAY" GRANT CONNECT THROUGH "flyway_proxy";
+
+-- grants for administering queue tables
+GRANT EXECUTE ON DBMS_AQADM TO flyway;

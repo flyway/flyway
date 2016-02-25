@@ -1,13 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.googlecode.flyway</groupId>
+        <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>0-SNAPSHOT</version>
     </parent>
-    <groupId>com.googlecode.flyway</groupId>
     <artifactId>flyway-sample</artifactId>
-    <version>2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
@@ -29,7 +27,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
@@ -40,11 +37,11 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <configuration>
-                    <driver>org.hsqldb.jdbcDriver</driver>
                     <url>jdbc:hsqldb:file:${project.build.directory}/db/flyway_sample;shutdown=true</url>
                     <user>SA</user>
                     <locations>
-                        <location>com.googlecode.flyway.sample.migration</location>
+                        <location>db/migration</location>
+                        <location>org.flywaydb.sample.migration</location>
                     </locations>
                 </configuration>
             </plugin>

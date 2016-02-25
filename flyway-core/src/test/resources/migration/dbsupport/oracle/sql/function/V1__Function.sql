@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -22,6 +22,16 @@ AS
   RETURN RET;
  END;
 /
+
+create or replace procedure selectdata is
+  v_number number;
+  begin
+    select 1 into v_number from dual;
+    dbms_output.put_line('var>'||v_number);
+  end;
+/
+
+CALL selectdata();
 
 CREATE PROCEDURE remove_emp (employee_id NUMBER) AS
    tot_emps NUMBER;

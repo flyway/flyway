@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2010-2013 the original author or authors.
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 -- limitations under the License.
 --
 
-CREATE TABLE t (qty INT, price INT);
-INSERT INTO t VALUES(3, 50);
-CREATE VIEW v AS SELECT qty, price, qty*price AS value FROM t;
+CREATE TABLE """t""" (qty INT, price INT);
+INSERT INTO """t""" VALUES(3, 50);
+CREATE VIEW """v""" AS SELECT qty, price, qty*price AS value FROM """t""";
+
+CREATE VIEW features AS SELECT * FROM information_schema.sql_features;

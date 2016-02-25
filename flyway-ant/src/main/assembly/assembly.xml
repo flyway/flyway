@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (C) 2010-2013 the original author or authors.
+    Copyright 2010-2016 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -26,11 +26,18 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>/</outputDirectory>
-            <excludes>
-                <exclude>*:spring-jdbc</exclude>
-            </excludes>
             <useTransitiveFiltering>true</useTransitiveFiltering>
             <scope>runtime</scope>
         </dependencySet>
     </dependencySets>
+    <fileSets>
+        <fileSet>
+            <directory>..</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>LICENSE.txt</include>
+                <include>README.txt</include>
+            </includes>
+        </fileSet>
+    </fileSets>
 </assembly>
