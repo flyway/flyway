@@ -55,6 +55,10 @@
             <artifactId>jtds</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.pivotal.jdbc</groupId>
+            <artifactId>greenplumdriver</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
         </dependency>
