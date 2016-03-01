@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class RedshiftDbSupportMediumTest {
     @Test
     public void setCurrentSchema() throws Exception {
         Connection connection = createDataSource().getConnection();
-        RedshiftDbSupport dbSupport = new RedshiftDbSupport(connection);
+        RedshiftDbSupport dbSupport = new RedshfitDbSupportViaPostgreSQLDriver(connection);
         Schema schema = dbSupport.getSchema("search_path_test");
         schema.create();
         dbSupport.changeCurrentSchemaTo(dbSupport.getSchema("search_path_test"));

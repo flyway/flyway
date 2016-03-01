@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,9 +40,9 @@ public class SqlMigrationResolverMediumTest {
         String path = URLDecoder.decode(getClass().getClassLoader().getResource("migration/subdir").getPath(), "UTF-8");
 
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, Thread.currentThread().getContextClassLoader(),
+                new SqlMigrationResolver(null, new Scanner(Thread.currentThread().getContextClassLoader()),
                         new Location("filesystem:" + new File(path).getPath()), PlaceholderReplacer.NO_PLACEHOLDERS,
-                        "UTF-8", "V", "__", ".sql");
+                        "UTF-8", "V", "R", "__", ".sql");
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());

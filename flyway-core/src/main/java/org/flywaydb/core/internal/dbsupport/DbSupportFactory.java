@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,12 @@ import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
+import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
+import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaPostgreSQLDriver;
+import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaRedshiftDriver;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
+import org.flywaydb.core.internal.dbsupport.saphana.SapHanaDbSupport;
 import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
@@ -93,7 +97,12 @@ public class DbSupportFactory {
             // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
             // but only supports a subset of features. Therefore, we need to execute a query in order to
             // distinguish it from the real PostgreSQL 8:
-            RedshiftDbSupport redshift = new RedshiftDbSupport(connection);
+            RedshiftDbSupport redshift;
+            if ("RedshiftJDBC".equals(getDriverName(connection))) {
+                redshift = new RedshfitDbSupportViaRedshiftDriver(connection);
+            } else {
+                redshift = new RedshfitDbSupportViaPostgreSQLDriver(connection);
+            }
             if (redshift.detect()) {
                 return redshift;
             }
@@ -117,12 +126,18 @@ public class DbSupportFactory {
             // Therefore no vendor string in search criteria
             return new SolidDbSupport(connection);
         }
+        if (databaseProductName.startsWith("Phoenix")) {
+            return new PhoenixDbSupport(connection);
+        }
 
 		//Sybase ASE support
         if (databaseProductName.startsWith("Adaptive Server Enterprise")) {
         	return new SybaseASEDbSupport(connection);
         }
-        
+        if (databaseProductName.startsWith("HDB")) {
+        	return new SapHanaDbSupport(connection);
+        }
+
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
 
@@ -195,5 +210,28 @@ public class DbSupportFactory {
 		}
 	}
 
+    /**
+     * Retrieves the name of the JDBC driver
+     *
+     * @param connection The connection to use to query the database.
+     * @return The name of the driver. Ex: RedshiftJDBC
+     */
+    private static String getDriverName(Connection connection) {
+        try {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            if (databaseMetaData == null) {
+                throw new FlywayException("Unable to read database metadata while it is null!");
+            }
+
+            String driverName = databaseMetaData.getDriverName();
+            if (driverName == null) {
+                throw new FlywayException("Unable to determine JDBC  driver name. JDBC driver name is null.");
+            }
+
+            return driverName;
+        } catch (SQLException e) {
+            throw new FlywayException("Error while determining JDBC driver name", e);
+        }
+    }
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ public abstract class DbSupport {
     public abstract String getCurrentUserFunction();
 
     /**
-     * Checks whether ddl transactions are supported for this database.
+     * Checks whether ddl transactions are supported by this database.
      *
      * @return {@code true} if ddl transactions are supported, {@code false} if not.
      */

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,10 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected String extractAlternateOpenQuote(String token) {
+    protected String cleanToken(String token) {
         if (token.startsWith("N'")) {
-            return "N'";
+            return token.substring(token.indexOf("'"));
         }
-        return null;
-    }
-
-    @Override
-    protected String computeAlternateCloseQuote(String openQuote) {
-        return "'";
+        return super.cleanToken(token);
     }
 }

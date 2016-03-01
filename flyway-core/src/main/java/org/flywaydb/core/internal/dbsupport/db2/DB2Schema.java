@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,11 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2;
 
-import org.flywaydb.core.internal.dbsupport.*;
+import org.flywaydb.core.internal.dbsupport.Function;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.dbsupport.Type;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.SQLException;
@@ -159,7 +163,7 @@ public class DB2Schema extends Schema<DB2DbSupport> {
      */
     private List<String> generateDropStatementsForViews() throws SQLException {
         String dropSeqGenQuery = "select TABNAME from SYSCAT.TABLES where TABSCHEMA = '" + name
-                + "' and TABNAME NOT LIKE 'IDX_%_V' and TYPE='V'";
+                + "' and TABNAME NOT LIKE '%_V' and TYPE='V'";
         return buildDropStatements("DROP VIEW", dropSeqGenQuery);
     }
 

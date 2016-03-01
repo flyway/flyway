@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,20 +33,13 @@ public class DB2zosSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
-    @Override
-    protected String extractAlternateOpenQuote(String token) {
-        if (token.startsWith("X'")) {
-            return "X'";
-        }
-        return null;
-    }
 
     @Override
-    protected String computeAlternateCloseQuote(String openQuote) {
-        if (openQuote.equals("X'")) {
-            return "'";
+    protected String cleanToken(String token) {
+        if (token.startsWith("X'")) {
+            return token.substring(token.indexOf("'"));
         }
-        return openQuote;
+        return super.cleanToken(token);
     }
 
     @Override

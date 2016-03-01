@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,20 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         flyway.migrate();
 
         assertEquals("Hello", jdbcTemplate.queryForString("SELECT value FROM test_data"));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for SQL Server Functions.
+     */
+    @Test
+    public void function() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/function");
+        flyway.migrate();
 
         flyway.clean();
 
@@ -240,5 +254,26 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     @Ignore("Not supported on SQL Server")
     public void setCurrentSchema() throws Exception {
         //Skip
+    }
+
+    @Override
+    protected void createFlyway3MetadataTable() throws Exception {
+        jdbcTemplate.execute("CREATE TABLE [schema_version] (\n" +
+                "    [version_rank] INT NOT NULL,\n" +
+                "    [installed_rank] INT NOT NULL,\n" +
+                "    [version] NVARCHAR(50) NOT NULL,\n" +
+                "    [description] NVARCHAR(200),\n" +
+                "    [type] NVARCHAR(20) NOT NULL,\n" +
+                "    [script] NVARCHAR(1000) NOT NULL,\n" +
+                "    [checksum] INT,\n" +
+                "    [installed_by] NVARCHAR(100) NOT NULL,\n" +
+                "    [installed_on] DATETIME NOT NULL DEFAULT GETDATE(),\n" +
+                "    [execution_time] INT NOT NULL,\n" +
+                "    [success] BIT NOT NULL\n" +
+                ")");
+        jdbcTemplate.execute("ALTER TABLE [schema_version] ADD CONSTRAINT [schema_version_pk] PRIMARY KEY ([version])");
+        jdbcTemplate.execute("CREATE INDEX [schema_version_vr_idx] ON [schema_version] ([version_rank])");
+        jdbcTemplate.execute("CREATE INDEX [schema_version_ir_idx] ON [schema_version] ([installed_rank])");
+        jdbcTemplate.execute("CREATE INDEX [schema_version_s_idx] ON [schema_version] ([success])");
     }
 }

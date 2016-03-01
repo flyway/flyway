@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,9 +62,9 @@ public class PostgreSQLDbSupport extends DbSupport {
             result = result.substring(1);
         }
         if (result.contains(",")) {
-            return getSchema(result.substring(0, result.indexOf(",")));
+            result = result.substring(0, result.indexOf(","));
         }
-        return getSchema(result);
+        return getSchema(result.trim());
     }
 
     @Override

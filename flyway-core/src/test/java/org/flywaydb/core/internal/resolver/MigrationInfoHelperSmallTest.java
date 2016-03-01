@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.flywaydb.core.internal.util.Pair;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test for MigrationInfoHelper.
@@ -32,6 +33,15 @@ public class MigrationInfoHelperSmallTest {
     @Test(expected = FlywayException.class)
     public void extractSchemaVersionNoDescription() {
         MigrationInfoHelper.extractVersionAndDescription("9_4", "", "__", "");
+    }
+
+    @Test
+    public void repeatableMigration() {
+        Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription("R__EmailAxel.sql", "R", "__", ".sql");
+        MigrationVersion version = info.getLeft();
+        String description = info.getRight();
+        assertNull(version);
+        assertEquals("EmailAxel", description);
     }
 
     @Test

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
 
-    Copyright 2010-2015 Axel Fontaine
+    Copyright 2010-2016 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,4 +28,15 @@
     </root>
 
     <logger name="org.springframework" level="INFO"/>
+
+    <!-- Phoenix and the HBase minicluster are extremely verbose by default -->
+    <logger name="org.mortbay" level="WARN"/>
+    <logger name="org.apache.commons" level="WARN"/>
+    <logger name="org.apache.hadoop" level="ERROR"/>
+    <logger name="org.apache.jasper" level="WARN"/>
+    <logger name="org.apache.phoenix" level="WARN"/>
+    <logger name="org.apache.phoenix.metrics" level="ERROR"/>
+    <logger name="org.apache.phoenix.memory" level="ERROR"/>
+    <logger name="org.apache.zookeeper" level="ERROR"/>
+    <logger name="BlockStateChange" level="WARN"/>
 </configuration>

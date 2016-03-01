@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,5 +46,32 @@ public class SolidMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
+    }
+
+    @Override
+    protected void createFlyway3MetadataTable() throws Exception {
+        jdbcTemplate.execute("CREATE TABLE schema_version (\n" +
+                "    version_rank INT NOT NULL,\n" +
+                "    installed_rank INT NOT NULL,\n" +
+                "    version VARCHAR(50) NOT NULL,\n" +
+                "    description VARCHAR(200) NOT NULL,\n" +
+                "    type VARCHAR(20) NOT NULL,\n" +
+                "    script VARCHAR(1000) NOT NULL,\n" +
+                "    checksum INT,\n" +
+                "    installed_by VARCHAR(100) NOT NULL,\n" +
+                "    installed_on TIMESTAMP,\n" +
+                "    execution_time INT NOT NULL,\n" +
+                "    success SMALLINT NOT NULL,\n" +
+                "    PRIMARY KEY(version)\n" +
+                ") STORE DISK");
+        jdbcTemplate.execute("\"CREATE TRIGGER schema_version_create ON schema_version\n" +
+                "    BEFORE INSERT REFERENCING NEW installed_on AS new_installed_on\n" +
+                "    BEGIN\n" +
+                "    SET new_installed_on = NOW();\n" +
+                "    END\"");
+        jdbcTemplate.execute("CREATE INDEX schema_version_vr_idx ON schema_version (version_rank)");
+        jdbcTemplate.execute("CREATE INDEX schema_version_ir_idx ON schema_version (installed_rank)");
+        jdbcTemplate.execute("CREATE INDEX schema_version_s_idx ON schema_version (success)");
+        jdbcTemplate.execute("COMMIT WORK");
     }
 }

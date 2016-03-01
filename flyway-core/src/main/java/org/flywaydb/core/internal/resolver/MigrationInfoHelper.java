@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.resolver;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * Parsing support for migrations that use the standard Flyway version + description embedding in their name. These
@@ -54,6 +55,9 @@ public class MigrationInfoHelper {
 
         String version = cleanMigrationName.substring(0, descriptionPos);
         String description = cleanMigrationName.substring(descriptionPos + separator.length()).replaceAll("_", " ");
-        return Pair.of(MigrationVersion.fromVersion(version), description);
+        if (StringUtils.hasText(version)) {
+            return Pair.of(MigrationVersion.fromVersion(version), description);
+        }
+        return Pair.of(null, description);
     }
 }

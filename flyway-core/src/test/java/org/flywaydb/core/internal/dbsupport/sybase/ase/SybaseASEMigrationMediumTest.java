@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,4 +174,9 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
 	protected String getCommentLocation() {
 		return "migration/dbsupport/sybaseASE/comment";
 	}
+
+    @Ignore("Not needed as Sybase ASE support was first introduced in Flyway 4.0")
+    @Override
+    public void upgradeMetadataTableTo40Format() throws Exception {
+    }
 }

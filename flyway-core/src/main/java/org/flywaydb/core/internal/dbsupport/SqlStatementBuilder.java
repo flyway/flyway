@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ public class SqlStatementBuilder {
      */
     public SqlStatement getSqlStatement() {
         String sql = statement.toString();
-        return new SqlStatement(lineNumber, sql, isPgCopy());
+        return new SqlStatement(lineNumber, sql, isPgCopyFromStdIn());
     }
 
     /**
@@ -142,7 +142,7 @@ public class SqlStatementBuilder {
      *
      * @return {@code true} if it is, {@code false} if not.
      */
-    public boolean isPgCopy() {
+    public boolean isPgCopyFromStdIn() {
         return false;
     }
 
@@ -180,6 +180,10 @@ public class SqlStatementBuilder {
 
         String lineSimplified = simplifyLine(line);
 
+        if (isCommentDirective(lineSimplified)) {
+            nonCommentStatementPartSeen = true;
+        }
+
         applyStateChanges(lineSimplified);
         if (endWithOpenMultilineStringLiteral() || insideMultiLineComment) {
             statement.append(line);
@@ -189,10 +193,6 @@ public class SqlStatementBuilder {
         delimiter = changeDelimiterIfNecessary(lineSimplified, delimiter);
 
         statement.append(line);
-
-        if (isCommentDirective(lineSimplified)) {
-            nonCommentStatementPartSeen = true;
-        }
 
         if (!lineEndsWithSingleLineComment && lineTerminatesStatement(lineSimplified, delimiter)) {
             stripDelimiter(statement, delimiter);
@@ -312,8 +312,12 @@ public class SqlStatementBuilder {
         lineEndsWithSingleLineComment = false;
         for (TokenType delimitingToken : delimitingTokens) {
             if (!insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral
-                    && TokenType.MULTI_LINE_COMMENT.equals(delimitingToken)) {
-                insideMultiLineComment = !insideMultiLineComment;
+                    && TokenType.MULTI_LINE_COMMENT_OPEN.equals(delimitingToken)) {
+                insideMultiLineComment = true;
+            }
+            if (!insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral
+                    && TokenType.MULTI_LINE_COMMENT_CLOSE.equals(delimitingToken)) {
+                insideMultiLineComment = false;
             }
 
             if (!insideQuoteStringLiteral && !insideAlternateQuoteStringLiteral && !insideMultiLineComment
@@ -378,9 +382,13 @@ public class SqlStatementBuilder {
                 //Skip '', 'abc', ...
                 continue;
             }
-            if ((cleanToken.length() >= 4) && cleanToken.startsWith("/*") && cleanToken.endsWith("*/")) {
-                //Skip /**/, /*comment*/, ...
-                continue;
+            if ((cleanToken.length() >= 4)) {
+                int numberOfOpeningMultiLineComments = StringUtils.countOccurrencesOf(cleanToken, "/*");
+                int numberOfClosingMultiLineComments = StringUtils.countOccurrencesOf(cleanToken, "*/");
+                if (numberOfOpeningMultiLineComments > 0 && numberOfOpeningMultiLineComments == numberOfClosingMultiLineComments) {
+                    //Skip /**/, /*comment*/, ...
+                    continue;
+                }
             }
 
             if (isSingleLineComment(cleanToken)) {
@@ -388,16 +396,16 @@ public class SqlStatementBuilder {
                 handled = true;
             }
 
-            if (cleanToken.startsWith("/*")) {
-                delimitingTokens.add(TokenType.MULTI_LINE_COMMENT);
+            if (cleanToken.contains("/*")) {
+                delimitingTokens.add(TokenType.MULTI_LINE_COMMENT_OPEN);
                 handled = true;
             } else if (cleanToken.startsWith("'")) {
                 delimitingTokens.add(TokenType.QUOTE);
                 handled = true;
             }
 
-            if (!cleanToken.startsWith("/*") && cleanToken.endsWith("*/")) {
-                delimitingTokens.add(TokenType.MULTI_LINE_COMMENT);
+            if (!cleanToken.contains("/*") && cleanToken.contains("*/")) {
+                delimitingTokens.add(TokenType.MULTI_LINE_COMMENT_CLOSE);
                 handled = true;
             } else if (!cleanToken.startsWith("'") && cleanToken.endsWith("'")) {
                 delimitingTokens.add(TokenType.QUOTE);
@@ -436,7 +444,7 @@ public class SqlStatementBuilder {
     /**
      * The types of tokens relevant for string delimiter related parsing.
      */
-    private static enum TokenType {
+    private enum TokenType {
         /**
          * Some other token.
          */
@@ -458,8 +466,13 @@ public class SqlStatementBuilder {
         SINGLE_LINE_COMMENT,
 
         /**
-         * Token opens or closes multi-line comment
+         * Token opens a multi-line comment
          */
-        MULTI_LINE_COMMENT
+        MULTI_LINE_COMMENT_OPEN,
+
+        /**
+         * Token closes a multi-line comment
+         */
+        MULTI_LINE_COMMENT_CLOSE;
     }
 }

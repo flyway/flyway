@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,11 @@ public class Main {
     private static Log LOG;
 
     /**
+     * The property name for the directory containing a list of jars to load on the classpath.
+     */
+    private static final String PROPERTY_JAR_DIRS = "flyway.jarDirs";
+
+    /**
      * Initializes the logging.
      *
      * @param level The minimum level to log at.
@@ -90,6 +95,7 @@ public class Main {
             loadJavaMigrationsFromJarDirs(properties);
 
             Flyway flyway = new Flyway();
+            filterProperties(properties);
             flyway.configure(properties);
 
             for (String operation : operations) {
@@ -169,7 +175,18 @@ public class Main {
      */
     private static void initializeDefaults(Properties properties) {
         properties.put("flyway.locations", "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
-        properties.put("flyway.jarDirs", new File(getInstallationDir(), "jars").getAbsolutePath());
+        properties.put(PROPERTY_JAR_DIRS, new File(getInstallationDir(), "jars").getAbsolutePath());
+    }
+
+    /**
+     * Filters there properties to remove the Flyway Commandline-specific ones.
+     *
+     * @param properties The properties to filter.
+     */
+    private static void filterProperties(Properties properties) {
+        properties.remove(PROPERTY_JAR_DIRS);
+        properties.remove("flyway.configFile");
+        properties.remove("flyway.configFileEncoding");
     }
 
     /**
@@ -208,33 +225,38 @@ public class Main {
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("-------");
-        LOG.info("driver                 : Fully qualified classname of the jdbc driver");
-        LOG.info("url                    : Jdbc url to use to connect to the database");
-        LOG.info("user                   : User to use to connect to the database");
-        LOG.info("password               : Password to use to connect to the database");
-        LOG.info("schemas                : Comma-separated list of the schemas managed by Flyway");
-        LOG.info("table                  : Name of Flyway's metadata table");
-        LOG.info("locations              : Classpath locations to scan recursively for migrations");
-        LOG.info("resolvers              : Comma-separated list of custom MigrationResolvers");
-        LOG.info("sqlMigrationPrefix     : File name prefix for Sql migrations");
-        LOG.info("sqlMigrationSeparator  : File name separator for Sql migrations");
-        LOG.info("sqlMigrationSuffix     : File name suffix for Sql migrations");
-        LOG.info("encoding               : Encoding of Sql migrations");
-        LOG.info("placeholderReplacement : Whether placeholders should be replaced");
-        LOG.info("placeholders           : Placeholders to replace in Sql migrations");
-        LOG.info("placeholderPrefix      : Prefix of every placeholder");
-        LOG.info("placeholderSuffix      : Suffix of every placeholder");
-        LOG.info("target                 : Target version up to which Flyway should use migrations");
-        LOG.info("outOfOrder             : Allows migrations to be run \"out of order\"");
-        LOG.info("callbacks              : Comma-separated list of FlywayCallback classes");
-        LOG.info("validateOnMigrate      : Validate when running migrate");
-        LOG.info("cleanOnValidationError : Automatically clean on a validation error");
-        LOG.info("baselineVersion        : Version to tag schema with when executing baseline");
-        LOG.info("baselineDescription    : Description to tag schema with when executing baseline");
-        LOG.info("baselineOnMigrate      : Baseline on migrate against uninitialized non-empty schema");
-        LOG.info("configFile             : Config file to use (default: conf/flyway.properties)");
-        LOG.info("configFileEncoding     : Encoding of the config file (default: UTF-8)");
-        LOG.info("jarDirs                : Dirs for Jdbc drivers & Java migrations (default: jars)");
+        LOG.info("driver                       : Fully qualified classname of the jdbc driver");
+        LOG.info("url                          : Jdbc url to use to connect to the database");
+        LOG.info("user                         : User to use to connect to the database");
+        LOG.info("password                     : Password to use to connect to the database");
+        LOG.info("schemas                      : Comma-separated list of the schemas managed by Flyway");
+        LOG.info("table                        : Name of Flyway's metadata table");
+        LOG.info("locations                    : Classpath locations to scan recursively for migrations");
+        LOG.info("resolvers                    : Comma-separated list of custom MigrationResolvers");
+        LOG.info("skipDefaultResolvers         : Skips default resolvers (jdbc, sql and Spring-jdbc)");
+        LOG.info("sqlMigrationPrefix           : File name prefix for sql migrations");
+        LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable sql migrations");
+        LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
+        LOG.info("sqlMigrationSuffix           : File name suffix for sql migrations");
+        LOG.info("encoding                     : Encoding of sql migrations");
+        LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
+        LOG.info("placeholders                 : Placeholders to replace in sql migrations");
+        LOG.info("placeholderPrefix            : Prefix of every placeholder");
+        LOG.info("placeholderSuffix            : Suffix of every placeholder");
+        LOG.info("target                       : Target version up to which Flyway should use migrations");
+        LOG.info("outOfOrder                   : Allows migrations to be run \"out of order\"");
+        LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes");
+        LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
+        LOG.info("validateOnMigrate            : Validate when running migrate");
+        LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
+        LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
+        LOG.info("cleanDisabled                : Whether to disable clean");
+        LOG.info("baselineVersion              : Version to tag schema with when executing baseline");
+        LOG.info("baselineDescription          : Description to tag schema with when executing baseline");
+        LOG.info("baselineOnMigrate            : Baseline on migrate against uninitialized non-empty schema");
+        LOG.info("configFile                   : Config file to use (default: conf/flyway.properties)");
+        LOG.info("configFileEncoding           : Encoding of the config file (default: UTF-8)");
+        LOG.info("jarDirs                      : Dirs for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
@@ -244,7 +266,7 @@ public class Main {
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at http://flywaydb.org/documentation/commandline");
+        LOG.info("More info at https://flywaydb.org/documentation/commandline");
     }
 
     /**
@@ -278,7 +300,7 @@ public class Main {
      * @throws IOException When the jars could not be loaded.
      */
     private static void loadJavaMigrationsFromJarDirs(Properties properties) throws IOException {
-        String jarDirs = properties.getProperty("flyway.jarDirs");
+        String jarDirs = properties.getProperty(PROPERTY_JAR_DIRS);
         if (!StringUtils.hasLength(jarDirs)) {
             return;
         }
@@ -390,6 +412,11 @@ public class Main {
         Console console = System.console();
         if (console == null) {
             // We are running in an automated build. Prompting is not possible.
+            return;
+        }
+
+        if (!properties.contains("flyway.url")) {
+            // URL is not set. We are doomed for failure anyway.
             return;
         }
 

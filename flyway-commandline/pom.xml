@@ -26,7 +26,7 @@
         </license>
     </licenses>
     <properties>
-        <jreversion>1.8.0_31</jreversion>
+        <jreversion>1.8.0_74</jreversion>
     </properties>
     <dependencies>
         <dependency>
@@ -183,7 +183,7 @@
                                 </goals>
                                 <configuration>
                                     <!-- attach must be false until https://issues.sonatype.org/browse/MVNCENTRAL-631 is fixed -->
-                                    <attach>false</attach>
+                                    <!--attach>false</attach-->
                                     <descriptors>
                                         <descriptor>src/main/assembly/windows.xml</descriptor>
                                         <descriptor>src/main/assembly/linux.xml</descriptor>

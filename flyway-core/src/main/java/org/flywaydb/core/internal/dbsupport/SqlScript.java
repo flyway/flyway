@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,13 +169,13 @@ public class SqlScript {
 
             sqlStatementBuilder.addLine(line);
 
-            if (sqlStatementBuilder.isTerminated()) {
+            if (sqlStatementBuilder.canDiscard()) {
+                sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
+            } else if (sqlStatementBuilder.isTerminated()) {
                 SqlStatement sqlStatement = sqlStatementBuilder.getSqlStatement();
                 statements.add(sqlStatement);
                 LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql());
 
-                sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
-            } else if (sqlStatementBuilder.canDiscard()) {
                 sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
             }
         }

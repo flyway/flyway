@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ procedure id_for_sub_sector (
       values (sub_sectors_seq.nextval, p_sub_sector_name) returning id into p_sub_sector_id;
    end id_for_sub_sector;
 /
+
+set define off;
 
 create or replace
 procedure id_for_sector (

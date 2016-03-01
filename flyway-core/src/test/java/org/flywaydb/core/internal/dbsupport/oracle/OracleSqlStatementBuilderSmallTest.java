@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,12 @@ import static org.junit.Assert.*;
  */
 public class OracleSqlStatementBuilderSmallTest {
     private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder();
+
+    @Test
+    public void setDefineOff() {
+        builder.addLine("set define off;");
+        assertTrue(builder.canDiscard());
+    }
 
     @Test
     public void changeDelimiterRegEx() {

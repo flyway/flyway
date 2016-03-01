@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class MigrationInfoDumper {
         int descriptionWidth = DESCRIPTION_TITLE.length();
 
         for (MigrationInfo migrationInfo : migrationInfos) {
-            versionWidth = Math.max(versionWidth, migrationInfo.getVersion().toString().length());
+            versionWidth = Math.max(versionWidth, migrationInfo.getVersion() == null ? 0 : migrationInfo.getVersion().toString().length());
             descriptionWidth = Math.max(descriptionWidth, migrationInfo.getDescription().length());
         }
 
@@ -62,7 +62,8 @@ public class MigrationInfoDumper {
             table.append(StringUtils.trimOrPad("| No migrations found", ruler.length() - 2, ' ')).append("|\n");
         } else {
             for (MigrationInfo migrationInfo : migrationInfos) {
-                table.append("| ").append(StringUtils.trimOrPad(migrationInfo.getVersion().toString(), versionWidth));
+                String versionStr = migrationInfo.getVersion() == null ? "" : migrationInfo.getVersion().toString();
+                table.append("| ").append(StringUtils.trimOrPad(versionStr, versionWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getDescription(), descriptionWidth));
                 table.append(" | ").append(StringUtils.trimOrPad(DateUtils.formatDateAsIsoString(migrationInfo.getInstalledOn()), 19));
                 table.append(" | ").append(StringUtils.trimOrPad(migrationInfo.getState().getDisplayName(), 7));

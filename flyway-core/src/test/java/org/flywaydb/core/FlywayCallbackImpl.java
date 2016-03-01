@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,21 @@ package org.flywaydb.core;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.Connection;
+
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationInfo;
 
 /**
  * Sample FlywayCallback implementation to test that the lifecycle
  * notifications are getting called correctly
- * 
+ *
  * @author Dan Bunker
  */
-public class FlywayCallbackImpl implements FlywayCallback {
+public class FlywayCallbackImpl implements FlywayCallback, ConfigurationAware {
+
+    private FlywayConfiguration flywayConfiguration;
 	private boolean beforeClean = false;
 	private boolean afterClean = false;
 	private boolean beforeMigrate = false;
@@ -129,6 +134,11 @@ public class FlywayCallbackImpl implements FlywayCallback {
         assertNotNull(dataConnection);
 	}
 
+	@Override
+	public void setFlywayConfiguration(FlywayConfiguration flywayConfiguration) {
+        this.flywayConfiguration = flywayConfiguration;
+	}
+
 	public boolean isBeforeClean() {
 		return beforeClean;
 	}
@@ -185,4 +195,7 @@ public class FlywayCallbackImpl implements FlywayCallback {
 		return afterInfo;
 	}
 
+	public void assertFlywayConfigurationSet() {
+		assertNotNull("Configuration must have been set", flywayConfiguration);
+	}
 }

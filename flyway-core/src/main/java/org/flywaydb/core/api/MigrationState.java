@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,17 @@ public enum MigrationState {
      * It most likely failed during the installation of a future version of this deployable.
      * </p>
      */
-    FUTURE_FAILED("FutFail", false, true, true);
+    FUTURE_FAILED("FutFail", false, true, true),
+
+    /**
+     * This is a repeatable migration that is outdated and should be re-applied.
+     */
+    OUTDATED("Outdate", true, true, false),
+
+    /**
+     * This is a repeatable migration that is outdated and has already been superseeded by a newer run.
+     */
+    SUPERSEEDED("Superse", true, true, false);
 
     /**
      * The name suitable for display to the end-user.

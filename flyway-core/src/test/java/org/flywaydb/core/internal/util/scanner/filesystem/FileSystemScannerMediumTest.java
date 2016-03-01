@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.Location;
 import org.junit.Test;
 
 /**
  * Test for FileSystemScanner.
  */
 public class FileSystemScannerMediumTest {
-    @Test(expected = FlywayException.class)
+    @Test
     public void nonExistentDirectory() throws Exception {
-        new FileSystemScanner().scanForResources("/invalid-path", "", "");
+        new FileSystemScanner().scanForResources(new Location("filesystem:/invalid-path"), "", "");
     }
 }

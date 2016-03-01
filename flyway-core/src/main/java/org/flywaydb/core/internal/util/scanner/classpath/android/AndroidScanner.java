@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util.scanner.android;
+package org.flywaydb.core.internal.util.scanner.classpath.android;
 
 import android.content.Context;
 import dalvik.system.DexFile;
@@ -21,9 +21,11 @@ import dalvik.system.PathClassLoader;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.android.ContextHolder;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.classpath.ResourceAndClassScanner;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ import java.util.List;
 /**
  * Class & resource scanner for Android.
  */
-public class AndroidScanner {
+public class AndroidScanner implements ResourceAndClassScanner {
     private static final Log LOG = LogFactory.getLog(AndroidScanner.class);
 
     private final Context context;
@@ -47,12 +49,12 @@ public class AndroidScanner {
             throw new FlywayException("Unable to scan for Migrations! Context not set. " +
                     "Within an activity you can fix this with org.flywaydb.core.api.android.ContextHolder.setContext(this);");
         }
-
     }
 
-    public Resource[] scanForResources(String path, String prefix, String suffix) throws Exception {
+    public Resource[] scanForResources(Location location, String prefix, String suffix) throws Exception {
         List<Resource> resources = new ArrayList<Resource>();
 
+        String path = location.getPath();
         for (String asset : context.getAssets().list(path)) {
             if (asset.startsWith(prefix) && asset.endsWith(suffix)
                     && (asset.length() > (prefix + suffix).length())) {
@@ -65,8 +67,8 @@ public class AndroidScanner {
         return resources.toArray(new Resource[resources.size()]);
     }
 
-    public Class<?>[] scanForClasses(String path, Class<?> implementedInterface) throws Exception {
-        String pkg = path.replace("/", ".");
+    public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {
+        String pkg = location.getPath().replace("/", ".");
 
         List<Class> classes = new ArrayList<Class>();
 

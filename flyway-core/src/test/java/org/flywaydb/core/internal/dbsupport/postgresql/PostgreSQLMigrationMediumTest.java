@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -234,6 +235,21 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests clean and migrate for PostgreSQL Materialized Views.
+     */
+    @Ignore("PostgreSQL 9.3 and newer only")
+    @Test
+    public void materializedview() throws Exception {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/materializedview");
+        flyway.migrate();
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
+
+    /**
      * Tests clean and migrate for PostgreSQL child tables.
      */
     @Test
@@ -362,5 +378,28 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/postgresql/sql/warning");
         flyway.migrate();
         // Log should contain "This is a warning"
+    }
+
+    @Override
+    protected void createFlyway3MetadataTable() throws Exception {
+        jdbcTemplate.execute("CREATE TABLE \"schema_version\" (\n" +
+                "    \"version_rank\" INT NOT NULL,\n" +
+                "    \"installed_rank\" INT NOT NULL,\n" +
+                "    \"version\" VARCHAR(50) NOT NULL,\n" +
+                "    \"description\" VARCHAR(200) NOT NULL,\n" +
+                "    \"type\" VARCHAR(20) NOT NULL,\n" +
+                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
+                "    \"checksum\" INTEGER,\n" +
+                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT now(),\n" +
+                "    \"execution_time\" INTEGER NOT NULL,\n" +
+                "    \"success\" BOOLEAN NOT NULL\n" +
+                ") WITH (\n" +
+                "  OIDS=FALSE\n" +
+                ")");
+        jdbcTemplate.execute("ALTER TABLE \"schema_version\" ADD CONSTRAINT \"schema_version_pk\" PRIMARY KEY (\"version\")");
+        jdbcTemplate.execute("CREATE INDEX \"schema_version_vr_idx\" ON \"schema_version\" (\"version_rank\")");
+        jdbcTemplate.execute("CREATE INDEX \"schema_version_ir_idx\" ON \"schema_version\" (\"installed_rank\")");
+        jdbcTemplate.execute("CREATE INDEX \"schema_version_s_idx\" ON \"schema_version\" (\"success\")");
     }
 }

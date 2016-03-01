@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Regex for keywords that can appear after a string literal without being separated by a space.
      */
-    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR)");
+    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR)(?!.)");
 
     /**
      * Delimiter of PL/SQL blocks and statements.
@@ -114,5 +114,10 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             default:
                 return specialChar + "'";
         }
+    }
+
+    @Override
+    public boolean canDiscard() {
+        return super.canDiscard() || statementStart.startsWith("SET DEFINE OFF");
     }
 }

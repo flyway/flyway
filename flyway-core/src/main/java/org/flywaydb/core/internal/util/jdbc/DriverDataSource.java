@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,14 +102,8 @@ public class DriverDataSource implements DataSource {
      * @throws FlywayException when the datasource could not be created.
      */
     public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password, String... initSqls) throws FlywayException {
-        if (!StringUtils.hasText(url)) {
-            throw new FlywayException("Missing required JDBC URL. Unable to create DataSource!");
-        }
-        if (!url.toLowerCase().startsWith("jdbc:")) {
-            throw new FlywayException("Invalid JDBC URL (should start with jdbc:) : " + url);
-        }
         this.classLoader = classLoader;
-        this.url = url;
+        this.url = detectFallbackUrl(url);
 
         if (!StringUtils.hasLength(driverClass)) {
             driverClass = detectDriverForUrl(url);
@@ -135,13 +129,70 @@ public class DriverDataSource implements DataSource {
             }
         }
 
-        this.user = user;
-        this.password = password;
+        this.user = detectFallbackUser(user);
+        this.password = detectFallbackPassword(password);
 
         if (initSqls == null) {
             initSqls = new String[0];
         }
         this.initSqls = initSqls;
+    }
+
+    /**
+     * Detects a fallback url in case this one is missing.
+     *
+     * @param url The url to check.
+     * @return The url to use.
+     */
+    private String detectFallbackUrl(String url) {
+        if (!StringUtils.hasText(url)) {
+            // Attempt fallback to the automatically provided Boxfuse database URL (https://boxfuse.com/docs/databases#envvars)
+            String boxfuseDatabaseUrl = System.getenv("BOXFUSE_DATABASE_URL");
+            if (StringUtils.hasText(boxfuseDatabaseUrl)) {
+                return boxfuseDatabaseUrl;
+            }
+
+            throw new FlywayException("Missing required JDBC URL. Unable to create DataSource!");
+        }
+
+        if (!url.toLowerCase().startsWith("jdbc:")) {
+            throw new FlywayException("Invalid JDBC URL (should start with jdbc:) : " + url);
+        }
+        return url;
+    }
+
+    /**
+     * Detects a fallback user in case this one is missing.
+     *
+     * @param user The user to check.
+     * @return The user to use.
+     */
+    private String detectFallbackUser(String user) {
+        if (!StringUtils.hasText(user)) {
+            // Attempt fallback to the automatically provided Boxfuse database user (https://boxfuse.com/docs/databases#envvars)
+            String boxfuseDatabaseUser = System.getenv("BOXFUSE_DATABASE_USER");
+            if (StringUtils.hasText(boxfuseDatabaseUser)) {
+                return boxfuseDatabaseUser;
+            }
+        }
+        return user;
+    }
+
+    /**
+     * Detects a fallback password in case this one is missing.
+     *
+     * @param password The password to check.
+     * @return The password to use.
+     */
+    private String detectFallbackPassword(String password) {
+        if (!StringUtils.hasText(password)) {
+            // Attempt fallback to the automatically provided Boxfuse database password (https://boxfuse.com/docs/databases#envvars)
+            String boxfuseDatabasePassword = System.getenv("BOXFUSE_DATABASE_PASSWORD");
+            if (StringUtils.hasText(boxfuseDatabasePassword)) {
+                return boxfuseDatabasePassword;
+            }
+        }
+        return password;
     }
 
     /**
@@ -171,6 +222,10 @@ public class DriverDataSource implements DataSource {
     private String detectBackupDriverForUrl(String url) {
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
             return MARIADB_JDBC_DRIVER;
+        }
+
+        if (url.startsWith("jdbc:redshift:")) {
+            return "com.amazon.redshift.jdbc4.Driver";
         }
 
         return null;
@@ -224,16 +279,25 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:google:")) {
-            return "com.google.appengine.api.rdbms.AppEngineDriver";
+            return "com.mysql.jdbc.GoogleDriver";
         }
 
         if (url.startsWith(ORACLE_JDBC_URL_PREFIX)) {
             return "oracle.jdbc.OracleDriver";
         }
 
+        if (url.startsWith("jdbc:phoenix")) {
+            return "org.apache.phoenix.jdbc.PhoenixDriver";
+        }
+
         if (url.startsWith("jdbc:postgresql:")) {
-            // The format of Redshift JDBC urls is the same as PostgreSQL, and Redshift uses the same JDBC driver
+            // The old format of Redshift JDBC urls is the same as PostgreSQL, and Redshift can still use the same JDBC driver:
             return "org.postgresql.Driver";
+        }
+
+        if (url.startsWith("jdbc:redshift:")) {
+            // The new format of Redshift JDBC urls, using the new Redshift-specific JDBC driver:
+            return "com.amazon.redshift.jdbc41.Driver";
         }
 
         if (url.startsWith("jdbc:jtds:")) {
@@ -246,6 +310,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:vertica:")) {
             return "com.vertica.jdbc.Driver";
+        }
+
+        if (url.startsWith("jdbc:sap:")) {
+            return "com.sap.db.jdbc.Driver";
         }
 
         return null;

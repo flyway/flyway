@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,8 @@ public abstract class AbstractFlywayTask extends Task {
     private String[] locations = flyway.getLocations();
 
     /**
-     * The custom MigrationResolvers to be used in addition to the built-in ones for resolving Migrations to apply.
+     * The custom MigrationResolvers to be used in addition or as replacement to the built-in (as determined by the
+     * skipDefaultResolvers property) ones for resolving Migrations to apply.
      * <p>(default: none)</p>
      */
     private String[] resolvers;
@@ -176,11 +177,29 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * @param skipDefaultResolvers Whether built-int resolvers should be skipped.
+     *                             If true, only custom resolvers are used.<p>(default: false)</p>
+     *                             <br>Also configurable with Ant Property: ${flyway.skipDefaultResolvers}
+     */
+    public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
+        flyway.setSkipDefaultResolvers(skipDefaultResolvers);
+    }
+
+    /**
      * @param callbacks A comma-separated list of fully qualified FlywayCallback implementation class names.  These classes
      *                  will be instantiated and wired into the Flyway lifecycle notification events.
      */
     public void setCallbacks(String callbacks) {
         this.callbacks = StringUtils.tokenizeToStringArray(callbacks, ",");
+    }
+
+    /**
+     * @param skipDefaultCallbacks Whether built-int callbacks should be skipped.
+     *                             If true, only custom callbacks are used.<p>(default: false)</p>
+     *                             <br>Also configurable with Ant Property: ${flyway.skipDefaultCallbacks}
+     */
+    public void setSkipDefaultCallbacks(boolean skipDefaultCallbacks) {
+        flyway.setSkipDefaultCallbacks(skipDefaultCallbacks);
     }
 
     /**
@@ -329,6 +348,16 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     *
+     * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations (default: R)<br>Also configurable with Ant Property: ${flyway.repeatableSqlMigrationPrefix}
+     */
+    public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefix) {
+        flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
+    }
+
+    /**
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -368,6 +397,14 @@ public abstract class AbstractFlywayTask extends Task {
      */
     public void setCleanOnValidationError(boolean cleanOnValidationError) {
         flyway.setCleanOnValidationError(cleanOnValidationError);
+    }
+
+    /**
+     * @param cleanDisabled Whether to disable clean. (default: {@code false})
+     *                      <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     */
+    public void setCleanDisabled(boolean cleanDisabled) {
+        flyway.setCleanDisabled(cleanDisabled);
     }
 
     /**
@@ -411,6 +448,22 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * Whether to ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one.
+     * <br>Also configurable with Ant Property: ${flyway.ignoreFutureMigrations}
+     *
+     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail
+     *                               fast with an exception. (default: {@code true})
+     */
+    public void setIgnoreFutureMigrations(boolean ignoreFutureMigrations) {
+        flyway.setIgnoreFutureMigrations(ignoreFutureMigrations);
+    }
+
+    /**
      * @param ignoreFailedFutureMigration Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
      *                                    newer deployment of the application that are not yet available in this version. For example: we have migrations
      *                                    available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -418,7 +471,9 @@ public abstract class AbstractFlywayTask extends Task {
      *                                    warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
      *                                    an option. An older version of the application can then be redeployed, even though a newer one failed due to a
      *                                    bad migration. (default: false)<br>Also configurable with Ant Property: ${flyway.ignoreFailedFutureMigration}
+     * @deprecated Use the more generic <code>setIgnoreFutureMigrations()</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
         flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
     }

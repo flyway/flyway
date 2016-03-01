@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,15 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
         String line = "insert into testDate values (TIMESTAMP '2004-10-19 10:23:54')";
         statementBuilder.addLine(line + ";\n");
         assertTrue(statementBuilder.isTerminated());
+        assertEquals(line, statementBuilder.getSqlStatement().getSql());
+    }
+
+    @Test
+    public void copy() {
+        String line = "COPY CSV_FILES FROM '/path/to/filename.csv' DELIMITER ';' CSV HEADER";
+        statementBuilder.addLine(line + ";\n");
+        assertTrue(statementBuilder.isTerminated());
+        assertFalse(statementBuilder.isPgCopyFromStdIn());
         assertEquals(line, statementBuilder.getSqlStatement().getSql());
     }
 

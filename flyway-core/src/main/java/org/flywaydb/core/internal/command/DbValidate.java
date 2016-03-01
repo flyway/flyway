@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,9 +75,14 @@ public class DbValidate {
     private final boolean outOfOrder;
 
     /**
-     * Whether pending or future migrations are allowed.
+     * Whether pending migrations are allowed.
      */
-    private final boolean pendingOrFuture;
+    private final boolean pending;
+
+    /**
+     * Whether future migrations are allowed.
+     */
+    private final boolean future;
 
     /**
      * This is a list of callbacks that fire before or after the validate task is executed.
@@ -101,12 +106,13 @@ public class DbValidate {
      * @param migrationResolver The migration resolver.
      * @param target            The target version of the migration.
      * @param outOfOrder        Allows migrations to be run "out of order".
-     * @param pendingOrFuture   Whether pending or future migrations are allowed.
+     * @param pending           Whether pending migrations are allowed.
+     * @param future            Whether future migrations are allowed.
      * @param callbacks         The lifecycle callbacks.
      */
     public DbValidate(Connection connection,
                       DbSupport dbSupport, MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pendingOrFuture, FlywayCallback[] callbacks) {
+                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean future, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
@@ -114,7 +120,8 @@ public class DbValidate {
         this.migrationResolver = migrationResolver;
         this.target = target;
         this.outOfOrder = outOfOrder;
-        this.pendingOrFuture = pendingOrFuture;
+        this.pending = pending;
+        this.future = future;
         this.callbacks = callbacks;
     }
 
@@ -144,7 +151,7 @@ public class DbValidate {
                 public Pair<Integer, String> doInTransaction() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pendingOrFuture);
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future);
 
                     migrationInfoService.refresh();
 
@@ -156,13 +163,16 @@ public class DbValidate {
 
             stopWatch.stop();
 
-            int count = result.getLeft();
-            if (count == 1) {
-                LOG.info(String.format("Validated 1 migration (execution time %s)",
-                        TimeFormat.format(stopWatch.getTotalTimeMillis())));
-            } else {
-                LOG.info(String.format("Validated %d migrations (execution time %s)",
-                        count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+            String error = result.getRight();
+            if (error == null) {
+                int count = result.getLeft();
+                if (count == 1) {
+                    LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
+                            TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                } else {
+                    LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
+                            count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+                }
             }
 
             for (final FlywayCallback callback : callbacks) {
@@ -176,7 +186,7 @@ public class DbValidate {
                 });
             }
 
-            return result.getRight();
+            return error;
         } finally {
             dbSupport.restoreCurrentSchema();
         }

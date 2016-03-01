@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -29,6 +29,10 @@ AS $$
 SELECT *  INTO TEMP adddata_temp_table FROM AddData() ;
 
 CREATE FUNCTION add(integer, integer) RETURNS integer
+    LANGUAGE sql/*test*/ IMMUTABLE STRICT
+    AS $_$select $1 + $2;$_$;
+    
+CREATE FUNCTION """add2"""(integer, integer) RETURNS integer
     LANGUAGE sql/*test*/ IMMUTABLE STRICT
     AS $_$select $1 + $2;$_$;
 

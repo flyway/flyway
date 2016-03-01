@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ public class FlywayExtension {
 
     /**
      * Locations to scan recursively for migrations. The location type is determined by its prefix.
+     * (default: filesystem:src/main/resources/db/migration)
      *
      * <tt>Unprefixed locations or locations starting with classpath:</tt>
      * point to a package on the classpath and may contain both sql and java-based migrations.
@@ -63,11 +64,18 @@ public class FlywayExtension {
     String[] locations
 
     /**
-     * The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for
-     * resolving Migrations to apply.
+     * The fully qualified class names of the custom MigrationResolvers to be used in addition (default)
+     * or as a replacement (using skipDefaultResolvers) to the built-in ones for resolving Migrations to
+     * apply.
      * <p>(default: none)</p>
      */
     String[] resolvers
+
+    /**
+     * If set to true, default built-in resolvers will be skipped, only custom migration resolvers will be used.
+     * <p>(default: false)</p>
+     */
+    Boolean skipDefaultResolvers
 
     /**
      * The file name prefix for Sql migrations
@@ -76,6 +84,14 @@ public class FlywayExtension {
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
     String sqlMigrationPrefix
+
+    /**
+     * The file name prefix for repeatable sql migrations (default: R).
+     *
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     */
+    String repeatableSqlMigrationPrefix
 
     /**
      * The file name prefix for Sql migrations
@@ -118,6 +134,12 @@ public class FlywayExtension {
     /** An array of fully qualified FlywayCallback class implementations */
     String[] callbacks
 
+    /**
+     * If set to true, default built-in callbacks will be skipped, only custom migration callbacks will be used.
+     * <p>(default: false)</p>
+     */
+    Boolean skipDefaultCallbacks
+
     /** Allows migrations to be run "out of order" */
     Boolean outOfOrder
 
@@ -126,6 +148,22 @@ public class FlywayExtension {
 
     /** Whether to automatically call clean or not when a validation error occurs */
     Boolean cleanOnValidationError
+
+    /**
+     * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
+     */
+    Boolean ignoreFutureMigrations;
+
+    /**
+     * Whether to disable clean. (default: {@code false})
+     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     */
+    Boolean cleanDisabled;
 
     /**
      * <p>

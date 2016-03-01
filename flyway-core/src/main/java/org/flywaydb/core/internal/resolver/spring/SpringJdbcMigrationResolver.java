@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver.spring;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -27,6 +28,7 @@ import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -48,21 +50,29 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
     private final Location location;
 
     /**
-     * The ClassLoader to use.
+     * The Scanner to use.
      */
-    private ClassLoader classLoader;
+    private Scanner scanner;
+
+    /**
+     * The configuration to inject (if necessary) in the migration classes.
+     */
+    private FlywayConfiguration configuration;
 
     /**
      * Creates a new instance.
      *
-     * @param location    The base package on the classpath where to migrations are located.
-     * @param classLoader The ClassLoader for loading migrations on the classpath.
+     * @param location      The base package on the classpath where to migrations are located.
+     * @param scanner       The Scanner for loading migrations on the classpath.
+     * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public SpringJdbcMigrationResolver(ClassLoader classLoader, Location location) {
+    public SpringJdbcMigrationResolver(Scanner scanner, Location location, FlywayConfiguration configuration) {
         this.location = location;
-        this.classLoader = classLoader;
+        this.scanner = scanner;
+        this.configuration = configuration;
     }
 
+    @Override
     public Collection<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
@@ -71,9 +81,10 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         }
 
         try {
-            Class<?>[] classes = new Scanner(classLoader).scanForClasses(location, SpringJdbcMigration.class);
+            Class<?>[] classes = scanner.scanForClasses(location, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
-                SpringJdbcMigration springJdbcMigration = ClassUtils.instantiate(clazz.getName(), classLoader);
+                SpringJdbcMigration springJdbcMigration = ClassUtils.instantiate(clazz.getName(), scanner.getClassLoader());
+                ConfigurationInjectionUtils.injectFlywayConfiguration(springJdbcMigration, configuration);
 
                 ResolvedMigrationImpl migrationInfo = extractMigrationInfo(springJdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));
@@ -112,19 +123,24 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
                 throw new FlywayException("Missing description for migration " + version);
             }
         } else {
-            Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(
-                            ClassUtils.getShortName(springJdbcMigration.getClass()), "V", "__", "");
+            String shortName = ClassUtils.getShortName(springJdbcMigration.getClass());
+            String prefix;
+            if (shortName.startsWith("V") || shortName.startsWith("R")) {
+                prefix = shortName.substring(0, 1);
+            } else {
+                throw new FlywayException("Invalid Jdbc migration class name: " + springJdbcMigration.getClass().getName()
+                        + " => ensure it starts with V or R," +
+                        " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
+            }
+            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
             version = info.getLeft();
             description = info.getRight();
         }
 
-        String script = springJdbcMigration.getClass().getName();
-
         ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
         resolvedMigration.setVersion(version);
         resolvedMigration.setDescription(description);
-        resolvedMigration.setScript(script);
+        resolvedMigration.setScript(springJdbcMigration.getClass().getName());
         resolvedMigration.setChecksum(checksum);
         resolvedMigration.setType(MigrationType.SPRING_JDBC);
         return resolvedMigration;
