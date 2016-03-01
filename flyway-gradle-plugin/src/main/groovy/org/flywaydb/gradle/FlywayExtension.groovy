@@ -18,9 +18,7 @@ package org.flywaydb.gradle
 /**
  * The flyway's configuration properties.
  *
- * <p>More info: <a href="http://flywaydb.org/documentation/gradle">http://flywaydb.org/documentation/gradle</a></p>
- *
- * @author Ben Manes (ben.manes@gmail.com)
+ * <p>More info: <a href="https://flywaydb.org/documentation/gradle">https://flywaydb.org/documentation/gradle</a></p>
  */
 public class FlywayExtension {
     /** The fully qualified classname of the jdbc driver to use to connect to the database */

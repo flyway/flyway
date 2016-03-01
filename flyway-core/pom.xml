@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
-    Detailed information how to contribute: http://flywaydb.org/contribute/code/
+    Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
 
     A number of Jdbc drivers are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
+    Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
 
     If your contribution does not require changes to the database-specific code it is also possible to run the build
     without having to install the Jdbc drivers or databases using:

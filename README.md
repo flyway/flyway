@@ -23,10 +23,10 @@ Grails, Play!, Grunt, Griffon, Ninja, ...
 https://flywaydb.org
 
 ## How to contribute
-https://flywaydb.org/contribute/
+https://flywaydb.org/documentation/contribute/
 
 ## About
-Flyway is brought to you by [Axel Fontaine](https://axelfontaine.com) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](https://flywaydb.org/contribute/hallOfFame.html).
+Flyway is brought to you by [Axel Fontaine](https://axelfontaine.com) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](https://flywaydb.org/documentation/contribute/hallOfFame.html).
 
 ## License
 Copyright (C) 2010-2016 [Boxfuse GmbH](https://boxfuse.com)
