@@ -81,6 +81,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
             scripts.put(callback, null);
         }
 
+        LOG.debug("Scanning for SQL callbacks ...");
         for (Location location : locations.getLocations()) {
             Resource[] resources;
             try {

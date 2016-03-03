@@ -5,12 +5,12 @@ Database Migrations Made Easy.
 
 Documentation
 -------------
-You can find getting started guides and reference documentation at http://flywaydb.org
+You can find getting started guides and reference documentation at https://flywaydb.org
 
 
 Contributing
 ------------
-Here is the info on how you can contribute in various ways to the project: http://flywaydb.org/contribute/
+Here is the info on how you can contribute in various ways to the project: https://flywaydb.org/documentation/contribute/
 
 
 License

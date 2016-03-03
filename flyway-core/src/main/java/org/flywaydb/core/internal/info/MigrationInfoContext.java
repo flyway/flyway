@@ -30,9 +30,14 @@ public class MigrationInfoContext {
     public boolean outOfOrder;
 
     /**
-     * Whether pending or future migrations are allowed.
+     * Whether pending migrations are allowed.
      */
-    public boolean pendingOrFuture;
+    public boolean pending;
+
+    /**
+     * Whether future migrations are allowed.
+     */
+    public boolean future;
 
     /**
      * The migration target.
@@ -69,7 +74,8 @@ public class MigrationInfoContext {
         MigrationInfoContext that = (MigrationInfoContext) o;
 
         if (outOfOrder != that.outOfOrder) return false;
-        if (pendingOrFuture != that.pendingOrFuture) return false;
+        if (pending != that.pending) return false;
+        if (future != that.future) return false;
         if (target != null ? !target.equals(that.target) : that.target != null) return false;
         if (schema != null ? !schema.equals(that.schema) : that.schema != null) return false;
         if (baseline != null ? !baseline.equals(that.baseline) : that.baseline != null) return false;
@@ -82,7 +88,8 @@ public class MigrationInfoContext {
     @Override
     public int hashCode() {
         int result = (outOfOrder ? 1 : 0);
-        result = 31 * result + (pendingOrFuture ? 1 : 0);
+        result = 31 * result + (pending ? 1 : 0);
+        result = 31 * result + (future ? 1 : 0);
         result = 31 * result + (target != null ? target.hashCode() : 0);
         result = 31 * result + (schema != null ? schema.hashCode() : 0);
         result = 31 * result + (baseline != null ? baseline.hashCode() : 0);

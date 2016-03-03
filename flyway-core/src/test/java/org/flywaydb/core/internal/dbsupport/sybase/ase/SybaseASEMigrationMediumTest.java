@@ -174,4 +174,9 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
 	protected String getCommentLocation() {
 		return "migration/dbsupport/sybaseASE/comment";
 	}
+
+    @Ignore("Not needed as Sybase ASE support was first introduced in Flyway 4.0")
+    @Override
+    public void upgradeMetadataTableTo40Format() throws Exception {
+    }
 }

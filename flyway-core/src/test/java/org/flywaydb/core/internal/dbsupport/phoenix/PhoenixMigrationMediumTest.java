@@ -17,12 +17,15 @@ package org.flywaydb.core.internal.dbsupport.phoenix;
 
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.flywaydb.core.DbCategory;
-import org.flywaydb.core.api.*;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.migration.MigrationTestCase;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
@@ -164,5 +167,10 @@ public class PhoenixMigrationMediumTest extends MigrationTestCase {
     @Ignore
     @Override
     public void setCurrentSchema() throws Exception {
+    }
+
+    @Ignore("Not needed as Phoenix support was first introduced in Flyway 4.0")
+    @Override
+    public void upgradeMetadataTableTo40Format() throws Exception {
     }
 }

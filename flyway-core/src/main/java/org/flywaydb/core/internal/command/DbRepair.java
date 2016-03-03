@@ -89,7 +89,7 @@ public class DbRepair {
         this.dbSupport = dbSupport;
         this.connection = connection;
         this.schema = schema;
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true);
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true);
         this.metaDataTable = metaDataTable;
         this.callbacks = callbacks;
     }
@@ -117,28 +117,14 @@ public class DbRepair {
                 public Void doInTransaction() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     metaDataTable.removeFailedMigrations();
-
-                    migrationInfoService.refresh();
-                    for (MigrationInfo migrationInfo : migrationInfoService.all()) {
-                        MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
-
-                        ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
-                        AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
-                        if ((resolved != null) && (applied != null)) {
-                            if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
-                                    && resolved.getVersion() != null) {
-                                metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
-                            }
-                        }
-                    }
-
+                    repairChecksums();
                     return null;
                 }
             });
 
             stopWatch.stop();
 
-            LOG.info("Metadata table " + metaDataTable + " successfully repaired (execution time "
+            LOG.info("Successfully repaired metadata table " + metaDataTable + " (execution time "
                     + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
             if (!dbSupport.supportsDdlTransactions()) {
                 LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
@@ -156,6 +142,22 @@ public class DbRepair {
             }
         } finally {
             dbSupport.restoreCurrentSchema();
+        }
+    }
+
+    public void repairChecksums() {
+        migrationInfoService.refresh();
+        for (MigrationInfo migrationInfo : migrationInfoService.all()) {
+            MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
+
+            ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
+            AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
+            if ((resolved != null) && (applied != null)) {
+                if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
+                        && resolved.getVersion() != null) {
+                    metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
+                }
+            }
         }
     }
 }

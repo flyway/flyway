@@ -233,5 +233,37 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         flyway.validate();
     }
 
-
+	@Override
+	protected void createFlyway3MetadataTable() throws Exception {
+		jdbcTemplate.execute("CREATE TABLESPACE SDBVERS\n" +
+				"     USING STOGROUP SENSITIV PRIQTY -1 SECQTY -1 ERASE NO FREEPAGE 0 PCTFREE 10 DEFINE YES TRACKMOD YES\n" +
+				"       SEGSIZE 64\n" +
+				"     BUFFERPOOL BP3\n" +
+				"     LOCKSIZE  PAGE\n" +
+				"     LOCKMAX SYSTEM\n" +
+				"     CLOSE YES\n" +
+				"     COMPRESS YES\n" +
+				"     CCSID UNICODE");
+		jdbcTemplate.execute("CREATE TABLE \"schema_version\" (\n" +
+				"    \"version_rank\" INT NOT NULL,\n" +
+				"    \"installed_rank\" INT NOT NULL,\n" +
+				"    \"version\" VARCHAR(50) NOT NULL,\n" +
+				"    \"description\" VARCHAR(200) NOT NULL,\n" +
+				"    \"type\" VARCHAR(20) NOT NULL,\n" +
+				"    \"script\" VARCHAR(1000) NOT NULL,\n" +
+				"    \"checksum\" INT,\n" +
+				"    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+				"    \"installed_on\" TIMESTAMP NOT NULL WITH DEFAULT,\n" +
+				"    \"execution_time\" INT NOT NULL,\n" +
+				"    \"success\" SMALLINT NOT NULL,\n" +
+				"    CONSTRAINT \"schema_version_s\" CHECK (\"success\" in(0,1))\n" +
+				")\n" +
+				"IN SDBVERS\n" +
+				"  CCSID UNICODE");
+		jdbcTemplate.execute("CREATE UNIQUE INDEX \"schema_version_VPK_IDX\" \"schema_version\" (\"version\" ASC)");
+		jdbcTemplate.execute("ALTER TABLE \"schema_version\" ADD CONSTRAINT \"schema_version_PK\" PRIMARY KEY (\"version\")");
+		jdbcTemplate.execute("CREATE INDEX \"schema_version_VR_IDX\" ON \"schema_version\" (\"version_rank\")");
+		jdbcTemplate.execute("CREATE INDEX \"schema_version_IR_IDX\" ON \"schema_version\" (\"installed_rank\")");
+		jdbcTemplate.execute("CREATE INDEX \"schema_version_S_IDX\" ON \"schema_version\" (\"success\")");
+	}
 }

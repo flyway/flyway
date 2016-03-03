@@ -27,10 +27,6 @@ import org.flywaydb.core.api.MigrationInfo;
 public class MigrateMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        if (flyway.info().all().length == 0) {
-            log.warn("Possible solution: run mvn compile first so Flyway can find the migrations");
-        }
-
         flyway.migrate();
 
         MigrationInfo current = flyway.info().current();

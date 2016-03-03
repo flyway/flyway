@@ -104,4 +104,11 @@ public interface MetaDataTable {
      * @param checksum The new checksum.
      */
     void updateChecksum(MigrationVersion version, Integer checksum);
+
+    /**
+     * Upgrades the Metadata table to Flyway 4.0 format if necessary.
+     *
+     * @return {@code true} if it was upgraded.
+     */
+    boolean upgradeIfNecessary();
 }

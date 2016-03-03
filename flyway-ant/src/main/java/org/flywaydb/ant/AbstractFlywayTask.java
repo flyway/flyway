@@ -448,6 +448,22 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * Whether to ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one.
+     * <br>Also configurable with Ant Property: ${flyway.ignoreFutureMigrations}
+     *
+     * @param ignoreFutureMigrations {@code true} to continue normally and log a warning, {@code false} to fail
+     *                               fast with an exception. (default: {@code true})
+     */
+    public void setIgnoreFutureMigrations(boolean ignoreFutureMigrations) {
+        flyway.setIgnoreFutureMigrations(ignoreFutureMigrations);
+    }
+
+    /**
      * @param ignoreFailedFutureMigration Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
      *                                    newer deployment of the application that are not yet available in this version. For example: we have migrations
      *                                    available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -455,7 +471,9 @@ public abstract class AbstractFlywayTask extends Task {
      *                                    warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not
      *                                    an option. An older version of the application can then be redeployed, even though a newer one failed due to a
      *                                    bad migration. (default: false)<br>Also configurable with Ant Property: ${flyway.ignoreFailedFutureMigration}
+     * @deprecated Use the more generic <code>setIgnoreFutureMigrations()</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
         flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
     }

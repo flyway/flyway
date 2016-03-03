@@ -266,6 +266,19 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean outOfOrder = flyway.isOutOfOrder();
 
     /**
+     * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
+     * <p>Also configurable with Maven or System Property: ${flyway.ignoreFutureMigrations}</p>
+     *
+     * @parameter property="flyway.ignoreFutureMigrations"
+     */
+    private boolean ignoreFutureMigrations = true;
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -276,8 +289,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.ignoreFailedFutureMigration}</p>
      *
      * @parameter property="flyway.ignoreFailedFutureMigration"
+     *
+     * @deprecated Use the more generic <code>ignoreFutureMigrations</code> instead. Will be removed in Flyway 5.0.
      */
-    private boolean ignoreFailedFutureMigration = flyway.isIgnoreFailedFutureMigration();
+    @Deprecated
+    private boolean ignoreFailedFutureMigration;
 
     /**
      * Whether placeholders should be replaced. (default: true)<br>
@@ -463,10 +479,12 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                         locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
                     }
                 }
-                flyway.setLocations(locations);
             } else {
-                locations = new String[] { Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"};
+                locations = new String[] {
+                        Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"
+                };
             }
+            flyway.setLocations(locations);
             flyway.setResolversAsClassNames(resolvers);
             flyway.setSkipDefaultResolvers(skipDefaultResolvers);
             flyway.setCallbacksAsClassNames(callbacks);
@@ -480,7 +498,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setCleanDisabled(cleanDisabled);
             flyway.setOutOfOrder(outOfOrder);
             flyway.setTargetAsString(target);
-            flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
+            flyway.setIgnoreFutureMigrations(ignoreFutureMigrations);
+            if (ignoreFailedFutureMigration) {
+                flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
+            }
             flyway.setPlaceholderReplacement(placeholderReplacement);
             flyway.setPlaceholderPrefix(placeholderPrefix);
             flyway.setPlaceholderSuffix(placeholderSuffix);

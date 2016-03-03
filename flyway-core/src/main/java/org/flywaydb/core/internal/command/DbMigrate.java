@@ -84,6 +84,11 @@ public class DbMigrate {
     private final Connection connectionUserObjects;
 
     /**
+     * Flag whether to ignore future migrations or not.
+     */
+    private final boolean ignoreFutureMigrations;
+
+    /**
      * Flag whether to ignore failed future migrations or not.
      */
     private final boolean ignoreFailedFutureMigration;
@@ -117,12 +122,13 @@ public class DbMigrate {
      * @param metaDataTable               The database metadata table.
      * @param migrationResolver           The migration resolver.
      * @param target                      The target version of the migration.
+     * @param ignoreFutureMigrations      Flag whether to ignore future migrations or not.
      * @param ignoreFailedFutureMigration Flag whether to ignore failed future migrations or not.
      * @param outOfOrder                  Allows migrations to be run "out of order".
      */
     public DbMigrate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport,
                      MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                     MigrationVersion target, boolean ignoreFailedFutureMigration, boolean outOfOrder,
+                     MigrationVersion target, boolean ignoreFutureMigrations, boolean ignoreFailedFutureMigration, boolean outOfOrder,
                      FlywayCallback[] callbacks) {
         this.connectionMetaDataTable = connectionMetaDataTable;
         this.connectionUserObjects = connectionUserObjects;
@@ -131,6 +137,7 @@ public class DbMigrate {
         this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.target = target;
+        this.ignoreFutureMigrations = ignoreFutureMigrations;
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
         this.outOfOrder = outOfOrder;
         this.callbacks = callbacks;
@@ -168,7 +175,7 @@ public class DbMigrate {
                         metaDataTable.lock();
 
                         MigrationInfoServiceImpl infoService =
-                                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true);
+                                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true);
                         infoService.refresh();
 
                         MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
@@ -205,7 +212,7 @@ public class DbMigrate {
                         if (failed.length > 0) {
                             if ((failed.length == 1)
                                     && (failed[0].getState() == MigrationState.FUTURE_FAILED)
-                                    && ignoreFailedFutureMigration) {
+                                    && (ignoreFutureMigrations || ignoreFailedFutureMigration)) {
                                 LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
                             } else {
                                 throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
@@ -340,7 +347,7 @@ public class DbMigrate {
             dbSupportUserObjects.changeCurrentSchemaTo(schema);
             callback.beforeEachMigrate(connectionUserObjects, migration);
         }
-        
+
         dbSupportUserObjects.changeCurrentSchemaTo(schema);
         migrationExecutor.execute(connectionUserObjects);
         LOG.debug("Successfully completed migration of " + migrationText);

@@ -62,9 +62,9 @@ public class PostgreSQLDbSupport extends DbSupport {
             result = result.substring(1);
         }
         if (result.contains(",")) {
-            return getSchema(result.substring(0, result.indexOf(",")));
+            result = result.substring(0, result.indexOf(","));
         }
-        return getSchema(result);
+        return getSchema(result.trim());
     }
 
     @Override

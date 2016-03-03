@@ -185,6 +185,8 @@ public class Main {
      */
     private static void filterProperties(Properties properties) {
         properties.remove(PROPERTY_JAR_DIRS);
+        properties.remove("flyway.configFile");
+        properties.remove("flyway.configFileEncoding");
     }
 
     /**
@@ -246,6 +248,7 @@ public class Main {
         LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes");
         LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
         LOG.info("validateOnMigrate            : Validate when running migrate");
+        LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
         LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
         LOG.info("cleanDisabled                : Whether to disable clean");
         LOG.info("baselineVersion              : Version to tag schema with when executing baseline");
@@ -263,7 +266,7 @@ public class Main {
         LOG.info("-------");
         LOG.info("flyway -user=myuser -password=s3cr3t -url=jdbc:h2:mem -placeholders.abc=def migrate");
         LOG.info("");
-        LOG.info("More info at http://flywaydb.org/documentation/commandline");
+        LOG.info("More info at https://flywaydb.org/documentation/commandline");
     }
 
     /**
@@ -409,6 +412,11 @@ public class Main {
         Console console = System.console();
         if (console == null) {
             // We are running in an automated build. Prompting is not possible.
+            return;
+        }
+
+        if (!properties.contains("flyway.url")) {
+            // URL is not set. We are doomed for failure anyway.
             return;
         }
 

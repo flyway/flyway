@@ -209,14 +209,16 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
-        if (!context.pendingOrFuture) {
-            if ((resolvedMigration == null)
-                    && (appliedMigration.getType() != MigrationType.SCHEMA)
-                    && (appliedMigration.getType() != MigrationType.BASELINE)
-                    && (appliedMigration.getVersion() != null)) {
-                return "Detected applied migration not resolved locally: " + getVersion();
-            }
+        if ((resolvedMigration == null)
+                && (appliedMigration.getType() != MigrationType.SCHEMA)
+                && (appliedMigration.getType() != MigrationType.BASELINE)
+                && (appliedMigration.getVersion() != null)
+                && (!context.future ||
+                (MigrationState.FUTURE_SUCCESS != getState() && MigrationState.FUTURE_FAILED != getState()))) {
+            return "Detected applied migration not resolved locally: " + getVersion();
+        }
 
+        if (!context.pending) {
             if (MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
                 if (getVersion() != null) {
                     return "Detected resolved migration not applied to database: " + getVersion();
@@ -241,7 +243,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                             appliedMigration.getType(), resolvedMigration.getType());
                 }
                 if (resolvedMigration.getVersion() != null
-                        || (context.pendingOrFuture &&
+                        || (context.pending &&
                         ((MigrationState.OUTDATED != getState()) && (MigrationState.SUPERSEEDED != getState())))) {
                     if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
                         return createMismatchMessage("checksum", migrationIdentifier,

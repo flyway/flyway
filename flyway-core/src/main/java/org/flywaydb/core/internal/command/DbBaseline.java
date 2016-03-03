@@ -137,7 +137,7 @@ public class DbBaseline {
                 }
             });
 
-            LOG.info("Schema baselined with version: " + baselineVersion);
+            LOG.info("Successfully baselined schema with version: " + baselineVersion);
 
             for (final FlywayCallback callback : callbacks) {
                 new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
