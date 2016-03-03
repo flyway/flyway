@@ -112,9 +112,6 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
-        for (Type type : allTypes()) {
-            type.drop();
-        }
     }
 
     /**
