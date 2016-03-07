@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-ALTER TABLE "${schema}"."${table}" RENAME TO "${schema}"."${table}_flyway4_upgrade";
+ALTER TABLE "${schema}"."${table}" RENAME TO "${table}_flyway4_upgrade";
 
 CREATE TABLE "${schema}"."${table}" (
     "installed_rank" INT NOT NULL SORTKEY,
