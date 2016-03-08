@@ -123,6 +123,18 @@ public class FlywaySmallTest {
     }
 
     @Test
+    public void configurePlaceholderReplacement() {
+        Flyway flyway = new Flyway();
+        flyway.configure(new Properties());
+        assertTrue(flyway.isPlaceholderReplacement());
+
+        Properties properties = new Properties();
+        properties.setProperty("flyway.placeholderReplacement", "false");
+        flyway.configure(properties);
+        assertFalse(flyway.isPlaceholderReplacement());
+    }
+
+    @Test
     public void configureCustomMigrationResolvers() {
         Properties properties = new Properties();
         properties.setProperty("flyway.resolvers", MyCustomMigrationResolver.class.getName());
