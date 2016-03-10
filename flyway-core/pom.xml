@@ -380,7 +380,7 @@
                 <dependency>
                     <groupId>com.ibm.db2</groupId>
                     <artifactId>db2jcc</artifactId>
-                    <version>8.1</version>
+                    <version>3.4.65</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>

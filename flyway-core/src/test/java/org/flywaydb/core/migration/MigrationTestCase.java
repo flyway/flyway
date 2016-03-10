@@ -15,6 +15,25 @@
  */
 package org.flywaydb.core.migration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
@@ -38,22 +57,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.junit.Assert.*;
-
 /**
  * Test to demonstrate the migration functionality.
  */
-@SuppressWarnings({"JavaDoc"})
+@SuppressWarnings({ "JavaDoc" })
 public abstract class MigrationTestCase {
     private static final Logger LOG = LoggerFactory.getLogger(MigrationTestCase.class);
 
@@ -95,7 +102,8 @@ public abstract class MigrationTestCase {
     /**
      * Creates the datasource for this testcase based on these optional custom properties from the user home.
      *
-     * @param customProperties The optional custom properties.
+     * @param customProperties
+     *            The optional custom properties.
      * @return The new datasource.
      */
     protected abstract DataSource createDataSource(Properties customProperties) throws Exception;
@@ -108,7 +116,8 @@ public abstract class MigrationTestCase {
     protected void createFlyway3MetadataTable() throws Exception {
     }
 
-    private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank, String version, String description, String type, String script, Integer checksum, String installedBy, int executionTime, boolean success) throws SQLException {
+    private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank, String version, String description, String type, String script, Integer checksum, String installedBy,
+            int executionTime, boolean success) throws SQLException {
         jdbcTemplate.execute("INSERT INTO " + dbSupport.quote("schema_version")
                 + " (" + dbSupport.quote("version_rank")
                 + "," + dbSupport.quote("installed_rank")
@@ -150,7 +159,7 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            //Expected
+            // Expected
         }
 
         LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
@@ -207,7 +216,6 @@ public abstract class MigrationTestCase {
     protected String getBasedir() {
         return BASEDIR;
     }
-
 
     @Test
     public void migrate() throws Exception {
@@ -268,9 +276,10 @@ public abstract class MigrationTestCase {
     /**
      * Compares the DB checksum to the classpath checksum of this migration.
      *
-     * @param migrationInfo The migration to check.
+     * @param migrationInfo
+     *            The migration to check.
      */
-    private void assertChecksum(MigrationInfo migrationInfo) {
+    protected void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
                 dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
                 new Location(getBasedir()),
@@ -375,7 +384,7 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            //Expected
+            // Expected
         }
 
         flyway.setIgnoreFutureMigrations(false);
@@ -387,7 +396,7 @@ public abstract class MigrationTestCase {
                 flyway.migrate();
                 fail();
             } catch (FlywayException e) {
-                //Expected
+                // Expected
             }
         }
     }
@@ -401,7 +410,7 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            //Expected
+            // Expected
         }
 
         flyway.setIgnoreFailedFutureMigration(true);
@@ -418,7 +427,7 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            //Expected
+            // Expected
         }
 
         flyway.setIgnoreFailedFutureMigration(true);

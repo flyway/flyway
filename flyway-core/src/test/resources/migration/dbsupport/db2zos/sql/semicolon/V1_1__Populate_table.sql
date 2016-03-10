@@ -14,4 +14,16 @@
 -- limitations under the License.
 --
 
-CREATE TYPE TEMPERATURE AS DECIMAL(5,2);
+SET CURRENT SQLID = 'AURINT';
+
+CREATE TABLE PERSON (
+    id INT NOT NULL,
+     firstname VARCHAR(255) NOT NULL,
+     lastname VARCHAR(255) NOT NULL
+)
+ IN "AURINT".SPERS;
+
+INSERT INTO PERSON (id,firstname,lastname) VALUES (1, 'Mr.', 'T');
+INSERT INTO PERSON (id,firstname,lastname) VALUES (2, 'Mr.', 'Semicolon;');
+INSERT INTO PERSON (id,firstname,lastname) VALUES (3, 'Mr.', 'Semicolon+Linebreak;
+another line');
