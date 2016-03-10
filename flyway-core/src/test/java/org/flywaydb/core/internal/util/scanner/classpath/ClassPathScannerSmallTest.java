@@ -74,9 +74,7 @@ public class ClassPathScannerSmallTest {
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
         Resource[] resources = classPathScanner.scanForResources(new Location("classpath:migration"), "CheckValidate", ".sql");
-        for (Resource resource : resources) {
-            System.out.println(resource.getLocation());
-        }
+
         // changed to 3 as new test cases are added for SybaseASE and DB2 z/OS
         assertEquals(3, resources.length);
 
