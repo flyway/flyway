@@ -415,7 +415,7 @@ public class Main {
             return;
         }
 
-        if (!properties.contains("flyway.url")) {
+        if (!properties.containsKey("flyway.url")) {
             // URL is not set. We are doomed for failure anyway.
             return;
         }
