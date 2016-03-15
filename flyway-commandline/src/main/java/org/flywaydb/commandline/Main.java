@@ -410,21 +410,22 @@ public class Main {
      */
     private static void promptForCredentialsIfMissing(Properties properties) {
         Console console = System.console();
+
         if (console == null) {
             // We are running in an automated build. Prompting is not possible.
             return;
         }
 
-        if (!properties.containsKey("flyway.url")) {
+        if (!properties.containsKey("flyway.url") || ((String)properties.get("flyway.url")).isEmpty()) {
             // URL is not set. We are doomed for failure anyway.
             return;
         }
 
-        if (!properties.containsKey("flyway.user")) {
+        if (!properties.containsKey("flyway.user") || ((String)properties.get("flyway.user")).isEmpty()) {
             properties.put("flyway.user", console.readLine("Database user: "));
         }
 
-        if (!properties.containsKey("flyway.password")) {
+        if (!properties.containsKey("flyway.password") || ((String)properties.get("flyway.password")).isEmpty()) {
             char[] password = console.readPassword("Database password: ");
             properties.put("flyway.password", password == null ? "" : String.valueOf(password));
         }
