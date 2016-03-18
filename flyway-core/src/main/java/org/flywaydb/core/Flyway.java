@@ -1162,6 +1162,10 @@ public class Flyway implements FlywayConfiguration {
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
         }
+        String placeholderReplacement = getValueAndRemoveEntry(props, "flyway.placeholderReplacement");
+        if(placeholderReplacement != null){
+            setPlaceholderReplacement(Boolean.parseBoolean(placeholderReplacement));
+        }
         String placeholderPrefixProp = getValueAndRemoveEntry(props, "flyway.placeholderPrefix");
         if (placeholderPrefixProp != null) {
             setPlaceholderPrefix(placeholderPrefixProp);
