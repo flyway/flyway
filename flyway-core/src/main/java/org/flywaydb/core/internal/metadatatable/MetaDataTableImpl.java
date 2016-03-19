@@ -64,20 +64,25 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     @Override
-    public boolean upgradeIfNecessary() {
+    public boolean upgradeIfNecessary(boolean autoUpdateMetaDataTable) {
         if (table.exists() && table.hasColumn("version_rank")) {
-            LOG.info("Upgrading metadata table " + table + " to the Flyway 4.0 format ...");
-            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/upgradeMetaDataTable.sql";
-            String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+            if (autoUpdateMetaDataTable) {
+                LOG.info("Upgrading metadata table " + table + " to the Flyway 4.0 format ...");
+                String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/upgradeMetaDataTable.sql";
+                String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
 
-            Map<String, String> placeholders = new HashMap<String, String>();
-            placeholders.put("schema", table.getSchema().getName());
-            placeholders.put("table", table.getName());
-            String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+                Map<String, String> placeholders = new HashMap<String, String>();
+                placeholders.put("schema", table.getSchema().getName());
+                placeholders.put("table", table.getName());
+                String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-            SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-            sqlScript.execute(jdbcTemplate);
-            return true;
+                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                sqlScript.execute(jdbcTemplate);
+                return true;
+            } else {
+                LOG.warn("Metadata table " + table + " has not been updated to the Flyway 4.0 format" +
+                    "and autoUpdateMetaDataTable has been disabled. Flyway may not perform as expected.");
+            }
         }
         return false;
     }

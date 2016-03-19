@@ -27,6 +27,7 @@ import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
@@ -139,6 +140,34 @@ public abstract class MigrationTestCase {
         flyway.validate();
         assertEquals(5, flyway.info().applied().length);
         assertEquals(814278929, flyway.info().applied()[1].getChecksum().intValue());
+    }
+
+    @Test
+    public void autoUpdateMetaDataTable() throws Exception {
+        createFlyway3MetadataTable();
+        jdbcTemplate.execute("CREATE TABLE test_user (\n" +
+            "  id INT NOT NULL,\n" +
+            "  name VARCHAR(25) NOT NULL,\n" +
+            "  PRIMARY KEY(name)\n" +
+            ")");
+        insertIntoFlyway3MetadataTable(jdbcTemplate, 1, 1, "0", "<< Flyway Baseline >>", "BASELINE", "<< Flyway Baseline >>", null, "flyway3", 0, true);
+        insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__First.sql", 1234, "flyway3", 15, true);
+
+        flyway.setLocations(getBasedir());
+        flyway.setAutoUpdateMetaDataTable(false);
+
+        assertEquals(3, flyway.info().pending().length);
+
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("version_rank"));
+
+        try {
+            flyway.validate();
+            fail();
+        } catch (FlywayException e) {
+            // Expected
+        }
+        assertEquals(2, flyway.info().applied().length);
+        assertEquals(1234, flyway.info().applied()[1].getChecksum().intValue());
     }
 
     @Test
