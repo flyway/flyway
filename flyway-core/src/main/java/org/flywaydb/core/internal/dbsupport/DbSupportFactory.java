@@ -131,7 +131,7 @@ public class DbSupportFactory {
         }
 
 		//Sybase ASE support
-        if (databaseProductName.startsWith("ASE")) {
+        if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive")) {
         	return new SybaseASEDbSupport(connection);
         }
         if (databaseProductName.startsWith("HDB")) {
