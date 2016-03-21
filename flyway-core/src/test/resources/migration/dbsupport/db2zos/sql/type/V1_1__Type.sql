@@ -14,14 +14,6 @@
 -- limitations under the License.
 --
 
-   
+SET CURRENT SQLID = 'AURINT';
 
-  INSERT INTO PERSON(id, firstname, lastname) values (1, 'Ole', 'Olsen');
-  INSERT INTO PERSON(id, firstname, lastname) values (2, 'Per', 'Persen');
-  INSERT INTO PERSON(id, firstname, lastname) values (3, 'Nils', 'Nilsen');
-
-  UPDATE PERSON set lastname = 'Hansen' Where id = 1;
-
-  DELETE FROM PERSON WHERE lastname = 'Persen';
-
-
+CREATE TYPE TEMPERATURE AS DECIMAL(5,2);

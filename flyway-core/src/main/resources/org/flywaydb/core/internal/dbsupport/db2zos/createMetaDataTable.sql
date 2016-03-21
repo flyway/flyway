@@ -14,21 +14,17 @@
 -- limitations under the License.
 --
 
-set current sqlid = '${schema}';
+SET CURRENT SQLID = '${schema}';
 
-CREATE TABLESPACE SDBVERS
+CREATE TABLESPACE SFLYWAY
       IN "${schema}"
-     USING STOGROUP SENSITIV PRIQTY -1 SECQTY -1 ERASE NO FREEPAGE 0 PCTFREE 10 DEFINE YES TRACKMOD YES
-       SEGSIZE 64
-     BUFFERPOOL BP3
-     LOCKSIZE  PAGE
-     LOCKMAX SYSTEM
-     CLOSE YES
-     COMPRESS YES
-     CCSID UNICODE
-;
-
-
+      SEGSIZE 4
+      BUFFERPOOL BP0
+      LOCKSIZE PAGE
+      LOCKMAX SYSTEM
+      CLOSE YES
+      COMPRESS YES
+  ;
 
 CREATE TABLE "${schema}"."${table}" (
     "installed_rank" INT NOT NULL,
@@ -43,12 +39,10 @@ CREATE TABLE "${schema}"."${table}" (
     "success" SMALLINT NOT NULL,
     CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
 )
-IN "${schema}".SDBVERS
-  CCSID UNICODE
-;
+IN "${schema}".SFLYWAY;
 
+CREATE UNIQUE INDEX "${schema}"."${table}_IR_IDX" ON "${schema}"."${table}" ("installed_rank");
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_PK" PRIMARY KEY ("installed_rank");
 
 CREATE INDEX "${schema}"."${table}_S_IDX" ON "${schema}"."${table}" ("success");
-
-
+ALTER TABLE "${schema}"."${table}" ADD  CONSTRAINT "${table}_S" CHECK ("success" in(0,1));
