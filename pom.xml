@@ -336,6 +336,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <!-- force transitive dependency of HBase to a version available in Maven Central -->
+                <groupId>sqlline</groupId>
+                <artifactId>sqlline</artifactId>
+                <version>1.1.9</version>
+            </dependency>
+            <dependency>
                 <groupId>com.ibm</groupId>
                 <artifactId>SolidDriver</artifactId>
                 <version>6.5.0.14_IF21</version>

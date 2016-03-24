@@ -75,8 +75,8 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
-    protected boolean isSingleLineComment(String line) {
-        return line.startsWith("--") || line.startsWith("#");
+    protected boolean isSingleLineComment(String token) {
+        return token.startsWith("--") || (token.startsWith("#") && !("#".equals(delimiter.getDelimiter()) && "#".equals(token)));
     }
 
     @Override

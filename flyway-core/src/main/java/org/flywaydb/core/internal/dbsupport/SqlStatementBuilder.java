@@ -77,7 +77,7 @@ public class SqlStatementBuilder {
     /**
      * The current delimiter to look for to terminate the statement.
      */
-    private Delimiter delimiter = getDefaultDelimiter();
+    protected Delimiter delimiter = getDefaultDelimiter();
 
     /**
      * @return The default delimiter for this database.

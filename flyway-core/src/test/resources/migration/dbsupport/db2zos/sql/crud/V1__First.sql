@@ -14,31 +14,12 @@
 -- limitations under the License.
 --
 
-delimiter ;
+SET CURRENT SQLID = 'AURINT';
 
-select 1;
+CREATE TABLE test_user (
+  id INT NOT NULL,
+  name VARCHAR(25) NOT NULL,  -- this is a valid ' comment
+  PRIMARY KEY(name)  /* and so is this ! */
+) IN "AURINT".SPERS;
 
-select 2;
-
-delimiter $$
-
-select 3;
-$$
-
-select 4;
-$$
-
-delimiter #
-
-create procedure init_fact_references()
-  begin
-    start transaction;
-    alter table facts add reference int;
-    update facts set reference = (position + 1) where publication_date is not null;
-    update facts set reference = 0 where publication_date is null;
-    commit;
-  end #
-
-delimiter ;
-
-select 5;
+CREATE UNIQUE INDEX test_user_pk_idx ON test_user (name ASC);

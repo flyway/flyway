@@ -14,40 +14,16 @@
 -- limitations under the License.
 --
 
-CREATE TABLESPACE SPERS
-      IN TESTADM
-     USING STOGROUP SENSITIV PRIQTY -1 SECQTY -1 ERASE NO FREEPAGE 0 PCTFREE 10 DEFINE YES TRACKMOD YES
-       SEGSIZE 64
-     BUFFERPOOL BP3
-     LOCKSIZE  PAGE
-     LOCKMAX SYSTEM
-     CLOSE YES
-     COMPRESS YES
-     CCSID UNICODE
-;
-
+SET CURRENT SQLID = 'AURINT';
 
 CREATE TABLE PERSON (
     id INT NOT NULL,
      firstname VARCHAR(255) NOT NULL,
      lastname VARCHAR(255) NOT NULL
 )
- IN TESTADM.SPERS
-  CCSID UNICODE
-;
+ IN "AURINT".SPERS;
 
 
--- Indekser og constraints
+-- Indexes and constraints
 CREATE UNIQUE INDEX PERSON_pk_idx ON PERSON (id ASC);
 ALTER TABLE PERSON ADD CONSTRAINT PERSON_PK PRIMARY KEY (id);
-
--- Insert data
-INSERT INTO PERSON(id, firstname, lastname) values (1, 'Ole', 'Olsen');
-INSERT INTO PERSON(id, firstname, lastname) values (2, 'Per', 'Persen');
-INSERT INTO PERSON(id, firstname, lastname) values (3, 'Nils', 'Nilsen');
-
--- View
-
-CREATE VIEW PERSON_VIEW AS
-  SELECT ID, FIRSTNAME
-  FROM PERSON

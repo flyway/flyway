@@ -14,31 +14,14 @@
 -- limitations under the License.
 --
 
-delimiter ;
+SET CURRENT SQLID = 'AURINT';
 
-select 1;
+INSERT INTO PERSON(id, firstname, lastname) values (4, 'Ole', 'Olsen');
+INSERT INTO PERSON(id, firstname, lastname) values (5, 'Per', 'Persen');
+INSERT INTO PERSON(id, firstname, lastname) values (6, 'Nils', 'Nilsen');
 
-select 2;
+UPDATE PERSON set lastname = 'Hansen' Where id = 4;
 
-delimiter $$
+DELETE FROM PERSON WHERE lastname = 'Persen';
 
-select 3;
-$$
 
-select 4;
-$$
-
-delimiter #
-
-create procedure init_fact_references()
-  begin
-    start transaction;
-    alter table facts add reference int;
-    update facts set reference = (position + 1) where publication_date is not null;
-    update facts set reference = 0 where publication_date is null;
-    commit;
-  end #
-
-delimiter ;
-
-select 5;

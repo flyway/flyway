@@ -14,31 +14,37 @@
 -- limitations under the License.
 --
 
-delimiter ;
+/*
+   First ' comment
+ */
 
-select 1;
+SET CURRENT SQLID = 'AURINT';
 
-select 2;
+CREATE TABLE PERSON1 (
+  name VARCHAR(25) NOT NULL,
+  -- second '
+  PRIMARY KEY(name)
+) IN "AURINT".SPERS;
 
-delimiter $$
+CREATE TABLE GROUP1 (
+/*
+  third '
+ */
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+) IN "AURINT".SPERS;
 
-select 3;
-$$
+-- 'fourth'
+CREATE TABLE TABLE1 (
+-- ' fifth
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+) IN "AURINT".SPERS;
 
-select 4;
-$$
-
-delimiter #
-
-create procedure init_fact_references()
-  begin
-    start transaction;
-    alter table facts add reference int;
-    update facts set reference = (position + 1) where publication_date is not null;
-    update facts set reference = 0 where publication_date is null;
-    commit;
-  end #
-
-delimiter ;
-
-select 5;
+CREATE TABLE TABLE2 (
+/*'
+  sixth
+ '*/
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+) IN "AURINT".SPERS;

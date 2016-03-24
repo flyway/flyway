@@ -14,31 +14,11 @@
 -- limitations under the License.
 --
 
-delimiter ;
+SET CURRENT SQLID = 'AURINT';
 
-select 1;
-
-select 2;
-
-delimiter $$
-
-select 3;
-$$
-
-select 4;
-$$
-
-delimiter #
-
-create procedure init_fact_references()
-  begin
-    start transaction;
-    alter table facts add reference int;
-    update facts set reference = (position + 1) where publication_date is not null;
-    update facts set reference = 0 where publication_date is null;
-    commit;
-  end #
-
-delimiter ;
-
-select 5;
+CREATE TABLE PERSON (
+    id INT NOT NULL,
+     firstname VARCHAR(255) NOT NULL,
+     lastname VARCHAR(255) NOT NULL
+)
+ IN "AURINT".SPERS;

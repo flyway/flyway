@@ -14,11 +14,11 @@
 -- limitations under the License.
 --
 
+SET CURRENT SQLID = 'AURINT';
 
-CREATE FUNCTION RandInt(core Int)
-RETURNS Int
-NO EXTERNAL ACTION
-not DETERMINISTIC
+CREATE TABLE test_user (
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+) IN "AURINT".SPERS;
 
-RETURN core
-
+CREATE UNIQUE INDEX test_user_pk_idx ON test_user (name ASC);
