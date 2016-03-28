@@ -317,8 +317,7 @@ public class Main {
 
             // see javadoc of listFiles(): null if given path is not a real directory
             if (files == null) {
-                LOG.error("Directory for Java Migrations not found: " + dirName);
-                System.exit(1);
+                LOG.debug("Directory for Java Migrations not found: " + dirName);
             }
 
             for (File file : files) {
