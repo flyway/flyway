@@ -285,10 +285,10 @@ public class Main {
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
             LOG.debug("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
-        }
-
-        for (File file : files) {
-            addJarOrDirectoryToClasspath(file.getPath());
+        }else{
+            for (File file : files) {
+                addJarOrDirectoryToClasspath(file.getPath());
+            }
         }
     }
 
