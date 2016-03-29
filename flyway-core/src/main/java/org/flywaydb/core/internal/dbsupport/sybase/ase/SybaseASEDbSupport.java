@@ -35,8 +35,12 @@ public class SybaseASEDbSupport extends DbSupport {
 	private static final Log LOG = LogFactory.getLog(SybaseASEDbSupport.class);
 	
 	public SybaseASEDbSupport(Connection connection) {
-        super(new JdbcTemplate(connection, Types.NULL));
+		this(connection, Types.NULL);
     }
+
+	public SybaseASEDbSupport(Connection connection, int nullType) {
+		super(new JdbcTemplate(connection, nullType));
+	}
 
 	/* (non-Javadoc)
 	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#getSchema(java.lang.String)

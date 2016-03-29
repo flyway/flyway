@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.dbsupport.saphana.SapHanaDbSupport;
 import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
+import org.flywaydb.core.internal.dbsupport.sybase.asa.SybaseASADbSupport;
 import org.flywaydb.core.internal.dbsupport.sybase.ase.SybaseASEDbSupport;
 import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -134,6 +135,12 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive")) {
         	return new SybaseASEDbSupport(connection);
         }
+
+        // Sybase SQL Anywhere support
+		if (databaseProductName.startsWith("SQL Anywhere")) {
+			return new SybaseASADbSupport(connection);
+		}
+
         if (databaseProductName.startsWith("HDB")) {
         	return new SapHanaDbSupport(connection);
         }
