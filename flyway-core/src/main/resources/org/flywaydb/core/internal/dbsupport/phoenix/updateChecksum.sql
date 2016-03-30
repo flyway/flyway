@@ -16,10 +16,9 @@
 
 
 -- Update checksum for a version
-UPSERT INTO "${schema}"."${table}" (
-    "version",
-    "checksum"
-) VALUES (
-     '${version_val}',
-     ${checksum_val}
-);
+UPSERT INTO "${schema}"."${table}" ("installed_rank", "checksum")
+SELECT
+    "installed_rank",
+    ${checksum_val}
+FROM "${schema}"."${table}"
+WHERE "version" = '${version_val}';
