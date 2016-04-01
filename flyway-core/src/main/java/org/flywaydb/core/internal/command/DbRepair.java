@@ -152,10 +152,11 @@ public class DbRepair {
 
             ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
             AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
+            Integer installedRank = migrationInfoImpl.getInstalledRank();
             if ((resolved != null) && (applied != null)) {
                 if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
                         && resolved.getVersion() != null) {
-                    metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
+                    metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), installedRank, resolved.getChecksum());
                 }
             }
         }
