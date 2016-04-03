@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -85,6 +86,21 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     public void function() throws Exception {
         flyway.setLocations("migration/dbsupport/sqlserver/sql/function");
         flyway.migrate();
+
+        // Test inlined function.
+        jdbcTemplate.execute("INSERT INTO test_data (value) VALUES ('Hello')");
+
+        List<String> reverse = jdbcTemplate.queryForStringList("SELECT * from reverseInlineFunc();");
+        assertEquals(1, reverse.size());
+        assertEquals("olleH", reverse.get(0));
+
+        // Test table valued-function.
+        final int count = 10;
+        List<String> integers = jdbcTemplate.queryForStringList("SELECT * from dbo.positiveIntegers(?)", String.valueOf(count));
+        assertEquals(count, integers.size());
+        for (int i = 1; i <= 10; i++) {
+            assertEquals(i, Integer.parseInt(integers.get(i - 1)));
+        }
 
         flyway.clean();
 
