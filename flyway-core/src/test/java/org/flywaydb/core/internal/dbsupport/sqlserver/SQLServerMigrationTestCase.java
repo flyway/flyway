@@ -19,6 +19,9 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.dbsupport.SqlScript;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -326,6 +329,56 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
       assertTrue(e.getStatement().contains("VALUES(1)"));
     }
   }
+
+    @Test
+    public void msDBToolsIgnoredForEmpty() throws Exception {
+        Schema schema = dbSupport.getOriginalSchema();
+
+        new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/createMSDBTools.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                execute(jdbcTemplate);
+
+        try {
+            assertTrue("MS DB tools must be ignored in empty check.", schema.empty());
+        } finally {
+            try {
+                new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/dropMSDBTools.sql",
+                        Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                        execute(jdbcTemplate);
+            } catch (Exception e) {
+                // Swallow to prevent override of test raised exception.
+            }
+        }
+    }
+
+    @Test
+    public void msDBToolsNotCleared() throws Exception {
+        Schema schema = dbSupport.getOriginalSchema();
+
+        new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/createMSDBTools.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                execute(jdbcTemplate);
+
+        try {
+            final String queryObjectCount = "SELECT COUNT(*) from sys.all_objects";
+
+            int initialObjectsCount = jdbcTemplate.queryForInt(queryObjectCount);
+
+            schema.clean();
+
+            int finalObjectCount = jdbcTemplate.queryForInt(queryObjectCount);
+
+            assertEquals("Cleaning the schema must not delete MS DB Tools objects.", initialObjectsCount, finalObjectCount);
+        } finally {
+            try {
+                new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/dropMSDBTools.sql",
+                        Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                        execute(jdbcTemplate);
+            } catch (Exception e) {
+                // Swallow to prevent override of test raised exception.
+            }
+        }
+    }
 
     @Override
     @Ignore("Not supported on SQL Server")
