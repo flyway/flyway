@@ -205,6 +205,12 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
                 assertTrue(greetings.remove("Hello " + name));
             }
 
+            // User aggregate.
+            greetings = jdbcTemplate.queryForStringList("SELECT dbo.helloAll(name) FROM names");
+
+            assertEquals(1, greetings.size());
+            assertEquals("Hello Dave, Erin, Faythe", greetings.get(0));
+
             flyway.clean();
 
             // Running migrate again on an unclean database, triggers duplicate object exceptions.

@@ -38,6 +38,10 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      */
     private enum ObjectType {
         /**
+         * Aggregate function (CLR).
+         */
+        AGGREGATE("AF"),
+        /**
          * CHECK constraint
          */
         CHECK_CONSTRAINT("C"),
@@ -151,6 +155,8 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
                     "( " +
                     "SELECT t.name FROM sys.types t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id" +
                     " WHERE t.is_user_defined = 1 AND s.name = ? " +
+                    "Union " +
+                    "SELECT name FROM sys.assemblies WHERE is_user_defined=1" +
                     ") R", name);
             empty = objectCount == 0;
         }
@@ -198,7 +204,15 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : cleanAggregates()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : cleanTypes()) {
+            jdbcTemplate.execute(statement);
+        }
+
+        for (String statement : cleanAssemblies()) {
             jdbcTemplate.execute(statement);
         }
 
@@ -345,6 +359,21 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
     }
 
     /**
+     * Cleans the aggregates in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanAggregates() throws SQLException {
+        List<String> statements = new ArrayList<String>();
+        List<DBObject> aggregates = queryDBObjects(ObjectType.AGGREGATE);
+        for (DBObject aggregate : aggregates) {
+            statements.add("DROP AGGREGATE " + dbSupport.quote(name, aggregate.name));
+        }
+        return statements;
+    }
+
+    /**
      * Cleans the views in this schema.
      *
      * @return The drop statements.
@@ -381,7 +410,24 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
         }
         return statements;
     }
+    /**
+     * Cleans the CLR assemblies in this schema.
+     *
+     * @return The drop statements.
+     * @throws SQLException when the clean statements could not be generated.
+     */
+    private List<String> cleanAssemblies() throws SQLException {
 
+        List<String> assemblyNames =
+                jdbcTemplate.queryForStringList(
+                        "SELECT * FROM sys.assemblies WHERE is_user_defined=1"
+                );
+        List<String> statements = new ArrayList<String>();
+        for (String assemblyName : assemblyNames) {
+            statements.add("DROP ASSEMBLY " + dbSupport.quote(assemblyName));
+        }
+        return statements;
+    }
     /**
      * Cleans the synonyms in this schema.ter
      *
