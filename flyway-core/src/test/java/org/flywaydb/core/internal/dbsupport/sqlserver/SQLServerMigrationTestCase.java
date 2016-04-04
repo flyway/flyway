@@ -23,7 +23,9 @@ import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.sql.CallableStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +154,65 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for SQL Server assemblies.
+     */
+    @Test
+    public void assembly() throws Exception {
+
+        CallableStatement stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr enabled', 1; RECONFIGURE;");
+        stmt.execute();
+
+        try {
+
+            flyway.setLocations("migration/dbsupport/sqlserver/sql/assembly");
+            flyway.migrate();
+
+            // CLR procedure.
+            stmt = jdbcTemplate.getConnection().prepareCall("EXEC helloFromProc ?, ?");
+            stmt.setString(1, "Alice");
+            stmt.registerOutParameter(2, Types.VARCHAR);
+            stmt.execute();
+            assertEquals("Hello Alice", stmt.getString(2));
+
+            // CLR function.
+            assertEquals("Hello Bob", jdbcTemplate.queryForString("SELECT dbo.helloFromFunc('Bob');"));
+
+            List<String> greetings = jdbcTemplate.queryForStringList("SELECT * FROM dbo.helloFromTableValuedFunction(3, 'Charlie')");
+            assertEquals(3, greetings.size());
+
+            for (String greeting : greetings) {
+                assertEquals("Hello Charlie", greeting);
+            }
+
+            String[] names = new String[]{"Dave", "Erin", "Faythe"};
+
+            for (String name : names) {
+                jdbcTemplate.execute("INSERT INTO names (name) VALUES (?)", name);
+            }
+
+            // CLR trigger.
+            greetings = jdbcTemplate.queryForStringList("SELECT * FROM triggered_greetings");
+
+            assertEquals(names.length, greetings.size());
+
+            for (String name : names) {
+                assertTrue(greetings.remove("Hello " + name));
+            }
+
+            flyway.clean();
+
+            // Running migrate again on an unclean database, triggers duplicate object exceptions.
+            flyway.migrate();
+        } finally {
+            try {
+                jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr enabled', 0; RECONFIGURE;");
+            } catch (Exception e) {
+                // Swallow.
+            }
+        }
     }
 
     /**
