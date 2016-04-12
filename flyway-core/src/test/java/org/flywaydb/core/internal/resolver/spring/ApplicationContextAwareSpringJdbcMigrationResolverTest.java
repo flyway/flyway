@@ -15,10 +15,13 @@
  */
 package org.flywaydb.core.internal.resolver.spring;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.spring.dummyspring.DummyBean;
 import org.flywaydb.core.internal.resolver.spring.dummyspring.V1__SpringManagedBeanMigration;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.Test;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.annotation.AnnotationConfigUtils;
@@ -33,13 +36,16 @@ import static org.junit.Assert.assertEquals;
  */
 public class ApplicationContextAwareSpringJdbcMigrationResolverTest {
 
+    private final Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader());
+    private final FlywayConfiguration config = FlywayConfigurationForTests.create();
+
     @Test
     public void migrationInApplicationContext_mustBeResolved() {
         final String testPropertyValue = "Test String";
         GenericApplicationContext applicationContext = setupApplicationContext(testPropertyValue);
         ApplicationContextAwareSpringJdbcMigrationResolver applicationContextAwareSpringJdbcMigrationResolver =
-                new ApplicationContextAwareSpringJdbcMigrationResolver(Thread.currentThread().getContextClassLoader(),
-                        new Location("org/flywaydb/core/internal/resolver/spring/dummyspring"), applicationContext);
+                new ApplicationContextAwareSpringJdbcMigrationResolver(scanner,
+                        new Location("org/flywaydb/core/internal/resolver/spring/dummyspring"), config, applicationContext);
 
         Collection<ResolvedMigration> resolvedMigrations = applicationContextAwareSpringJdbcMigrationResolver.resolveMigrations();
 

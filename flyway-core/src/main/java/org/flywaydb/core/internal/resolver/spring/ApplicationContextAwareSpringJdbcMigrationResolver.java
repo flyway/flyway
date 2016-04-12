@@ -15,12 +15,14 @@
  */
 package org.flywaydb.core.internal.resolver.spring;
 
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
@@ -40,13 +42,13 @@ public class ApplicationContextAwareSpringJdbcMigrationResolver extends SpringJd
     /**
      * Creates a new instance.
      *
-     * @param classLoader        The ClassLoader for loading migrations on the classpath.
+     * @param scanner            The scanner used for resources and classes
      * @param location           The base package on the classpath where to migrations are located.
      * @param applicationContext The Spring application context to load the {@link SpringJdbcMigration}s from.
      */
-    public ApplicationContextAwareSpringJdbcMigrationResolver(ClassLoader classLoader, Location location,
-                                                              ApplicationContext applicationContext) {
-        super(classLoader, location);
+    public ApplicationContextAwareSpringJdbcMigrationResolver(Scanner scanner, Location location,
+                                                              FlywayConfiguration configuration, ApplicationContext applicationContext) {
+        super(scanner, location, configuration);
         this.applicationContext = applicationContext;
     }
 
@@ -54,8 +56,7 @@ public class ApplicationContextAwareSpringJdbcMigrationResolver extends SpringJd
     @Override
     public Collection<ResolvedMigration> resolveMigrations() {
         // get all beans of type SpringJdbcMigration from the application context
-        Map<String, SpringJdbcMigration> springJdbcMigrationBeans =
-                (Map<String, SpringJdbcMigration>) this.applicationContext.getBeansOfType(SpringJdbcMigration.class);
+        Map<String, SpringJdbcMigration> springJdbcMigrationBeans = this.applicationContext.getBeansOfType(SpringJdbcMigration.class);
 
         ArrayList<ResolvedMigration> resolvedMigrations = new ArrayList<ResolvedMigration>();
 
