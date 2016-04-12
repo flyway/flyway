@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanRoutines()) {
+        for (String statement : cleanRoutines("procedure")) {
             jdbcTemplate.execute(statement);
         }
 
@@ -90,6 +90,10 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
 
         for (Table table : allTables()) {
             table.drop();
+        }
+
+        for (String statement : cleanRoutines("function")) {
+            jdbcTemplate.execute(statement);
         }
 
         for (String statement : cleanTypes()) {
@@ -164,18 +168,17 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @return The drop statements.
      * @throws SQLException when the clean statements could not be generated.
      */
-    private List<String> cleanRoutines() throws SQLException {
+    private List<String> cleanRoutines(String routineType) throws SQLException {
         @SuppressWarnings({"unchecked"})
         List<Map<String, String>> routineNames =
-                jdbcTemplate.queryForList("SELECT routine_name, routine_type FROM INFORMATION_SCHEMA.ROUTINES" +
-                                " WHERE routine_schema=?",
-                        name
+                jdbcTemplate.queryForList("SELECT routine_name FROM INFORMATION_SCHEMA.ROUTINES" +
+                                " WHERE routine_schema=? AND routine_type=?",
+                        name, routineType
                 );
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : routineNames) {
             String routineName = row.get("routine_name");
-            String routineType = row.get("routine_type");
             statements.add("DROP " + routineType + " " + dbSupport.quote(name, routineName));
         }
         return statements;

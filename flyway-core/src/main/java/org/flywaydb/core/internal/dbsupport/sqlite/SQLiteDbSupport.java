@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,12 +49,12 @@ public class SQLiteDbSupport extends DbSupport {
         return "''";
     }
 
-    protected String doGetCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchemaName() throws SQLException {
         return "main";
     }
 
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         LOG.info("SQLite does not support setting the schema. Default schema NOT changed to " + schema);
     }
 

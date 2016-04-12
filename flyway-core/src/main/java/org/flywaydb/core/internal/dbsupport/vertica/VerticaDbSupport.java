@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -49,27 +50,24 @@ public class VerticaDbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentSchema() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT current_schema()");
+    public Schema getOriginalSchema() {
+        if (originalSchema == null) {
+            return null;
+        }
+
+        String result = originalSchema.replace(doQuote("$user"), "").trim();
+        if (result.startsWith(",")) {
+            result = result.substring(1);
+        }
+        if (result.contains(",")) {
+            return getSchema(result.substring(0, result.indexOf(",")));
+        }
+        return getSchema(result);
     }
 
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
-        if (schema == null) {
-            jdbcTemplate.execute("SET search_path = v_catalog");
-            return;
-        }
-
-        String searchPath = doGetSearchPath();
-        if (StringUtils.hasText(searchPath)) {
-            jdbcTemplate.execute("SET search_path = " + schema + "," + searchPath);
-        } else {
-            jdbcTemplate.execute("SET search_path = " + schema);
-        }
-    }
-
-    String doGetSearchPath() throws SQLException {
-        String searchPath = jdbcTemplate.query("SHOW search_path", new RowMapper<String>() {
+    protected String doGetCurrentSchemaName() throws SQLException {
+        return jdbcTemplate.query("SHOW search_path", new RowMapper<String>() {
             @Override
             public String mapRow(ResultSet rs) throws SQLException {
                 // All "show" commands in Vertica return two columns: "name" and "setting",
@@ -82,7 +80,32 @@ public class VerticaDbSupport extends DbSupport {
             }
 
         }).get(0);
-        return searchPath;
+    }
+
+    @Override
+    public void changeCurrentSchemaTo(Schema schema) {
+        if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
+            return;
+        }
+
+        try {
+            if (StringUtils.hasText(originalSchema)) {
+                doChangeCurrentSchemaTo(schema.toString() + "," + originalSchema);
+            } else {
+                doChangeCurrentSchemaTo(schema.toString());
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Error setting current schema to " + schema, e);
+        }
+    }
+
+    @Override
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
+        if (!StringUtils.hasLength(schema)) {
+            jdbcTemplate.execute("SET search_path = v_catalog");
+            return;
+        }
+        jdbcTemplate.execute("SET search_path = " + schema);
     }
 
     public boolean supportsDdlTransactions() {

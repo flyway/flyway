@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,12 @@ public class SbtLargeTest {
     public void sysPropsOverride() throws Exception {
         String stdOut = runSbt("test1", 0, "-Dflyway.locations=db/migration", "flywayClean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
+    }
+
+    @Test
+    public void useTestScope() throws Exception {
+        String stdOut = runSbt("test1", 0, "-Dflyway.locations=filesystem:src/main/resources/db/migration,filesystem:src/test/resources/db/migration", "test:flywayClean", "test:flywayMigrate");
+        assertTrue(stdOut.contains("Successfully applied 2 migration"));
     }
 
     @Test

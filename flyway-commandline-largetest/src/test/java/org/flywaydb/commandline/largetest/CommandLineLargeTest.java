@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,14 +48,14 @@ public class CommandLineLargeTest {
     @Test
     public void multipleCommands() throws Exception {
         String stdOut = runFlywayCommandLine(0, "largeTest.properties", "clean", "migrate");
-        assertTrue(stdOut.contains("Cleaned schema"));
+        assertTrue(stdOut.contains("Successfully cleaned schema"));
         assertTrue(stdOut.contains("Successfully applied 4 migrations"));
     }
 
     @Test
     public void showUsage() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null);
-        assertTrue(stdOut.contains("* Usage"));
+        assertTrue(stdOut.contains("Usage"));
         assertTrue(stdOut.contains("callback"));
     }
     
@@ -81,7 +81,7 @@ public class CommandLineLargeTest {
     @Test
     public void exitCodeForFailedMigration() throws Exception {
         String stdOut = runFlywayCommandLine(1, "largeTest.properties", "migrate", "-locations=filesystem:sql/invalid");
-        assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 failed!"));
+        assertTrue(stdOut.contains("Migration of schema \"PUBLIC\" to version 1 - Invalid failed!"));
         assertTrue(stdOut.contains("17"));
         assertTrue(stdOut.contains("InVaLiD SqL !!!"));
     }

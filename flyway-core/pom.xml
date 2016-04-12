@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <!--
-    Detailed information how to contribute: http://flywaydb.org/contribute/code/
+    Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
 
     A number of Jdbc drivers are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: http://flywaydb.org/contribute/devEnvironmentSetup.html
+    Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
 
     If your contribution does not require changes to the database-specific code it is also possible to run the build
     without having to install the Jdbc drivers or databases using:
@@ -145,6 +145,34 @@
             <artifactId>jtds</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-it</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-testing-util</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-hadoop-compat</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-hadoop2-compat</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.phoenix</groupId>
+            <artifactId>phoenix-core</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -198,11 +226,19 @@
                             org.flywaydb.core.api.*;version=${project.version}
                         </Export-Package>
                         <Import-Package>
-                            org.springframework.*;version="[2.5,5.0)";resolution:=optional,
+                            android.content;version="[4.0.1.2,5)";resolution:=optional,
+                            android.content.pm;version="[4.0.1.2,5)";resolution:=optional,
+                            android.content.res;version="[4.0.1.2,5)";resolution:=optional,
+                            android.util;version="[4.0.1.2,5)";resolution:=optional,
+                            dalvik.system;version="[4.0.1.2,5)";resolution:=optional,
+                            javax.sql,
                             org.apache.commons.logging;version="[1.1,2)";resolution:=optional,
-                            org.slf4j;version="[1.6,2)";resolution:=optional,
+                            org.jboss.vfs;version="[3.1.0,4)";resolution:=optional,
+                            org.postgresql.copy;version="[9.3.1102,10.0)";resolution:=optional,
+                            org.postgresql.core;version="[9.3.1102,10.0)";resolution:=optional,
                             org.osgi.framework;version="1.3.0";resolution:=mandatory,
-                            javax.sql
+                            org.slf4j;version="[1.6,2)";resolution:=optional,
+                            org.springframework.*;version="[2.5,5.0)";resolution:=optional
                         </Import-Package>
                     </instructions>
                 </configuration>
@@ -256,7 +292,8 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB</excludedGroups>
+                            <!-- Don't run the embedded Phoenix test by default, it has its own profile -->
+                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -272,7 +309,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -299,13 +336,18 @@
                     <artifactId>db2jcc4</artifactId>
                     <scope>test</scope>
                 </dependency>
+                <dependency>
+                    <groupId>com.sap.db.jdbc</groupId>
+                    <artifactId>ngdbc</artifactId>
+                    <scope>test</scope>
+                </dependency>
             </dependencies>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -328,7 +370,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -343,7 +385,7 @@
                 <dependency>
                     <groupId>com.ibm.db2</groupId>
                     <artifactId>db2jcc</artifactId>
-                    <version>8.1</version>
+                    <version>3.4.65</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
@@ -358,7 +400,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -381,7 +423,46 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$DB2zOS</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>PhoenixDBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <!-- When using Phoenix, bring in extra SLF4J logging bridges so we can turn the log levels on Hadoop, HBase, etc. -->
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                    <version>1.7.7</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                    <version>1.7.7</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <!-- Exclude everything but Phoenix -->
+                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$Derby,org.flywaydb.core.DbCategory$H2,org.flywaydb.core.DbCategory$HSQL,org.flywaydb.core.DbCategory$SQLite</excludedGroups>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <!-- Force per-class parallelization -->
+                        <configuration>
+                            <parallel>classes</parallel>
                         </configuration>
                     </plugin>
                 </plugins>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ public class DbCategory {
     public interface H2 extends EmbeddedDB {}
     public interface HSQL extends EmbeddedDB {}
     public interface SQLite extends EmbeddedDB {}
+    public interface Phoenix extends EmbeddedDB {}
 
     public interface MySQL extends OpenSourceDB {}
     public interface MariaDB extends OpenSourceDB {}
@@ -39,10 +40,12 @@ public class DbCategory {
     public interface DB2 extends CommercialDB {}
     public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
-    public interface GoogleCloudSQL extends CommercialDB {}
 
+    public interface GoogleCloudSQL extends ContributorSupportedDB {}
+    public interface SapHana extends ContributorSupportedDB {}
     public interface DB2zOS extends ContributorSupportedDB {}
     public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}
     public interface SolidDB extends ContributorSupportedDB {}
+    public interface SybaseASE extends ContributorSupportedDB {}
 }

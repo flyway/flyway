@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,8 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings({"JavaDoc"})
 public class AntLargeTest {
     @Test
-    public void init() throws Exception {
-        String stdOut = runAnt(0, "init");
+    public void baseline() throws Exception {
+        String stdOut = runAnt(0, "baseline");
         assertTrue(stdOut.contains("A new beginning!"));
     }
 
@@ -66,9 +66,9 @@ public class AntLargeTest {
     @Test
     public void multi() throws Exception {
         String stdOut = runAnt(0, "multi");
-        assertTrue(stdOut.contains("Cleaned schema \"FLYWAY_1\""));
-        assertTrue(stdOut.contains("Cleaned schema \"FLYWAY_2\""));
-        assertTrue(stdOut.contains("Cleaned schema \"FLYWAY_3\""));
+        assertTrue(stdOut.contains("Successfully cleaned schema \"FLYWAY_1\""));
+        assertTrue(stdOut.contains("Successfully cleaned schema \"FLYWAY_2\""));
+        assertTrue(stdOut.contains("Successfully cleaned schema \"FLYWAY_3\""));
         assertTrue(stdOut.contains("Creating Metadata table: \"FLYWAY_1\".\"MASTER_OF_THE_VERSIONS\""));
         assertTrue(stdOut.contains("Successfully applied 3 migrations"));
     }

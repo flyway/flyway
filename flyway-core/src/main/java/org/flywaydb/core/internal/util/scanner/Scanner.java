@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package org.flywaydb.core.internal.util.scanner;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.scanner.android.AndroidScanner;
+import org.flywaydb.core.internal.util.scanner.classpath.ResourceAndClassScanner;
+import org.flywaydb.core.internal.util.scanner.classpath.android.AndroidScanner;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
 import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemScanner;
 
@@ -26,10 +27,18 @@ import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemScanner;
  * Scanner for Resources and Classes.
  */
 public class Scanner {
+    private final ResourceAndClassScanner resourceAndClassScanner;
+
     private final ClassLoader classLoader;
+    private final FileSystemScanner fileSystemScanner = new FileSystemScanner();
 
     public Scanner(ClassLoader classLoader) {
         this.classLoader = classLoader;
+        if (new FeatureDetector(classLoader).isAndroidAvailable()) {
+            resourceAndClassScanner = new AndroidScanner(classLoader);
+        } else {
+            resourceAndClassScanner = new ClassPathScanner(classLoader);
+        }
     }
 
     /**
@@ -43,14 +52,9 @@ public class Scanner {
     public Resource[] scanForResources(Location location, String prefix, String suffix) {
         try {
             if (location.isFileSystem()) {
-                return new FileSystemScanner().scanForResources(location.getPath(), prefix, suffix);
+                return fileSystemScanner.scanForResources(location, prefix, suffix);
             }
-
-            if (new FeatureDetector(classLoader).isAndroidAvailable()) {
-                return new AndroidScanner(classLoader).scanForResources(location.getPath(), prefix, suffix);
-            }
-
-            return new ClassPathScanner(classLoader).scanForResources(location.getPath(), prefix, suffix);
+            return resourceAndClassScanner.scanForResources(location, prefix, suffix);
         } catch (Exception e) {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
         }
@@ -68,10 +72,13 @@ public class Scanner {
      * @throws Exception when the location could not be scanned.
      */
     public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {
-        if (new FeatureDetector(classLoader).isAndroidAvailable()) {
-            return new AndroidScanner(classLoader).scanForClasses(location.getPath(), implementedInterface);
-        }
+        return resourceAndClassScanner.scanForClasses(location, implementedInterface);
+    }
 
-        return new ClassPathScanner(classLoader).scanForClasses(location.getPath(), implementedInterface);
+    /**
+     * @return The class loader used for scanning.
+     */
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 }

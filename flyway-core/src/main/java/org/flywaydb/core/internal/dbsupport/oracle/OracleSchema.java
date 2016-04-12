@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     protected void doCreate() throws SQLException {
         jdbcTemplate.execute("CREATE USER " + dbSupport.quote(name) + " IDENTIFIED BY flyway");
         jdbcTemplate.execute("GRANT RESOURCE TO " + dbSupport.quote(name));
+        jdbcTemplate.execute("GRANT UNLIMITED TABLESPACE TO " + dbSupport.quote(name));
     }
 
     @Override
@@ -70,20 +71,35 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
         }
 
-        jdbcTemplate.execute("PURGE RECYCLEBIN");
+        String user = dbSupport.doGetCurrentSchemaName();
+        boolean defaultSchemaForUser = user.equalsIgnoreCase(name);
 
-        for (String statement : generateDropStatementsForSpatialExtensions()) {
+        if (!defaultSchemaForUser) {
+            LOG.warn("Cleaning schema " + name + " by a different user (" + user + "): " +
+                    "spatial extensions, queue tables, flashback tables and scheduled jobs will not be cleaned due to Oracle limitations");
+        }
+
+        for (String statement : generateDropStatementsForSpatialExtensions(defaultSchemaForUser)) {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : generateDropStatementsForQueueTables()) {
-            //for dropping queue tables, a special grant is required:
-            //GRANT EXECUTE ON DBMS_AQADM TO flyway;
-            jdbcTemplate.execute(statement);
-        }
+        if (defaultSchemaForUser) {
+            for (String statement : generateDropStatementsForQueueTables()) {
+                try {
+                    jdbcTemplate.execute(statement);
+                } catch (SQLException e) {
+                    if (e.getErrorCode() == 65040) {
+                        //for dropping queue tables, a special grant is required:
+                        //GRANT EXECUTE ON DBMS_AQADM TO flyway;
+                        LOG.error("Missing required grant to clean queue tables: GRANT EXECUTE ON DBMS_AQADM");
+                    }
+                    throw e;
+                }
+            }
 
-        if (flashbackAvailable()) {
-            executeAlterStatementsForFlashbackTables();
+            if (flashbackAvailable()) {
+                executeAlterStatementsForFlashbackTables();
+            }
         }
 
         for (String statement : generateDropStatementsForScheduledJobs()) {
@@ -141,6 +157,8 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         for (String statement : generateDropStatementsForObjectType("JAVA SOURCE", "")) {
             jdbcTemplate.execute(statement);
         }
+
+        jdbcTemplate.execute("PURGE RECYCLEBIN");
     }
 
     /**
@@ -228,7 +246,9 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     private List<String> generateDropStatementsForObjectType(String objectType, String extraArguments) throws SQLException {
         String query = "SELECT object_name FROM all_objects WHERE object_type = ? AND owner = ?"
                 // Ignore Spatial Index Sequences as they get dropped automatically when the index gets dropped.
-                + " AND object_name NOT LIKE 'MDRS_%$'";
+                + " AND object_name NOT LIKE 'MDRS_%$'"
+                // Ignore Oracle 12 Identity Sequences as they get dropped automatically when the recycle bin gets purged.
+                + " AND object_name NOT LIKE 'ISEQ$$_%'";
 
         List<String> objectNames = jdbcTemplate.queryForStringList(query, objectType, name);
         List<String> dropStatements = new ArrayList<String>();
@@ -241,17 +261,18 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     /**
      * Generates the drop statements for Oracle Spatial Extensions-related database objects.
      *
+     * @param defaultSchemaForUser Whether we are currently cleaning the default schema for the logged in user.
      * @return The complete drop statements, ready to execute.
      * @throws SQLException when the drop statements could not be generated.
      */
-    private List<String> generateDropStatementsForSpatialExtensions() throws SQLException {
+    private List<String> generateDropStatementsForSpatialExtensions(boolean defaultSchemaForUser) throws SQLException {
         List<String> statements = new ArrayList<String>();
 
         if (!spatialExtensionsAvailable()) {
             LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
             return statements;
         }
-        if (!dbSupport.getCurrentSchema().getName().equalsIgnoreCase(name)) {
+        if (!dbSupport.getCurrentSchemaName().equalsIgnoreCase(name)) {
             int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", name);
             count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", name);
             if (count > 0) {
@@ -260,12 +281,13 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             return statements;
         }
 
+        if (defaultSchemaForUser) {
+            statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
 
-        statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
-
-        List<String> indexNames = jdbcTemplate.queryForStringList("select INDEX_NAME from USER_SDO_INDEX_INFO");
-        for (String indexName : indexNames) {
-            statements.add("DROP INDEX \"" + indexName + "\"");
+            List<String> indexNames = jdbcTemplate.queryForStringList("select INDEX_NAME from USER_SDO_INDEX_INFO");
+            for (String indexName : indexNames) {
+                statements.add("DROP INDEX \"" + indexName + "\"");
+            }
         }
 
         return statements;
@@ -280,7 +302,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     private List<String> generateDropStatementsForScheduledJobs() throws SQLException {
         List<String> statements = new ArrayList<String>();
 
-        List<String> jobNames = jdbcTemplate.queryForStringList("select JOB_NAME from USER_SCHEDULER_JOBS");
+        List<String> jobNames = jdbcTemplate.queryForStringList("select JOB_NAME from ALL_SCHEDULER_JOBS WHERE owner=?", name);
         for (String jobName : jobNames) {
             statements.add("begin DBMS_SCHEDULER.DROP_JOB(job_name => '" + jobName + "', defer => false, force => true); end;");
         }
@@ -318,22 +340,32 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     @Override
     protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
-                "SELECT table_name FROM all_tables WHERE owner = ?"
+                // For every table this query will count the number of references (including the transitive ones)
+                // and order the result list using that value.
+                " SELECT r FROM" +
+                        "   (SELECT CONNECT_BY_ROOT t r FROM" +
+                        "     (SELECT DISTINCT c1.table_name f, NVL(c2.table_name, at.table_name) t" +
+                        "     FROM all_constraints c1" +
+                        "       RIGHT JOIN all_constraints c2 ON c2.constraint_name = c1.r_constraint_name" +
+                        "       RIGHT JOIN all_tables at ON at.table_name = c2.table_name" +
+                        "     WHERE at.owner = ?" +
                         // Ignore Recycle bin objects
-                        + " AND table_name NOT LIKE 'BIN$%'"
+                        "       AND at.table_name NOT LIKE 'BIN$%'" +
                         // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
-                        + " AND table_name NOT LIKE 'MDRT_%$'"
+                        "       AND at.table_name NOT LIKE 'MDRT_%$'" +
                         // Ignore Materialized View Logs
-                        + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
+                        "       AND at.table_name NOT LIKE 'MLOG$%' AND at.table_name NOT LIKE 'RUPD$%'" +
                         // Ignore Oracle Text Index Tables
-                        + " AND table_name NOT LIKE 'DR$%'"
+                        "       AND at.table_name NOT LIKE 'DR$%'" +
                         // Ignore Index Organized Tables
-                        + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
+                        "       AND at.table_name NOT LIKE 'SYS_IOT_OVER_%'" +
                         // Ignore Nested Tables
-                        + " AND nested != 'YES'"
+                        "       AND at.nested != 'YES'" +
                         // Ignore Nested Tables
-                        + " AND secondary != 'Y'", name
-        );
+                        "       AND at.secondary != 'Y')" +
+                        "   CONNECT BY NOCYCLE PRIOR f = t)" +
+                        " GROUP BY r" +
+                        " ORDER BY COUNT(*)", name);
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {

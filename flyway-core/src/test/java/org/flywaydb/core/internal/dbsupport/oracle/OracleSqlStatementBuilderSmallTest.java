@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,12 @@ import static org.junit.Assert.*;
  */
 public class OracleSqlStatementBuilderSmallTest {
     private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder();
+
+    @Test
+    public void setDefineOff() {
+        builder.addLine("set define off;");
+        assertTrue(builder.canDiscard());
+    }
 
     @Test
     public void changeDelimiterRegEx() {
@@ -65,6 +71,18 @@ public class OracleSqlStatementBuilderSmallTest {
     @Test
     public void quotedStringEndingWithN() {
         builder.addLine("insert into table (COLUMN) values 'VALUE_WITH_N';");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void quotedWithFrom() {
+        builder.addLine("insert into table (COLUMN) values 'FROM';");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void quotedWithFromComplex() {
+        builder.addLine("DELETE FROM TEST.TABLE1 where CFG_AREA_ID_1 like '%NAME%' AND SOME_ID='NITS'AND CFG_AREA_CD IN ('COND_TXT','FORM');");
         assertTrue(builder.isTerminated());
     }
 }

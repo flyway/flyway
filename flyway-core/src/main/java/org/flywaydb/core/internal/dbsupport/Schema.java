@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -253,6 +253,9 @@ public abstract class Schema<S extends DbSupport> {
         return new Function[0];
     }
 
+    /**
+     * @return The quoted name of the schema.
+     */
     @Override
     public String toString() {
         return dbSupport.quote(name);

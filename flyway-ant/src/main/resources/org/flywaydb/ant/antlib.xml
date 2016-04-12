@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 
-    Copyright 2010-2015 Axel Fontaine
+    Copyright 2010-2016 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 <antlib>
     <taskdef name="clean" classname="org.flywaydb.ant.CleanTask"/>
     <taskdef name="baseline" classname="org.flywaydb.ant.BaselineTask"/>
-    <taskdef name="init" classname="org.flywaydb.ant.InitTask"/>
     <taskdef name="migrate" classname="org.flywaydb.ant.MigrateTask"/>
     <taskdef name="validate" classname="org.flywaydb.ant.ValidateTask"/>
     <taskdef name="info" classname="org.flywaydb.ant.InfoTask"/>

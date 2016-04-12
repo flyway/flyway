@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import java.sql.SQLException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLTable;
+import org.flywaydb.core.internal.dbsupport.Table;
 
 /**
  * Redshift-specific table.
  */
-public class RedshiftTable extends PostgreSQLTable {
+public class RedshiftTable extends Table {
     /**
      * Creates a new PostgreSQL table.
      *
@@ -36,6 +36,16 @@ public class RedshiftTable extends PostgreSQLTable {
      */
     public RedshiftTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
+    }
+
+    @Override
+    protected void doDrop() throws SQLException {
+        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name) + " CASCADE");
+    }
+
+    @Override
+    protected boolean doExists() throws SQLException {
+        return exists(null, schema, name);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.flywaydb.core.internal.util;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Stop watch, inspired by the implementation in the Spring framework.
@@ -33,20 +35,20 @@ public class StopWatch {
      * Starts the stop watch.
      */
     public void start() {
-        start = System.currentTimeMillis();
+        start = System.nanoTime();
     }
 
     /**
      * Stops the stop watch.
      */
     public void stop() {
-        stop = System.currentTimeMillis();
+        stop = System.nanoTime();
     }
 
     /**
      * @return The total run time in millis of the stop watch between start and stop calls.
      */
     public long getTotalTimeMillis() {
-        return stop - start;
+        return TimeUnit.NANOSECONDS.toMillis(stop - start);
     }
 }

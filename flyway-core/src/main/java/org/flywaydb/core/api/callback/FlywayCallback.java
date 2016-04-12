@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,20 @@
 package org.flywaydb.core.api.callback;
 
 import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
 
 import java.sql.Connection;
 
 /**
  * This is the main callback interface that should be implemented to get access to flyway lifecycle notifications.
- * Simply add code to the callback method you are interested in having.
+ * Simply add code to the callback method you are interested in having. A convenience implementation will all methods
+ * doing nothing is provided with {@link BaseFlywayCallback}. To ensure backward compatibility, you are encouraged
+ * to subclass that class instead of implementing this interface directly.
+ *
+ * <p>If a callback also implements the {@link ConfigurationAware} interface,
+ * a {@link org.flywaydb.core.api.configuration.FlywayConfiguration} object will automatically be injected before
+ * calling any methods, giving the callback access to the core flyway configuration. {@link BaseFlywayCallback}
+ * already implements {@link ConfigurationAware}</p>
  *
  * <p>Each callback method will run within its own transaction.</p>
  * 
@@ -99,24 +107,6 @@ public interface FlywayCallback {
 	 * @param connection A valid connection to the database.
 	 */
 	void afterBaseline(Connection connection);
-
-	/**
-	 * Runs before the baseline task executes.
-	 *
-	 * @param connection A valid connection to the database.
-	 * @deprecated Will be removed in Flyway 4.0. Use beforeBaseline() instead.
-	 */
-	@Deprecated
-	void beforeInit(Connection connection);
-
-	/**
-	 * Runs after the baseline task executes.
-	 *
-	 * @param connection A valid connection to the database.
-	 * @deprecated Will be removed in Flyway 4.0. Use afterBaseline() instead.
-	 */
-	@Deprecated
-	void afterInit(Connection connection);
 
 	/**
 	 * Runs before the repair task executes.

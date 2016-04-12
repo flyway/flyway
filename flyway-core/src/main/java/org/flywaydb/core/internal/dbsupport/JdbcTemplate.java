@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -248,7 +248,11 @@ public class JdbcTemplate {
                     warning = warning.getNextWarning();
                 }
                 // retrieve all results to ensure all errors are detected
-                while (hasResults || statement.getUpdateCount() != -1) {
+                int updateCount = -1;
+                while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {
+                    if (updateCount != -1) {
+                        LOG.debug("Update Count: " + updateCount);
+                    }
                     hasResults = statement.getMoreResults();
                 }
             }

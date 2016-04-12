@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,6 @@ public enum MigrationState {
      * This migration has not been applied yet, and won't be applied because target is set to a lower version.
      */
     ABOVE_TARGET(">Target", true, false, false),
-
-    /**
-     * This migration was not applied against this DB, because the metadata table was baselined with a higher version.
-     * @deprecated Will be removed in Flyway 4.0. Use BELOW_BASELINE instead.
-     */
-    @Deprecated
-    PREINIT("<Baseln", true, false, false),
 
     /**
      * This migration was not applied against this DB, because the metadata table was baselined with a higher version.
@@ -112,7 +105,17 @@ public enum MigrationState {
      * It most likely failed during the installation of a future version of this deployable.
      * </p>
      */
-    FUTURE_FAILED("FutFail", false, true, true);
+    FUTURE_FAILED("FutFail", false, true, true),
+
+    /**
+     * This is a repeatable migration that is outdated and should be re-applied.
+     */
+    OUTDATED("Outdate", true, true, false),
+
+    /**
+     * This is a repeatable migration that is outdated and has already been superseeded by a newer run.
+     */
+    SUPERSEEDED("Superse", true, true, false);
 
     /**
      * The name suitable for display to the end-user.

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.flywaydb.core.Flyway;
  * Maven goal that drops all database objects (tables, views, procedures, triggers, ...) in the configured schemas.
  * The schemas are cleaned in the order specified by the {@code schemas} property..
  *
- * @phase pre-integration-test
+ * @phase clean
  * @goal clean
  * @since 0.7
  */

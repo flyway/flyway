@@ -1,7 +1,8 @@
-# Flyway [![Build Status](https://travis-ci.org/flyway/flyway.png)](https://travis-ci.org/flyway/flyway)
+# [Flyway](https://flywaydb.org) by [Boxfuse](https://boxfuse.com) [![Build Status](https://travis-ci.org/flyway/flyway.png)](https://travis-ci.org/flyway/flyway) [![Maven Central](https://img.shields.io/maven-central/v/org.flywaydb/flyway-core.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.flywaydb.flyway-core%22) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+
 ### Database Migrations Made Easy.
 
-![alt text](http://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
+![Flyway](https://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
 
 #### Evolve your database schema easily and reliably across all your instances.
 Simple, focused and powerful.
@@ -19,13 +20,16 @@ Oracle, SQL Server, SQL Azure, DB2, DB2 z/OS, MySQL, MariaDB, Google Cloud SQL, 
 Grails, Play!, Grunt, Griffon, Ninja, ...
 
 ## Documentation
-http://flywaydb.org
+https://flywaydb.org
 
 ## How to contribute
-http://flywaydb.org/contribute/
+https://flywaydb.org/documentation/contribute/
+
+## About
+Flyway is brought to you by [Axel Fontaine](https://axelfontaine.com) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](https://flywaydb.org/documentation/contribute/hallOfFame.html).
 
 ## License
-Copyright (C) 2010-2015 Axel Fontaine
+Copyright (C) 2010-2016 [Boxfuse GmbH](https://boxfuse.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,4 +44,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ## Trademark
-Flyway is a registered trademark of Boxfuse GmbH.
+Flyway is a registered trademark of [Boxfuse GmbH](https://boxfuse.com).

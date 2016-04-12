@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -14,26 +14,21 @@
 -- limitations under the License.
 --
 
-set current sqlid = '${schema}';
+SET CURRENT SQLID = '${schema}';
 
-CREATE TABLESPACE SDBVERS
+CREATE TABLESPACE SFLYWAY
       IN "${schema}"
-     USING STOGROUP SENSITIV PRIQTY -1 SECQTY -1 ERASE NO FREEPAGE 0 PCTFREE 10 DEFINE YES TRACKMOD YES
-       SEGSIZE 64
-     BUFFERPOOL BP3
-     LOCKSIZE  PAGE
-     LOCKMAX SYSTEM
-     CLOSE YES
-     COMPRESS YES
-     CCSID UNICODE
-;
-
-
+      SEGSIZE 4
+      BUFFERPOOL BP0
+      LOCKSIZE PAGE
+      LOCKMAX SYSTEM
+      CLOSE YES
+      COMPRESS YES
+  ;
 
 CREATE TABLE "${schema}"."${table}" (
-    "version_rank" INT NOT NULL,
     "installed_rank" INT NOT NULL,
-    "version" VARCHAR(50) NOT NULL,
+    "version" VARCHAR(50),
     "description" VARCHAR(200) NOT NULL,
     "type" VARCHAR(20) NOT NULL,
     "script" VARCHAR(1000) NOT NULL,
@@ -44,16 +39,10 @@ CREATE TABLE "${schema}"."${table}" (
     "success" SMALLINT NOT NULL,
     CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
 )
-IN "${schema}".SDBVERS
-  CCSID UNICODE
-;
+IN "${schema}".SFLYWAY;
 
--- Indekser og constraints
-CREATE UNIQUE INDEX "${schema}"."${table}_VPK_IDX" ON ${schema}."${table}" ("version" ASC);
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_PK" PRIMARY KEY ("version");
+CREATE UNIQUE INDEX "${schema}"."${table}_IR_IDX" ON "${schema}"."${table}" ("installed_rank");
+ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_PK" PRIMARY KEY ("installed_rank");
 
-CREATE INDEX "${schema}"."${table}_VR_IDX" ON "${schema}"."${table}" ("version_rank");
-CREATE INDEX "${schema}"."${table}_IR_IDX" ON "${schema}"."${table}" ("installed_rank");
 CREATE INDEX "${schema}"."${table}_S_IDX" ON "${schema}"."${table}" ("success");
-
-
+ALTER TABLE "${schema}"."${table}" ADD  CONSTRAINT "${table}_S" CHECK ("success" in(0,1));

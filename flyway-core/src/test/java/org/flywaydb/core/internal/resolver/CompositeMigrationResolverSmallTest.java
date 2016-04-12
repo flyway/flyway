@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,10 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,11 +36,13 @@ import static org.junit.Assert.assertTrue;
 public class CompositeMigrationResolverSmallTest {
     @Test
     public void resolveMigrationsMultipleLocations() {
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.create();
+
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                Thread.currentThread().getContextClassLoader(),
+                new Scanner(Thread.currentThread().getContextClassLoader()), config,
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
+                "UTF-8", "V", "R", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
@@ -74,6 +74,39 @@ public class CompositeMigrationResolverSmallTest {
 
         Collection<ResolvedMigration> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
         assertEquals(2, migrations.size());
+    }
+
+    /**
+     * Checks that migrations are properly collected, eliminating all exact duplicates.
+     */
+    @Test
+    public void collectMigrationsExactDuplicatesInDifferentLocations() {
+        MigrationResolver migrationResolver = new MigrationResolver() {
+            public List<ResolvedMigration> resolveMigrations() {
+                ResolvedMigrationImpl testMigration = createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234);
+                testMigration.setPhysicalLocation("abc");
+                ResolvedMigrationImpl testMigration2 = createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234);
+                testMigration2.setPhysicalLocation("xyz");
+
+                List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+                migrations.add(testMigration);
+                migrations.add(testMigration2);
+                return migrations;
+            }
+        };
+        MigrationResolver migrationResolver2 = new MigrationResolver() {
+            public List<ResolvedMigration> resolveMigrations() {
+                List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+
+                ResolvedMigrationImpl testMigration = createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234);
+                testMigration.setPhysicalLocation("def");
+                migrations.add(testMigration);
+                return migrations;
+            }
+        };
+        Collection<MigrationResolver> migrationResolvers = Arrays.asList(migrationResolver, migrationResolver2);
+        Collection<ResolvedMigration> migrations = CompositeMigrationResolver.collectMigrations(migrationResolvers);
+        assertEquals(1, migrations.size());
     }
 
     @Test
@@ -108,6 +141,21 @@ public class CompositeMigrationResolverSmallTest {
         CompositeMigrationResolver.checkForIncompatibilities(migrations);
     }
 
+    @Test
+    public void skipDefaultResolvers() {
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.create();
+        config.setSkipDefaultResolvers(true);
+
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
+                new Scanner(Thread.currentThread().getContextClassLoader()), config,
+                new Locations("migration/outoforder", "org/flywaydb/core/internal/resolver/jdbc/dummy"),
+                "UTF-8", "V", "R", "__", ".sql", PlaceholderReplacer.NO_PLACEHOLDERS);
+
+        Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
+
+        assertTrue(migrations.isEmpty());
+    }
+
     /**
      * Creates a migration for our tests.
      *
@@ -127,5 +175,4 @@ public class CompositeMigrationResolverSmallTest {
         migration.setType(aMigrationType);
         return migration;
     }
-
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,26 +129,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The version to tag an existing schema with when executing baseline. (default: 1)<br/>
-     * <p>Also configurable with Maven or System Property: ${flyway.initVersion}</p>
-     *
-     * @parameter property="flyway.initVersion"
-     * @deprecated Use baselineVersion instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    private String initVersion;
-
-    /**
-     * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)<br>
-     * <p>Also configurable with Maven or System Property: ${flyway.initDescription}</p>
-     *
-     * @parameter property="flyway.initDescription"
-     * @deprecated Use baselineDescription instead. Will be removed in Flyway 4.0.
-     */
-    @Deprecated
-    private String initDescription;
-
-    /**
-     * The version to tag an existing schema with when executing baseline. (default: 1)<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.baselineVersion}</p>
      *
      * @parameter property="flyway.baselineVersion"
@@ -165,22 +145,31 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * Locations on the classpath to scan recursively for migrations. Locations may contain both sql
-     * and java-based migrations. (default: db/migration)
+     * and java-based migrations. (default: filesystem:src/main/resources/db/migration)
      * <p>Also configurable with Maven or System Property: ${flyway.locations} (Comma-separated list)</p>
      *
      * @parameter
      */
-    private String[] locations = flyway.getLocations();
+    private String[] locations;
 
     /**
-     * The fully qualified class names of the custom MigrationResolvers to be used in addition to the built-in ones for
-     * resolving Migrations to apply.
+     * The fully qualified class names of the custom MigrationResolvers to be used in addition or as replacement
+     * (if skipDefaultResolvers is true) to the built-in ones for resolving Migrations to apply.
      * <p>(default: none)</p>
      * <p>Also configurable with Maven or System Property: ${flyway.resolvers} (Comma-separated list)</p>
      *
      * @parameter
      */
     private String[] resolvers = new String[0];
+
+    /**
+     * When set to true, default resolvers are skipped, i.e. only custom resolvers as defined by 'resolvers'
+     * are used. (default: false)<br> <p>Also configurable with Maven or System Property:
+     * ${flyway.skipDefaultResolvers}</p>
+     *
+     * @parameter property="flyway.skipDefaultResolvers"
+     */
+    private boolean skipDefaultResolvers;
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
@@ -200,6 +189,17 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @parameter property="flyway.sqlMigrationPrefix"
      */
     private String sqlMigrationPrefix = flyway.getSqlMigrationPrefix();
+
+    /**
+     * The file name prefix for repeatable sql migrations (default: R) <p>Also configurable with Maven or System Property:
+     * ${flyway.repeatableSqlMigrationPrefix}</p>
+     *
+     * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+     * which using the defaults translates to R__My_description.sql</p>
+     *
+     * @parameter property="flyway.repeatableSqlMigrationPrefix"
+     */
+    private String repeatableSqlMigrationPrefix = flyway.getRepeatableSqlMigrationPrefix();
 
     /**
      * The file name separator for Sql migrations (default: __) <p>Also configurable with Maven or System Property:
@@ -237,6 +237,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean cleanOnValidationError = flyway.isCleanOnValidationError();
 
     /**
+     * Whether to disable clean. (default: {@code false})
+     * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.cleanDisabled}</p>
+     *
+     * @parameter property="flyway.cleanDisabled"
+     */
+    private boolean cleanDisabled;
+
+    /**
      * The target version up to which Flyway should consider migrations.
      * Migrations with a higher version number will be ignored.
      * The special value {@code current} designates the current version of the schema. (default: the latest version)
@@ -257,6 +266,19 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean outOfOrder = flyway.isOutOfOrder();
 
     /**
+     * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
+     * newer deployment of the application that are not yet available in this version. For example: we have migrations
+     * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
+     * (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy
+     * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
+     * <p>Also configurable with Maven or System Property: ${flyway.ignoreFutureMigrations}</p>
+     *
+     * @parameter property="flyway.ignoreFutureMigrations"
+     */
+    private boolean ignoreFutureMigrations = true;
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -267,8 +289,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.ignoreFailedFutureMigration}</p>
      *
      * @parameter property="flyway.ignoreFailedFutureMigration"
+     *
+     * @deprecated Use the more generic <code>ignoreFutureMigrations</code> instead. Will be removed in Flyway 5.0.
      */
-    private boolean ignoreFailedFutureMigration = flyway.isIgnoreFailedFutureMigration();
+    @Deprecated
+    private boolean ignoreFailedFutureMigration;
 
     /**
      * Whether placeholders should be replaced. (default: true)<br>
@@ -312,25 +337,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String[] callbacks = new String[0];
 
     /**
-     * <p>
-     * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
-     * This schema will then be baselined with the {@code initialVersion} before executing the migrations.
-     * Only migrations above {@code initialVersion} will then be applied.
-     * </p>
-     * <p>
-     * This is useful for initial Flyway production deployments on projects with an existing DB.
-     * </p>
-     * <p>
-     * Be careful when enabling this as it removes the safety net that ensures
-     * Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})
-     * </p>
-     * <p>Also configurable with Maven or System Property: ${flyway.initOnMigrate}</p>
+     * When set to true, default callbacks are skipped, i.e. only custom callbacks as defined by 'resolvers'
+     * are used. (default: false)<br> <p>Also configurable with Maven or System Property:
+     * ${flyway.skipDefaultCallbacks}</p>
      *
-     * @parameter property="flyway.initOnMigrate"
-     * @deprecated Use baselineOnMigrate instead. Will be removed in Flyway 4.0.
+     * @parameter property="flyway.skipDefaultCallbacks"
      */
-    @Deprecated
-    private Boolean initOnMigrate;
+    private boolean skipDefaultCallbacks;
 
     /**
      * <p>
@@ -449,14 +462,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setClassLoader(Thread.currentThread().getContextClassLoader());
             flyway.setSchemas(schemas);
             flyway.setTable(table);
-            if (initVersion != null) {
-                log.warn("flyway.initVersion is deprecated. Use baselineVersion instead. Will be removed in Flyway 4.0.");
-                flyway.setBaselineVersionAsString(initVersion);
-            }
-            if (initDescription != null) {
-                log.warn("flyway.initDescription is deprecated. Use baselineDescription instead. Will be removed in Flyway 4.0.");
-                flyway.setBaselineDescription(initDescription);
-            }
             if (baselineVersion != null) {
                 flyway.setBaselineVersionAsString(baselineVersion);
             }
@@ -474,26 +479,33 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                         locations[i] = Location.FILESYSTEM_PREFIX + file.getAbsolutePath();
                     }
                 }
-                flyway.setLocations(locations);
+            } else {
+                locations = new String[] {
+                        Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"
+                };
             }
+            flyway.setLocations(locations);
             flyway.setResolversAsClassNames(resolvers);
+            flyway.setSkipDefaultResolvers(skipDefaultResolvers);
             flyway.setCallbacksAsClassNames(callbacks);
+            flyway.setSkipDefaultCallbacks(skipDefaultCallbacks);
             flyway.setEncoding(encoding);
             flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
+            flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
             flyway.setCleanOnValidationError(cleanOnValidationError);
+            flyway.setCleanDisabled(cleanDisabled);
             flyway.setOutOfOrder(outOfOrder);
             flyway.setTargetAsString(target);
-            flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
+            flyway.setIgnoreFutureMigrations(ignoreFutureMigrations);
+            if (ignoreFailedFutureMigration) {
+                flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
+            }
             flyway.setPlaceholderReplacement(placeholderReplacement);
             flyway.setPlaceholderPrefix(placeholderPrefix);
             flyway.setPlaceholderSuffix(placeholderSuffix);
 
-            if (initOnMigrate != null) {
-                log.warn("flyway.initOnMigrate is deprecated. Use baselineOnMigrate instead. Will be removed in Flyway 4.0.");
-                flyway.setBaselineOnMigrate(initOnMigrate);
-            }
             if (baselineOnMigrate != null) {
                 flyway.setBaselineOnMigrate(baselineOnMigrate);
             }

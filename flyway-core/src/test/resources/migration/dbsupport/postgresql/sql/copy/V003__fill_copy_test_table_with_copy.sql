@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -34,6 +34,13 @@ COPY copy_test (c1, c2, c3) FROM stdin;
 1	utf8: ümlaute: äüß	NaN
 2	\N	123
 3	text	123.234444444444449
+\.
+
+COPY copy_test (c1, c2, c3)
+  FROM stdin;
+4	utf8: ümlaute: äüß	NaN
+5	\N	123
+6	text	123.234444444444449
 \.
 
 

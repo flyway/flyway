@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
 --
 
 CREATE TABLE "${schema}"."${table}" (
-    "version_rank" INT NOT NULL,
     "installed_rank" INT NOT NULL,
-    "version" VARCHAR(50) NOT NULL,
+    "version" VARCHAR(50),
     "description" VARCHAR(200) NOT NULL,
     "type" VARCHAR(20) NOT NULL,
     "script" VARCHAR(1000) NOT NULL,
@@ -29,8 +28,6 @@ CREATE TABLE "${schema}"."${table}" (
 ) WITH (
   OIDS=FALSE
 );
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("version");
+ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
 
-CREATE INDEX "${table}_vr_idx" ON "${schema}"."${table}" ("version_rank");
-CREATE INDEX "${table}_ir_idx" ON "${schema}"."${table}" ("installed_rank");
 CREATE INDEX "${table}_s_idx" ON "${schema}"."${table}" ("success");

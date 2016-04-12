@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.MigrationVersion;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * The current context of the migrations.
  */
@@ -27,9 +30,14 @@ public class MigrationInfoContext {
     public boolean outOfOrder;
 
     /**
-     * Whether pending or future migrations are allowed.
+     * Whether pending migrations are allowed.
      */
-    public boolean pendingOrFuture;
+    public boolean pending;
+
+    /**
+     * Whether future migrations are allowed.
+     */
+    public boolean future;
 
     /**
      * The migration target.
@@ -40,14 +48,6 @@ public class MigrationInfoContext {
      * The SCHEMA migration version that was applied.
      */
     public MigrationVersion schema;
-
-    /**
-     * The INIT migration version that was applied.
-     *
-     * @deprecated Will be removed in Flyway 4.0. Use baseline instead.
-     */
-    @Deprecated
-    public MigrationVersion init;
 
     /**
      * The BASELINE migration version that was applied.
@@ -64,34 +64,38 @@ public class MigrationInfoContext {
      */
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
 
-    @SuppressWarnings("SimplifiableIfStatement")
+    public Map<String, Integer> latestRepeatableRuns = new HashMap<String, Integer>();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MigrationInfoContext context = (MigrationInfoContext) o;
+        MigrationInfoContext that = (MigrationInfoContext) o;
 
-        if (outOfOrder != context.outOfOrder) return false;
-        if (pendingOrFuture != context.pendingOrFuture) return false;
-        if (schema != null ? !schema.equals(context.schema) : context.schema != null) return false;
-        if (init != null ? !init.equals(context.init) : context.init != null) return false;
-        if (baseline != null ? !baseline.equals(context.baseline) : context.baseline != null) return false;
-        if (!lastApplied.equals(context.lastApplied)) return false;
-        if (!lastResolved.equals(context.lastResolved)) return false;
-        return target.equals(context.target);
+        if (outOfOrder != that.outOfOrder) return false;
+        if (pending != that.pending) return false;
+        if (future != that.future) return false;
+        if (target != null ? !target.equals(that.target) : that.target != null) return false;
+        if (schema != null ? !schema.equals(that.schema) : that.schema != null) return false;
+        if (baseline != null ? !baseline.equals(that.baseline) : that.baseline != null) return false;
+        if (lastResolved != null ? !lastResolved.equals(that.lastResolved) : that.lastResolved != null) return false;
+        if (lastApplied != null ? !lastApplied.equals(that.lastApplied) : that.lastApplied != null) return false;
+        return latestRepeatableRuns.equals(that.latestRepeatableRuns);
+
     }
 
     @Override
     public int hashCode() {
         int result = (outOfOrder ? 1 : 0);
-        result = 31 * result + (pendingOrFuture ? 1 : 0);
-        result = 31 * result + target.hashCode();
+        result = 31 * result + (pending ? 1 : 0);
+        result = 31 * result + (future ? 1 : 0);
+        result = 31 * result + (target != null ? target.hashCode() : 0);
         result = 31 * result + (schema != null ? schema.hashCode() : 0);
-        result = 31 * result + (init != null ? init.hashCode() : 0);
         result = 31 * result + (baseline != null ? baseline.hashCode() : 0);
-        result = 31 * result + lastResolved.hashCode();
-        result = 31 * result + lastApplied.hashCode();
+        result = 31 * result + (lastResolved != null ? lastResolved.hashCode() : 0);
+        result = 31 * result + (lastApplied != null ? lastApplied.hashCode() : 0);
+        result = 31 * result + latestRepeatableRuns.hashCode();
         return result;
     }
 }

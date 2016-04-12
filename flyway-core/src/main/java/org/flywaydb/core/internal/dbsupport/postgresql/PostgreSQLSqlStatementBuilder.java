@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,11 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     private boolean firstLine = true;
 
     /**
+     * The copy statement seen so far.
+     */
+    private String copyStatement;
+
+    /**
      * Whether this statement is a COPY statement.
      */
     private boolean pgCopy;
@@ -57,19 +62,29 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (pgCopy) {
+            return COPY_DELIMITER;
+        }
+
         if (firstLine) {
             firstLine = false;
             if (line.matches("COPY|COPY\\s.*")) {
-                pgCopy = true;
-                return COPY_DELIMITER;
+                copyStatement = line;
             }
+        } else if (copyStatement != null) {
+            copyStatement += " " + line;
         }
 
-        return pgCopy ? COPY_DELIMITER : delimiter;
+        if (copyStatement != null && copyStatement.contains(" FROM STDIN")) {
+            pgCopy = true;
+            return COPY_DELIMITER;
+        }
+
+        return delimiter;
     }
 
     @Override
-    public boolean isPgCopy() {
+    public boolean isPgCopyFromStdIn() {
         return pgCopy;
     }
 }

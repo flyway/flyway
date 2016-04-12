@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import sbt.Keys._
 import sbt._
-import scala._
-import Keys._
-import scala.xml.{XML, Source}
+
+import scala.xml.{Source, XML}
 
 object FlywayPluginBuild extends Build {
 
@@ -26,7 +26,7 @@ object FlywayPluginBuild extends Build {
   lazy val project = Project (
     "project",
     file ("."),
-    settings = Defaults.defaultSettings ++ Seq(
+    settings = Defaults.coreDefaultSettings ++ Seq(
       sbtPlugin := true,
       name := "flyway-sbt",
       organization := "org.flywaydb",

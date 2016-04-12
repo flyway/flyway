@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ public class OracleDbSupport extends DbSupport {
         super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
-
     public String getDbName() {
         return "oracle";
     }
@@ -47,12 +46,12 @@ public class OracleDbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchemaName() throws SQLException {
         return jdbcTemplate.queryForString("SELECT USER FROM dual");
     }
 
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + schema);
     }
 

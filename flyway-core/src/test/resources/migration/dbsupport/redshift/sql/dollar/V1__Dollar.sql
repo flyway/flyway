@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -21,26 +21,3 @@ INSERT INTO dollar VALUES($abc$Hello 'quotes' and $'s$abc$);
 INSERT INTO dollar VALUES($$Hello ''quotes'$$);
 INSERT INTO dollar VALUES($$Hello $quotes$ $$);
 INSERT INTO dollar VALUES($abc$Hello $$quotes$$ $abc$);
-
-INSERT INTO dollar VALUES($$Hello '
-multi-line
-quotes;
-'$$);
-
-INSERT INTO dollar VALUES($$Hello
-multi-line
-quotes;
-$$);
-
-INSERT INTO dollar VALUES($abc$Hello ';
-multi-line;
-quotes;
-$abc$);
-
-INSERT INTO dollar VALUES(
-$abc$
-Hello ;
-multi-line;
-quotes;
-$abc$
-);

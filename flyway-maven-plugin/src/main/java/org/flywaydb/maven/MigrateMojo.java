@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,11 @@ import org.flywaydb.core.api.MigrationInfo;
 public class MigrateMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
-        if (flyway.info().all().length == 0) {
-            log.warn("Possible solution: run mvn compile first so Flyway can find the migrations");
-        }
-
         flyway.migrate();
 
         MigrationInfo current = flyway.info().current();
-        String currentVersion = current == null ? null : current.getVersion().toString();
-        mavenProject.getProperties().setProperty("flyway.current", currentVersion);
+        if (current != null) {
+            mavenProject.getProperties().setProperty("flyway.current", current.getVersion().toString());
+        }
     }
 }

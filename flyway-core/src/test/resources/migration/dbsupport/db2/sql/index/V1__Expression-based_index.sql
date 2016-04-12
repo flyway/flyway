@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -19,3 +19,5 @@ CREATE TABLE CUSTOMER (
 );
 
 CREATE INDEX IDX_CUSTOMER_NAME ON CUSTOMER(LOWER(FIRSTNAME) ASC);
+CREATE INDEX IX_CUSTOMER_NAME ON CUSTOMER(LOWER(FIRSTNAME) ASC);
+CREATE INDEX I_CUSTOMER_NAME ON CUSTOMER(LOWER(FIRSTNAME) ASC);

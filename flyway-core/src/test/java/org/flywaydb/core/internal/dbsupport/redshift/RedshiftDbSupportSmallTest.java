@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.junit.Test;
 public class RedshiftDbSupportSmallTest {
     @Test
     public void doQuote() {
-        RedshiftDbSupport dbSupport = new RedshiftDbSupport(null);
+        RedshiftDbSupport dbSupport = new RedshfitDbSupportViaPostgreSQLDriver(null);
         assertEquals("\"abc\"", dbSupport.doQuote("abc"));
         assertEquals("\"a\"\"b\"\"c\"", dbSupport.doQuote("a\"b\"c"));
     }

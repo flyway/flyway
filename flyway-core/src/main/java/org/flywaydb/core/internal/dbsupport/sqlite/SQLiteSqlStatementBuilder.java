@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,27 @@ package org.flywaydb.core.internal.dbsupport.sqlite;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * SqlStatementBuilder supporting H2-specific delimiter changes.
  */
 public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
     /**
-     * Are we inside a BEGIN block.
+     * Holds the beginning of the statement.
      */
-    private boolean insideBeginEndBlock;
+    private String statementStart = "";
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (line.contains("BEGIN")) {
-            insideBeginEndBlock = true;
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
+            statementStart += line;
+            statementStart += " ";
+            statementStart = statementStart.replaceAll("\\s+", " ");
         }
+        boolean createTriggerStatement = statementStart.matches("CREATE( TEMP| TEMPORARY)? TRIGGER.*");
 
-        if (line.endsWith("END;")) {
-            insideBeginEndBlock = false;
-        }
-
-        if (insideBeginEndBlock) {
+        if (createTriggerStatement && !line.endsWith("END;")) {
             return null;
         }
         return getDefaultDelimiter();

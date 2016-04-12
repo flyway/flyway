@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class HsqlDbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchemaName() throws SQLException {
         ResultSet resultSet = null;
         String schema = null;
 
@@ -68,7 +68,7 @@ public class HsqlDbSupport extends DbSupport {
     }
 
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 

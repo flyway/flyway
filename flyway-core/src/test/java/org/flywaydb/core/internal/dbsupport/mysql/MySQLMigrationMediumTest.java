@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:mysql://localhost/", "flyway", "flyway");
         flyway.setSchemas("flyway_db");
-        flyway.setLocations(BASEDIR);
+        flyway.setLocations(getBasedir());
         flyway.clean();
         assertEquals(4, flyway.migrate());
     }

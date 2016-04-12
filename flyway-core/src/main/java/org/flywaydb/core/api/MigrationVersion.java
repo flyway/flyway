@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      *                a marker for the latest version that has been applied to the database.
      * @return The MigrationVersion
      */
+    @SuppressWarnings("ConstantConditions")
     public static MigrationVersion fromVersion(String version) {
         if ("current".equalsIgnoreCase(version)) return CURRENT;
         if (LATEST.getVersion().equals(version)) return LATEST;
@@ -127,6 +128,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         return versionParts == null ? 0 : versionParts.hashCode();
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(MigrationVersion o) {
         if (o == null) {
             return 1;

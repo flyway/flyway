@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ BEGIN
   IF monthly_value <= 4000 THEN  /* for the poor */
      ILevel := 'Low Income';
 
-  ELSIF monthly_value > 4000 and monthly_value <= 7000 THEN /* for the middle class */
+  ELSIF monthly_value > 4000 and/*and weekly_value*/monthly_value <= 7000 THEN /* for the middle class */
      ILevel := 'Avg Income';
 
-  ELSIF monthly_value > 7000 and monthly_value <= 15000 THEN /* for the well-off */
+  ELSIF monthly_value > 7000 and/* /* */monthly_value <= 15000 THEN /* for the well-off */
      ILevel := 'Moderate Income';
 
   ELSE /* for the rich */

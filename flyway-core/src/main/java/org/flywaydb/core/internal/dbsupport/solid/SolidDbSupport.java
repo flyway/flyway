@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,12 +54,12 @@ public class SolidDbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchemaName() throws SQLException {
         return jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA()");
     }
 
     @Override
-    protected void doSetCurrentSchema(final Schema schema) throws SQLException {
+    protected void doChangeCurrentSchemaTo(final String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 

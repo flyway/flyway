@@ -1,5 +1,5 @@
 @REM
-@REM Copyright 2010-2015 Axel Fontaine
+@REM Copyright 2010-2016 Boxfuse GmbH
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ setlocal
 @REM Set the current directory to the installation directory
 set INSTALLDIR=%~dp0
 
-if exist %INSTALLDIR%\jre\bin\java.exe (
- set JAVA_CMD=%INSTALLDIR%\jre\bin\java.exe
+if exist "%INSTALLDIR%\jre\bin\java.exe" (
+ set JAVA_CMD="%INSTALLDIR%\jre\bin\java.exe"
 ) else (
  @REM Use JAVA_HOME if it is set
  if "%JAVA_HOME%"=="" (

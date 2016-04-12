@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,5 +86,11 @@ public class PlaceholderReplacerSmallTest {
         Map<String, String> placeholders = new HashMap<String, String>();
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
         placeholderReplacer.replacePlaceholders(TEST_STR + TEST_STR);
+    }
+
+    @Test
+    public void noPlaceholders() {
+        PlaceholderReplacer placeholderReplacer = PlaceholderReplacer.NO_PLACEHOLDERS;
+        assertEquals(TEST_STR, placeholderReplacer.replacePlaceholders(TEST_STR));
     }
 }

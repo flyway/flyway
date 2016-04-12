@@ -1,5 +1,3 @@
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.2")
-
 addSbtPlugin("org.flywaydb" % "flyway-sbt" % "0-SNAPSHOT")
 
 libraryDependencies ++= Seq(

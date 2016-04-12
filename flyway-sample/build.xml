@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 
-    Copyright 2010-2015 Axel Fontaine
+    Copyright 2010-2016 Boxfuse GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@
         <jar destfile="target/jar/flyway-sample.jar" basedir="target/build"/>
     </target>
 
-    <target name="init-flyway" depends="compile">
+    <target name="baseline-flyway" depends="compile">
         <taskdef uri="antlib:org.flywaydb.ant"
                  resource="org/flywaydb/ant/antlib.xml"
                  classpathref="lib.path"/>
@@ -89,7 +89,7 @@
         <property name="flyway.locations" value="db/migration,org.flywaydb.sample.migration"/>
     </target>
 
-    <target name="init" depends="init-flyway" description="Runs flyway:init">
+    <target name="baseline" depends="init-flyway" description="Runs flyway:baseline">
         <flyway:init/>
     </target>
 

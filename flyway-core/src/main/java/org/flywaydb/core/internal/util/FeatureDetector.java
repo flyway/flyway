@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ public final class FeatureDetector {
      */
     public boolean isOsgiFrameworkAvailable() {
         if (osgiFrameworkAvailable == null) {
-            osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle", classLoader);
+            osgiFrameworkAvailable = ClassUtils.isPresent("org.osgi.framework.Bundle", FeatureDetector.class.getClassLoader());
             LOG.debug("OSGi framework available: " + osgiFrameworkAvailable);
         }
 

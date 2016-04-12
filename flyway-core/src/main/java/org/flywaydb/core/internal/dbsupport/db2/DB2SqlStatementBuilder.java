@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,14 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
      * Holds the beginning of the statement.
      */
     private String statementStart = "";
+
+    @Override
+    protected String cleanToken(String token) {
+        if (token.startsWith("X'")) {
+            return token.substring(token.indexOf("'"));
+        }
+        return super.cleanToken(token);
+    }
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {

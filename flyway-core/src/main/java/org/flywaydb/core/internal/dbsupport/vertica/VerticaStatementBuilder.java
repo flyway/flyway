@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ public class VerticaStatementBuilder extends PostgreSQLSqlStatementBuilder {
             statementStart += " ";
         }
 
-        if (statementStart.startsWith("CREATE FUNCTION")) {
+        if (statementStart.startsWith("CREATE FUNCTION")
+                || statementStart.startsWith("CREATE OR REPLACE FUNCTION")) {
             if (line.startsWith("BEGIN") || line.endsWith("BEGIN")) {
                 insideBeginEndBlock = true;
             }

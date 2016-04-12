@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +51,12 @@ public class SQLServerDbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentSchema() throws SQLException {
+    protected String doGetCurrentSchemaName() throws SQLException {
         return jdbcTemplate.queryForString("SELECT SCHEMA_NAME()");
     }
 
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
         // Not currently supported.
         // See http://connect.microsoft.com/SQLServer/feedback/details/390528/t-sql-statement-for-changing-default-schema-context

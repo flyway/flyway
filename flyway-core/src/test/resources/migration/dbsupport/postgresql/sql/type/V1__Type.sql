@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
 
 CREATE TYPE my_type AS (my_type_id integer);
 
+CREATE TYPE """my_type2""" AS (my_type_id integer);
+
 CREATE TYPE bug_status AS ENUM ('new', 'open', 'closed');
+
+CREATE TYPE """bug_status2""" AS ENUM ('new', 'open', 'closed');
 
 

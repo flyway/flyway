@@ -11,3 +11,4 @@ target
 .metadata
 .idea
 .gradle
+*.h2.db

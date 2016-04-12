@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.util.Date;
+
+import static org.junit.Assert.assertTrue;
 
 public class MigrationInfoImplSmallTest {
     @Test
@@ -35,13 +38,28 @@ public class MigrationInfoImplSmallTest {
         resolvedMigration.setType(type);
         resolvedMigration.setChecksum(456);
 
-        AppliedMigration appliedMigration = new AppliedMigration(version, description, type, null, 123, 0, true);
+        AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, true);
 
         MigrationInfoImpl migrationInfo =
-                new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext());
+                new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext(), false);
         String message = migrationInfo.validate();
 
         assertTrue(message.contains("123"));
         assertTrue(message.contains("456"));
+    }
+
+    @Test
+    public void validateFuture() {
+        MigrationVersion version = MigrationVersion.fromVersion("1");
+        String description = "test";
+        MigrationType type = MigrationType.SQL;
+
+        AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, true);
+
+        MigrationInfoImpl migrationInfo =
+                new MigrationInfoImpl(null, appliedMigration, new MigrationInfoContext(), false);
+        String message = migrationInfo.validate();
+
+        assertTrue(message, message.contains("not resolved"));
     }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class MigrationInfoDumperSmallTest {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
                         createMigrationResolver(createAvailableMigration("1"), createAvailableMigration("2.2014.09.11.55.45613")),
-                        createMetaDataTable(), MigrationVersion.LATEST, false, true);
+                        createMetaDataTable(), MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
 
         String table = MigrationInfoDumper.dumpToAsciiTable(migrationInfoService.all());

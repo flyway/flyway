@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.flywaydb.gradle.task
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.callback.FlywayCallback
 import org.flywaydb.core.api.FlywayException
+import org.flywaydb.core.internal.util.Location
 import org.flywaydb.core.internal.util.StringUtils
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource
 import org.flywaydb.gradle.FlywayExtension
@@ -26,9 +27,6 @@ import org.gradle.api.tasks.TaskAction
 
 /**
  * A base class for all flyway tasks.
- *
- * @author Ben Manes (ben.manes@gmail.com)
- * @author Allan Morstein (alkamo@gmail.com)
  */
 abstract class AbstractFlywayTask extends DefaultTask {
     /**
@@ -43,11 +41,6 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
     AbstractFlywayTask() {
         group = 'Flyway'
-        project.afterEvaluate {
-            if (isJavaProject()) {
-                this.dependsOn(project.tasks.testClasses)
-            }
-        }
         extension = project.flyway
     }
 
@@ -86,11 +79,6 @@ abstract class AbstractFlywayTask extends DefaultTask {
         def flyway = new Flyway()
         flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), prop("driver"), prop("url"), prop("user"), prop("password")))
 
-        // Deprecated
-        propSet(flyway, 'initVersion')
-        propSet(flyway, 'initDescription')
-        propSetAsBoolean(flyway, 'initOnMigrate')
-
         propSet(flyway, 'table')
 
         String baselineVersion = prop('baselineVersion')
@@ -100,10 +88,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         propSet(flyway, 'baselineDescription')
         propSet(flyway, 'sqlMigrationPrefix')
+        propSet(flyway, 'repeatableSqlMigrationPrefix')
         propSet(flyway, 'sqlMigrationSeparator')
         propSet(flyway, 'sqlMigrationSuffix')
         propSet(flyway, 'encoding')
-        propSet(flyway, 'placeholderReplacement')
+        propSetAsBoolean(flyway, 'placeholderReplacement')
         propSet(flyway, 'placeholderPrefix')
         propSet(flyway, 'placeholderSuffix')
 
@@ -115,7 +104,11 @@ abstract class AbstractFlywayTask extends DefaultTask {
         propSetAsBoolean(flyway, 'outOfOrder')
         propSetAsBoolean(flyway, 'validateOnMigrate')
         propSetAsBoolean(flyway, 'cleanOnValidationError')
+        propSetAsBoolean(flyway, 'ignoreFutureMigrations')
+        propSetAsBoolean(flyway, 'cleanDisabled')
         propSetAsBoolean(flyway, 'baselineOnMigrate')
+        propSetAsBoolean(flyway, 'skipDefaultResolvers')
+        propSetAsBoolean(flyway, 'skipDefaultCallbacks')
 
         def sysSchemas = System.getProperty("flyway.schemas")
         if (sysSchemas != null) {
@@ -126,6 +119,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
             flyway.schemas = extension.schemas
         }
 
+        flyway.setLocations(Location.FILESYSTEM_PREFIX + project.projectDir + '/src/main/resources/db/migration')
         def sysLocations = System.getProperty("flyway.locations")
         if (sysLocations != null) {
             flyway.locations = StringUtils.tokenizeToStringArray(sysLocations, ",")

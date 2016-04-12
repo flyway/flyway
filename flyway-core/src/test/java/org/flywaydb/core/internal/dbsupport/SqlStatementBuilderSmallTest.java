@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
+import org.flywaydb.core.internal.dbsupport.db2.DB2SqlStatementBuilder;
+import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosSqlStatementBuilder;
+import org.flywaydb.core.internal.dbsupport.derby.DerbySqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.h2.H2SqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleSqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLSqlStatementBuilder;
@@ -126,6 +129,30 @@ public class SqlStatementBuilderSmallTest {
         assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "SELECT'HELLO SELECT'FROM DUAL;"));
         assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "SELECT'FROM 'FROM DUAL;"));
         assertFalse(endsWithOpenMultilineStringLiteral(new OracleSqlStatementBuilder(), "SELECT' 'FROM DUAL;"));
+    }
+
+    @Test
+    public void db2EndsWithOpenMultilineStringLiteral() {
+        assertFalse(endsWithOpenMultilineStringLiteral(new DB2SqlStatementBuilder(), "SELECT' 'FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DB2SqlStatementBuilder(), "SELECT '123' FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DB2SqlStatementBuilder(), "SELECT X'0123' FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DB2SqlStatementBuilder(), "SELECT X'0123',X'0456' FROM DUAL;"));
+    }
+
+    @Test
+    public void db2zosEndsWithOpenMultilineStringLiteral() {
+        assertFalse(endsWithOpenMultilineStringLiteral(new DB2zosSqlStatementBuilder(), "SELECT' 'FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DB2zosSqlStatementBuilder(), "SELECT '123' FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DB2zosSqlStatementBuilder(), "SELECT X'0123' FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DB2zosSqlStatementBuilder(), "SELECT X'0123',X'0456' FROM DUAL;"));
+    }
+
+    @Test
+    public void derbyEndsWithOpenMultilineStringLiteral() {
+        assertFalse(endsWithOpenMultilineStringLiteral(new DerbySqlStatementBuilder(), "SELECT' 'FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DerbySqlStatementBuilder(), "SELECT '123' FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DerbySqlStatementBuilder(), "SELECT X'0123' FROM DUAL;"));
+        assertFalse(endsWithOpenMultilineStringLiteral(new DerbySqlStatementBuilder(), "SELECT X'0123',X'0456' FROM DUAL;"));
     }
 
     @Test

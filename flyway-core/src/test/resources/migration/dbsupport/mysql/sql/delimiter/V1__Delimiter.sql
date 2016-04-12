@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2015 Axel Fontaine
+-- Copyright 2010-2016 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -27,3 +27,18 @@ $$
 
 select 4;
 $$
+
+delimiter #
+
+create procedure init_fact_references()
+  begin
+    start transaction;
+    alter table facts add reference int;
+    update facts set reference = (position + 1) where publication_date is not null;
+    update facts set reference = 0 where publication_date is null;
+    commit;
+  end #
+
+delimiter ;
+
+select 5;

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,23 @@ public class SQLServerSqlStatementBuilderSmallTest {
     public void go() {
         String sqlScriptSource = "DROP VIEW dbo.TESTVIEW\n" +
                 "GO\n";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
+    public void likeNoSpace() {
+        String sqlScriptSource = "ALTER TRIGGER CUSTOMER_INSERT ON CUSTOMER AFTER\n" +
+                "INSERT AS\n" +
+                "BEGIN\n" +
+                "    SELECT TOP 1 1 FROM CUSTOMER WHERE [name] LIKE'%test';\n" +
+                "END\n" +
+                "GO";
 
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         for (String line : lines) {

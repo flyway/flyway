@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,16 @@ package org.flywaydb.core.internal.dbsupport.h2;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -48,7 +51,15 @@ public class H2MigrationMediumTest extends MigrationTestCase {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:mysql_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setSchemas("mysql_schema");
-        flyway.init();
+        flyway.baseline();
+    }
+
+    @Test
+    public void mysqlModePublic() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:mysql_public_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setSchemas("PUBLIC");
+        flyway.baseline();
     }
 
     @Test
@@ -92,5 +103,26 @@ public class H2MigrationMediumTest extends MigrationTestCase {
 
         flyway.clean();
         flyway.migrate();
+    }
+
+    @Override
+    protected void createFlyway3MetadataTable() throws Exception {
+        jdbcTemplate.executeStatement("CREATE TABLE \"schema_version\" (\n" +
+                "    \"version_rank\" INT NOT NULL,\n" +
+                "    \"installed_rank\" INT NOT NULL,\n" +
+                "    \"version\" VARCHAR(50) NOT NULL,\n" +
+                "    \"description\" VARCHAR(200) NOT NULL,\n" +
+                "    \"type\" VARCHAR(20) NOT NULL,\n" +
+                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
+                "    \"checksum\" INT,\n" +
+                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+                "    \"installed_on\" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
+                "    \"execution_time\" INT NOT NULL,\n" +
+                "    \"success\" BOOLEAN NOT NULL\n" +
+                ")");
+        jdbcTemplate.executeStatement("ALTER TABLE  \"schema_version\" ADD CONSTRAINT \"schema_version_pk\" PRIMARY KEY (\"version\")");
+        jdbcTemplate.executeStatement("CREATE INDEX \"schema_version_vr_idx\" ON \"schema_version\" (\"version_rank\")");
+        jdbcTemplate.executeStatement("CREATE INDEX \"schema_version_ir_idx\" ON \"schema_version\" (\"installed_rank\")");
+        jdbcTemplate.executeStatement("CREATE INDEX \"schema_version_s_idx\" ON \"schema_version\" (\"success\")");
     }
 }

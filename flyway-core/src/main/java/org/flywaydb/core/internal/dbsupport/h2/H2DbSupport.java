@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,26 +47,12 @@ public class H2DbSupport extends DbSupport {
         return "USER()";
     }
 
-    protected String doGetCurrentSchema() throws SQLException {
-        ResultSet resultSet = null;
-        String schema = null;
-        try {
-            resultSet = jdbcTemplate.getMetaData().getSchemas();
-            while (resultSet.next()) {
-                if (resultSet.getBoolean("IS_DEFAULT")) {
-                    schema = resultSet.getString("TABLE_SCHEM");
-                    break;
-                }
-            }
-        } finally {
-            JdbcUtils.closeResultSet(resultSet);
-        }
-
-        return schema;
+    protected String doGetCurrentSchemaName() throws SQLException {
+        return jdbcTemplate.queryForString("CALL SCHEMA()");
     }
 
     @Override
-    protected void doSetCurrentSchema(Schema schema) throws SQLException {
+    protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
 

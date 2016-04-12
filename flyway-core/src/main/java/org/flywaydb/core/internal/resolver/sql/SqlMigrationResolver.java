@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
@@ -29,6 +31,9 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,6 +75,11 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final String sqlMigrationPrefix;
 
     /**
+     * The prefix for repeatable sql migrations
+     */
+    private final String repeatableSqlMigrationPrefix;
+
+    /**
      * The separator for sql migrations
      */
     private final String sqlMigrationSeparator;
@@ -82,24 +92,27 @@ public class SqlMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param dbSupport             The database-specific support.
-     * @param classLoader           The ClassLoader for loading migrations on the classpath.
-     * @param location              The location on the classpath where to migrations are located.
-     * @param placeholderReplacer   The placeholder replacer to apply to sql migration scripts.
-     * @param encoding              The encoding of Sql migrations.
-     * @param sqlMigrationPrefix    The prefix for sql migrations
-     * @param sqlMigrationSeparator The separator for sql migrations
-     * @param sqlMigrationSuffix    The suffix for sql migrations
+     * @param dbSupport                    The database-specific support.
+     * @param scanner                      The Scanner for loading migrations on the classpath.
+     * @param location                     The location on the classpath where to migrations are located.
+     * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
+     * @param encoding                     The encoding of Sql migrations.
+     * @param sqlMigrationPrefix           The prefix for sql migrations
+     * @param repeatableSqlMigrationPrefix The prefix for repeatable sql migrations
+     * @param sqlMigrationSeparator        The separator for sql migrations
+     * @param sqlMigrationSuffix           The suffix for sql migrations
      */
-    public SqlMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Location location,
+    public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
                                 PlaceholderReplacer placeholderReplacer, String encoding,
-                                String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix) {
+                                String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
+                                String sqlMigrationSeparator, String sqlMigrationSuffix) {
         this.dbSupport = dbSupport;
-        this.scanner = new Scanner(classLoader);
+        this.scanner = scanner;
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
+        this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
         this.sqlMigrationSeparator = sqlMigrationSeparator;
         this.sqlMigrationSuffix = sqlMigrationSuffix;
     }
@@ -107,39 +120,45 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        Resource[] resources = scanner.scanForResources(location, sqlMigrationPrefix, sqlMigrationSuffix);
-        for (Resource resource : resources) {
-            ResolvedMigrationImpl resolvedMigration = extractMigrationInfo(resource);
-            resolvedMigration.setPhysicalLocation(resource.getLocationOnDisk());
-            resolvedMigration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
-
-            migrations.add(resolvedMigration);
-        }
+        scanForMigrations(migrations, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
+        scanForMigrations(migrations, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
+    public void scanForMigrations(List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
+        for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
+            String filename = resource.getFilename();
+            if (isSqlCallback(filename, suffix)) {
+                continue;
+            }
+            Pair<MigrationVersion, String> info =
+                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix);
+
+            ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
+            migration.setVersion(info.getLeft());
+            migration.setDescription(info.getRight());
+            migration.setScript(extractScriptName(resource));
+            migration.setChecksum(calculateChecksum(resource, resource.loadAsString(encoding)));
+            migration.setType(MigrationType.SQL);
+            migration.setPhysicalLocation(resource.getLocationOnDisk());
+            migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
+            migrations.add(migration);
+        }
+    }
+
     /**
-     * Extracts the migration info for this resource.
+     * Checks whether this filename is actually a sql-based callback instead of a regular migration.
      *
-     * @param resource The resource to analyse.
-     * @return The migration info.
+     * @param filename The filename to check.
+     * @param suffix   The sql migration suffix.
+     * @return {@code true} if it is, {@code false} if it isn't.
      */
-    private ResolvedMigrationImpl extractMigrationInfo(Resource resource) {
-        ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
-
-        Pair<MigrationVersion, String> info =
-                MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(),
-                        sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
-        migration.setVersion(info.getLeft());
-        migration.setDescription(info.getRight());
-
-        migration.setScript(extractScriptName(resource));
-
-        migration.setChecksum(calculateChecksum(resource.loadAsBytes()));
-        migration.setType(MigrationType.SQL);
-        return migration;
+    /* private -> testing */
+    static boolean isSqlCallback(String filename, String suffix) {
+        String baseName = filename.substring(0, filename.length() - suffix.length());
+        return SqlScriptFlywayCallback.ALL_CALLBACKS.contains(baseName);
     }
 
     /**
@@ -157,14 +176,29 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
     /**
-     * Calculates the checksum of these bytes.
+     * Calculates the checksum of this string.
      *
-     * @param bytes The bytes to calculate the checksum for.
+     * @param str The string to calculate the checksum for.
      * @return The crc-32 checksum of the bytes.
      */
-    private static int calculateChecksum(byte[] bytes) {
+    /* private -> for testing */
+    static int calculateChecksum(Resource resource, String str) {
         final CRC32 crc32 = new CRC32();
-        crc32.update(bytes);
+
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(str));
+        try {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                crc32.update(line.getBytes("UTF-8"));
+            }
+        } catch (IOException e) {
+            String message = "Unable to calculate checksum";
+            if (resource != null) {
+                message += " for " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")";
+            }
+            throw new FlywayException(message, e);
+        }
+
         return (int) crc32.getValue();
     }
 }

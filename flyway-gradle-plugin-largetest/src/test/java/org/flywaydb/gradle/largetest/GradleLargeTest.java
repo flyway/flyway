@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,16 +47,10 @@ public class GradleLargeTest {
     }
 
     @Test
-    public void unqualified() throws Exception {
-        String stdOut = runGradle(0, "unqualified", "clean", "flywayMigrate", "-Pflyway.placeholders.name=James");
-        assertTrue(stdOut.contains("Successfully applied 2 migrations"));
-        assertTrue(stdOut.contains("deprecated"));
-    }
-
-    @Test
     public void error() throws Exception {
-        String stdOut = runGradle(1, "error", "clean", "flywayMigrate");
-        assertTrue(stdOut.contains("Unable to determine URL for classpath location"));
+        String stdOut = runGradle(0, "error", "clean", "flywayMigrate");
+        assertTrue(stdOut.contains("Successfully validated 0 migrations"));
+        assertTrue(stdOut.contains("Unable to resolve location"));
     }
 
     /**
@@ -80,8 +74,9 @@ public class GradleLargeTest {
         addShellIfNeeded(args);
         args.add(installDir + "/install/gradlew" + extension);
         args.add("-PflywayVersion=" + flywayVersion);
-        args.add("--info");
+        //args.add("--debug");
         //args.add("--stacktrace");
+        args.add("-i");
         args.add("-b");
         args.add(installDir + "/tests/" + dir + "/build.gradle");
         args.addAll(Arrays.asList(extraArgs));

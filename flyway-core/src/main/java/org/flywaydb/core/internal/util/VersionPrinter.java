@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,12 @@ public class VersionPrinter {
     /**
      * Prints the Flyway version.
      */
-    public static void printVersion(ClassLoader classLoader) {
+    public static void printVersion() {
         if (printed) {
             return;
         }
         printed = true;
-        String version = new ClassPathResource("org/flywaydb/core/internal/version.txt", classLoader).loadAsString("UTF-8");
+        String version = new ClassPathResource("org/flywaydb/core/internal/version.txt", VersionPrinter.class.getClassLoader()).loadAsString("UTF-8");
         LOG.info("Flyway " + version + " by Boxfuse");
     }
 }

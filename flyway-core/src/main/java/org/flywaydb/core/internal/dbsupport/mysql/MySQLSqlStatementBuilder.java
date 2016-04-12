@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2015 Axel Fontaine
+ * Copyright 2010-2016 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,22 +61,22 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
         if (line.matches("^" + Pattern.quote("/*!") + "\\d{5} .*" + Pattern.quote("*/") + "\\s*;?")) {
             return true;
         }
-        // last line of multi-line comment directive
-        if (isInMultiLineCommentDirective && line.matches(".*" + Pattern.quote("*/") + "\\s*;?")) {
-            isInMultiLineCommentDirective = false;
-            return true;
-        }
         // start of multi-line comment directive
         if (line.matches("^" + Pattern.quote("/*!") + "\\d{5} .*")) {
             isInMultiLineCommentDirective = true;
+            return true;
+        }
+        // last line of multi-line comment directive
+        if (isInMultiLineCommentDirective && line.matches(".*" + Pattern.quote("*/") + "\\s*;?")) {
+            isInMultiLineCommentDirective = false;
             return true;
         }
         return isInMultiLineCommentDirective;
     }
 
     @Override
-    protected boolean isSingleLineComment(String line) {
-        return line.startsWith("--") || line.startsWith("#");
+    protected boolean isSingleLineComment(String token) {
+        return token.startsWith("--") || (token.startsWith("#") && !("#".equals(delimiter.getDelimiter()) && "#".equals(token)));
     }
 
     @Override
@@ -88,6 +88,10 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected String cleanToken(String token) {
+        if (token.startsWith("B'") || token.startsWith("X'")) {
+            return token.substring(token.indexOf("'"));
+        }
+
         if (token.startsWith("_")) {
             for (String charSet : charSets) {
                 String cast = "_" + charSet;
@@ -96,6 +100,7 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
                 }
             }
         }
+
         // If no matches are found for charset casting then return token
         return token;
     }
@@ -105,22 +110,6 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
         if (token.startsWith("\"")) {
             return "\"";
         }
-        // to be a valid bitfield or hex literal the token must be at leas three characters in length
-        // i.e. b'' otherwise token may be string literal ending in [space]b'
-        if (token.startsWith("B'") && token.length() > 2) {
-            return "B'";
-        }
-        if (token.startsWith("X'") && token.length() > 2) {
-            return "X'";
-        }
         return null;
-    }
-
-    @Override
-    protected String computeAlternateCloseQuote(String openQuote) {
-        if ("B'".equals(openQuote) || "X'".equals(openQuote)) {
-            return "'";
-        }
-        return openQuote;
     }
 }
