@@ -29,9 +29,13 @@ mysql -uroot -pflyway < flyway-core/src/test/resources/migration/dbsupport/mysql
 echo MariaDB...
 mysql -uroot -pflyway -P3333 < flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
 
-echo PostgreSQL...
+echo EnterpriseDB...
 set PGPASSWORD=flyway
-psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
+edb-psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
+
+echo EnterpriseDB
+set PGPASSWORD=flyway
+psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
 
 echo SQL Server...
 sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources\migration\dbsupport\sqlserver\createDatabase.sql

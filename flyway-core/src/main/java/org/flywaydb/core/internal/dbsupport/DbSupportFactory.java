@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
+import org.flywaydb.core.internal.dbsupport.enterprisedb.EnterpriseDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaPostgreSQLDriver;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaRedshiftDriver;
@@ -92,6 +93,9 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
+        }
+        if (databaseProductName.startsWith("EnterpriseDB")) {
+            return new EnterpriseDBDbSupport(connection);
         }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
             // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
