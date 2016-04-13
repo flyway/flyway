@@ -114,7 +114,7 @@
         <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
-        <version.jre>8.74</version.jre>
+        <version.jre>8.77</version.jre>
     </properties>
 
     <dependencyManagement>
@@ -236,6 +236,12 @@
                 <groupId>com.oracle</groupId>
                 <artifactId>ojdbc6</artifactId>
                 <version>12.1.0.1</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.edb</groupId>
+                <artifactId>edb-jdbc17</artifactId>
+                <version>9.5.1.6-RC1</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

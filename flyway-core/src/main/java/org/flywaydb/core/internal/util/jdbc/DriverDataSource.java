@@ -286,6 +286,10 @@ public class DriverDataSource implements DataSource {
             return "oracle.jdbc.OracleDriver";
         }
 
+        if (url.startsWith("jdbc:edb:")) {
+            return "com.edb.Driver";
+        }
+
         if (url.startsWith("jdbc:phoenix")) {
             return "org.apache.phoenix.jdbc.PhoenixDriver";
         }
