@@ -19,20 +19,17 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 import java.util.Comparator;
 
+import static org.flywaydb.core.internal.util.ComparableUtils.compareNullsLast;
+
 /**
 * Comparator for ResolvedMigration.
 */
 public class ResolvedMigrationComparator implements Comparator<ResolvedMigration> {
     @Override
     public int compare(ResolvedMigration o1, ResolvedMigration o2) {
-        if ((o1.getVersion() != null) && o2.getVersion() != null) {
-            return o1.getVersion().compareTo(o2.getVersion());
-        }
-        if (o1.getVersion() != null) {
-            return Integer.MIN_VALUE;
-        }
-        if (o2.getVersion() != null) {
-            return Integer.MAX_VALUE;
+        int result = compareNullsLast(o1.getVersion(), o2.getVersion());
+        if (result != 0) {
+            return result;
         }
         return o1.getDescription().compareTo(o2.getDescription());
     }
