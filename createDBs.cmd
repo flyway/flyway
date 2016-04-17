@@ -33,9 +33,9 @@ echo EnterpriseDB...
 set PGPASSWORD=flyway
 edb-psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
 
-echo EnterpriseDB
+echo PostgreSQL
 set PGPASSWORD=flyway
-psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
+psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
 
 echo SQL Server...
 sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources\migration\dbsupport\sqlserver\createDatabase.sql
