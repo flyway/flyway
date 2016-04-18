@@ -14,13 +14,48 @@
 -- limitations under the License.
 --
 
-ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_rank";
-ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT "${table}_pk";
-ALTER TABLE "${schema}"."${table}" ADD COLUMN "version_temp" VARCHAR(50) NULL;
-UPDATE "${schema}"."${table}" SET "version_temp"="version";
-ALTER TABLE "${schema}"."${table}" DROP COLUMN "version";
-ALTER TABLE "${schema}"."${table}" ADD COLUMN "version" VARCHAR(50) NULL;
-UPDATE "${schema}"."${table}" SET "version"="version_temp";
-ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_temp";
+ALTER TABLE "${schema}"."${table}" RENAME TO "${table}_flyway4_upgrade";
+
+CREATE TABLE "${schema}"."${table}" (
+    "installed_rank" INT NOT NULL SORTKEY,
+    "version" VARCHAR(50),
+    "description" VARCHAR(200) NOT NULL,
+    "type" VARCHAR(20) NOT NULL,
+    "script" VARCHAR(1000) NOT NULL,
+    "checksum" INTEGER,
+    "installed_by" VARCHAR(100) NOT NULL,
+    "installed_on" TIMESTAMP NOT NULL DEFAULT getdate(),
+    "execution_time" INTEGER NOT NULL,
+    "success" BOOLEAN NOT NULL
+);
+
+INSERT INTO "${schema}"."${table}" (
+    "installed_rank",
+    "version",
+    "description",
+    "type",
+    "script",
+    "checksum",
+    "installed_by",
+    "installed_on",
+    "execution_time",
+    "success"
+)
+SELECT
+    "installed_rank",
+    "version",
+    "description",
+    "type",
+    "script",
+    "checksum",
+    "installed_by",
+    "installed_on",
+    "execution_time",
+    "success"
+FROM
+    "${schema}"."${table}_flyway4_upgrade";
+
+DROP TABLE "${schema}"."${table}_flyway4_upgrade";
+
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
 UPDATE "${schema}"."${table}" SET "type"='BASELINE' WHERE "type"='INIT';
