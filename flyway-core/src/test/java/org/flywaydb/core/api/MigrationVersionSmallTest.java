@@ -119,6 +119,7 @@ public class MigrationVersionSmallTest {
     public void latest() {
         assertEquals(MigrationVersion.LATEST, MigrationVersion.LATEST);
         assertTrue(MigrationVersion.LATEST.compareTo(MigrationVersion.LATEST) == 0);
+        assertEquals(MigrationVersion.LATEST, MigrationVersion.fromVersion(MigrationVersion.LATEST_VERSION_STRING));
     }
 
     @Test
