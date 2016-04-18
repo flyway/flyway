@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.info;
 
+import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -104,9 +105,29 @@ public class MigrationInfoServiceImplSmallTest {
         migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
-        assertEquals(MigrationState.IGNORED, migrationInfoService.all()[0].getState());
-        assertEquals(2, migrationInfoService.all().length);
+        final MigrationInfo[] all = migrationInfoService.all();
+        assertEquals(2, all.length);
+        assertEquals(MigrationState.SUCCESS, all[0].getState());
+        assertEquals(MigrationState.IGNORED, all[1].getState());
         assertEquals(0, migrationInfoService.pending().length);
+    }
+
+    @Test
+    public void twoAppliedOnePending() {
+        MigrationInfoServiceImpl migrationInfoService =
+                new MigrationInfoServiceImpl(
+                        createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2), createAvailableMigration(3)),
+                        createMetaDataTable(createAppliedMigration(1), createAppliedMigration(3)),
+                        MigrationVersion.LATEST, true, true, true);
+        migrationInfoService.refresh();
+
+        assertEquals("3", migrationInfoService.current().getVersion().toString());
+        final MigrationInfo[] all = migrationInfoService.all();
+        assertEquals(3, all.length);
+        assertEquals(MigrationState.SUCCESS, all[0].getState());
+        assertEquals(MigrationState.SUCCESS, all[1].getState());
+        assertEquals(MigrationState.PENDING, all[2].getState());
+        assertEquals(1, migrationInfoService.pending().length);
     }
 
     @Test
@@ -135,8 +156,10 @@ public class MigrationInfoServiceImplSmallTest {
         migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
-        assertEquals(MigrationState.BELOW_BASELINE, migrationInfoService.all()[0].getState());
-        assertEquals(2, migrationInfoService.all().length);
+        final MigrationInfo[] all = migrationInfoService.all();
+        assertEquals(2, all.length);
+        assertEquals(MigrationState.BASELINE, all[0].getState());
+        assertEquals(MigrationState.BELOW_BASELINE, all[1].getState());
         assertEquals(0, migrationInfoService.pending().length);
     }
 
