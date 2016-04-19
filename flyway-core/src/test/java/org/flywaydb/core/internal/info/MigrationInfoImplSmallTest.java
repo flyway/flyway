@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.info;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
@@ -61,5 +62,52 @@ public class MigrationInfoImplSmallTest {
         String message = migrationInfo.validate();
 
         assertTrue(message, message.contains("not resolved"));
+    }
+
+    @Test
+    public void compareToRepeatable() {
+        MigrationInfoContext context = new MigrationInfoContext();
+        MigrationInfoImpl c = new MigrationInfoImpl(createResolvedMigration("C"), createAppliedMigration(5, "C"), context, false);
+        MigrationInfoImpl a = new MigrationInfoImpl(createResolvedMigration("A"), createAppliedMigration(10, "A"), context, false);
+        MigrationInfoImpl b = new MigrationInfoImpl(createResolvedMigration("B"), null, context, false);
+
+        assertTrue(a.compareTo(a) == 0);
+        assertTrue(b.compareTo(b) == 0);
+        assertTrue(c.compareTo(c) == 0);
+
+        assertTrue(c.compareTo(a) < 0);
+        assertTrue(a.compareTo(c) > 0);
+
+        assertTrue(a.compareTo(b) < 0);
+        assertTrue(b.compareTo(a) > 0);
+
+        assertTrue(c.compareTo(b) < 0);
+        assertTrue(b.compareTo(c) > 0);
+    }
+
+    /**
+     * Creates a new resolved repeatable migration with this description.
+     *
+     * @param description The description of the migration.
+     * @return The resolved migration.
+     */
+    private ResolvedMigration createResolvedMigration(String description) {
+        ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
+        migration.setDescription(description);
+        migration.setScript(description);
+        migration.setType(MigrationType.SQL);
+        return migration;
+    }
+
+    /**
+     * Creates a new applied repeatable migration with this description and installed rank.
+     *
+     * @param installedRank     The installed rank of the migration.
+     * @param description The description of the migration.
+     * @return The applied migration.
+     */
+    private AppliedMigration createAppliedMigration(int installedRank, String description) {
+        return new AppliedMigration(installedRank, null, description,
+                MigrationType.SQL, "x", null, new Date(), "sa", 123, true);
     }
 }

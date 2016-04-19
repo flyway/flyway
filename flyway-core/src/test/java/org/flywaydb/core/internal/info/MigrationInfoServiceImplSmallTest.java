@@ -43,7 +43,7 @@ public class MigrationInfoServiceImplSmallTest {
     public void onlyPending() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
+                        createMigrationResolver(createResolvedMigration(1), createResolvedMigration(2)),
                         createMetaDataTable(), MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
 
@@ -56,7 +56,7 @@ public class MigrationInfoServiceImplSmallTest {
     public void allApplied() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
+                        createMigrationResolver(createResolvedMigration(1), createResolvedMigration(2)),
                         createMetaDataTable(createAppliedMigration(1), createAppliedMigration(2)),
                         MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
@@ -70,7 +70,7 @@ public class MigrationInfoServiceImplSmallTest {
     public void appliedOverridesAvailable() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1)),
+                        createMigrationResolver(createResolvedMigration(1)),
                         createMetaDataTable(createAppliedMigration(1, "xyz")),
                         MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
@@ -85,7 +85,7 @@ public class MigrationInfoServiceImplSmallTest {
     public void onePendingOneApplied() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
+                        createMigrationResolver(createResolvedMigration(1), createResolvedMigration(2)),
                         createMetaDataTable(createAppliedMigration(1)),
                         MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
@@ -99,16 +99,14 @@ public class MigrationInfoServiceImplSmallTest {
     public void oneAppliedOneSkipped() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2)),
+                        createMigrationResolver(createResolvedMigration(1), createResolvedMigration(2)),
                         createMetaDataTable(createAppliedMigration(2)),
                         MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
-        final MigrationInfo[] all = migrationInfoService.all();
-        assertEquals(2, all.length);
-        assertEquals(MigrationState.SUCCESS, all[0].getState());
-        assertEquals(MigrationState.IGNORED, all[1].getState());
+        assertEquals(MigrationState.IGNORED, migrationInfoService.all()[0].getState());
+        assertEquals(2, migrationInfoService.all().length);
         assertEquals(0, migrationInfoService.pending().length);
     }
 
@@ -116,7 +114,7 @@ public class MigrationInfoServiceImplSmallTest {
     public void twoAppliedOnePending() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1), createAvailableMigration(2), createAvailableMigration(3)),
+                        createMigrationResolver(createResolvedMigration(1), createResolvedMigration(2), createResolvedMigration(3)),
                         createMetaDataTable(createAppliedMigration(1), createAppliedMigration(3)),
                         MigrationVersion.LATEST, true, true, true);
         migrationInfoService.refresh();
@@ -134,7 +132,7 @@ public class MigrationInfoServiceImplSmallTest {
     public void twoAppliedOneFuture() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1)),
+                        createMigrationResolver(createResolvedMigration(1)),
                         createMetaDataTable(createAppliedMigration(1), createAppliedMigration(2)),
                         MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
@@ -150,16 +148,14 @@ public class MigrationInfoServiceImplSmallTest {
     public void belowBaseline() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1)),
+                        createMigrationResolver(createResolvedMigration(1)),
                         createMetaDataTable(createAppliedBaselineMigration(2)),
                         MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
 
         assertEquals("2", migrationInfoService.current().getVersion().toString());
-        final MigrationInfo[] all = migrationInfoService.all();
-        assertEquals(2, all.length);
-        assertEquals(MigrationState.BASELINE, all[0].getState());
-        assertEquals(MigrationState.BELOW_BASELINE, all[1].getState());
+        assertEquals(MigrationState.BELOW_BASELINE, migrationInfoService.all()[0].getState());
+        assertEquals(2, migrationInfoService.all().length);
         assertEquals(0, migrationInfoService.pending().length);
     }
 
@@ -167,7 +163,7 @@ public class MigrationInfoServiceImplSmallTest {
     public void missing() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(2)),
+                        createMigrationResolver(createResolvedMigration(2)),
                         createMetaDataTable(createAppliedMigration(1), createAppliedMigration(2)),
                         MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
@@ -182,7 +178,7 @@ public class MigrationInfoServiceImplSmallTest {
     public void schemaCreation() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
-                        createMigrationResolver(createAvailableMigration(1)),
+                        createMigrationResolver(createResolvedMigration(1)),
                         createMetaDataTable(createAppliedSchemaMigration(), createAppliedMigration(1)),
                         MigrationVersion.LATEST, false, true, true);
         migrationInfoService.refresh();
@@ -195,12 +191,12 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     /**
-     * Creates a new available migration with this version.
+     * Creates a new resolved migration with this version.
      *
      * @param version The version of the migration.
-     * @return The available migration.
+     * @return The resolved migration.
      */
-    private ResolvedMigration createAvailableMigration(int version) {
+    private ResolvedMigration createResolvedMigration(int version) {
         ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
         migration.setVersion(MigrationVersion.fromVersion(Integer.toString(version)));
         migration.setDescription("abc");

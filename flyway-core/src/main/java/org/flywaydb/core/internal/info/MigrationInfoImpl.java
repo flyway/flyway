@@ -26,8 +26,6 @@ import org.flywaydb.core.internal.util.ObjectUtils;
 
 import java.util.Date;
 
-import static org.flywaydb.core.internal.util.ComparableUtils.compareNullsLast;
-
 /**
  * Default implementation of MigrationInfo.
  */
@@ -279,14 +277,34 @@ public class MigrationInfoImpl implements MigrationInfo {
 
     @SuppressWarnings("NullableProblems")
     public int compareTo(MigrationInfo o) {
-        int result = compareNullsLast(getInstalledRank(), o.getInstalledRank());
-        if (result != 0) {
-            return result;
+        if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
+            return getInstalledRank() - o.getInstalledRank();
         }
-        result = compareNullsLast(getVersion(), o.getVersion());
-        if (result != 0) {
-            return result;
+
+        MigrationState state = getState();
+        MigrationState oState = o.getState();
+
+        if (((getInstalledRank() != null) || (o.getInstalledRank() != null))
+                && (!(state == MigrationState.BELOW_BASELINE || oState == MigrationState.BELOW_BASELINE
+                || state == MigrationState.IGNORED || oState == MigrationState.IGNORED))) {
+            if (getInstalledRank() != null) {
+                return Integer.MIN_VALUE;
+            }
+            if (o.getInstalledRank() != null) {
+                return Integer.MAX_VALUE;
+            }
         }
+
+        if (getVersion() != null && o.getVersion() != null) {
+            return getVersion().compareTo(o.getVersion());
+        }
+        if (getVersion() != null) {
+            return Integer.MIN_VALUE;
+        }
+        if (o.getVersion() != null) {
+            return Integer.MAX_VALUE;
+        }
+
         return getDescription().compareTo(o.getDescription());
     }
 
