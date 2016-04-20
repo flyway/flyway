@@ -463,5 +463,43 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>HiveDBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hive</groupId>
+                    <artifactId>hive-jdbc</artifactId>
+                    <version>1.2.1</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.hive</groupId>
+                    <artifactId>hive-cli</artifactId>
+                    <version>1.2.1</version>
+                    <scope>test</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                    <version>4.5.2</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <!-- Exclude everything but Hive -->
+                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB,org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$Derby,org.flywaydb.core.DbCategory$H2,org.flywaydb.core.DbCategory$HSQL,org.flywaydb.core.DbCategory$SQLite,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 </project>

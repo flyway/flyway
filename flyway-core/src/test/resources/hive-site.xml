@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<configuration>
+    <property>
+        <name>hive.metastore.warehouse.dir</name>
+        <value>/tmp/hive_mestastore</value>
+    </property>
+
+    <!-- The following properties enable the Hive transactions. -->
+    <!-- This is only required for the flyway REPAIR command, because it requires DELETE/UPDATE statements -->
+    <!-- See https://cwiki.apache.org/confluence/display/Hive/Hive+Transactions#HiveTransactions-Configuration -->
+    <property>
+        <name>hive.support.concurrency </name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>hive.enforce.bucketing</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>hive.exec.dynamic.partition.mode </name>
+        <value>nonstrict</value>
+    </property>
+    <property>
+        <name>hive.txn.manager</name>
+        <value>org.apache.hadoop.hive.ql.lockmgr.DbTxnManager</value>
+    </property>
+    <property>
+        <name>hive.compactor.initiator.on</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>hive.compactor.worker.threads</name>
+        <value>1</value>
+    </property>
+    <property>
+        <name>hive.in.test</name>
+        <value>true</value>
+        <description>Internal marker for test. Used for masking env-dependent values</description>
+    </property>
+    <!-- Disable Cost-Based optimizer, it pollutes the output with exceptions -->
+    <property>
+        <name>hive.cbo.enable</name>
+        <value>false</value>
+    </property>
+
+</configuration>

@@ -661,7 +661,7 @@ public abstract class MigrationTestCase {
         return "migration/future_failed";
     }
 
-    protected String getValidateLocation() {
+    protected String getValidateLocation()  {
         return "migration/validate";
     }
 

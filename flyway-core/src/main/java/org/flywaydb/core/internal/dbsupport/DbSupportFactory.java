@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
+import org.flywaydb.core.internal.dbsupport.hive.HiveDbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
@@ -137,6 +138,8 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("HDB")) {
         	return new SapHanaDbSupport(connection);
         }
+        if (databaseProductName.startsWith("Apache Hive") || databaseProductName.startsWith("Impala"))
+            return new HiveDbSupport(connection);
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
     }
