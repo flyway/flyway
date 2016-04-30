@@ -63,7 +63,7 @@ CREATE OR REPLACE TYPE fact_row IS OBJECT (
 /*
   There is a bug in the EDB JDBC driver that prevents the proper execution of the following Type Body
  */
-/*CREATE OR REPLACE TYPE BODY fact_row AS
+CREATE OR REPLACE TYPE BODY fact_row AS
   MEMBER PROCEDURE display_fact_row (SELF IN OUT fact_row) IS
   BEGIN
    DBMS_OUTPUT.PUT_LINE('FACT_TIME       :' || FACT_TIME);
@@ -71,4 +71,4 @@ CREATE OR REPLACE TYPE fact_row IS OBJECT (
    DBMS_OUTPUT.PUT_LINE('MEASURE_VALUE   :' || FACT_TIME);
   END;
 END;
-*/
+/

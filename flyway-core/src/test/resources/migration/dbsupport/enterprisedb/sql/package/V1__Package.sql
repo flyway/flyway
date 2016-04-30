@@ -13,6 +13,15 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
+CREATE TABLE emp (
+empno NUMBER,
+ename VARCHAR2,
+job VARCHAR2,
+mgr NUMBER,
+sal NUMBER,
+comm NUMBER,
+deptno NUMBER
+);
 
 CREATE OR REPLACE PACKAGE emp_actions AS  -- spec
    TYPE EmpRecTyp IS RECORD (emp_id INT, salary REAL);

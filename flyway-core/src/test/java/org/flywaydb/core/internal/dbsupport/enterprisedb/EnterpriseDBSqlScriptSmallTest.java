@@ -80,7 +80,7 @@ public class EnterpriseDBSqlScriptSmallTest {
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(3, sqlStatements.size());
         assertEquals(16, sqlStatements.get(0).getLineNumber());
-        assertEquals(27, sqlStatements.get(1).getLineNumber());
+        assertEquals(26, sqlStatements.get(1).getLineNumber());
     }
 
     @Test

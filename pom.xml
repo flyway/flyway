@@ -241,7 +241,7 @@
             <dependency>
                 <groupId>com.edb</groupId>
                 <artifactId>edb-jdbc17</artifactId>
-                <version>9.5.1.6-RC1</version>
+                <version>9.5.1.6</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
