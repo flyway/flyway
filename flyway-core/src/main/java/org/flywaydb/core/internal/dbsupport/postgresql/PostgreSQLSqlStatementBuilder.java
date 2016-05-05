@@ -87,4 +87,13 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     public boolean isPgCopyFromStdIn() {
         return pgCopy;
     }
+
+    @Override
+    protected String cleanToken(String token) {
+        if (token.startsWith("E'")) {
+            return token.substring(token.indexOf("'"));
+        }
+
+        return token;
+    }
 }
