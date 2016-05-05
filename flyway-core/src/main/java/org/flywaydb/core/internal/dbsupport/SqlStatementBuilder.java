@@ -178,11 +178,11 @@ public class SqlStatementBuilder {
             statement.append("\n");
         }
 
-        String lineSimplified = simplifyLine(line);
-
-        if (isCommentDirective(lineSimplified)) {
+        if (isCommentDirective(line.trim())) {
             nonCommentStatementPartSeen = true;
         }
+
+        String lineSimplified = simplifyLine(line);
 
         applyStateChanges(lineSimplified);
         if (endWithOpenMultilineStringLiteral() || insideMultiLineComment) {
@@ -222,7 +222,11 @@ public class SqlStatementBuilder {
      * @return The simplified line.
      */
     protected String simplifyLine(String line) {
-        return removeEscapedQuotes(line).replace("--", " -- ").replaceAll("\\s+", " ").trim().toUpperCase();
+        return removeEscapedQuotes(line)
+                .replace("--", " -- ")
+                .replace("/*", " /* ")
+                .replace("*/", " */ ")
+                .replaceAll("\\s+", " ").trim().toUpperCase();
     }
 
     /**
