@@ -379,7 +379,7 @@ public class FlywayMediumTest {
         flyway.setValidateOnMigrate(true);
         flyway.setTarget(MigrationVersion.LATEST);
         flyway.setOutOfOrder(true);
-        assertEquals(MigrationState.PENDING, flyway.info().all()[2].getState());
+        assertEquals(MigrationState.PENDING, flyway.info().all()[3].getState());
         assertEquals(2, flyway.migrate());
 
         MigrationInfo[] all = flyway.info().all();
