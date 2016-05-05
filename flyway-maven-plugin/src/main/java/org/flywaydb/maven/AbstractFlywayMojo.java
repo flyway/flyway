@@ -531,12 +531,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             }
             properties.putAll(getConfigFileProperties());
             properties.putAll(System.getProperties());
+            filterProperties(properties);
             flyway.configure(properties);
 
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
         }
+    }
+
+    /**
+     * Filters there properties to remove the Flyway Maven Plugin-specific ones.
+     *
+     * @param properties The properties to filter.
+     */
+    private static void filterProperties(Properties properties) {
+        properties.remove("flyway.current");
     }
 
     /**
