@@ -30,12 +30,6 @@ CREATE TABLE ${table} (
 lock datarows on 'default'
 go
 
-CREATE INDEX ${table}_vr_idx ON ${table} (version_rank)
-go
-
-CREATE INDEX ${table}_ir_idx ON ${table} (installed_rank)
-go
-
 CREATE INDEX ${table}_s_idx ON ${table} (success)
 go
 
