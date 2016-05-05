@@ -24,8 +24,9 @@ CREATE TABLE `${schema}`.`${table}` (
     `installed_by` VARCHAR(100) NOT NULL,
     `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `execution_time` INT NOT NULL,
-    `success` BOOL NOT NULL
+    `success` BOOL NOT NULL,
+    -- Add the primary key as part of the CREATE TABLE statement in case `innodb_force_primary_key` is enabled
+    CONSTRAINT `${table}_pk`PRIMARY KEY (`installed_rank`)
 ) ENGINE=InnoDB;
-ALTER TABLE `${schema}`.`${table}` ADD CONSTRAINT `${table}_pk` PRIMARY KEY (`installed_rank`);
 
 CREATE INDEX `${table}_s_idx` ON `${schema}`.`${table}` (`success`);
