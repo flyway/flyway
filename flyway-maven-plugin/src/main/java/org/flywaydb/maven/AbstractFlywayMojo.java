@@ -399,14 +399,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @required
      * @readonly
      */
-    private Settings settings;
+    /* private -> for testing */ Settings settings;
 
     /**
      * Reference to the current project that includes the Flyway Maven plugin.
      *
      * @parameter property="project" required="true"
      */
-    protected MavenProject mavenProject;
+    /* private -> for testing */ MavenProject mavenProject;
 
     /**
      * Load username password from settings
