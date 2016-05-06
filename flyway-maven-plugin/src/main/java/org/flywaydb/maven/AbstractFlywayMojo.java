@@ -414,8 +414,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @throws FlywayException when the credentials could not be loaded.
      */
     private void loadCredentialsFromSettings() throws FlywayException {
+        final Server server = settings.getServer(serverId);
         if (user == null) {
-            final Server server = settings.getServer(serverId);
             if (server != null) {
                 user = server.getUsername();
                 try {
@@ -429,6 +429,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     throw new FlywayException("Unable to initialize password decryption", e);
                 }
             }
+        } else if (server != null) {
+            throw new FlywayException("You specified credentials both in the Flyway config and settings.xml. Use either one or the other");
         }
     }
 
