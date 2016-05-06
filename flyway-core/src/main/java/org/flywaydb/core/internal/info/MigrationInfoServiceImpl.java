@@ -107,7 +107,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         migrationInfos = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
         if (MigrationVersion.CURRENT == target) {
-            target = current().getVersion();
+            MigrationInfo current = current();
+            if (current == null) {
+                target = MigrationVersion.EMPTY;
+            } else {
+                target = current.getVersion();
+            }
         }
     }
 

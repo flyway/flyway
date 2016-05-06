@@ -420,6 +420,15 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void currentEmpty() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_current_empty;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setTargetAsString("current");
+        assertEquals(0, flyway.migrate());
+        // Used to fail with NPE
+    }
+
+    @Test
     public void emptyLocations() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_empty;DB_CLOSE_DELAY=-1", "sa", "");
