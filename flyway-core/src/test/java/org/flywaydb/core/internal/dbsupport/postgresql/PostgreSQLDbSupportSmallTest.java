@@ -26,4 +26,11 @@ public class PostgreSQLDbSupportSmallTest {
         assertEquals("\"abc\"", dbSupport.doQuote("abc"));
         assertEquals("\"a\"\"b\"\"c\"", dbSupport.doQuote("a\"b\"c"));
     }
+
+    @Test
+    public void undoQuote() {
+        PostgreSQLDbSupport dbSupport = new PostgreSQLDbSupport(null);
+        assertEquals("abc", dbSupport.unQuote("\"abc\""));
+        assertEquals("abc", dbSupport.unQuote("abc"));
+    }
 }

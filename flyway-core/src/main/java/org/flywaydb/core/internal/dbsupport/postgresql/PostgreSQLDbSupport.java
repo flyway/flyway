@@ -69,7 +69,7 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SHOW search_path");
+        return unQuote(jdbcTemplate.queryForString("SHOW search_path"));
     }
 
     @Override
@@ -117,6 +117,22 @@ public class PostgreSQLDbSupport extends DbSupport {
     @Override
     public String doQuote(String identifier) {
         return "\"" + StringUtils.replaceAll(identifier, "\"", "\"\"") + "\"";
+    }
+
+    /**
+     * unQuote
+     *
+     * Remove the quotes from the beginning and end of a given string. If the provided string isn't quoted, it will be returned unchanged.
+     *
+     * @param quoted
+     * @return the quoted string without a leading and trailing "
+     */
+    String unQuote(final String quoted) {
+        if (quoted == null || quoted.length() <= 2) {
+            return quoted;
+        }
+        String result = quoted.startsWith("\"") ? quoted.substring(1) : quoted;
+        return result.endsWith("\"") ? result.substring(0, result.length() - 1) : result;
     }
 
     @Override
