@@ -175,17 +175,19 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         allVersions.addAll(resolvedMigrationsMap.keySet());
         allVersions.addAll(appliedMigrationsMap.keySet());
 
-        List<MigrationInfoImpl> migrationInfos = new ArrayList<MigrationInfoImpl>();
+        final List<MigrationInfoImpl> versionedInfos = new ArrayList<MigrationInfoImpl>();
         for (MigrationVersion version : allVersions) {
             ResolvedMigration resolvedMigration = resolvedMigrationsMap.get(version);
             Pair<AppliedMigration, Boolean> appliedMigrationInfo = appliedMigrationsMap.get(version);
             if (appliedMigrationInfo == null) {
-                migrationInfos.add(new MigrationInfoImpl(resolvedMigration, null, context, false));
+                versionedInfos.add(new MigrationInfoImpl(resolvedMigration, null, context, false));
             } else {
-                migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedMigrationInfo.getLeft(), context, appliedMigrationInfo.getRight()));
+                versionedInfos.add(new MigrationInfoImpl(resolvedMigration, appliedMigrationInfo.getLeft(), context, appliedMigrationInfo.getRight()));
             }
         }
+        Collections.sort(versionedInfos);
 
+        final List<MigrationInfoImpl> repeatableInfos = new ArrayList<MigrationInfoImpl>();
         Set<ResolvedMigration> pendingResolvedRepeatableMigrations = new HashSet<ResolvedMigration>(resolvedRepeatableMigrationsMap.values());
         for (AppliedMigration appliedRepeatableMigration : appliedRepeatableMigrations) {
             ResolvedMigration resolvedMigration = resolvedRepeatableMigrationsMap.get(appliedRepeatableMigration.getDescription());
@@ -196,14 +198,17 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
                     || (appliedRepeatableMigration.getInstalledRank() > context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription()))) {
                 context.latestRepeatableRuns.put(appliedRepeatableMigration.getDescription(), appliedRepeatableMigration.getInstalledRank());
             }
-            migrationInfos.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false));
+            repeatableInfos.add(new MigrationInfoImpl(resolvedMigration, appliedRepeatableMigration, context, false));
         }
 
         for (ResolvedMigration pendingResolvedRepeatableMigration : pendingResolvedRepeatableMigrations) {
-            migrationInfos.add(new MigrationInfoImpl(pendingResolvedRepeatableMigration, null, context, false));
+            repeatableInfos.add(new MigrationInfoImpl(pendingResolvedRepeatableMigration, null, context, false));
         }
+        Collections.sort(repeatableInfos);
 
-        Collections.sort(migrationInfos);
+        final List<MigrationInfoImpl> migrationInfos = new ArrayList<MigrationInfoImpl>();
+        migrationInfos.addAll(versionedInfos);
+        migrationInfos.addAll(repeatableInfos);
 
         return migrationInfos;
     }
