@@ -52,7 +52,7 @@ public class OracleDbSupport extends DbSupport {
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=" + schema);
+        jdbcTemplate.execute("ALTER SESSION SET CURRENT_SCHEMA=\"" + schema + "\"");
     }
 
     public boolean supportsDdlTransactions() {
