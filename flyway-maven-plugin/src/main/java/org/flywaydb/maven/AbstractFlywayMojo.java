@@ -548,6 +548,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * @param properties The properties to filter.
      */
     private static void filterProperties(Properties properties) {
+        properties.remove("flyway.configFile");
         properties.remove("flyway.current");
     }
 
