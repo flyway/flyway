@@ -18,11 +18,18 @@ package org.flywaydb.maven;
 import org.flywaydb.core.Flyway;
 
 /**
- * Maven goal to validate the applied migrations in the database against the available classpath migrations in order to
- * detect accidental migration changes.
+ * <p>Validate applied migrations against resolved ones (on the filesystem or classpath)
+ * to detect accidental changes that may prevent the schema(s) from being recreated exactly.</p>
+ * <p>Validation fails if</p>
+ * <ul>
+ *     <li>differences in migration names, types or checksums are found</li>
+ *     <li>versions have been applied that aren't resolved locally anymore</li>
+ *     <li>versions have been resolved that haven't been applied yet</li>
+ * </ul>
+ *
+ * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
  *
  * @goal validate
- * @since 0.9
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
 public class ValidateMojo extends AbstractFlywayMojo {

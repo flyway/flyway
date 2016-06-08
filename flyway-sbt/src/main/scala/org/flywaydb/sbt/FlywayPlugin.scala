@@ -84,7 +84,7 @@ object FlywayPlugin extends AutoPlugin {
     //*********************
 
     val flywayMigrate = taskKey[Unit]("Migrates of the configured database to the latest version.")
-    val flywayValidate = taskKey[Unit]("Validates the applied migrations in the database against the available classpath migrations in order to detect accidental migration changes.")
+    val flywayValidate = taskKey[Unit]("Validate applied migrations against resolved ones (on the filesystem or classpath) to detect accidental changes that may prevent the schema(s) from being recreated exactly. Validation fails if differences in migration names, types or checksums are found, versions have been applied that aren't resolved locally anymore or versions have been resolved that haven't been applied yet")
     val flywayInfo = taskKey[Unit]("Retrieves the complete information about the migrations including applied, pending and current migrations with details and status.")
     val flywayClean = taskKey[Unit]("Drops all database objects.")
     val flywayBaseline = taskKey[Unit]("Baselines an existing database, excluding all migrations up to and including baselineVersion.")
