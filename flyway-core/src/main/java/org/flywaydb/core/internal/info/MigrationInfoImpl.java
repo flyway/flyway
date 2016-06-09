@@ -299,10 +299,10 @@ public class MigrationInfoImpl implements MigrationInfo {
             return getVersion().compareTo(o.getVersion());
         }
         if (getVersion() != null) {
-            return Integer.MIN_VALUE;
+            return Integer.MAX_VALUE;
         }
         if (o.getVersion() != null) {
-            return Integer.MAX_VALUE;
+            return Integer.MIN_VALUE;
         }
 
         return getDescription().compareTo(o.getDescription());
