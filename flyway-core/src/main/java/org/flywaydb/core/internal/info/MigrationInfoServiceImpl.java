@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -189,7 +190,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         Set<ResolvedMigration> pendingResolvedRepeatableMigrations = new HashSet<ResolvedMigration>(resolvedRepeatableMigrationsMap.values());
         for (AppliedMigration appliedRepeatableMigration : appliedRepeatableMigrations) {
             ResolvedMigration resolvedMigration = resolvedRepeatableMigrationsMap.get(appliedRepeatableMigration.getDescription());
-            if (resolvedMigration != null) {
+            if (resolvedMigration != null && Objects.equals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
                 pendingResolvedRepeatableMigrations.remove(resolvedMigration);
             }
             if (!context.latestRepeatableRuns.containsKey(appliedRepeatableMigration.getDescription())
@@ -226,8 +227,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     public MigrationInfoImpl[] pending() {
         List<MigrationInfoImpl> pendingMigrations = new ArrayList<MigrationInfoImpl>();
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            if (MigrationState.PENDING == migrationInfo.getState()
-                    || MigrationState.OUTDATED == migrationInfo.getState()) {
+            if (MigrationState.PENDING == migrationInfo.getState()) {
                 pendingMigrations.add(migrationInfo);
             }
         }

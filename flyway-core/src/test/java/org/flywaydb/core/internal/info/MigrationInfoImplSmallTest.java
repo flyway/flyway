@@ -75,51 +75,50 @@ public class MigrationInfoImplSmallTest {
         MigrationInfoImpl v2 = new MigrationInfoImpl(createResolvedMigration("1", "V1"), createAppliedMigration(6, "1", "V1"), context, false);
         MigrationInfoImpl r3 = new MigrationInfoImpl(b, createAppliedMigration(7, null, "B", 123), context, false);
         MigrationInfoImpl r4 = new MigrationInfoImpl(createResolvedMigration(null, "A"), createAppliedMigration(10, null, "A"), context, false);
-        MigrationInfoImpl r5 = new MigrationInfoImpl(b, null, context, false);
-        MigrationInfoImpl v6 = new MigrationInfoImpl(createResolvedMigration("6", "V2"), null, context, false);
-
+        MigrationInfoImpl r6 = new MigrationInfoImpl(b, null, context, false);
+        MigrationInfoImpl v5 = new MigrationInfoImpl(createResolvedMigration("6", "V2"), null, context, false);
 
         assertTrue(r1.compareTo(r1) == 0);
         assertTrue(r1.compareTo(v2) < 0);
         assertTrue(r1.compareTo(r3) < 0);
         assertTrue(r1.compareTo(r4) < 0);
-        assertTrue(r1.compareTo(r5) < 0);
-        assertTrue(r1.compareTo(v6) < 0);
+        assertTrue(r1.compareTo(v5) < 0);
+        assertTrue(r1.compareTo(r6) < 0);
 
         assertTrue(v2.compareTo(r1) > 0);
         assertTrue(v2.compareTo(v2) == 0);
         assertTrue(v2.compareTo(r3) < 0);
         assertTrue(v2.compareTo(r4) < 0);
-        assertTrue(v2.compareTo(r5) < 0);
-        assertTrue(v2.compareTo(v6) < 0);
+        assertTrue(v2.compareTo(v5) < 0);
+        assertTrue(v2.compareTo(r6) < 0);
 
         assertTrue(r3.compareTo(r1) > 0);
         assertTrue(r3.compareTo(v2) > 0);
         assertTrue(r3.compareTo(r3) == 0);
         assertTrue(r3.compareTo(r4) < 0);
-        assertTrue(r3.compareTo(r5) < 0);
-        assertTrue(r3.compareTo(v6) < 0);
+        assertTrue(r3.compareTo(v5) < 0);
+        assertTrue(r3.compareTo(r6) < 0);
 
         assertTrue(r4.compareTo(r1) > 0);
         assertTrue(r4.compareTo(v2) > 0);
         assertTrue(r4.compareTo(r3) > 0);
         assertTrue(r4.compareTo(r4) == 0);
-        assertTrue(r4.compareTo(r5) < 0);
-        assertTrue(r4.compareTo(v6) < 0);
+        assertTrue(r4.compareTo(v5) < 0);
+        assertTrue(r4.compareTo(r6) < 0);
 
-        assertTrue(r5.compareTo(r1) > 0);
-        assertTrue(r5.compareTo(v2) > 0);
-        assertTrue(r5.compareTo(r3) > 0);
-        assertTrue(r5.compareTo(r4) > 0);
-        assertTrue(r5.compareTo(r5) == 0);
-        assertTrue(r5.compareTo(v6) < 0);
+        assertTrue(v5.compareTo(r1) > 0);
+        assertTrue(v5.compareTo(v2) > 0);
+        assertTrue(v5.compareTo(r3) > 0);
+        assertTrue(v5.compareTo(r4) > 0);
+        assertTrue(v5.compareTo(v5) == 0);
+        assertTrue(v5.compareTo(r6) < 0);
 
-        assertTrue(v6.compareTo(r1) > 0);
-        assertTrue(v6.compareTo(v2) > 0);
-        assertTrue(v6.compareTo(r3) > 0);
-        assertTrue(v6.compareTo(r4) > 0);
-        assertTrue(v6.compareTo(r5) > 0);
-        assertTrue(v6.compareTo(v6) == 0);
+        assertTrue(r6.compareTo(r1) > 0);
+        assertTrue(r6.compareTo(v2) > 0);
+        assertTrue(r6.compareTo(r3) > 0);
+        assertTrue(r6.compareTo(r4) > 0);
+        assertTrue(r6.compareTo(v5) > 0);
+        assertTrue(r6.compareTo(r6) == 0);
     }
 
     /**
