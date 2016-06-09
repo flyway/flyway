@@ -394,8 +394,10 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql");
+        assertEquals(4, flyway.migrate());
         flyway.setLocations("migration/sql", "migration/repeatable");
-        assertEquals(6, flyway.migrate());
+        assertEquals(2, flyway.migrate());
         assertEquals(0, flyway.info().pending().length);
 
         for (MigrationInfo migrationInfo : flyway.info().all()) {
