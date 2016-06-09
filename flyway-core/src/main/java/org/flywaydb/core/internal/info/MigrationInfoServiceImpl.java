@@ -24,6 +24,7 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.ArrayList;
@@ -32,7 +33,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -124,8 +124,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param appliedMigrations  The applied migrations.
      * @return The complete list of migrations.
      */
-    /* private -> testing */
-    List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(Collection<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
+    private List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(Collection<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
         MigrationInfoContext context = new MigrationInfoContext();
         context.outOfOrder = outOfOrder;
         context.pending = pending;
@@ -190,7 +189,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         Set<ResolvedMigration> pendingResolvedRepeatableMigrations = new HashSet<ResolvedMigration>(resolvedRepeatableMigrationsMap.values());
         for (AppliedMigration appliedRepeatableMigration : appliedRepeatableMigrations) {
             ResolvedMigration resolvedMigration = resolvedRepeatableMigrationsMap.get(appliedRepeatableMigration.getDescription());
-            if (resolvedMigration != null && Objects.equals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
+            if (resolvedMigration != null && ObjectUtils.nullSafeEquals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
                 pendingResolvedRepeatableMigrations.remove(resolvedMigration);
             }
             if (!context.latestRepeatableRuns.containsKey(appliedRepeatableMigration.getDescription())
