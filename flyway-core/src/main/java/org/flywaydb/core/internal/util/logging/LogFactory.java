@@ -68,10 +68,10 @@ public class LogFactory {
             FeatureDetector featureDetector = new FeatureDetector(Thread.currentThread().getContextClassLoader());
             if (featureDetector.isAndroidAvailable()) {
                 logCreator = new AndroidLogCreator();
-            } else if (featureDetector.isSlf4jAvailable()) {
-                logCreator = new Slf4jLogCreator();
             } else if (featureDetector.isApacheCommonsLoggingAvailable()) {
                 logCreator = new ApacheCommonsLogCreator();
+            } else if (featureDetector.isSlf4jAvailable()) {
+                logCreator = new Slf4jLogCreator();
             } else if (fallbackLogCreator == null) {
                 logCreator = new JavaUtilLogCreator();
             } else {
