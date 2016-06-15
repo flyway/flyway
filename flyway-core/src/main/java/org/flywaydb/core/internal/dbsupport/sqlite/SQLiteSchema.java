@@ -22,6 +22,8 @@ import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +31,10 @@ import java.util.List;
  */
 public class SQLiteSchema extends Schema<SQLiteDbSupport> {
     private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
+
+    /** SQLite system tables are undroppable. */
+    private static final Collection<String> SYSTEM_TABLES =
+        Collections.singleton("sqlite_sequence");
 
     /**
      * Creates a new SQLite schema.
@@ -75,7 +81,9 @@ public class SQLiteSchema extends Schema<SQLiteDbSupport> {
         }
 
         for (Table table : allTables()) {
-            table.drop();
+            if (!SYSTEM_TABLES.contains(table.getName())) {
+                table.drop();
+            }
         }
     }
 
