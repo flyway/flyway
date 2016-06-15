@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.sqlite;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -65,4 +66,11 @@ public class SQLiteSqlStatementBuilderSmallTest {
 
         assertTrue(statementBuilder.isTerminated());
     }
+
+    @Test
+    public void blobLiteral() throws Exception {
+        statementBuilder.addLine("INSERT INTO test_table (id, bin) VALUES(1, x'01');");
+        assertTrue(statementBuilder.isTerminated());
+    }
+
 }
