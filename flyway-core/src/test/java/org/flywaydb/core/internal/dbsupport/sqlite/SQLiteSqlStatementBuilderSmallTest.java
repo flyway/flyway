@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.dbsupport.sqlite;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
