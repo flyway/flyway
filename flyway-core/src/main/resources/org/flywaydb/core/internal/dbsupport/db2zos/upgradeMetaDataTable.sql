@@ -57,8 +57,7 @@ SELECT
     "success"
 FROM "${schema}"."${table}");
 
---drop all the old things
-DROP TABLE "${schema}"."${table}";
+--drop old tablespace
 DROP TABLESPACE "${schema}".SDBVERS;
 
 RENAME TABLE "${schema}"."TMP_${table}" TO "${table}";

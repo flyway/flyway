@@ -39,6 +39,7 @@ public class DriverDataSource implements DataSource {
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
+    private static final String MYSQL_5_JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
     /**
      * The JDBC Driver instance to use.
@@ -221,6 +222,10 @@ public class DriverDataSource implements DataSource {
      */
     private String detectBackupDriverForUrl(String url) {
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
+            if (ClassUtils.isPresent(MYSQL_5_JDBC_DRIVER, classLoader)) {
+                return MYSQL_5_JDBC_DRIVER;
+            }
+
             return MARIADB_JDBC_DRIVER;
         }
 
@@ -271,7 +276,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
-            return "com.mysql.jdbc.Driver";
+            return "com.mysql.cj.jdbc.Driver";
         }
 
         if (url.startsWith("jdbc:mariadb:")) {

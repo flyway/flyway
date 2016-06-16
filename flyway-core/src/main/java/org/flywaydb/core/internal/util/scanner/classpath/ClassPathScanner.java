@@ -188,7 +188,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         if (classLoader.getClass().getName().startsWith("com.ibm")) {
             // WebSphere
-            Enumeration<URL> urls = classLoader.getResources(location + "/flyway.location");
+            Enumeration<URL> urls = classLoader.getResources(location.getPath() + "/flyway.location");
             if (!urls.hasMoreElements()) {
                 LOG.warn("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
                         + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");

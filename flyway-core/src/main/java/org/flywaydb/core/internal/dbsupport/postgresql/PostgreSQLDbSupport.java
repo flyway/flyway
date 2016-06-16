@@ -57,14 +57,23 @@ public class PostgreSQLDbSupport extends DbSupport {
             return null;
         }
 
-        String result = originalSchema.replace(doQuote("$user"), "").trim();
+        return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
+    }
+
+    /* private -> testing */ String getFirstSchemaFromSearchPath(String searchPath) {
+        String result = searchPath.replace(doQuote("$user"), "").trim();
         if (result.startsWith(",")) {
             result = result.substring(1);
         }
         if (result.contains(",")) {
             result = result.substring(0, result.indexOf(","));
         }
-        return getSchema(result.trim());
+        result = result.trim();
+        // Unquote if necessary
+        if (result.startsWith("\"") && result.endsWith("\"") && !result.endsWith("\\\"") && (result.length() > 1)) {
+            result = result.substring(1, result.length() - 1);
+        }
+        return result;
     }
 
     @Override

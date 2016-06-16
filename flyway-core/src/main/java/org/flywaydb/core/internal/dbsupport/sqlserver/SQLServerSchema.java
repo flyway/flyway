@@ -80,7 +80,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : cleanRoutines("procedure")) {
+        for (String statement : cleanRoutines("PROCEDURE")) {
             jdbcTemplate.execute(statement);
         }
 
@@ -92,7 +92,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
             table.drop();
         }
 
-        for (String statement : cleanRoutines("function")) {
+        for (String statement : cleanRoutines("FUNCTION")) {
             jdbcTemplate.execute(statement);
         }
 

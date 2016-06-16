@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.oracle;
 
+import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -65,6 +66,23 @@ public class OracleSqlStatementBuilderSmallTest {
     @Test
     public void qQuote() {
         builder.addLine("select q'[Hello 'no quotes]' from dual;");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
+    public void multilineCommentQuote() {
+        String sqlScriptSource = "create or replace procedure Test_proc\n" +
+                "is\n" +
+                "begin\n" +
+                "    EXECUTE IMMEDIATE 'SELECT 123 num, 321 num2 '||'/*comment with,comma'||'*/ from dual order by num, num2';\n" +
+                "end Test_proc;\n" +
+                "/\n";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            builder.addLine(line);
+        }
+
         assertTrue(builder.isTerminated());
     }
 

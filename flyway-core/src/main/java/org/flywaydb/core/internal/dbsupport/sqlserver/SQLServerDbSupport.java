@@ -34,6 +34,11 @@ public class SQLServerDbSupport extends DbSupport {
     private static final Log LOG = LogFactory.getLog(SQLServerDbSupport.class);
 
     /**
+     * Whether the warning message has already been printed.
+     */
+    private static boolean schemaMessagePrinted;
+
+    /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
@@ -57,9 +62,12 @@ public class SQLServerDbSupport extends DbSupport {
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
-        // Not currently supported.
-        // See http://connect.microsoft.com/SQLServer/feedback/details/390528/t-sql-statement-for-changing-default-schema-context
+        if (!schemaMessagePrinted) {
+            LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
+            // Not currently supported.
+            // See http://connect.microsoft.com/SQLServer/feedback/details/390528/t-sql-statement-for-changing-default-schema-context
+            schemaMessagePrinted = true;
+        }
     }
 
     public boolean supportsDdlTransactions() {

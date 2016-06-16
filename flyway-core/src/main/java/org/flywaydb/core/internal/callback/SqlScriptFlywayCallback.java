@@ -61,7 +61,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
             BEFORE_VALIDATE, AFTER_VALIDATE,
             BEFORE_BASELINE, AFTER_BASELINE,
             BEFORE_REPAIR, AFTER_REPAIR,
-            BEFORE_CLEAN, AFTER_CLEAN);
+            BEFORE_INFO, AFTER_INFO);
 
     private final Map<String, SqlScript> scripts = new HashMap<String, SqlScript>();
 

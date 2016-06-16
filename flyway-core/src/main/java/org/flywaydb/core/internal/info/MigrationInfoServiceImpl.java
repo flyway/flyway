@@ -24,6 +24,7 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.Pair;
 
 import java.util.ArrayList;
@@ -107,7 +108,12 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         migrationInfos = mergeAvailableAndAppliedMigrations(availableMigrations, appliedMigrations);
 
         if (MigrationVersion.CURRENT == target) {
-            target = current().getVersion();
+            MigrationInfo current = current();
+            if (current == null) {
+                target = MigrationVersion.EMPTY;
+            } else {
+                target = current.getVersion();
+            }
         }
     }
 
@@ -118,8 +124,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param appliedMigrations  The applied migrations.
      * @return The complete list of migrations.
      */
-    /* private -> testing */
-    List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(Collection<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
+    private List<MigrationInfoImpl> mergeAvailableAndAppliedMigrations(Collection<ResolvedMigration> resolvedMigrations, List<AppliedMigration> appliedMigrations) {
         MigrationInfoContext context = new MigrationInfoContext();
         context.outOfOrder = outOfOrder;
         context.pending = pending;
@@ -184,7 +189,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         Set<ResolvedMigration> pendingResolvedRepeatableMigrations = new HashSet<ResolvedMigration>(resolvedRepeatableMigrationsMap.values());
         for (AppliedMigration appliedRepeatableMigration : appliedRepeatableMigrations) {
             ResolvedMigration resolvedMigration = resolvedRepeatableMigrationsMap.get(appliedRepeatableMigration.getDescription());
-            if (resolvedMigration != null) {
+            if (resolvedMigration != null && ObjectUtils.nullSafeEquals(appliedRepeatableMigration.getChecksum(), resolvedMigration.getChecksum())) {
                 pendingResolvedRepeatableMigrations.remove(resolvedMigration);
             }
             if (!context.latestRepeatableRuns.containsKey(appliedRepeatableMigration.getDescription())
@@ -221,8 +226,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     public MigrationInfoImpl[] pending() {
         List<MigrationInfoImpl> pendingMigrations = new ArrayList<MigrationInfoImpl>();
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
-            if (MigrationState.PENDING == migrationInfo.getState()
-                    || MigrationState.OUTDATED == migrationInfo.getState()) {
+            if (MigrationState.PENDING == migrationInfo.getState()) {
                 pendingMigrations.add(migrationInfo);
             }
         }

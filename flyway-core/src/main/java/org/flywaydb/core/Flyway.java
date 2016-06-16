@@ -56,8 +56,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -962,7 +962,15 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
-     * <p>Validate applied migration with classpath migrations to detect accidental changes.</p>
+     * <p>Validate applied migrations against resolved ones (on the filesystem or classpath)
+     * to detect accidental changes that may prevent the schema(s) from being recreated exactly.</p>
+     * <p>Validation fails if</p>
+     * <ul>
+     *     <li>differences in migration names, types or checksums are found</li>
+     *     <li>versions have been applied that aren't resolved locally anymore</li>
+     *     <li>versions have been resolved that haven't been applied yet</li>
+     * </ul>
+     *
      * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
      * @throws FlywayException when the validation failed.
@@ -1345,7 +1353,7 @@ public class Flyway implements FlywayConfiguration {
             Scanner scanner = new Scanner(classLoader);
             MigrationResolver migrationResolver = createMigrationResolver(dbSupport, scanner);
 
-            Set<FlywayCallback> flywayCallbacks = new HashSet<FlywayCallback>(Arrays.asList(callbacks));
+            Set<FlywayCallback> flywayCallbacks = new LinkedHashSet<FlywayCallback>(Arrays.asList(callbacks));
             if (!skipDefaultCallbacks) {
                 flywayCallbacks.add(new SqlScriptFlywayCallback(dbSupport, scanner, locations, createPlaceholderReplacer(),
                         encoding, sqlMigrationSuffix));

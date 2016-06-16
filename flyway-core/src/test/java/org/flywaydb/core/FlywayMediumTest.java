@@ -379,7 +379,7 @@ public class FlywayMediumTest {
         flyway.setValidateOnMigrate(true);
         flyway.setTarget(MigrationVersion.LATEST);
         flyway.setOutOfOrder(true);
-        assertEquals(MigrationState.PENDING, flyway.info().all()[2].getState());
+        assertEquals(MigrationState.PENDING, flyway.info().all()[3].getState());
         assertEquals(2, flyway.migrate());
 
         MigrationInfo[] all = flyway.info().all();
@@ -394,29 +394,71 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
+        flyway.setTargetAsString("1.1");
         flyway.setLocations("migration/sql", "migration/repeatable");
-        assertEquals(6, flyway.migrate());
+        assertEquals(4, flyway.migrate());
         assertEquals(0, flyway.info().pending().length);
 
-        for (MigrationInfo migrationInfo : flyway.info().all()) {
-            assertEquals(MigrationState.SUCCESS, migrationInfo.getState());
-        }
-
-        flyway.setLocations("migration/sql", "migration/repeatable2");
         MigrationInfo[] all = flyway.info().all();
-        assertEquals(MigrationState.OUTDATED, all[all.length - 2].getState());
-        assertEquals(MigrationState.OUTDATED, all[all.length - 1].getState());
-        assertEquals(2, flyway.info().pending().length);
+        assertEquals(MigrationState.SUCCESS, all[0].getState());
+        assertEquals(MigrationState.SUCCESS, all[1].getState());
+        assertEquals(MigrationState.SUCCESS, all[2].getState());
+        assertEquals(MigrationState.SUCCESS, all[3].getState());
+        assertEquals(MigrationState.ABOVE_TARGET, all[4].getState());
+        assertEquals(MigrationState.ABOVE_TARGET, all[5].getState());
 
-        assertEquals(2, flyway.migrate());
+        flyway.setTarget(MigrationVersion.LATEST);
+        flyway.setLocations("migration/sql", "migration/repeatable2");
+        all = flyway.info().all();
+        assertEquals(MigrationState.SUCCESS, all[0].getState());
+        assertEquals(MigrationState.SUCCESS, all[1].getState());
+        assertEquals(MigrationState.OUTDATED, all[2].getState());
+        assertEquals(MigrationState.OUTDATED, all[3].getState());
+        assertEquals(MigrationState.PENDING, all[4].getState());
+        assertEquals(MigrationState.PENDING, all[5].getState());
+        assertEquals(MigrationState.PENDING, all[6].getState());
+        assertEquals(MigrationState.PENDING, all[7].getState());
+        assertNotNull(all[0].getVersion());
+        assertNotNull(all[1].getVersion());
+        assertNull(all[2].getVersion());
+        assertNull(all[3].getVersion());
+        assertNotNull(all[4].getVersion());
+        assertNotNull(all[5].getVersion());
+        assertNull(all[6].getVersion());
+        assertNull(all[7].getVersion());
+
+        assertEquals(4, flyway.info().pending().length);
+
+        assertEquals(4, flyway.migrate());
         assertEquals(0, flyway.info().pending().length);
         all = flyway.info().all();
-        assertEquals(MigrationState.SUPERSEEDED, all[all.length - 4].getState());
-        assertEquals(MigrationState.SUPERSEEDED, all[all.length - 3].getState());
-        assertEquals(MigrationState.SUCCESS, all[all.length - 2].getState());
-        assertEquals(MigrationState.SUCCESS, all[all.length - 1].getState());
+        assertEquals(MigrationState.SUCCESS, all[0].getState());
+        assertEquals(MigrationState.SUCCESS, all[1].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[2].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[3].getState());
+        assertEquals(MigrationState.SUCCESS, all[4].getState());
+        assertEquals(MigrationState.SUCCESS, all[5].getState());
+        assertEquals(MigrationState.SUCCESS, all[6].getState());
+        assertEquals(MigrationState.SUCCESS, all[7].getState());
+        assertNotNull(all[0].getVersion());
+        assertNotNull(all[1].getVersion());
+        assertNull(all[2].getVersion());
+        assertNull(all[3].getVersion());
+        assertNotNull(all[4].getVersion());
+        assertNotNull(all[5].getVersion());
+        assertNull(all[6].getVersion());
+        assertNull(all[7].getVersion());
 
         assertEquals(0, flyway.migrate());
+    }
+
+    @Test
+    public void currentEmpty() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_current_empty;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setTargetAsString("current");
+        assertEquals(0, flyway.migrate());
+        // Used to fail with NPE
     }
 
     @Test

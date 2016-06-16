@@ -343,17 +343,16 @@ public class DbMigrate {
     }
 
     private void doMigrate(MigrationInfoImpl migration, MigrationExecutor migrationExecutor, String migrationText) throws SQLException {
+        dbSupportUserObjects.changeCurrentSchemaTo(schema);
+
         for (final FlywayCallback callback : callbacks) {
-            dbSupportUserObjects.changeCurrentSchemaTo(schema);
             callback.beforeEachMigrate(connectionUserObjects, migration);
         }
 
-        dbSupportUserObjects.changeCurrentSchemaTo(schema);
         migrationExecutor.execute(connectionUserObjects);
         LOG.debug("Successfully completed migration of " + migrationText);
 
         for (final FlywayCallback callback : callbacks) {
-            dbSupportUserObjects.changeCurrentSchemaTo(schema);
             callback.afterEachMigrate(connectionUserObjects, migration);
         }
     }

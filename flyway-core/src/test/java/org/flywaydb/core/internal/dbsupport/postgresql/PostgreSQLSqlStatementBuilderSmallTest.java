@@ -69,6 +69,21 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void eString() {
+        String sqlScriptSource = "CREATE TABLE sometable1 (\n" +
+                "  id        SERIAL PRIMARY KEY,\n" +
+                "  somefield TEXT CHECK (somefield ~ E'.')\n" +
+                ");\n";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
     public void copy() {
         String line = "COPY CSV_FILES FROM '/path/to/filename.csv' DELIMITER ';' CSV HEADER";
         statementBuilder.addLine(line + ";\n");

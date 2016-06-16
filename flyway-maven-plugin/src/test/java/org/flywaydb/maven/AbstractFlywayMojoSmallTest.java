@@ -15,6 +15,7 @@
  */
 package org.flywaydb.maven;
 
+import org.apache.maven.settings.DefaultMavenSettingsBuilder;
 import org.flywaydb.core.Flyway;
 import org.apache.maven.project.MavenProject;
 import org.h2.Driver;
@@ -52,6 +53,7 @@ public class AbstractFlywayMojoSmallTest {
         mojo.driver = Driver.class.getName();
         mojo.url = "jdbc:h2:mem:dummy";
         mojo.user = "sa";
+        mojo.settings = new DefaultMavenSettingsBuilder().buildSettings();
         mojo.mavenProject = new MavenProject();
         mojo.mavenProject.setBasedir(new File("."));
         mojo.mavenProject.getProperties().setProperty("flyway.schemas", "first,second");
