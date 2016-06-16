@@ -112,9 +112,6 @@ public class DbBaseline {
             new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
                 public Void doInTransaction() {
                     dbSupport.changeCurrentSchemaTo(schema);
-                    if (metaDataTable.hasAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
-                    }
                     if (metaDataTable.hasBaselineMarker()) {
                         AppliedMigration baselineMarker = metaDataTable.getBaselineMarker();
                         if (baselineVersion.equals(baselineMarker.getVersion())
@@ -130,6 +127,9 @@ public class DbBaseline {
                     }
                     if (metaDataTable.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
                         throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
+                    }
+                    if (metaDataTable.hasAppliedMigrations()) {
+                      throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
                     }
                     metaDataTable.addBaselineMarker(baselineVersion, baselineDescription);
 
