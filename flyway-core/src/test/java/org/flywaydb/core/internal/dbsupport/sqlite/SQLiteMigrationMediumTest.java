@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.sqlite;
 
+import org.apache.commons.io.FileUtils;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.migration.MigrationTestCase;
@@ -22,13 +23,16 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sqlite.SQLiteDataSource;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test to demonstrate the migration functionality using SQLite.
@@ -105,4 +109,29 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
         jdbcTemplate.execute("CREATE INDEX \"schema_version_ir_idx\" ON \"schema_version\" (\"installed_rank\")");
         jdbcTemplate.execute("CREATE INDEX \"schema_version_s_idx\" ON \"schema_version\" (\"success\")");
     }
+
+    @Test
+    public void existingDataSourceInSingleConnectionMode() throws Exception {
+        final String filePath = "target/sqliteExistingDataSourceTest.db";
+        final File file = new File(filePath);
+        FileUtils.touch(file);
+
+        final SQLiteDataSource dataSource = new SQLiteDataSource();
+        dataSource.setUrl("jdbc:sqlite:" + filePath);
+        final Flyway flyway = new Flyway();
+        flyway.setLocations(BASEDIR);
+        flyway.setSingleConnectionDataSource(dataSource);
+
+        try {
+            // "database is locked" crash
+            flyway.migrate();
+        } finally {
+            try {
+                FileUtils.forceDelete(file);
+            } catch (Exception e) {
+                fail(e.getMessage());
+            }
+        }
+    }
+
 }

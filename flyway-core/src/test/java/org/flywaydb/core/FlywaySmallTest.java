@@ -24,6 +24,7 @@ import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -208,4 +209,18 @@ public class FlywaySmallTest {
             //expected
         }
     }
+
+    @Test
+    public void dataSourceInSingleConnectionMode() throws Exception {
+        final DataSource dataSource = Mockito.mock(DataSource.class);
+        Mockito.when(dataSource.getConnection())
+            .thenReturn(Mockito.mock(Connection.class))
+            .thenThrow(new AssertionError("In single connection mode."));
+        final Flyway flyway = new Flyway();
+        flyway.setSingleConnectionDataSource(dataSource);
+        flyway.getDataSource().getConnection();
+        flyway.getDataSource().getConnection("", "");
+        Mockito.verify(dataSource, Mockito.times(1)).getConnection();
+    }
+
 }
