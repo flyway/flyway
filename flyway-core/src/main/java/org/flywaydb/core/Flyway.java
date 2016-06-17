@@ -42,10 +42,7 @@ import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.util.jdbc.*;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.Scanner;
@@ -750,6 +747,15 @@ public class Flyway implements FlywayConfiguration {
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         createdDataSource = false;
+    }
+
+    /**
+     * Sets the datasource to use in single connection mode. Must have the necessary privileges to execute ddl.
+     *
+     * @param dataSource The datasource to use. Must have the necessary privileges to execute ddl.
+     */
+    public void setSingleConnectionDataSource(DataSource dataSource) {
+        setDataSource(new SingleConnectionDataSourceProxy(dataSource));
     }
 
     /**
