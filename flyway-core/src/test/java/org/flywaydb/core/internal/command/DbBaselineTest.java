@@ -64,12 +64,41 @@ public class DbBaselineTest {
     }
 
     @Test
+    public void newBaselineWithMigrations() {
+        // arrange
+        when(this.metaDataTable.hasBaselineMarker()).thenReturn(false);
+        when(this.metaDataTable.hasAppliedMigrations()).thenReturn(true);
+
+        // assert
+        this.expectedException.expect(FlywayException.class);
+        this.expectedException.expectMessage("contains migrations");
+
+        // act
+        this.testBaseline.baseline();
+    }
+
+    @Test
     public void sameBaselineMarkerPresentWithoutMigrations() {
         // arrange
         AppliedMigration baseline = new AppliedMigration(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
         when(this.metaDataTable.hasBaselineMarker()).thenReturn(true);
         when(this.metaDataTable.getBaselineMarker()).thenReturn(baseline);
         when(this.metaDataTable.hasAppliedMigrations()).thenReturn(false);
+
+        // act
+        this.testBaseline.baseline();
+
+        // assert
+        verify(metaDataTable, never()).addBaselineMarker(Mockito.<MigrationVersion>anyObject(), anyString());
+    }
+
+    @Test
+    public void sameBaselineMarkerPresentWithMigrations() {
+        // arrange
+        AppliedMigration baseline = new AppliedMigration(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
+        when(this.metaDataTable.hasBaselineMarker()).thenReturn(true);
+        when(this.metaDataTable.getBaselineMarker()).thenReturn(baseline);
+        when(this.metaDataTable.hasAppliedMigrations()).thenReturn(true);
 
         // act
         this.testBaseline.baseline();
