@@ -15,8 +15,14 @@
  */
 package org.flywaydb.core.internal.dbsupport.phoenix;
 
+import static org.junit.Assert.*;
+
+
+import javax.sql.DataSource;
+
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
@@ -28,11 +34,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.sql.SQLException;
 import java.util.Properties;
-
-import static org.junit.Assert.*;
 
 /**
  * Test to demonstrate the migration functionality using Phoenix.
@@ -77,6 +84,14 @@ public class PhoenixMigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getCommentLocation() {
         return "migration/dbsupport/phoenix/sql/comment";
+    }
+
+    protected String getRepeatableLocation() {
+        return "migration/dbsupport/phoenix/sql/repeatable";
+    }
+
+    protected String getRepeatableFutureLocation() {
+        return "migration/dbsupport/phoenix/sql/repeatable_future";
     }
 
     @BeforeClass
@@ -161,6 +176,49 @@ public class PhoenixMigrationMediumTest extends MigrationTestCase {
         flyway.setCleanOnValidationError(true);
         flyway.setSqlMigrationPrefix("PhoenixCheckValidate");
         assertEquals(1, flyway.migrate());
+    }
+
+    /**
+     * Test to ensure that a repair for checksum only repairs the checksums of versioned
+     * migrations, and the checksums of repeatable migrations are not changed.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRepeatableMigrationsWorkWithRepair() throws Exception {
+
+        // Get the future migration checksum
+        flyway.setLocations(getRepeatableFutureLocation());
+        Integer futureMigrationChecksum = flyway.info().pending()[0].getChecksum();
+
+        // Get the checksums of the current migrations, versioned and repeatable.
+        flyway.setLocations(getRepeatableLocation());
+        Integer migrationChecksum = flyway.info().pending()[0].getChecksum();
+        Integer repeatableChecksum = flyway.info().pending()[1].getChecksum();
+
+        // Migrate and verify that the checksums are as expected.
+        flyway.migrate();
+        assertEquals("1", flyway.info().current().getVersion().toString());
+        assertEquals(migrationChecksum, flyway.info().current().getChecksum());
+
+        // Migrations applied should be 3 including the repeatable migration.
+        assertEquals(3, flyway.info().applied().length);
+
+        // Validation should fail since the checksum of the same migration has now changed.
+        flyway.setLocations(getRepeatableFutureLocation());
+        try {
+            flyway.validate();
+            fail("Validate should throw an exception.");
+        } catch (Exception ex) {
+            assertTrue(ex instanceof FlywayException);
+        }
+
+        // Running repair should only update the checksum of the versioned migration
+        flyway.repair();
+        Integer repairedChecksum = flyway.info().current().getChecksum();
+
+        assertEquals(futureMigrationChecksum, repairedChecksum);
+        assertEquals(repeatableChecksum, flyway.info().applied()[2].getChecksum());
     }
 
     // Phoenix doesn't support setting an explicit schema

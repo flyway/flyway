@@ -155,7 +155,8 @@ public class DbRepair {
             Integer installedRank = migrationInfoImpl.getInstalledRank();
             if ((resolved != null) && (applied != null)) {
                 if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
-                        && resolved.getVersion() != null) {
+                        // This check is here to skip repairing of Repeatable migrations.
+                        && applied.getVersion() != null && resolved.getVersion() != null) {
                     metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), installedRank, resolved.getChecksum());
                 }
             }
