@@ -56,7 +56,7 @@ public class SQLServerPdwDbSupport extends DbSupport {
 
   @Override
   protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-    LOG.info("SQLServer does not support setting the schema for the current session. Default schema NOT changed to " + schema);
+    LOG.info("SQLServer Parallel Data Warehouse does not support setting the schema for the current session. Default schema NOT changed to " + schema);
     // Not currently supported.
     // See http://connect.microsoft.com/SQLServer/feedback/details/390528/t-sql-statement-for-changing-default-schema-context
   }
