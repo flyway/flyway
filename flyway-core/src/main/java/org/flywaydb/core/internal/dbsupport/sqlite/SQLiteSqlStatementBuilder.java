@@ -42,4 +42,14 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
         }
         return getDefaultDelimiter();
     }
+
+    @Override
+    protected String cleanToken(String token) {
+        if (token.startsWith("X'")) {
+            // blob literal
+            return token.substring(token.indexOf("'"));
+        }
+        return token;
+    }
+
 }

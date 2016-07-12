@@ -298,6 +298,8 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (getVersion() != null && o.getVersion() != null) {
             return getVersion().compareTo(o.getVersion());
         }
+
+        // Versioned pending migrations go before repeatable ones
         if (getVersion() != null) {
             return Integer.MIN_VALUE;
         }

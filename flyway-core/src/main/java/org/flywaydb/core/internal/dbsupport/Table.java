@@ -1,17 +1,17 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.flywaydb.core.internal.dbsupport;
 
@@ -27,16 +27,15 @@ import java.sql.SQLException;
  * Represents a database table within a schema.
  */
 public abstract class Table extends SchemaObject {
-
     private static final Log LOG = LogFactory.getLog(Table.class);
 
     /**
      * Creates a new table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
-     * @param dbSupport The database-specific support.
-     * @param schema The schema this table lives in.
-     * @param name The name of the table.
+     * @param dbSupport    The database-specific support.
+     * @param schema       The schema this table lives in.
+     * @param name         The name of the table.
      */
     public Table(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
@@ -66,12 +65,11 @@ public abstract class Table extends SchemaObject {
     /**
      * Checks whether the database contains a table matching these criteria.
      *
-     * @param catalog The catalog where the table resides. (optional)
-     * @param schema The schema where the table resides. (optional)
-     * @param table The name of the table. (optional)
+     * @param catalog    The catalog where the table resides. (optional)
+     * @param schema     The schema where the table resides. (optional)
+     * @param table      The name of the table. (optional)
      * @param tableTypes The types of table to look for (ex.: TABLE). (optional)
-     * @return {@code true} if a matching table has been found, {@code false} if
-     * not.
+     * @return {@code true} if a matching table has been found, {@code false} if not.
      * @throws SQLException when the check failed.
      */
     protected boolean exists(Schema catalog, Schema schema, String table, String... tableTypes) throws SQLException {
@@ -99,8 +97,7 @@ public abstract class Table extends SchemaObject {
     /**
      * Checks whether the table has a primary key.
      *
-     * @return {@code true} if a primary key has been found, {@code false} if
-     * not.
+     * @return {@code true} if a primary key has been found, {@code false} if not.
      */
     public boolean hasPrimaryKey() {
         ResultSet resultSet = null;
@@ -125,8 +122,7 @@ public abstract class Table extends SchemaObject {
      * Checks whether the database contains a column matching these criteria.
      *
      * @param column The column to look for.
-     * @return {@code true} if a matching column has been found, {@code false}
-     * if not.
+     * @return {@code true} if a matching column has been found, {@code false} if not.
      */
     public boolean hasColumn(String column) {
         ResultSet resultSet = null;
@@ -174,8 +170,7 @@ public abstract class Table extends SchemaObject {
     }
 
     /**
-     * Locks this table in this schema using a read/write pessimistic lock until
-     * the end of the current transaction.
+     * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
      */
     public void lock() {
         if (dbSupport.supportsDdlTransactions()) {
@@ -190,8 +185,7 @@ public abstract class Table extends SchemaObject {
     }
 
     /**
-     * Locks this table in this schema using a read/write pessimistic lock until
-     * the end of the current transaction.
+     * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
      *
      * @throws SQLException when this table in this schema could not be locked.
      */

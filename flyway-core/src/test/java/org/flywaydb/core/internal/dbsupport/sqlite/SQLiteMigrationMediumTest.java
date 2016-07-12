@@ -105,4 +105,14 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
         jdbcTemplate.execute("CREATE INDEX \"schema_version_ir_idx\" ON \"schema_version\" (\"installed_rank\")");
         jdbcTemplate.execute("CREATE INDEX \"schema_version_s_idx\" ON \"schema_version\" (\"success\")");
     }
+
+    @Test
+    public void cleanWithSystemTables() throws Exception {
+        // AUTOINCREMENT field causes sqlite_sequence table creation
+        flyway.setLocations("migration/dbsupport/sqlite/autoincrement");
+        flyway.migrate();
+        // crashes on "DROP sqlite_sequence": table sqlite_sequence may not be dropped
+        flyway.clean();
+    }
+
 }
