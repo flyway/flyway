@@ -20,7 +20,8 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.callback.SQLFlywayCallback;
+import org.flywaydb.core.api.configuration.SQLFlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.command.DbBaseline;
@@ -69,7 +70,7 @@ import java.util.Set;
  * It is THE public API from which all important Flyway functions such as clean, validate and migrate can be called.
  * </p>
  */
-public class Flyway implements FlywayConfiguration {
+public class Flyway implements SQLFlywayConfiguration {
     private static final Log LOG = LogFactory.getLog(Flyway.class);
 
     /**
@@ -256,6 +257,12 @@ public class Flyway implements FlywayConfiguration {
      * add as many custom callbacks as you want. (default: none)
      */
     private FlywayCallback[] callbacks = new FlywayCallback[0];
+
+	  /**
+	   * This is a list of custom callbacks that fire before and after tasks are executed.  You can
+     * add as many custom callbacks as you want. (default: none)
+     */
+    private SQLFlywayCallback[] sqlCallbacks = new SQLFlywayCallback[0];
 
     /**
      * Whether Flyway should skip the default callbacks. If true, only custom callbacks are used.
@@ -844,6 +851,16 @@ public class Flyway implements FlywayConfiguration {
         return callbacks;
     }
 
+	  /**
+     * Gets the SQL callbacks for lifecycle notifications.
+     *
+     * @return The SQL callbacks for lifecycle notifications. An empty array if none. (default: none)
+     */
+    @Override
+    public SQLFlywayCallback[] getSqlCallbacks() {
+        return sqlCallbacks;
+    }
+
     @Override
     public boolean isSkipDefaultCallbacks() {
         return skipDefaultCallbacks;
@@ -866,6 +883,25 @@ public class Flyway implements FlywayConfiguration {
     public void setCallbacksAsClassNames(String... callbacks) {
         List<FlywayCallback> callbackList = ClassUtils.instantiateAll(callbacks, classLoader);
         setCallbacks(callbackList.toArray(new FlywayCallback[callbacks.length]));
+    }
+
+	/**
+     * Set the callbacks for lifecycle notifications.
+     *
+     * @param callbacks The callbacks for lifecycle notifications. (default: none)
+     */
+    public void setSqlCallbacks(SQLFlywayCallback... callbacks) {
+        this.sqlCallbacks = callbacks;
+    }
+
+    /**
+     * Set the callbacks for lifecycle notifications.
+     *
+     * @param callbacks The fully qualified class names of the callbacks for lifecycle notifications. (default: none)
+     */
+    public void setSqlCallbacksAsClassNames(String... callbacks) {
+        List<SQLFlywayCallback> callbackList = ClassUtils.instantiateAll(callbacks, classLoader);
+        setSqlCallbacks(callbackList.toArray(new SQLFlywayCallback[callbacks.length]));
     }
 
     /**

@@ -55,5 +55,5 @@ public interface ResolvedMigration {
     /**
      * @return The executor to run this migration.
      */
-    MigrationExecutor getExecutor();
+    FlywayMigrationExecutor getExecutor();
 }

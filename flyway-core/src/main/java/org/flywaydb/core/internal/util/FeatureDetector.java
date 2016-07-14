@@ -52,6 +52,11 @@ public final class FeatureDetector {
      * Flag indicating availability of Spring JDBC.
      */
     private Boolean springJdbcAvailable;
+	
+    /**
+     * Flag indicating availability of Spring MongoDB.
+     */
+    private Boolean springMongoAvailable;
 
     /**
      * Flag indicating availability of JBoss VFS v2.
@@ -111,6 +116,20 @@ public final class FeatureDetector {
         }
 
         return springJdbcAvailable;
+    }
+
+	  /**
+     * Checks whether Spring Mongo is available.
+     *
+     * @return {@code true} if it is, {@code false if it is not}
+     */
+    public boolean isSpringMongoAvailable() {
+        if (springMongoAvailable == null) {
+            springMongoAvailable = ClassUtils.isPresent("org.springframework.data.mongodb.core.MongoTemplate", classLoader);
+            LOG.debug("Spring Mongo available: " + springMongoAvailable);
+        }
+
+        return springMongoAvailable;
     }
 
     /**

@@ -43,7 +43,12 @@ public enum MigrationType {
      * The type for Spring Jdbc java-based migrations.
      */
     SPRING_JDBC,
-
+		
+		/**
+     * The type for MongoDB java-based migrations.
+     */
+    MONGODB,
+		
     /**
      * The type for other migrations by custom MigrationResolvers.
      */
