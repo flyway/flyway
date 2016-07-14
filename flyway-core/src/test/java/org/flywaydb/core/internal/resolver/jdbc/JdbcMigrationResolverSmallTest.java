@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.resolver.jdbc;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
@@ -62,7 +63,8 @@ public class JdbcMigrationResolverSmallTest {
 
         // do a test execute, since the migration does not do anything, we simply test whether the
         // configuration has been set correctly
-        migrationInfo.getExecutor().execute(null);
+				MigrationExecutor executor = (MigrationExecutor) migrationInfo.getExecutor();
+        executor.execute(null);
 
         ResolvedMigration migrationInfo1 = migrationList.get(1);
         assertEquals("3.5", migrationInfo1.getVersion().toString());

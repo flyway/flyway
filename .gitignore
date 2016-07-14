@@ -12,3 +12,6 @@ target
 .idea
 .gradle
 *.h2.db
+
+# ignore saved emacs files
+*~

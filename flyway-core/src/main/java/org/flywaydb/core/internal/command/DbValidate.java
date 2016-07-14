@@ -38,7 +38,7 @@ import java.util.concurrent.Callable;
  *
  * @author Axel Fontaine
  */
-public class DbValidate {
+public class DbValidate implements Validate {
     private static final Log LOG = LogFactory.getLog(DbValidate.class);
 
     /**
@@ -125,11 +125,7 @@ public class DbValidate {
         this.callbacks = callbacks;
     }
 
-    /**
-     * Starts the actual migration.
-     *
-     * @return The validation error, if any.
-     */
+	  @Override
     public String validate() {
         try {
             for (final FlywayCallback callback : callbacks) {

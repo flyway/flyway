@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.callback;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.SQLFlywayConfiguration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
@@ -76,7 +76,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
      * @param configuration       The Flyway configuration.
      */
     public SqlScriptFlywayCallback(DbSupport dbSupport, Scanner scanner, Locations locations,
-                                   PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+                                   PlaceholderReplacer placeholderReplacer, SQLFlywayConfiguration configuration) {
         for (String callback : ALL_CALLBACKS) {
             scripts.put(callback, null);
         }

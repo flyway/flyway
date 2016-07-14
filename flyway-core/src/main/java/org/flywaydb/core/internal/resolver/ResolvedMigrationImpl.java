@@ -17,7 +17,7 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.api.resolver.FlywayMigrationExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.util.ObjectUtils;
 
@@ -58,7 +58,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     /**
      * The executor to run this migration.
      */
-    private MigrationExecutor executor;
+    private FlywayMigrationExecutor executor;
 
     @Override
     public MigrationVersion getVersion() {
@@ -133,14 +133,14 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     }
 
     @Override
-    public MigrationExecutor getExecutor() {
+    public FlywayMigrationExecutor getExecutor() {
         return executor;
     }
 
     /**
      * @param executor The executor to run this migration.
      */
-    public void setExecutor(MigrationExecutor executor) {
+    public void setExecutor(FlywayMigrationExecutor executor) {
         this.executor = executor;
     }
 

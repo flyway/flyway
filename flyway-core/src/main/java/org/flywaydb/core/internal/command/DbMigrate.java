@@ -20,9 +20,10 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.SQLFlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.FlywayMigrationExecutor;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -45,7 +46,7 @@ import java.util.concurrent.Callable;
  *
  * @author Axel Fontaine
  */
-public class DbMigrate {
+public class DbMigrate implements Migrate {
 
     private static final Log LOG = LogFactory.getLog(DbMigrate.class);
 
@@ -72,7 +73,7 @@ public class DbMigrate {
     /**
      * The Flyway configuration.
      */
-    private final FlywayConfiguration configuration;
+    private final SQLFlywayConfiguration configuration;
 
     /**
      * The connection to use to perform the actual database migrations.
@@ -101,7 +102,7 @@ public class DbMigrate {
      */
     public DbMigrate(Connection connectionUserObjects, DbSupport dbSupport,
                      MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                     boolean ignoreFailedFutureMigration, FlywayConfiguration configuration) {
+                     boolean ignoreFailedFutureMigration, SQLFlywayConfiguration configuration) {
         this.connectionUserObjects = connectionUserObjects;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
@@ -113,12 +114,7 @@ public class DbMigrate {
         dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
     }
 
-    /**
-     * Starts the actual migration.
-     *
-     * @return The number of successfully applied migrations.
-     * @throws FlywayException when migration failed.
-     */
+  	@Override
     public int migrate() throws FlywayException {
         try {
             for (final FlywayCallback callback : configuration.getCallbacks()) {
@@ -257,7 +253,7 @@ public class DbMigrate {
      */
     private Boolean applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
         MigrationVersion version = migration.getVersion();
-        final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
+        final MigrationExecutor migrationExecutor = (MigrationExecutor) migration.getResolvedMigration().getExecutor();
         final String migrationText;
         if (version != null) {
             migrationText = "schema " + schema + " to version " + version + " - " + migration.getDescription() +
@@ -313,8 +309,10 @@ public class DbMigrate {
         return false;
     }
 
-    private void doMigrate(MigrationInfoImpl migration, MigrationExecutor migrationExecutor, String migrationText) throws SQLException {
-        dbSupportUserObjects.changeCurrentSchemaTo(schema);
+    private void doMigrate(MigrationInfoImpl migration, FlywayMigrationExecutor flywayMigrationExecutor,
+													 String migrationText) throws SQLException {
+			  MigrationExecutor migrationExecutor = (MigrationExecutor) flywayMigrationExecutor;
+			  dbSupportUserObjects.changeCurrentSchemaTo(schema);
 
         for (final FlywayCallback callback : configuration.getCallbacks()) {
             callback.beforeEachMigrate(connectionUserObjects, migration);

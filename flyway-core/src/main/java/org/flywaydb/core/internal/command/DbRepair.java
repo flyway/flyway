@@ -40,7 +40,7 @@ import java.util.concurrent.Callable;
 /**
  * Handles Flyway's repair command.
  */
-public class DbRepair {
+public class DbRepair implements Repair {
     private static final Log LOG = LogFactory.getLog(DbRepair.class);
 
     /**
@@ -94,9 +94,7 @@ public class DbRepair {
         this.callbacks = callbacks;
     }
 
-    /**
-     * Repairs the metadata table.
-     */
+    @Override
     public void repair() {
         try {
             for (final FlywayCallback callback : callbacks) {
