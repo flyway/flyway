@@ -35,7 +35,7 @@ public class MemSQLSqlStatementBuilder extends SqlStatementBuilder {
             "LATIN2", "LATIN5", "LATIN7", "MACCE", "MACROMAN", "SJIS", "SWE7", "TIS620", "UCS2", "UJIS", "UTF8"
     };
 
-    /*private -> testing*/ boolean isInMultiLineCommentDirective = false;
+    /*private -> testing*/ public boolean isInMultiLineCommentDirective = false;
 
     @Override
     public Delimiter extractNewDelimiterFromLine(String line) {
