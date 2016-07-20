@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE TABLE `${schema}`.`${table}` (
+CREATE REFERENCE TABLE `${schema}`.`${table}` (
     `installed_rank` INT NOT NULL,
     `version` VARCHAR(50),
     `description` VARCHAR(200) NOT NULL,
@@ -24,8 +24,7 @@ CREATE TABLE `${schema}`.`${table}` (
     `installed_by` VARCHAR(100) NOT NULL,
     `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `execution_time` INT NOT NULL,
-    `success` BOOL NOT NULL,
-    -- Add the primary key as part of the CREATE TABLE statement in case `innodb_force_primary_key` is enabled
+    `success` TINYINT(1) NOT NULL,
     CONSTRAINT `${table}_pk`PRIMARY KEY (`installed_rank`)
 );
 

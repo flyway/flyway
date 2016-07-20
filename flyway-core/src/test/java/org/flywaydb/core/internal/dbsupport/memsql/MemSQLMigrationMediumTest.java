@@ -36,7 +36,7 @@ public class MemSQLMigrationMediumTest extends MemSQLMigrationTestCase {
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("memsql.user", "root");
         String password = customProperties.getProperty("memsql.password", "");
-        String url = customProperties.getProperty("memsql.url", "jdbc:mysql://127.0.0.1:43306/flyway_memsql_db");
+        String url = customProperties.getProperty("memsql.url", "jdbc:mysql://127.0.0.1:3306/flyway_memsql_db");
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
     }
@@ -44,7 +44,7 @@ public class MemSQLMigrationMediumTest extends MemSQLMigrationTestCase {
     @Test
     public void migrateWithNonExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
-        flyway.setDataSource("jdbc:mysql://127.0.0.1:43306/", "root", "");
+        flyway.setDataSource("jdbc:mysql://127.0.0.1:3306/", "root", "");
         flyway.setSchemas("nonexistingschema");
         flyway.setLocations(BASEDIR);
         flyway.clean();
@@ -54,7 +54,7 @@ public class MemSQLMigrationMediumTest extends MemSQLMigrationTestCase {
     @Test
     public void migrateWithExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
-        flyway.setDataSource("jdbc:mysql://127.0.0.1:43306/", "root", "");
+        flyway.setDataSource("jdbc:mysql://127.0.0.1:3306/", "root", "");
         flyway.setSchemas("flyway_memsql_db");
         flyway.setLocations(getBasedir());
         flyway.clean();

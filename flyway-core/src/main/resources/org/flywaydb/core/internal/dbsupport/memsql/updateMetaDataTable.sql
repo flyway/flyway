@@ -14,10 +14,14 @@
 -- limitations under the License.
 --
 
-DROP INDEX `${table}_vr_idx` ON `${schema}`.`${table}`;
-DROP INDEX `${table}_ir_idx` ON `${schema}`.`${table}`;
-ALTER TABLE `${schema}`.`${table}` DROP COLUMN `version_rank`;
--- Do this in a single step in case `innodb_force_primary_key` is enabled
-ALTER OFFLINE TABLE `${schema}`.`${table}` DROP PRIMARY KEY, ADD CONSTRAINT `${table}_pk` PRIMARY KEY (`installed_rank`);
-ALTER TABLE `${schema}`.`${table}` MODIFY `version` VARCHAR(50);
-UPDATE `${schema}`.`${table}` SET `type`='BASELINE' WHERE `type`='INIT';
+-- Add new metadata row
+INSERT INTO ${schema}.${table} (`installed_rank`,`version`,`description`,`type`,`script`,`checksum`,`installed_by`,`execution_time`,`success`) SELECT
+    ${installed_rank_val},
+    '${version_val}',
+    '${description_val}',
+    '${type_val}',
+    '${script_val}',
+    ${checksum_val},
+    SUBSTRING_INDEX(current_user(),'@',1),
+    ${execution_time_val},
+    ${success_val} from dual;

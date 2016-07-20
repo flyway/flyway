@@ -156,10 +156,10 @@ public abstract class MemSQLMigrationTestCase extends MigrationTestCase {
 
     @Override
     protected void createFlyway3MetadataTable() throws Exception {
-        jdbcTemplate.execute("CREATE TABLE `schema_version` (\n" +
+        jdbcTemplate.execute("CREATE REFERENCE TABLE `schema_version` (\n" +
                 "    `version_rank` INT NOT NULL,\n" +
                 "    `installed_rank` INT NOT NULL,\n" +
-                "    `version` VARCHAR(50) NOT NULL,\n" +
+                "    `version` VARCHAR(50) NOT NULL PRIMARY KEY,\n" +
                 "    `description` VARCHAR(200) NOT NULL,\n" +
                 "    `type` VARCHAR(20) NOT NULL,\n" +
                 "    `script` VARCHAR(1000) NOT NULL,\n" +
@@ -167,9 +167,8 @@ public abstract class MemSQLMigrationTestCase extends MigrationTestCase {
                 "    `installed_by` VARCHAR(100) NOT NULL,\n" +
                 "    `installed_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
                 "    `execution_time` INT NOT NULL,\n" +
-                "    `success` BOOL NOT NULL\n" +
+                "    `success` TINYINT(1) NOT NULL\n" +
                 ")");
-        jdbcTemplate.execute("ALTER TABLE `schema_version` ADD CONSTRAINT `schema_version_pk` PRIMARY KEY (`version`)");
         jdbcTemplate.execute("CREATE INDEX `schema_version_vr_idx` ON `schema_version` (`version_rank`)");
         jdbcTemplate.execute("CREATE INDEX `schema_version_ir_idx` ON `schema_version` (`installed_rank`)");
         jdbcTemplate.execute("CREATE INDEX `schema_version_s_idx` ON `schema_version` (`success`)");

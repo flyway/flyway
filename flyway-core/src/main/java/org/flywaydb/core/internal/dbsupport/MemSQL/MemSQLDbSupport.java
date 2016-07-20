@@ -49,7 +49,7 @@ public class MemSQLDbSupport extends DbSupport {
     }
 
     public String getCurrentUserFunction() {
-        return "USER()";
+        return null;
     }
 
     @Override
