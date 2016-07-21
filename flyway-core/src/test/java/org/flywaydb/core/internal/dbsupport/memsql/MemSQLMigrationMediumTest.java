@@ -45,7 +45,7 @@ public class MemSQLMigrationMediumTest extends MemSQLMigrationTestCase {
     public void migrateWithNonExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:mysql://127.0.0.1:3306/", "root", "");
-        flyway.setSchemas("nonexistingschema");
+        flyway.setSchemas("non_existings_chema");
         flyway.setLocations(BASEDIR);
         flyway.clean();
         assertEquals(4, flyway.migrate());

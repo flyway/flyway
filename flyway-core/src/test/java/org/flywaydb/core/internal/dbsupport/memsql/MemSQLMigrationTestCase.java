@@ -41,13 +41,28 @@ public abstract class MemSQLMigrationTestCase extends MigrationTestCase {
     }
 
     @Test
+    public void storedProcedure() throws Exception {
+        //Not supported by MemSQL
+    }
+
+    @Test
     public void delimiter() throws Exception {
         flyway.setLocations("migration/dbsupport/memsql/sql/delimiter");
         flyway.migrate();
     }
 
+    @Test
+    public void hashComment() throws Exception {
+        flyway.setLocations("migration/dbsupport/memsql/sql/hashcomment");
+        flyway.migrate();
+    }
 
-    @Ignore
+    @Test
+    public void trigger() throws Exception {
+        //Not supported by MemSQL
+    }
+
+    @Test
     public void migrateMultipleSchemas() throws Exception {
         //Not supported by MemSQL
     }
@@ -68,7 +83,29 @@ public abstract class MemSQLMigrationTestCase extends MigrationTestCase {
         flyway.migrate();
     }
 
+    /**
+     * Tests clean and migrate for MemSQL Events.
+     */
+    @Test
+    public void event() throws Exception {
+        //Not supported in MemSQL
+    }
 
+    /**
+     * Tests clean and migrate for MemSQL dumps.
+     */
+    @Test
+    public void dump() throws Exception {
+        flyway.setLocations("migration/dbsupport/memsql/sql/dump");
+        flyway.migrate();
+
+        assertEquals(0, jdbcTemplate.queryForInt("SELECT count(id) FROM user_account"));
+
+        flyway.clean();
+
+        // Running migrate again on an unclean database, triggers duplicate object exceptions.
+        flyway.migrate();
+    }
     /**
      * Tests clean and migrate for MemSQL tables with upper case names.
      * <p/>
