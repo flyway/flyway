@@ -15,5 +15,5 @@
 --
 
 CREATE TABLE A1 (
-  val INT
-) engine=InnoDB;
+  val INT PRIMARY KEY
+);
