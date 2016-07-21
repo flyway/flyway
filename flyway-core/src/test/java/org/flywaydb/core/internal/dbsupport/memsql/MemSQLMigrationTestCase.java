@@ -70,7 +70,7 @@ public abstract class MemSQLMigrationTestCase extends MigrationTestCase {
 
 
     /**
-     * Tests clean and migrate for MemSQL InnoDb tables with upper case names.
+     * Tests clean and migrate for MemSQL tables with upper case names.
      * <p/>
      * Only effective on Windows when the server is configured using:
      * <p/>
