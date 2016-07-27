@@ -82,7 +82,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
         try {
             Class<?>[] classes = scanner.scanForClasses(location, JdbcMigration.class);
             for (Class<?> clazz : classes) {
-                JdbcMigration jdbcMigration = ClassUtils.instantiate(clazz.getName(), scanner.getClassLoader());
+                JdbcMigration jdbcMigration = instantiate(clazz.getName(), scanner.getClassLoader());
                 ConfigurationInjectionUtils.injectFlywayConfiguration(jdbcMigration, configuration);
 
                 ResolvedMigrationImpl migrationInfo = extractMigrationInfo(jdbcMigration);
@@ -97,6 +97,19 @@ public class JdbcMigrationResolver implements MigrationResolver {
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
+    }
+
+    /**
+     * Creates a new instance of this class.
+     *
+     * @param className   The fully qualified name of the jdbc migration class to instantiate.
+     * @param classLoader The ClassLoader to use.
+     * @return The new instance.
+     * @throws Exception Thrown when the instantiation failed.
+     */
+    @SuppressWarnings({"unchecked"})
+    protected JdbcMigration instantiate(String className, ClassLoader classLoader) throws Exception {
+        return ClassUtils.instantiate(className, classLoader);
     }
 
     /**
