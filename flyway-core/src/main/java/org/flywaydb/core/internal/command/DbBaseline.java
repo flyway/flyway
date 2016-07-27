@@ -29,11 +29,14 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.flywaydb.core.internal.util.jdbc.NonTransactionalCallback;
+import org.flywaydb.core.internal.util.jdbc.NonTransactionalTemplate;
 
 /**
  * Handles Flyway's baseline command.
  */
 public class DbBaseline {
+
     private static final Log LOG = LogFactory.getLog(DbBaseline.class);
 
     /**
@@ -98,56 +101,110 @@ public class DbBaseline {
      */
     public void baseline() {
         try {
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
-                    @Override
-                    public Object doInTransaction() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
-                        callback.beforeBaseline(connection);
-                        return null;
-                    }
-                });
-            }
-
-            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() {
-                    dbSupport.changeCurrentSchemaTo(schema);
-                    if (metaDataTable.hasAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
-                    }
-                    if (metaDataTable.hasBaselineMarker()) {
-                        AppliedMigration baselineMarker = metaDataTable.getBaselineMarker();
-                        if (baselineVersion.equals(baselineMarker.getVersion())
-                                && baselineDescription.equals(baselineMarker.getDescription())) {
-                            LOG.info("Metadata table " + metaDataTable + " already initialized with ("
-                                    + baselineVersion + "," + baselineDescription + "). Skipping.");
+            if (this.dbSupport.supportsDdlTransactions()) {
+                for (final FlywayCallback callback : callbacks) {
+                    new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                        @Override
+                        public Object doInTransaction() throws SQLException {
+                            dbSupport.changeCurrentSchemaTo(schema);
+                            callback.beforeBaseline(connection);
                             return null;
                         }
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with ("
-                                + baselineVersion + "," + baselineDescription
-                                + ") as it has already been initialized with ("
-                                + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
-                    }
-                    if (metaDataTable.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
-                    }
-                    metaDataTable.addBaselineMarker(baselineVersion, baselineDescription);
-
-                    return null;
+                    });
                 }
-            });
 
-            LOG.info("Successfully baselined schema with version: " + baselineVersion);
-
-            for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
-                    @Override
-                    public Object doInTransaction() throws SQLException {
+                new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
+                    public Void doInTransaction() {
                         dbSupport.changeCurrentSchemaTo(schema);
-                        callback.afterBaseline(connection);
+                        if (metaDataTable.hasAppliedMigrations()) {
+                            throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
+                        }
+                        if (metaDataTable.hasBaselineMarker()) {
+                            AppliedMigration baselineMarker = metaDataTable.getBaselineMarker();
+                            if (baselineVersion.equals(baselineMarker.getVersion())
+                                    && baselineDescription.equals(baselineMarker.getDescription())) {
+                                LOG.info("Metadata table " + metaDataTable + " already initialized with ("
+                                        + baselineVersion + "," + baselineDescription + "). Skipping.");
+                                return null;
+                            }
+                            throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with ("
+                                    + baselineVersion + "," + baselineDescription
+                                    + ") as it has already been initialized with ("
+                                    + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
+                        }
+                        if (metaDataTable.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
+                            throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
+                        }
+                        metaDataTable.addBaselineMarker(baselineVersion, baselineDescription);
+
                         return null;
                     }
                 });
+
+                LOG.info("Successfully baselined schema with version: " + baselineVersion);
+
+                for (final FlywayCallback callback : callbacks) {
+                    new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                        @Override
+                        public Object doInTransaction() throws SQLException {
+                            dbSupport.changeCurrentSchemaTo(schema);
+                            callback.afterBaseline(connection);
+                            return null;
+                        }
+                    });
+                }
+            } else {
+                for (final FlywayCallback callback : callbacks) {
+                    new NonTransactionalTemplate(connection).execute(new NonTransactionalCallback<Object>() {
+                        @Override
+                        public Object execute() throws SQLException {
+                            dbSupport.changeCurrentSchemaTo(schema);
+                            callback.beforeBaseline(connection);
+                            return null;
+                        }
+                    });
+                }
+
+                new NonTransactionalTemplate(connection).execute(new NonTransactionalCallback<Void>() {
+                    public Void execute() {
+                        dbSupport.changeCurrentSchemaTo(schema);
+                        if (metaDataTable.hasAppliedMigrations()) {
+                            throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
+                        }
+                        if (metaDataTable.hasBaselineMarker()) {
+                            AppliedMigration baselineMarker = metaDataTable.getBaselineMarker();
+                            if (baselineVersion.equals(baselineMarker.getVersion())
+                                    && baselineDescription.equals(baselineMarker.getDescription())) {
+                                LOG.info("Metadata table " + metaDataTable + " already initialized with ("
+                                        + baselineVersion + "," + baselineDescription + "). Skipping.");
+                                return null;
+                            }
+                            throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with ("
+                                    + baselineVersion + "," + baselineDescription
+                                    + ") as it has already been initialized with ("
+                                    + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
+                        }
+                        if (metaDataTable.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
+                            throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
+                        }
+                        metaDataTable.addBaselineMarker(baselineVersion, baselineDescription);
+
+                        return null;
+                    }
+                });
+
+                LOG.info("Successfully baselined schema with version: " + baselineVersion);
+
+                for (final FlywayCallback callback : callbacks) {
+                    new NonTransactionalTemplate(connection).execute(new NonTransactionalCallback<Object>() {
+                        @Override
+                        public Object execute() throws SQLException {
+                            dbSupport.changeCurrentSchemaTo(schema);
+                            callback.afterBaseline(connection);
+                            return null;
+                        }
+                    });
+                }
             }
         } finally {
             dbSupport.restoreCurrentSchema();

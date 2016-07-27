@@ -73,6 +73,6 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public boolean executeInTransaction() {
-        return true;
+        return dbSupport.supportsDdlTransactions();
     }
 }

@@ -173,12 +173,14 @@ public abstract class Table extends SchemaObject {
      * Locks this table in this schema using a read/write pessimistic lock until the end of the current transaction.
      */
     public void lock() {
-        try {
-            LOG.debug("Locking table " + this + "...");
-            doLock();
-            LOG.debug("Lock acquired for table " + this);
-        } catch (SQLException e) {
-            throw new FlywayException("Unable to lock table " + this, e);
+        if (dbSupport.supportsDdlTransactions()) {
+            try {
+                LOG.debug("Locking table " + this + "...");
+                doLock();
+                LOG.debug("Lock acquired for table " + this);
+            } catch (SQLException e) {
+                throw new FlywayException("Unable to lock table " + this, e);
+            }
         }
     }
 

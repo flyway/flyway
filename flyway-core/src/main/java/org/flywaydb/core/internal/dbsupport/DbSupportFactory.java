@@ -1,17 +1,17 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.flywaydb.core.internal.dbsupport;
 
@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.dbsupport.saphana.SapHanaDbSupport;
 import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
+import org.flywaydb.core.internal.dbsupport.sqlserverpdw.SQLServerPdwDbSupport;
 import org.flywaydb.core.internal.dbsupport.sybase.ase.SybaseASEDbSupport;
 import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -40,11 +41,14 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
- * Factory for obtaining the correct DbSupport instance for the current connection.
+ * Factory for obtaining the correct DbSupport instance for the current
+ * connection.
  */
 public class DbSupportFactory {
+
     private static final Log LOG = LogFactory.getLog(DbSupportFactory.class);
 
     /**
@@ -55,10 +59,11 @@ public class DbSupportFactory {
     }
 
     /**
-     * Initializes the appropriate DbSupport class for the database product used by the data source.
+     * Initializes the appropriate DbSupport class for the database product used
+     * by the data source.
      *
      * @param connection The Jdbc connection to use to query the database.
-     * @param printInfo  Where the DB info should be printed in the logs.
+     * @param printInfo Where the DB info should be printed in the logs.
      * @return The appropriate DbSupport class.
      */
     public static DbSupport createDbSupport(Connection connection, boolean printInfo) {
@@ -82,10 +87,23 @@ public class DbSupportFactory {
             return new HsqlDbSupport(connection);
         }
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
-            return new SQLServerDbSupport(connection);
+      // both SQL Server and SQL Server Parallel Data Warehouse use this same driver
+            // so we can test to see if we're using PDW or not.
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(connection, Types.VARCHAR);
+            try {
+                if (jdbcTemplate.queryForString("SELECT @@VERSION").contains("Parallel Data Warehouse")) {
+                    return new SQLServerPdwDbSupport(connection);
+                } else {
+                    return new SQLServerDbSupport(connection);
+                }
+            } catch (SQLException ex) {
+                // default to Sql Server
+                LOG.debug(ex.getMessage());
+                return new SQLServerDbSupport(connection);
+            }
         }
         if (databaseProductName.contains("MySQL")) {
-            // For regular MySQL, MariaDB and Google Cloud SQL.
+      // For regular MySQL, MariaDB and Google Cloud SQL.
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
             return new MySQLDbSupport(connection);
@@ -94,7 +112,7 @@ public class DbSupportFactory {
             return new OracleDbSupport(connection);
         }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
-            // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
+      // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
             // but only supports a subset of features. Therefore, we need to execute a query in order to
             // distinguish it from the real PostgreSQL 8:
             RedshiftDbSupport redshift;
@@ -111,17 +129,17 @@ public class DbSupportFactory {
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-			if (getDatabaseProductVersion(connection).startsWith("DSN")){
-				return new DB2zosDbSupport(connection);
-			} else {
-				return new DB2DbSupport(connection);
-			}
+            if (getDatabaseProductVersion(connection).startsWith("DSN")) {
+                return new DB2zosDbSupport(connection);
+            } else {
+                return new DB2DbSupport(connection);
+            }
         }
         if (databaseProductName.startsWith("Vertica")) {
             return new VerticaDbSupport(connection);
         }
         if (databaseProductName.contains("solidDB")) {
-            // SolidDB was originally developed by a company named Solid and was sold afterwards to IBM.
+      // SolidDB was originally developed by a company named Solid and was sold afterwards to IBM.
             // In the meanwhile IBM also sold solidDB to Unicom Systems.
             // Therefore no vendor string in search criteria
             return new SolidDbSupport(connection);
@@ -130,12 +148,12 @@ public class DbSupportFactory {
             return new PhoenixDbSupport(connection);
         }
 
-		//Sybase ASE support
+        //Sybase ASE support
         if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive")) {
-        	return new SybaseASEDbSupport(connection);
+            return new SybaseASEDbSupport(connection);
         }
         if (databaseProductName.startsWith("HDB")) {
-        	return new SapHanaDbSupport(connection);
+            return new SapHanaDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
@@ -147,7 +165,6 @@ public class DbSupportFactory {
      * @param connection The Jdbc connection.
      * @return The Jdbc Url.
      */
-
     private static String getJdbcUrl(Connection connection) {
         try {
             return connection.getMetaData().getURL();
@@ -183,32 +200,30 @@ public class DbSupportFactory {
         }
     }
 
-	/**
-	 * Retrieves the database version.
-	 *
-	 * @param connection The connection to use to query the database.
-	 * @return The version of the database product.
-	 * Ex.: DSN11015 DB2 for z/OS Version 11
-	 *      SQL10050 DB" for Linux, UNIX and Windows Version 10.5
-	 */
-	private static String getDatabaseProductVersion(Connection connection) {
-		try {
-			DatabaseMetaData databaseMetaData = connection.getMetaData();
-			if (databaseMetaData == null) {
-				throw new FlywayException("Unable to read database metadata while it is null!");
-			}
+    /**
+     * Retrieves the database version.
+     *
+     * @param connection The connection to use to query the database.
+     * @return The version of the database product. Ex.: DSN11015 DB2 for z/OS
+     * Version 11 SQL10050 DB" for Linux, UNIX and Windows Version 10.5
+     */
+    private static String getDatabaseProductVersion(Connection connection) {
+        try {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            if (databaseMetaData == null) {
+                throw new FlywayException("Unable to read database metadata while it is null!");
+            }
 
-			String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
-			if (databaseProductVersion == null) {
-				throw new FlywayException("Unable to determine database. Product version is null.");
-			}
+            String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
+            if (databaseProductVersion == null) {
+                throw new FlywayException("Unable to determine database. Product version is null.");
+            }
 
-
-			return databaseProductVersion;
-		} catch (SQLException e) {
-			throw new FlywayException("Error while determining database product version", e);
-		}
-	}
+            return databaseProductVersion;
+        } catch (SQLException e) {
+            throw new FlywayException("Error while determining database product version", e);
+        }
+    }
 
     /**
      * Retrieves the name of the JDBC driver
