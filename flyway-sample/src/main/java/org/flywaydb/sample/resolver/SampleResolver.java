@@ -85,6 +85,11 @@ public class SampleResolver implements MigrationResolver {
                     }
                 };
             }
+
+            @Override
+            public boolean isOptional() {
+                return false;
+            }
         });
     }
 }

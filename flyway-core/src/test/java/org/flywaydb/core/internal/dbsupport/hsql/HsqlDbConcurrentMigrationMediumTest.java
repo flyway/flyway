@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport.hsql;
 
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
 
@@ -26,6 +27,7 @@ import java.util.Properties;
 /**
  * Test to demonstrate the migration functionality using H2.
  */
+@Ignore
 @Category(DbCategory.HSQL.class)
 public class HsqlDbConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override

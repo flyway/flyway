@@ -203,6 +203,14 @@ public class MigrationInfoImpl implements MigrationInfo {
         return null;
     }
 
+    @Override
+    public boolean isOptional() {
+        if(appliedMigration != null){
+            return appliedMigration.isOptional();
+        }
+        return resolvedMigration.isOptional();
+    }
+
     /**
      * Validates this migrationInfo for consistency.
      *

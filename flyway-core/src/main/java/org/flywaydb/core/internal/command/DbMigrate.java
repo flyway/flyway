@@ -325,7 +325,7 @@ public class DbMigrate {
 
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
-                AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
+                AppliedMigration appliedMigration = new AppliedMigration(version, migration.isOptional(), migration.getDescription(),
                         migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
                 metaDataTable.addAppliedMigration(appliedMigration);
             }
@@ -335,7 +335,7 @@ public class DbMigrate {
         stopWatch.stop();
         int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-        AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
+        AppliedMigration appliedMigration = new AppliedMigration(version, migration.isOptional(), migration.getDescription(),
                 migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
         metaDataTable.addAppliedMigration(appliedMigration);
 
@@ -349,7 +349,19 @@ public class DbMigrate {
             callback.beforeEachMigrate(connectionUserObjects, migration);
         }
 
-        migrationExecutor.execute(connectionUserObjects);
+        try{
+            migrationExecutor.execute(connectionUserObjects);
+        } catch(Exception e){
+            if(migration.isOptional()){
+                LOG.info(e.getMessage());
+            } else{
+                if(e instanceof RuntimeException){
+                    throw (RuntimeException) e;
+                } else {
+                    throw (SQLException) e;
+                }
+            }
+        }
         LOG.debug("Successfully completed migration of " + migrationText);
 
         for (final FlywayCallback callback : callbacks) {

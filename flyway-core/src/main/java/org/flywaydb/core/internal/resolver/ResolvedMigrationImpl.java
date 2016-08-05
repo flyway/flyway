@@ -31,6 +31,11 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     private MigrationVersion version;
 
     /**
+     * True if optional
+     */
+    private boolean optional;
+
+    /**
      * The description of the migration.
      */
     private String description;
@@ -135,6 +140,18 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     @Override
     public MigrationExecutor getExecutor() {
         return executor;
+    }
+
+    /**
+     * @param optional Flag indicating whether the migration was optional or not
+     */
+    public void setOptional(boolean optional){
+        this.optional = optional;
+    }
+
+    @Override
+    public boolean isOptional() {
+        return optional;
     }
 
     /**

@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ public class MigrationInfoImplSmallTest {
         resolvedMigration.setType(type);
         resolvedMigration.setChecksum(456);
 
-        AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, true);
+        AppliedMigration appliedMigration = new AppliedMigration(1, version, false, description, type, null, 123, new Date(), "abc", 0, true);
 
         MigrationInfoImpl migrationInfo =
                 new MigrationInfoImpl(resolvedMigration, appliedMigration, new MigrationInfoContext(), false);
@@ -55,7 +55,7 @@ public class MigrationInfoImplSmallTest {
         String description = "test";
         MigrationType type = MigrationType.SQL;
 
-        AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, true);
+        AppliedMigration appliedMigration = new AppliedMigration(1, version, false, description, type, null, 123, new Date(), "abc", 0, true);
 
         MigrationInfoImpl migrationInfo =
                 new MigrationInfoImpl(null, appliedMigration, new MigrationInfoContext(), false);
@@ -73,7 +73,7 @@ public class MigrationInfoImplSmallTest {
 
         MigrationInfoImpl r1 = new MigrationInfoImpl(createResolvedMigration(null, "C"), createAppliedMigration(5, null, "C"), context, false);
         MigrationInfoImpl v2 = new MigrationInfoImpl(createResolvedMigration("1", "V1"), createAppliedMigration(6, "1", "V1"), context, false);
-        MigrationInfoImpl r3 = new MigrationInfoImpl(b, createAppliedMigration(7, null, "B", 123), context, false);
+        MigrationInfoImpl r3 = new MigrationInfoImpl(b, createAppliedMigration(7, null, "B", false, 123), context, false);
         MigrationInfoImpl r4 = new MigrationInfoImpl(createResolvedMigration(null, "A"), createAppliedMigration(10, null, "A"), context, false);
         MigrationInfoImpl r6 = new MigrationInfoImpl(b, null, context, false);
         MigrationInfoImpl v5 = new MigrationInfoImpl(createResolvedMigration("6", "V2"), null, context, false);
@@ -145,7 +145,7 @@ public class MigrationInfoImplSmallTest {
      * @return The applied migration.
      */
     private AppliedMigration createAppliedMigration(int installedRank, String version, String description) {
-        return createAppliedMigration(installedRank, version, description, null);
+        return createAppliedMigration(installedRank, version, description, false, null);
     }
 
     /**
@@ -157,8 +157,8 @@ public class MigrationInfoImplSmallTest {
      * @param checksum      The checksum of the migration.
      * @return The applied migration.
      */
-    private AppliedMigration createAppliedMigration(int installedRank, String version, String description, Integer checksum) {
+    private AppliedMigration createAppliedMigration(int installedRank, String version, String description, boolean optional, Integer checksum) {
         return new AppliedMigration(installedRank, version == null ? null : MigrationVersion.fromVersion(version),
-                description, MigrationType.SQL, "x", checksum, new Date(), "sa", 123, true);
+                optional, description, MigrationType.SQL, "x", checksum, new Date(), "sa", 123, true);
     }
 }

@@ -17,6 +17,7 @@
 CREATE TABLE "${schema}"."${table}" (
     "installed_rank" INT NOT NULL,
     "version" VARCHAR2(50),
+    "optional" BOOLEAN NOT NULL,
     "description" VARCHAR2(200) NOT NULL,
     "type" VARCHAR2(20) NOT NULL,
     "script" VARCHAR2(1000) NOT NULL,

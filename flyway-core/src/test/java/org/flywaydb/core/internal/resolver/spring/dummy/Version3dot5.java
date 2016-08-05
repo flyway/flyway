@@ -39,4 +39,9 @@ public class Version3dot5 extends DummyAbstractSpringJdbcMigration implements Mi
     public String getDescription() {
         return "Three Dot Five";
     }
+
+    @Override
+    public boolean isOptional() {
+        return false;
+    }
 }
