@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
@@ -41,7 +42,7 @@ public class SqlMigrationResolverMediumTest {
 
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, new Scanner(Thread.currentThread().getContextClassLoader()),
-                        new Location("filesystem:" + new File(path).getPath()), PlaceholderReplacer.NO_PLACEHOLDERS,
+                        new Location("filesystem:" + new File(path).getPath()), new ResolvedMigrationComparator(), PlaceholderReplacer.NO_PLACEHOLDERS,
                         "UTF-8", "V", "R", "__", ".sql");
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 

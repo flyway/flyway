@@ -96,7 +96,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
             throw new FlywayException("Unable to resolve Spring Jdbc Java migrations in location: " + location, e);
         }
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        Collections.sort(migrations, configuration.getResolvedMigrationComparator());
         return migrations;
     }
 

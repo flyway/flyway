@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import java.util.Comparator;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -23,6 +24,7 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 /**
  * Dummy Implementation of {@link FlywayConfiguration} for unit tests.
@@ -39,6 +41,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     private MyCustomMigrationResolver[] migrationResolvers = new MyCustomMigrationResolver[0];
     private boolean skipDefaultResolvers;
     private boolean skipDefaultCallbacks;
+    private Comparator<ResolvedMigration> resolvedMigrationComparator = new ResolvedMigrationComparator();
 
     public FlywayConfigurationForTests(ClassLoader contextClassLoader, String[] locations, String encoding,
             String sqlMigrationPrefix, String repeatableSqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
@@ -174,6 +177,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
+    public Comparator<ResolvedMigration> getResolvedMigrationComparator() {
+        return resolvedMigrationComparator;
+    }
+
+    @Override
     public String getEncoding() {
         return this.encoding;
     }
@@ -188,5 +196,9 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     public void setResolvers(MyCustomMigrationResolver... myCustomMigrationResolver) {
         this.migrationResolvers = myCustomMigrationResolver;
+    }
+
+    public void setResolvedMigrationComparator(Comparator<ResolvedMigration> resolvedMigrationComparator) {
+        this.resolvedMigrationComparator = resolvedMigrationComparator;
     }
 }

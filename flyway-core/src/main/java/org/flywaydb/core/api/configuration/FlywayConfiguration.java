@@ -18,8 +18,11 @@ package org.flywaydb.core.api.configuration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 
 import javax.sql.DataSource;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -204,4 +207,10 @@ public interface FlywayConfiguration {
      * @return Locations to scan recursively for migrations. (default: db/migration)
      */
     String[] getLocations();
+
+    /**
+     *
+     * @return The resolved migration comparator
+     */
+    Comparator<ResolvedMigration> getResolvedMigrationComparator();
 }

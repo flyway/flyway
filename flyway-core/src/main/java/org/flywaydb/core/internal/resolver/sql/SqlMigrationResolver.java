@@ -23,7 +23,6 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
-import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Pair;
@@ -36,6 +35,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.zip.CRC32;
 
@@ -89,12 +89,14 @@ public class SqlMigrationResolver implements MigrationResolver {
      */
     private final String sqlMigrationSuffix;
 
+    private final Comparator<ResolvedMigration> resolvedMigrationComparator;
+
     /**
      * Creates a new instance.
-     *
      * @param dbSupport                    The database-specific support.
      * @param scanner                      The Scanner for loading migrations on the classpath.
      * @param location                     The location on the classpath where to migrations are located.
+     * @param resolvedMigrationComparator  The resolved migration comparator
      * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
      * @param encoding                     The encoding of Sql migrations.
      * @param sqlMigrationPrefix           The prefix for sql migrations
@@ -103,6 +105,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param sqlMigrationSuffix           The suffix for sql migrations
      */
     public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
+                                Comparator<ResolvedMigration> resolvedMigrationComparator,
                                 PlaceholderReplacer placeholderReplacer, String encoding,
                                 String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
                                 String sqlMigrationSeparator, String sqlMigrationSuffix) {
@@ -115,6 +118,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
         this.sqlMigrationSeparator = sqlMigrationSeparator;
         this.sqlMigrationSuffix = sqlMigrationSuffix;
+        this.resolvedMigrationComparator = resolvedMigrationComparator;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
@@ -123,7 +127,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         scanForMigrations(migrations, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
         scanForMigrations(migrations, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
 
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        Collections.sort(migrations, resolvedMigrationComparator);
         return migrations;
     }
 

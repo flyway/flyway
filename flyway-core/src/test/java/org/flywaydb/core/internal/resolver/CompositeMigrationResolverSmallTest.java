@@ -54,6 +54,32 @@ public class CompositeMigrationResolverSmallTest {
         assertEquals("Add foreign key", migrationList.get(3).getDescription());
     }
 
+    @Test
+    public void resolveMigrationsMultipleLocationsWithCustomComparator() {
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.create();
+        config.setResolvedMigrationComparator(new Comparator<ResolvedMigration>() {
+            @Override
+            public int compare(ResolvedMigration o1, ResolvedMigration o2) {
+                return o1.getDescription().compareTo(o2.getDescription());
+            }
+        });
+
+        PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
+                new Scanner(Thread.currentThread().getContextClassLoader()), config,
+                new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
+                "UTF-8", "V", "R", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
+
+        Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
+        List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
+
+        assertEquals(4, migrations.size());
+        assertEquals("Add foreign key", migrationList.get(0).getDescription());
+        assertEquals("First", migrationList.get(1).getDescription());
+        assertEquals("Late arrivals", migrationList.get(2).getDescription());
+        assertEquals("Virtual Migration", migrationList.get(3).getDescription());
+    }
+
     /**
      * Checks that migrations are properly collected, eliminating all exact duplicates.
      */
@@ -122,7 +148,7 @@ public class CompositeMigrationResolverSmallTest {
         migrations.add(migration2);
 
         try {
-            CompositeMigrationResolver.checkForIncompatibilities(migrations);
+            CompositeMigrationResolver.checkForIncompatibilities(new ResolvedMigrationComparator(), migrations);
         } catch (FlywayException e) {
             assertTrue(e.getMessage().contains("target/test-classes/migration/validate/V1__First.sql"));
             assertTrue(e.getMessage().contains("Migration1"));
@@ -138,7 +164,7 @@ public class CompositeMigrationResolverSmallTest {
         migrations.add(createTestMigration(MigrationType.SPRING_JDBC, "1", "Description", "Migration1", 123));
         migrations.add(createTestMigration(MigrationType.SQL, "2", "Description2", "Migration2", 1234));
 
-        CompositeMigrationResolver.checkForIncompatibilities(migrations);
+        CompositeMigrationResolver.checkForIncompatibilities(new ResolvedMigrationComparator(), migrations);
     }
 
     @Test
