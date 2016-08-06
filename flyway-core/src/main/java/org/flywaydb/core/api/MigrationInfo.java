@@ -71,4 +71,9 @@ public interface MigrationInfo extends Comparable<MigrationInfo> {
      * @return The execution time (in millis) of this migration. (Only for applied migrations)
      */
     Integer getExecutionTime();
+
+    /**
+     * @return True if this migration should be considered as optional. An optional migration script failure will be ignored.
+     */
+    boolean isOptional();
 }

@@ -17,19 +17,50 @@ package org.flywaydb.core.internal.resolver;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.Triplet;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Parsing support for migrations that use the standard Flyway version + description embedding in their name. These
  * migrations have names like 1_2__Description .
  */
 public class MigrationInfoHelper {
+
+    private static final Log LOG = LogFactory.getLog(MigrationInfoHelper.class);
+
+    private static final String REQUIRED = "required";
+    private static final String OPTIONAL = "optional";
+
     /**
      * Prevents instantiation.
      */
     private MigrationInfoHelper() {
         //Do nothing.
+    }
+
+    @Deprecated
+    private static Triplet<MigrationVersion, Boolean, String> extractLegacyVersionAndDescriptionAndOptional(String migrationName,
+                                                                                                            String prefix, String separator, String suffix){
+        String quotedPrefix = Pattern.quote(prefix);
+        String quotedSeparator = Pattern.quote(separator);
+        String quotedSuffix = Pattern.quote(suffix);
+
+        String regex = quotedPrefix + "(.*?)" + quotedSeparator + "(.+?)" + quotedSuffix;
+        Matcher matcher = Pattern.compile(regex).matcher(migrationName);
+        if(!matcher.matches()){
+            throw new FlywayException("Wrong migration name format: " + migrationName
+                    + "(It should look like this: " + prefix + "1_2" + separator + "[" + REQUIRED + "|" + OPTIONAL + "]" + separator + "Description" + suffix + ")");
+        }
+
+        String rawVersion = matcher.group(1);
+        MigrationVersion version = StringUtils.hasText(rawVersion)? MigrationVersion.fromVersion(rawVersion): null;
+        String description = matcher.group(2).replaceAll("_", " ");
+        return Triplet.of(version, false, description);
     }
 
     /**
@@ -42,22 +73,24 @@ public class MigrationInfoHelper {
      * @return The extracted schema version.
      * @throws FlywayException if the migration name does not follow the standard conventions.
      */
-    public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName,
-                                                                              String prefix, String separator, String suffix) {
-        String cleanMigrationName = migrationName.substring(prefix.length(), migrationName.length() - suffix.length());
+    public static Triplet<MigrationVersion, Boolean, String> extractVersionAndOptionalAndDescription(String migrationName,
+                                                                                                     String prefix, String separator, String suffix) {
+        String quotedPrefix = Pattern.quote(prefix);
+        String quotedSeparator = Pattern.quote(separator);
+        String quotedSuffix = Pattern.quote(suffix);
 
-        // Handle the description
-        int descriptionPos = cleanMigrationName.indexOf(separator);
-        if (descriptionPos < 0) {
-            throw new FlywayException("Wrong migration name format: " + migrationName
-                    + "(It should look like this: " + prefix + "1_2" + separator + "Description" + suffix + ")");
+        String regex = quotedPrefix + "(.*?)" + quotedSeparator + "(" + REQUIRED + "|" + OPTIONAL + ")" + quotedSeparator + "(.+?)" + quotedSuffix;
+        Matcher matcher = Pattern.compile(regex).matcher(migrationName);
+        if(!matcher.matches()){
+            LOG.warn("To be removed migration name format: " + migrationName
+                    + "(It should look like this: " + prefix + "1_2" + separator + "[" + REQUIRED + "|" + OPTIONAL + "]" + separator + "Description" + suffix + ")");
+            return extractLegacyVersionAndDescriptionAndOptional(migrationName, prefix, separator, suffix);
         }
 
-        String version = cleanMigrationName.substring(0, descriptionPos);
-        String description = cleanMigrationName.substring(descriptionPos + separator.length()).replaceAll("_", " ");
-        if (StringUtils.hasText(version)) {
-            return Pair.of(MigrationVersion.fromVersion(version), description);
-        }
-        return Pair.of(null, description);
+        String rawVersion = matcher.group(1);
+        MigrationVersion version = StringUtils.hasText(rawVersion)? MigrationVersion.fromVersion(rawVersion): null;
+        boolean optional = OPTIONAL.equalsIgnoreCase(matcher.group(2));
+        String description = matcher.group(3).replaceAll("_", " ");
+        return Triplet.of(version, optional, description);
     }
 }

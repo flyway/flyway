@@ -48,7 +48,7 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
         flyway.setSchemas("non-existing-schema");
         flyway.setLocations(BASEDIR);
         flyway.clean();
-        assertEquals(4, flyway.migrate());
+        assertEquals(5, flyway.migrate());
     }
 
     @Test
@@ -58,6 +58,6 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
         flyway.setSchemas("flyway_db");
         flyway.setLocations(getBasedir());
         flyway.clean();
-        assertEquals(4, flyway.migrate());
+        assertEquals(5, flyway.migrate());
     }
 }

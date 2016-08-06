@@ -27,11 +27,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
-import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.*;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
@@ -115,10 +111,12 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
 
         MigrationVersion version;
         String description;
+        boolean optional;
         if (springJdbcMigration instanceof MigrationInfoProvider) {
             MigrationInfoProvider infoProvider = (MigrationInfoProvider) springJdbcMigration;
             version = infoProvider.getVersion();
             description = infoProvider.getDescription();
+            optional = infoProvider.isOptional();
             if (!StringUtils.hasText(description)) {
                 throw new FlywayException("Missing description for migration " + version);
             }
@@ -132,14 +130,16 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
                         + " => ensure it starts with V or R," +
                         " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
             }
-            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
+            Triplet<MigrationVersion, Boolean, String> info = MigrationInfoHelper.extractVersionAndOptionalAndDescription(shortName, prefix, "__", "");
             version = info.getLeft();
+            optional = info.getCenter();
             description = info.getRight();
         }
 
         ResolvedMigrationImpl resolvedMigration = new ResolvedMigrationImpl();
         resolvedMigration.setVersion(version);
         resolvedMigration.setDescription(description);
+        resolvedMigration.setOptional(optional);
         resolvedMigration.setScript(springJdbcMigration.getClass().getName());
         resolvedMigration.setChecksum(checksum);
         resolvedMigration.setType(MigrationType.SPRING_JDBC);

@@ -37,12 +37,13 @@ public class FileSystemLocationScannerMediumTest {
         Set<String> resourceNames =
                 new FileSystemClassPathLocationScanner().findResourceNamesFromFileSystem(path, "sql", new File(path, "sql"));
 
-        assertEquals(4, resourceNames.size());
+        assertEquals(5, resourceNames.size());
         String[] names = resourceNames.toArray(new String[4]);
         assertEquals("sql/V1.1__View.sql", names[0]);
         assertEquals("sql/V1_2__Populate_table.sql", names[1]);
         assertEquals("sql/V1__First.sql", names[2]);
         assertEquals("sql/V2_0__Add_foreign_key_and_super_mega_humongous_padding_to_exceed_the_maximum_column_length_in_the_metadata_table.sql", names[3]);
+        assertEquals("sql/V2_1__optional__Should_Fail.sql", names[4]);
     }
 
     @Test

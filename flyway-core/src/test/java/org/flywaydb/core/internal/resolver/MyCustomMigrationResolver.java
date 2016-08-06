@@ -77,6 +77,11 @@ public class MyCustomMigrationResolver implements MigrationResolver {
                     }
                 };
             }
+
+            @Override
+            public boolean isOptional() {
+                return false;
+            }
         });
         return resolvedMigrations;
     }

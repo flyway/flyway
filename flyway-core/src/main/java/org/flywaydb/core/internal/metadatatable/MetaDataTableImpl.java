@@ -65,21 +65,31 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     @Override
     public boolean upgradeIfNecessary() {
-        if (table.exists() && table.hasColumn("version_rank")) {
+        boolean upgraded = false;
+        boolean tableExists = table.exists();
+        if (tableExists && table.hasColumn("version_rank")) {
             LOG.info("Upgrading metadata table " + table + " to the Flyway 4.0 format ...");
-            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/upgradeMetaDataTable.sql";
-            String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
-
-            Map<String, String> placeholders = new HashMap<String, String>();
-            placeholders.put("schema", table.getSchema().getName());
-            placeholders.put("table", table.getName());
-            String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
-
-            SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-            sqlScript.execute(jdbcTemplate);
-            return true;
+            upgrade("org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/V4_0__upgradeMetaDataTable.sql");
+            upgraded = true;
         }
-        return false;
+        if(tableExists && !table.hasColumn("optional")){
+            LOG.info("Upgrading metadata table " + table + " to the Flyway 5.0 format ...");
+            upgrade("org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/V5_0__upgradeMetaDataTable.sql");
+            upgraded = true;
+        }
+        return upgraded;
+    }
+
+    private void upgrade(String resourceName){
+        String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("schema", table.getSchema().getName());
+        placeholders.put("table", table.getName());
+        String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+
+        SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+        sqlScript.execute(jdbcTemplate);
     }
 
     /**
@@ -153,6 +163,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 jdbcTemplate.update("INSERT INTO " + table
                                 + " (" + dbSupport.quote("installed_rank")
                                 + "," + dbSupport.quote("version")
+                                + "," + dbSupport.quote("optional")
                                 + "," + dbSupport.quote("description")
                                 + "," + dbSupport.quote("type")
                                 + "," + dbSupport.quote("script")
@@ -161,9 +172,10 @@ public class MetaDataTableImpl implements MetaDataTable {
                                 + "," + dbSupport.quote("execution_time")
                                 + "," + dbSupport.quote("success")
                                 + ")"
-                                + " VALUES (?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
+                                + " VALUES (?, ?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
                         calculateInstalledRank(),
                         versionStr,
+                        appliedMigration.isOptional(),
                         appliedMigration.getDescription(),
                         appliedMigration.getType().name(),
                         appliedMigration.getScript(),
@@ -210,6 +222,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         String query = "SELECT " + dbSupport.quote("installed_rank")
                 + "," + dbSupport.quote("version")
+                + "," + dbSupport.quote("optional")
                 + "," + dbSupport.quote("description")
                 + "," + dbSupport.quote("type")
                 + "," + dbSupport.quote("script")
@@ -244,7 +257,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                     return new AppliedMigration(
                             rs.getInt("installed_rank"),
                             rs.getString("version") != null ? MigrationVersion.fromVersion(rs.getString("version")) : null,
-                            rs.getString("description"),
+                            rs.getBoolean("optional"), rs.getString("description"),
                             MigrationType.valueOf(rs.getString("type")),
                             rs.getString("script"),
                             checksum,
@@ -263,7 +276,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     @Override
     public void addBaselineMarker(final MigrationVersion baselineVersion, final String baselineDescription) {
-        addAppliedMigration(new AppliedMigration(baselineVersion, baselineDescription, MigrationType.BASELINE, baselineDescription, null,
+        addAppliedMigration(new AppliedMigration(baselineVersion, false, baselineDescription, MigrationType.BASELINE, baselineDescription, null,
                 0, true));
     }
 
@@ -299,7 +312,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     public void addSchemasMarker(final Schema[] schemas) {
         createIfNotExists();
 
-        addAppliedMigration(new AppliedMigration(MigrationVersion.fromVersion("0"), "<< Flyway Schema Creation >>",
+        addAppliedMigration(new AppliedMigration(MigrationVersion.fromVersion("0"), false, "<< Flyway Schema Creation >>",
                 MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));
     }
 

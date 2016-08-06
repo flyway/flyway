@@ -82,11 +82,11 @@ public class FlywayMediumTest {
         flyway.setDataSource(dataSource);
 
         flyway.setLocations("migration/sql");
-        assertEquals(4, flyway.info().all().length);
-        assertEquals(4, flyway.info().pending().length);
+        assertEquals(5, flyway.info().all().length);
+        assertEquals(5, flyway.info().pending().length);
 
         flyway.setTarget(MigrationVersion.fromVersion("1.1"));
-        assertEquals(4, flyway.info().all().length);
+        assertEquals(5, flyway.info().all().length);
         assertEquals(2, flyway.info().pending().length);
         assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[2].getState());
         assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
@@ -95,17 +95,17 @@ public class FlywayMediumTest {
         assertEquals(64723601, flyway.info().current().getChecksum().intValue());
         assertEquals("1.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
-        assertEquals(4, flyway.info().all().length);
+        assertEquals(5, flyway.info().all().length);
         assertEquals(0, flyway.info().pending().length);
 
         flyway.setTarget(MigrationVersion.LATEST);
-        assertEquals(4, flyway.info().all().length);
-        assertEquals(2, flyway.info().pending().length);
+        assertEquals(5, flyway.info().all().length);
+        assertEquals(3, flyway.info().pending().length);
 
         flyway.migrate();
-        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals("2.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
-        assertEquals(4, flyway.info().all().length);
+        assertEquals(5, flyway.info().all().length);
         assertEquals(0, flyway.info().pending().length);
     }
 
@@ -263,7 +263,7 @@ public class FlywayMediumTest {
         flyway.setBaselineVersionAsString("3");
         flyway.migrate();
 
-        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals("2.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.SQL, flyway.info().current().getType());
 
         flyway.setTable("other_metadata");
@@ -283,20 +283,20 @@ public class FlywayMediumTest {
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
         flyway.setLocations("migration/sql");
-        flyway.setBaselineVersionAsString("2");
+        flyway.setBaselineVersionAsString("2.1");
         flyway.baseline();
 
-        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals("2.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
 
         flyway.repair();
 
-        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals("2.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
 
         flyway.migrate();
 
-        assertEquals("2", flyway.info().current().getVersion().toString());
+        assertEquals("2.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.BASELINE, flyway.info().current().getType());
     }
 
@@ -313,7 +313,7 @@ public class FlywayMediumTest {
         flyway.setBaselineOnMigrate(true);
         flyway.migrate();
 
-        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals("2.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.SQL, flyway.info().current().getType());
     }
 
@@ -329,7 +329,7 @@ public class FlywayMediumTest {
         flyway.setBaselineVersionAsString("3");
         flyway.migrate();
 
-        assertEquals("2.0", flyway.info().current().getVersion().toString());
+        assertEquals("2.1", flyway.info().current().getVersion().toString());
         assertEquals(MigrationType.SQL, flyway.info().current().getType());
 
         flyway.setTable("other_metadata");
@@ -362,7 +362,7 @@ public class FlywayMediumTest {
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/sql");
         flyway.setTarget(MigrationVersion.fromVersion("1.2"));
-        assertEquals(4, flyway.info().all().length);
+        assertEquals(5, flyway.info().all().length);
         assertEquals(3, flyway.info().pending().length);
 
         flyway.clean();
@@ -370,7 +370,7 @@ public class FlywayMediumTest {
         assertEquals(0, flyway.info().pending().length);
 
         flyway.setLocations("migration/sql", "migration/outoforder");
-        assertEquals(5, flyway.info().all().length);
+        assertEquals(6, flyway.info().all().length);
         assertEquals(MigrationState.IGNORED, flyway.info().all()[2].getState());
 
         flyway.setValidateOnMigrate(false);
@@ -380,7 +380,7 @@ public class FlywayMediumTest {
         flyway.setTarget(MigrationVersion.LATEST);
         flyway.setOutOfOrder(true);
         assertEquals(MigrationState.PENDING, flyway.info().all()[3].getState());
-        assertEquals(2, flyway.migrate());
+        assertEquals(3, flyway.migrate());
 
         MigrationInfo[] all = flyway.info().all();
         assertEquals(MigrationState.OUT_OF_ORDER, all[3].getState());
@@ -424,12 +424,13 @@ public class FlywayMediumTest {
         assertNull(all[3].getVersion());
         assertNotNull(all[4].getVersion());
         assertNotNull(all[5].getVersion());
-        assertNull(all[6].getVersion());
+        assertNotNull(all[6].getVersion());
         assertNull(all[7].getVersion());
+        assertNull(all[8].getVersion());
 
-        assertEquals(4, flyway.info().pending().length);
+        assertEquals(5, flyway.info().pending().length);
 
-        assertEquals(4, flyway.migrate());
+        assertEquals(5, flyway.migrate());
         assertEquals(0, flyway.info().pending().length);
         all = flyway.info().all();
         assertEquals(MigrationState.SUCCESS, all[0].getState());
@@ -446,8 +447,9 @@ public class FlywayMediumTest {
         assertNull(all[3].getVersion());
         assertNotNull(all[4].getVersion());
         assertNotNull(all[5].getVersion());
-        assertNull(all[6].getVersion());
+        assertNotNull(all[6].getVersion());
         assertNull(all[7].getVersion());
+        assertNull(all[8].getVersion());
 
         assertEquals(0, flyway.migrate());
     }
@@ -477,7 +479,7 @@ public class FlywayMediumTest {
         flyway.setDataSource("jdbc:h2:mem:flyway_no_placeholder_replacement;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.setPlaceholderReplacement(false);
-        assertEquals(4, flyway.migrate());
+        assertEquals(5, flyway.migrate());
     }
 
     @Test
@@ -632,7 +634,7 @@ public class FlywayMediumTest {
         flyway.setTarget(MigrationVersion.fromVersion("1.2"));
         flyway.migrate();
         
-        assertEquals(4, flyway.info().all().length);
+        assertEquals(5, flyway.info().all().length);
         assertEquals(3, flyway.info().applied().length);
         assertEquals(0, flyway.info().pending().length);
         assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
@@ -644,7 +646,7 @@ public class FlywayMediumTest {
         flyway.setTarget(MigrationVersion.CURRENT);
         flyway.migrate();
         
-        assertEquals(4, flyway.info().all().length);
+        assertEquals(5, flyway.info().all().length);
         assertEquals(3, flyway.info().applied().length);
         assertEquals(0, flyway.info().pending().length);
         assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
@@ -678,7 +680,7 @@ public class FlywayMediumTest {
         flyway.setLocations("migration/sql");
         flyway.clean();
         assertEquals(0, dataSource.getOpenConnectionCount());
-        assertEquals(4, flyway.migrate());
+        assertEquals(5, flyway.migrate());
         assertEquals(0, dataSource.getOpenConnectionCount());
     }
 

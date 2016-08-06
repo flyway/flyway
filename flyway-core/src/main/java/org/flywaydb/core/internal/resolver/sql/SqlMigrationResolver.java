@@ -26,8 +26,8 @@ import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.Triplet;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -133,12 +133,13 @@ public class SqlMigrationResolver implements MigrationResolver {
             if (isSqlCallback(filename, suffix)) {
                 continue;
             }
-            Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix);
+            Triplet<MigrationVersion, Boolean, String> info =
+                    MigrationInfoHelper.extractVersionAndOptionalAndDescription(filename, prefix, separator, suffix);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());
             migration.setDescription(info.getRight());
+            migration.setOptional(info.getCenter());
             migration.setScript(extractScriptName(resource));
             migration.setChecksum(calculateChecksum(resource, resource.loadAsString(encoding)));
             migration.setType(MigrationType.SQL);

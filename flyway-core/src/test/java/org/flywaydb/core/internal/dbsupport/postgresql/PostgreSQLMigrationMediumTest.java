@@ -151,6 +151,11 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         public MigrationExecutor getExecutor() {
             return new NoTransactionMigrationExecutor(data[3]);
         }
+
+        @Override
+        public boolean isOptional() {
+            return false;
+        }
     }
 
     private class NoTransactionMigrationExecutor implements MigrationExecutor {

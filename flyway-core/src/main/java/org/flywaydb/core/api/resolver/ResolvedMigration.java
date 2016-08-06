@@ -56,4 +56,9 @@ public interface ResolvedMigration {
      * @return The executor to run this migration.
      */
     MigrationExecutor getExecutor();
+
+    /**
+     * @return True if this migration should be considered as optional. An optional migration script failure will be ignored.
+     */
+    boolean isOptional();
 }

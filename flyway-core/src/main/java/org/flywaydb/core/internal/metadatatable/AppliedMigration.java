@@ -76,10 +76,15 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
     private boolean success;
 
     /**
+     * Flag indicating whether the migration was optional or not.
+     */
+    private boolean optional;
+
+    /**
      * Creates a new applied migration. Only called from the RowMapper.
-     *
-     * @param installedRank The order in which this migration was applied amongst all others. (For out of order detection)
+     *  @param installedRank The order in which this migration was applied amongst all others. (For out of order detection)
      * @param version       The target version of this migration.
+     * @param optional      Flag indicating whether the migration was optional or not
      * @param description   The description of the migration.
      * @param type          The type of migration (INIT, SQL, ...)
      * @param script        The name of the script to execute for this migration, relative to its classpath location.
@@ -89,12 +94,13 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
      * @param executionTime The execution time (in millis) of this migration.
      * @param success       Flag indicating whether the migration was successful or not.
      */
-    public AppliedMigration(int installedRank, MigrationVersion version, String description,
-                     MigrationType type, String script, Integer checksum, Date installedOn,
-                     String installedBy, int executionTime, boolean success) {
+    public AppliedMigration(int installedRank, MigrationVersion version, boolean optional, String description,
+                            MigrationType type, String script, Integer checksum, Date installedOn,
+                            String installedBy, int executionTime, boolean success) {
         this.installedRank = installedRank;
         this.version = version;
         this.description = description;
+        this.optional = optional;
         this.type = type;
         this.script = script;
         this.checksum = checksum;
@@ -102,12 +108,13 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         this.installedBy = installedBy;
         this.executionTime = executionTime;
         this.success = success;
+
     }
 
     /**
      * Creates a new applied migration.
-     *
-     * @param version       The target version of this migration.
+     *  @param version       The target version of this migration.
+     * @param optional      Flag indicating whether the migration was optional or not
      * @param description   The description of the migration.
      * @param type          The type of migration (BASELINE, SQL, ...)
      * @param script        The name of the script to execute for this migration, relative to its classpath location.
@@ -115,10 +122,11 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
      * @param executionTime The execution time (in millis) of this migration.
      * @param success       Flag indicating whether the migration was successful or not.
      */
-    public AppliedMigration(MigrationVersion version, String description, MigrationType type, String script,
+    public AppliedMigration(MigrationVersion version, boolean optional, String description, MigrationType type, String script,
                             Integer checksum, int executionTime, boolean success) {
         this.version = version;
         this.description = abbreviateDescription(description);
+        this.optional = optional;
         this.type = type;
         this.script = abbreviateScript(script);
         this.checksum = checksum;
@@ -198,6 +206,13 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
     }
 
     /**
+     * @return Flag indicating whether the migration was optional or not.
+     */
+    public boolean isOptional() {
+        return optional;
+    }
+
+    /**
      * @return The checksum of the migration. (Optional)
      */
     public Integer getChecksum() {
@@ -245,6 +260,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         if (success != that.success) return false;
         if (checksum != null ? !checksum.equals(that.checksum) : that.checksum != null) return false;
         if (!description.equals(that.description)) return false;
+        if (optional != that.optional) return false;
         if (installedBy != null ? !installedBy.equals(that.installedBy) : that.installedBy != null) return false;
         if (installedOn != null ? !installedOn.equals(that.installedOn) : that.installedOn != null) return false;
         if (!script.equals(that.script)) return false;
@@ -257,6 +273,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         int result = installedRank;
         result = 31 * result + (version != null ? version.hashCode() : 0);
         result = 31 * result + description.hashCode();
+        result = 31 * result + (optional? 1 : 0);
         result = 31 * result + type.hashCode();
         result = 31 * result + script.hashCode();
         result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
@@ -271,4 +288,7 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
     public int compareTo(AppliedMigration o) {
         return installedRank - o.installedRank;
     }
+
+
+
 }

@@ -223,7 +223,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied migration.
      */
     private AppliedMigration createAppliedMigration(int version, String description) {
-        return new AppliedMigration(version, MigrationVersion.fromVersion(Integer.toString(version)), description,
+        return new AppliedMigration(version, MigrationVersion.fromVersion(Integer.toString(version)), false, description,
                 MigrationType.SQL, "x", null, new Date(), "sa", 123, true);
     }
 
@@ -234,7 +234,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied baseline migration.
      */
     private AppliedMigration createAppliedBaselineMigration(int version) {
-        return new AppliedMigration(version, MigrationVersion.fromVersion(Integer.toString(version)), "abc",
+        return new AppliedMigration(version, MigrationVersion.fromVersion(Integer.toString(version)), false, "abc",
                 MigrationType.BASELINE, "x", null, new Date(), "sa", 0, true);
     }
 
@@ -244,7 +244,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied schema migration.
      */
     private AppliedMigration createAppliedSchemaMigration() {
-        return new AppliedMigration(0, MigrationVersion.fromVersion(Integer.toString(0)), "<< Schema Creation >>",
+        return new AppliedMigration(0, MigrationVersion.fromVersion(Integer.toString(0)), false, "<< Schema Creation >>",
                 MigrationType.SCHEMA, "x", null, new Date(), "sa", 0, true);
     }
 

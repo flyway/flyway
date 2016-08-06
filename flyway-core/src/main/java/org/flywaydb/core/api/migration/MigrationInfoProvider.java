@@ -35,4 +35,9 @@ public interface MigrationInfoProvider {
      * @return The description for the migration history. Never {@code null}.
      */
     String getDescription();
+
+    /**
+     * @return Flag indicating whether the migration was optional or not
+     */
+    boolean isOptional();
 }

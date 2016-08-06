@@ -17,6 +17,7 @@
 CREATE TABLE [${schema}].[${table}] (
     [installed_rank] INT NOT NULL,
     [version] NVARCHAR(50),
+    [optional] BIT NOT NULL,
     [description] NVARCHAR(200),
     [type] NVARCHAR(20) NOT NULL,
     [script] NVARCHAR(1000) NOT NULL,
