@@ -175,6 +175,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         ResolvedMigrationImpl migration = (ResolvedMigrationImpl) o;
 
         if (checksum != null ? !checksum.equals(migration.checksum) : migration.checksum != null) return false;
+        if (optional != migration.optional) return false;
         if (description != null ? !description.equals(migration.description) : migration.description != null)
             return false;
         if (script != null ? !script.equals(migration.script) : migration.script != null) return false;
@@ -185,6 +186,7 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
     @Override
     public int hashCode() {
         int result = (version != null ? version.hashCode() : 0);
+        result = 31 * result + (optional? 1: 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (script != null ? script.hashCode() : 0);
         result = 31 * result + (checksum != null ? checksum.hashCode() : 0);
