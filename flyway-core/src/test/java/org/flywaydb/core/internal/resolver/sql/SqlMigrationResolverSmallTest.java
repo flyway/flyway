@@ -42,7 +42,7 @@ public class SqlMigrationResolverSmallTest {
     public void resolveMigrations() {
         SqlMigrationResolver sqlMigrationResolver = 
                 new SqlMigrationResolver(null, scanner,
-                        new Location("migration/subdir"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", "R", "__", ".sql");
+                        new Location("migration/subdir"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "V", "R", "__", ".sql", false);
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
@@ -62,7 +62,7 @@ public class SqlMigrationResolverSmallTest {
     public void resolveMigrationsRoot() {
         SqlMigrationResolver sqlMigrationResolver = 
                 new SqlMigrationResolver(null, scanner, new Location(""),
-                        PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", "X", "__", ".sql");
+                        PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "CheckValidate", "X", "__", ".sql", false);
 
         // changed to 3 as new test cases are added for SybaseASE and DB2
         assertEquals(3, sqlMigrationResolver.resolveMigrations().size());
@@ -73,7 +73,7 @@ public class SqlMigrationResolverSmallTest {
         SqlMigrationResolver sqlMigrationResolver = 
                 new SqlMigrationResolver(null, scanner,
                         new Location("non/existing"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8",
-                            "CheckValidate", "R", "__", ".sql");
+                            "CheckValidate", "R", "__", ".sql", false);
 
         sqlMigrationResolver.resolveMigrations();
     }
@@ -82,7 +82,7 @@ public class SqlMigrationResolverSmallTest {
     public void extractScriptName() {
         SqlMigrationResolver sqlMigrationResolver = 
                 new SqlMigrationResolver(null, scanner,
-                        new Location("db/migration"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", "R", "__", ".sql");
+                        new Location("db/migration"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", "R", "__", ".sql", false);
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(
                 new ClassPathResource("db/migration/db_0__init.sql", Thread.currentThread().getContextClassLoader())));
@@ -92,7 +92,7 @@ public class SqlMigrationResolverSmallTest {
     public void extractScriptNameRootLocation() {
         SqlMigrationResolver sqlMigrationResolver = 
                 new SqlMigrationResolver(null, scanner, new Location(""),
-                        PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", "R", "__", ".sql");
+                        PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8", "db_", "R", "__", ".sql", false);
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(
                 new ClassPathResource("db_0__init.sql", Thread.currentThread().getContextClassLoader())));
@@ -103,7 +103,7 @@ public class SqlMigrationResolverSmallTest {
         SqlMigrationResolver sqlMigrationResolver = 
                 new SqlMigrationResolver(null, scanner,
                         new Location("filesystem:/some/dir"), PlaceholderReplacer.NO_PLACEHOLDERS, "UTF-8",
-                            "V", "R", "__", ".sql");
+                            "V", "R", "__", ".sql", false);
 
         assertEquals("V3.171__patch.sql", sqlMigrationResolver.extractScriptName(new FileSystemResource("/some/dir/V3.171__patch.sql")));
     }
