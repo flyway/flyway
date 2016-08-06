@@ -22,6 +22,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.command.DbBaseline;
 import org.flywaydb.core.internal.command.DbClean;
@@ -36,6 +37,7 @@ import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.flywaydb.core.internal.util.Locations;
@@ -53,15 +55,7 @@ import org.flywaydb.core.internal.util.scanner.Scanner;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -296,6 +290,11 @@ public class Flyway implements FlywayConfiguration {
     private boolean dbConnectionInfoPrinted;
 
     /**
+     * A custom resolved migration comparator
+     */
+    private Comparator<ResolvedMigration> resolvedMigrationComparator = new ResolvedMigrationComparator();
+
+    /**
      * Creates a new instance of Flyway. This is your starting point.
      */
     public Flyway() {
@@ -309,6 +308,11 @@ public class Flyway implements FlywayConfiguration {
             result[i] = locations.getLocations().get(i).toString();
         }
         return result;
+    }
+
+    @Override
+    public Comparator<ResolvedMigration> getResolvedMigrationComparator() {
+        return resolvedMigrationComparator;
     }
 
     @Override
@@ -774,6 +778,13 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
+    }
+
+    /**
+     * @param resolvedMigrationComparator The resolved migration comparator to use
+     */
+    public void setResolvedMigrationComparator(Comparator<ResolvedMigration> resolvedMigrationComparator){
+        this.resolvedMigrationComparator = resolvedMigrationComparator;
     }
 
     /**

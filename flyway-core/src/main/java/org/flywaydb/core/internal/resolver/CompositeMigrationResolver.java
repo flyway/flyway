@@ -29,13 +29,7 @@ import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Facility for retrieving and sorting the available migrations from the classpath through the various migration
@@ -52,6 +46,11 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * found.
      */
     private List<ResolvedMigration> availableMigrations;
+
+    /**
+     * The resolved migration comparator to use
+     */
+    private final Comparator<ResolvedMigration> resolvedMigrationComparator;
 
     /**
      * Creates a new CompositeMigrationResolver.
@@ -73,9 +72,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
                                       String sqlMigrationSeparator, String sqlMigrationSuffix,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
+        resolvedMigrationComparator = config.getResolvedMigrationComparator();
         if (!config.isSkipDefaultResolvers()) {
             for (Location location : locations.getLocations()) {
-                migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, location, placeholderReplacer,
+                migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, location, resolvedMigrationComparator, placeholderReplacer,
                         encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
                 migrationResolvers.add(new JdbcMigrationResolver(scanner, location, config));
 
@@ -112,9 +112,9 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>(collectMigrations(migrationResolvers));
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+        Collections.sort(migrations, resolvedMigrationComparator);
 
-        checkForIncompatibilities(migrations);
+        checkForIncompatibilities(resolvedMigrationComparator, migrations);
 
         return migrations;
     }
@@ -137,16 +137,18 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Checks for incompatible migrations.
      *
+     *
+     * @param resolvedMigrationComparator
      * @param migrations The migrations to check.
      * @throws FlywayException when two different migration with the same version number are found.
      */
     /* private -> for testing */
-    static void checkForIncompatibilities(List<ResolvedMigration> migrations) {
+    static void checkForIncompatibilities(Comparator<ResolvedMigration> resolvedMigrationComparator, List<ResolvedMigration> migrations) {
         // check for more than one migration with same version
         for (int i = 0; i < migrations.size() - 1; i++) {
             ResolvedMigration current = migrations.get(i);
             ResolvedMigration next = migrations.get(i + 1);
-            if (new ResolvedMigrationComparator().compare(current, next) == 0) {
+            if (resolvedMigrationComparator.compare(current, next) == 0) {
                 if (current.getVersion() != null) {
                     throw new FlywayException(String.format("Found more than one migration with version %s\nOffenders:\n-> %s (%s)\n-> %s (%s)",
                             current.getVersion(),

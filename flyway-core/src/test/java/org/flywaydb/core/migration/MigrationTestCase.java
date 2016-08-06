@@ -47,6 +47,7 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -282,7 +283,7 @@ public abstract class MigrationTestCase {
     protected void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
                 dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
-                new Location(getBasedir()),
+                new Location(getBasedir()), new ResolvedMigrationComparator(),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",
                 "V", "R", "__", ".sql");

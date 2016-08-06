@@ -40,6 +40,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -74,6 +75,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
                 dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
                 new Location(getBasedir() + "/default"),
+                new ResolvedMigrationComparator(),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",
                 "V", "R", "__", ".sql");
