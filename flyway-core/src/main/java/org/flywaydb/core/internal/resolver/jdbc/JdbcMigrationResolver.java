@@ -131,7 +131,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
                         + " => ensure it starts with V or R," +
                         " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
             }
-            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
+            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "", configuration.isAppendDescriptionHashToVersion());
             version = info.getLeft();
             description = info.getRight();
         }

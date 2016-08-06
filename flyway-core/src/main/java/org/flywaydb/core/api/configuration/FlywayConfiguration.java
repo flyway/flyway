@@ -204,4 +204,9 @@ public interface FlywayConfiguration {
      * @return Locations to scan recursively for migrations. (default: db/migration)
      */
     String[] getLocations();
+
+    /**
+     * @return True to append description hash to version. This allows multiple files to be named with the same version and different descriptions
+     */
+    boolean isAppendDescriptionHashToVersion();
 }

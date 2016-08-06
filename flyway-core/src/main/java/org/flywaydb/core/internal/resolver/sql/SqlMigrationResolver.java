@@ -89,6 +89,9 @@ public class SqlMigrationResolver implements MigrationResolver {
      */
     private final String sqlMigrationSuffix;
 
+
+    private final boolean appendDescriptionHashToVersion;
+
     /**
      * Creates a new instance.
      *
@@ -105,7 +108,8 @@ public class SqlMigrationResolver implements MigrationResolver {
     public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
                                 PlaceholderReplacer placeholderReplacer, String encoding,
                                 String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
-                                String sqlMigrationSeparator, String sqlMigrationSuffix) {
+                                String sqlMigrationSeparator, String sqlMigrationSuffix,
+                                boolean appendDescriptionHashToVersion) {
         this.dbSupport = dbSupport;
         this.scanner = scanner;
         this.location = location;
@@ -115,6 +119,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
         this.sqlMigrationSeparator = sqlMigrationSeparator;
         this.sqlMigrationSuffix = sqlMigrationSuffix;
+        this.appendDescriptionHashToVersion = appendDescriptionHashToVersion;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
@@ -134,7 +139,7 @@ public class SqlMigrationResolver implements MigrationResolver {
                 continue;
             }
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix);
+                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix, appendDescriptionHashToVersion);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());
