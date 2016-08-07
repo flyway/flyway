@@ -22,9 +22,11 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.batch.MigrationBatchService;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.batch.MigrationBatchResult;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
@@ -47,6 +49,8 @@ import java.sql.SQLException;
 public class DbMigrate {
 
     private static final Log LOG = LogFactory.getLog(DbMigrate.class);
+
+    private final MigrationBatchService migrationBatchService;
 
     /**
      * The target version of the migration.
@@ -116,6 +120,7 @@ public class DbMigrate {
     /**
      * Creates a new database migrator.
      *
+     * @param migrationBatchService       The migration batch service to use
      * @param connectionMetaDataTable     The connection to use.
      * @param connectionUserObjects       The connection to use to perform the actual database migrations.
      * @param dbSupport                   Database-specific functionality.
@@ -126,10 +131,12 @@ public class DbMigrate {
      * @param ignoreFailedFutureMigration Flag whether to ignore failed future migrations or not.
      * @param outOfOrder                  Allows migrations to be run "out of order".
      */
-    public DbMigrate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport,
+    public DbMigrate(MigrationBatchService migrationBatchService,
+                     Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport,
                      MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
                      MigrationVersion target, boolean ignoreFutureMigrations, boolean ignoreFailedFutureMigration, boolean outOfOrder,
                      FlywayCallback[] callbacks) {
+        this.migrationBatchService = migrationBatchService;
         this.connectionMetaDataTable = connectionMetaDataTable;
         this.connectionUserObjects = connectionUserObjects;
         this.dbSupport = dbSupport;
@@ -169,73 +176,16 @@ public class DbMigrate {
 
             int migrationSuccessCount = 0;
             while (true) {
-                final boolean firstRun = migrationSuccessCount == 0;
-                boolean done = new TransactionTemplate(connectionMetaDataTable, false).execute(new TransactionCallback<Boolean>() {
-                    public Boolean doInTransaction() {
-                        metaDataTable.lock();
-
-                        MigrationInfoServiceImpl infoService =
-                                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true);
-                        infoService.refresh();
-
-                        MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
-                        if (infoService.current() != null) {
-                            currentSchemaVersion = infoService.current().getVersion();
-                        }
-                        if (firstRun) {
-                            LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
-
-                            if (outOfOrder) {
-                                LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
-                            }
-                        }
-
-                        MigrationInfo[] future = infoService.future();
-                        if (future.length > 0) {
-                            MigrationInfo[] resolved = infoService.resolved();
-                            if (resolved.length == 0) {
-                                LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
-                                        + ", but no migration could be resolved in the configured locations !");
-                            } else {
-                                int offset = resolved.length - 1;
-                                while (resolved[offset].getVersion() == null) {
-                                    // Skip repeatable migrations
-                                    offset--;
-                                }
-                                LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
-                                        + ") that is newer than the latest available migration ("
-                                        + resolved[offset].getVersion() + ") !");
-                            }
-                        }
-
-                        MigrationInfo[] failed = infoService.failed();
-                        if (failed.length > 0) {
-                            if ((failed.length == 1)
-                                    && (failed[0].getState() == MigrationState.FUTURE_FAILED)
-                                    && (ignoreFutureMigrations || ignoreFailedFutureMigration)) {
-                                LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
-                            } else {
-                                throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
-                            }
-                        }
-
-                        MigrationInfoImpl[] pendingMigrations = infoService.pending();
-
-                        if (pendingMigrations.length == 0) {
-                            return true;
-                        }
-
-                        boolean isOutOfOrder = pendingMigrations[0].getVersion() != null
-                                && pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
-                        return applyMigration(pendingMigrations[0], isOutOfOrder);
+                MigrationBatchResult result = new TransactionTemplate(connectionMetaDataTable, false).execute(new TransactionCallback<MigrationBatchResult>() {
+                    public MigrationBatchResult doInTransaction() {
+                        return migrateBatch();
                     }
                 });
-                if (done) {
+                if (result.isDone()) {
                     // No further migrations available
                     break;
                 }
-
-                migrationSuccessCount++;
+                migrationSuccessCount += result.getNumberOfAppliedMigrations();
             }
 
             stopWatch.stop();
@@ -258,6 +208,90 @@ public class DbMigrate {
             dbSupportUserObjects.restoreCurrentSchema();
         }
     }
+
+    /**
+     *
+     * @return
+     */
+    private MigrationBatchResult migrateBatch(){
+        metaDataTable.lock();
+
+        final MigrationBatchResult result = new MigrationBatchResult();
+        Integer migrationBatchSuccessCount = new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Integer>() {
+            @Override
+            public Integer doInTransaction() throws SQLException {
+                int migrationBatchSuccessCount = 0;
+                while(true){
+                    MigrationInfoServiceImpl infoService =
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true);
+                    infoService.refresh();
+
+                    MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
+                    if (infoService.current() != null) {
+                        currentSchemaVersion = infoService.current().getVersion();
+                    }
+                    if (migrationBatchSuccessCount == 0) {
+                        LOG.info("Current version of schema " + schema + ": " + currentSchemaVersion);
+
+                        if (outOfOrder) {
+                            LOG.warn("outOfOrder mode is active. Migration of schema " + schema + " may not be reproducible.");
+                        }
+                    }
+
+                    MigrationInfo[] future = infoService.future();
+                    if (future.length > 0) {
+                        MigrationInfo[] resolved = infoService.resolved();
+                        if (resolved.length == 0) {
+                            LOG.warn("Schema " + schema + " has version " + currentSchemaVersion
+                                    + ", but no migration could be resolved in the configured locations !");
+                        } else {
+                            int offset = resolved.length - 1;
+                            while (resolved[offset].getVersion() == null) {
+                                // Skip repeatable migrations
+                                offset--;
+                            }
+                            LOG.warn("Schema " + schema + " has a version (" + currentSchemaVersion
+                                    + ") that is newer than the latest available migration ("
+                                    + resolved[offset].getVersion() + ") !");
+                        }
+                    }
+
+                    MigrationInfo[] failed = infoService.failed();
+                    if (failed.length > 0) {
+                        if ((failed.length == 1)
+                                && (failed[0].getState() == MigrationState.FUTURE_FAILED)
+                                && (ignoreFutureMigrations || ignoreFailedFutureMigration)) {
+                            LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
+                        } else {
+                            throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
+                        }
+                    }
+
+                    MigrationInfoImpl[] pendingMigrations = infoService.pending();
+
+                    if (pendingMigrations.length == 0) {
+                        result.setDone(true);
+                        break;
+                    }
+
+                    boolean isOutOfOrder = pendingMigrations[0].getVersion() != null
+                            && pendingMigrations[0].getVersion().compareTo(currentSchemaVersion) < 0;
+                    MigrationInfoImpl migrationInfo = pendingMigrations[0];
+                    applyMigration(migrationInfo, isOutOfOrder);
+                    migrationBatchSuccessCount++;
+                    if(migrationBatchService.isLastOfBatch(dbSupport, migrationInfo)){
+                        result.setDone(false);
+                        break;
+                    }
+                }
+                return migrationBatchSuccessCount;
+            }
+        });
+
+        result.setNumberOfAppliedMigrations(migrationBatchSuccessCount);
+        return result;
+    }
+
 
     /**
      * Logs the summary of this migration run.
@@ -283,9 +317,8 @@ public class DbMigrate {
      *
      * @param migration    The migration to apply.
      * @param isOutOfOrder If this migration is being applied out of order.
-     * @return The result of the migration.
      */
-    private Boolean applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
+    private void applyMigration(final MigrationInfoImpl migration, boolean isOutOfOrder) {
         MigrationVersion version = migration.getVersion();
         final String migrationText;
         if (version != null) {
@@ -301,25 +334,15 @@ public class DbMigrate {
 
         try {
             final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
-            if (migrationExecutor.executeInTransaction()) {
-                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
-                    @Override
-                    public Object doInTransaction() throws SQLException {
-                        doMigrate(migration, migrationExecutor, migrationText);
-                        return null;
-                    }
-                });
-            } else {
-                try {
-                    doMigrate(migration, migrationExecutor, migrationText);
-                } catch (SQLException e) {
-                    throw new FlywayException("Unable to apply migration", e);
-                }
+            try {
+                doMigrate(migration, migrationExecutor, migrationText);
+            } catch (SQLException e) {
+                throw new FlywayException("Unable to apply migration", e);
             }
         } catch (FlywayException e) {
             String failedMsg = "Migration of " + migrationText + " failed!";
             if (dbSupport.supportsDdlTransactions()) {
-                LOG.error(failedMsg + " Changes successfully rolled back.");
+                LOG.error(failedMsg);
             } else {
                 LOG.error(failedMsg + " Please restore backups and roll back database and code!");
 
@@ -338,8 +361,6 @@ public class DbMigrate {
         AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(),
                 migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
         metaDataTable.addAppliedMigration(appliedMigration);
-
-        return false;
     }
 
     private void doMigrate(MigrationInfoImpl migration, MigrationExecutor migrationExecutor, String migrationText) throws SQLException {

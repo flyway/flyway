@@ -23,6 +23,8 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.batch.DefaultMigrationBatchService;
+import org.flywaydb.core.internal.batch.MigrationBatchService;
 
 /**
  * Dummy Implementation of {@link FlywayConfiguration} for unit tests.
@@ -171,6 +173,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     @Override
     public String[] getLocations() {
         return this.locations;
+    }
+
+    @Override
+    public MigrationBatchService getMigrationBatchService() {
+        return new DefaultMigrationBatchService();
     }
 
     @Override

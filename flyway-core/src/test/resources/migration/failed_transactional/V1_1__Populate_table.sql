@@ -14,6 +14,4 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test_table (
-  id INTEGER PRIMARY KEY AUTOINCREMENT
-);
+INSERT INTO test_user (name) VALUES ('Mr. T');
