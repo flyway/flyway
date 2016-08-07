@@ -41,6 +41,7 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.batch.MigrationBatchService;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
@@ -649,6 +650,50 @@ public abstract class MigrationTestCase {
     public void schemaExists() throws SQLException {
         assertTrue(dbSupport.getOriginalSchema().exists());
         assertFalse(dbSupport.getSchema("InVaLidScHeMa").exists());
+    }
+
+    @Test
+    public void failedMigrationSingleTransaction() throws Exception {
+        flyway.setLocations("migration/failed_transactional");
+        flyway.setMigrationBatchService(new MigrationBatchService() {
+            @Override
+            public boolean isLastOfBatch(DbSupport dbSupport, MigrationInfo migrationInfo) {
+                return false;
+            }
+        });
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (FlywayException e) {
+            //Expected
+        }
+
+        if (dbSupport.supportsDdlTransactions()) {
+            assertFalse(dbSupport.getOriginalSchema().getTable("test_user").exists());
+        } else {
+            assertEquals(0, jdbcTemplate.queryForInt("select count(*) from test_user"));
+        }
+    }
+
+    @Test
+    public void failedMigrationTwoTransactions() throws Exception {
+        flyway.setLocations("migration/failed_transactional");
+        flyway.setMigrationBatchService(new MigrationBatchService() {
+            @Override
+            public boolean isLastOfBatch(DbSupport dbSupport, MigrationInfo migrationInfo) {
+                return migrationInfo.getDescription().equals("Populate table");
+            }
+        });
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (FlywayException e) {
+            //Expected
+        }
+
+        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from test_user"));
     }
 
     protected void createTestTable() throws SQLException {
