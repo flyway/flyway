@@ -22,17 +22,23 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
+import javax.xml.crypto.Data;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
@@ -40,6 +46,7 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.callback.BaseFlywayCallback;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
@@ -54,6 +61,7 @@ import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +78,7 @@ public abstract class MigrationTestCase {
     protected static final String MIGRATIONDIR = "migration";
     protected static final String BASEDIR = "migration/sql";
 
+    private DataSource unwrappedDataSource;
     protected DataSource dataSource;
     private Connection connection;
     protected DbSupport dbSupport;
@@ -84,7 +93,8 @@ public abstract class MigrationTestCase {
         if (customPropertiesFile.canRead()) {
             customProperties.load(new FileInputStream(customPropertiesFile));
         }
-        dataSource = createDataSource(customProperties);
+        unwrappedDataSource = createDataSource(customProperties);
+        dataSource = Mockito.spy(unwrappedDataSource);
 
         connection = dataSource.getConnection();
         dbSupport = DbSupportFactory.createDbSupport(connection, false);
@@ -672,4 +682,5 @@ public abstract class MigrationTestCase {
     protected String getCommentLocation() {
         return "migration/comment";
     }
+
 }

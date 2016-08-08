@@ -117,7 +117,7 @@ public class DbMigrate {
      * Creates a new database migrator.
      *
      * @param connectionMetaDataTable     The connection to use.
-     * @param connectionUserObjects       The connection to use to perform the actual database migrations.
+     * @param connectionUserObjects       The connection to use to perform the actual database migrations. Can be null.
      * @param dbSupport                   Database-specific functionality.
      * @param metaDataTable               The database metadata table.
      * @param migrationResolver           The migration resolver.
@@ -131,7 +131,7 @@ public class DbMigrate {
                      MigrationVersion target, boolean ignoreFutureMigrations, boolean ignoreFailedFutureMigration, boolean outOfOrder,
                      FlywayCallback[] callbacks) {
         this.connectionMetaDataTable = connectionMetaDataTable;
-        this.connectionUserObjects = connectionUserObjects;
+        this.connectionUserObjects = dbSupport.supportsDdlTransactions()? connectionMetaDataTable: connectionUserObjects;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
         this.schema = schema;
@@ -142,7 +142,7 @@ public class DbMigrate {
         this.outOfOrder = outOfOrder;
         this.callbacks = callbacks;
 
-        dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
+        dbSupportUserObjects = DbSupportFactory.createDbSupport(this.connectionUserObjects, false);
     }
 
     /**
@@ -170,7 +170,7 @@ public class DbMigrate {
             int migrationSuccessCount = 0;
             while (true) {
                 final boolean firstRun = migrationSuccessCount == 0;
-                boolean done = new TransactionTemplate(connectionMetaDataTable, false).execute(new TransactionCallback<Boolean>() {
+                boolean done = new TransactionTemplate(connectionMetaDataTable, dbSupport.supportsDdlTransactions()).execute(new TransactionCallback<Boolean>() {
                     public Boolean doInTransaction() {
                         metaDataTable.lock();
 
@@ -259,6 +259,8 @@ public class DbMigrate {
         }
     }
 
+
+
     /**
      * Logs the summary of this migration run.
      *
@@ -301,7 +303,7 @@ public class DbMigrate {
 
         try {
             final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
-            if (migrationExecutor.executeInTransaction()) {
+            if (migrationExecutor.executeInTransaction() && !dbSupport.supportsDdlTransactions()) {
                 new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
                     @Override
                     public Object doInTransaction() throws SQLException {
