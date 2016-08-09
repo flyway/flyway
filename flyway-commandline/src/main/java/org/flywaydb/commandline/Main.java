@@ -106,7 +106,9 @@ public class Main {
                 LOG.error("Unexpected error", e);
             } else {
                 if (e instanceof FlywayException) {
-                    LOG.error(e.getMessage());
+                    LOG.error(e.getMessage() +
+                      System.lineSeparator() +
+                      "You can view detailed information about the error by re-running the migration with the -X switch");
                 } else {
                     LOG.error(e.toString());
                 }
