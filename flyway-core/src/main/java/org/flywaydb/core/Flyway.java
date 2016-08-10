@@ -276,6 +276,12 @@ public class Flyway implements FlywayConfiguration {
     private boolean skipDefaultResolvers;
 
     /**
+     * Whether Flyway should skip default comparators. If true, no comparator will be used.
+     * <p>(default: none)</p>
+     */
+    private boolean skipDefaultComparators;
+
+    /**
      * Whether Flyway created the DataSource.
      */
     private boolean createdDataSource;
@@ -906,6 +912,16 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * Whether Flyway should skip the default comparators. If true, no comparator will be used.
+     *
+     * @param skipDefaultComparators Whether default built-in comparators should be skipped. <p>(default: false)</p>
+     */
+    public void setSkipDefaultComparators(boolean skipDefaultComparators) {
+
+        this.skipDefaultComparators = skipDefaultComparators;
+    }
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -1125,7 +1141,7 @@ public class Flyway implements FlywayConfiguration {
 
         return new CompositeMigrationResolver(dbSupport, scanner, this, locations,
                 encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix,
-                createPlaceholderReplacer(), resolvers);
+                createPlaceholderReplacer(), skipDefaultComparators, resolvers);
     }
 
     /**
@@ -1257,6 +1273,10 @@ public class Flyway implements FlywayConfiguration {
         String skipDefaultResolversProp = getValueAndRemoveEntry(props, "flyway.skipDefaultResolvers");
         if (skipDefaultResolversProp != null) {
             setSkipDefaultResolvers(Boolean.parseBoolean(skipDefaultResolversProp));
+        }
+        String skipDefaultComparatorsProp = getValueAndRemoveEntry(props, "flyway.skipDefaultComparators");
+        if (skipDefaultComparatorsProp != null) {
+            setSkipDefaultComparators(Boolean.parseBoolean(skipDefaultComparatorsProp));
         }
         String callbacksProp = getValueAndRemoveEntry(props, "flyway.callbacks");
         if (StringUtils.hasLength(callbacksProp)) {
