@@ -307,7 +307,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             return Integer.MAX_VALUE;
         }
 
-        return getDescription().compareTo(o.getDescription());
+        return 0;
     }
 
     @SuppressWarnings("SimplifiableIfStatement")

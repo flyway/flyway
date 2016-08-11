@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,6 +46,11 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * The migration resolvers to use internally.
      */
     private Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
+
+    /**
+     * Whether to skip default comparators.
+     */
+    private boolean skipDefaultComparators;
 
     /**
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
@@ -65,6 +70,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param sqlMigrationSeparator        The file name separator for sql migrations.
      * @param sqlMigrationSuffix           The file name suffix for sql migrations.
      * @param placeholderReplacer          The placeholder replacer to use.
+     * @param skipDefaultComparators       Whether to skip default comparators.
      * @param customMigrationResolvers     Custom Migration Resolvers.
      */
     public CompositeMigrationResolver(DbSupport dbSupport, Scanner scanner, FlywayConfiguration config, Locations locations,
@@ -72,6 +78,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
                                       String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
                                       String sqlMigrationSeparator, String sqlMigrationSuffix,
                                       PlaceholderReplacer placeholderReplacer,
+                                      boolean skipDefaultComparators,
                                       MigrationResolver... customMigrationResolvers) {
         if (!config.isSkipDefaultResolvers()) {
             for (Location location : locations.getLocations()) {
@@ -86,6 +93,8 @@ public class CompositeMigrationResolver implements MigrationResolver {
         }
 
         migrationResolvers.addAll(Arrays.asList(customMigrationResolvers));
+
+        this.skipDefaultComparators = skipDefaultComparators;
     }
 
     /**
@@ -112,7 +121,10 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>(collectMigrations(migrationResolvers));
-        Collections.sort(migrations, new ResolvedMigrationComparator());
+
+        if (!skipDefaultComparators) {
+            Collections.sort(migrations, new ResolvedMigrationComparator());
+        }
 
         checkForIncompatibilities(migrations);
 
@@ -127,7 +139,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     /* private -> for testing */
     static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
-        Set<ResolvedMigration> migrations = new HashSet<ResolvedMigration>();
+        Set<ResolvedMigration> migrations = new LinkedHashSet<ResolvedMigration>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
             migrations.addAll(migrationResolver.resolveMigrations());
         }
