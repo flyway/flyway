@@ -20,6 +20,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.migration.sql.PassThroughSqlMigrationScriptExecutionInterceptor;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
@@ -42,7 +43,7 @@ public class CompositeMigrationResolverSmallTest {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
                 new Scanner(Thread.currentThread().getContextClassLoader()), config,
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", "R", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
+                "UTF-8", "V", "R", "__", ".sql", placeholderReplacer, new PassThroughSqlMigrationScriptExecutionInterceptor(), new MyCustomMigrationResolver());
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
@@ -149,7 +150,7 @@ public class CompositeMigrationResolverSmallTest {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
                 new Scanner(Thread.currentThread().getContextClassLoader()), config,
                 new Locations("migration/outoforder", "org/flywaydb/core/internal/resolver/jdbc/dummy"),
-                "UTF-8", "V", "R", "__", ".sql", PlaceholderReplacer.NO_PLACEHOLDERS);
+                "UTF-8", "V", "R", "__", ".sql", PlaceholderReplacer.NO_PLACEHOLDERS, new PassThroughSqlMigrationScriptExecutionInterceptor());
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
 

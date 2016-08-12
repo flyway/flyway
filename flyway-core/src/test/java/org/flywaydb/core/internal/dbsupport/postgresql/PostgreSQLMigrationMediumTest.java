@@ -61,6 +61,11 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         return "migration/quote";
     }
 
+    @Override
+    protected boolean canRecoverFromAStatementError() {
+        return false;
+    }
+
     /**
      * Tests clean and migrate for PostgreSQL Types.
      */
