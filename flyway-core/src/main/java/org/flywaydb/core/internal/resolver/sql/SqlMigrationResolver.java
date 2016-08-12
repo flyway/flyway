@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.migration.sql.SqlMigrationScriptExecutionInterceptor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
@@ -90,6 +91,11 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final String sqlMigrationSuffix;
 
     /**
+     * The sql migration script interceptor
+     */
+    private final SqlMigrationScriptExecutionInterceptor sqlMigrationScriptExecutionInterceptor;
+
+    /**
      * Creates a new instance.
      *
      * @param dbSupport                    The database-specific support.
@@ -101,11 +107,13 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param repeatableSqlMigrationPrefix The prefix for repeatable sql migrations
      * @param sqlMigrationSeparator        The separator for sql migrations
      * @param sqlMigrationSuffix           The suffix for sql migrations
+     * @param sqlMigrationScriptExecutionInterceptor     The sql migration interceptor
      */
     public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
                                 PlaceholderReplacer placeholderReplacer, String encoding,
                                 String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
-                                String sqlMigrationSeparator, String sqlMigrationSuffix) {
+                                String sqlMigrationSeparator, String sqlMigrationSuffix,
+                                SqlMigrationScriptExecutionInterceptor sqlMigrationScriptExecutionInterceptor) {
         this.dbSupport = dbSupport;
         this.scanner = scanner;
         this.location = location;
@@ -115,6 +123,7 @@ public class SqlMigrationResolver implements MigrationResolver {
         this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
         this.sqlMigrationSeparator = sqlMigrationSeparator;
         this.sqlMigrationSuffix = sqlMigrationSuffix;
+        this.sqlMigrationScriptExecutionInterceptor = sqlMigrationScriptExecutionInterceptor;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
@@ -143,7 +152,7 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setChecksum(calculateChecksum(resource, resource.loadAsString(encoding)));
             migration.setType(MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
-            migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
+            migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding, sqlMigrationScriptExecutionInterceptor));
             migrations.add(migration);
         }
     }

@@ -17,6 +17,7 @@ package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.migration.sql.SqlMigrationScriptExecutionInterceptor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -124,6 +125,12 @@ public interface FlywayConfiguration {
      * @return The file name prefix for sql migrations. (default: V)
      */
     String getSqlMigrationPrefix();
+
+    /**
+     *
+     * @return The sql migration script interceptor to use
+     */
+    SqlMigrationScriptExecutionInterceptor getSqlMigrationScriptExecutionInterceptor();
 
     /**
      * Checks whether placeholders should be replaced.

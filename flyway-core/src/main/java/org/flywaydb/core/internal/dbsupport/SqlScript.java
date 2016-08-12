@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.migration.sql.SqlMigrationScriptExecutionInterceptor;
+import org.flywaydb.core.api.migration.sql.SqlScriptExecutor;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -26,7 +28,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +57,11 @@ public class SqlScript {
     private final Resource resource;
 
     /**
+     * The sql migration script interceptor
+     */
+    private final SqlMigrationScriptExecutionInterceptor sqlMigrationScriptExecutionInterceptor;
+
+    /**
      * Creates a new sql script from this source.
      *
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
@@ -62,6 +71,7 @@ public class SqlScript {
         this.dbSupport = dbSupport;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
+        this.sqlMigrationScriptExecutionInterceptor = null;
     }
 
     /**
@@ -72,13 +82,14 @@ public class SqlScript {
      * @param placeholderReplacer The placeholder replacer.
      * @param encoding            The encoding to use.
      */
-    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
+    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, SqlMigrationScriptExecutionInterceptor sqlMigrationScriptExecutionInterceptor) {
         this.dbSupport = dbSupport;
 
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
 
         this.resource = sqlScriptResource;
+        this.sqlMigrationScriptExecutionInterceptor = sqlMigrationScriptExecutionInterceptor;
     }
 
     /**
@@ -103,19 +114,43 @@ public class SqlScript {
      * @param jdbcTemplate The jdbc template to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
-        for (SqlStatement sqlStatement : sqlStatements) {
-            String sql = sqlStatement.getSql();
+        for (final SqlStatement sqlStatement : sqlStatements) {
+            final String sql = sqlStatement.getSql();
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                if (sqlStatement.isPgCopy()) {
-                    dbSupport.executePgCopy(jdbcTemplate.getConnection(), sql);
-                } else {
-                    jdbcTemplate.executeStatement(sql);
+                if(sqlMigrationScriptExecutionInterceptor == null){
+                    doExecute(jdbcTemplate, sqlStatement);
+                } else{
+                    sqlMigrationScriptExecutionInterceptor.intercept(new SqlScriptExecutor() {
+                        @Override
+                        public void execute() throws SQLException {
+                            doExecute(jdbcTemplate, sqlStatement);
+                        }
+
+                        @Override
+                        public String getSql() {
+                            return sqlStatement.getSql();
+                        }
+
+                        @Override
+                        public Connection getConnection() {
+                            return jdbcTemplate.getConnection();
+                        }
+                    });
                 }
             } catch (SQLException e) {
                 throw new FlywaySqlScriptException(resource, sqlStatement, e);
             }
+
+        }
+    }
+
+    private void doExecute(JdbcTemplate jdbcTemplate, SqlStatement sqlStatement) throws SQLException{
+        if (sqlStatement.isPgCopy()) {
+            dbSupport.executePgCopy(jdbcTemplate.getConnection(), sqlStatement.getSql());
+        } else {
+            jdbcTemplate.executeStatement(sqlStatement.getSql());
         }
     }
 

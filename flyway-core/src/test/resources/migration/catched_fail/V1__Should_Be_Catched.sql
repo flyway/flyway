@@ -14,6 +14,8 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test_table (
-  id INTEGER PRIMARY KEY AUTOINCREMENT
+THIS IS NOT VALID SQL;
+CREATE TABLE ${tableName} (
+  id int
 );
+THIS MIGRATION SHOULD FAIL;

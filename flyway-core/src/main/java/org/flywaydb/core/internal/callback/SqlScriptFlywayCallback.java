@@ -100,7 +100,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                                 "-> " + existing.getResource().getLocationOnDisk() + "\n" +
                                 "-> " + resource.getLocationOnDisk());
                     }
-                    scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, encoding));
+                    scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, encoding, null));
                 }
             }
         }

@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.migration.sql.SqlMigrationScriptExecutionInterceptor;
+import org.flywaydb.core.api.migration.sql.SqlScriptExecutor;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
@@ -47,6 +50,7 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
+import org.flywaydb.core.internal.migration.sql.PassThroughSqlMigrationScriptExecutionInterceptor;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -107,6 +111,10 @@ public abstract class MigrationTestCase {
      * @return The new datasource.
      */
     protected abstract DataSource createDataSource(Properties customProperties) throws Exception;
+
+    protected boolean canRecoverFromAStatementError(){
+        return true;
+    }
 
     @After
     public void tearDown() throws Exception {
@@ -285,7 +293,7 @@ public abstract class MigrationTestCase {
                 new Location(getBasedir()),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 "UTF-8",
-                "V", "R", "__", ".sql");
+                "V", "R", "__", ".sql", new PassThroughSqlMigrationScriptExecutionInterceptor());
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {
@@ -373,6 +381,47 @@ public abstract class MigrationTestCase {
             }
 
         }
+    }
+
+    @Test
+    public void errorCatchedMigration() throws Exception {
+        String tableName = "before_the_error";
+
+        flyway.setLocations(getMigrationDir() + "/catched_fail");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("tableName", dbSupport.quote(tableName));
+        flyway.setPlaceholders(placeholders);
+        flyway.setSqlMigrationScriptExecutionInterceptor(new SqlMigrationScriptExecutionInterceptor() {
+            @Override
+            public void intercept(SqlScriptExecutor executor) throws SQLException {
+                Savepoint savepoint = null;
+                try{
+                    if(!canRecoverFromAStatementError()){
+                        savepoint = executor.getConnection().setSavepoint();
+                    }
+                    executor.execute();
+                    if(savepoint != null){
+                        executor.getConnection().releaseSavepoint(savepoint);
+                    }
+                } catch(SQLException e){
+                    if(shouldFail(executor.getSql())){
+                        throw e;
+                    } else{
+                        if(savepoint != null){
+                            executor.getConnection().rollback(savepoint);
+                        }
+                    }
+                }
+            }
+
+            private boolean shouldFail(String sqlStatement) {
+                return !sqlStatement.contains("THIS IS NOT VALID SQL")
+                        && !sqlStatement.contains("THIS MIGRATION SHOULD FAIL");
+            }
+        });
+
+        int result = flyway.migrate();
+        assertEquals(1, result);
     }
 
     @Test

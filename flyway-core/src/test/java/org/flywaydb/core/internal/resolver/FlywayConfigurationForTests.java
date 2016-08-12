@@ -22,7 +22,9 @@ import javax.sql.DataSource;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.migration.sql.SqlMigrationScriptExecutionInterceptor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.internal.migration.sql.PassThroughSqlMigrationScriptExecutionInterceptor;
 
 /**
  * Dummy Implementation of {@link FlywayConfiguration} for unit tests.
@@ -39,6 +41,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     private MyCustomMigrationResolver[] migrationResolvers = new MyCustomMigrationResolver[0];
     private boolean skipDefaultResolvers;
     private boolean skipDefaultCallbacks;
+    private SqlMigrationScriptExecutionInterceptor sqlMigrationScriptExecutionInterceptor = new PassThroughSqlMigrationScriptExecutionInterceptor();
 
     public FlywayConfigurationForTests(ClassLoader contextClassLoader, String[] locations, String encoding,
             String sqlMigrationPrefix, String repeatableSqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
@@ -131,6 +134,14 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     @Override
     public String getSqlMigrationPrefix() {
         return sqlMigrationPrefix;
+    }
+
+    public SqlMigrationScriptExecutionInterceptor getSqlMigrationScriptExecutionInterceptor() {
+        return sqlMigrationScriptExecutionInterceptor;
+    }
+
+    public void setSqlMigrationScriptExecutionInterceptor(SqlMigrationScriptExecutionInterceptor sqlMigrationScriptExecutionInterceptor){
+        this.sqlMigrationScriptExecutionInterceptor = sqlMigrationScriptExecutionInterceptor;
     }
 
     @Override
