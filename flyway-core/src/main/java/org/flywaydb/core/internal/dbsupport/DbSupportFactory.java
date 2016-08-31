@@ -94,7 +94,6 @@ public class DbSupportFactory {
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
             if(getCatalog(connection).contains("memsql")){
-                System.out.println("Instantiating MemSQL DbSuport");
                 return new MemSQLDbSupport(connection);
             }
             else{
