@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.util.scanner.classpath.android;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Environment;
 import dalvik.system.DexFile;
 import dalvik.system.PathClassLoader;
 import org.flywaydb.core.api.FlywayException;
@@ -30,6 +31,7 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.ResourceAndClassScanner;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -85,16 +87,37 @@ public class AndroidScanner implements ResourceAndClassScanner {
         final File sourceApk = new File(context.getApplicationInfo().sourceDir);
         final String dexPrefix = sourceApk.getName() + ".classes";
         
+        //The location of the dex files has changed over time
+        final File oldDexDir = new File(context.getFilesDir(), "secondary-dexes");
+        final File newDexDir = new File(new File(context.getApplicationInfo().dataDir, "code_cache"), "secondary-dexes");
+        
         //Find how many secondary dex files exist
         final SharedPreferences prefs = context.getSharedPreferences("multidex.version", Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
                 ? Context.MODE_PRIVATE
                 : Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
         final int totalDexNumber = prefs.getInt("dex.number", 1);//If there are no secondary files, we'll skip the following loop entirely
         
+        //The dex directory is not always writeable; load dex files into the cache directory so we can examine them
+        final File tmpDir = context.getCacheDir();
         
         for(int secondaryNumber = 2; secondaryNumber <= totalDexNumber; secondaryNumber++) {
-        	final String dexFileName = dexPrefix + secondaryNumber + ".zip";
-        	dexFiles.add(new DexFile(dexFileName));
+        	final String zipFileName = dexPrefix + secondaryNumber + ".zip";
+        	final String tmpFileName = dexPrefix + secondaryNumber + ".tmp";
+        	final File tmpFile = new File(tmpDir, tmpFileName);
+        	
+        	try {
+        		final File oldFile = new File(oldDexDir, zipFileName);
+        		final File newFile = new File(newDexDir, zipFileName);
+        		if(oldFile.exists()) {
+        			dexFiles.add(DexFile.loadDex(oldFile.getAbsolutePath(), tmpFile.getAbsolutePath(), 0));
+        		} else if(newFile.exists()) {
+        			dexFiles.add(DexFile.loadDex(newFile.getAbsolutePath(), tmpFile.getAbsolutePath(), 0));
+        		} else {
+        			LOG.warn("Could not find a dex file named " + zipFileName);
+        		}
+        	} catch (IOException e) {
+        		LOG.error("Could not load dex file", e);
+        	}
         }
         
         for(final DexFile dexFile : dexFiles) {
