@@ -284,12 +284,11 @@ public class Main {
 
         // see javadoc of listFiles(): null if given path is not a real directory
         if (files == null) {
-            LOG.error("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
-            System.exit(1);
-        }
-
-        for (File file : files) {
-            addJarOrDirectoryToClasspath(file.getPath());
+            LOG.debug("Directory for Jdbc Drivers not found: " + driversDir.getAbsolutePath());
+        }else{
+            for (File file : files) {
+                addJarOrDirectoryToClasspath(file.getPath());
+            }
         }
     }
 
@@ -318,8 +317,7 @@ public class Main {
 
             // see javadoc of listFiles(): null if given path is not a real directory
             if (files == null) {
-                LOG.error("Directory for Java Migrations not found: " + dirName);
-                System.exit(1);
+                LOG.debug("Directory for Java Migrations not found: " + dirName);
             }
 
             for (File file : files) {
