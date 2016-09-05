@@ -110,5 +110,5 @@ public interface MetaDataTable {
      *
      * @return {@code true} if it was upgraded.
      */
-    boolean upgradeIfNecessary();
+    boolean upgradeIfNecessary(boolean autoUpdateMetaDataTable);
 }

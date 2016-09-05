@@ -252,6 +252,18 @@ public class Flyway implements FlywayConfiguration {
     private boolean outOfOrder;
 
     /**
+     * Whether the metadata table should be automatically updated to the most recent format.
+     * <p>
+     * This is useful for some Flyway production deployments that run updates offline.
+     * </p>
+     * <p>
+     * Be careful when disabling this since it allows Flyway to run with an outdated metadata table
+     * which will cause most methods to fail. (default: {@code true})
+     * </p>
+     */
+    private boolean autoUpdateMetaDataTable = true;
+
+    /**
      * This is a list of custom callbacks that fire before and after tasks are executed.  You can
      * add as many custom callbacks as you want. (default: none)
      */
@@ -481,6 +493,21 @@ public class Flyway implements FlywayConfiguration {
      */
     public boolean isOutOfOrder() {
         return outOfOrder;
+    }
+
+    /**
+     * Whether the metadata table should be automatically updated to the most recent format.
+     * <p>
+     * This is useful for some Flyway production deployments that run updates offline.
+     * </p>
+     * <p>
+     * Be careful when disabling this since it allows Flyway to run with an outdated metadata table
+     * which will cause most methods to fail.
+     * </p>
+     * @return {@code true} if metadata table should be automatically updated when any statement is executed, {@code false} if not. (default: {@code true})
+     */
+    public boolean isAutoUpdateMetaDataTable() {
+        return autoUpdateMetaDataTable;
     }
 
     @Override
@@ -834,6 +861,22 @@ public class Flyway implements FlywayConfiguration {
         this.outOfOrder = outOfOrder;
     }
 
+
+    /**
+     * Disable automatically updating the metadata table to the most recent format when a statement is executed.
+     * <p>
+     * This is useful for some Flyway production deployments that run updates offline.
+     * </p>
+     * <p>
+     * Be careful when disabling this since it allows Flyway to run with an outdated metadata table
+     * which will cause most methods to fail.
+     * </p>
+     *
+     * @param autoUpdateMetaDataTable {@code true} if metadata table should be automatically updated when any statement is executed, {@code false} if not. (default: {@code false})
+     */
+    public void setAutoUpdateMetaDataTable(boolean autoUpdateMetaDataTable) {
+        this.autoUpdateMetaDataTable = autoUpdateMetaDataTable;
+    }
     /**
      * Gets the callbacks for lifecycle notifications.
      *
@@ -1250,6 +1293,10 @@ public class Flyway implements FlywayConfiguration {
         if (outOfOrderProp != null) {
             setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
         }
+        String autoUpdateMetaDataTableProp = getValueAndRemoveEntry(props, "flyway.autoUpdateMetaDataTable");
+        if (autoUpdateMetaDataTableProp != null) {
+            setAutoUpdateMetaDataTable(Boolean.parseBoolean(autoUpdateMetaDataTableProp));
+        }
         String resolversProp = getValueAndRemoveEntry(props, "flyway.resolvers");
         if (StringUtils.hasLength(resolversProp)) {
             setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
@@ -1365,7 +1412,7 @@ public class Flyway implements FlywayConfiguration {
 
             FlywayCallback[] flywayCallbacksArray = flywayCallbacks.toArray(new FlywayCallback[flywayCallbacks.size()]);
             MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
-            if (metaDataTable.upgradeIfNecessary()) {
+            if (metaDataTable.upgradeIfNecessary(autoUpdateMetaDataTable)) {
                 new DbRepair(dbSupport, connectionMetaDataTable, schemas[0], migrationResolver, metaDataTable, flywayCallbacksArray).repairChecksums();
                 LOG.info("Metadata table " + table + " successfully upgraded to the Flyway 4.0 format.");
             }
