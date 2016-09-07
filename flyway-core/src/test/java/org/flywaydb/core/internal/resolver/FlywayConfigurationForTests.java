@@ -19,16 +19,15 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.flywaydb.core.api.configuration.SQLFlywayConfiguration;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.callback.SQLFlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 /**
  * Dummy Implementation of {@link FlywayConfiguration} for unit tests.
  */
-public class FlywayConfigurationForTests implements SQLFlywayConfiguration {
+public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     private ClassLoader classLoader;
     private String[] locations = new String[0];
@@ -68,11 +67,6 @@ public class FlywayConfigurationForTests implements SQLFlywayConfiguration {
 
     @Override
     public FlywayCallback[] getCallbacks() {
-        return null;
-    }
-
-	  @Override
-    public SQLFlywayCallback[] getSqlCallbacks() {
         return null;
     }
 

@@ -33,7 +33,7 @@ import java.sql.SQLException;
 /**
  * Handles Flyway's baseline command.
  */
-public class DbBaseline implements Baseline {
+public class DbBaseline {
     private static final Log LOG = LogFactory.getLog(DbBaseline.class);
 
     /**
@@ -93,7 +93,9 @@ public class DbBaseline implements Baseline {
         this.callbacks = callbacks;
     }
 
-    @Override
+    /**
+     * Baselines the database.
+     */
     public void baseline() {
         try {
             for (final FlywayCallback callback : callbacks) {

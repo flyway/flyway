@@ -38,7 +38,7 @@ import java.sql.SQLException;
  *
  * @author Axel Fontaine
  */
-public class DbValidate implements Validate {
+public class DbValidate {
     private static final Log LOG = LogFactory.getLog(DbValidate.class);
 
     /**
@@ -125,7 +125,11 @@ public class DbValidate implements Validate {
         this.callbacks = callbacks;
     }
 
-	  @Override
+    /**
+     * Starts the actual migration.
+     *
+     * @return The validation error, if any.
+     */
     public String validate() {
         try {
             for (final FlywayCallback callback : callbacks) {

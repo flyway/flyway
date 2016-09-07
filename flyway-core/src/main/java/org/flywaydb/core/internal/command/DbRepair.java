@@ -40,7 +40,7 @@ import java.sql.SQLException;
 /**
  * Handles Flyway's repair command.
  */
-public class DbRepair implements Repair {
+public class DbRepair {
     private static final Log LOG = LogFactory.getLog(DbRepair.class);
 
     /**
@@ -94,7 +94,9 @@ public class DbRepair implements Repair {
         this.callbacks = callbacks;
     }
 
-    @Override
+    /**
+     * Repairs the metadata table.
+     */
     public void repair() {
         try {
             for (final FlywayCallback callback : callbacks) {
