@@ -26,11 +26,7 @@ import java.sql.Connection;
  * callback methods without having to provide no-op methods yourself.
  *
  * <p>This implementation also provides direct access to the {@link FlywayConfiguration} as field.</p>
- *
- * @deprecated This class will soon be deprecated, please extend the {@link BaseSQLFlywayCallback}
- * class instead.
  */
-@Deprecated
 public abstract class BaseFlywayCallback implements FlywayCallback, ConfigurationAware {
 
     protected FlywayConfiguration flywayConfiguration;

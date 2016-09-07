@@ -23,19 +23,92 @@ import java.util.List;
 /**
  * The metadata table used to track all applied migrations.
  */
-public interface MetaDataTable extends FlywayMetaDataTable {
+public interface MetaDataTable {
+    /**
+     * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
+     */
+    void lock();
 
-	/**
-	 * Indicates in the metadata table that Flyway created these schemas.
-	 *
-	 * @param schemas The schemas that were created by Flyway.
-	 */
-	void addSchemasMarker(Schema[] schemas);
+    /**
+     * Adds this migration as executed to the metadata table.
+     *
+     * @param appliedMigration The migration that was executed.
+     */
+    void addAppliedMigration(AppliedMigration appliedMigration);
 
-	/**
+    /**
+     * Checks whether the metadata table contains at least one applied migration.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't.
+     */
+    boolean hasAppliedMigrations();
+
+    /**
+     * @return The list of all migrations applied on the schema in the order they were applied (oldest first).
+     * An empty list if no migration has been applied so far.
+     */
+    List<AppliedMigration> allAppliedMigrations();
+
+    /**
+     * Creates and initializes the Flyway metadata table.
+     *
+     * @param initVersion     The version to tag an existing schema with when executing baseline.
+     * @param initDescription The description to tag an existing schema with when executing baseline.
+     */
+    void addBaselineMarker(MigrationVersion initVersion, String initDescription);
+
+    /**
+     * Checks whether the metadata table contains a marker row for schema baseline.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't.
+     */
+    boolean hasBaselineMarker();
+
+    /**
+     * Retrieves the baseline marker from the metadata table.
+     *
+     * @return The baseline marker or {@code null} if none could be found.
+     */
+    AppliedMigration getBaselineMarker();
+
+    /**
+     * <p>
+     * Repairs the metadata table after a failed migration.
+     * This is only necessary for databases without DDL-transaction support.
+     * </p>
+     * <p>
+     * On databases with DDL transaction support, a migration failure automatically triggers a rollback of all changes,
+     * including the ones in the metadata table.
+     * </p>
+     */
+    void removeFailedMigrations();
+
+    /**
+     * Indicates in the metadata table that Flyway created these schemas.
+     *
+     * @param schemas The schemas that were created by Flyway.
+     */
+    void addSchemasMarker(Schema[] schemas);
+
+    /**
      * Checks whether the metadata table contains a marker row for schema creation.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
-	boolean hasSchemasMarker();
+    boolean hasSchemasMarker();
+
+    /**
+     * Update the checksum for this version to this new value.
+     *
+     * @param version  The version to update.
+     * @param checksum The new checksum.
+     */
+    void updateChecksum(MigrationVersion version, Integer checksum);
+
+    /**
+     * Upgrades the Metadata table to Flyway 4.0 format if necessary.
+     *
+     * @return {@code true} if it was upgraded.
+     */
+    boolean upgradeIfNecessary();
 }

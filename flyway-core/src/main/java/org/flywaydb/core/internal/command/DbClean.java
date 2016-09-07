@@ -33,7 +33,7 @@ import java.sql.SQLException;
 /**
  * Main workflow for cleaning the database.
  */
-public class DbClean implements Clean {
+public class DbClean {
     private static final Log LOG = LogFactory.getLog(DbClean.class);
 
     /**
@@ -89,7 +89,11 @@ public class DbClean implements Clean {
         this.cleanDisabled = cleanDisabled;
     }
 
-    @Override
+    /**
+     * Cleans the schemas of all objects.
+     *
+     * @throws FlywayException when clean failed.
+     */
     public void clean() throws FlywayException {
         if (cleanDisabled) {
             throw new FlywayException("Unable to execute clean as it has been disabled with the \"flyway.cleanDisabled\" property.");

@@ -23,7 +23,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.FlywayMetaDataTable;
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -48,7 +48,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     /**
      * The metadata table for applied migrations.
      */
-    private final FlywayMetaDataTable metaDataTable;
+    private final MetaDataTable metaDataTable;
 
     /**
      * The target version up to which to retrieve the info.
@@ -88,7 +88,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param pending           Whether pending migrations are allowed.
      * @param future            Whether future migrations are allowed.
      */
-    public MigrationInfoServiceImpl(MigrationResolver migrationResolver, FlywayMetaDataTable metaDataTable,
+    public MigrationInfoServiceImpl(MigrationResolver migrationResolver, MetaDataTable metaDataTable,
                                     MigrationVersion target, boolean outOfOrder, boolean pending, boolean future) {
         this.migrationResolver = migrationResolver;
         this.metaDataTable = metaDataTable;

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * Interfaces for Spring Jdbc/MongoDB Migrations (require Spring Jdbc/MongoDB + dependencies on the classpath).
+ * Interfaces for Spring Jdbc Migrations (require Spring Jdbc + dependencies on the classpath).
  */
 package org.flywaydb.core.api.migration.spring;

@@ -33,12 +33,8 @@ import java.sql.Connection;
  *
  * <p>Each callback method will run within its own transaction.</p>
  * 
- * @deprecated This interface will soon be deprecated, please extend the abstract class {@link SQLFlywayCallback}
- * instead.
- *
  * @author Dan Bunker
  */
-@Deprecated
 public interface FlywayCallback {
 	/**
 	 * Runs before the clean task executes.
