@@ -22,6 +22,7 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+import org.flywaydb.core.api.resolver.FlywayMigrationExecutor;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -44,7 +45,7 @@ import java.sql.SQLException;
  *
  * @author Axel Fontaine
  */
-public class DbMigrate {
+public class DbMigrate implements Migrate {
 
     private static final Log LOG = LogFactory.getLog(DbMigrate.class);
 
@@ -145,12 +146,7 @@ public class DbMigrate {
         dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
     }
 
-    /**
-     * Starts the actual migration.
-     *
-     * @return The number of successfully applied migrations.
-     * @throws FlywayException when migration failed.
-     */
+  	@Override
     public int migrate() throws FlywayException {
         try {
             for (final FlywayCallback callback : callbacks) {
@@ -300,7 +296,7 @@ public class DbMigrate {
         stopWatch.start();
 
         try {
-            final MigrationExecutor migrationExecutor = migration.getResolvedMigration().getExecutor();
+					final MigrationExecutor migrationExecutor = (MigrationExecutor) migration.getResolvedMigration().getExecutor();
             if (migrationExecutor.executeInTransaction()) {
                 new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
                     @Override
@@ -342,8 +338,10 @@ public class DbMigrate {
         return false;
     }
 
-    private void doMigrate(MigrationInfoImpl migration, MigrationExecutor migrationExecutor, String migrationText) throws SQLException {
-        dbSupportUserObjects.changeCurrentSchemaTo(schema);
+    private void doMigrate(MigrationInfoImpl migration, FlywayMigrationExecutor flywayMigrationExecutor,
+													 String migrationText) throws SQLException {
+			  MigrationExecutor migrationExecutor = (MigrationExecutor) flywayMigrationExecutor;
+			  dbSupportUserObjects.changeCurrentSchemaTo(schema);
 
         for (final FlywayCallback callback : callbacks) {
             callback.beforeEachMigrate(connectionUserObjects, migration);

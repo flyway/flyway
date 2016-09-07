@@ -1,0 +1,9 @@
+# Flyway MongoDB Sample Project
+## About
+This is an sample project depending on the Flyway MongoDB schema migrator PoC. At the top level of
+the repository, enter the following command to build the sample project.
+
+```bash
+user:~/.../flyway$ mvn clean install -P-InstallableDBTest -P-CommercialDBTest -pl flyway-sample-mongodb -am
+```
+

@@ -61,6 +61,7 @@
         <module>flyway-maven-plugin-largetest</module>
         <module>flyway-sample</module>
         <module>flyway-sample-webapp</module>
+	<module>flyway-sample-mongodb</module>
         <module>flyway-sample-osgi</module>
         <module>flyway-sample-osgi-fragment</module>
         <module>flyway-osgi-largetest</module>
