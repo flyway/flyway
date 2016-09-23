@@ -198,7 +198,7 @@ public class DbMigrate {
                                         + ", but no migration could be resolved in the configured locations !");
                             } else {
                                 int offset = resolved.length - 1;
-                                while (resolved[offset].getVersion() == null) {
+                                while (offset >= 0 && resolved[offset].getVersion() == null) {
                                     // Skip repeatable migrations
                                     offset--;
                                 }
