@@ -209,24 +209,27 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        MigrationState migrationState = getState();
         if ((resolvedMigration == null)
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getVersion() != null)
                 && (!context.future ||
-                (MigrationState.FUTURE_SUCCESS != getState() && MigrationState.FUTURE_FAILED != getState()))) {
+                (MigrationState.FUTURE_SUCCESS != migrationState && MigrationState.FUTURE_FAILED != migrationState))
+                && (!context.missing ||
+                (MigrationState.MISSING_SUCCESS != migrationState && MigrationState.MISSING_FAILED != migrationState))) {
             return "Detected applied migration not resolved locally: " + getVersion();
         }
 
         if (!context.pending) {
-            if (MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
+            if (MigrationState.PENDING == migrationState || MigrationState.IGNORED == migrationState) {
                 if (getVersion() != null) {
                     return "Detected resolved migration not applied to database: " + getVersion();
                 }
                 return "Detected resolved repeatable migration not applied to database: " + getDescription();
             }
 
-            if (MigrationState.OUTDATED == getState()) {
+            if (MigrationState.OUTDATED == migrationState) {
                 return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
             }
         }
@@ -244,7 +247,7 @@ public class MigrationInfoImpl implements MigrationInfo {
                 }
                 if (resolvedMigration.getVersion() != null
                         || (context.pending &&
-                        ((MigrationState.OUTDATED != getState()) && (MigrationState.SUPERSEEDED != getState())))) {
+                        ((MigrationState.OUTDATED != migrationState) && (MigrationState.SUPERSEEDED != migrationState)))) {
                     if (!ObjectUtils.nullSafeEquals(resolvedMigration.getChecksum(), appliedMigration.getChecksum())) {
                         return createMismatchMessage("checksum", migrationIdentifier,
                                 appliedMigration.getChecksum(), resolvedMigration.getChecksum());

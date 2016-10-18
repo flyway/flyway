@@ -142,7 +142,7 @@ public class DbMigrate {
                     @Override
                     public Boolean call() {
                         MigrationInfoServiceImpl infoService =
-                                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, configuration.getTarget(), configuration.isOutOfOrder(), true, true);
+                                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
                         infoService.refresh();
 
                         MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;

@@ -217,6 +217,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
+    public boolean isIgnoreMissingMigrations() {
+        return false;
+    }
+
+    @Override
     public boolean isValidateOnMigrate() {
         return false;
     }

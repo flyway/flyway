@@ -85,6 +85,11 @@ public class DbValidate {
     private final boolean future;
 
     /**
+     * Whether missing migrations are allowed.
+     */
+    private final boolean missing;
+
+    /**
      * This is a list of callbacks that fire before or after the validate task is executed.
      * You can add as many callbacks as you want.  These should be set on the Flyway class
      * by the end user as Flyway will set them automatically for you here.
@@ -108,11 +113,12 @@ public class DbValidate {
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
      * @param future            Whether future migrations are allowed.
+     * @param missing           Whether missing migrations are allowed.
      * @param callbacks         The lifecycle callbacks.
      */
     public DbValidate(Connection connection,
                       DbSupport dbSupport, MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean future, FlywayCallback[] callbacks) {
+                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean future, boolean missing, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
@@ -122,6 +128,7 @@ public class DbValidate {
         this.outOfOrder = outOfOrder;
         this.pending = pending;
         this.future = future;
+        this.missing = missing;
         this.callbacks = callbacks;
     }
 
@@ -152,7 +159,7 @@ public class DbValidate {
                 public Pair<Integer, String> call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future);
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future, missing);
 
                     migrationInfoService.refresh();
 
