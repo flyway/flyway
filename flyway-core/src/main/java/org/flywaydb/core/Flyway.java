@@ -31,6 +31,7 @@ import org.flywaydb.core.internal.command.DbSchemas;
 import org.flywaydb.core.internal.command.DbValidate;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.DryRun;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
@@ -200,6 +201,11 @@ public class Flyway implements FlywayConfiguration {
      * Whether to automatically call validate or not when running migrate. (default: {@code true})
      */
     private boolean validateOnMigrate = true;
+
+    /**
+     * Whether to perform a Dry Run. (default: {@code false})
+     */
+    private boolean dryRun = false;
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})
@@ -419,6 +425,15 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * Whether to perform a dry run of the migration
+     *
+     * @return {@code true} if the migration should roll back entirely when complete {@code false} if not. (default: {@code false})
+     */
+    public boolean isDryRun() {
+        return dryRun;
+    }
+
+    /**
      * Whether to automatically call clean or not when a validation error occurs.
      * <p> This is exclusively intended as a convenience for development. Even tough we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
@@ -549,6 +564,15 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
         this.validateOnMigrate = validateOnMigrate;
+    }
+
+    /**
+     * Whether to perform a Dry Run.
+     *
+     * @param dryRun {@code true} if the migration should roll back entirely when complete {@code false} if not. (default: {@code false})
+     */
+    public void setDryRun(boolean dryRun) {
+        this.dryRun = dryRun;
     }
 
     /**
@@ -906,6 +930,23 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * <p>Performs a migration of the database and then rolls back the migration.</p>
+     *
+     * <p>This is an alias for:</p>
+     * <pre class="brush:java"><code>
+     *  flyway.setDryRun(true);
+     *  flyway.migrate();
+     * </code></pre>
+     *
+     * @return The number of migrations that would have been successfully applied
+     * @throws FlywayException when the migration would have failed or Dry-run is not supported by the database driver
+     */
+    public int dryRun() throws FlywayException {
+        setDryRun(true);
+        return migrate();
+    }
+
+    /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-migrate.png" alt="migrate">
@@ -1222,6 +1263,10 @@ public class Flyway implements FlywayConfiguration {
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
         }
+        String dryRunProp = getValueAndRemoveEntry(props, "flyway.dryRun");
+        if (dryRunProp != null) {
+            setDryRun(Boolean.parseBoolean(dryRunProp));
+        }
         String baselineVersionProp = getValueAndRemoveEntry(props, "flyway.baselineVersion");
         if (baselineVersionProp != null) {
             setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
@@ -1315,6 +1360,7 @@ public class Flyway implements FlywayConfiguration {
 
         VersionPrinter.printVersion();
 
+        DryRun dryRunSupport = null;
         Connection connectionMetaDataTable = null;
         Connection connectionUserObjects = null;
 
@@ -1327,6 +1373,10 @@ public class Flyway implements FlywayConfiguration {
             connectionUserObjects = JdbcUtils.openConnection(dataSource);
 
             DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
+            if(dryRun){
+                dryRunSupport = new DryRun(dbSupport, connectionMetaDataTable, connectionUserObjects);
+            }
+
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
@@ -1372,6 +1422,9 @@ public class Flyway implements FlywayConfiguration {
 
             result = command.execute(connectionMetaDataTable, connectionUserObjects, migrationResolver, metaDataTable, dbSupport, schemas, flywayCallbacksArray);
         } finally {
+            if(dryRunSupport != null){
+                dryRunSupport.rollback();
+            }
             JdbcUtils.closeConnection(connectionUserObjects);
             JdbcUtils.closeConnection(connectionMetaDataTable);
 

@@ -137,6 +137,8 @@ public class Main {
             flyway.baseline();
         } else if ("migrate".equals(operation)) {
             flyway.migrate();
+        } else if ("dryrun".equals(operation)) {
+            flyway.dryRun();
         } else if ("validate".equals(operation)) {
             flyway.validate();
         } else if ("info".equals(operation)) {
@@ -217,6 +219,7 @@ public class Main {
         LOG.info("Commands");
         LOG.info("--------");
         LOG.info("migrate  : Migrates the database");
+        LOG.info("dryrun   : Migrates the database in a single transaction and then rolls it back regardless of the outcome (requires supported database type)");
         LOG.info("clean    : Drops all objects in the configured schemas");
         LOG.info("info     : Prints the information about applied, current and pending migrations");
         LOG.info("validate : Validates the applied migrations against the ones on the classpath");
