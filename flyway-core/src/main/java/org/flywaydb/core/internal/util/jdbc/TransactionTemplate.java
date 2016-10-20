@@ -72,7 +72,9 @@ public class TransactionTemplate {
             oldAutocommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
             T result = transactionCallback.call();
-            connection.commit();
+            if (oldAutocommit) {
+                connection.commit();
+            }
             return result;
         } catch (SQLException e) {
             throw new FlywayException("Unable to commit transaction", e);
@@ -104,7 +106,9 @@ public class TransactionTemplate {
                 }
             } else {
                 try {
-                    connection.commit();
+                    if (oldAutocommit) {
+                        connection.commit();
+                    }
                 } catch (SQLException se) {
                     LOG.error("Unable to commit transaction", se);
                 }
