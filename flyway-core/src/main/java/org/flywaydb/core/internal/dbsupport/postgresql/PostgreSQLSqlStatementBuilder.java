@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport.postgresql;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +51,37 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
      * Whether this statement is a COPY statement.
      */
     private boolean pgCopy;
+
+    /**
+     * Holds the beginning of the statement.
+     */
+    private String statementStart = "";
+
+    @Override
+    protected void applyStateChanges(String line) {
+        super.applyStateChanges(line);
+
+        if (!executeInTransaction) {
+            return;
+        }
+
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
+            statementStart += line;
+            statementStart += " ";
+            statementStart = statementStart.replaceAll("\\s+", " ");
+        }
+
+        if (statementStart.matches("(CREATE|DROP) (DATABASE|TABLESPACE) .*")
+                || statementStart.matches("ALTER SYSTEM .*")
+                || statementStart.matches("CREATE( UNIQUE)? INDEX CONCURRENTLY .*")
+                || statementStart.matches("REINDEX( VERBOSE)? (SCHEMA|DATABASE|SYSTEM) .*")
+                || statementStart.matches("VACUUM .*")
+                || statementStart.matches("DISCARD ALL .*")
+                || statementStart.matches("ALTER TYPE .* ADD VALUE .*")
+                ) {
+            executeInTransaction = false;
+        }
+    }
 
     @Override
     protected String extractAlternateOpenQuote(String token) {

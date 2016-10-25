@@ -233,7 +233,7 @@
                             org.postgresql.core;version="[9.3.1102,10.0)";resolution:=optional,
                             org.osgi.framework;version="1.3.0";resolution:=mandatory,
                             org.slf4j;version="[1.6,2)";resolution:=optional,
-                            org.springframework.*;version="[2.5,5.0)";resolution:=optional
+                            org.springframework.*;version="[2.5,6.0)";resolution:=optional
                         </Import-Package>
                     </instructions>
                 </configuration>

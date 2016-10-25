@@ -15,10 +15,11 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
@@ -46,9 +47,14 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     private final Resource sqlScriptResource;
 
     /**
-     * The encoding of the sql script.
+     * The Flyway configuration.
      */
-    private final String encoding;
+    private final FlywayConfiguration configuration;
+
+    /**
+     * The SQL script that will be executed.
+     */
+    private SqlScript sqlScript;
 
     /**
      * Creates a new sql script migration based on this sql script.
@@ -56,23 +62,29 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * @param dbSupport           The database-specific support.
      * @param sqlScriptResource   The resource containing the sql script.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @param encoding            The encoding of this Sql migration.
+     * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationExecutor(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
+    public SqlMigrationExecutor(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         this.dbSupport = dbSupport;
         this.sqlScriptResource = sqlScriptResource;
-        this.encoding = encoding;
         this.placeholderReplacer = placeholderReplacer;
+        this.configuration = configuration;
     }
 
     @Override
     public void execute(Connection connection) {
-        SqlScript sqlScript = new SqlScript(dbSupport, sqlScriptResource, placeholderReplacer, encoding);
-        sqlScript.execute(new JdbcTemplate(connection, 0));
+        getSqlScript().execute(new JdbcTemplate(connection, 0));
+    }
+
+    private synchronized SqlScript getSqlScript() {
+        if (sqlScript == null) {
+            sqlScript = new SqlScript(dbSupport, sqlScriptResource, placeholderReplacer, configuration.getEncoding(), configuration.isAllowMixedMigrations());
+        }
+        return sqlScript;
     }
 
     @Override
     public boolean executeInTransaction() {
-        return true;
+        return getSqlScript().executeInTransaction();
     }
 }

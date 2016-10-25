@@ -43,6 +43,11 @@ public class SqlScript {
     private final DbSupport dbSupport;
 
     /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     */
+    private final boolean allowMixedMigrations;
+
+    /**
      * The sql statements contained in this script.
      */
     private final List<SqlStatement> sqlStatements;
@@ -53,6 +58,16 @@ public class SqlScript {
     private final Resource resource;
 
     /**
+     * Whether this SQL script contains at least one transactional statement.
+     */
+    private boolean transactionalStatementFound;
+
+    /**
+     * Whether this SQL script contains at least one non-transactional statement.
+     */
+    private boolean nonTransactionalStatementFound;
+
+    /**
      * Creates a new sql script from this source.
      *
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
@@ -60,6 +75,7 @@ public class SqlScript {
      */
     public SqlScript(String sqlScriptSource, DbSupport dbSupport) {
         this.dbSupport = dbSupport;
+        this.allowMixedMigrations = false;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
     }
@@ -67,18 +83,30 @@ public class SqlScript {
     /**
      * Creates a new sql script from this resource.
      *
-     * @param dbSupport           The database-specific support.
-     * @param sqlScriptResource   The resource containing the statements.
-     * @param placeholderReplacer The placeholder replacer.
-     * @param encoding            The encoding to use.
+     * @param dbSupport            The database-specific support.
+     * @param sqlScriptResource    The resource containing the statements.
+     * @param placeholderReplacer  The placeholder replacer.
+     * @param encoding             The encoding to use.
+     * @param allowMixedMigrations Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
-    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding) {
+    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean allowMixedMigrations) {
         this.dbSupport = dbSupport;
+        this.allowMixedMigrations = allowMixedMigrations;
 
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
 
         this.resource = sqlScriptResource;
+    }
+
+    /**
+     * Whether the execution should take place inside a transaction. This is useful for databases
+     * like PostgreSQL where certain statement can only execute outside a transaction.
+     *
+     * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
+     */
+    public boolean executeInTransaction() {
+        return !nonTransactionalStatementFound;
     }
 
     /**
@@ -172,20 +200,38 @@ public class SqlScript {
             if (sqlStatementBuilder.canDiscard()) {
                 sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
             } else if (sqlStatementBuilder.isTerminated()) {
-                SqlStatement sqlStatement = sqlStatementBuilder.getSqlStatement();
-                statements.add(sqlStatement);
-                LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql());
-
+                addStatement(statements, sqlStatementBuilder);
                 sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
             }
         }
 
         // Catch any statements not followed by delimiter.
         if (!sqlStatementBuilder.isEmpty()) {
-            statements.add(sqlStatementBuilder.getSqlStatement());
+            addStatement(statements, sqlStatementBuilder);
         }
 
         return statements;
+    }
+
+    private void addStatement(List<SqlStatement> statements, SqlStatementBuilder sqlStatementBuilder) {
+        SqlStatement sqlStatement = sqlStatementBuilder.getSqlStatement();
+        statements.add(sqlStatement);
+
+        if (sqlStatementBuilder.executeInTransaction()) {
+            transactionalStatementFound = true;
+        } else {
+            nonTransactionalStatementFound = true;
+        }
+
+        if (!allowMixedMigrations && transactionalStatementFound && nonTransactionalStatementFound) {
+            throw new FlywayException(
+                    "Detected both transactional and non-transactional statements within the same migration"
+                            + " (even though allowMixedMigrations is false). Offending statement found at line "
+                            + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
+                            + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
+        }
+
+        LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql() + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
     }
 
     /**

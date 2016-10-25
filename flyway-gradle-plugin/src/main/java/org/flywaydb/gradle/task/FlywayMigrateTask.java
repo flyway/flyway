@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.gradle.task
+package org.flywaydb.gradle.task;
 
-import org.flywaydb.core.Flyway
-import org.flywaydb.core.internal.info.MigrationInfoDumper
+import org.flywaydb.core.Flyway;
 
-/**
- * @author Ben Manes (ben.manes@gmail.com)
- */
-class FlywayInfoTask extends AbstractFlywayTask {
+public class FlywayMigrateTask extends AbstractFlywayTask {
+    public FlywayMigrateTask() {
+        super();
+        setDescription("Migrates the schema to the latest version.");
+    }
 
-  FlywayInfoTask() {
-    description = 'Prints the details and status information about all the migrations.'
-  }
-
-  def run(Flyway flyway) {
-      println MigrationInfoDumper.dumpToAsciiTable(flyway.info().all())
-  }
+    @Override
+    protected Object run(Flyway flyway) {
+        return flyway.migrate() > 0;
+    }
 }

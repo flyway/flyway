@@ -93,6 +93,20 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void alterType() {
+        String line = "ALTER TYPE \"myschema\".\"colors\" ADD ATTRIBUTE f3 int";
+        statementBuilder.addLine(line + ";\n");
+        assertTrue(statementBuilder.executeInTransaction());
+    }
+
+    @Test
+    public void alterTypeAddValue() {
+        String line = "ALTER TYPE \"myschema\".\"colors\" ADD VALUE 'orange' AFTER 'red'";
+        statementBuilder.addLine(line + ";\n");
+        assertFalse(statementBuilder.executeInTransaction());
+    }
+
+    @Test
     public void multilineStringLiteralWithSemicolons() {
         String sqlScriptSource = "INSERT INTO address VALUES (1, '1. first;\n"
                 + "2. second;\n"

@@ -59,7 +59,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
         }
 
         if (statementStart.matches("CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*")
-                || statementStart.matches("CREATE( OR REPLACE)?( AND (RESOLVE|COMPILE))?( NOFORCE)? JAVA (SOURCE|RESOURCE|CLASS).*")){
+                || statementStart.matches("CREATE( OR REPLACE)?( AND (RESOLVE|COMPILE))?( NOFORCE)? JAVA (SOURCE|RESOURCE|CLASS).*")) {
             return PLSQL_DELIMITER;
         }
 
@@ -68,9 +68,9 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected String cleanToken(String token) {
-    	if (token.startsWith("'") && token.endsWith("'")){
-    		return token;
-    	}
+        if (token.startsWith("'") && token.endsWith("'")) {
+            return token;
+        }
 
         Matcher beforeMatcher = KEYWORDS_BEFORE_STRING_LITERAL_REGEX.matcher(token);
         if (beforeMatcher.find()) {

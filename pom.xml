@@ -100,7 +100,7 @@
         <version.spring>2.5.6</version.spring>
         <version.appengine>1.9.10</version.appengine>
         <version.maven>2.2.1</version.maven>
-        <version.gradle>1.6</version.gradle>
+        <version.gradle>2.3</version.gradle>
         <version.derby>10.12.1.1</version.derby>
         <version.h2>1.4.191</version.h2>
         <version.hsqldb>2.3.3</version.hsqldb>
@@ -175,7 +175,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.11</version>
+                <version>4.12</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

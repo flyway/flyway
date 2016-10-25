@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.gradle.task
+package org.flywaydb.gradle.task;
 
-import org.flywaydb.core.Flyway
+import org.flywaydb.core.Flyway;
 
-class FlywayBaselineTask extends AbstractFlywayTask {
+public class FlywayBaselineTask extends AbstractFlywayTask {
+    public FlywayBaselineTask() {
+        super();
+        setDescription("Baselines an existing database, excluding all migrations up to and including baselineVersion.");
+    }
 
-  FlywayBaselineTask() {
-    description = 'Baselines an existing database, excluding all migrations up to and including baselineVersion.'
-  }
-
-  def run(Flyway flyway) {
-    flyway.baseline()
-  }
+    @Override
+    protected Object run(Flyway flyway) {
+        flyway.baseline();
+        return null;
+    }
 }

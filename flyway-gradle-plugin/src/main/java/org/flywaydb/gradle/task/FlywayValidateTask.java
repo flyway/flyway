@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.gradle.task
+package org.flywaydb.gradle.task;
 
-import org.flywaydb.core.Flyway
+import org.flywaydb.core.Flyway;
+import org.omg.CORBA.Object;
 
 /**
  * <p>Validate applied migrations against resolved ones (on the filesystem or classpath)
@@ -29,17 +30,19 @@ import org.flywaydb.core.Flyway
  *
  * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
  */
-class FlywayValidateTask extends AbstractFlywayTask {
+public class FlywayValidateTask extends AbstractFlywayTask {
+    public FlywayValidateTask() {
+        super();
+        setDescription("Validate applied migrations against resolved ones (on the filesystem or classpath)" +
+                " to detect accidental changes that may prevent the schema(s) from being recreated exactly." +
+                " Validation fails if differences in migration names, types or checksums are found, " +
+                "versions have been applied that aren\"t resolved locally anymore or" +
+                " versions have been resolved that haven\"t been applied yet");
+    }
 
-  FlywayValidateTask() {
-    description = 'Validate applied migrations against resolved ones (on the filesystem or classpath)' +
-            ' to detect accidental changes that may prevent the schema(s) from being recreated exactly.' +
-            ' Validation fails if differences in migration names, types or checksums are found, ' +
-            'versions have been applied that aren\'t resolved locally anymore or' +
-            ' versions have been resolved that haven\'t been applied yet'
-  }
-
-  def run(Flyway flyway) {
-    flyway.validate()
-  }
+    @Override
+    protected Object run(Flyway flyway) {
+        flyway.validate();
+        return null;
+    }
 }

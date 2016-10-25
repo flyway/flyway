@@ -75,6 +75,11 @@ public class SqlStatementBuilder {
     private boolean nonCommentStatementPartSeen = false;
 
     /**
+     * Whether this statement should be executed within a transaction or not.
+     */
+    protected boolean executeInTransaction = true;
+
+    /**
      * The current delimiter to look for to terminate the statement.
      */
     protected Delimiter delimiter = getDefaultDelimiter();
@@ -443,6 +448,16 @@ public class SqlStatementBuilder {
      */
     protected String cleanToken(String token) {
         return token;
+    }
+
+    /**
+     * Whether the execution should take place inside a transaction. This is useful for databases
+     * like PostgreSQL where certain statement can only execute outside a transaction.
+     *
+     * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
+     */
+    public boolean executeInTransaction() {
+        return executeInTransaction;
     }
 
     /**

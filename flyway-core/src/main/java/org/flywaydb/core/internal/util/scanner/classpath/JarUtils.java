@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.gradle.task
-
-import org.flywaydb.core.Flyway
+package org.flywaydb.core.internal.util.scanner.classpath;
 
 /**
- * @author Ben Manes (ben.manes@gmail.com)
+ * Utility methods for working with Jar files.
  */
-class FlywayCleanTask extends AbstractFlywayTask {
-
-  FlywayCleanTask() {
-    description = 'Drops all objects in the configured schemas.'
-  }
-
-  def run(Flyway flyway) {
-    flyway.clean()
-  }
+public class JarUtils {
+    private JarUtils() {}
 }

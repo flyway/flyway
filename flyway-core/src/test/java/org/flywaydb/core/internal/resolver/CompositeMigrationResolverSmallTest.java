@@ -42,7 +42,7 @@ public class CompositeMigrationResolverSmallTest {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
                 new Scanner(Thread.currentThread().getContextClassLoader()), config,
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
-                "UTF-8", "V", "R", "__", ".sql", placeholderReplacer, new MyCustomMigrationResolver());
+                placeholderReplacer, new MyCustomMigrationResolver());
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
@@ -149,7 +149,7 @@ public class CompositeMigrationResolverSmallTest {
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
                 new Scanner(Thread.currentThread().getContextClassLoader()), config,
                 new Locations("migration/outoforder", "org/flywaydb/core/internal/resolver/jdbc/dummy"),
-                "UTF-8", "V", "R", "__", ".sql", PlaceholderReplacer.NO_PLACEHOLDERS);
+                PlaceholderReplacer.NO_PLACEHOLDERS);
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
 

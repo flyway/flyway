@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal;
+package org.flywaydb.gradle.task;
 
-import org.flywaydb.core.internal.util.UrlUtils;
-import org.junit.Test;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
 
-import java.io.File;
-import java.net.MalformedURLException;
+public class FlywayInfoTask extends AbstractFlywayTask {
+    public FlywayInfoTask() {
+        super();
+        setDescription("Prints the details and status information about all the migrations.");
+    }
 
-import static org.junit.Assert.assertEquals;
-
-public class UrlUtilsSmallTest {
-    @Test
-    public void toFilePath() throws MalformedURLException {
-        File file = new File("/test dir/a+b");
-        assertEquals(file.getAbsolutePath(), UrlUtils.toFilePath(file.toURI().toURL()));
+    @Override
+    protected Object run(Flyway flyway) {
+        System.out.println(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
+        return null;
     }
 }

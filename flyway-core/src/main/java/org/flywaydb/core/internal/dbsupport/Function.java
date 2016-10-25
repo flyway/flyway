@@ -35,6 +35,6 @@ public abstract class Function extends SchemaObject {
      */
     public Function(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name, String... args) {
         super(jdbcTemplate, dbSupport, schema, name);
-        this.args = args;
+        this.args = args == null ? new String[0] : args;
     }
 }

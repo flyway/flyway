@@ -18,14 +18,9 @@ package org.flywaydb.core.internal.dbsupport.postgresql;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.resolver.MigrationExecutor;
-import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -34,12 +29,11 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * Test to demonstrate the migration functionality using PostgreSQL.
@@ -81,9 +75,12 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     @Test
     public void vacuum() throws Exception {
         flyway.setLocations("migration/dbsupport/postgresql/sql/vacuum");
-        flyway.setResolvers(new NoTransactionMigrationResolver(new String[][]{
-                {"2.0", "Vacuum without transaction", "vacuum-notrans", "VACUUM t"}
-        }));
+        try {
+            flyway.migrate();
+        } catch (FlywayException e) {
+            assertThat(e.getMessage(), containsString("non-transactional"));
+        }
+        flyway.setAllowMixedMigrations(true);
         flyway.migrate();
     }
 
@@ -91,84 +88,6 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     public void cleanUnknown() throws Exception {
         flyway.setSchemas("non-existant");
         flyway.clean();
-    }
-
-    private class NoTransactionMigrationResolver implements MigrationResolver {
-        private final String[][] data;
-
-        private NoTransactionMigrationResolver(String[][] data) {
-            this.data = data;
-        }
-
-        @Override
-        public Collection<ResolvedMigration> resolveMigrations() {
-            List<ResolvedMigration> resolvedMigrations = new ArrayList<ResolvedMigration>();
-            for (String[] migrationData : data) {
-                resolvedMigrations.add(new NoTransactionResolvedMigration(migrationData));
-            }
-            return resolvedMigrations;
-        }
-    }
-
-    private class NoTransactionResolvedMigration implements ResolvedMigration {
-        private final String[] data;
-
-        private NoTransactionResolvedMigration(String[] data) {
-            this.data = data;
-        }
-
-        @Override
-        public MigrationVersion getVersion() {
-            return MigrationVersion.fromVersion(data[0]);
-        }
-
-        @Override
-        public String getDescription() {
-            return data[1];
-        }
-
-        @Override
-        public String getScript() {
-            return data[2];
-        }
-
-        @Override
-        public Integer getChecksum() {
-            return data[3].hashCode();
-        }
-
-        @Override
-        public MigrationType getType() {
-            return MigrationType.CUSTOM;
-        }
-
-        @Override
-        public String getPhysicalLocation() {
-            return null;
-        }
-
-        @Override
-        public MigrationExecutor getExecutor() {
-            return new NoTransactionMigrationExecutor(data[3]);
-        }
-    }
-
-    private class NoTransactionMigrationExecutor implements MigrationExecutor {
-        private final String data;
-
-        private NoTransactionMigrationExecutor(String data) {
-            this.data = data;
-        }
-
-        @Override
-        public void execute(Connection connection) throws SQLException {
-            jdbcTemplate.executeStatement(data);
-        }
-
-        @Override
-        public boolean executeInTransaction() {
-            return false;
-        }
     }
 
     /**

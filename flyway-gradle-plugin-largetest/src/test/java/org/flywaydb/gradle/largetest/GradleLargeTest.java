@@ -50,7 +50,6 @@ public class GradleLargeTest {
     public void error() throws Exception {
         String stdOut = runGradle(0, "error", "clean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully validated 0 migrations"));
-        assertTrue(stdOut.contains("Unable to resolve location"));
     }
 
     /**
@@ -66,7 +65,7 @@ public class GradleLargeTest {
         String flywayVersion = System.getProperty("flywayVersion", getPomVersion());
 
         String extension = "";
-        if (System.getProperty("os.name").startsWith("Windows")) {
+        if (isWindowsOs()) {
             extension = ".bat";
         }
 
@@ -75,7 +74,8 @@ public class GradleLargeTest {
         args.add(installDir + "/install/gradlew" + extension);
         args.add("-PflywayVersion=" + flywayVersion);
         //args.add("--debug");
-        //args.add("--stacktrace");
+        args.add("--stacktrace");
+        args.add("--no-daemon");
         args.add("-i");
         args.add("-b");
         args.add(installDir + "/tests/" + dir + "/build.gradle");

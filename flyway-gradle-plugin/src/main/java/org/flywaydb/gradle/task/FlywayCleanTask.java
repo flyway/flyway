@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.gradle.task
+package org.flywaydb.gradle.task;
 
-import org.flywaydb.core.Flyway
+import org.flywaydb.core.Flyway;
 
-/**
- * @author Ben Manes (ben.manes@gmail.com)
- */
-class FlywayMigrateTask extends AbstractFlywayTask {
+public class FlywayCleanTask extends AbstractFlywayTask {
+    public FlywayCleanTask() {
+        super();
+        setDescription("Drops all objects in the configured schemas.");
+    }
 
-  FlywayMigrateTask() {
-    description = 'Migrates the schema to the latest version.'
-  }
-
-  def run(Flyway flyway) {
-      didWork = flyway.migrate() > 0
-  }
+    @Override
+    protected Object run(Flyway flyway) {
+        flyway.clean();
+        return null;
+    }
 }

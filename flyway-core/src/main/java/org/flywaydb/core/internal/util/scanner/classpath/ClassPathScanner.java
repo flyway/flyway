@@ -28,7 +28,9 @@ import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv3ClassPa
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -37,6 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 /**
  * ClassPath scanner.
@@ -97,19 +102,30 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         Set<String> resourceNames = findResourceNames(location, "", ".class");
         for (String resourceName : resourceNames) {
             String className = toClassName(resourceName);
-            Class<?> clazz = classLoader.loadClass(className);
-
-            if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
-                LOG.debug("Skipping non-instantiable class: " + className);
-                continue;
-            }
-
-            if (!implementedInterface.isAssignableFrom(clazz)) {
-                continue;
-            }
+            Class<?> clazz;
 
             try {
+                clazz = classLoader.loadClass(className);
+
+                if (!implementedInterface.isAssignableFrom(clazz)) {
+                    continue;
+                }
+
+                if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isEnum() || clazz.isAnonymousClass()) {
+                    LOG.debug("Skipping non-instantiable class: " + className);
+                    continue;
+                }
+
                 ClassUtils.instantiate(className, classLoader);
+            } catch (InternalError e) {
+                LOG.debug("Skipping invalid class: " + className);
+                continue;
+            } catch (IncompatibleClassChangeError e) {
+                LOG.debug("Skipping incompatibly changed class: " + className);
+                continue;
+            } catch (NoClassDefFoundError e) {
+                LOG.debug("Skipping non-loadable class: " + className);
+                continue;
             } catch (Exception e) {
                 throw new FlywayException("Unable to instantiate class: " + className, e);
             }
@@ -145,8 +161,8 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     private Set<String> findResourceNames(Location location, String prefix, String suffix) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        List<URL> locationsUrls = getLocationUrlsForPath(location);
-        for (URL locationUrl : locationsUrls) {
+        List<URL> locationUrls = getLocationUrlsForPath(location);
+        for (URL locationUrl : locationUrls) {
             LOG.debug("Scanning URL: " + locationUrl.toExternalForm());
 
             UrlResolver urlResolver = createUrlResolver(locationUrl.getProtocol());
@@ -165,6 +181,56 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                 }
                 resourceNames.addAll(names);
             }
+        }
+
+        boolean locationResolved = !locationUrls.isEmpty();
+
+        // Make an additional attempt at finding resources in jar files that don't contain directory entries
+        if (classLoader instanceof URLClassLoader) {
+            URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+            for (URL url : urlClassLoader.getURLs()) {
+                if ("file".equals(url.getProtocol())
+                        && url.getPath().endsWith(".jar")
+                        && !url.getPath().matches(".*" + Pattern.quote("/jre/lib/") + ".*")) {
+                    // All non-system jars on disk
+                    JarFile jarFile;
+                    try {
+                        jarFile = new JarFile(url.toURI().getSchemeSpecificPart());
+                    } catch (URISyntaxException ex) {
+                        // Fallback for URLs that are not valid URIs (should hardly ever happen).
+                        jarFile = new JarFile(url.getPath().substring("file:".length()));
+                    }
+
+                    try {
+                        boolean directoryFound = false;
+                        Enumeration<JarEntry> entries = jarFile.entries();
+                        while (entries.hasMoreElements()) {
+                            if (entries.nextElement().isDirectory()) {
+                                directoryFound = true;
+                                break;
+                            }
+                        }
+                        if (!directoryFound) {
+                            entries = jarFile.entries();
+                            while (entries.hasMoreElements()) {
+                                String entryName = entries.nextElement().getName();
+                                if (entryName.startsWith(location.getPath())) {
+                                    locationResolved = true;
+                                    if (entryName.endsWith(suffix)) {
+                                        resourceNames.add(entryName);
+                                    }
+                                }
+                            }
+                        }
+                    } finally {
+                        jarFile.close();
+                    }
+                }
+            }
+        }
+
+        if (!locationResolved) {
+            LOG.warn("Unable to resolve location " + location);
         }
 
         return filterResourceNames(resourceNames, prefix, suffix);
@@ -199,10 +265,6 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             }
         } else {
             Enumeration<URL> urls = classLoader.getResources(location.getPath());
-            if (!urls.hasMoreElements()) {
-                LOG.warn("Unable to resolve location " + location);
-            }
-
             while (urls.hasMoreElements()) {
                 locationUrls.add(urls.nextElement());
             }

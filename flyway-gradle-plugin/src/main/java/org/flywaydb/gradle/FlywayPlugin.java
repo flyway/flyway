@@ -15,9 +15,10 @@
  */
 package org.flywaydb.gradle;
 
+import org.flywaydb.gradle.FlywayExtension;
+import org.flywaydb.gradle.task.FlywayBaselineTask;
 import org.flywaydb.gradle.task.FlywayCleanTask;
 import org.flywaydb.gradle.task.FlywayInfoTask;
-import org.flywaydb.gradle.task.FlywayBaselineTask;
 import org.flywaydb.gradle.task.FlywayMigrateTask;
 import org.flywaydb.gradle.task.FlywayRepairTask;
 import org.flywaydb.gradle.task.FlywayValidateTask;
@@ -26,11 +27,7 @@ import org.gradle.api.Project;
 
 /**
  * Registers the plugin's tasks.
- *
- * @author Ben Manes (ben.manes@gmail.com)
  */
-//This file must remain as .java, as at least a single Java file is required for the Javadoc plugin to run.
-//And without the Javadoc Sonatype OSS won't accept the repo for syncing to Maven Central. :-/
 public class FlywayPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getExtensions().create("flyway", FlywayExtension.class);

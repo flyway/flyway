@@ -23,16 +23,24 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
+import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.internal.util.logging.StringLogCreator;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -41,6 +49,28 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"JavaDoc"})
 public class FlywayMediumTest {
+    /**
+     * The old classloader, to be restored after a test completes.
+     */
+    private static ClassLoader oldClassLoader;
+
+    @BeforeClass
+    public static void setUp() throws IOException {
+        oldClassLoader = getClassLoader();
+        String jar = new ClassPathResource("no-directory-entries.jar", getClassLoader()).getLocationOnDisk();
+        assertTrue(new File(jar).isFile());
+        ClassUtils.addJarOrDirectoryToClasspath(jar);
+    }
+
+    private static ClassLoader getClassLoader() {
+        return Thread.currentThread().getContextClassLoader();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        Thread.currentThread().setContextClassLoader(oldClassLoader);
+    }
+
     @Test
     public void multipleSetDataSourceCalls() throws Exception {
         DriverDataSource dataSource1 =
@@ -110,6 +140,17 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void infoPending() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_info_pending;DB_CLOSE_DELAY=-1", "sa", null);
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+
+        assertEquals(2, flyway.info().pending().length);
+    }
+
+    @Test
     public void callback() throws Exception {
         DriverDataSource dataSource =
                 new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_callback;DB_CLOSE_DELAY=-1", "sa", "", "SET AUTOCOMMIT OFF");
@@ -132,6 +173,9 @@ public class FlywayMediumTest {
 
         Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("tableName", "aaa");
+        flyway.setPlaceholders(placeholders);
 
         flyway.setLocations("migration/failed");
         assertEquals(1, flyway.info().all().length);

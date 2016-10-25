@@ -15,41 +15,23 @@
  */
 package org.flywaydb.commandline;
 
-import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
-import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.scanner.Resource;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Medium Test for Main.
  */
 @SuppressWarnings({"JavaDoc"})
 public class MainClassLoaderSmallTest {
-    /**
-     * The old classloader, to be restored after a test completes.
-     */
-    private ClassLoader oldClassLoader;
-
     @Before
     public void setUp() {
-        oldClassLoader = getClassLoader();
         Main.initLogging(Level.INFO);
-    }
-
-    @After
-    public void tearDown() {
-        Thread.currentThread().setContextClassLoader(oldClassLoader);
     }
 
     @Test
@@ -82,61 +64,7 @@ public class MainClassLoaderSmallTest {
         assertEquals("at\\runtime", properties.getProperty("loaded"));
     }
 
-    /**
-     * Tests dynamically adding a directory to the classpath.
-     */
-    @Test
-    public void addDirectoryToClasspath() throws Exception {
-        assertFalse(new ClassPathResource("pkg/runtime.conf", getClassLoader()).exists());
-
-        String folder = new ClassPathResource("dynamic", getClassLoader()).getLocationOnDisk();
-        Main.addJarOrDirectoryToClasspath(folder);
-
-        assertTrue(new ClassPathResource("pkg/runtime.conf", getClassLoader()).exists());
-
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:pkg"), "run", ".conf");
-        assertEquals("pkg/runtime.conf", resources[0].getLocation());
-    }
-
-    /**
-     * Tests dynamically adding a directory to the default package of classpath.
-     */
-    @Test
-    public void addDirectoryToClasspathDefaultPackage() throws Exception {
-        assertFalse(new ClassPathResource("runtime.conf", getClassLoader()).exists());
-
-        String folder = new ClassPathResource("dynamic/pkg2", getClassLoader()).getLocationOnDisk();
-        Main.addJarOrDirectoryToClasspath(folder);
-
-        assertTrue(new ClassPathResource("funtime.properties", getClassLoader()).exists());
-
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:"), "fun", ".properties");
-        assertEquals("funtime.properties", resources[1].getLocation());
-    }
-
     private ClassLoader getClassLoader() {
         return Thread.currentThread().getContextClassLoader();
-    }
-
-    /**
-     * Tests dynamically adding a jar file to the classpath.
-     */
-    @Test
-    public void addJarToClasspath() throws Exception {
-        assertFalse(new ClassPathResource("db/migration/V1__Initial_structure.sql.sql", getClassLoader()).exists());
-        assertFalse(ClassUtils.isPresent("org.flywaydb.sample.migration.V1_2__Another_user", getClassLoader()));
-
-        String jar = new ClassPathResource("flyway-sample.jar", getClassLoader()).getLocationOnDisk();
-        assertTrue(new File(jar).isFile());
-        Main.addJarOrDirectoryToClasspath(jar);
-
-        assertTrue(new ClassPathResource("db/migration/V1__Initial_structure.sql", getClassLoader()).exists());
-        assertTrue(ClassUtils.isPresent("org.flywaydb.sample.migration.V1_2__Another_user", getClassLoader()));
-
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:db/migration"), "V1__", ".sql");
-        assertEquals("db/migration/V1__Initial_structure.sql", resources[0].getLocation());
-
-        Class<?>[] classes = new ClassPathScanner(getClassLoader()).scanForClasses(new Location("classpath:org/flywaydb/sample/migration"), SpringJdbcMigration.class);
-        assertEquals("org.flywaydb.sample.migration.V1_2__Another_user", classes[0].getName());
     }
 }
