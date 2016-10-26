@@ -22,5 +22,5 @@ interface Validate {
 	 *
 	 * @return The validation error, if any.
 	 */
-	public String validate();
+	String validate();
 }

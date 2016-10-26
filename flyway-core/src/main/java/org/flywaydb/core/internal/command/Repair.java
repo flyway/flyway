@@ -20,5 +20,5 @@ interface Repair {
 	/**
 	 * Repairs the metadata table.
 	 */
-	public void repair();
+	void repair();
 }

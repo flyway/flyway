@@ -17,13 +17,11 @@ package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.MongoFlywayCallback;
-import org.flywaydb.core.internal.metadatatable.MongoMetaDataTable;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoCollection;
 
 public class MongoClean implements Clean {
 	private static final Log LOG = LogFactory.getLog(MongoClean.class);
@@ -44,24 +42,16 @@ public class MongoClean implements Clean {
 	private final MongoClient client;
 
 	/**
-	 * The metadata table.
-	 */
-	private final MongoMetaDataTable metaDataTable;
-
-	/**
 	 * Create a new MongoDB database cleaner.
 	 *
 	 * @param client The MongoDB client used to interact with the database.
-	 * @param metaDataTable The Mongo metadata table.
 	 * @param callbacks The list of callbacks to run before and after the "clean" command.
 	 * @param cleanDisabled Whether or not to disable the "clean" command.
 	 */
-	public MongoClean(MongoClient client, MongoMetaDataTable metaDataTable,
-										MongoFlywayCallback[] callbacks, boolean cleanDisabled) {
+	public MongoClean(MongoClient client, MongoFlywayCallback[] callbacks, boolean cleanDisabled) {
 		this.cleanDisabled = cleanDisabled;
 		this.callbacks = callbacks;
 		this.client = client;
-		this.metaDataTable = metaDataTable;
 	}
 
 	@Override

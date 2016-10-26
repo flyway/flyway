@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.resolver.mongodb;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.migration.mongodb.MongoMigration;
 import org.flywaydb.core.api.resolver.AbstractMongoMigrationExecutor;
 

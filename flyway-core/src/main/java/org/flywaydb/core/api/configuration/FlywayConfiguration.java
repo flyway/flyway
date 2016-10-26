@@ -16,14 +16,8 @@
 package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.callback.SQLFlywayCallback;
-import org.flywaydb.core.api.callback.MongoFlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
-import com.mongodb.MongoClient;
-
-import javax.sql.DataSource;
 import java.util.Map;
 
 /**
@@ -74,6 +68,34 @@ public interface FlywayConfiguration {
      */
     boolean isSkipDefaultCallbacks();
 
+    /**
+     * Checks whether placeholders should be replaced.
+     *
+     * @return Whether placeholders should be replaced. (default: true)
+     */
+    boolean isPlaceholderReplacement();
+
+    /**
+     * Retrieves the suffix of every placeholder.
+     *
+     * @return The suffix of every placeholder. (default: } )
+     */
+    String getPlaceholderSuffix();
+
+    /**
+     * Retrieves the prefix of every placeholder.
+     *
+     * @return The prefix of every placeholder. (default: ${ )
+     */
+    String getPlaceholderPrefix();
+
+    /**
+     * Retrieves the map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+     *
+     * @return The map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
+     */
+    Map<String, String> getPlaceholders();
+
 	/**
      * Retrieves the target version up to which Flyway should consider migrations.
      * Migrations with a higher version number will be ignored.
@@ -92,6 +114,13 @@ public interface FlywayConfiguration {
      * @return The name of the schema metadata table that will be used by flyway. (default: schema_version)
      */
     String getTable();
+
+    /**
+     * Retrieves the encoding of migrations.
+     *
+     * @return The encoding of migrations. (default: UTF-8)
+     */
+    String getEncoding();
 
     /**
      * Retrieves the locations to scan recursively for migrations.

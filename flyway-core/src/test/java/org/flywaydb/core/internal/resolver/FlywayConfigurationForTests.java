@@ -26,7 +26,7 @@ import org.flywaydb.core.api.callback.SQLFlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 /**
- * Dummy Implementation of {@link FlywayConfiguration} for unit tests.
+ * Dummy Implementation of {@link SQLFlywayConfiguration} for unit tests.
  */
 public class FlywayConfigurationForTests implements SQLFlywayConfiguration {
 
@@ -99,7 +99,7 @@ public class FlywayConfigurationForTests implements SQLFlywayConfiguration {
         return null;
     }
 
-	  @Override
+    @Override
     public SQLFlywayCallback[] getSqlCallbacks() {
         return null;
     }

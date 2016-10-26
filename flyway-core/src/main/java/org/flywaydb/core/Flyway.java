@@ -258,8 +258,8 @@ public class Flyway implements SQLFlywayConfiguration {
      */
     private FlywayCallback[] callbacks = new FlywayCallback[0];
 
-	  /**
-	   * This is a list of custom callbacks that fire before and after tasks are executed.  You can
+	/**
+	 * This is a list of custom callbacks that fire before and after tasks are executed.  You can
      * add as many custom callbacks as you want. (default: none)
      */
     private SQLFlywayCallback[] sqlCallbacks = new SQLFlywayCallback[0];
@@ -807,7 +807,7 @@ public class Flyway implements SQLFlywayConfiguration {
         return callbacks;
     }
 
-	  /**
+    /**
      * Gets the SQL callbacks for lifecycle notifications.
      *
      * @return The SQL callbacks for lifecycle notifications. An empty array if none. (default: none)
@@ -841,7 +841,7 @@ public class Flyway implements SQLFlywayConfiguration {
         setCallbacks(callbackList.toArray(new FlywayCallback[callbacks.length]));
     }
 
-	/**
+    /**
      * Set the callbacks for lifecycle notifications.
      *
      * @param callbacks The callbacks for lifecycle notifications. (default: none)

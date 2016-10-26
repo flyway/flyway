@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.api.callback.MongoFlywayCallback;
@@ -45,7 +44,7 @@ public class MongoRepair implements Repair {
 	/**
 	 * The migration infos.
 	 */
-	private final MigrationInfoService migrationInfoService;
+	private final MigrationInfoServiceImpl migrationInfoService;
 
 	/**
 	 * The metadata table.
@@ -66,9 +65,10 @@ public class MongoRepair implements Repair {
 	 * @param callbacks Callbacks for the Flyway lifecycle.
 	 */
 	public MongoRepair(MongoClient client, MigrationResolver migrationResolver,
-										 MongoMetaDataTable metaDataTable, MongoFlywayCallback[] callbacks) {
+					   MongoMetaDataTable metaDataTable, MongoFlywayCallback[] callbacks) {
 		this.client = client;
-		this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true);
+		this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable,
+				MigrationVersion.LATEST, true, true, true);
 		this.metaDataTable = metaDataTable;
 		this.callbacks = callbacks;
 	}
@@ -78,21 +78,19 @@ public class MongoRepair implements Repair {
 		for (final MongoFlywayCallback callback : callbacks) {
 			callback.beforeRepair(client);
 		}
-
 		metaDataTable.removeFailedMigrations();
 		repairChecksums();
-		LOG.info("Successfully repaired Mongo metadata table.");
+		LOG.info("Successfully repaired Mongo metadata table " + metaDataTable.getCollectionName());
 		
 		for (final MongoFlywayCallback callback : callbacks) {
-			callback.beforeRepair(client);
+			callback.afterRepair(client);
 		}
 	}
 
 	public void repairChecksums() {
-		MigrationInfoServiceImpl migrationInfoServiceImpl = (MigrationInfoServiceImpl) migrationInfoService;
-		migrationInfoServiceImpl.refresh();
+		migrationInfoService.refresh();
 
-		for (MigrationInfo migrationInfo : migrationInfoServiceImpl.all()) {
+		for (MigrationInfo migrationInfo : migrationInfoService.all()) {
 			MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
 
 			ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();

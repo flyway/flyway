@@ -166,7 +166,7 @@ public class CompositeMigrationResolverSmallTest {
      * @param aChecksum      The checksum.
      * @return The new test migration.
      */
-    private ResolvedMigrationImpl createTestMigration(final MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
+    static ResolvedMigrationImpl createTestMigration(final MigrationType aMigrationType, final String aVersion, final String aDescription, final String aScript, final Integer aChecksum) {
         ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
         migration.setVersion(MigrationVersion.fromVersion(aVersion));
         migration.setDescription(aDescription);

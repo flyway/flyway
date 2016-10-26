@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.api.callback;
 
-import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 

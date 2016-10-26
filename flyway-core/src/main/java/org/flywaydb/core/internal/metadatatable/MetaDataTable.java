@@ -17,10 +17,18 @@ package org.flywaydb.core.internal.metadatatable;
 
 import org.flywaydb.core.internal.dbsupport.Schema;
 
+import java.util.concurrent.Callable;
+
 /**
  * The metadata table used to track all applied migrations.
  */
 public interface MetaDataTable extends FlywayMetaDataTable {
+
+	/**
+	 * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically upon completion.
+	 * @return The result of the action.
+	 */
+	<T> T lock(Callable<T> callable);
 
 	/**
 	 * Indicates in the metadata table that Flyway created these schemas.

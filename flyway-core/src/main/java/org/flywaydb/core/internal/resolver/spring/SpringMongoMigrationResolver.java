@@ -40,8 +40,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Migration resolver for Spring Mongo migrations. The classes must have a name like V1 or V1_1_3 or V1__Description
- * or V1_1_3__Description.
+ * Migration resolver for Spring Mongo migrations. The classes must have a name like V1 or V1_1_3 or
+ * V1__Description or V1_1_3__Description.
  */
 public class SpringMongoMigrationResolver implements MigrationResolver {
 	
@@ -68,12 +68,13 @@ public class SpringMongoMigrationResolver implements MigrationResolver {
 	/**
 	 * Creates a new instance.
 	 *
+	 * @param databaseName  The database to use.
 	 * @param location      The base package on the classpath where to migrations are located.
 	 * @param scanner       The Scanner for loading migrations on the classpath.
 	 * @param configuration The configuration to inject (if necessary) in the migration classes.
 	 */
 	public SpringMongoMigrationResolver(String databaseName, Scanner scanner,
-																		 Location location, FlywayConfiguration configuration) {
+										Location location, FlywayConfiguration configuration) {
 		this.databaseName = databaseName;
 		this.location = location;
 		this.scanner = scanner;
@@ -114,7 +115,8 @@ public class SpringMongoMigrationResolver implements MigrationResolver {
 	 * @param springMongoMigration The migration to analyse.
 	 * @return The migration info.
 	 */
-	/* private -> testing */  ResolvedMigration extractMigrationInfo(SpringMongoMigration springMongoMigration) {
+	/* private -> testing */
+	ResolvedMigration extractMigrationInfo(SpringMongoMigration springMongoMigration) {
 		Integer checksum = null;
 		if (springMongoMigration instanceof MigrationChecksumProvider) {
 			MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) springMongoMigration;
@@ -136,9 +138,9 @@ public class SpringMongoMigrationResolver implements MigrationResolver {
 			if (shortName.startsWith("V") || shortName.startsWith("R")) {
 				prefix = shortName.substring(0, 1);
 			} else {
-				throw new FlywayException("Invalid MongoDB migration class name: " + springMongoMigration.getClass().getName()
-																	+ " => ensure it starts with V or R," +
-																	" or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
+				throw new FlywayException("Invalid MongoDB migration class name: " +
+                        springMongoMigration.getClass().getName() + " => ensure it starts with V or R," +
+                        " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
 			}
 			Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
 			version = info.getLeft();

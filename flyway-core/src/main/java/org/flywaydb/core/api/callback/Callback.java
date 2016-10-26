@@ -16,14 +16,13 @@
 package org.flywaydb.core.api.callback;
 
 import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.configuration.ConfigurationAware;
 
 /**
- * This is the main callback interface that should be implemented to get access to flyway lifecycle notifications.
- * Simply add code to the callback method you are interested in having. Some convenience implementations with methods
- * doing nothing is provided with {@link BaseSQLFlywayCallback} and {@link BaseMongoFlywayCallback}. This interface
- * cannot be implemented directly and instead, classes must extend {@link SQLFlywayCallback} or
- * {@link MongoFlywayCallback}.
+ * This is the main callback interface that should be implemented to get access to flyway lifecycle
+ * notifications. Simply add code to the callback method you are interested in having. Some
+ * convenience implementations with methods doing nothing is provided with {@link BaseSQLFlywayCallback}
+ * and {@link BaseMongoFlywayCallback}. This interface cannot be implemented directly and instead,
+ * classes must extend {@link SQLFlywayCallback} or {@link MongoFlywayCallback}.
  *
  * <p>Each callback method will run within its own transaction.</p>
  * 

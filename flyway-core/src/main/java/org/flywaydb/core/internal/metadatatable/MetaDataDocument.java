@@ -22,8 +22,6 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.MigrationType;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.result.UpdateResult;
 
 public class MetaDataDocument extends BasicDBObject {
 
@@ -40,56 +38,6 @@ public class MetaDataDocument extends BasicDBObject {
 	static final String SUCCESS = "success";
 
 	/**
-	 * The order in which this migration was applied amongst all others. (For out of order detection)
-	 */
-	private int installedRank;
-
-	/**
-	 * The target version of this migration. {@code null} if it is a repeatable migration.
-	 */
-	private MigrationVersion version;
-
-	/**
-	 * The description of the migration.
-	 */
-	private String description;
-
-	/**
-	 * The type of migration (BASELINE, SQL, ...)
-	 */
-	private MigrationType type;
-
-	/**
-	 * The name of the script to execute for this migration, relative to its classpath location.
-	 */
-	private String script;
-
-	/**
-	 * The checksum of the migration. (Optional)
-	 */
-	private Integer checksum;
-
-	/**
-	 * The timestamp when this migration was installed.
-	 */
-	private Date installedOn;
-
-	/**
-	 * The user that installed this migration.
-	 */
-	private String installedBy;
-
-	/**
-	 * The execution time (in millis) of this migration.
-	 */
-	private int executionTime;
-
-	/**
-	 * Flag indicating whether the migration was successful or not.
-	 */
-	private boolean success;
-
-	/**
 	 * Creates a new MongoDB document for the Metadata table.
 	 *
 	 * @param map A DB object to create the document from.
@@ -104,18 +52,19 @@ public class MetaDataDocument extends BasicDBObject {
 	 * @param appliedMigration An {@link AppliedMigration} to build the document from.
 	 */
 	public MetaDataDocument(AppliedMigration appliedMigration) {
-		String s = appliedMigration.getInstalledBy();
-		Date d = appliedMigration.getInstalledOn();
+		String installBy = appliedMigration.getInstalledBy();
+		Date installedOn = appliedMigration.getInstalledOn();
+		MigrationVersion version = appliedMigration.getVersion();
 
 		super.put("_id", appliedMigration.getInstalledRank());
 		super.put(INSTALLED_RANK, appliedMigration.getInstalledRank());
-		super.put(VERSION, appliedMigration.getVersion().getVersion());
+		super.put(VERSION, (version == null) ? null : version.getVersion());
 		super.put(DESCRIPTION, appliedMigration.getDescription());
 		super.put(TYPE, appliedMigration.getType().toString());
 		super.put(SCRIPT, appliedMigration.getScript());
 		super.put(CHECKSUM, appliedMigration.getChecksum());
-		super.put(INSTALLED_BY, (s == null) ? "" : s);
-		super.put(INSTALLED_ON, (d == null) ? new Date() : d);
+		super.put(INSTALLED_BY, (installBy == null) ? "" : installBy);
+		super.put(INSTALLED_ON, (installedOn == null) ? new Date() : installedOn);
 		super.put(EXECUTION_TIME, appliedMigration.getExecutionTime());
 		super.put(SUCCESS, appliedMigration.isSuccess());
 	}
@@ -135,11 +84,11 @@ public class MetaDataDocument extends BasicDBObject {
 	 * @param success       Flag indicating whether the migration was successful or not.
 	 */
 	public MetaDataDocument(int installedRank, MigrationVersion version, String description,
-													MigrationType type, String script, Integer checksum, Date installedOn,
-													String installedBy, int executionTime, boolean success) {
+							MigrationType type, String script, Integer checksum, Date installedOn,
+							String installedBy, int executionTime, boolean success) {
 		super.put("_id", installedRank);
 		super.put(INSTALLED_RANK, installedRank);
-		super.put(VERSION, version.getVersion());
+		super.put(VERSION, (version != null) ? version.getVersion() : null);
 		super.put(DESCRIPTION, description);
 		super.put(TYPE, type.toString());
 		super.put(SCRIPT, script);
@@ -153,22 +102,11 @@ public class MetaDataDocument extends BasicDBObject {
 	/**
 	 * Converts this document into an {@link AppliedMigration}.
 	 *
-	 * @returns This Mongo document as an {@link AppliedMigration}.
+	 * @return This Mongo document as an {@link AppliedMigration}.
 	 */
 	public AppliedMigration toMigration() {
-		return new AppliedMigration(getInstalledRank(), getVersion(), getDescription(), getType(), getScript(),
-																getChecksum(), getInstalledOn(), getInstalledBy(), getExecutionTime(), isSuccess());
-	}
-
-	/**
-	 * Update the installed_rank field in this document.
-	 *
-	 * @param installedRank The order in which this migration was applied amongst all others. (For out of order detection)
-	 */
-	public UpdateResult updateInstalledRank(MongoCollection collection, int installedRank) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(INSTALLED_RANK, installedRank));
-
-		return collection.updateOne(this, updateDoc);
+        return new AppliedMigration(getInstalledRank(), getVersion(), getDescription(), getType(), getScript(),
+            getChecksum(), getInstalledOn(), getInstalledBy(), getExecutionTime(), isSuccess());
 	}
 
 	/**
@@ -179,34 +117,16 @@ public class MetaDataDocument extends BasicDBObject {
 	}
 
 	/**
-	 * Update the version field in this document.
-	 *
-	 * @param version The target version of this migration.
-	 */
-	public UpdateResult updateVersion(MongoCollection collection, MigrationVersion migrationVersion) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(VERSION, migrationVersion.getVersion()));
-
-		return collection.updateOne(this, updateDoc);
-	}
-
-	/**
-	 * @return The target version of this migration.
+	 * @return The target version of this migration. 'null' if this is a repeatable migration.
 	 */
 	public MigrationVersion getVersion() {
-		return MigrationVersion.fromVersion(super.getString(VERSION));
-	}
+        if (super.getString(VERSION) != null) {
+            return MigrationVersion.fromVersion(super.getString(VERSION));
+        } else {
+            return null;
+        }
+    }
 
-	/**
-	 * Update the description field in this document.
-	 *
-	 * @param version The description of this migration.
-	 */
-	public UpdateResult updateDescription(MongoCollection collection, String description) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(DESCRIPTION, description));
-
-		return collection.updateOne(this, updateDoc);
-	}
-	
 	/**
 	 * @return The description of the migration.
 	 */
@@ -215,17 +135,6 @@ public class MetaDataDocument extends BasicDBObject {
 	}
 
 	/**
-	 * Update the type field in this document.
-	 *
-	 * @param type The migration type for this document.
-	 */
-	public UpdateResult updateType(MongoCollection collection, MigrationType type) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(TYPE, type.toString()));
-
-		return collection.updateOne(this, updateDoc);
-	}
-	
-	/**
 	 * @return The type of migration (BASELINE, SQL, ...)
 	 */
 	public MigrationType getType() {
@@ -233,32 +142,10 @@ public class MetaDataDocument extends BasicDBObject {
 	}
 
 	/**
-	 * Update the script field in this document.
-	 *
-	 * @param script The name of the script to execute for this migration, relative to its classpath location.
-	 */
-	public UpdateResult updateScript(MongoCollection collection, String script) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(SCRIPT, script));
-
-		return collection.updateOne(this, updateDoc);
-	}
-	
-	/**
 	 * @return The name of the script to execute for this migration, relative to its classpath location.
 	 */
 	public String getScript() {
 		return super.getString(SCRIPT);
-	}
-	
-	/**
-	 * Update the checksum field in this document.
-	 *
-	 * @param checksum The checksum of the migration. (Optional)
-	 */
-	public UpdateResult updateChecksum(MongoCollection collection, Integer checksum) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(CHECKSUM, checksum));
-
-		return collection.updateOne(this, updateDoc);
 	}
 	
 	/**
@@ -270,34 +157,12 @@ public class MetaDataDocument extends BasicDBObject {
 	}
 
 	/**
-	 * Update the installed_on field in this document.
-	 *
-	 * @param date The timestamp when this migration was installed.
-	 */
-	public UpdateResult updateInstalledOn(MongoCollection collection, Date date) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(INSTALLED_ON, date));
-
-		return collection.updateOne(this, updateDoc);
-	}
-	
-	/**
 	 * @return The timestamp when this migration was installed.
 	 */
 	public Date getInstalledOn() {
 		return super.getDate(INSTALLED_ON, new Date());
 	}
 
-	/**
-	 * Update the installed_by field in this document.
-	 *
-	 * @param installedBy The user that installed this migration.
-	 */
-	public UpdateResult updateInstalledBy(MongoCollection collection, String installedBy) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(INSTALLED_BY, installedBy));
-
-		return collection.updateOne(this, updateDoc);
-	}
-		
 	/**
 	 * @return The user that installed this migration.
 	 */
@@ -306,34 +171,12 @@ public class MetaDataDocument extends BasicDBObject {
 	}
 
 	/**
-	 * Update the installed_by field in this document.
-	 *
-	 * @param installedBy The user that installed this migration.
-	 */
-	public UpdateResult updateExecutionTime(MongoCollection collection, int executionTime) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(EXECUTION_TIME, executionTime));
-
-		return collection.updateOne(this, updateDoc);
-	}
-	
-	/**
 	 * @return The execution time (in millis) of this migration.
 	 */
 	public int getExecutionTime() {
 		return super.getInt(EXECUTION_TIME);
 	}
 
-	/**
-	 * Update the success field in this document.
-	 *
-	 * @param success Flag indicating whether the migration was successful or not.
-	 */
-	public UpdateResult updateExecutionTime(MongoCollection collection, boolean success) {
-		BasicDBObject updateDoc = new BasicDBObject("$set", new BasicDBObject(SUCCESS, success));
-
-		return collection.updateOne(this, updateDoc);
-	}
-	
 	/**
 	 * @return Flag indicating whether the migration was successful or not.
 	 */

@@ -44,11 +44,16 @@ public enum MigrationType {
      */
     SPRING_JDBC,
 		
-		/**
+    /**
      * The type for MongoDB java-based migrations.
      */
     MONGODB,
-		
+
+    /**
+     * The type for MongoDB javascript based migrations.
+     */
+    MONGOSCRIPT,
+
     /**
      * The type for other migrations by custom MigrationResolvers.
      */

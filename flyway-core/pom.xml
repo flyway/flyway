@@ -175,16 +175,15 @@
           <optional>true</optional>
         </dependency>
         <dependency>
-          <groupId>org.mongodb</groupId>
-          <artifactId>mongo-java-driver</artifactId>
-          <version>3.3.0</version>
+          <groupId>org.springframework.data</groupId>
+          <artifactId>spring-data-mongodb</artifactId>
+          <version>1.9.5.RELEASE</version>
           <optional>true</optional>
         </dependency>
         <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-data-mongodb</artifactId>
-          <version>1.3.6.RELEASE</version>
-          <optional>true</optional>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>1.50.5</version>
         </dependency>
       </dependencies>
 

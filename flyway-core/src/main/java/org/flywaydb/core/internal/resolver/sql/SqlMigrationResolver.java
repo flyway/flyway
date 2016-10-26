@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.configuration.SQLFlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
@@ -66,9 +66,9 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final PlaceholderReplacer placeholderReplacer;
 
     /**
-     * The Flyway configuration.
+     * The SQLFlyway configuration.
      */
-    private final FlywayConfiguration configuration;
+    private final SQLFlywayConfiguration configuration;
 
     /**
      * Creates a new instance.
@@ -80,7 +80,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param configuration                The Flyway configuration.
      */
     public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
-                                PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+                                PlaceholderReplacer placeholderReplacer, SQLFlywayConfiguration configuration) {
         this.dbSupport = dbSupport;
         this.scanner = scanner;
         this.location = location;

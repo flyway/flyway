@@ -16,20 +16,13 @@
 package org.flywaydb.core.internal.metadatatable;
 
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.dbsupport.Schema;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * The metadata table used to track all applied migrations.
  */
 public interface FlywayMetaDataTable {
-    /**
-     * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
-     * @return The result of the action.
-     */
-    <T> T lock(Callable<T> callable);
 
     /**
      * Adds this migration as executed to the metadata table.
@@ -55,6 +48,13 @@ public interface FlywayMetaDataTable {
      * An empty list if no migration has been applied so far.
      */
     List<AppliedMigration> allAppliedMigrations();
+
+    /**
+     * Checks whether the metadata collection contains a marker row for schema creation.
+     *
+     * @return {@code true} if it does, {@code false} if it doesn't.
+     */
+    boolean hasSchemasMarker();
 
     /**
      * Creates and initializes the Flyway metadata table.

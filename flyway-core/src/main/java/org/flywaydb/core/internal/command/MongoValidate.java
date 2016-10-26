@@ -91,8 +91,9 @@ public class MongoValidate implements Validate {
 	 * @param future            Whether future migrations are allowed.
 	 * @param callbacks         The lifecycle callbacks.
 	 */
-	public MongoValidate(MongoClient client, MongoMetaDataTable metaDataTable, MigrationResolver migrationResolver,
-											  MigrationVersion target, boolean outOfOrder, boolean pending, boolean future, MongoFlywayCallback[] callbacks) {
+	public MongoValidate(MongoClient client, MongoMetaDataTable metaDataTable,
+						 MigrationResolver migrationResolver, MigrationVersion target,
+						 boolean outOfOrder, boolean pending, boolean future, MongoFlywayCallback[] callbacks) {
 		this.target = target;
 		this.metaDataTable = metaDataTable;
 		this.migrationResolver = migrationResolver;
@@ -122,10 +123,10 @@ public class MongoValidate implements Validate {
 			int count = result.getLeft();
 			if (count == 1) {
 				LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
-															 TimeFormat.format(stopWatch.getTotalTimeMillis())));
+						 TimeFormat.format(stopWatch.getTotalTimeMillis())));
 			} else {
 				LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
-															 count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
+					 	count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
 			}
 		}
 
@@ -138,7 +139,7 @@ public class MongoValidate implements Validate {
 
 	private Pair<Integer, String> validationDisjunction() {
 		MigrationInfoServiceImpl migrationInfoService =
-			new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future);
+				new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future);
 		
 		migrationInfoService.refresh();
 		

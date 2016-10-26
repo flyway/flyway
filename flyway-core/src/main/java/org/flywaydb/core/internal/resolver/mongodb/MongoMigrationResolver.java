@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Migration resolver for Jdbc migrations. The classes must have a name like R__My_description, V1__Description
+ * Migration resolver for Mongo Jdbc migrations. The classes must have a name like R__My_description, V1__Description
  * or V1_1_3__Description.
  */
 public class MongoMigrationResolver implements MigrationResolver {
@@ -105,7 +105,8 @@ public class MongoMigrationResolver implements MigrationResolver {
 	 * @param mongoMigration The migration to analyse.
 	 * @return The migration info.
 	 */
-	/*private -> testing*/ ResolvedMigration extractMigrationInfo(MongoMigration mongoMigration) {
+	/*private -> testing*/
+	ResolvedMigration extractMigrationInfo(MongoMigration mongoMigration) {
 		Integer checksum = null;
 		if (mongoMigration instanceof MigrationChecksumProvider) {
 			MigrationChecksumProvider checksumProvider = (MigrationChecksumProvider) mongoMigration;
@@ -127,9 +128,9 @@ public class MongoMigrationResolver implements MigrationResolver {
 			if (shortName.startsWith("V") || shortName.startsWith("R")) {
 				prefix = shortName.substring(0, 1);
 			} else {
-				throw new FlywayException("Invalid Mongo migration class name: " + mongoMigration.getClass().getName()
-																	+ " => ensure it starts with V or R," +
-																	" or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
+				throw new FlywayException("Invalid Mongo migration class name: " +
+                        mongoMigration.getClass().getName() + " => ensure it starts with V or R," +
+                        " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
 			}
 			Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
 			version = info.getLeft();

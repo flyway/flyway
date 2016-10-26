@@ -23,7 +23,7 @@ import com.mongodb.MongoClient;
  */
 public abstract class DummyAbstractMongoMigration implements MongoMigration {
     public final void migrate(MongoClient client) throws Exception {
-			doMigrate(client);
+        doMigrate(client);
     }
 
 	public abstract void doMigrate(MongoClient client) throws Exception;

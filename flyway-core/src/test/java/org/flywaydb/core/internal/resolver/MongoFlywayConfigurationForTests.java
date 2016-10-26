@@ -22,25 +22,43 @@ import org.flywaydb.core.api.configuration.MongoFlywayConfiguration;
 
 import com.mongodb.MongoClient;
 
+import java.util.Map;
+
 public class MongoFlywayConfigurationForTests implements MongoFlywayConfiguration {
 
-	private ClassLoader classLoader;
-	private String[] locations = new String[0];
+    private ClassLoader classLoader;
+    private String[] locations = new String[0];
+    private String encoding;
+    private String dbName;
+    private String mongoMigrationPrefix;
+    private String repeatableMongoMigrationPrefix;
+    private String mongoMigrationSeparator;
+    private String mongoMigrationSuffix;
+    private boolean skipDefaultResolvers;
 
-	public MongoFlywayConfigurationForTests(ClassLoader classLoader, String[] locations) {
+	public MongoFlywayConfigurationForTests(ClassLoader classLoader, String[] locations, String encoding, String dbName,
+                                            String mongoMigrationPrefix, String repeatableMongoMigrationPrefix,
+                                            String mongoMigrationSeparator, String mongoMigrationSuffix) {
 		this.classLoader = classLoader;
 		this.locations = locations;
+		this.encoding = encoding;
+        this.dbName = dbName;
+		this.mongoMigrationPrefix = mongoMigrationPrefix;
+        this.repeatableMongoMigrationPrefix = repeatableMongoMigrationPrefix;
+		this.mongoMigrationSeparator = mongoMigrationSeparator;
+		this.mongoMigrationSuffix = mongoMigrationSuffix;
 	}
 
 	public static MongoFlywayConfigurationForTests create() {
-		return new MongoFlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), new String[0]);
+		return new MongoFlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(),
+                new String[0], "UTF-8", "mongoMigrationTest", "V", "R", "__", ".js");
 	}
 
-	public static MongoFlywayConfigurationForTests create(String... locations) {
-		return new MongoFlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(), locations);
-	}
+    public static MongoFlywayConfigurationForTests createWithPrefix(String prefix) {
+        return new MongoFlywayConfigurationForTests(Thread.currentThread().getContextClassLoader(),
+                new String[0], "UTF-8", "mongoMigrationTest", prefix , "R", "__", ".js");
+    }
 
-	
 	@Override
 	public ClassLoader getClassLoader() {
 		return classLoader;
@@ -61,43 +79,131 @@ public class MongoFlywayConfigurationForTests implements MongoFlywayConfiguratio
 		return null;
 	}
 
-	@Override
-	public boolean isSkipDefaultResolvers() {
-		return false;
-	}
+    public void setSkipDefaultResolvers(boolean skipDefaultResolvers) {
+        this.skipDefaultResolvers = skipDefaultResolvers;
+    }
 
-	public boolean isSkipDefaultCallbacks() {
-		return false;
-	}
+    @Override
+    public boolean isSkipDefaultResolvers() {
+        return skipDefaultResolvers;
+    }
 
-	@Override
-	public MigrationVersion getTarget() {
-		return null;
-	}
+    public boolean isSkipDefaultCallbacks() {
+        return false;
+    }
 
-	@Override
-	public String getTable() {
-		return null;
-	}
+    @Override
+    public MigrationVersion getTarget() {
+        return null;
+    }
 
-	@Override
-	public String[] getLocations() {
-		return this.locations;
-	}
+    @Override
+    public String getEncoding() {
+        return encoding;
+    }
 
-	
-	@Override
-	public String getDatabaseName() {
-		return null;
-	}
+    @Override
+    public String getMongoMigrationPrefix() {
+        return mongoMigrationPrefix;
+    }
 
-	@Override
-	public MongoClient getMongoClient() {
-		return null;
-	}
+    @Override
+    public String getRepeatableMongoMigrationPrefix() {
+        return repeatableMongoMigrationPrefix;
+    }
 
-	@Override
-	public MongoFlywayCallback[] getMongoCallbacks() {
-		return null;
-	}
+    @Override
+    public String getMongoMigrationSeparator() {
+        return mongoMigrationSeparator;
+    }
+
+    @Override
+    public String getMongoMigrationSuffix() {
+        return mongoMigrationSuffix;
+    }
+
+    @Override
+    public boolean isPlaceholderReplacement() {
+        return false;
+    }
+
+    @Override
+    public String getPlaceholderSuffix() {
+        return null;
+    }
+
+    @Override
+    public String getPlaceholderPrefix() {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getPlaceholders() {
+        return null;
+    }
+
+    @Override
+    public String getTable() {
+        return null;
+    }
+
+    @Override
+    public String[] getLocations() {
+        return this.locations;
+    }
+
+    @Override
+    public String getDatabaseName() {
+        return dbName;
+    }
+
+    @Override
+    public MongoClient getMongoClient() {
+        return null;
+    }
+
+    @Override
+    public MongoFlywayCallback[] getMongoCallbacks() {
+        return null;
+    }
+
+    @Override
+    public boolean isBaselineOnMigrate() {
+        return false;
+    }
+
+    @Override
+    public boolean isOutOfOrder() {
+        return false;
+    }
+
+    @Override
+    public boolean isIgnoreFutureMigrations() {
+        return false;
+    }
+
+    @Override
+    public boolean isValidateOnMigrate() {
+        return false;
+    }
+
+    @Override
+    public boolean isCleanOnValidationError() {
+        return false;
+    }
+
+    @Override
+    public boolean isCleanDisabled() {
+        return false;
+    }
+
+    @Override
+    public boolean isAllowMixedMigrations() {
+        return false;
+    }
+
+    public void setRepeatableMongoMigrationPrefix(String repeatablePrefix) {
+        this.repeatableMongoMigrationPrefix = repeatablePrefix;
+    }
+
 }

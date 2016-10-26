@@ -63,7 +63,7 @@ public class JdbcMigrationResolverSmallTest {
 
         // do a test execute, since the migration does not do anything, we simply test whether the
         // configuration has been set correctly
-				MigrationExecutor executor = (MigrationExecutor) migrationInfo.getExecutor();
+        MigrationExecutor executor = (MigrationExecutor) migrationInfo.getExecutor();
         executor.execute(null);
 
         ResolvedMigration migrationInfo1 = migrationList.get(1);

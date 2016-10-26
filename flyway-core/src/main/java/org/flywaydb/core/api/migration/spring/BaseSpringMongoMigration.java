@@ -19,9 +19,11 @@ import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 
 /**
- * Convenience implementation of {@link SpringMongoMigration}. {@link ConfigurationAware#setFlywayConfiguration(FlywayConfiguration)}
- * is implemented by storing the configuration in a field. It is encouraged to subclass this class instead of implementing
- * SpringMongoMigration directly, to guard against possible API additions in future major releases of Flyway.
+ * Convenience implementation of {@link SpringMongoMigration}.
+ * {@link ConfigurationAware#setFlywayConfiguration(FlywayConfiguration)} is implemented by storing
+ * the configuration in a field. It is encouraged to subclass this class instead of implementing
+ * SpringMongoMigration directly, to guard against possible API additions in future major releases
+ * of Flyway.
  */
 public abstract class BaseSpringMongoMigration implements SpringMongoMigration, ConfigurationAware {
 

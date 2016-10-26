@@ -118,7 +118,7 @@ public final class FeatureDetector {
         return springJdbcAvailable;
     }
 
-	  /**
+    /**
      * Checks whether Spring Mongo is available.
      *
      * @return {@code true} if it is, {@code false if it is not}

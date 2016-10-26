@@ -20,7 +20,8 @@ import org.flywaydb.core.api.callback.MongoFlywayCallback;
 import com.mongodb.MongoClient;
 
 /**
- * Interface for mongo flyway configuration. Can be used to provide configuration data to migrations and callbacks.
+ * Interface for mongo flyway configuration. Can be used to provide configuration data to migrations
+ * and callbacks.
  */
 public interface MongoFlywayConfiguration extends FlywayConfiguration {
 
@@ -32,11 +33,11 @@ public interface MongoFlywayConfiguration extends FlywayConfiguration {
 	String getDatabaseName();
 	
 	/**
-	 * Retrieves the MongoClient to use to access the database. Must have the necessary privileges to execute
-	 * transactions.
+	 * Retrieves the MongoClient to use to access the database. Must have the necessary privileges
+	 * to execute transactions.
 	 *
-	 * @return The mongoClient to use to access the database. Must have the necessary privileges to execute
-	 * transactions.
+	 * @return The mongoClient to use to access the database. Must have the necessary privileges to
+	 * execute transactions.
 	 */
 	MongoClient getMongoClient();
 
@@ -46,5 +47,45 @@ public interface MongoFlywayConfiguration extends FlywayConfiguration {
 	 * @return The callbacks for MongoDB lifecycle notifications. An empty array if none. (default: none)
 	 */
 	MongoFlywayCallback[] getMongoCallbacks();
-	
+
+	/**
+	 * Retrieves the file name suffix for mongo migrations.
+	 * <p/>
+	 * <p>Mongo migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+	 * which using the defaults translates to V1_1__My_description.js</p>
+	 *
+	 * @return The file name suffix for mongo migrations. (default: .js)
+	 */
+	String getMongoMigrationSuffix();
+
+	/**
+	 * Retrieves the file name prefix for repeatable mongo migrations.
+	 * <p/>
+	 * <p>Repeatable mongo migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+	 * which using the defaults translates to R__My_description.js</p>
+	 *
+	 * @return The file name prefix for repeatable sql migrations. (default: R)
+	 */
+	String getRepeatableMongoMigrationPrefix();
+
+	/**
+	 * Retrieves the file name separator for mongo migrations.
+	 * <p/>
+	 * <p>Mongo migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+	 * which using the defaults translates to V1_1__My_description.js</p>
+	 *
+	 * @return The file name separator for mongo migrations. (default: __)
+	 */
+	String getMongoMigrationSeparator();
+
+	/**
+	 * Retrieves the file name prefix for mongo migrations.
+	 * <p/>
+	 * <p>Mongo migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+	 * which using the defaults translates to V1_1__My_description.js</p>
+	 *
+	 * @return The file name prefix for mongo migrations. (default: V)
+	 */
+	String getMongoMigrationPrefix();
+
 }
