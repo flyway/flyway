@@ -25,13 +25,13 @@ import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 /**
  * Handles the validate command.
@@ -133,9 +133,9 @@ public class DbValidate {
     public String validate() {
         try {
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schema);
                         callback.beforeValidate(connection);
                         return null;
@@ -147,8 +147,9 @@ public class DbValidate {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            Pair<Integer, String> result = new TransactionTemplate(connection).execute(new TransactionCallback<Pair<Integer, String>>() {
-                public Pair<Integer, String> doInTransaction() {
+            Pair<Integer, String> result = new TransactionTemplate(connection).execute(new Callable<Pair<Integer, String>>() {
+                @Override
+                public Pair<Integer, String> call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
                             new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future);
@@ -176,9 +177,9 @@ public class DbValidate {
             }
 
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schema);
                         callback.afterValidate(connection);
                         return null;

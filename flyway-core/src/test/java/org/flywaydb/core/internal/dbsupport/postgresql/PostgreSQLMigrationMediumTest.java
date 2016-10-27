@@ -85,6 +85,13 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
+    public void index() throws Exception {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/index");
+        flyway.setAllowMixedMigrations(true);
+        flyway.migrate();
+    }
+
+    @Test
     public void cleanUnknown() throws Exception {
         flyway.setSchemas("non-existant");
         flyway.clean();

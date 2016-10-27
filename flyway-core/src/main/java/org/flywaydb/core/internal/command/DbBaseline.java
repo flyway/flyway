@@ -22,13 +22,13 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
-import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 /**
  * Handles Flyway's baseline command.
@@ -99,9 +99,9 @@ public class DbBaseline {
     public void baseline() {
         try {
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schema);
                         callback.beforeBaseline(connection);
                         return null;
@@ -109,8 +109,9 @@ public class DbBaseline {
                 });
             }
 
-            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() {
+            new TransactionTemplate(connection).execute(new Callable<Object>() {
+                @Override
+                public Void call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     if (metaDataTable.hasAppliedMigrations()) {
                         throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
@@ -140,9 +141,9 @@ public class DbBaseline {
             LOG.info("Successfully baselined schema with version: " + baselineVersion);
 
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schema);
                         callback.afterBaseline(connection);
                         return null;

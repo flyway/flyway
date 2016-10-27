@@ -19,15 +19,17 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.dbsupport.Schema;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * The metadata table used to track all applied migrations.
  */
 public interface MetaDataTable {
     /**
-     * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically on commit.
+     * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically upon completion.
+     * @return The result of the action.
      */
-    void lock();
+    <T> T lock(Callable<T> callable);
 
     /**
      * Adds this migration as executed to the metadata table.

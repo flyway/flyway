@@ -49,7 +49,7 @@ public class FlywaySmallTest {
         assertNotNull(flyway.getDataSource());
 
         flyway.execute(new Flyway.Command<Void>() {
-            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver, MetaDataTable metaDataTable, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+            public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver, MetaDataTable metaDataTable, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
                 assertEquals("PUBLIC", flyway.getSchemas()[0]);
                 return null;
             }

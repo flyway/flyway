@@ -32,13 +32,13 @@ import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 /**
  * Main workflow for migrating the database.
@@ -75,11 +75,6 @@ public class DbMigrate {
     private final FlywayConfiguration configuration;
 
     /**
-     * The connection to use.
-     */
-    private final Connection connectionMetaDataTable;
-
-    /**
      * The connection to use to perform the actual database migrations.
      */
     private final Connection connectionUserObjects;
@@ -97,7 +92,6 @@ public class DbMigrate {
     /**
      * Creates a new database migrator.
      *
-     * @param connectionMetaDataTable     The connection to use.
      * @param connectionUserObjects       The connection to use to perform the actual database migrations.
      * @param dbSupport                   Database-specific functionality.
      * @param metaDataTable               The database metadata table.
@@ -105,10 +99,9 @@ public class DbMigrate {
      * @param ignoreFailedFutureMigration Flag whether to ignore failed future migrations or not.
      * @param configuration               The Flyway configuration.
      */
-    public DbMigrate(Connection connectionMetaDataTable, Connection connectionUserObjects, DbSupport dbSupport,
+    public DbMigrate(Connection connectionUserObjects, DbSupport dbSupport,
                      MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
                      boolean ignoreFailedFutureMigration, FlywayConfiguration configuration) {
-        this.connectionMetaDataTable = connectionMetaDataTable;
         this.connectionUserObjects = connectionUserObjects;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
@@ -129,9 +122,9 @@ public class DbMigrate {
     public int migrate() throws FlywayException {
         try {
             for (final FlywayCallback callback : configuration.getCallbacks()) {
-                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupportUserObjects.changeCurrentSchemaTo(schema);
                         callback.beforeMigrate(connectionUserObjects);
                         return null;
@@ -145,10 +138,9 @@ public class DbMigrate {
             int migrationSuccessCount = 0;
             while (true) {
                 final boolean firstRun = migrationSuccessCount == 0;
-                boolean done = new TransactionTemplate(connectionMetaDataTable, false).execute(new TransactionCallback<Boolean>() {
-                    public Boolean doInTransaction() {
-                        metaDataTable.lock();
-
+                boolean done = metaDataTable.lock(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() {
                         MigrationInfoServiceImpl infoService =
                                 new MigrationInfoServiceImpl(migrationResolver, metaDataTable, configuration.getTarget(), configuration.isOutOfOrder(), true, true);
                         infoService.refresh();
@@ -218,9 +210,9 @@ public class DbMigrate {
             logSummary(migrationSuccessCount, stopWatch.getTotalTimeMillis());
 
             for (final FlywayCallback callback : configuration.getCallbacks()) {
-                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupportUserObjects.changeCurrentSchemaTo(schema);
                         callback.afterMigrate(connectionUserObjects);
                         return null;
@@ -278,9 +270,9 @@ public class DbMigrate {
 
         try {
             if (migrationExecutor.executeInTransaction()) {
-                new TransactionTemplate(connectionUserObjects).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         doMigrate(migration, migrationExecutor, migrationText);
                         return null;
                     }
@@ -294,7 +286,7 @@ public class DbMigrate {
             }
         } catch (FlywayException e) {
             String failedMsg = "Migration of " + migrationText + " failed!";
-            if (dbSupport.supportsDdlTransactions()) {
+            if (dbSupport.supportsDdlTransactions() && migrationExecutor.executeInTransaction()) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
             } else {
                 LOG.error(failedMsg + " Please restore backups and roll back database and code!");

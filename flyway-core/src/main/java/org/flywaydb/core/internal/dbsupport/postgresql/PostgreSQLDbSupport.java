@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
@@ -29,6 +30,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.concurrent.Callable;
 
 /**
  * PostgreSQL-specific support.
@@ -150,5 +152,15 @@ public class PostgreSQLDbSupport extends DbSupport {
         } catch (IOException e) {
             throw new SQLException("Unable to execute COPY operation", e);
         }
+    }
+
+    @Override
+    public <T> T lock(Table table, Callable<T> callable) {
+        return new PostgreSQLAdvisoryLockTemplate(jdbcTemplate).execute(callable);
+    }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
     }
 }

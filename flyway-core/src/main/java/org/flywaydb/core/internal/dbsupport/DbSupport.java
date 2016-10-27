@@ -16,9 +16,11 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 /**
  * Abstraction for database-specific functionality.
@@ -205,5 +207,29 @@ public abstract class DbSupport {
      */
     public void executePgCopy(Connection connection, String sql) throws SQLException {
         // Do nothing by default
+    }
+
+    /**
+     * Locks this table and executes this callable.
+     *
+     * @param table    The table to lock.
+     * @param callable The callable to execute.
+     * @return The result of the callable.
+     */
+    public <T> T lock(final Table table, final Callable<T> callable) {
+        return new TransactionTemplate(jdbcTemplate.getConnection(), false).execute(new Callable<T>() {
+            @Override
+            public T call() throws Exception {
+                table.lock();
+                return callable.call();
+            }
+        });
+    }
+
+    /**
+     * @return Whether to only use a single connection for both metadata table management and applying migrations.
+     */
+    public boolean useSingleConnection() {
+        return false;
     }
 }
