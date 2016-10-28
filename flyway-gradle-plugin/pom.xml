@@ -37,30 +37,6 @@
         </dependency>
         <dependency>
             <groupId>org.gradle</groupId>
-            <artifactId>gradle-platform-jvm</artifactId>
-            <version>${version.gradle}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gradle</groupId>
-            <artifactId>gradle-native</artifactId>
-            <version>${version.gradle}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gradle</groupId>
-            <artifactId>gradle-base-services</artifactId>
-            <version>${version.gradle}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gradle</groupId>
-            <artifactId>gradle-base-services-groovy</artifactId>
-            <version>${version.gradle}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gradle</groupId>
             <artifactId>gradle-plugins</artifactId>
             <version>${version.gradle}</version>
             <scope>provided</scope>
