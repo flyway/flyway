@@ -91,6 +91,10 @@
             <url>https://repo1.maven.org/maven2</url>
         </repository>
         <repository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+        <repository>
             <id>flyway-repo</id>
             <url>https://flywaydb.org/repo</url>
         </repository>
