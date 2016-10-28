@@ -48,4 +48,11 @@ public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
         flyway.setLocations("migration/dbsupport/sqlserver/sql/pkConstraint");
         flyway.migrate();
     }
+
+    @Ignore("No solution for this so far as it must be run outside of a transaction with no other transaction active in the system")
+    @Test
+    public void singleUser() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/singleUser");
+        flyway.migrate();
+    }
 }
