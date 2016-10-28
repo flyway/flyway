@@ -92,6 +92,10 @@
         </repository>
         <repository>
             <id>flyway-repo</id>
+            <url>https://flywaydb.org/repo</url>
+        </repository>
+        <repository>
+            <id>flyway-repo-private</id>
             <url>s3://flyway-repo/release</url>
         </repository>
     </repositories>
