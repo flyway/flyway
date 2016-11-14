@@ -104,4 +104,17 @@ public class FileSystemResource implements Resource, Comparable<FileSystemResour
     public int compareTo(FileSystemResource o) {
         return location.compareTo(o.location);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof FileSystemResource)) return false;
+        final FileSystemResource that = (FileSystemResource)obj;
+        return location.equals(that.location);
+    }
+
+    @Override
+    public int hashCode() {
+        return location.hashCode();
+    }
 }
