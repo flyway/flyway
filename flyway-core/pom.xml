@@ -312,9 +312,6 @@
         </profile>
         <profile>
             <id>CommercialDBTest</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <dependencies>
                 <dependency>
                     <groupId>com.microsoft.sqlserver</groupId>
