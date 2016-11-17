@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.derby;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -28,6 +29,8 @@ import java.sql.Types;
  * Derby database specific support
  */
 public class DerbyDbSupport extends DbSupport {
+	private boolean schemaChanged;
+
     /**
      * Creates a new instance.
      *
@@ -51,6 +54,33 @@ public class DerbyDbSupport extends DbSupport {
     }
 
     @Override
+	public void changeCurrentSchemaTo(Schema schema) {
+        if (schema.getName().equalsIgnoreCase(originalSchema) || !schema.exists()) {
+            return;
+        }
+
+        try {
+            doChangeCurrentSchemaTo(schema.toString());
+        } catch (SQLException e) {
+            throw new FlywayException("Error setting current schema to " + schema, e);
+        }
+        schemaChanged = true;
+	}
+
+    
+    
+	@Override
+	public void restoreCurrentSchema() {
+		if (schemaChanged) {
+			try {
+				doChangeCurrentSchemaTo(originalSchema);
+			} catch (SQLException e) {
+				throw new FlywayException("Error restoring current schema to its original setting", e);
+			}
+		}
+	}
+
+	@Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET SCHEMA " + schema);
     }
