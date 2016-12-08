@@ -110,7 +110,8 @@ public class DbMigrate {
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
         this.configuration = configuration;
 
-        dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
+        // we force the same DbSupport class as the connectionUserObjects (no need to repeat detection)
+        dbSupportUserObjects = DbSupportFactory.createDbSupport(dbSupport.getClass(), connectionUserObjects, false);
     }
 
     /**
