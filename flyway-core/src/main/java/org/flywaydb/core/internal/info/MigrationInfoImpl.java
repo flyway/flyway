@@ -218,18 +218,17 @@ public class MigrationInfoImpl implements MigrationInfo {
             return "Detected applied migration not resolved locally: " + getVersion();
         }
 
-        if (!context.pending) {
-            if (MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
-                if (getVersion() != null) {
-                    return "Detected resolved migration not applied to database: " + getVersion();
-                }
-                return "Detected resolved repeatable migration not applied to database: " + getDescription();
+        if (!context.pending && MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
+            if (getVersion() != null) {
+                return "Detected resolved migration not applied to database: " + getVersion();
             }
-
-            if (MigrationState.OUTDATED == getState()) {
-                return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
-            }
+            return "Detected resolved repeatable migration not applied to database: " + getDescription();
         }
+
+        if (!context.pending && MigrationState.OUTDATED == getState()) {
+            return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
+        }
+
 
         if (resolvedMigration != null && appliedMigration != null) {
             Object migrationIdentifier = appliedMigration.getVersion();
