@@ -26,6 +26,8 @@ import org.flywaydb.core.internal.metadatatable.AppliedMigration;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +42,9 @@ import java.util.TreeMap;
  * Default implementation of MigrationInfoService.
  */
 public class MigrationInfoServiceImpl implements MigrationInfoService {
+
+    private static final Log LOG = LogFactory.getLog(MigrationInfoServiceImpl.class);
+
     /**
      * The migration resolver for available migrations.
      */
@@ -228,6 +233,9 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
             if (MigrationState.PENDING == migrationInfo.getState()) {
                 pendingMigrations.add(migrationInfo);
+            } else if (MigrationState.IGNORED == migrationInfo.getState()) {
+                LOG.warn("Ignoring migration " + migrationInfo.getVersion() + ":" +
+                         migrationInfo.getDescription() + ", due to outOfOrder=" + outOfOrder);
             }
         }
 
