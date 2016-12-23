@@ -85,7 +85,7 @@ public class InformixDbSupport extends DbSupport {
 
     @Override
     protected String doQuote(String identifier) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "\"" + identifier + "\"";
     }
 
     @Override

@@ -15,10 +15,20 @@
  */
 package org.flywaydb.core.internal.dbsupport.informix;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 
-
 public class InformixSqlStatementBuilder extends SqlStatementBuilder {
-    
-    
+
+    private static final String DELIMITER_KEYWORD = "DELIMITER";
+
+    @Override
+    protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
+            return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
+        }
+
+        return delimiter;
+    }
+
 }

@@ -26,9 +26,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Oracle implementation of Schema.
- */
 public class InformixSchema extends Schema<InformixDbSupport> {
 
     private static final Log LOG = LogFactory.getLog(InformixSchema.class);
@@ -39,7 +36,7 @@ public class InformixSchema extends Schema<InformixDbSupport> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?", name) > 0;
     }
 
     @Override
