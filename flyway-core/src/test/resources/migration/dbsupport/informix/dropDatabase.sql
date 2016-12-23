@@ -14,5 +14,7 @@
 -- limitations under the License.
 --
 
-DROP USER "FLYWAY" CASCADE;
-DROP USER "flyway_proxy" CASCADE;
+database flyway_db;
+close database;
+
+drop DATABASE flyway_db;

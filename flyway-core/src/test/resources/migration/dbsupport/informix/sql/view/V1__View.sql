@@ -14,4 +14,6 @@
 -- limitations under the License.
 --
 
-CREATE DATABASE flyway_db;
+CREATE TABLE t (qty INT, price INT);
+INSERT INTO t VALUES(3, 50);
+CREATE VIEW v (qty, price, value) AS SELECT qty, price, qty*price AS value FROM t;

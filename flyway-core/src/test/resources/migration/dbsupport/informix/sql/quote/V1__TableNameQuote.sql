@@ -14,19 +14,17 @@
 -- limitations under the License.
 --
 
-/* Single line comment */
-CREATE TABLE test_user (
+CREATE TABLE `user` (
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
 );
 
-/*
-Multi-line
-comment
-*/
-CREATE TRIGGER test_trig AFTER insert ON test_user
-BEGIN
-    UPDATE test_user SET name = CONCAT(name, ' triggered');
-END;
-/
-COMMIT;
+CREATE TABLE `group` (
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+);
+
+CREATE TABLE `table` (
+  name VARCHAR(25) NOT NULL,
+  PRIMARY KEY(name)
+);

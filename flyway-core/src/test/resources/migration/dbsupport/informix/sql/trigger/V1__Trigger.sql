@@ -14,6 +14,26 @@
 -- limitations under the License.
 --
 
-CREATE TABLE A1 (
-  val INT
+drop table test1;
+CREATE TABLE test1(a1 INT);
+drop table test2;
+CREATE TABLE test2(a2 INT);
+drop table test3;
+CREATE TABLE test3(a3 serial NOT NULL PRIMARY KEY);
+drop table test4;
+CREATE TABLE test4(
+  a4 serial NOT NULL PRIMARY KEY,
+  b4 INT DEFAULT 0
 );
+
+create procedure "informix".testref_update(newa1 int)
+
+    INSERT INTO test2 (a2) values (NEWa1);
+    DELETE FROM test3 WHERE a3 = NEWa1;
+    UPDATE test4 SET b4 = b4 + 1 WHERE a4 = NEWa1;
+
+end procedure;
+
+CREATE TRIGGER "informix".testref INSERT ON "informix".test1 referencing new as new
+  FOR EACH ROW
+    (execute procedure testref_update(new.a1));

@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.informix;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -23,8 +22,6 @@ import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class InformixSchema extends Schema<InformixDbSupport> {
 
@@ -36,12 +33,12 @@ public class InformixSchema extends Schema<InformixDbSupport> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM systables where owner=?", name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return jdbcTemplate.queryForInt("SELECT count(*) FROM systables WHERE owner = ?", name) == 0;
     }
 
     @Override
@@ -66,7 +63,7 @@ public class InformixSchema extends Schema<InformixDbSupport> {
 
     @Override
     public Table getTable(String tableName) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new InformixTable(jdbcTemplate, dbSupport, this, tableName);
     }
 
 }

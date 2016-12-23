@@ -14,4 +14,6 @@
 -- limitations under the License.
 --
 
-CREATE DATABASE flyway_db;
+CREATE TABLE A1 (
+  val INT
+) engine=InnoDB;

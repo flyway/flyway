@@ -36,7 +36,6 @@ import static org.junit.Assert.*;
 /**
  * Test to demonstrate the migration functionality using Informix.
  */
-@SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.Informix.class)
 public class InformixMigrationMediumTest extends MigrationTestCase {
     @Override
@@ -85,7 +84,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests clean for Oracle Spatial Extensions.
+     * Tests clean for Informix Spatial Extensions.
      * @throws java.lang.Exception
      */
     @Test
@@ -131,7 +130,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
     /**
      * Tests cleaning up after CREATE MATERIALIZED VIEW.
      */
-    @Ignore("Disabled due to missing functionality in Oracle XE 11g. Works fine with XE 10g.")
+    @Ignore("Disabled due to missing functionality in Informix XE 11g. Works fine with XE 10g.")
     @Test
     public void createMaterializedView() throws FlywayException {
         flyway.setLocations("migration/dbsupport/informix/sql/materialized");
@@ -234,7 +233,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests support for clean together with Oracle Text indexes.
+     * Tests support for clean together with Informix Text indexes.
      */
     @Test
     public void text() throws FlywayException {
@@ -281,6 +280,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
      * Tests support for clean together with cluster Tables.
      */
     @Test
+    @Ignore
     public void cluster() throws FlywayException {
         flyway.setLocations("migration/dbsupport/informix/sql/cluster");
         flyway.migrate();
@@ -289,7 +289,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void commentOracle() throws Exception {
+    public void commentInformix() throws Exception {
         flyway.setLocations("migration/dbsupport/informix/sql/comment");
         assertEquals(3, flyway.migrate());
 
@@ -302,7 +302,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
     /**
      * Tests support for clean together with XML Type.
      */
-    @Ignore("Disabled due to missing functionality in Oracle XE 10g. Works fine with XE 11g.")
+    @Ignore("Disabled due to missing functionality in Informix XE 10g. Works fine with XE 11g.")
     @Test
     public void xml() throws FlywayException {
         flyway.setLocations("migration/dbsupport/informix/sql/xml");
@@ -315,7 +315,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
      * Tests support for cleaning of tables with Flashback/Total Recall enabled.
      * Schema containing such tables has to be first cleaned by disabling flashback on each table;
      */
-    @Ignore("Disabled due to missing flashback functionality in Oracle XE.")
+    @Ignore("Disabled due to missing flashback functionality in Informix XE.")
     @Test
     public void flashback() throws FlywayException {
         flyway.setLocations("migration/dbsupport/informix/sql/flashback");
@@ -327,7 +327,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
     /**
      * Tests support for reference partitioned tables.
      */
-    @Ignore("Disabled due to missing functionality in Oracle XE.")
+    @Ignore("Disabled due to missing functionality in Informix XE.")
     @Test
     public void referencePartitionedTable() throws FlywayException {
         flyway.setLocations("migration/dbsupport/informix/sql/refpart");
@@ -340,7 +340,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
      * Tests support for cleaning together with JAVA SOURCE Type.
      * @throws java.sql.SQLException
      */
-    @Ignore("Disabled due to missing functionality in Oracle XE.")
+    @Ignore("Disabled due to missing functionality in Informix XE.")
     @Test
     public void javaSource() throws FlywayException, SQLException {
         flyway.setLocations("migration/dbsupport/informix/sql/javasource");

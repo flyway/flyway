@@ -46,7 +46,7 @@ public class InformixDbSupportMediumTest {
         String password = customProperties.getProperty("informix.password");
         String url = customProperties.getProperty("informix.url");
 
-        String dataSourceUser = useProxy ? "\"flyway_proxy\"[" + user + "]" : user;
+        String dataSourceUser = user; //useProxy ? "\"flyway_proxy\"[" + user + "]" : user;
 
         DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, dataSourceUser, password);
 
@@ -55,7 +55,7 @@ public class InformixDbSupportMediumTest {
         String currentSchema = dbSupport.getCurrentSchemaName();
         connection.close();
 
-        assertEquals(user.toUpperCase(), currentSchema);
+        assertEquals(user.toUpperCase(), currentSchema.toUpperCase());
     }
 
     private Properties getConnectionProperties() throws IOException {

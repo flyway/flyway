@@ -21,6 +21,7 @@ import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -52,7 +53,10 @@ public class InformixDbSupport extends DbSupport {
 
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("select scs_currdb from sysmaster:syssqlcurses");
+        DatabaseMetaData databaseMetaData = jdbcTemplate.getMetaData();
+        String currentSchemaName = databaseMetaData.getUserName();
+        return currentSchemaName;
+        //return jdbcTemplate.queryForString("select scs_currdb from sysmaster:syssqlcurses");
     }
 
     @Override
