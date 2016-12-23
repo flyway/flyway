@@ -43,7 +43,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("informix.user", "flyway");
         String password = customProperties.getProperty("informix.password", "flyway");
-        String url = customProperties.getProperty("informix.url", "jdbc:informix:thin:@localhost:1521:XE");
+        String url = customProperties.getProperty("informix.url", "jdbc:informix-sqli://localhost:7102/stores_demo:informixserver=devb_test");
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
     }
@@ -55,6 +55,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Tests migrations containing placeholders.
+     * @throws java.lang.Exception
      */
     @Test
     public void migrationsWithPlaceholders() throws Exception {
@@ -85,6 +86,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Tests clean for Oracle Spatial Extensions.
+     * @throws java.lang.Exception
      */
     @Test
     public void cleanSpatialExtensions() throws Exception {
@@ -139,6 +141,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Test clean with recycle bin
+     * @throws java.lang.Exception
      */
     @Test
     public void cleanWithRecycleBin() throws Exception {
@@ -169,6 +172,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Tests cleaning up after DBMS_SCHEDULE.CREATE_JOB
+     * @throws java.lang.Exception
      */
     @Test
     public void createScheduledJob() throws Exception {
@@ -219,9 +223,6 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Tests support for create trigger. Ensures that a Statement is used instead of a PreparedStatement.
-     * <p/>
-     * Reference: http://docs.informix.com/cd/E11882_01/java.112/e16548/oraint.htm#CHDIIDBE
-     * <p/>
      * Also ensures that schema-level triggers are properly cleaned.
      */
     @Test
@@ -337,6 +338,7 @@ public class InformixMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Tests support for cleaning together with JAVA SOURCE Type.
+     * @throws java.sql.SQLException
      */
     @Ignore("Disabled due to missing functionality in Oracle XE.")
     @Test
