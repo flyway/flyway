@@ -22,6 +22,8 @@ import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
+import java.util.List;
+import org.flywaydb.core.internal.dbsupport.mysql.MySQLTable;
 
 public class InformixSchema extends Schema<InformixDbSupport> {
 
@@ -33,7 +35,7 @@ public class InformixSchema extends Schema<InformixDbSupport> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM systables where owner=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM systables where owner = ?", name) > 0;
     }
 
     @Override
@@ -58,7 +60,16 @@ public class InformixSchema extends Schema<InformixDbSupport> {
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        List<String> tableNames = jdbcTemplate.queryForStringList(
+                "SELECT TRIM(t.tabname) AS table FROM \"informix\".systables  AS t WHERE t.tabtype = 'T' ORDER BY t.tabname");
+
+        Table[] tables = new Table[tableNames.size()];
+        for (int i = 0; i < tableNames.size(); i++) {
+            tables[i] = new MySQLTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
+        }
+        return tables;
+
     }
 
     @Override

@@ -56,7 +56,6 @@ public class InformixDbSupport extends DbSupport {
         DatabaseMetaData databaseMetaData = jdbcTemplate.getMetaData();
         String currentSchemaName = databaseMetaData.getUserName();
         return currentSchemaName;
-        //return jdbcTemplate.queryForString("select scs_currdb from sysmaster:syssqlcurses");
     }
 
     @Override
@@ -69,7 +68,7 @@ public class InformixDbSupport extends DbSupport {
 
     @Override
     public String getCurrentUserFunction() {
-        return "select user from systables where tabid = 1";
+        return "(select user from systables where tabid = 1)";
     }
 
     @Override
@@ -89,7 +88,7 @@ public class InformixDbSupport extends DbSupport {
 
     @Override
     protected String doQuote(String identifier) {
-        return "\"" + identifier + "\"";
+        return identifier;
     }
 
     @Override
