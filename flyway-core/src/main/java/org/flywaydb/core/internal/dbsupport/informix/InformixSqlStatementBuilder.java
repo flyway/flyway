@@ -31,4 +31,12 @@ public class InformixSqlStatementBuilder extends SqlStatementBuilder {
         return delimiter;
     }
 
+    @Override
+    public Delimiter extractNewDelimiterFromLine(String line) {
+        if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
+            return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
+        }
+
+        return null;
+    }
 }
