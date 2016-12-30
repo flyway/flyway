@@ -2,7 +2,7 @@
 
 ### Database Migrations Made Easy.
 
-## This fork adds Informix support and is a work in progress
+### This fork adds Informix support and is a work in progress
 Building for Informix can be done as follows:
 ```
 mvn clean install -P InformixDBTest
