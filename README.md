@@ -2,6 +2,12 @@
 
 ### Database Migrations Made Easy.
 
+## This fork adds Informix support and is a work in progress
+Building for Informix can be done as follows:
+```
+mvn clean install -P InformixDBTest
+```
+
 ![Flyway](https://flywaydb.org/assets/logo/flyway-logo-tm.png "Flyway")
 
 #### Evolve your database schema easily and reliably across all your instances.
@@ -14,7 +20,7 @@ Windows, Mac OSX, Linux, Java and Android
 Maven, Gradle, Ant and SBT
 
 #### Supported databases
-Oracle, SQL Server, SQL Azure, DB2, DB2 z/OS, MySQL, MariaDB, Google Cloud SQL, PostgreSQL, Redshift, Vertica, H2, Hsql, Derby, SQLite
+Oracle, SQL Server, SQL Azure, DB2, DB2 z/OS, MySQL, MariaDB, Google Cloud SQL, PostgreSQL, Redshift, Vertica, H2, Hsql, Derby, SQLite, Informix
 
 #### Third party plugins
 Grails, Play!, Grunt, Griffon, Ninja, ...
