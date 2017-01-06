@@ -252,6 +252,13 @@ public interface FlywayConfiguration {
     boolean isValidateOnMigrate();
 
     /**
+     * Whether to globally commit or not when running migrate.
+     *
+     * @return {@code true} if migrate is globally atomic. {@code false} if each migration is committed. (default: {@code false})
+     */
+    boolean isMigrateAllOrNothing();
+
+    /**
      * Whether to automatically call clean or not when a validation error occurs.
      * <p> This is exclusively intended as a convenience for development. Even tough we
      * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a

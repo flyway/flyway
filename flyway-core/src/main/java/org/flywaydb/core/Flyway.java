@@ -16,6 +16,13 @@
 package org.flywaydb.core;
 
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.Callable;
+
+import javax.sql.DataSource;
+
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
@@ -23,12 +30,7 @@ import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
-import org.flywaydb.core.internal.command.DbBaseline;
-import org.flywaydb.core.internal.command.DbClean;
-import org.flywaydb.core.internal.command.DbMigrate;
-import org.flywaydb.core.internal.command.DbRepair;
-import org.flywaydb.core.internal.command.DbSchemas;
-import org.flywaydb.core.internal.command.DbValidate;
+import org.flywaydb.core.internal.command.*;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -36,32 +38,13 @@ import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.VersionPrinter;
+import org.flywaydb.core.internal.util.*;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.Scanner;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Callable;
 
 /**
  * This is the centre point of Flyway, and for most users, the only class they will ever have to deal with.
@@ -200,6 +183,11 @@ public class Flyway implements FlywayConfiguration {
      * Whether to automatically call validate or not when running migrate. (default: {@code true})
      */
     private boolean validateOnMigrate = true;
+
+    /**
+     * Whether to wrap all migrations in a single transaction, or to commit after each one. (default: {@code false})
+     */
+    private boolean migrateAllOrNothing = false;
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})
@@ -408,6 +396,11 @@ public class Flyway implements FlywayConfiguration {
     }
 
     @Override
+    public boolean isMigrateAllOrNothing() {
+        return migrateAllOrNothing;
+    }
+
+    @Override
     public boolean isCleanOnValidationError() {
         return cleanOnValidationError;
     }
@@ -513,6 +506,15 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
         this.validateOnMigrate = validateOnMigrate;
+    }
+
+    /**
+     * Whether to commit globally or not when running migrate.
+     *
+     * @param migrateAllOrNothing {@code true} if migrate is globally atomic. {@code false} if each migration is committed. (default: {@code false})
+     */
+    public void setMigrateAllOrNothing(boolean migrateAllOrNothing) {
+        this.migrateAllOrNothing = migrateAllOrNothing;
     }
 
     /**
@@ -923,7 +925,8 @@ public class Flyway implements FlywayConfiguration {
                             dbSupport.useSingleConnection() ? connectionMetaDataTable : JdbcUtils.openConnection(dataSource);
                     DbMigrate dbMigrate =
                             new DbMigrate(connectionUserObjects, dbSupport, metaDataTable,
-                                    schemas[0], migrationResolver, ignoreFailedFutureMigration, Flyway.this);
+                                    schemas[0], migrationResolver, ignoreFailedFutureMigration, Flyway.this,
+                                    isMigrateAllOrNothing());
                     return dbMigrate.migrate();
                 } finally {
                     if (!dbSupport.useSingleConnection()) {
@@ -1205,6 +1208,10 @@ public class Flyway implements FlywayConfiguration {
         String validateOnMigrateProp = getValueAndRemoveEntry(props, "flyway.validateOnMigrate");
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
+        }
+        String migrateAllOrNothingProp = getValueAndRemoveEntry(props, "flyway.migrateAllOrNothing");
+        if (migrateAllOrNothingProp != null) {
+            setMigrateAllOrNothing(Boolean.parseBoolean(migrateAllOrNothingProp));
         }
         String baselineVersionProp = getValueAndRemoveEntry(props, "flyway.baselineVersion");
         if (baselineVersionProp != null) {
