@@ -29,4 +29,10 @@ public class FlywayInfoTask extends AbstractFlywayTask {
         System.out.println(MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
         return null;
     }
+
+    @Override
+    protected Object run(String name, Flyway flyway) {
+        System.out.println("FlywayInfo for " + name);
+        return this.run(flyway);
+    }
 }
