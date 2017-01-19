@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.internal.dbsupport.db2.DB2MigrationMediumTest;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
@@ -111,6 +112,12 @@ public class ClassPathScannerSmallTest {
     @Test
     public void scanForResourcesInvalidPath() throws Exception {
         classPathScanner.scanForResources(new Location("classpath:invalid"), "V", ".sql");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void scanForResourcesInvalidPathWithException() throws Exception {
+        new ClassPathScanner(Thread.currentThread().getContextClassLoader(), true).
+            scanForResources(new Location("classpath:invalid"), "V", ".sql");
     }
 
     @Test

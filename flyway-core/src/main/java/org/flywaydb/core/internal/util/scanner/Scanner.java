@@ -30,14 +30,19 @@ public class Scanner {
     private final ResourceAndClassScanner resourceAndClassScanner;
 
     private final ClassLoader classLoader;
-    private final FileSystemScanner fileSystemScanner = new FileSystemScanner();
+    private final FileSystemScanner fileSystemScanner;
 
     public Scanner(ClassLoader classLoader) {
+        this(classLoader, false);
+    }
+
+    public Scanner(ClassLoader classLoader, boolean checkLocation) {
         this.classLoader = classLoader;
+        this.fileSystemScanner = new FileSystemScanner(checkLocation);
         if (new FeatureDetector(classLoader).isAndroidAvailable()) {
             resourceAndClassScanner = new AndroidScanner(classLoader);
         } else {
-            resourceAndClassScanner = new ClassPathScanner(classLoader);
+            resourceAndClassScanner = new ClassPathScanner(classLoader, checkLocation);
         }
     }
 

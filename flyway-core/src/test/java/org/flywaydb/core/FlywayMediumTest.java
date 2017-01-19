@@ -593,6 +593,15 @@ public class FlywayMediumTest {
         flyway.migrate();
     }
 
+    @Test(expected = FlywayException.class)
+    public void invalidLocationsWithException() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("abcd", "efgh");
+        flyway.setCheckLocation(true);
+        flyway.migrate();
+    }
+
     @Test
     public void validateOutOfOrder() {
         Flyway flyway = new Flyway();

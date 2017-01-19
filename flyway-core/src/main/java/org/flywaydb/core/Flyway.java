@@ -91,6 +91,15 @@ public class Flyway implements FlywayConfiguration {
     private Locations locations = new Locations("db/migration");
 
     /**
+     * Check that migration scripts location exists.
+     *
+     * If set to true, flyway will check the existence of migration scripts in every location, and
+     * will throw an exception if not found. If set to false, flyway will only produce warning logs
+     * notifying the user of locations that do not contain any migration scripts. (default: {@code false})
+     */
+    private boolean checkLocation;
+
+    /**
      * The encoding of Sql migrations. (default: UTF-8)
      */
     private String encoding = "UTF-8";
@@ -316,6 +325,11 @@ public class Flyway implements FlywayConfiguration {
             result[i] = locations.getLocations().get(i).toString();
         }
         return result;
+    }
+
+    @Override
+    public boolean getCheckLocation() {
+        return checkLocation;
     }
 
     @Override
@@ -552,6 +566,20 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setLocations(String... locations) {
         this.locations = new Locations(locations);
+    }
+
+    /**
+     * Check that migration scripts location exists.
+     *
+     * If set to true, flyway will check the existence of migration scripts in every location, and
+     * will throw an exception if not found. If set to false, flyway will only produce warning logs
+     * notifying the user of locations that do not contain any migration scripts.
+     *
+     * @param checkLocation {@code true} if flyway must check for migrations at given location,
+     * {@code false} if not. (default: {@code false})
+     */
+    public void setCheckLocation(boolean checkLocation) {
+        this.checkLocation = checkLocation;
     }
 
     /**
@@ -1154,6 +1182,10 @@ public class Flyway implements FlywayConfiguration {
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
         }
+        String checkLocationProp = getValueAndRemoveEntry(props, "flyway.checkLocation");
+        if (checkLocationProp != null) {
+            setCheckLocation(Boolean.parseBoolean(checkLocationProp));
+        }
         String placeholderReplacementProp = getValueAndRemoveEntry(props, "flyway.placeholderReplacement");
         if (placeholderReplacementProp != null) {
             setPlaceholderReplacement(Boolean.parseBoolean(placeholderReplacementProp));
@@ -1337,7 +1369,7 @@ public class Flyway implements FlywayConfiguration {
                 schemas[i] = dbSupport.getSchema(schemaNames[i]);
             }
 
-            Scanner scanner = new Scanner(classLoader);
+            Scanner scanner = new Scanner(classLoader, checkLocation);
             MigrationResolver migrationResolver = createMigrationResolver(dbSupport, scanner);
 
             if (!skipDefaultCallbacks) {

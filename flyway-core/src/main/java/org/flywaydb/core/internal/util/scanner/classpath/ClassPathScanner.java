@@ -69,13 +69,27 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      */
     private final Map<ClassPathLocationScanner, Map<URL, Set<String>>> resourceNameCache = new HashMap<ClassPathLocationScanner, Map<URL, Set<String>>>();
 
+    private final boolean checkLocation;
+
     /**
      * Creates a new Classpath scanner.
      *
      * @param classLoader The ClassLoader for loading migrations on the classpath.
      */
     public ClassPathScanner(ClassLoader classLoader) {
+        this(classLoader, false);
+    }
+
+    /**
+     * Creates a new Classpath scanner.
+     *
+     * @param classLoader The ClassLoader for loading migrations on the classpath.
+     * @param checkLocation If set to true, Flyway will throw an exception if the location does not
+     *                      contain any migration script.
+     */
+    public ClassPathScanner(ClassLoader classLoader, boolean checkLocation) {
         this.classLoader = classLoader;
+        this.checkLocation = checkLocation;
     }
 
     @Override
@@ -157,6 +171,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      * @param suffix   The filename suffix to match.
      * @return The resource names.
      * @throws IOException when scanning this location failed.
+     * @throws FlywayException if the location does not contain any migration script
      */
     private Set<String> findResourceNames(Location location, String prefix, String suffix) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
@@ -231,6 +246,9 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         if (!locationResolved) {
             LOG.warn("Unable to resolve location " + location);
+            if (checkLocation) {
+                throw new FlywayException("No migration detected at location " + location);
+            }
         }
 
         return filterResourceNames(resourceNames, prefix, suffix);
@@ -258,6 +276,9 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             if (!urls.hasMoreElements()) {
                 LOG.warn("Unable to resolve location " + location + " (ClassLoader: " + classLoader + ")"
                         + " On WebSphere an empty file named flyway.location must be present on the classpath location for WebSphere to find it!");
+                if (checkLocation) {
+                    throw new FlywayException("No migration detected at location " + location);
+                }
             }
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();

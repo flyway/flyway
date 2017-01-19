@@ -205,6 +205,11 @@ public interface FlywayConfiguration {
     String[] getLocations();
 
     /**
+     * @return True if flyway will check the existence of migrations at given location.
+     */
+    boolean getCheckLocation();
+
+    /**
      * <p>
      * Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table.
      * This schema will then be initialized with the {@code baselineVersion} before executing the migrations.

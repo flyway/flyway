@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.Location;
 import org.junit.Test;
 
@@ -24,6 +25,11 @@ import org.junit.Test;
 public class FileSystemScannerMediumTest {
     @Test
     public void nonExistentDirectory() throws Exception {
-        new FileSystemScanner().scanForResources(new Location("filesystem:/invalid-path"), "", "");
+        new FileSystemScanner(false).scanForResources(new Location("filesystem:/invalid-path"), "", "");
+    }
+
+    @Test(expected = FlywayException.class)
+    public void nonExistentDirectoryWithException() throws Exception {
+        new FileSystemScanner(true).scanForResources(new Location("filesystem:/invalid-path"), "", "");
     }
 }
