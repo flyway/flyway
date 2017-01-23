@@ -86,7 +86,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
             Map<String, String> placeholders = new HashMap<String, String>();
             placeholders.put("schema", table.getSchema().getName());
-            checkDb2zos(placeholders, dbname);
+            checkDbname(placeholders, dbname);
             placeholders.put("table", table.getName());
             String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
@@ -112,7 +112,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", table.getSchema().getName());
-        checkDb2zos(placeholders, dbname);
+        checkDbname(placeholders, dbname);
         placeholders.put("table", table.getName());
         String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
@@ -125,7 +125,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     /**
      * Check if the dbname for db2zos tablespace is determined
      */
-    private void checkDb2zos(Map<String, String> placeholders, String dbname) {
+    private void checkDbname(Map<String, String> placeholders, String dbname) {
         if ("db2zos".equals(dbSupport.getDbName())) {
             if (dbname == null) {
                 throw new FlywayException("Unable to determine dbname for the metadata tablespace" +
