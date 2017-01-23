@@ -20,6 +20,6 @@ CREATE TABLE test_user (
   id INT NOT NULL,
   name VARCHAR(25) NOT NULL,  -- this is a valid ' comment
   PRIMARY KEY(name)  /* and so is this ! */
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
 
 CREATE UNIQUE INDEX test_user_pk_idx ON test_user (name ASC);

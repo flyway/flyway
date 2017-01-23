@@ -19,21 +19,21 @@ SET CURRENT SQLID = 'AURINT';
 CREATE TABLE "user" (
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
 
 CREATE TABLE "group" (
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
 
 CREATE TABLE "table" (
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
 
 CREATE UNIQUE INDEX table_pk_idx ON "table" (name);
 
 CREATE TABLE "dol$lar" (
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;

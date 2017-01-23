@@ -17,7 +17,7 @@
 SET CURRENT SQLID = '${schema}';
 
 CREATE TABLESPACE SFLYWAY
-      IN "${schema}"
+      IN ${dbname}
       SEGSIZE 4
       BUFFERPOOL BP0
       LOCKSIZE PAGE
@@ -40,7 +40,7 @@ CREATE TABLE "${schema}"."TMP_${table}" (
     "success" SMALLINT NOT NULL,
     CONSTRAINT "${table}_S" CHECK ("success" in(0,1))
 )
-IN "${schema}".SFLYWAY;
+IN ${dbname}.SFLYWAY;
 
 
 INSERT INTO "${schema}"."TMP_${table}"(
@@ -58,7 +58,7 @@ SELECT
 FROM "${schema}"."${table}");
 
 --drop old tablespace
-DROP TABLESPACE "${schema}".SDBVERS;
+DROP TABLESPACE ${dbname}.SDBVERS;
 
 RENAME TABLE "${schema}"."TMP_${table}" TO "${table}";
 

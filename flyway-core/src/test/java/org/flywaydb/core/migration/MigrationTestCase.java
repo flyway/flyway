@@ -85,6 +85,7 @@ public abstract class MigrationTestCase {
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
         configureFlyway();
+        flyway.configure(customProperties);
         flyway.clean();
     }
 

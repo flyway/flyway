@@ -31,9 +31,6 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -74,19 +71,6 @@ public abstract class ConcurrentMigrationTestCase {
 
     @Before
     public void setUp() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
-        concurrentMigrationDataSource = createDataSource(customProperties);
-
-        Connection connection = concurrentMigrationDataSource.getConnection();
-        final DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
-        schemaName = getSchemaName(dbSupport);
-        schemaQuoted = dbSupport.quote(schemaName);
-        connection.close();
-
         flyway = createFlyway();
         flyway.clean();
         flyway.baseline();
@@ -152,17 +136,27 @@ public abstract class ConcurrentMigrationTestCase {
         }
     }
 
-    private Flyway createFlyway() throws SQLException {
+    private Flyway createFlyway() throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        Properties customProperties = new Properties();
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+        concurrentMigrationDataSource = createDataSource(customProperties);
+        Connection connection = concurrentMigrationDataSource.getConnection();
+        final DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
+        schemaName = getSchemaName(dbSupport);
+        schemaQuoted = dbSupport.quote(schemaName);
+        connection.close();
+
         Flyway newFlyway = new Flyway();
+        newFlyway.configure(customProperties);
         newFlyway.setDataSource(concurrentMigrationDataSource);
         newFlyway.setLocations(getBasedir());
         newFlyway.setSchemas(schemaName);
-
-        Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", schemaQuoted);
-
-        newFlyway.setPlaceholders(placeholders);
+        newFlyway.getPlaceholders().put("schema", schemaQuoted);
         newFlyway.setBaselineVersionAsString("0.1");
+
         return newFlyway;
     }
 }

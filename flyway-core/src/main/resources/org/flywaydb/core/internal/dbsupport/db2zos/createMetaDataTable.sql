@@ -17,7 +17,7 @@
 SET CURRENT SQLID = '${schema}';
 
 CREATE TABLESPACE SFLYWAY
-      IN "${schema}"
+      IN ${dbname}
       SEGSIZE 4
       BUFFERPOOL BP0
       LOCKSIZE PAGE
@@ -39,7 +39,7 @@ CREATE TABLE "${schema}"."${table}" (
     "success" SMALLINT NOT NULL,
     CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
 )
-IN "${schema}".SFLYWAY;
+IN ${dbname}.SFLYWAY;
 
 CREATE UNIQUE INDEX "${schema}"."${table}_IR_IDX" ON "${schema}"."${table}" ("installed_rank");
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_PK" PRIMARY KEY ("installed_rank");

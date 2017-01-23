@@ -20,7 +20,7 @@ CREATE TABLE EMPLOYEE (
     "ID" integer not null,
      "NAME" varchar(100)
 )
- IN "AURINT".SPERS;
+ IN ${dbname}.SPERS;
 
 -- Indexes and constraints
 CREATE UNIQUE INDEX EMPLOYEE_pk_idx ON EMPLOYEE (id ASC);

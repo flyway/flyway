@@ -1351,7 +1351,7 @@ public class Flyway implements FlywayConfiguration {
                 ConfigurationInjectionUtils.injectFlywayConfiguration(callback, this);
             }
 
-            MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+            MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), placeholders.get("dbname"));
             if (metaDataTable.upgradeIfNecessary()) {
                 new DbRepair(dbSupport, connectionMetaDataTable, schemas[0], migrationResolver, metaDataTable, callbacks).repairChecksums();
                 LOG.info("Metadata table " + table + " successfully upgraded to the Flyway 4.0 format.");

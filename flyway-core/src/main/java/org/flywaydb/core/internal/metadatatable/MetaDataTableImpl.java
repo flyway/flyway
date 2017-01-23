@@ -55,20 +55,26 @@ public class MetaDataTableImpl implements MetaDataTable {
     private final Table table;
 
     /**
+     * The database where the metadata table used by flyway lives in.
+     */
+    private final String dbname;
+
+    /**
      * JdbcTemplate with ddl manipulation access to the database.
      */
     private final JdbcTemplate jdbcTemplate;
 
     /**
      * Creates a new instance of the metadata table support.
-     *
      * @param dbSupport Database-specific functionality.
      * @param table     The metadata table used by flyway.
+     * @param dbname    The database where the metadata table used by flyway lives in.
      */
-    public MetaDataTableImpl(DbSupport dbSupport, Table table) {
+    public MetaDataTableImpl(DbSupport dbSupport, Table table, String dbname) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;
+        this.dbname = dbname;
     }
 
     @Override
@@ -80,6 +86,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
             Map<String, String> placeholders = new HashMap<String, String>();
             placeholders.put("schema", table.getSchema().getName());
+            checkDb2zos(placeholders, dbname);
             placeholders.put("table", table.getName());
             String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
@@ -105,6 +112,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("schema", table.getSchema().getName());
+        checkDb2zos(placeholders, dbname);
         placeholders.put("table", table.getName());
         String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
@@ -112,6 +120,19 @@ public class MetaDataTableImpl implements MetaDataTable {
         sqlScript.execute(jdbcTemplate);
 
         LOG.debug("Metadata table " + table + " created.");
+    }
+
+    /**
+     * Check if the dbname for db2zos tablespace is determined
+     */
+    private void checkDb2zos(Map<String, String> placeholders, String dbname) {
+        if ("db2zos".equals(dbSupport.getDbName())) {
+            if (dbname == null) {
+                throw new FlywayException("Unable to determine dbname for the metadata tablespace" +
+                        " Set a placeholder with dbname  \"flyway.placeholders.dbname=value\" ");
+            }
+            placeholders.put("dbname", dbname);
+        }
     }
 
     @Override

@@ -21,4 +21,4 @@ CREATE TABLE PERSON (
      firstname VARCHAR(255) NOT NULL,
      lastname VARCHAR(255) NOT NULL
 )
- IN "AURINT".SPERS;
+ IN ${dbname}.SPERS;

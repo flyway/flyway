@@ -20,6 +20,8 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.dbsupport.Type;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,6 +31,9 @@ import java.util.List;
  * DB2 implementation of Schema.
  */
 public class DB2zosSchema extends Schema<DB2zosDbSupport> {
+
+    private static final Log LOG = LogFactory.getLog(DB2zosSchema.class);
+
     /**
      * Creates a new DB2 schema.
      *
@@ -43,28 +48,29 @@ public class DB2zosSchema extends Schema<DB2zosDbSupport> {
 
     @Override
     protected boolean doExists() throws SQLException {
-
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM sysibm.sysdatabase WHERE name=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSIBM.SYSTABLES WHERE CREATOR=?", name) > 0;
     }
+
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt("select count(*) from sysibm.systables where dbname = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from sysibm.systables where creator = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from sysibm.syssequences where schema = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from sysibm.sysindexes where dbname = ?", name);
-        objectCount += jdbcTemplate.queryForInt("select count(*) from sysibm.sysroutines where schema = ?", name);
+        int objectCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSIBM.SYSTABLES WHERE CREATOR = ?", name);
+        objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSIBM.SYSSEQUENCES WHERE SCHEMA = ?", name);
+        objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSIBM.SYSINDEXES WHERE CREATOR = ?", name);
+        objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSIBM.SYSROUTINES WHERE SCHEMA = ?", name);
+        objectCount += jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSIBM.SYSDATATYPES WHERE SCHEMA = ?", name);
         return objectCount == 0;
     }
 
     @Override
     protected void doCreate() throws SQLException {
-        throw new UnsupportedOperationException("Create Schema - is not supported in db2 on zOS");
+        LOG.warn("Create Schema - is not supported in db2 on zOS");
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        throw new UnsupportedOperationException("Drop Schema - is not supported in db2 on zOS");
+        LOG.warn("Drop Schema - is not supported in db2 on zOS, doing dbClean() instead");
+        doClean();
     }
 
     @Override
@@ -73,47 +79,47 @@ public class DB2zosSchema extends Schema<DB2zosDbSupport> {
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
         // views
-        for (String dropStatement : generateDropStatements(name, "V", "VIEW")) {
+        for (String dropStatement : generateDropStatements("V", "VIEW")) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // aliases
-        for (String dropStatement : generateDropStatements(name, "A", "ALIAS")) {
+        for (String dropStatement : generateDropStatements("A", "ALIAS")) {
             jdbcTemplate.execute(dropStatement);
         }
 
+        // drop tables - tablespaces
+        for (String dropStatement : generateDropStatementsForTablespace()) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
+        // drop tables which are not dropped before
         for (Table table : allTables()) {
             table.drop();
         }
 
         // slett testtabeller
-        for (String dropStatement : generateDropStatementsForTestTable(name, "T", "TABLE")) {
-            jdbcTemplate.execute(dropStatement);
-        }
-
-
-        // tablespace
-        for (String dropStatement : generateDropStatementsForTablespace(name)) {
+        for (String dropStatement : generateDropStatementsForTestTable("T", "TABLE")) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // sequences
-        for (String dropStatement : generateDropStatementsForSequences(name)) {
+        for (String dropStatement : generateDropStatementsForSequences()) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // procedures
-        for (String dropStatement : generateDropStatementsForProcedures(name)) {
+        for (String dropStatement : generateDropStatementsForProcedures()) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // functions
-        for (String dropStatement : generateDropStatementsForFunctions(name)) {
+        for (String dropStatement : generateDropStatementsForFunctions()) {
             jdbcTemplate.execute(dropStatement);
         }
 
         // usertypes
-        for (String dropStatement : generateDropStatementsForUserTypes(name)) {
+        for (String dropStatement : generateDropStatementsForUserTypes()) {
             jdbcTemplate.execute(dropStatement);
         }
     }
@@ -121,95 +127,126 @@ public class DB2zosSchema extends Schema<DB2zosDbSupport> {
     /**
      * Generates DROP statements for the procedures in this schema.
      *
-     * @param schema The schema of the objects.
      * @return The drop statements.
      * @throws java.sql.SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatementsForProcedures(String schema) throws SQLException {
-        String dropProcGenQuery = "select rtrim(NAME) from SYSIBM.SYSROUTINES where CAST_FUNCTION = 'N' " +
-                " and ROUTINETYPE  = 'P' and SCHEMA = '" + schema + "'";
-        return buildDropStatements("DROP PROCEDURE", dropProcGenQuery, schema);
+    private List<String> generateDropStatementsForProcedures() throws SQLException {
+        String dropProcGenQuery = "SELECT TRIM(NAME) " +
+                                    "FROM SYSIBM.SYSROUTINES " +
+                                   "WHERE CAST_FUNCTION = 'N' " +
+                                     "AND ROUTINETYPE  = 'P' " +
+                                     "AND SCHEMA = '" + name + "'";
+        return buildDropStatements("DROP PROCEDURE", dropProcGenQuery, name);
     }
 
     /**
      * Generates DROP statements for the functions in this schema.
      *
-     * @param schema The schema of the objects.
      * @return The drop statements.
      * @throws java.sql.SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatementsForFunctions(String schema) throws SQLException {
-        String dropProcGenQuery = "select rtrim(NAME) from SYSIBM.SYSROUTINES where CAST_FUNCTION = 'N' " +
-                " and ROUTINETYPE  = 'F' and SCHEMA = '" + schema + "'";
-        return buildDropStatements("DROP FUNCTION", dropProcGenQuery, schema);
+    private List<String> generateDropStatementsForFunctions() throws SQLException {
+        String dropProcGenQuery = "SELECT TRIM(NAME) " +
+                                    "FROM SYSIBM.SYSROUTINES " +
+                                   "WHERE CAST_FUNCTION = 'N' " +
+                                     "AND ROUTINETYPE  = 'F' " + "" +
+                                     "AND SCHEMA = '" + name + "'";
+        return buildDropStatements("DROP FUNCTION", dropProcGenQuery, name);
     }
 
     /**
      * Generates DROP statements for the sequences in this schema.
      *
-     * @param schema The schema of the objects.
      * @return The drop statements.
      * @throws java.sql.SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatementsForSequences(String schema) throws SQLException {
-        String dropSeqGenQuery = "select rtrim(NAME) from SYSIBM.SYSSEQUENCES where SCHEMA = '" + schema
-                + "' and SEQTYPE='S'";
-        return buildDropStatements("DROP SEQUENCE", dropSeqGenQuery, schema);
+    private List<String> generateDropStatementsForSequences() throws SQLException {
+        String dropSeqGenQuery = "SELECT TRIM(NAME) " +
+                                   "FROM SYSIBM.SYSSEQUENCES " +
+                                  "WHERE SCHEMA = '" + name + "'" +
+                                    "AND SEQTYPE='S'";
+        return buildDropStatements("DROP SEQUENCE", dropSeqGenQuery, name);
     }
 
     /**
      * Generates DROP statements for the tablespace in this schema.
+     * drop tablespace <dbname>.<tablespacename>;
      *
-     * @param schema The schema of the objects.
      * @return The drop statements.
      * @throws java.sql.SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatementsForTablespace(String schema) throws SQLException {
-        String dropTablespaceGenQuery = "select rtrim(NAME) FROM SYSIBM.SYSTABLESPACE where DBNAME = '" + schema + "'";
-        return buildDropStatements("DROP TABLESPACE", dropTablespaceGenQuery, schema);
-    }
+    private List<String> generateDropStatementsForTablespace() throws SQLException {
+        List<String> dropStatements;
 
+        // all tablespaces (with tables) with CREATOR = name
+        // a tablespace can contain nothing, one or many tables
+        String dropTablespaceGenQuery = "SELECT DISTINCT TRIM(DBNAME) || '.' || TRIM(TSNAME) " +
+                                          "FROM SYSIBM.SYSTABLES T1 " +
+                                         "WHERE CREATOR = '"  + name + "' " +
+                                           "AND NOT EXISTS (SELECT 1 " +
+                                                             "FROM SYSIBM.SYSTABLES T2 " +
+                                                            "WHERE T2.TSNAME = T1.TSNAME " +
+                                                              "AND T2.DBNAME = T1.DBNAME " +
+                                                              "AND T2.CREATOR <> T1.CREATOR); ";
+        dropStatements = generateDropTablespaces(dropTablespaceGenQuery);
+
+        // all tablespaces (with no tables) with CREATOR = name
+        String dropTablespaceWithoutTableGenQuery = "SELECT DISTINCT TRIM(DBNAME) || '.' || TRIM(NAME) " +
+                                                      "FROM SYSIBM.SYSTABLESPACE T1 " +
+                                                     "WHERE CREATOR = '"  + name + "' " +
+                                                       "AND NOT EXISTS (SELECT 1 " +
+                                                                         "FROM SYSIBM.SYSTABLES T2 " +
+                                                                        "WHERE T2.TSNAME = T1.NAME " +
+                                                                          "AND T2.DBNAME = T1.DBNAME " +
+                                                                          "AND T2.CREATOR = T1.CREATOR); ";
+        dropStatements.addAll(generateDropTablespaces(dropTablespaceWithoutTableGenQuery));
+
+        return dropStatements;
+    }
 
     /**
      * Generates DROP statements for this type of table, representing this type of object in this schema.
      *
-     * @param schema     The schema of the objects.
      * @param tableType  The type of table (Can be T, V, S, ...).
      * @param objectType The type of object.
      * @return The drop statements.
      * @throws java.sql.SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatementsForTestTable(String schema, String tableType, String objectType) throws SQLException {
-        String dropTablesGenQuery = "select rtrim(NAME) from SYSIBM.SYSTABLES where TYPE='" + tableType + "' and creator = '"
-                + schema + "'";
-        return buildDropStatements("DROP " + objectType, dropTablesGenQuery, schema);
+    private List<String> generateDropStatementsForTestTable(String tableType, String objectType) throws SQLException {
+        String dropTablesGenQuery = "SELECT TRIM(NAME) " +
+                                      "FROM SYSIBM.SYSTABLES " +
+                                     "WHERE TYPE = '" + tableType + "'" +
+                                       "AND CREATOR = '"  + name + "'";
+        return buildDropStatements("DROP " + objectType, dropTablesGenQuery, name);
     }
 
     /**
      * Generates DROP statements for the user defines types in this schema.
      *
-     * @param schema The schema of the objects.
      * @return The drop statements.
      * @throws java.sql.SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatementsForUserTypes(String schema) throws SQLException {
-        String dropTablespaceGenQuery = "select rtrim(NAME) from SYSIBM.SYSDATATYPES where schema = '" + schema + "'";
-        return buildDropStatements("DROP TYPE", dropTablespaceGenQuery, schema);
+    private List<String> generateDropStatementsForUserTypes() throws SQLException {
+        String dropDataTypesGenQuery = "SELECT TRIM(NAME) " +
+                                         "FROM SYSIBM.SYSDATATYPES " +
+                                        "WHERE SCHEMA = '" + name + "'";
+        return buildDropStatements("DROP TYPE", dropDataTypesGenQuery, name);
     }
 
     /**
      * Generates DROP statements for this type of table, representing this type of object in this schema.
      *
-     * @param schema     The schema of the objects.
      * @param tableType  The type of table (Can be T, V, S, ...).
      * @param objectType The type of object.
      * @return The drop statements.
      * @throws java.sql.SQLException when the statements could not be generated.
      */
-    private List<String> generateDropStatements(String schema, String tableType, String objectType) throws SQLException {
-        String dropTablesGenQuery = "select rtrim(NAME) from SYSIBM.SYSTABLES where TYPE='" + tableType + "' and (DBNAME = '"
-                + schema + "' OR creator = '" + schema + "')";
-        return buildDropStatements("DROP " + objectType, dropTablesGenQuery, schema);
+    private List<String> generateDropStatements(String tableType, String objectType) throws SQLException {
+        String dropTablesGenQuery = "SELECT TRIM(NAME) " +
+                                      "FROM SYSIBM.SYSTABLES " +
+                                     "WHERE TYPE = '" + tableType + "'" +
+                                       "AND CREATOR = '" + name + "'";
+        return buildDropStatements("DROP " + objectType, dropTablesGenQuery, name);
     }
 
     /**
@@ -225,7 +262,23 @@ public class DB2zosSchema extends Schema<DB2zosDbSupport> {
         List<String> dropStatements = new ArrayList<String>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(query);
         for (String dbObject : dbObjects) {
-            dropStatements.add(dropPrefix + " " + dbSupport.quote(schema, dbObject));
+            dropStatements.add(dropPrefix + " " + dbSupport.quote(schema, dbObject) + ";");
+        }
+        return dropStatements;
+    }
+
+    /**
+     * Builds the drop statements for tablespace objects in this schema.
+     *
+     * @param query      The query to get all present database objects
+     * @return The statements.
+     * @throws java.sql.SQLException when the drop statements could not be built.
+     */
+    private List<String> generateDropTablespaces(String query) throws SQLException {
+        List<String> dropStatements = new ArrayList<String>();
+        List<String> dbObjects = jdbcTemplate.queryForStringList(query);
+        for (String dbObject : dbObjects) {
+            dropStatements.add("DROP TABLESPACE" + " " + dbObject + ";");
         }
         return dropStatements;
     }
@@ -233,7 +286,7 @@ public class DB2zosSchema extends Schema<DB2zosDbSupport> {
     @Override
     protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
-                "select rtrim(NAME) from SYSIBM.SYSTABLES where TYPE='T' and DBNAME = ?", name);
+                "select trim(NAME) from SYSIBM.SYSTABLES where TYPE='T' and CREATOR = ?", name);
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new DB2zosTable(jdbcTemplate, dbSupport, this, tableNames.get(i));

@@ -15,27 +15,8 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2zos;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
 import org.flywaydb.core.DbCategory;
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.MigrationInfo;
-import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -51,6 +32,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Properties;
+
+import static org.junit.Assert.*;
 
 @Category(DbCategory.DB2zOS.class)
 public class DB2zOSMigrationMediumTest extends MigrationTestCase {
@@ -97,7 +85,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
     @Override
     protected void createFlyway3MetadataTable() throws Exception {
         jdbcTemplate.execute("CREATE TABLESPACE " + "\"SDBVERS\"" +
-                "       IN AURINT " +
+                "       IN " + flyway.getPlaceholders().get("dbname") +
                 "       SEGSIZE 4 " +
                 "       BUFFERPOOL BP0 " +
                 "       LOCKSIZE PAGE " +
@@ -118,14 +106,14 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
                 "    \"success\" SMALLINT NOT NULL,\n" +
                 "    CONSTRAINT \"schema_version_s\" CHECK (\"success\" in(0,1))\n" +
                 ")\n" +
-                "IN AURINT.\"SDBVERS\";");
+                "IN " + flyway.getPlaceholders().get("dbname") + ".\"SDBVERS\";");
     }
 
     @Override
     protected void createTestTable() throws SQLException {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
-                "  PRIMARY KEY(name)) IN AURINT.SPERS;");
+                "  PRIMARY KEY(name)) IN " + flyway.getPlaceholders().get("dbname") + ".SPERS;");
     }
 
     protected String getAliasLocation() {
@@ -188,25 +176,25 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
     }
 
     protected void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank, String version, String description, String type, String script, Integer checksum, String installedBy,
-            int executionTime, boolean success) throws SQLException {
+                                                  int executionTime, boolean success) throws SQLException {
         jdbcTemplate.execute("INSERT INTO AURINT" + "." + dbSupport.quote("SCHEMA_VERSION")
-                + " (" + dbSupport.quote("version_rank")
-                + "," + dbSupport.quote("installed_rank")
-                + "," + dbSupport.quote("version")
-                + "," + dbSupport.quote("description")
-                + "," + dbSupport.quote("type")
-                + "," + dbSupport.quote("script")
-                + "," + dbSupport.quote("checksum")
-                + "," + dbSupport.quote("installed_by")
-                + "," + dbSupport.quote("execution_time")
-                + "," + dbSupport.quote("success")
-                + ") VALUES (?,?,?,?,?,?,?,?,?,?)",
+                        + " (" + dbSupport.quote("version_rank")
+                        + "," + dbSupport.quote("installed_rank")
+                        + "," + dbSupport.quote("version")
+                        + "," + dbSupport.quote("description")
+                        + "," + dbSupport.quote("type")
+                        + "," + dbSupport.quote("script")
+                        + "," + dbSupport.quote("checksum")
+                        + "," + dbSupport.quote("installed_by")
+                        + "," + dbSupport.quote("execution_time")
+                        + "," + dbSupport.quote("success")
+                        + ") VALUES (?,?,?,?,?,?,?,?,?,?)",
                 versionRank, installedRank, version, description, type, script, checksum, installedBy, executionTime, success);
     }
 
     /**
      * Override setUp to create DB2 table space.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -214,7 +202,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         jdbcTemplate.execute("CREATE TABLESPACE SPERS " +
-                "       IN AURINT " +
+                "       IN " + flyway.getPlaceholders().get("dbname") +
                 "       SEGSIZE 4 " +
                 "       BUFFERPOOL BP0 " +
                 "       LOCKSIZE PAGE " +
@@ -225,14 +213,14 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override tearDown to delete DB2 table space.
-     * 
+     *
      * @throws Exception
      */
     @Override
     @After
     public void tearDown() throws Exception {
         try {
-            jdbcTemplate.execute("DROP TABLESPACE AURINT.SPERS\n");
+            jdbcTemplate.execute("DROP TABLESPACE " + flyway.getPlaceholders().get("dbname") + ".SPERS;");
         } catch (SQLException e) {
             if (!e.getMessage().contains("-204")) {
                 fail();
@@ -262,7 +250,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         assertEquals("1.1", flyway.info().current().getVersion().toString());
 
-        jdbcTemplate.update("DROP TABLESPACE AURINT.SFLYWAY\n");
+        jdbcTemplate.update("DROP TABLESPACE " + flyway.getPlaceholders().get("dbname") + ".SFLYWAY;");
         flyway.setBaselineVersionAsString("1.1");
         flyway.setBaselineDescription("initial version 1.1");
         flyway.baseline();
@@ -319,9 +307,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         String tableName = "before_the_error";
 
         flyway.setLocations(getBasedir() + "/failed");
-        Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("tableName", dbSupport.quote(tableName));
-        flyway.setPlaceholders(placeholders);
+        flyway.getPlaceholders().put("tableName", dbSupport.quote(tableName));
         flyway.baseline();
 
         try {
@@ -411,7 +397,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
             // Expected
         }
 
-        flyway.setIgnoreFailedFutureMigration(true);
+        flyway.setIgnoreFutureMigrations(true);
         flyway.setLocations(getMigrationDir());
         flyway.migrate();
     }
@@ -435,7 +421,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
             // Expected
         }
 
-        flyway.setIgnoreFailedFutureMigration(true);
+        flyway.setIgnoreFutureMigrations(true);
         try {
             flyway.migrate();
             fail();
@@ -450,7 +436,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void init() throws Exception {
-        query = "SELECT COUNT(*) FROM sysibm.systables WHERE dbname = 'AURINT'";
+        query = "SELECT COUNT(*) FROM sysibm.systables WHERE creator = 'AURINT'";
 
         flyway.baseline();
         int countTablesAfterInit = jdbcTemplate.queryForInt(query);
@@ -489,6 +475,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
     @Test
     public void migrate() throws Exception {
         flyway.setLocations(getBasedir() + "/default");
+        flyway.clean();
         flyway.baseline();
         flyway.migrate();
         MigrationVersion version = flyway.info().current().getVersion();
@@ -514,7 +501,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
     @Test
     public void migrateCRUD() throws Exception {
 
-        query = "SELECT COUNT(*) FROM sysibm.systables WHERE dbname = 'AURINT'";
+        query = "SELECT COUNT(*) FROM sysibm.systables WHERE creator = 'AURINT'";
 
         flyway.setLocations(getMigrationDir());
 
@@ -538,17 +525,15 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
      * @throws Exception
      */
     @Override
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void migrateMultipleSchemas() throws Exception {
         flyway.setSchemas("flyway_1", "flyway_2", "flyway_3");
         flyway.clean();
 
         flyway.setLocations("migration/multi");
-        Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema1", dbSupport.quote("flyway_1"));
-        placeholders.put("schema2", dbSupport.quote("flyway_2"));
-        placeholders.put("schema3", dbSupport.quote("flyway_3"));
-        flyway.setPlaceholders(placeholders);
+        flyway.getPlaceholders().put("schema1", dbSupport.quote("flyway_1"));
+        flyway.getPlaceholders().put("schema2", dbSupport.quote("flyway_2"));
+        flyway.getPlaceholders().put("schema3", dbSupport.quote("flyway_3"));
         flyway.migrate();
         assertEquals("2.0", flyway.info().current().getVersion().toString());
         assertEquals("Add foreign key", flyway.info().current().getDescription());
@@ -647,7 +632,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override outOfOrderMultipleRankIncrease. Setting schema and table space in SQL.
-     * 
+     *
      */
     @Override
     @Test
@@ -666,7 +651,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override quote. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -681,7 +666,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override quotesAroundTableName. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -694,7 +679,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override repair. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -721,7 +706,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override repairChecksum. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -768,7 +753,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override semicolonWithinStringLiteral. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -803,19 +788,18 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
      * @throws Exception
      */
     @Override
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void setCurrentSchema() throws Exception {
-        Schema schema = dbSupport.getSchema("current_schema_test");
+        //Name of an authorization ID or name of a security label. 8 bytes
+        Schema schema = dbSupport.getSchema("sch_test");
         try {
             schema.create();
 
-            flyway.setSchemas("current_schema_test");
+            flyway.setSchemas("sch_test");
             flyway.clean();
 
             flyway.setLocations("migration/current_schema");
-            Map<String, String> placeholders = new HashMap<String, String>();
-            placeholders.put("schema1", dbSupport.quote("current_schema_test"));
-            flyway.setPlaceholders(placeholders);
+            flyway.getPlaceholders().put("schema1", dbSupport.quote("sch_test"));
             flyway.migrate();
         } finally {
             schema.drop();
@@ -824,7 +808,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override subDir. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -837,7 +821,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override tableExists. Schema not same as user in DB2.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -850,7 +834,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override target. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -891,7 +875,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override upgradeMetadataTableTo40Format. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -902,7 +886,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
                 "id INT NOT NULL,\n" +
                 "name VARCHAR(25) NOT NULL,  -- this is a valid ' comment\n" +
                 "PRIMARY KEY(name)  /* and so is this ! */\n" +
-                ") IN AURINT.SPERS;");
+                ") IN " + flyway.getPlaceholders().get("dbname") + ".SPERS;");
         insertIntoFlyway3MetadataTable(jdbcTemplate, 1, 1, "0.1", "<< INIT >>", "INIT", "<< INIT >>", null, "flyway3", 0, true);
         insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__First.sql", 1234, "flyway3", 15, true);
         flyway.setLocations(getMigrationDir());
@@ -914,7 +898,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Override validateClean. Setting schema and table space in SQL.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -931,7 +915,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         flyway.setSqlMigrationPrefix("CheckValidate");
 
         flyway.validate();
-        assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM sysibm.systables WHERE owner='AURINT'"));
+        assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM sysibm.systables WHERE creator = 'AURINT'"));
     }
 
     @Test
@@ -940,4 +924,5 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         flyway.baseline();
         flyway.migrate();
     }
+
 }
