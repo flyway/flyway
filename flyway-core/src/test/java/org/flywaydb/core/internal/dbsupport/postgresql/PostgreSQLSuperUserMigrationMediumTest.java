@@ -47,7 +47,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
 
         flyway = new Flyway();
         flyway.setSchemas("super_user_test");
-        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, "postgres", password));
+        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, "postgres", password, null));
         flyway.setValidateOnMigrate(true);
         flyway.clean();
     }

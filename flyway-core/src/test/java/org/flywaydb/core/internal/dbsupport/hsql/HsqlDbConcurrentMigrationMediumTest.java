@@ -30,6 +30,6 @@ import java.util.Properties;
 public class HsqlDbConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:hsqldb:mem:flyway_db_concurrent", "SA", "");
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:hsqldb:mem:flyway_db_concurrent", "SA", "", null);
     }
 }

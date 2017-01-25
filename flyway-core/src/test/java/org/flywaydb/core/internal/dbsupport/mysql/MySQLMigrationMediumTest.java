@@ -38,7 +38,7 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
         String password = customProperties.getProperty("mysql.password", "flyway");
         String url = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 
     @Test

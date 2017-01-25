@@ -33,6 +33,6 @@ public class MsSQLServerCaseSensitiveMigrationMediumTest extends SQLServerCaseSe
         String password = customProperties.getProperty("sqlserver.password", "flyway");
         String url = customProperties.getProperty("sqlserver.ms_url", "jdbc:sqlserver://localhost:1433;databaseName=flyway_db_ms_case_sensitive");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 }

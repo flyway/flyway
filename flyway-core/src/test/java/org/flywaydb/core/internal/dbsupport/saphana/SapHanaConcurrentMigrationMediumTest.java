@@ -35,7 +35,7 @@ public class SapHanaConcurrentMigrationMediumTest extends ConcurrentMigrationTes
         String password = customProperties.getProperty("saphana.password", "XXXXXXXXXXXXXXXXXXXX");
         String url = customProperties.getProperty("saphana.url", "jdbc:sap://localhost:30XXX");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 
     protected String getBasedir() {

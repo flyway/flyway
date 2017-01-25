@@ -34,6 +34,6 @@ public class VerticaConcurrentMigrationMediumTest extends ConcurrentMigrationTes
         String password = customProperties.getProperty("vertica.password", "flyway");
         String url = customProperties.getProperty("vertica.url", "jdbc:vertica://localhost/flyway");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 }

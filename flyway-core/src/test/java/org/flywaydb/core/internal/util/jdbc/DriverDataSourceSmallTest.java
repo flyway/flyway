@@ -31,7 +31,7 @@ public class DriverDataSourceSmallTest {
         String password = "superS3cr3t";
 
         try {
-            new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password).getConnection();
+            new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null).getConnection();
         } catch (FlywayException e) {
             assertTrue(e.getCause() instanceof SQLException);
             assertTrue(e.getMessage().contains(url));

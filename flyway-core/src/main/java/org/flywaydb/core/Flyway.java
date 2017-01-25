@@ -276,11 +276,6 @@ public class Flyway implements FlywayConfiguration {
     private boolean skipDefaultResolvers;
 
     /**
-     * Whether Flyway created the DataSource.
-     */
-    private boolean createdDataSource;
-
-    /**
      * The dataSource to use to access the database. Must have the necessary privileges to execute ddl.
      */
     private DataSource dataSource;
@@ -713,7 +708,6 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        createdDataSource = false;
     }
 
     /**
@@ -727,8 +721,7 @@ public class Flyway implements FlywayConfiguration {
      * @param initSqls The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      */
     public void setDataSource(String url, String user, String password, String... initSqls) {
-        this.dataSource = new DriverDataSource(classLoader, null, url, user, password, initSqls);
-        createdDataSource = true;
+        this.dataSource = new DriverDataSource(classLoader, null, url, user, password, null, initSqls);
     }
 
     /**
@@ -1144,7 +1137,7 @@ public class Flyway implements FlywayConfiguration {
         String passwordProp = getValueAndRemoveEntry(props, "flyway.password");
 
         if (StringUtils.hasText(urlProp)) {
-            setDataSource(new DriverDataSource(classLoader, driverProp, urlProp, userProp, passwordProp));
+            setDataSource(new DriverDataSource(classLoader, driverProp, urlProp, userProp, passwordProp, null));
         } else if (!StringUtils.hasText(urlProp) &&
                 (StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! flyway.url must be set.");
@@ -1360,10 +1353,6 @@ public class Flyway implements FlywayConfiguration {
             result = command.execute(connectionMetaDataTable, migrationResolver, metaDataTable, dbSupport, schemas, callbacks);
         } finally {
             JdbcUtils.closeConnection(connectionMetaDataTable);
-
-            if ((dataSource instanceof DriverDataSource) && createdDataSource) {
-                ((DriverDataSource) dataSource).close();
-            }
         }
         return result;
     }
