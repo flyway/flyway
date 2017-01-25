@@ -32,9 +32,8 @@ import java.util.List;
 public class SQLiteSchema extends Schema<SQLiteDbSupport> {
     private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
 
-    private static final String SQLITE_SEQUENCE = "sqlite_sequence";
     private static final List<String> IGNORED_SYSTEM_TABLE_NAMES =
-            Arrays.asList("android_metadata", SQLITE_SEQUENCE);
+            Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
 
     /**
      * Creates a new SQLite schema.
@@ -91,8 +90,8 @@ public class SQLiteSchema extends Schema<SQLiteDbSupport> {
             table.drop();
         }
 
-        if (getTable(SQLITE_SEQUENCE).exists()) {
-            jdbcTemplate.executeStatement("DELETE FROM " + SQLITE_SEQUENCE);
+        if (getTable(SQLiteTable.SQLITE_SEQUENCE).exists()) {
+            jdbcTemplate.executeStatement("DELETE FROM " + SQLiteTable.SQLITE_SEQUENCE);
         }
     }
 
