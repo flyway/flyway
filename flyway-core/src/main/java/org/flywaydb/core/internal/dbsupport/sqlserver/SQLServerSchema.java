@@ -172,7 +172,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
         @SuppressWarnings({"unchecked"})
         List<Map<String, String>> routineNames =
                 jdbcTemplate.queryForList("SELECT routine_name FROM INFORMATION_SCHEMA.ROUTINES" +
-                                " WHERE routine_schema=? AND routine_type=?",
+                                " WHERE routine_schema=? AND routine_type=? order by created desc",
                         name, routineType
                 );
 
