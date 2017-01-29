@@ -25,6 +25,7 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
@@ -393,6 +394,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private String serverId = "flyway-db";
 
     /**
+     * Amount of attempts to try to obtain a database connection. Delay between attempts is 1 seconds.
+     * Default value '0' means don't try and throw immediately if couldn't obtain connection.
+     *
+     * @parameter property="flyway.maxRetries"
+     */
+    private Integer maxRetries;
+    /**
      * The link to the settings.xml
      *
      * @parameter property="settings"
@@ -536,10 +544,28 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             removeMavenPluginSpecificPropertiesToAvoidWarnings(properties);
             flyway.configure(properties);
 
+            waitForConnection(flyway);
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
         }
+    }
+
+    private void waitForConnection(final Flyway flyway) throws Exception {
+        Integer maxAttempts = maxRetries;
+
+        String maxRetriesAsCmdOption = getProperty("flyway.maxRetries");
+        if (StringUtils.hasLength(maxRetriesAsCmdOption)) {
+            maxAttempts = Integer.valueOf(maxRetriesAsCmdOption);
+        }
+
+        ConnectionReadyDelay delay = new ConnectionReadyDelay(log, maxAttempts);
+        delay.waitTillConnectionReady(new ConnectionReadyDelay.ConnectionChecker() {
+            @Override
+            public void check() throws Exception {
+                flyway.info().current();
+            }
+        });
     }
 
     /**
