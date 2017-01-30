@@ -251,7 +251,7 @@ public class Main {
         LOG.info("baselineVersion              : Version to tag schema with when executing baseline");
         LOG.info("baselineDescription          : Description to tag schema with when executing baseline");
         LOG.info("baselineOnMigrate            : Baseline on migrate against uninitialized non-empty schema");
-        LOG.info("configFile                   : Config file to use (default: conf/flyway.properties)");
+        LOG.info("configFile                   : Config file to use (default: <install-dir>/conf/flyway.conf)");
         LOG.info("configFileEncoding           : Encoding of the config file (default: UTF-8)");
         LOG.info("jarDirs                      : Dirs for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
@@ -347,7 +347,7 @@ public class Main {
 
     /**
      * Loads the configuration from the configuration file. If a configuration file is specified using the -configfile
-     * argument it will be used, otherwise the default config file (conf/flyway.properties) will be loaded.
+     * argument it will be used, otherwise the default config file (<install-dir>/conf/flyway.conf) will be loaded.
      *
      * @param properties    The properties object to load to configuration into.
      * @param file          The configuration file to load.
