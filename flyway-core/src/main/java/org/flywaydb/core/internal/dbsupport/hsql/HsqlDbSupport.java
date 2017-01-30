@@ -102,4 +102,9 @@ public class HsqlDbSupport extends DbSupport {
     public boolean catalogIsSchema() {
         return false;
     }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
+    }
 }

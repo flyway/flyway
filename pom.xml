@@ -111,7 +111,7 @@
         <version.gradle>2.3</version.gradle>
         <version.derby>10.12.1.1</version.derby>
         <version.h2>1.4.191</version.h2>
-        <version.hsqldb>2.3.3</version.hsqldb>
+        <version.hsqldb>2.3.4</version.hsqldb>
         <version.jtds>1.3.1</version.jtds>
         <version.mariadb>1.4.5</version.mariadb>
         <version.postgresql>9.4.1208.jre6</version.postgresql>
