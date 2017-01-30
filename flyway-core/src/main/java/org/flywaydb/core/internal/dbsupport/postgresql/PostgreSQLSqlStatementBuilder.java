@@ -84,6 +84,11 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     @Override
+    protected String[] tokenizeLine(String line) {
+        return StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}\\[\\]");
+    }
+
+    @Override
     protected String extractAlternateOpenQuote(String token) {
         Matcher matcher = Pattern.compile(DOLLAR_QUOTE_REGEX).matcher(token);
         if (matcher.find()) {

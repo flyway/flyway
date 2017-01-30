@@ -33,6 +33,19 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     private PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
 
     @Test
+    public void columnColumnText() {
+        String sqlScriptSource = "CREATE DOMAIN some_domain AS CHARACTER(3)\n" +
+                "CONSTRAINT some_domain_check CHECK (((VALUE) :: TEXT = ANY (ARRAY ['FOO' :: TEXT, 'BAR' :: TEXT])));";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
     public void regclass() {
         String sqlScriptSource = "CREATE TABLE base_table (\n" +
                 "base_table_id integer DEFAULT nextval('base_table_seq'::regclass) NOT NULL\n" +
