@@ -479,6 +479,19 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * Whether to ignore missing migrations when reading the metadata table. These are migrations that were performed but removed from migration locations.
+     * For example: the metadata table indicates that a migration to version 3.0 has already been applied. Script for version 2.0 is no more in classpath.
+     * Instead of bombing out (fail fast) with an exception, a warning is logged and Flyway continues normally.
+     * <br>Also configurable with Ant Property: ${flyway.ignoreMissingMigrations}
+     *
+     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail
+     *                               fast with an exception. (default: {@code false})
+     */
+    public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
+        flyway.setIgnoreMissingMigrations(ignoreMissingMigrations);
+    }
+
+    /**
      * @param validateOnMigrate Whether to automatically call validate or not when running migrate. (default: {@code true})<br>
      *                          Also configurable with Ant Property: ${flyway.validateOnMigrate}
      */

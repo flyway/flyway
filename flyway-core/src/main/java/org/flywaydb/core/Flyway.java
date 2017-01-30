@@ -183,6 +183,14 @@ public class Flyway implements FlywayConfiguration {
     private boolean ignoreFutureMigrations = true;
 
     /**
+     * Ignore missing migrations when reading the metadata table. These are migrations that were performed
+     * but removed from migration locations. For example: the metadata table indicates that a migration to version 3.0
+     * has already been applied. Script for version 2.0 is no more in classpath. Instead of bombing out (fail fast)
+     * with an exception, a warning is logged and Flyway continues normally. (default: {@code false})
+     */
+    private boolean ignoreMissingMigrations;
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -398,6 +406,11 @@ public class Flyway implements FlywayConfiguration {
     }
 
     @Override
+    public boolean isIgnoreMissingMigrations() {
+        return ignoreMissingMigrations;
+    }
+
+    @Override
     public boolean isValidateOnMigrate() {
         return validateOnMigrate;
     }
@@ -499,6 +512,18 @@ public class Flyway implements FlywayConfiguration {
     public void setIgnoreFailedFutureMigration(boolean ignoreFailedFutureMigration) {
         LOG.warn("ignoreFailedFutureMigration has been deprecated and will be removed in Flyway 5.0. Use the more generic ignoreFutureMigrations instead.");
         this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
+    }
+
+    /**
+     * Whether to ignore missing migrations when reading the metadata table. These are migrations that were performed but removed from migration locations.
+     * For example: the metadata table indicates that a migration to version 3.0 has already been applied. Script for version 2.0 is no more in classpath.
+     * Instead of bombing out (fail fast) with an exception, a warning is logged and Flyway continues normally.
+     *
+     * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail
+     *                                fast with an exception. (default: {@code false})
+     */
+    public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
+        this.ignoreMissingMigrations = ignoreMissingMigrations;
     }
 
     /**
@@ -965,7 +990,7 @@ public class Flyway implements FlywayConfiguration {
                             MetaDataTable metaDataTable, Schema[] schemas, FlywayCallback[] flywayCallbacks, boolean pending) {
         String validationError =
                 new DbValidate(connectionMetaDataTable, dbSupport, metaDataTable, schemas[0], migrationResolver,
-                        target, outOfOrder, pending, ignoreFutureMigrations, flywayCallbacks).validate();
+                        target, outOfOrder, pending, ignoreFutureMigrations, ignoreMissingMigrations, flywayCallbacks).validate();
 
         if (validationError != null) {
             if (cleanOnValidationError) {
@@ -1019,7 +1044,7 @@ public class Flyway implements FlywayConfiguration {
                     }
 
                     MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true);
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true, false);
                     migrationInfoService.refresh();
 
                     for (final FlywayCallback callback : flywayCallbacks) {
@@ -1218,6 +1243,10 @@ public class Flyway implements FlywayConfiguration {
         String ignoreFailedFutureMigrationProp = getValueAndRemoveEntry(props, "flyway.ignoreFailedFutureMigration");
         if (ignoreFailedFutureMigrationProp != null) {
             setIgnoreFailedFutureMigration(Boolean.parseBoolean(ignoreFailedFutureMigrationProp));
+        }
+        String ignoreMissingMigrationsProp = getValueAndRemoveEntry(props, "flyway.ignoreMissingMigrations");
+        if (ignoreMissingMigrationsProp != null) {
+            setIgnoreMissingMigrations(Boolean.parseBoolean(ignoreMissingMigrationsProp));
         }
         String targetProp = getValueAndRemoveEntry(props, "flyway.target");
         if (targetProp != null) {

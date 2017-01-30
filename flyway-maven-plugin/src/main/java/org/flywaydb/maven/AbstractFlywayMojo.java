@@ -279,6 +279,17 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean ignoreFutureMigrations = true;
 
     /**
+     * Ignore missing migrations when reading the metadata table. These are migrations that were performed
+     * but removed from migration locations. For example: the metadata table indicates that a migration to version 3.0
+     * has already been applied. Script for version 2.0 is no more in classpath. Instead of bombing out (fail fast)
+     * with an exception, a warning is logged and Flyway continues normally. (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.ignoreMissingMigrations}</p>
+     *
+     * @parameter property="flyway.ignoreMissingMigrations"
+     */
+    private boolean ignoreMissingMigrations;
+
+    /**
      * Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -504,6 +515,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             if (ignoreFailedFutureMigration) {
                 flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
             }
+            flyway.setIgnoreMissingMigrations(ignoreMissingMigrations);
             flyway.setPlaceholderReplacement(placeholderReplacement);
             flyway.setPlaceholderPrefix(placeholderPrefix);
             flyway.setPlaceholderSuffix(placeholderSuffix);

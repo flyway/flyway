@@ -245,6 +245,16 @@ public interface FlywayConfiguration {
     boolean isIgnoreFutureMigrations();
 
     /**
+     * Ignore missing migrations when reading the metadata table. These are migrations that were performed but removed from migration locations.
+     * For example: the metadata table indicates that a migration to version 3.0 has already been applied. Script for version 2.0 is no more in classpath.
+     * Instead of bombing out (fail fast) with an exception, a warning is logged and Flyway continues normally.
+     *
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    boolean isIgnoreMissingMigrations();
+
+    /**
      * Whether to automatically call validate or not when running migrate.
      *
      * @return {@code true} if validate should be called. {@code false} if not. (default: {@code true})

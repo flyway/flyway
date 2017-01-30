@@ -89,7 +89,7 @@ public class DbRepair {
         this.dbSupport = dbSupport;
         this.connection = connection;
         this.schema = schema;
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true);
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true, false);
         this.metaDataTable = metaDataTable;
         this.callbacks = callbacks;
     }

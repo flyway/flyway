@@ -74,6 +74,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private final boolean future;
 
     /**
+     * Whether missing migrations are allowed.
+     */
+    private final boolean missing;
+
+    /**
      * The migrations infos calculated at the last refresh.
      */
     private List<MigrationInfoImpl> migrationInfos;
@@ -87,15 +92,17 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
      * @param future            Whether future migrations are allowed.
+     * @param missing           Whether missing migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver, MetaDataTable metaDataTable,
-                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean future) {
+                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean future, boolean missing) {
         this.migrationResolver = migrationResolver;
         this.metaDataTable = metaDataTable;
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.pending = pending;
         this.future = future;
+        this.missing = missing;
     }
 
     /**
@@ -129,6 +136,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         context.outOfOrder = outOfOrder;
         context.pending = pending;
         context.future = future;
+        context.missing = missing;
         context.target = target;
 
         Map<MigrationVersion, ResolvedMigration> resolvedMigrationsMap = new TreeMap<MigrationVersion, ResolvedMigration>();

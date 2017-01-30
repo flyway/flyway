@@ -40,6 +40,11 @@ public class MigrationInfoContext {
     public boolean future;
 
     /**
+     * Whether missing migrations are allowed.
+     */
+    public boolean missing;
+
+    /**
      * The migration target.
      */
     public MigrationVersion target;
@@ -76,6 +81,7 @@ public class MigrationInfoContext {
         if (outOfOrder != that.outOfOrder) return false;
         if (pending != that.pending) return false;
         if (future != that.future) return false;
+        if (missing != that.missing) return false;
         if (target != null ? !target.equals(that.target) : that.target != null) return false;
         if (schema != null ? !schema.equals(that.schema) : that.schema != null) return false;
         if (baseline != null ? !baseline.equals(that.baseline) : that.baseline != null) return false;
@@ -90,6 +96,7 @@ public class MigrationInfoContext {
         int result = (outOfOrder ? 1 : 0);
         result = 31 * result + (pending ? 1 : 0);
         result = 31 * result + (future ? 1 : 0);
+        result = 31 * result + (missing ? 1 : 0);
         result = 31 * result + (target != null ? target.hashCode() : 0);
         result = 31 * result + (schema != null ? schema.hashCode() : 0);
         result = 31 * result + (baseline != null ? baseline.hashCode() : 0);
