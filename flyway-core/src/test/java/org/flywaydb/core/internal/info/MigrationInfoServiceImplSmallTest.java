@@ -114,6 +114,23 @@ public class MigrationInfoServiceImplSmallTest {
     }
 
     @Test
+    public void oneAppliedOneSkippedCurrent() {
+        MigrationInfoServiceImpl migrationInfoService =
+                new MigrationInfoServiceImpl(
+                        createMigrationResolver(createResolvedMigration(1), createResolvedMigration(2)),
+                        createMetaDataTable(createAppliedMigration(2)),
+                        MigrationVersion.CURRENT, false, true, true);
+        migrationInfoService.refresh();
+
+        assertEquals("2", migrationInfoService.current().getVersion().toString());
+        assertEquals(MigrationState.IGNORED, migrationInfoService.all()[0].getState());
+        assertEquals(2, migrationInfoService.all().length);
+        assertEquals(0, migrationInfoService.pending().length);
+        // even with pending = true we should get a validation error for IGNORED migrations
+        assertNotNull(migrationInfoService.validate());
+    }
+
+    @Test
     public void twoAppliedOnePending() {
         MigrationInfoServiceImpl migrationInfoService =
                 new MigrationInfoServiceImpl(
