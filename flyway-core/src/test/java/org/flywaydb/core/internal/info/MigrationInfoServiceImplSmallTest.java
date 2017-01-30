@@ -19,10 +19,10 @@ import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.metadatatable.AppliedMigration;
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
 
@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -108,6 +109,8 @@ public class MigrationInfoServiceImplSmallTest {
         assertEquals(MigrationState.IGNORED, migrationInfoService.all()[0].getState());
         assertEquals(2, migrationInfoService.all().length);
         assertEquals(0, migrationInfoService.pending().length);
+        // even with pending = true we should get a validation error for IGNORED migrations
+        assertNotNull(migrationInfoService.validate());
     }
 
     @Test
@@ -212,7 +215,7 @@ public class MigrationInfoServiceImplSmallTest {
      * @return The applied migration.
      */
     private AppliedMigration createAppliedMigration(int version) {
-        return createAppliedMigration(version, "x");
+        return createAppliedMigration(version, "abc");
     }
 
     /**
