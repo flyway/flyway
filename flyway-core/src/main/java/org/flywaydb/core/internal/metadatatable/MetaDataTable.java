@@ -103,9 +103,10 @@ public interface MetaDataTable {
      * Update the checksum for this version to this new value.
      *
      * @param version  The version to update.
+     * @param installedRank The installed rank of the migration for checksum update
      * @param checksum The new checksum.
      */
-    void updateChecksum(MigrationVersion version, Integer checksum);
+    void updateChecksum(MigrationVersion version, Integer installedRank, Integer checksum);
 
     /**
      * Upgrades the Metadata table to Flyway 4.0 format if necessary.

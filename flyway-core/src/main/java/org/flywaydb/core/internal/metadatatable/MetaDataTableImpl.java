@@ -370,7 +370,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     @Override
-    public void updateChecksum(MigrationVersion version, Integer checksum) {
+    public void updateChecksum(MigrationVersion version, Integer installedRank, Integer checksum) {
         LOG.info("Updating checksum of " + version + " to " + checksum + " ...");
 
         // Try load an updateChecksum.sql file if it exists
@@ -385,6 +385,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
             // Placeholders for column values
             placeholders.put("version_val", version.toString());
+            placeholders.put("installed_rank_val", String.valueOf(installedRank));
             placeholders.put("checksum_val", String.valueOf(checksum));
 
             String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
@@ -396,7 +397,8 @@ public class MetaDataTableImpl implements MetaDataTable {
         } catch (FlywayException fe) {
             try {
                 jdbcTemplate.update("UPDATE " + table + " SET " + dbSupport.quote("checksum") + "=" + checksum
-                        + " WHERE " + dbSupport.quote("version") + "='" + version + "'");
+                        + " WHERE " + dbSupport.quote("installed_rank") + "=" + String.valueOf(installedRank) +
+                                    " AND "+ dbSupport.quote("version") + "='" + version + "'");
             } catch (SQLException e) {
                 throw new FlywayException("Unable to update checksum in metadata table " + table
                         + " for version " + version + " to " + checksum, e);
