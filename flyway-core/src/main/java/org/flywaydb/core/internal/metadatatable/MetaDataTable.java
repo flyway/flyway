@@ -113,4 +113,9 @@ public interface MetaDataTable {
      * @return {@code true} if it was upgraded.
      */
     boolean upgradeIfNecessary();
+
+    /**
+     * Clears the applied migration cache.
+     */
+    void clearCache();
 }

@@ -34,6 +34,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -58,6 +59,11 @@ public class MetaDataTableImpl implements MetaDataTable {
      * JdbcTemplate with ddl manipulation access to the database.
      */
     private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Applied migration cache.
+     */
+    private final LinkedList<AppliedMigration> cache = new LinkedList<AppliedMigration>();
 
     /**
      * Creates a new instance of the metadata table support.
@@ -88,6 +94,11 @@ public class MetaDataTableImpl implements MetaDataTable {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void clearCache() {
+        cache.clear();
     }
 
     /**
@@ -217,6 +228,8 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         createIfNotExists();
 
+        int minInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
+
         String query = "SELECT " + dbSupport.quote("installed_rank")
                 + "," + dbSupport.quote("version")
                 + "," + dbSupport.quote("description")
@@ -227,10 +240,11 @@ public class MetaDataTableImpl implements MetaDataTable {
                 + "," + dbSupport.quote("installed_by")
                 + "," + dbSupport.quote("execution_time")
                 + "," + dbSupport.quote("success")
-                + " FROM " + table;
+                + " FROM " + table
+                + " WHERE " + dbSupport.quote("installed_rank") + " > " + minInstalledRank;
 
         if (migrationTypes.length > 0) {
-            query += " WHERE " + dbSupport.quote("type") + " IN (";
+            query += " AND " + dbSupport.quote("type") + " IN (";
             for (int i = 0; i < migrationTypes.length; i++) {
                 if (i > 0) {
                     query += ",";
@@ -243,7 +257,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         query += " ORDER BY " + dbSupport.quote("installed_rank");
 
         try {
-            return jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
+            cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
                 public AppliedMigration mapRow(final ResultSet rs) throws SQLException {
                     Integer checksum = rs.getInt("checksum");
                     if (rs.wasNull()) {
@@ -263,7 +277,8 @@ public class MetaDataTableImpl implements MetaDataTable {
                             rs.getBoolean("success")
                     );
                 }
-            });
+            }));
+            return cache;
         } catch (SQLException e) {
             throw new FlywayException("Error while retrieving the list of applied migrations from metadata table "
                     + table, e);
@@ -371,6 +386,8 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     @Override
     public void updateChecksum(MigrationVersion version, Integer checksum) {
+        clearCache();
+
         LOG.info("Updating checksum of " + version + " to " + checksum + " ...");
 
         // Try load an updateChecksum.sql file if it exists
