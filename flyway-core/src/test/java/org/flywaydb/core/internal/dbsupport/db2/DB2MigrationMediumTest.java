@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.db2;
 
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
@@ -45,6 +46,14 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
+    }
+
+    @Test
+    public void schemaWithDash() throws FlywayException {
+        flyway.setSchemas("my-schema");
+        flyway.setLocations(getBasedir());
+        flyway.clean();
+        flyway.migrate();
     }
 
     @Test
