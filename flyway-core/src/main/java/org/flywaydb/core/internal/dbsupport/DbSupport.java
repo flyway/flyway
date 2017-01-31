@@ -118,7 +118,7 @@ public abstract class DbSupport {
         }
 
         try {
-            doChangeCurrentSchemaTo(schema.toString());
+            doChangeCurrentSchemaTo(schema.getName());
         } catch (SQLException e) {
             throw new FlywayException("Error setting current schema to " + schema, e);
         }

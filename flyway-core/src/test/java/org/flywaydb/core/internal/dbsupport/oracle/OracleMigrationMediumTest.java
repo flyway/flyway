@@ -112,6 +112,12 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
+    public void schemaWithDash() throws FlywayException {
+        flyway.setSchemas("my-schema");
+        flyway.migrate();
+    }
+
+    @Test
     public void count() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/count");
         flyway.migrate();
