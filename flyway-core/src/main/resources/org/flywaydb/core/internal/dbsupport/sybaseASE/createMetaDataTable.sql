@@ -16,7 +16,7 @@
 
 CREATE TABLE ${table} (
     installed_rank INT NOT NULL,
-    version VARCHAR(50),
+    version VARCHAR(50) NULL,
     description VARCHAR(200) NOT NULL,
     type VARCHAR(20) NOT NULL,
     script VARCHAR(1000) NOT NULL,
