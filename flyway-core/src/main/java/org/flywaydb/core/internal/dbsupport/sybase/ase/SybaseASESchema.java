@@ -82,7 +82,7 @@ public class SybaseASESchema extends Schema<SybaseASEDbSupport> {
 		
 		for(int i = 0; i < tableNames.size(); i++) {
 			String tableName = tableNames.get(i);
-			result[i] = new SybaseASETable(jdbcTemplate, dbSupport, this, tableName);
+			result[i] = getTable(tableName);
 		}
 		
 		return result;
@@ -99,7 +99,7 @@ public class SybaseASESchema extends Schema<SybaseASEDbSupport> {
 	 * @throws SQLException
 	 */
 	private List<String> retrieveAllTableNames() throws SQLException {
-		List<String> objNames = jdbcTemplate.queryForStringList("select ob.name from sysobjects ob where ob.type=? order by ob.name", "U");
+		List<String> objNames = getObjectNamesByType("U");
 		
 		return objNames;
 	}
@@ -107,7 +107,7 @@ public class SybaseASESchema extends Schema<SybaseASEDbSupport> {
 	private void dropObjects(String sybaseObjType) throws SQLException {
 		
 		//Getting the table names
-		List<String> objNames = jdbcTemplate.queryForStringList("select ob.name from sysobjects ob where ob.type=? order by ob.name", sybaseObjType);
+		List<String> objNames = getObjectNamesByType(sybaseObjType);
 		
 		//for each table, drop it
 		for (String name : objNames) {
@@ -129,6 +129,12 @@ public class SybaseASESchema extends Schema<SybaseASEDbSupport> {
 			jdbcTemplate.execute(sql + name);
 			
 		}
+	}
+
+	protected List<String> getObjectNamesByType(String type) throws SQLException {
+		List<String> objNames = jdbcTemplate
+				.queryForStringList("select ob.name from sysobjects ob where ob.type=? order by ob.name", type);
+		return objNames;
 	}
 
 }
