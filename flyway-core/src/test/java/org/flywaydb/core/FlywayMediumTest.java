@@ -411,7 +411,12 @@ public class FlywayMediumTest {
 
         flyway.clean();
         assertEquals(3, flyway.migrate());
+        assertEquals("1.2", flyway.info().current().getVersion().getVersion());
         assertEquals(0, flyway.info().pending().length);
+
+        flyway.setTarget(MigrationVersion.LATEST);
+        assertEquals(1, flyway.migrate());
+        assertEquals("2.0", flyway.info().current().getVersion().getVersion());
 
         flyway.setLocations("migration/sql", "migration/outoforder");
         assertEquals(5, flyway.info().all().length);
@@ -421,14 +426,14 @@ public class FlywayMediumTest {
         assertEquals(0, flyway.migrate());
 
         flyway.setValidateOnMigrate(true);
-        flyway.setTarget(MigrationVersion.LATEST);
         flyway.setOutOfOrder(true);
-        assertEquals(MigrationState.PENDING, flyway.info().all()[3].getState());
-        assertEquals(2, flyway.migrate());
+        assertEquals(MigrationState.PENDING, flyway.info().all()[4].getState());
+        assertEquals(1, flyway.migrate());
+        assertEquals("2.0", flyway.info().current().getVersion().getVersion());
 
         MigrationInfo[] all = flyway.info().all();
-        assertEquals(MigrationState.OUT_OF_ORDER, all[3].getState());
-        assertEquals(MigrationState.SUCCESS, flyway.info().all()[4].getState());
+        assertEquals(MigrationState.SUCCESS, all[3].getState());
+        assertEquals(MigrationState.OUT_OF_ORDER, all[4].getState());
     }
 
     @Test

@@ -196,14 +196,16 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     }
 
     public MigrationInfo current() {
-        for (int i = migrationInfos.size() - 1; i >= 0; i--) {
-            MigrationInfo migrationInfo = migrationInfos.get(i);
-            if (migrationInfo.getState().isApplied() && migrationInfo.getVersion() != null) {
-                return migrationInfo;
+        MigrationInfo current = null;
+
+        for (MigrationInfoImpl migrationInfo : migrationInfos) {
+            if (migrationInfo.getState().isApplied() && migrationInfo.getVersion() != null &&
+                    (current == null || migrationInfo.getVersion().compareTo(current.getVersion()) > 0)) {
+                current = migrationInfo;
             }
         }
 
-        return null;
+        return current;
     }
 
     public MigrationInfoImpl[] pending() {
