@@ -308,6 +308,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         }
 
         if ("jar".equals(protocol)
+                || "war".equals(protocol)
                 || "zip".equals(protocol) //WebLogic
                 || "wsjar".equals(protocol) //WebSphere
                 ) {
