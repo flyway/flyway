@@ -114,6 +114,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Test
     public void schemaWithDash() throws FlywayException {
         flyway.setSchemas("my-schema");
+        flyway.setLocations(getBasedir());
+        flyway.clean();
         flyway.migrate();
     }
 
