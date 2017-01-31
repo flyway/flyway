@@ -158,10 +158,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (appliedMigration.getVersion() == null) {
-            if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
-                return MigrationState.SUCCESS;
-            }
             if (appliedMigration.getInstalledRank() == context.latestRepeatableRuns.get(appliedMigration.getDescription())) {
+                if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
+                    return MigrationState.SUCCESS;
+                }
                 return MigrationState.OUTDATED;
             }
             return MigrationState.SUPERSEEDED;

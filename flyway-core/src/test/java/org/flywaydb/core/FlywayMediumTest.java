@@ -499,6 +499,43 @@ public class FlywayMediumTest {
         assertNull(all[7].getVersion());
 
         assertEquals(0, flyway.migrate());
+
+        // Revert to original repeatable migrations, which should now be reapplied
+        flyway.setLocations("migration/sql", "migration/repeatable");
+        all = flyway.info().all();
+        assertEquals(MigrationState.SUCCESS, all[0].getState());
+        assertEquals(MigrationState.SUCCESS, all[1].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[2].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[3].getState());
+        assertEquals(MigrationState.SUCCESS, all[4].getState());
+        assertEquals(MigrationState.SUCCESS, all[5].getState());
+        assertEquals(MigrationState.OUTDATED, all[6].getState());
+        assertEquals(MigrationState.OUTDATED, all[7].getState());
+        assertEquals(MigrationState.PENDING, all[8].getState());
+        assertEquals(MigrationState.PENDING, all[9].getState());
+        assertEquals(2, flyway.migrate());
+        assertEquals(0, flyway.info().pending().length);
+        all = flyway.info().all();
+        assertEquals(MigrationState.SUCCESS, all[0].getState());
+        assertEquals(MigrationState.SUCCESS, all[1].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[2].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[3].getState());
+        assertEquals(MigrationState.SUCCESS, all[4].getState());
+        assertEquals(MigrationState.SUCCESS, all[5].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[6].getState());
+        assertEquals(MigrationState.SUPERSEEDED, all[7].getState());
+        assertEquals(MigrationState.SUCCESS, all[8].getState());
+        assertEquals(MigrationState.SUCCESS, all[9].getState());
+        assertNotNull(all[0].getVersion());
+        assertNotNull(all[1].getVersion());
+        assertNull(all[2].getVersion());
+        assertNull(all[3].getVersion());
+        assertNotNull(all[4].getVersion());
+        assertNotNull(all[5].getVersion());
+        assertNull(all[6].getVersion());
+        assertNull(all[7].getVersion());
+        assertNull(all[8].getVersion());
+        assertNull(all[9].getVersion());
     }
 
     @Test
