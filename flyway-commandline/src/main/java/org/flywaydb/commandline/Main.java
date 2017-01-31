@@ -85,7 +85,11 @@ public class Main {
             initializeDefaults(properties);
             loadConfiguration(properties, args);
             overrideConfiguration(properties, args);
-            promptForCredentialsIfMissing(properties);
+
+            if (!isSuppressPrompt(args)) {
+                promptForCredentialsIfMissing(properties);
+            }
+
             dumpConfiguration(properties);
 
             loadJdbcDrivers();
@@ -113,8 +117,16 @@ public class Main {
     }
 
     private static boolean isPrintVersionAndExit(String[] args) {
+        return isFlagSet(args, "-v");
+    }
+
+    private static boolean isSuppressPrompt(String[] args) {
+        return isFlagSet(args, "-n");
+    }
+
+    private static boolean isFlagSet(String[] args, String flag) {
         for (String arg : args) {
-            if ("-v".equals(arg)) {
+            if (flag.equals(arg)) {
                 return true;
             }
         }
@@ -257,6 +269,7 @@ public class Main {
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
+        LOG.info("Add -n to suppress prompting for a user and password");
         LOG.info("Add -v to print the Flyway version and exit");
         LOG.info("");
         LOG.info("Example");
