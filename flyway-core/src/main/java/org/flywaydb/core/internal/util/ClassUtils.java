@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +125,12 @@ public class ClassUtils {
                 //Android
                 return null;
             }
-            String url = protectionDomain.getCodeSource().getLocation().getPath();
+            CodeSource codeSource = protectionDomain.getCodeSource();
+            if (codeSource == null) {
+                //Custom classloader with for example classes defined using URLClassLoader#defineClass(String name, byte[] b, int off, int len)
+                return null;
+            }
+            String url = codeSource.getLocation().getPath();
             return URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             //Can never happen.
