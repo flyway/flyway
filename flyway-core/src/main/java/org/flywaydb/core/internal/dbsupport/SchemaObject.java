@@ -79,7 +79,7 @@ public abstract class SchemaObject {
         try {
             doDrop();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to drop " + this, e);
+            throw new FlywaySqlException("Unable to drop " + this, e);
         }
     }
 
