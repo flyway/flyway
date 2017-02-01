@@ -36,4 +36,9 @@ public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
+
+    @Override
+    protected boolean needsBaseline() {
+        return true;
+    }
 }

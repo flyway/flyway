@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,25 +62,41 @@ public class DbSchemas {
      * Creates the schemas
      */
     public void create() {
-        new TransactionTemplate(connection).execute(new Callable<Object>() {
-            @Override
-            public Void call() {
-                for (Schema schema : schemas) {
-                    if (schema.exists()) {
-                        LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
+        int retries = 0;
+        while (true) {
+            try {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                    @Override
+                    public Void call() {
+                        for (Schema schema : schemas) {
+                            if (schema.exists()) {
+                                LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
+                                return null;
+                            }
+                        }
+
+                        for (Schema schema : schemas) {
+                            LOG.info("Creating schema " + schema + " ...");
+                            schema.create();
+                        }
+
+                        metaDataTable.addSchemasMarker(schemas);
+
                         return null;
                     }
+                });
+                return;
+            } catch (RuntimeException e) {
+                if (++retries >= 10) {
+                    throw e;
                 }
-
-                for (Schema schema : schemas) {
-                    LOG.info("Creating schema " + schema + " ...");
-                    schema.create();
+                try {
+                    LOG.debug("Schema creation failed. Retrying in 1 sec ...");
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    // Ignore
                 }
-
-                metaDataTable.addSchemasMarker(schemas);
-
-                return null;
             }
-        });
+        }
     }
 }

@@ -292,7 +292,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
-     *
+     * <p>
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
     private boolean allowMixedMigrations;
@@ -458,7 +458,6 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
-     *
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      *
      * @param allowMixedMigrations {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
@@ -880,7 +879,7 @@ public class Flyway implements FlywayConfiguration {
 
                 new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
 
-                if (!metaDataTable.hasSchemasMarker() && !metaDataTable.hasBaselineMarker() && !metaDataTable.hasAppliedMigrations()) {
+                if (!metaDataTable.exists()) {
                     List<Schema> nonEmptySchemas = new ArrayList<Schema>();
                     for (Schema schema : schemas) {
                         if (!schema.empty()) {
@@ -888,21 +887,11 @@ public class Flyway implements FlywayConfiguration {
                         }
                     }
 
-                    if (baselineOnMigrate || nonEmptySchemas.isEmpty()) {
-                        if (baselineOnMigrate && !nonEmptySchemas.isEmpty()) {
+                    if (!nonEmptySchemas.isEmpty()) {
+                        if (baselineOnMigrate) {
                             new DbBaseline(connectionMetaDataTable, dbSupport, metaDataTable, schemas[0], baselineVersion, baselineDescription, flywayCallbacks).baseline();
-                        }
-                    } else {
-                        if (nonEmptySchemas.size() == 1) {
-                            Schema schema = nonEmptySchemas.get(0);
-                            //Check whether we only have an empty metadata table in an otherwise empty schema
-                            if (schema.allTables().length != 1 || !schema.getTable(table).exists()) {
-                                throw new FlywayException("Found non-empty schema " + schema
-                                        + " without metadata table! Use baseline()"
-                                        + " or set baselineOnMigrate to true to initialize the metadata table.");
-                            }
                         } else {
-                            throw new FlywayException("Found non-empty schemas "
+                            throw new FlywayException("Found non-empty schema(s) "
                                     + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
                                     + " without metadata table! Use baseline()"
                                     + " or set baselineOnMigrate to true to initialize the metadata table.");
@@ -932,11 +921,11 @@ public class Flyway implements FlywayConfiguration {
      * to detect accidental changes that may prevent the schema(s) from being recreated exactly.</p>
      * <p>Validation fails if</p>
      * <ul>
-     *     <li>differences in migration names, types or checksums are found</li>
-     *     <li>versions have been applied that aren't resolved locally anymore</li>
-     *     <li>versions have been resolved that haven't been applied yet</li>
+     * <li>differences in migration names, types or checksums are found</li>
+     * <li>versions have been applied that aren't resolved locally anymore</li>
+     * <li>versions have been resolved that haven't been applied yet</li>
      * </ul>
-     *
+     * <p>
      * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
      *
      * @throws FlywayException when the validation failed.

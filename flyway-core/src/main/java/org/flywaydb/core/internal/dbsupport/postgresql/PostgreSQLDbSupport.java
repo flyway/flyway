@@ -156,7 +156,7 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     public <T> T lock(Table table, Callable<T> callable) {
-        return new PostgreSQLAdvisoryLockTemplate(jdbcTemplate).execute(callable);
+        return new PostgreSQLAdvisoryLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
     }
 
     @Override

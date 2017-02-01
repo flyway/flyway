@@ -39,6 +39,11 @@ public interface MetaDataTable {
     void addAppliedMigration(AppliedMigration appliedMigration);
 
     /**
+     * @return Whether the metadata table exists.
+     */
+    boolean exists();
+
+    /**
      * Checks whether the metadata table contains at least one applied migration.
      *
      * @return {@code true} if it does, {@code false} if it doesn't.

@@ -32,4 +32,9 @@ public class H2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_concurrent;DB_CLOSE_DELAY=-1", "sa", "", null, "SET LOCK_TIMEOUT 100000");
     }
+
+    @Override
+    protected boolean needsBaseline() {
+        return true;
+    }
 }

@@ -89,7 +89,14 @@ public abstract class ConcurrentMigrationTestCase {
 
         flyway = createFlyway();
         flyway.clean();
-        flyway.baseline();
+
+        if (needsBaseline()) {
+            flyway.baseline();
+        }
+    }
+
+    protected boolean needsBaseline() {
+        return false;
     }
 
     protected String getBasedir() {
@@ -134,11 +141,14 @@ public abstract class ConcurrentMigrationTestCase {
 
         assertFalse(failed);
         final MigrationInfo[] applied = flyway.info().applied();
+        int expected = 4;
         if (applied[0].getType() == MigrationType.SCHEMA) {
-            assertEquals(6, applied.length);
-        } else {
-            assertEquals(5, applied.length);
+            expected++;
         }
+        if (needsBaseline()) {
+            expected++;
+        }
+        assertEquals(expected, applied.length);
         assertEquals("2.0", flyway.info().current().getVersion().toString());
         assertEquals(0, flyway.migrate());
 
@@ -146,7 +156,7 @@ public abstract class ConcurrentMigrationTestCase {
         try {
             connection = concurrentMigrationDataSource.getConnection();
             assertEquals(2, new JdbcTemplate(connection, 0).queryForInt(
-                    "SELECT COUNT(*) FROM " +schemaQuoted + ".test_user"));
+                    "SELECT COUNT(*) FROM " + schemaQuoted + ".test_user"));
         } finally {
             JdbcUtils.closeConnection(connection);
         }

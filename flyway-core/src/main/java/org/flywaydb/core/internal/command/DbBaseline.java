@@ -130,7 +130,7 @@ public class DbBaseline {
                         throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
                     }
                     if (metaDataTable.hasAppliedMigrations()) {
-                      throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
+                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
                     }
                     metaDataTable.addBaselineMarker(baselineVersion, baselineDescription);
 

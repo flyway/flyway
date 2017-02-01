@@ -101,28 +101,46 @@ public class MetaDataTableImpl implements MetaDataTable {
         cache.clear();
     }
 
+    @Override
+    public boolean exists() {
+        return table.exists();
+    }
+
     /**
      * Creates the metatable if it doesn't exist, upgrades it if it does.
      */
     private void createIfNotExists() {
-        if (table.exists()) {
-            return;
+        int retries = 0;
+        while (!table.exists()) {
+            if (retries == 0) {
+                LOG.info("Creating Metadata table: " + table);
+            }
+
+            try {
+                String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
+                String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+
+                Map<String, String> placeholders = new HashMap<String, String>();
+                placeholders.put("schema", table.getSchema().getName());
+                placeholders.put("table", table.getName());
+                String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+
+                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                sqlScript.execute(jdbcTemplate);
+
+                LOG.debug("Metadata table " + table + " created.");
+            } catch (FlywayException e) {
+                if (++retries >= 10) {
+                    throw e;
+                }
+                try {
+                    LOG.debug("Metadata table creation failed. Retrying in 1 sec ...");
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    // Ignore
+                }
+            }
         }
-
-        LOG.info("Creating Metadata table: " + table);
-
-        String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
-        String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
-
-        Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema", table.getSchema().getName());
-        placeholders.put("table", table.getName());
-        String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
-
-        SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-        sqlScript.execute(jdbcTemplate);
-
-        LOG.debug("Metadata table " + table + " created.");
     }
 
     @Override

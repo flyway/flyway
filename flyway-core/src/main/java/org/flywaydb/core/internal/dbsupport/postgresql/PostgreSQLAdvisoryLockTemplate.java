@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,13 +42,17 @@ public class PostgreSQLAdvisoryLockTemplate {
      */
     private final JdbcTemplate jdbcTemplate;
 
+    private final long lockNum;
+
     /**
      * Creates a new advisory lock template for this connection.
      *
      * @param jdbcTemplate The jdbcTemplate for the connection.
+     * @param discriminator A number to discriminate between locks.
      */
-    public PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate) {
+    public PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
         this.jdbcTemplate = jdbcTemplate;
+        lockNum = LOCK_MAGIC_NUM + discriminator;
     }
 
     /**
@@ -59,9 +63,8 @@ public class PostgreSQLAdvisoryLockTemplate {
      */
     public <T> T execute(Callable<T> callable) {
         try {
-            jdbcTemplate.execute("SELECT pg_advisory_lock(" + LOCK_MAGIC_NUM + ")");
-            T result = callable.call();
-            return result;
+            jdbcTemplate.execute("SELECT pg_advisory_lock(" + lockNum + ")");
+            return callable.call();
         } catch (SQLException e) {
             throw new FlywayException("Unable to acquire Flyway advisory lock", e);
         } catch (Exception e) {
@@ -74,7 +77,7 @@ public class PostgreSQLAdvisoryLockTemplate {
             throw rethrow;
         } finally {
             try {
-                jdbcTemplate.execute("SELECT pg_advisory_unlock(" + LOCK_MAGIC_NUM + ")");
+                jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
             } catch (SQLException e) {
                 LOG.error("Unable to release Flyway advisory lock", e);
             }
