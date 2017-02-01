@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 /**
- * Spring-like template for executing with advisory locks.
+ * Spring-like template for executing with PostgreSQL advisory locks.
  */
 public class PostgreSQLAdvisoryLockTemplate {
     private static final Log LOG = LogFactory.getLog(PostgreSQLAdvisoryLockTemplate.class);
@@ -50,7 +50,7 @@ public class PostgreSQLAdvisoryLockTemplate {
      * @param jdbcTemplate The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
-    public PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
+    PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
         this.jdbcTemplate = jdbcTemplate;
         lockNum = LOCK_MAGIC_NUM + discriminator;
     }

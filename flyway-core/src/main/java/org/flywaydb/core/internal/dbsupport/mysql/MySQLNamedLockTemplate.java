@@ -37,18 +37,18 @@ public class MySQLNamedLockTemplate {
     private final String lockName;
 
     /**
-     * Creates a new advisory lock template for this connection.
+     * Creates a new named lock template for this connection.
      *
      * @param jdbcTemplate  The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
-    public MySQLNamedLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
+    MySQLNamedLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
         this.jdbcTemplate = jdbcTemplate;
         lockName = "Flyway-" + discriminator;
     }
 
     /**
-     * Executes this callback with an advisory lock.
+     * Executes this callback with a named lock.
      *
      * @param callable The callback to execute.
      * @return The result of the callable code.
