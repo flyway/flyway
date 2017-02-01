@@ -151,6 +151,23 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void noDescription() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_no_description;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setSqlMigrationSeparator(".sql");
+        flyway.setSqlMigrationSuffix("");
+        flyway.setLocations("migration/no_description");
+        flyway.migrate();
+
+        MigrationInfo current = flyway.info().current();
+        assertEquals("1.1", current.getVersion().toString());
+        assertEquals(MigrationState.SUCCESS, current.getState());
+    }
+
+    @Test
     public void callback() throws Exception {
         DriverDataSource dataSource =
                 new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_callback;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
