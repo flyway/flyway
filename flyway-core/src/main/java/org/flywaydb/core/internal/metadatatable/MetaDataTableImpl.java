@@ -323,7 +323,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     public void addSchemasMarker(final Schema[] schemas) {
         createIfNotExists();
 
-        addAppliedMigration(new AppliedMigration(MigrationVersion.fromVersion("0"), "<< Flyway Schema Creation >>",
+        addAppliedMigration(new AppliedMigration(null, "<< Flyway Schema Creation >>",
                 MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));
     }
 
