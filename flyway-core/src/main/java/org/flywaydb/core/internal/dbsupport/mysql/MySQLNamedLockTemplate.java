@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.postgresql;
+package org.flywaydb.core.internal.dbsupport.mysql;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -24,35 +24,27 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 /**
- * Spring-like template for executing with advisory locks.
+ * Spring-like template for executing with MySQL named locks.
  */
-public class PostgreSQLAdvisoryLockTemplate {
-    private static final Log LOG = LogFactory.getLog(PostgreSQLAdvisoryLockTemplate.class);
-
-    private static final long LOCK_MAGIC_NUM =
-            (0x46L << 40) // F
-                    + (0x6CL << 32) // l
-                    + (0x79L << 24) // y
-                    + (0x77 << 16) // w
-                    + (0x61 << 8) // a
-                    + 0x79; // y
+public class MySQLNamedLockTemplate {
+    private static final Log LOG = LogFactory.getLog(MySQLNamedLockTemplate.class);
 
     /**
-     * The connection for the advisory lock.
+     * The connection for the named lock.
      */
     private final JdbcTemplate jdbcTemplate;
 
-    private final long lockNum;
+    private final String lockName;
 
     /**
      * Creates a new advisory lock template for this connection.
      *
-     * @param jdbcTemplate The jdbcTemplate for the connection.
+     * @param jdbcTemplate  The jdbcTemplate for the connection.
      * @param discriminator A number to discriminate between locks.
      */
-    public PostgreSQLAdvisoryLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
+    public MySQLNamedLockTemplate(JdbcTemplate jdbcTemplate, int discriminator) {
         this.jdbcTemplate = jdbcTemplate;
-        lockNum = LOCK_MAGIC_NUM + discriminator;
+        lockName = "Flyway-" + discriminator;
     }
 
     /**
@@ -63,10 +55,10 @@ public class PostgreSQLAdvisoryLockTemplate {
      */
     public <T> T execute(Callable<T> callable) {
         try {
-            jdbcTemplate.execute("SELECT pg_advisory_lock(" + lockNum + ")");
+            jdbcTemplate.execute("SELECT GET_LOCK('" + lockName + "',100000)");
             return callable.call();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to acquire Flyway advisory lock", e);
+            throw new FlywayException("Unable to acquire MySQL named lock: " + lockName, e);
         } catch (Exception e) {
             RuntimeException rethrow;
             if (e instanceof RuntimeException) {
@@ -77,9 +69,9 @@ public class PostgreSQLAdvisoryLockTemplate {
             throw rethrow;
         } finally {
             try {
-                jdbcTemplate.execute("SELECT pg_advisory_unlock(" + lockNum + ")");
+                jdbcTemplate.execute("SELECT RELEASE_LOCK('" + lockName + "')");
             } catch (SQLException e) {
-                LOG.error("Unable to release Flyway advisory lock", e);
+                LOG.error("Unable to release MySQL named lock: " + lockName, e);
             }
         }
     }
