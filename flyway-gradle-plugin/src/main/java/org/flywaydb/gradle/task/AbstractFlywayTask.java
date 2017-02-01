@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.gradle.FlywayExtension;
+import org.flywaydb.gradle.FlywayPlugin;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -239,7 +240,6 @@ abstract class AbstractFlywayTask extends DefaultTask {
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
-        extension = (FlywayExtension) getProject().getExtensions().getByName("flyway");
     }
 
     @TaskAction
@@ -281,9 +281,9 @@ abstract class AbstractFlywayTask extends DefaultTask {
      * Creates a new, configured flyway instance
      */
     private Flyway createFlyway() {
+        extension = (FlywayExtension) getProject().getExtensions().getByName(FlywayPlugin.EXTENSION_NAME);
+
         Map<String, String> conf = new HashMap<String, String>();
-        System.out.println(this);
-        System.out.println(extension);
         putIfSet(conf, "driver", driver, extension.driver);
         putIfSet(conf, "url", url, extension.url);
         putIfSet(conf, "user", user, extension.user);
@@ -331,6 +331,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         addConfigFromProperties(conf, System.getProperties());
 
         Flyway flyway = new Flyway();
+        flyway.setClassLoader(ClassLoader.getSystemClassLoader());
         flyway.configure(conf);
         return flyway;
     }
