@@ -891,10 +891,13 @@ public class Flyway implements FlywayConfiguration {
                         if (baselineOnMigrate) {
                             new DbBaseline(connectionMetaDataTable, dbSupport, metaDataTable, schemas[0], baselineVersion, baselineDescription, flywayCallbacks).baseline();
                         } else {
-                            throw new FlywayException("Found non-empty schema(s) "
-                                    + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
-                                    + " without metadata table! Use baseline()"
-                                    + " or set baselineOnMigrate to true to initialize the metadata table.");
+                            // Second check for MySQL which is sometimes flaky otherwise
+                            if (!metaDataTable.exists()) {
+                                throw new FlywayException("Found non-empty schema(s) "
+                                        + StringUtils.collectionToCommaDelimitedString(nonEmptySchemas)
+                                        + " without metadata table! Use baseline()"
+                                        + " or set baselineOnMigrate to true to initialize the metadata table.");
+                            }
                         }
                     }
                 }
