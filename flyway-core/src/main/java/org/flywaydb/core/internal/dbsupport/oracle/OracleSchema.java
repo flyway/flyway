@@ -146,6 +146,10 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : generateDropStatementsForDatabaseLinks()) {
+            jdbcTemplate.execute(statement);
+        }
+
         for (String statement : generateDropStatementsForObjectType("CLUSTER", "")) {
             jdbcTemplate.execute(statement);
         }
@@ -325,6 +329,22 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         }
 
         return statements;
+    }
+
+    /**
+     * Generates the drop statements for all user database links.
+     *
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForDatabaseLinks() throws SQLException {
+        List<String> dropStatements = new ArrayList<String>();
+
+        List<String> linkNames = jdbcTemplate.queryForStringList("SELECT db_link FROM user_db_links");
+        for (String linkName : linkNames) {
+            dropStatements.add("DROP DATABASE LINK \"" + linkName + "\"");
+        }
+        return dropStatements;
     }
 
     /**
