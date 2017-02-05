@@ -31,7 +31,11 @@ mysql -uroot -pflyway -P3333 < flyway-core/src/test/resources/migration/dbsuppor
 
 echo PostgreSQL...
 set PGPASSWORD=flyway
-psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/dropDatabase.sql
+psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/edb/dropDatabase.sql
+
+echo PostgresPlus...
+set PGPASSWORD=flyway
+psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/postgresplus/dropDatabase.sql
 
 echo SQL Server...
 sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources\migration\dbsupport\sqlserver\dropDatabase.sql
