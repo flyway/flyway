@@ -588,6 +588,17 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void repeatableOnly() {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable_only;DB_CLOSE_DELAY=-1", "sa", "", null);
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/repeatable");
+        assertEquals(2, flyway.migrate());
+    }
+
+    @Test
     public void currentEmpty() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_current_empty;DB_CLOSE_DELAY=-1", "sa", "");
