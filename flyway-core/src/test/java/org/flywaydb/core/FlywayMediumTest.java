@@ -556,6 +556,31 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void repeatableFailed() {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable_failed;DB_CLOSE_DELAY=-1", "sa", "", null);
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+
+        flyway.setLocations("migration/repeatable_failed");
+        try {
+            flyway.migrate();
+            fail();
+        } catch (FlywayException e) {
+            assertEquals(e.getMessage(), MigrationState.FAILED, flyway.info().current().getState());
+        }
+
+        flyway.setLocations("migration/repeatable_failed");
+        try {
+            flyway.migrate();
+            fail();
+        } catch (FlywayException e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("failed repeatable migration"));
+        }
+    }
+
+    @Test
     public void currentEmpty() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_current_empty;DB_CLOSE_DELAY=-1", "sa", "");
