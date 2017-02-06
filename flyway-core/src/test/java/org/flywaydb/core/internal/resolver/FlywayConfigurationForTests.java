@@ -221,6 +221,10 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
         return false;
     }
 
+    public boolean isMigrateAllOrNothing() {
+        return false;
+    }
+
     @Override
     public boolean isCleanOnValidationError() {
         return false;
