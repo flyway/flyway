@@ -571,7 +571,14 @@ public class FlywayMediumTest {
             assertEquals(e.getMessage(), MigrationState.FAILED, flyway.info().current().getState());
         }
 
-        flyway.setLocations("migration/repeatable_failed");
+        try {
+            flyway.validate();
+            fail();
+        } catch (FlywayException e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("failed repeatable migration"));
+        }
+
+        flyway.setLocations("migration/repeatable");
         try {
             flyway.migrate();
             fail();

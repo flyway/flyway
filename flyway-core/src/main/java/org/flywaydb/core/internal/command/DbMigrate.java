@@ -184,9 +184,8 @@ public class DbMigrate {
                             } else {
                                 if (failed[0].getVersion() == null) {
                                     throw new FlywayException("Schema " + schema + " contains a failed repeatable migration (" + failed[0].getDescription() + ") !");
-                                } else {
-                                    throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
                                 }
+                                throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
                             }
                         }
 

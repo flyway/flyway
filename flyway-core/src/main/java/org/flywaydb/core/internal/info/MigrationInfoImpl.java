@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.info;
 
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
@@ -209,6 +210,14 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        if (getState().isFailed()
+                && (!context.future || MigrationState.FUTURE_FAILED != getState())) {
+            if (getVersion() == null) {
+                throw new FlywayException("Detected failed repeatable migration: " + getDescription());
+            }
+            throw new FlywayException("Detected failed migration to version" + getVersion());
+        }
+
         if ((resolvedMigration == null)
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.BASELINE)
@@ -228,7 +237,6 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (!context.pending && MigrationState.OUTDATED == getState()) {
             return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
         }
-
 
         if (resolvedMigration != null && appliedMigration != null) {
             Object migrationIdentifier = appliedMigration.getVersion();
