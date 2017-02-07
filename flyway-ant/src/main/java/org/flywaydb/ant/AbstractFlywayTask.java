@@ -228,6 +228,16 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.<br>
+     * Also configurable with Ant Property: ${flyway.allowMixedMigrations}
+     *
+     * @param allowMixedMigrations {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     */
+    public void setAllowMixedMigrations(boolean allowMixedMigrations) {
+        flyway.setAllowMixedMigrations(allowMixedMigrations);
+    }
+
+    /**
      * Creates the datasource base on the provided parameters.
      *
      * @return The fully configured datasource.

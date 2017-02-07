@@ -232,9 +232,16 @@ abstract class AbstractFlywayTask extends DefaultTask {
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
      *
-     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</p>
      */
     public Boolean baselineOnMigrate;
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>
+     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
+     */
+    public Boolean allowMixedMigrations;
 
     public AbstractFlywayTask() {
         super();
@@ -293,6 +300,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, "repeatableSqlMigrationPrefix", repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
         putIfSet(conf, "sqlMigrationSeparator", sqlMigrationSeparator, extension.sqlMigrationSeparator);
         putIfSet(conf, "sqlMigrationSuffix", sqlMigrationSuffix, extension.sqlMigrationSuffix);
+        putIfSet(conf, "allowMixedMigrations", allowMixedMigrations, extension.allowMixedMigrations);
         putIfSet(conf, "encoding", encoding, extension.encoding);
         putIfSet(conf, "placeholderReplacement", placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, "placeholderPrefix", placeholderPrefix, extension.placeholderPrefix);

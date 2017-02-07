@@ -209,7 +209,14 @@ public class FlywayExtension {
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
      *
-     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</
      */
     public Boolean baselineOnMigrate;
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>
+     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
+     */
+    public Boolean allowMixedMigrations;
 }

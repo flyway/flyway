@@ -373,6 +373,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean validateOnMigrate = flyway.isValidateOnMigrate();
 
     /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>
+     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     */
+    private boolean allowMixedMigrations = flyway.isAllowMixedMigrations();
+
+    /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
      * flyway.encoding property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
@@ -496,6 +503,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
+            flyway.setAllowMixedMigrations(allowMixedMigrations);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setCleanDisabled(cleanDisabled);
             flyway.setOutOfOrder(outOfOrder);
