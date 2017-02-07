@@ -30,7 +30,8 @@ import org.gradle.api.Project;
  */
 public class FlywayPlugin implements Plugin<Project> {
     public void apply(Project project) {
-        project.getExtensions().create("flyway", FlywayExtension.class);
+        FlywayExtension flyway = project.getExtensions().create("flyway", FlywayExtension.class);
+        flyway.extensions.add("databases", project.container(FlywayContainer.class));
         project.getTasks().create("flywayClean", FlywayCleanTask.class);
         project.getTasks().create("flywayBaseline", FlywayBaselineTask.class);
         project.getTasks().create("flywayMigrate", FlywayMigrateTask.class);

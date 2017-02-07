@@ -56,7 +56,7 @@ public class GradleLargeTest {
     @Test(timeout = 60000)
     public void error() throws Exception {
         String stdOut = runGradle(0, "error", "clean", "flywayMigrate");
-        assertTrue(stdOut.contains("Successfully validated 0 migrations"));
+        assertTrue(stdOut.contains("No migration necessary."));
     }
 
     /**
