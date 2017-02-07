@@ -477,6 +477,29 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void outOfOrderInOrder() {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_out_of_order_in_order;DB_CLOSE_DELAY=-1", "sa", "", null);
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+
+        MigrationVersion highest = null;
+        for (MigrationInfo migrationInfo : flyway.info().applied()) {
+            assertEquals(MigrationState.SUCCESS, migrationInfo.getState());
+            if (highest == null) {
+                highest = migrationInfo.getVersion();
+            } else {
+                assertTrue(migrationInfo.getVersion().compareTo(highest) > 0);
+                highest = migrationInfo.getVersion();
+            }
+        }
+        assertEquals(MigrationVersion.fromVersion("2.0"), highest);
+    }
+
+    @Test
     public void repeatable() {
         DriverDataSource dataSource =
                 new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable;DB_CLOSE_DELAY=-1", "sa", "", null);
