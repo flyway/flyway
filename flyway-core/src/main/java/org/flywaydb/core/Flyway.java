@@ -298,6 +298,12 @@ public class Flyway implements FlywayConfiguration {
     private boolean allowMixedMigrations;
 
     /**
+     * Fully-qualified name of a class implementing DbSupport. if specified, bypasses detection based on
+     * JDBC database product name
+     */
+    private String dbSupportClassName;
+
+    /**
      * Creates a new instance of Flyway. This is your starting point.
      */
     public Flyway() {
@@ -861,6 +867,15 @@ public class Flyway implements FlywayConfiguration {
         this.skipDefaultResolvers = skipDefaultResolvers;
     }
 
+    public void setDbSupportClassName(String dbSupportClassName) {
+        this.dbSupportClassName = dbSupportClassName;
+    }
+
+    public String getDbSupportClassName() {
+        return dbSupportClassName;
+    }
+
+
     /**
      * <p>Starts the database migration. All pending migrations will be applied in order.
      * Calling migrate on an up-to-date database has no effect.</p>
@@ -1136,6 +1151,10 @@ public class Flyway implements FlywayConfiguration {
             LOG.warn("Discarding INCOMPLETE dataSource configuration! flyway.url must be set.");
         }
 
+        String dbSupportProp = getValueAndRemoveEntry(props, "flyway.dbSupport");
+        if (dbSupportProp != null) {
+            setDbSupportClassName(dbSupportProp);
+        }
         String locationsProp = getValueAndRemoveEntry(props, "flyway.locations");
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
@@ -1299,7 +1318,20 @@ public class Flyway implements FlywayConfiguration {
 
             connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
 
-            DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
+            String dbSupportClassName = getDbSupportClassName();
+            DbSupport dbSupport;
+            if (dbSupportClassName != null) {
+                Class<?> dbSupportClass;
+                try {
+                    dbSupportClass = Class.forName(dbSupportClassName);
+                } catch (ClassNotFoundException e) {
+                    throw new FlywayException("Invalid class specified for flyway.dbSupport: " + dbSupportClassName);
+                }
+                dbSupport = DbSupportFactory.createDbSupport(dbSupportClass, connectionMetaDataTable, !dbConnectionInfoPrinted);
+            }
+            else {
+                dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
+            }
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
@@ -1349,6 +1381,7 @@ public class Flyway implements FlywayConfiguration {
         }
         return result;
     }
+
 
     /**
      * A Flyway command that can be executed.

@@ -37,6 +37,7 @@ import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
+import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -55,11 +56,52 @@ public class DbSupportFactory {
     }
 
     /**
+     * Initializes a specific DbSupport class. The provided {@link Class} is expected to be a subclass of
+     * {@link DbSupport} and expose a public constructor that takes a {@link Connection} as argument.
+     *
+     * @param dbSupportClass The DbSupport class to use
+     * @param connection The Jdbc connection to use to query the database.
+     * @param printInfo  Whether the DB info should be printed in the logs.
+     * @throws FlywayException if one of the following occurs:
+     *  -the specified class is not a subclass of DbSupport
+     *  -the specified class does not expose a constructor that takes a Connection as argument
+     *  -instantiation of the specified class fails for any reason
+     * @return The appropriate DbSupport instance
+     */
+    public static DbSupport createDbSupport(Class<?> dbSupportClass, Connection connection, boolean printInfo) {
+        String databaseProductName = getDatabaseProductName(connection);
+
+        if (printInfo) {
+            LOG.info("Database: " + getJdbcUrl(connection) + " (" + databaseProductName + ")");
+        }
+
+        if (! DbSupport.class.isAssignableFrom(dbSupportClass)) {
+            throw new FlywayException("Specified class for flyway.dbSupport is not a subclass of org.flywaydb.core.internal.dbsupport.DbSupport: " + dbSupportClass);
+        }
+
+        Constructor<DbSupport> constructor;
+        try {
+            constructor = (Constructor<DbSupport>) dbSupportClass.getConstructor(Connection.class);
+        } catch (NoSuchMethodException e) {
+            throw new FlywayException("Specified class for flyway.dbSupport does not expose a constructor that takes a java.sql.Connection: " + dbSupportClass);
+        }
+
+        DbSupport dbSupport;
+        try {
+            dbSupport = constructor.newInstance(connection);
+        } catch (Exception e) {
+            throw new FlywayException("Exception while instantiating " + dbSupportClass, e);
+        }
+
+        return dbSupport;
+    }
+
+    /**
      * Initializes the appropriate DbSupport class for the database product used by the data source.
      *
      * @param connection The Jdbc connection to use to query the database.
-     * @param printInfo  Where the DB info should be printed in the logs.
-     * @return The appropriate DbSupport class.
+     * @param printInfo  Whether the DB info should be printed in the logs.
+     * @return The appropriate DbSupport instance
      */
     public static DbSupport createDbSupport(Connection connection, boolean printInfo) {
         String databaseProductName = getDatabaseProductName(connection);
