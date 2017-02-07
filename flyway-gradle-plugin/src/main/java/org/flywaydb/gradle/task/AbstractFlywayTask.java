@@ -282,8 +282,6 @@ abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Flyway createFlyway() {
         Map<String, String> conf = new HashMap<String, String>();
-        System.out.println(this);
-        System.out.println(extension);
         putIfSet(conf, "driver", driver, extension.driver);
         putIfSet(conf, "url", url, extension.url);
         putIfSet(conf, "user", user, extension.user);
