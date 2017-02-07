@@ -25,6 +25,7 @@ import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
@@ -284,7 +285,7 @@ public class DbMigrate {
                 try {
                     doMigrate(migration, migrationExecutor, migrationText);
                 } catch (SQLException e) {
-                    throw new FlywayException("Unable to apply migration", e);
+                    throw new FlywaySqlException("Unable to apply migration", e);
                 }
             }
         } catch (FlywayException e) {

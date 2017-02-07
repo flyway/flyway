@@ -90,12 +90,11 @@ public class PhoenixDbSupport extends DbSupport {
 
     @Override
     public String getCurrentUserFunction()  {
-        String userName = null;
         try {
-            userName = jdbcTemplate.getMetaData().getUserName();
-        } catch (SQLException e) { }
-
-        return userName;
+            return jdbcTemplate.getMetaData().getUserName();
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     @Override

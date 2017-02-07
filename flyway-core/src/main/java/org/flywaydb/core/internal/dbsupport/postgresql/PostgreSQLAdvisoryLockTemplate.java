@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
@@ -66,7 +67,7 @@ public class PostgreSQLAdvisoryLockTemplate {
             jdbcTemplate.execute("SELECT pg_advisory_lock(" + lockNum + ")");
             return callable.call();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to acquire Flyway advisory lock", e);
+            throw new FlywaySqlException("Unable to acquire Flyway advisory lock", e);
         } catch (Exception e) {
             RuntimeException rethrow;
             if (e instanceof RuntimeException) {

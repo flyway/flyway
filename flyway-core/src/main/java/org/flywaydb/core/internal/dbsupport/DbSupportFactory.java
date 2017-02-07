@@ -153,7 +153,7 @@ public class DbSupportFactory {
         try {
             return connection.getMetaData().getURL();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to retrieve the Jdbc connection Url!", e);
+            throw new FlywaySqlException("Unable to retrieve the Jdbc connection Url!", e);
         }
     }
 
@@ -180,7 +180,7 @@ public class DbSupportFactory {
 
             return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
-            throw new FlywayException("Error while determining database product name", e);
+            throw new FlywaySqlException("Error while determining database product name", e);
         }
     }
 
@@ -207,7 +207,7 @@ public class DbSupportFactory {
 
 			return databaseProductVersion;
 		} catch (SQLException e) {
-			throw new FlywayException("Error while determining database product version", e);
+			throw new FlywaySqlException("Error while determining database product version", e);
 		}
 	}
 
@@ -231,8 +231,7 @@ public class DbSupportFactory {
 
             return driverName;
         } catch (SQLException e) {
-            throw new FlywayException("Error while determining JDBC driver name", e);
+            throw new FlywaySqlException("Error while determining JDBC driver name", e);
         }
     }
-
 }

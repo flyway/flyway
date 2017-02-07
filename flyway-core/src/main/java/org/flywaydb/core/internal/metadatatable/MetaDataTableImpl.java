@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
@@ -226,7 +227,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
             LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
-            throw new FlywayException("Unable to insert row for version '" + version + "' in metadata table " + table, e);
+            throw new FlywaySqlException("Unable to insert row for version '" + version + "' in metadata table " + table, e);
         }
     }
 
@@ -311,7 +312,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             }));
             return cache;
         } catch (SQLException e) {
-            throw new FlywayException("Error while retrieving the list of applied migrations from metadata table "
+            throw new FlywaySqlException("Error while retrieving the list of applied migrations from metadata table "
                     + table, e);
         }
     }
@@ -339,14 +340,14 @@ public class MetaDataTableImpl implements MetaDataTable {
                 return;
             }
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check the metadata table " + table + " for failed migrations", e);
+            throw new FlywaySqlException("Unable to check the metadata table " + table + " for failed migrations", e);
         }
 
         try {
             jdbcTemplate.execute("DELETE FROM " + table
                     + " WHERE " + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse());
         } catch (SQLException e) {
-            throw new FlywayException("Unable to repair metadata table " + table, e);
+            throw new FlywaySqlException("Unable to repair metadata table " + table, e);
         }
     }
 
@@ -371,7 +372,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                     "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='SCHEMA'");
             return count > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether the metadata table " + table + " has a schema marker migration", e);
+            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has a schema marker migration", e);
         }
     }
 
@@ -388,7 +389,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                     "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='INIT' OR " + dbSupport.quote("type") + "='BASELINE'");
             return count > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
+            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
         }
     }
 
@@ -411,7 +412,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                     "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + " NOT IN ('SCHEMA', 'INIT', 'BASELINE')");
             return count > 0;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether the metadata table " + table + " has applied migrations", e);
+            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has applied migrations", e);
         }
     }
 
@@ -447,8 +448,8 @@ public class MetaDataTableImpl implements MetaDataTable {
                         + dbSupport.quote("checksum") + "=" + checksum
                         + " WHERE " + dbSupport.quote("version") + "='" + version + "'");
             } catch (SQLException e) {
-                throw new FlywayException("Unable to update checksum in metadata table " + table
-                        + " for version " + version + " to " + checksum, e);
+                throw new FlywaySqlException("Unable to repair metadata table " + table
+                        + " for version " + version, e);
             }
         }
     }

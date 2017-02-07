@@ -95,7 +95,7 @@ public abstract class DbSupport {
         try {
             return doGetCurrentSchemaName();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to retrieve the current schema for the connection", e);
+            throw new FlywaySqlException("Unable to retrieve the current schema for the connection", e);
         }
     }
 
@@ -120,7 +120,7 @@ public abstract class DbSupport {
         try {
             doChangeCurrentSchemaTo(schema.getName());
         } catch (SQLException e) {
-            throw new FlywayException("Error setting current schema to " + schema, e);
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 
@@ -131,7 +131,7 @@ public abstract class DbSupport {
         try {
             doChangeCurrentSchemaTo(originalSchema);
         } catch (SQLException e) {
-            throw new FlywayException("Error restoring current schema to its original setting", e);
+            throw new FlywaySqlException("Error restoring current schema to its original setting", e);
         }
     }
 
