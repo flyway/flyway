@@ -14,6 +14,10 @@
 -- limitations under the License.
 --
 
-CREATE TABLE A1 (
-  val INT
-);
+DROP INDEX ${table}_vr_idx ON ${schema}.${table};
+DROP INDEX ${table}_ir_idx ON ${schema}.${table};
+ALTER TABLE ${schema}.${table} DROP COLUMN version_rank;
+
+ALTER TABLE ${schema}.${table} DROP PRIMARY KEY, ADD CONSTRAINT ${table}_pk PRIMARY KEY (installed_rank);
+ALTER TABLE ${schema}.${table} MODIFY version VARCHAR(50);
+UPDATE ${schema}.${table} SET type='BASELINE' WHERE type='INIT';

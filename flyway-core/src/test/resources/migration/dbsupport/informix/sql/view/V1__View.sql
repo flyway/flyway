@@ -14,6 +14,6 @@
 -- limitations under the License.
 --
 
-CREATE TABLE A1 (
-  val INT
-);
+CREATE TABLE t (qty INT, price INT);
+INSERT INTO t VALUES(3, 50);
+CREATE VIEW v (qty, price, value) AS SELECT qty, price, qty*price AS value FROM t;

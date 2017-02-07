@@ -14,6 +14,17 @@
 -- limitations under the License.
 --
 
-CREATE TABLE A1 (
-  val INT
+CREATE TABLE ${schema}.${table} (
+    installed_rank INTEGER NOT NULL primary key,
+    version VARCHAR(50),
+    description VARCHAR(200) NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    script VARCHAR(255) NOT NULL,
+    checksum INTEGER,
+    installed_by VARCHAR(100) NOT NULL,
+    installed_on DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND NOT NULL ,
+    execution_time INTEGER NOT NULL,
+    success BOOLEAN NOT NULL
 );
+
+CREATE INDEX ${table}_s_idx ON ${schema}.${table} (success);

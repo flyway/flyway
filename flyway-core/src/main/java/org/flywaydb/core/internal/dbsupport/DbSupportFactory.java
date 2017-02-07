@@ -40,6 +40,7 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import org.flywaydb.core.internal.dbsupport.informix.InformixDbSupport;
 
 /**
  * Factory for obtaining the correct DbSupport instance for the current connection.
@@ -137,6 +138,9 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("HDB")) {
         	return new SapHanaDbSupport(connection);
+        }
+        if (databaseProductName.startsWith("Informix")) {
+            return new InformixDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

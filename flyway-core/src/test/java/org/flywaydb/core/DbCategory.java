@@ -48,4 +48,7 @@ public class DbCategory {
     public interface Redshift extends ContributorSupportedDB {}
     public interface SolidDB extends ContributorSupportedDB {}
     public interface SybaseASE extends ContributorSupportedDB {}
+    
+    public interface Informix extends ContributorSupportedDB {}
+    
 }

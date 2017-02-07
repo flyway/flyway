@@ -14,6 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE TABLE A1 (
-  val INT
-);
+database flyway_db;
+close database;
+
+drop DATABASE flyway_db;

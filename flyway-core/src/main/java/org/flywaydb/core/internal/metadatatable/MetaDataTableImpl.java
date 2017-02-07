@@ -45,6 +45,7 @@ import java.util.concurrent.Callable;
  * Supports reading and writing to the metadata table.
  */
 public class MetaDataTableImpl implements MetaDataTable {
+
     private static final Log LOG = LogFactory.getLog(MetaDataTableImpl.class);
 
     /**
@@ -76,7 +77,7 @@ public class MetaDataTableImpl implements MetaDataTable {
      * Creates a new instance of the metadata table support.
      *
      * @param dbSupport Database-specific functionality.
-     * @param table     The metadata table used by flyway.
+     * @param table The metadata table used by flyway.
      */
     public MetaDataTableImpl(DbSupport dbSupport, Table table) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
@@ -207,18 +208,20 @@ public class MetaDataTableImpl implements MetaDataTable {
                 sqlScript.execute(jdbcTemplate);
             } else {
                 // Fall back to hard-coded statements
-                jdbcTemplate.update("INSERT INTO " + table
-                                + " (" + dbSupport.quote("installed_rank")
-                                + "," + dbSupport.quote("version")
-                                + "," + dbSupport.quote("description")
-                                + "," + dbSupport.quote("type")
-                                + "," + dbSupport.quote("script")
-                                + "," + dbSupport.quote("checksum")
-                                + "," + dbSupport.quote("installed_by")
-                                + "," + dbSupport.quote("execution_time")
-                                + "," + dbSupport.quote("success")
-                                + ")"
-                                + " VALUES (?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
+                String sqlStatement = "INSERT INTO " + table + " (" 
+                        + dbSupport.quote("installed_rank")
+                        + "," + dbSupport.quote("version")
+                        + "," + dbSupport.quote("description")
+                        + "," + dbSupport.quote("type")
+                        + "," + dbSupport.quote("script")
+                        + "," + dbSupport.quote("checksum")
+                        + "," + dbSupport.quote("installed_by")
+                        + "," + dbSupport.quote("execution_time")
+                        + "," + dbSupport.quote("success")
+                        + ")"
+                        + " VALUES (?, ?, ?, ?, ?, ?, "
+                        + dbSupport.getCurrentUserFunction() + ", ?, ?)";
+                jdbcTemplate.update(sqlStatement,
                         installedRank,
                         versionStr,
                         appliedMigration.getDescription(),
@@ -255,7 +258,8 @@ public class MetaDataTableImpl implements MetaDataTable {
     /**
      * Retrieve the applied migrations from the metadata table.
      *
-     * @param migrationTypes The specific migration types to look for. (Optional) None means find all migrations.
+     * @param migrationTypes The specific migration types to look for.
+     * (Optional) None means find all migrations.
      * @return The applied migrations.
      */
     private List<AppliedMigration> findAppliedMigrations(MigrationType... migrationTypes) {
