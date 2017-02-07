@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,11 @@ import org.flywaydb.core.internal.util.StringUtils;
  */
 public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     /**
+     * The keyword that indicates a change in delimiter.
+     */
+    private static final String DELIMITER_KEYWORD = "--#SET TERMINATOR";
+
+    /**
      * Are we currently inside a BEGIN END; block?
      */
     private boolean insideBeginEndBlock;
@@ -32,6 +37,20 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
      * Holds the beginning of the statement.
      */
     private String statementStart = "";
+
+    @Override
+    public Delimiter extractNewDelimiterFromLine(String line) {
+        if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
+            return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
+        }
+
+        return null;
+    }
+
+    @Override
+    protected boolean isSingleLineComment(String line) {
+        return line.startsWith("--") && !line.startsWith(DELIMITER_KEYWORD);
+    }
 
     @Override
     protected String cleanToken(String token) {
@@ -66,6 +85,6 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
         if (insideBeginEndBlock) {
             return null;
         }
-        return getDefaultDelimiter();
+        return delimiter;
     }
 }

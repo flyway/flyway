@@ -81,6 +81,14 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
+    public void delimiter() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/delimiter");
+        flyway.migrate();
+
+        assertEquals("1", flyway.info().current().getVersion().toString());
+    }
+
+    @Test
     public void mqt() throws Exception {
         flyway.setLocations("migration/dbsupport/db2/sql/mqt");
         flyway.migrate();
