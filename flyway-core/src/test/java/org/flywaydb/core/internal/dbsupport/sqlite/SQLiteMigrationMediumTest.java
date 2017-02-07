@@ -42,6 +42,7 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
         config.setOpenMode(SQLiteOpenMode.DELETEONCLOSE);
         config.setOpenMode(SQLiteOpenMode.READWRITE);
         config.setOpenMode(SQLiteOpenMode.TRANSIENT_DB);
+        config.enforceForeignKeys(true);
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(),
                 null,
@@ -121,10 +122,19 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
     public void cleanWithSystemTables() throws Exception {
         flyway.clean();
         // AUTOINCREMENT field causes sqlite_sequence table creation
-        flyway.setLocations("migration/dbsupport/sqlite/autoincrement");
+        flyway.setLocations("migration/dbsupport/sqlite/sql/autoincrement");
         flyway.migrate();
         // crashes on "DROP sqlite_sequence": table sqlite_sequence may not be dropped
         flyway.clean();
+    }
+
+    @Test
+    public void foreignKey() throws Exception {
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/sqlite/sql/foreign_key");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
     }
 
     @Test
