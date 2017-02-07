@@ -673,6 +673,31 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void missingMigrations() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_missing;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+
+        flyway.setLocations("migration/missing");
+        flyway.setIgnoreMissingMigrations(true);
+        flyway.migrate();
+        assertEquals(MigrationState.MISSING_SUCCESS, flyway.info().applied()[1].getState());
+    }
+
+    @Test(expected = FlywayException.class)
+    public void missingMigrationsNotAllowed() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_missing_not_allowed;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.migrate();
+
+        flyway.setLocations("migration/missing");
+        flyway.setIgnoreMissingMigrations(false);
+        flyway.migrate();
+    }
+
+    @Test
     public void futureMigrations() {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_future;DB_CLOSE_DELAY=-1", "sa", "");

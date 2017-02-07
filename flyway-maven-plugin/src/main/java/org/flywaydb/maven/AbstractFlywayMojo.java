@@ -266,6 +266,21 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean outOfOrder = flyway.isOutOfOrder();
 
     /**
+     * Ignore missing migrations when reading the metadata table. These are migrations that were performed by an
+     * older deployment of the application that are no longer available in this version. For example: we have migrations
+     * available on the classpath with versions 1.0 and 3.0. The metadata table indicates that a migration with version 2.0
+     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
+     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
+     *
+     * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     *
+     * @parameter property="flyway.ignoreMissingMigrations"
+     */
+    public boolean ignoreMissingMigrations;
+
+    /**
      * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -376,6 +391,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      * <p>
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     *
+     * @parameter property="flyway.allowMixedMigrations"
      */
     private boolean allowMixedMigrations = flyway.isAllowMixedMigrations();
 
@@ -383,6 +400,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The username that will be recorded in the metadata table as having applied the migration.
      * <p>
      * {@code null} for the current database user of the connection. (default: {@code null}).
+     *
+     * @parameter property="flyway.installedBy"
      */
     private String installedBy;
 
@@ -516,6 +535,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setCleanDisabled(cleanDisabled);
             flyway.setOutOfOrder(outOfOrder);
             flyway.setTargetAsString(target);
+            flyway.setIgnoreMissingMigrations(ignoreMissingMigrations);
             flyway.setIgnoreFutureMigrations(ignoreFutureMigrations);
             if (ignoreFailedFutureMigration) {
                 flyway.setIgnoreFailedFutureMigration(ignoreFailedFutureMigration);
