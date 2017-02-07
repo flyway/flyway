@@ -237,6 +237,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
+    public String getInstalledBy() {
+        return null;
+    }
+
+    @Override
     public String getEncoding() {
         return this.encoding;
     }

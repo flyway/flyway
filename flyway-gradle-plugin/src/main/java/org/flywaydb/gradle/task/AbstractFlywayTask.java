@@ -243,6 +243,13 @@ abstract class AbstractFlywayTask extends DefaultTask {
      */
     public Boolean allowMixedMigrations;
 
+    /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     * <p>
+     * {@code null} for the current database user of the connection. (default: {@code null}).
+     */
+    public String installedBy;
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -301,6 +308,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, "sqlMigrationSeparator", sqlMigrationSeparator, extension.sqlMigrationSeparator);
         putIfSet(conf, "sqlMigrationSuffix", sqlMigrationSuffix, extension.sqlMigrationSuffix);
         putIfSet(conf, "allowMixedMigrations", allowMixedMigrations, extension.allowMixedMigrations);
+        putIfSet(conf, "installedBy", installedBy, extension.installedBy);
         putIfSet(conf, "encoding", encoding, extension.encoding);
         putIfSet(conf, "placeholderReplacement", placeholderReplacement, extension.placeholderReplacement);
         putIfSet(conf, "placeholderPrefix", placeholderPrefix, extension.placeholderPrefix);

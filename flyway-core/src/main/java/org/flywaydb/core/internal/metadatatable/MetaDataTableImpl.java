@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -70,18 +70,24 @@ public class MetaDataTableImpl implements MetaDataTable {
     /**
      * The current user in the database.
      */
-    private String currentUser;
+    private String installedBy;
 
     /**
      * Creates a new instance of the metadata table support.
      *
-     * @param dbSupport Database-specific functionality.
-     * @param table     The metadata table used by flyway.
+     * @param dbSupport   Database-specific functionality.
+     * @param table       The metadata table used by flyway.
+     * @param installedBy The current user in the database.
      */
-    public MetaDataTableImpl(DbSupport dbSupport, Table table) {
+    public MetaDataTableImpl(DbSupport dbSupport, Table table, String installedBy) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;
+        if (installedBy == null) {
+            this.installedBy = dbSupport.getCurrentUserFunction();
+        } else {
+            this.installedBy = "'" + installedBy + "'";
+        }
     }
 
     @Override
@@ -196,7 +202,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 placeholders.put("type_val", appliedMigration.getType().name());
                 placeholders.put("script_val", appliedMigration.getScript());
                 placeholders.put("checksum_val", String.valueOf(appliedMigration.getChecksum()));
-                placeholders.put("installed_by_val", dbSupport.getCurrentUserFunction());
+                placeholders.put("installed_by_val", installedBy);
                 placeholders.put("execution_time_val", String.valueOf(appliedMigration.getExecutionTime() * 1000L));
                 placeholders.put("success_val", String.valueOf(appliedMigration.isSuccess()));
 
@@ -218,7 +224,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                                 + "," + dbSupport.quote("execution_time")
                                 + "," + dbSupport.quote("success")
                                 + ")"
-                                + " VALUES (?, ?, ?, ?, ?, ?, " + dbSupport.getCurrentUserFunction() + ", ?, ?)",
+                                + " VALUES (?, ?, ?, ?, ?, ?, " + installedBy + ", ?, ?)",
                         installedRank,
                         versionStr,
                         appliedMigration.getDescription(),

@@ -380,6 +380,13 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     private boolean allowMixedMigrations = flyway.isAllowMixedMigrations();
 
     /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     * <p>
+     * {@code null} for the current database user of the connection. (default: {@code null}).
+     */
+    private String installedBy;
+
+    /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
      * flyway.encoding property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
@@ -504,6 +511,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
             flyway.setAllowMixedMigrations(allowMixedMigrations);
+            flyway.setInstalledBy(installedBy);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setCleanDisabled(cleanDisabled);
             flyway.setOutOfOrder(outOfOrder);

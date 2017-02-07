@@ -267,7 +267,7 @@ public interface FlywayConfiguration {
      * Whether to disable clean.
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      *
-     * @return {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
+     * @return {@code true} to disabled clean. {@code false} to leave it enabled. (default: {@code false})
      */
     boolean isCleanDisabled();
 
@@ -277,4 +277,11 @@ public interface FlywayConfiguration {
      * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
     boolean isAllowMixedMigrations();
+
+    /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     *
+     * @return The username or {@code null} for the current database user of the connection. (default: {@code null}).
+     */
+    String getInstalledBy();
 }

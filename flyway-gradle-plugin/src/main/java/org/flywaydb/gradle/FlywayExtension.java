@@ -219,4 +219,11 @@ public class FlywayExtension {
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
      */
     public Boolean allowMixedMigrations;
+
+    /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     * <p>
+     * {@code null} for the current database user of the connection. (default: {@code null}).
+     */
+    public String installedBy;
 }

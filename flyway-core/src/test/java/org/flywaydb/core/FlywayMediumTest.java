@@ -683,6 +683,28 @@ public class FlywayMediumTest {
         flyway.validate();
     }
 
+    @Test
+    public void installedBy() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_installed_by;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+
+        flyway.setTarget(MigrationVersion.fromVersion("1"));
+        flyway.migrate();
+
+        flyway.setTarget(MigrationVersion.fromVersion("1.1"));
+        flyway.setInstalledBy("abc");
+        flyway.migrate();
+
+        flyway.setTarget(MigrationVersion.LATEST);
+        flyway.setInstalledBy(null);
+        flyway.migrate();
+
+        assertEquals("SA", flyway.info().applied()[0].getInstalledBy());
+        assertEquals("abc", flyway.info().applied()[1].getInstalledBy());
+        assertEquals("SA", flyway.info().applied()[2].getInstalledBy());
+    }
+
     @Test(expected = FlywayException.class)
     public void validateMissing() {
         Flyway flyway = new Flyway();

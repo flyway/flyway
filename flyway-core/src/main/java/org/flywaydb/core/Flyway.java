@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -298,6 +298,13 @@ public class Flyway implements FlywayConfiguration {
     private boolean allowMixedMigrations;
 
     /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     * <p>
+     * {@code null} for the current database user of the connection. (default: {@code null}).
+     */
+    private String installedBy;
+
+    /**
      * Creates a new instance of Flyway. This is your starting point.
      */
     public Flyway() {
@@ -455,6 +462,23 @@ public class Flyway implements FlywayConfiguration {
     @Override
     public boolean isAllowMixedMigrations() {
         return allowMixedMigrations;
+    }
+
+    @Override
+    public String getInstalledBy() {
+        return installedBy;
+    }
+
+    /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     *
+     * @param installedBy The username or {@code null} for the current database user of the connection. (default: {@code null}).
+     */
+    public void setInstalledBy(String installedBy) {
+        if ("".equals(installedBy)) {
+            installedBy = null;
+        }
+        this.installedBy = installedBy;
     }
 
     /**
@@ -1258,6 +1282,11 @@ public class Flyway implements FlywayConfiguration {
             setAllowMixedMigrations(Boolean.parseBoolean(allowMixedMigrationsProp));
         }
 
+        String installedByProp = getValueAndRemoveEntry(props, "flyway.installedBy");
+        if (installedByProp != null) {
+            setInstalledBy(installedByProp);
+        }
+
         for (String key : props.keySet()) {
             if (key.startsWith("flyway.")) {
                 LOG.warn("Unknown configuration property: " + key);
@@ -1337,7 +1366,7 @@ public class Flyway implements FlywayConfiguration {
                 ConfigurationInjectionUtils.injectFlywayConfiguration(callback, this);
             }
 
-            MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table));
+            MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), installedBy);
             if (metaDataTable.upgradeIfNecessary()) {
                 new DbRepair(dbSupport, connectionMetaDataTable, schemas[0], migrationResolver, metaDataTable, callbacks).repairChecksumsAndDescriptions();
                 LOG.info("Metadata table " + table + " successfully upgraded to the Flyway 4.0 format.");

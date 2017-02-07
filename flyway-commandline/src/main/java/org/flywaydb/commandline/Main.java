@@ -253,6 +253,7 @@ public class Main {
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
         LOG.info("placeholderSuffix            : Suffix of every placeholder");
+        LOG.info("installedBy                  : Username that will be recorded in the metadata table");
         LOG.info("target                       : Target version up to which Flyway should use migrations");
         LOG.info("outOfOrder                   : Allows migrations to be run \"out of order\"");
         LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes");

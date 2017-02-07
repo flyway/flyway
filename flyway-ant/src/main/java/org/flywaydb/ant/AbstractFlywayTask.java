@@ -238,6 +238,15 @@ public abstract class AbstractFlywayTask extends Task {
     }
 
     /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     *
+     * @param installedBy The username or <i>blank</i> for the current database user of the connection. (default: <i>blank</i>).
+     */
+    public void setInstalledBy(String installedBy) {
+        flyway.setInstalledBy(installedBy);
+    }
+
+    /**
      * Creates the datasource base on the provided parameters.
      *
      * @return The fully configured datasource.
