@@ -873,11 +873,11 @@ public class Flyway implements FlywayConfiguration {
         return execute(new Command<Integer>() {
             public Integer execute(Connection connectionMetaDataTable,
                                    MigrationResolver migrationResolver, MetaDataTable metaDataTable, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+                new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
+
                 if (validateOnMigrate) {
                     doValidate(connectionMetaDataTable, dbSupport, migrationResolver, metaDataTable, schemas, flywayCallbacks, true);
                 }
-
-                new DbSchemas(connectionMetaDataTable, schemas, metaDataTable).create();
 
                 if (!metaDataTable.exists()) {
                     List<Schema> nonEmptySchemas = new ArrayList<Schema>();
