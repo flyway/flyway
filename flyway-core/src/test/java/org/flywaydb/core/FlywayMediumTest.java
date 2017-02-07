@@ -210,6 +210,29 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void repairDescription() throws Exception {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_repair_description;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/quote");
+        assertEquals(1, flyway.migrate());
+
+        // Switch out V1 for a different migration with a new description and checksum
+        flyway.setLocations("migration/placeholder");
+        try {
+            flyway.validate();
+            fail();
+        } catch (FlywayException e) {
+            //Should happen
+        }
+
+        flyway.repair();
+        assertEquals(0, flyway.migrate());
+    }
+
+    @Test
     public void infoBaseline() throws Exception {
         DriverDataSource dataSource =
                 new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_info_init;DB_CLOSE_DELAY=-1", "sa", "", null);

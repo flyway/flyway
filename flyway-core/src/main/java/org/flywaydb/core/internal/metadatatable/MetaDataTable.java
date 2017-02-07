@@ -1,12 +1,12 @@
 /**
  * Copyright 2010-2016 Boxfuse GmbH
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,7 @@ import java.util.concurrent.Callable;
 public interface MetaDataTable {
     /**
      * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically upon completion.
+     *
      * @return The result of the action.
      */
     <T> T lock(Callable<T> callable);
@@ -105,12 +106,13 @@ public interface MetaDataTable {
     boolean hasSchemasMarker();
 
     /**
-     * Update the checksum for this version to this new value.
+     * Update the description and checksum for this version to these new values.
      *
-     * @param version  The version to update.
-     * @param checksum The new checksum.
+     * @param version     The version to update.
+     * @param description The new description.
+     * @param checksum    The new checksum.
      */
-    void updateChecksum(MigrationVersion version, Integer checksum);
+    void update(MigrationVersion version, String description, Integer checksum);
 
     /**
      * Upgrades the Metadata table to Flyway 4.0 format if necessary.

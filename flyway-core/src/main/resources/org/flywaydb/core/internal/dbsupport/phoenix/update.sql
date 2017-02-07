@@ -18,8 +18,10 @@
 -- Update checksum for a version
 UPSERT INTO "${schema}"."${table}" (
     "version",
+    "description",
     "checksum"
 ) VALUES (
      '${version_val}',
+     '${description_val}',
      ${checksum_val}
 );

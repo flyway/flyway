@@ -416,15 +416,16 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     @Override
-    public void updateChecksum(MigrationVersion version, Integer checksum) {
+    public void update(MigrationVersion version, String description, Integer checksum) {
         clearCache();
 
-        LOG.info("Updating checksum of " + version + " to " + checksum + " ...");
+        LOG.info("Repairing metadata for version " + version + " (Description: " + description + ", Checksum: " + checksum + ")  ...");
 
-        // Try load an updateChecksum.sql file if it exists
-        try {
-            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateChecksum.sql";
-            String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+        // Try load an update.sql file if it exists
+        String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/update.sql";
+        ClassPathResource resource = new ClassPathResource(resourceName, getClass().getClassLoader());
+        if (resource.exists()) {
+            String source = resource.loadAsString("UTF-8");
             Map<String, String> placeholders = new HashMap<String, String>();
 
             // Placeholders for column names
@@ -433,17 +434,17 @@ public class MetaDataTableImpl implements MetaDataTable {
 
             // Placeholders for column values
             placeholders.put("version_val", version.toString());
+            placeholders.put("description_val", description);
             placeholders.put("checksum_val", String.valueOf(checksum));
 
             String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-            SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-
-            sqlScript.execute(jdbcTemplate);
-
-        } catch (FlywayException fe) {
+            new SqlScript(sourceNoPlaceholders, dbSupport).execute(jdbcTemplate);
+        } else {
             try {
-                jdbcTemplate.update("UPDATE " + table + " SET " + dbSupport.quote("checksum") + "=" + checksum
+                jdbcTemplate.update("UPDATE " + table
+                        + " SET " + dbSupport.quote("description") + "='" + description + "' , "
+                        + dbSupport.quote("checksum") + "=" + checksum
                         + " WHERE " + dbSupport.quote("version") + "='" + version + "'");
             } catch (SQLException e) {
                 throw new FlywayException("Unable to update checksum in metadata table " + table

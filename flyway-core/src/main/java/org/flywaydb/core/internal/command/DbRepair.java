@@ -117,7 +117,7 @@ public class DbRepair {
                 public Void call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     metaDataTable.removeFailedMigrations();
-                    repairChecksums();
+                    repairChecksumsAndDescriptions();
                     return null;
                 }
             });
@@ -145,17 +145,17 @@ public class DbRepair {
         }
     }
 
-    public void repairChecksums() {
+    public void repairChecksumsAndDescriptions() {
         migrationInfoService.refresh();
         for (MigrationInfo migrationInfo : migrationInfoService.all()) {
             MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
 
             ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
             AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
-            if ((resolved != null) && (applied != null)) {
+            if (resolved != null && applied != null && resolved.getVersion() != null) {
                 if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
-                        && resolved.getVersion() != null) {
-                    metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
+                        || !ObjectUtils.nullSafeEquals(resolved.getDescription(), applied.getDescription())) {
+                    metaDataTable.update(migrationInfoImpl.getVersion(), resolved.getDescription(), resolved.getChecksum());
                 }
             }
         }
