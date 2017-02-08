@@ -90,6 +90,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
         try {
             Flyway flyway = new Flyway();
             flyway.setDataSource("jdbc:derby:memory:fw1331db;create=true", "sa", "sa");
+            flyway.setLocations("migration/sql");
             flyway.setBaselineOnMigrate(true);
             flyway.migrate();
         } finally {
