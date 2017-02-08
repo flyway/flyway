@@ -161,7 +161,7 @@ object FlywayPlugin extends AutoPlugin {
       flywayBaselineOnMigrate := defaults.isBaselineOnMigrate,
       flywayValidateOnMigrate := defaults.isValidateOnMigrate,
       flywayAllowMixedMigrations := defaults.isAllowMixedMigrations,
-      flywayInstalledBy := defaults.getInstalledBy,
+      flywayInstalledBy := "",
       flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayCleanDisabled := defaults.isCleanDisabled,
       flywayConfigDataSource <<= (flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
