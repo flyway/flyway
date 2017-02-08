@@ -14,7 +14,7 @@ Windows, Mac OSX, Linux, Java and Android
 Maven, Gradle, Ant and SBT
 
 #### Supported databases
-Oracle, SQL Server, SQL Azure, DB2, DB2 z/OS, MySQL, MariaDB, Google Cloud SQL, PostgreSQL, Redshift, Vertica, H2, Hsql, Derby, SQLite
+Oracle, SQL Server, SQL Azure, DB2, DB2 z/OS, MySQL, MariaDB, Google Cloud SQL, PostgreSQL, Redshift, Vertica, EnterpriseDB, H2, Hsql, Derby, SQLite
 
 #### Third party plugins
 Grails, Play!, Grunt, Griffon, Ninja, ...
@@ -26,10 +26,10 @@ https://flywaydb.org
 https://flywaydb.org/documentation/contribute/
 
 ## About
-Flyway is brought to you by [Axel Fontaine](https://axelfontaine.com) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](https://flywaydb.org/documentation/contribute/hallOfFame.html).
+Flyway is brought to you by [Axel Fontaine](https://twitter.com/axelfontaine) and [Boxfuse](https://boxfuse.com) with the help of [many contributors](https://flywaydb.org/documentation/contribute/hallOfFame.html).
 
 ## License
-Copyright (C) 2010-2016 [Boxfuse GmbH](https://boxfuse.com)
+Copyright (C) 2010-2017 [Boxfuse GmbH](https://boxfuse.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
