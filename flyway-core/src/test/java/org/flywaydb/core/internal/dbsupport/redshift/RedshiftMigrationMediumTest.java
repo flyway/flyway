@@ -56,7 +56,7 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
         // Create an ssh tunnel on port 5439 to your Redshift instance before running this test!
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost:5439/flyway");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 
     @Override
@@ -202,7 +202,7 @@ public class RedshiftMigrationMediumTest extends MigrationTestCase {
         Flyway flyway1 = new Flyway();
         DriverDataSource driverDataSource = (DriverDataSource) dataSource;
         flyway1.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(),
-                null, driverDataSource.getUrl(), driverDataSource.getUser(), driverDataSource.getPassword()) {
+                null, driverDataSource.getUrl(), driverDataSource.getUser(), driverDataSource.getPassword(), null) {
             @Override
             public Connection getConnection() throws SQLException {
                 Connection connection = super.getConnection();

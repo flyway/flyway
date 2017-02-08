@@ -69,7 +69,7 @@ public class RedshiftDbSupportMediumTest {
         // Create an ssh tunnel on port 5439 to your Redshift instance before running this test!
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost:5439/flyway");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 
 

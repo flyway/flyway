@@ -49,7 +49,7 @@ public class FlywaySmallTest {
         assertNotNull(flyway.getDataSource());
 
         flyway.execute(new Flyway.Command<Void>() {
-            public Void execute(Connection connectionMetaDataTable, Connection connectionUserObjects, MigrationResolver migrationResolver, MetaDataTable metaDataTable, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+            public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver, MetaDataTable metaDataTable, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
                 assertEquals("PUBLIC", flyway.getSchemas()[0]);
                 return null;
             }
@@ -123,6 +123,18 @@ public class FlywaySmallTest {
     }
 
     @Test
+    public void configurePlaceholderReplacement() {
+        Flyway flyway = new Flyway();
+        flyway.configure(new Properties());
+        assertTrue(flyway.isPlaceholderReplacement());
+
+        Properties properties = new Properties();
+        properties.setProperty("flyway.placeholderReplacement", "false");
+        flyway.configure(properties);
+        assertFalse(flyway.isPlaceholderReplacement());
+    }
+
+    @Test
     public void configureCustomMigrationResolvers() {
         Properties properties = new Properties();
         properties.setProperty("flyway.resolvers", MyCustomMigrationResolver.class.getName());
@@ -135,7 +147,7 @@ public class FlywaySmallTest {
 
     @Test
     public void configureWithExistingDataSource() {
-        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "", null);
 
         Properties properties = new Properties();
 
@@ -148,7 +160,7 @@ public class FlywaySmallTest {
 
     @Test
     public void configureWithPartialDbConfigInProperties() {
-        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "", null);
 
         Properties properties = new Properties();
         properties.setProperty("flyway.user", "dummy_user");

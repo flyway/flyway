@@ -33,6 +33,6 @@ public class MariaDBMigrationMediumTest extends MySQLMigrationTestCase {
         String password = customProperties.getProperty("mariadb.password", "flyway");
         String url = customProperties.getProperty("mariadb.url", "jdbc:mariadb://localhost:3333/flyway_db");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 }

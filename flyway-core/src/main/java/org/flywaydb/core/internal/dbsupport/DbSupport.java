@@ -16,9 +16,11 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 /**
  * Abstraction for database-specific functionality.
@@ -93,7 +95,7 @@ public abstract class DbSupport {
         try {
             return doGetCurrentSchemaName();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to retrieve the current schema for the connection", e);
+            throw new FlywaySqlException("Unable to retrieve the current schema for the connection", e);
         }
     }
 
@@ -116,9 +118,9 @@ public abstract class DbSupport {
         }
 
         try {
-            doChangeCurrentSchemaTo(schema.toString());
+            doChangeCurrentSchemaTo(schema.getName());
         } catch (SQLException e) {
-            throw new FlywayException("Error setting current schema to " + schema, e);
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 
@@ -129,7 +131,7 @@ public abstract class DbSupport {
         try {
             doChangeCurrentSchemaTo(originalSchema);
         } catch (SQLException e) {
-            throw new FlywayException("Error restoring current schema to its original setting", e);
+            throw new FlywaySqlException("Error restoring current schema to its original setting", e);
         }
     }
 
@@ -205,5 +207,29 @@ public abstract class DbSupport {
      */
     public void executePgCopy(Connection connection, String sql) throws SQLException {
         // Do nothing by default
+    }
+
+    /**
+     * Locks this table and executes this callable.
+     *
+     * @param table    The table to lock.
+     * @param callable The callable to execute.
+     * @return The result of the callable.
+     */
+    public <T> T lock(final Table table, final Callable<T> callable) {
+        return new TransactionTemplate(jdbcTemplate.getConnection(), false).execute(new Callable<T>() {
+            @Override
+            public T call() throws Exception {
+                table.lock();
+                return callable.call();
+            }
+        });
+    }
+
+    /**
+     * @return Whether to only use a single connection for both metadata table management and applying migrations.
+     */
+    public boolean useSingleConnection() {
+        return false;
     }
 }

@@ -22,6 +22,8 @@ import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,6 +31,9 @@ import java.util.List;
  */
 public class SQLiteSchema extends Schema<SQLiteDbSupport> {
     private static final Log LOG = LogFactory.getLog(SQLiteSchema.class);
+
+    private static final List<String> IGNORED_SYSTEM_TABLE_NAMES =
+            Arrays.asList("android_metadata", SQLiteTable.SQLITE_SEQUENCE);
 
     /**
      * Creates a new SQLite schema.
@@ -54,7 +59,14 @@ public class SQLiteSchema extends Schema<SQLiteDbSupport> {
     @Override
     protected boolean doEmpty() throws SQLException {
         Table[] tables = allTables();
-        return (tables.length == 0) || ((tables.length == 1) && "android_metadata".equals(tables[0].getName()));
+        List<String> tableNames = new ArrayList<String>();
+        for (Table table : tables) {
+            String tableName = table.getName();
+            if (!IGNORED_SYSTEM_TABLE_NAMES.contains(tableName)) {
+                tableNames.add(tableName);
+            }
+        }
+        return tableNames.isEmpty();
     }
 
     @Override
@@ -76,6 +88,10 @@ public class SQLiteSchema extends Schema<SQLiteDbSupport> {
 
         for (Table table : allTables()) {
             table.drop();
+        }
+
+        if (getTable(SQLiteTable.SQLITE_SEQUENCE).exists()) {
+            jdbcTemplate.executeStatement("DELETE FROM " + SQLiteTable.SQLITE_SEQUENCE);
         }
     }
 

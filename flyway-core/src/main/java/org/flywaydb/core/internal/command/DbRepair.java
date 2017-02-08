@@ -29,13 +29,13 @@ import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 /**
  * Handles Flyway's repair command.
@@ -89,7 +89,7 @@ public class DbRepair {
         this.dbSupport = dbSupport;
         this.connection = connection;
         this.schema = schema;
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true);
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true, true);
         this.metaDataTable = metaDataTable;
         this.callbacks = callbacks;
     }
@@ -100,9 +100,9 @@ public class DbRepair {
     public void repair() {
         try {
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schema);
                         callback.beforeRepair(connection);
                         return null;
@@ -113,11 +113,11 @@ public class DbRepair {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-                public Void doInTransaction() {
+            new TransactionTemplate(connection).execute(new Callable<Object>() {
+                public Void call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     metaDataTable.removeFailedMigrations();
-                    repairChecksums();
+                    repairChecksumsAndDescriptions();
                     return null;
                 }
             });
@@ -131,9 +131,9 @@ public class DbRepair {
             }
 
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schema);
                         callback.afterRepair(connection);
                         return null;
@@ -145,17 +145,17 @@ public class DbRepair {
         }
     }
 
-    public void repairChecksums() {
+    public void repairChecksumsAndDescriptions() {
         migrationInfoService.refresh();
         for (MigrationInfo migrationInfo : migrationInfoService.all()) {
             MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
 
             ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
             AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
-            if ((resolved != null) && (applied != null)) {
+            if (resolved != null && applied != null && resolved.getVersion() != null) {
                 if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
-                        && resolved.getVersion() != null) {
-                    metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
+                        || !ObjectUtils.nullSafeEquals(resolved.getDescription(), applied.getDescription())) {
+                    metaDataTable.update(migrationInfoImpl.getVersion(), resolved.getDescription(), resolved.getChecksum());
                 }
             }
         }

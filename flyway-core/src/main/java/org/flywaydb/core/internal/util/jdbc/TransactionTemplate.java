@@ -16,11 +16,14 @@
 package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.util.concurrent.Callable;
 
 /**
  * Spring-like template for executing transactions.
@@ -64,21 +67,38 @@ public class TransactionTemplate {
      * @param transactionCallback The callback to execute.
      * @return The result of the transaction code.
      */
-    public <T> T execute(TransactionCallback<T> transactionCallback) {
+    public <T> T execute(Callable<T> transactionCallback) {
         boolean oldAutocommit = true;
         try {
             oldAutocommit = connection.getAutoCommit();
             connection.setAutoCommit(false);
-            T result = transactionCallback.doInTransaction();
+            T result = transactionCallback.call();
             connection.commit();
             return result;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to commit transaction", e);
-        } catch (RuntimeException e) {
+            throw new FlywaySqlException("Unable to commit transaction", e);
+        } catch (Exception e) {
+            Savepoint savepoint = null;
+            RuntimeException rethrow;
+            if (e instanceof RollbackWithSavepointException) {
+                savepoint = ((RollbackWithSavepointException) e).getSavepoint();
+                rethrow = (RuntimeException) e.getCause();
+            } else {
+                if (e instanceof RuntimeException) {
+                    rethrow = (RuntimeException) e;
+                } else {
+                    rethrow = new FlywayException(e);
+                }
+            }
+
             if (rollbackOnException) {
                 try {
                     LOG.debug("Rolling back transaction...");
-                    connection.rollback();
+                    if (savepoint == null) {
+                        connection.rollback();
+                    } else {
+                        connection.rollback(savepoint);
+                    }
                     LOG.debug("Transaction rolled back");
                 } catch (SQLException se) {
                     LOG.error("Unable to rollback transaction", se);
@@ -90,7 +110,7 @@ public class TransactionTemplate {
                     LOG.error("Unable to commit transaction", se);
                 }
             }
-            throw e;
+            throw rethrow;
         } finally {
             try {
                 connection.setAutoCommit(oldAutocommit);

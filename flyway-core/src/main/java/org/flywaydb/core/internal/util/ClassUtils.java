@@ -16,9 +16,17 @@
 package org.flywaydb.core.internal.util;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +35,8 @@ import java.util.List;
  * Utility methods for dealing with classes.
  */
 public class ClassUtils {
+    private static final Log LOG = LogFactory.getLog(ClassUtils.class);
+
     /**
      * Prevents instantiation.
      */
@@ -114,11 +124,36 @@ public class ClassUtils {
                 //Android
                 return null;
             }
-            String url = protectionDomain.getCodeSource().getLocation().getPath();
+            CodeSource codeSource = protectionDomain.getCodeSource();
+            if (codeSource == null) {
+                //Custom classloader with for example classes defined using URLClassLoader#defineClass(String name, byte[] b, int off, int len)
+                return null;
+            }
+            String url = codeSource.getLocation().getPath();
             return URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             //Can never happen.
             return null;
+        }
+    }
+
+    /**
+     * Adds a jar or a directory with this name to the classpath.
+     *
+     * @param name The name of the jar or directory to add.
+     * @throws IOException when the jar or directory could not be found.
+     */
+    public static void addJarOrDirectoryToClasspath(String name) throws IOException {
+        LOG.debug("Adding location to classpath: " + name);
+
+        try {
+            URL url = new File(name).toURI().toURL();
+            URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+            method.setAccessible(true);
+            method.invoke(sysloader, url);
+        } catch (Exception e) {
+            throw new FlywayException("Unable to load " + name, e);
         }
     }
 }

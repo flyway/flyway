@@ -18,7 +18,7 @@ select "Hello 'quotes" from dual;
 select "Hello 'quotes'" from dual;
 select "Hello ''quotes" from dual;
 
-select "Hello '
+select "Hellö '
 multi-line
 quotes
 '" from dual;

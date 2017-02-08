@@ -58,8 +58,8 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
             statementStart = statementStart.replaceAll("\\s+", " ");
         }
 
-        if (statementStart.matches("CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*")
-                || statementStart.matches("CREATE( OR REPLACE)?( AND (RESOLVE|COMPILE))?( NOFORCE)? JAVA (SOURCE|RESOURCE|CLASS).*")){
+        if (statementStart.matches("CREATE(\\s+OR\\s+REPLACE)?(\\s+(NON)?EDITIONABLE)?\\s+(FUNCTION|PROCEDURE|PACKAGE|TYPE|TRIGGER).*")
+                || statementStart.matches("CREATE(\\s+OR\\s+REPLACE)?(\\s+AND\\s+(RESOLVE|COMPILE))?(\\s+NOFORCE)?\\s+JAVA\\s+(SOURCE|RESOURCE|CLASS).*")) {
             return PLSQL_DELIMITER;
         }
 
@@ -68,9 +68,9 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected String cleanToken(String token) {
-    	if (token.startsWith("'") && token.endsWith("'")){
-    		return token;
-    	}
+        if (token.startsWith("'") && token.endsWith("'")) {
+            return token;
+        }
 
         Matcher beforeMatcher = KEYWORDS_BEFORE_STRING_LITERAL_REGEX.matcher(token);
         if (beforeMatcher.find()) {

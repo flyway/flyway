@@ -34,6 +34,6 @@ public class DB2ConcurrentMigrationMediumTest extends ConcurrentMigrationTestCas
         String password = customProperties.getProperty("db2.password", "flyway");
         String url = customProperties.getProperty("db2.url", "jdbc:db2://localhost:50000/flyway");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 }

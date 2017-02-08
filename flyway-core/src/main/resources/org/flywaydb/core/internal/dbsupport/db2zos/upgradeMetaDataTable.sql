@@ -14,11 +14,61 @@
 -- limitations under the License.
 --
 
-DROP INDEX "${schema}"."${table}_vr_idx";
-DROP INDEX "${schema}"."${table}_ir_idx";
-ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_rank";
-ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT "${table}_pk";
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" DROP NOT NULL;
-call ADMIN_CMD('REORG TABLE "${schema}"."${table}"');
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
+SET CURRENT SQLID = '${schema}';
+
+CREATE TABLESPACE SFLYWAY
+      IN "${schema}"
+      SEGSIZE 4
+      BUFFERPOOL BP0
+      LOCKSIZE PAGE
+      LOCKMAX SYSTEM
+      CLOSE YES
+      COMPRESS YES
+  ;
+
+
+CREATE TABLE "${schema}"."TMP_${table}" (
+    "installed_rank" INT NOT NULL,
+    "version" VARCHAR(50),
+    "description" VARCHAR(200) NOT NULL,
+    "type" VARCHAR(20) NOT NULL,
+    "script" VARCHAR(1000) NOT NULL,
+    "checksum" INT,
+    "installed_by" VARCHAR(100) NOT NULL,
+    "installed_on" TIMESTAMP NOT NULL WITH DEFAULT,
+    "execution_time" INT NOT NULL,
+    "success" SMALLINT NOT NULL,
+    CONSTRAINT "${table}_S" CHECK ("success" in(0,1))
+)
+IN "${schema}".SFLYWAY;
+
+
+INSERT INTO "${schema}"."TMP_${table}"(
+SELECT
+    "installed_rank",
+    "version",
+    "description",
+    "type",
+    "script",
+    "checksum",
+    "installed_by",
+    "installed_on",
+    "execution_time",
+    "success"
+FROM "${schema}"."${table}");
+
+--drop old tablespace
+DROP TABLESPACE "${schema}".SDBVERS;
+
+RENAME TABLE "${schema}"."TMP_${table}" TO "${table}";
+
 UPDATE "${schema}"."${table}" SET "type"='BASELINE' WHERE "type"='INIT';
+
+CREATE UNIQUE INDEX "${schema}"."${table}_IR_IDX" ON "${schema}"."${table}" ("installed_rank");
+ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_PK" PRIMARY KEY ("installed_rank");
+
+CREATE INDEX "${schema}"."${table}_S_IDX" ON "${schema}"."${table}" ("success");
+
+
+
+

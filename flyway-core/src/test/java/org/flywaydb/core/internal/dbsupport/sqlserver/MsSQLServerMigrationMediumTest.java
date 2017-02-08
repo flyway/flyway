@@ -36,7 +36,7 @@ public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
         String password = customProperties.getProperty("sqlserver.password", "flyway");
         String url = customProperties.getProperty("sqlserver.ms_url", "jdbc:sqlserver://localhost:1433;databaseName=flyway_db_ms");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 
     /**
@@ -46,6 +46,13 @@ public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
     @Test(expected = FlywayException.class)
     public void pkConstraints() throws Exception {
         flyway.setLocations("migration/dbsupport/sqlserver/sql/pkConstraint");
+        flyway.migrate();
+    }
+
+    @Ignore("No solution for this so far as it must be run outside of a transaction with no other transaction active in the system")
+    @Test
+    public void singleUser() throws Exception {
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/singleUser");
         flyway.migrate();
     }
 }

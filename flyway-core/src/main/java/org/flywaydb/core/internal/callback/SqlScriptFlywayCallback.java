@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.callback;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
@@ -61,7 +62,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
             BEFORE_VALIDATE, AFTER_VALIDATE,
             BEFORE_BASELINE, AFTER_BASELINE,
             BEFORE_REPAIR, AFTER_REPAIR,
-            BEFORE_CLEAN, AFTER_CLEAN);
+            BEFORE_INFO, AFTER_INFO);
 
     private final Map<String, SqlScript> scripts = new HashMap<String, SqlScript>();
 
@@ -72,11 +73,10 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
      * @param scanner             The Scanner for loading migrations on the classpath.
      * @param locations           The locations where migrations are located.
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
-     * @param encoding            The encoding of Sql migrations.
-     * @param sqlMigrationSuffix  The suffix for sql migrations
+     * @param configuration       The Flyway configuration.
      */
     public SqlScriptFlywayCallback(DbSupport dbSupport, Scanner scanner, Locations locations,
-                                   PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationSuffix) {
+                                   PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         for (String callback : ALL_CALLBACKS) {
             scripts.put(callback, null);
         }
@@ -85,13 +85,13 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
         for (Location location : locations.getLocations()) {
             Resource[] resources;
             try {
-                resources = scanner.scanForResources(location, "", sqlMigrationSuffix);
+                resources = scanner.scanForResources(location, "", configuration.getSqlMigrationSuffix());
             } catch (FlywayException e) {
                 // Ignore missing locations
                 continue;
             }
             for (Resource resource : resources) {
-                String key = resource.getFilename().replace(sqlMigrationSuffix, "");
+                String key = resource.getFilename().replace(configuration.getSqlMigrationSuffix(), "");
                 if (scripts.keySet().contains(key)) {
                     SqlScript existing = scripts.get(key);
                     if (existing != null) {
@@ -100,7 +100,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                                 "-> " + existing.getResource().getLocationOnDisk() + "\n" +
                                 "-> " + resource.getLocationOnDisk());
                     }
-                    scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, encoding));
+                    scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, configuration.getEncoding(), configuration.isAllowMixedMigrations()));
                 }
             }
         }

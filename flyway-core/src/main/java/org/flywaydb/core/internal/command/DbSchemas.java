@@ -17,12 +17,12 @@ package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
-import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
+import java.util.concurrent.Callable;
 
 /**
  * Handles Flyway's automatic schema creation.
@@ -62,24 +62,41 @@ public class DbSchemas {
      * Creates the schemas
      */
     public void create() {
-        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-            public Void doInTransaction() {
-                for (Schema schema : schemas) {
-                    if (schema.exists()) {
-                        LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
+        int retries = 0;
+        while (true) {
+            try {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
+                    @Override
+                    public Void call() {
+                        for (Schema schema : schemas) {
+                            if (schema.exists()) {
+                                LOG.debug("Schema " + schema + " already exists. Skipping schema creation.");
+                                return null;
+                            }
+                        }
+
+                        for (Schema schema : schemas) {
+                            LOG.info("Creating schema " + schema + " ...");
+                            schema.create();
+                        }
+
+                        metaDataTable.addSchemasMarker(schemas);
+
                         return null;
                     }
+                });
+                return;
+            } catch (RuntimeException e) {
+                if (++retries >= 10) {
+                    throw e;
                 }
-
-                for (Schema schema : schemas) {
-                    LOG.info("Creating schema " + schema + " ...");
-                    schema.create();
+                try {
+                    LOG.debug("Schema creation failed. Retrying in 1 sec ...");
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    // Ignore
                 }
-
-                metaDataTable.addSchemasMarker(schemas);
-
-                return null;
             }
-        });
+        }
     }
 }

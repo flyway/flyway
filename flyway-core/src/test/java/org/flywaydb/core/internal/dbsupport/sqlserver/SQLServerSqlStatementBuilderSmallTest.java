@@ -42,4 +42,21 @@ public class SQLServerSqlStatementBuilderSmallTest {
 
         assertTrue(statementBuilder.isTerminated());
     }
+
+    @Test
+    public void likeNoSpace() {
+        String sqlScriptSource = "ALTER TRIGGER CUSTOMER_INSERT ON CUSTOMER AFTER\n" +
+                "INSERT AS\n" +
+                "BEGIN\n" +
+                "    SELECT TOP 1 1 FROM CUSTOMER WHERE [name] LIKE'%test';\n" +
+                "END\n" +
+                "GO";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
 }

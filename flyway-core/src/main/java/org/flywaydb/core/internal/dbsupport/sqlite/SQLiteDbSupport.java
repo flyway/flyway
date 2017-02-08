@@ -88,4 +88,9 @@ public class SQLiteDbSupport extends DbSupport {
     public boolean catalogIsSchema() {
         return true;
     }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
+    }
 }

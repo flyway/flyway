@@ -39,18 +39,24 @@ import static org.junit.Assert.assertTrue;
 public class GradleLargeTest {
     private String installDir = System.getProperty("installDir", "flyway-gradle-plugin-largetest/target/test-classes");
 
-    @Test
+    @Test(timeout = 60000)
     public void regular() throws Exception {
         String stdOut = runGradle(0, "regular", "clean", "flywayMigrate", "-Pflyway.placeholders.name=James");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
         assertFalse(stdOut.contains("deprecated"));
     }
 
-    @Test
+    @Test(timeout = 60000)
+    public void custom() throws Exception {
+        String stdOut = runGradle(0, "custom", "clean", "someTestMigration", "-Pflyway.placeholders.name=James");
+        assertTrue(stdOut.contains("Successfully applied 2 migrations"));
+        assertFalse(stdOut.contains("deprecated"));
+    }
+
+    @Test(timeout = 60000)
     public void error() throws Exception {
         String stdOut = runGradle(0, "error", "clean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully validated 0 migrations"));
-        assertTrue(stdOut.contains("Unable to resolve location"));
     }
 
     /**
@@ -66,7 +72,7 @@ public class GradleLargeTest {
         String flywayVersion = System.getProperty("flywayVersion", getPomVersion());
 
         String extension = "";
-        if (System.getProperty("os.name").startsWith("Windows")) {
+        if (isWindowsOs()) {
             extension = ".bat";
         }
 
@@ -75,7 +81,8 @@ public class GradleLargeTest {
         args.add(installDir + "/install/gradlew" + extension);
         args.add("-PflywayVersion=" + flywayVersion);
         //args.add("--debug");
-        //args.add("--stacktrace");
+        args.add("--stacktrace");
+        args.add("--no-daemon");
         args.add("-i");
         args.add("-b");
         args.add(installDir + "/tests/" + dir + "/build.gradle");

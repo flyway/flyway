@@ -34,9 +34,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +85,11 @@ public class Main {
             initializeDefaults(properties);
             loadConfiguration(properties, args);
             overrideConfiguration(properties, args);
-            promptForCredentialsIfMissing(properties);
+
+            if (!isSuppressPrompt(args)) {
+                promptForCredentialsIfMissing(properties);
+            }
+
             dumpConfiguration(properties);
 
             loadJdbcDrivers();
@@ -116,8 +117,16 @@ public class Main {
     }
 
     private static boolean isPrintVersionAndExit(String[] args) {
+        return isFlagSet(args, "-v");
+    }
+
+    private static boolean isSuppressPrompt(String[] args) {
+        return isFlagSet(args, "-n");
+    }
+
+    private static boolean isFlagSet(String[] args, String flag) {
         for (String arg : args) {
-            if ("-v".equals(arg)) {
+            if (flag.equals(arg)) {
                 return true;
             }
         }
@@ -238,28 +247,32 @@ public class Main {
         LOG.info("repeatableSqlMigrationPrefix : File name prefix for repeatable sql migrations");
         LOG.info("sqlMigrationSeparator        : File name separator for sql migrations");
         LOG.info("sqlMigrationSuffix           : File name suffix for sql migrations");
+        LOG.info("allowMixedMigrations         : Allow mixing transactional and non-transactional statements");
         LOG.info("encoding                     : Encoding of sql migrations");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
         LOG.info("placeholderSuffix            : Suffix of every placeholder");
+        LOG.info("installedBy                  : Username that will be recorded in the metadata table");
         LOG.info("target                       : Target version up to which Flyway should use migrations");
         LOG.info("outOfOrder                   : Allows migrations to be run \"out of order\"");
         LOG.info("callbacks                    : Comma-separated list of FlywayCallback classes");
         LOG.info("skipDefaultCallbacks         : Skips default callbacks (sql)");
         LOG.info("validateOnMigrate            : Validate when running migrate");
+        LOG.info("ignoreMissingMigrations      : Allow missing migrations when validating");
         LOG.info("ignoreFutureMigrations       : Allow future migrations when validating");
         LOG.info("cleanOnValidationError       : Automatically clean on a validation error");
         LOG.info("cleanDisabled                : Whether to disable clean");
         LOG.info("baselineVersion              : Version to tag schema with when executing baseline");
         LOG.info("baselineDescription          : Description to tag schema with when executing baseline");
         LOG.info("baselineOnMigrate            : Baseline on migrate against uninitialized non-empty schema");
-        LOG.info("configFile                   : Config file to use (default: conf/flyway.properties)");
+        LOG.info("configFile                   : Config file to use (default: <install-dir>/conf/flyway.conf)");
         LOG.info("configFileEncoding           : Encoding of the config file (default: UTF-8)");
         LOG.info("jarDirs                      : Dirs for Jdbc drivers & Java migrations (default: jars)");
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
+        LOG.info("Add -n to suppress prompting for a user and password");
         LOG.info("Add -v to print the Flyway version and exit");
         LOG.info("");
         LOG.info("Example");
@@ -289,7 +302,7 @@ public class Main {
         }
 
         for (File file : files) {
-            addJarOrDirectoryToClasspath(file.getPath());
+            ClassUtils.addJarOrDirectoryToClasspath(file.getPath());
         }
     }
 
@@ -323,29 +336,8 @@ public class Main {
             }
 
             for (File file : files) {
-                addJarOrDirectoryToClasspath(file.getPath());
+                ClassUtils.addJarOrDirectoryToClasspath(file.getPath());
             }
-        }
-    }
-
-    /**
-     * Adds a jar or a directory with this name to the classpath.
-     *
-     * @param name The name of the jar or directory to add.
-     * @throws IOException when the jar or directory could not be found.
-     */
-    /* private -> for testing */
-    static void addJarOrDirectoryToClasspath(String name) throws IOException {
-        LOG.debug("Adding location to classpath: " + name);
-
-        try {
-            URL url = new File(name).toURI().toURL();
-            URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(sysloader, url);
-        } catch (Exception e) {
-            throw new FlywayException("Unable to load " + name, e);
         }
     }
 
@@ -371,7 +363,7 @@ public class Main {
 
     /**
      * Loads the configuration from the configuration file. If a configuration file is specified using the -configfile
-     * argument it will be used, otherwise the default config file (conf/flyway.properties) will be loaded.
+     * argument it will be used, otherwise the default config file (<install-dir>/conf/flyway.conf) will be loaded.
      *
      * @param properties    The properties object to load to configuration into.
      * @param file          The configuration file to load.
@@ -415,7 +407,7 @@ public class Main {
             return;
         }
 
-        if (!properties.contains("flyway.url")) {
+        if (!properties.containsKey("flyway.url")) {
             // URL is not set. We are doomed for failure anyway.
             return;
         }

@@ -16,7 +16,7 @@
 
 CREATE TABLE ${table} (
     installed_rank INT NOT NULL,
-    version VARCHAR(50),
+    version VARCHAR(50) NULL,
     description VARCHAR(200) NOT NULL,
     type VARCHAR(20) NOT NULL,
     script VARCHAR(1000) NOT NULL,
@@ -28,12 +28,6 @@ CREATE TABLE ${table} (
     PRIMARY KEY (installed_rank)
 )
 lock datarows on 'default'
-go
-
-CREATE INDEX ${table}_vr_idx ON ${table} (version_rank)
-go
-
-CREATE INDEX ${table}_ir_idx ON ${table} (installed_rank)
 go
 
 CREATE INDEX ${table}_s_idx ON ${table} (success)

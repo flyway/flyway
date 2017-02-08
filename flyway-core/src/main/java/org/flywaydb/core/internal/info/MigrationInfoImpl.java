@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.info;
 
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
@@ -158,10 +159,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (appliedMigration.getVersion() == null) {
-            if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
-                return MigrationState.SUCCESS;
-            }
             if (appliedMigration.getInstalledRank() == context.latestRepeatableRuns.get(appliedMigration.getDescription())) {
+                if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
+                    return MigrationState.SUCCESS;
+                }
                 return MigrationState.OUTDATED;
             }
             return MigrationState.SUPERSEEDED;
@@ -209,26 +210,32 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        if (getState().isFailed()
+                && (!context.future || MigrationState.FUTURE_FAILED != getState())) {
+            if (getVersion() == null) {
+                throw new FlywayException("Detected failed repeatable migration: " + getDescription());
+            }
+            throw new FlywayException("Detected failed migration to version" + getVersion());
+        }
+
         if ((resolvedMigration == null)
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getVersion() != null)
-                && (!context.future ||
-                (MigrationState.FUTURE_SUCCESS != getState() && MigrationState.FUTURE_FAILED != getState()))) {
+                && (!context.missing || (MigrationState.MISSING_SUCCESS != getState() && MigrationState.MISSING_FAILED != getState()))
+                && (!context.future || (MigrationState.FUTURE_SUCCESS != getState() && MigrationState.FUTURE_FAILED != getState()))) {
             return "Detected applied migration not resolved locally: " + getVersion();
         }
 
-        if (!context.pending) {
-            if (MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
-                if (getVersion() != null) {
-                    return "Detected resolved migration not applied to database: " + getVersion();
-                }
-                return "Detected resolved repeatable migration not applied to database: " + getDescription();
+        if (!context.pending && MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
+            if (getVersion() != null) {
+                return "Detected resolved migration not applied to database: " + getVersion();
             }
+            return "Detected resolved repeatable migration not applied to database: " + getDescription();
+        }
 
-            if (MigrationState.OUTDATED == getState()) {
-                return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
-            }
+        if (!context.pending && MigrationState.OUTDATED == getState()) {
+            return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
         }
 
         if (resolvedMigration != null && appliedMigration != null) {
@@ -280,9 +287,26 @@ public class MigrationInfoImpl implements MigrationInfo {
         if ((getInstalledRank() != null) && (o.getInstalledRank() != null)) {
             return getInstalledRank() - o.getInstalledRank();
         }
+
+        MigrationState state = getState();
+        MigrationState oState = o.getState();
+
+        if (((getInstalledRank() != null) || (o.getInstalledRank() != null))
+                && (!(state == MigrationState.BELOW_BASELINE || oState == MigrationState.BELOW_BASELINE
+                || state == MigrationState.IGNORED || oState == MigrationState.IGNORED))) {
+            if (getInstalledRank() != null) {
+                return Integer.MIN_VALUE;
+            }
+            if (o.getInstalledRank() != null) {
+                return Integer.MAX_VALUE;
+            }
+        }
+
         if (getVersion() != null && o.getVersion() != null) {
             return getVersion().compareTo(o.getVersion());
         }
+
+        // Versioned pending migrations go before repeatable ones
         if (getVersion() != null) {
             return Integer.MIN_VALUE;
         }

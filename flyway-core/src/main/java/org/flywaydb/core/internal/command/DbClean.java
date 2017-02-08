@@ -22,13 +22,13 @@ import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
-import org.flywaydb.core.internal.util.jdbc.TransactionCallback;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Callable;
 
 /**
  * Main workflow for cleaning the database.
@@ -100,9 +100,9 @@ public class DbClean {
         }
         try {
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schemas[0]);
                         callback.beforeClean(connection);
                         return null;
@@ -132,9 +132,9 @@ public class DbClean {
             }
 
             for (final FlywayCallback callback : callbacks) {
-                new TransactionTemplate(connection).execute(new TransactionCallback<Object>() {
+                new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
-                    public Object doInTransaction() throws SQLException {
+                    public Object call() throws SQLException {
                         dbSupport.changeCurrentSchemaTo(schemas[0]);
                         callback.afterClean(connection);
                         return null;
@@ -156,8 +156,9 @@ public class DbClean {
         LOG.debug("Dropping schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-            public Void doInTransaction() {
+        new TransactionTemplate(connection).execute(new Callable<Object>() {
+            @Override
+            public Void call() {
                 schema.drop();
                 return null;
             }
@@ -177,8 +178,9 @@ public class DbClean {
         LOG.debug("Cleaning schema " + schema + " ...");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        new TransactionTemplate(connection).execute(new TransactionCallback<Void>() {
-            public Void doInTransaction() {
+        new TransactionTemplate(connection).execute(new Callable<Object>() {
+            @Override
+            public Void call() {
                 schema.clean();
                 return null;
             }

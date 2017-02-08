@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
@@ -56,31 +56,23 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param dbSupport                    The database-specific support.
-     * @param scanner                      The Scanner for loading migrations on the classpath.
-     * @param locations                    The locations where migrations are located.
-     * @param encoding                     The encoding of Sql migrations.
-     * @param sqlMigrationPrefix           The file name prefix for sql migrations.
-     * @param repeatableSqlMigrationPrefix The file name prefix for repeatable sql migrations.
-     * @param sqlMigrationSeparator        The file name separator for sql migrations.
-     * @param sqlMigrationSuffix           The file name suffix for sql migrations.
-     * @param placeholderReplacer          The placeholder replacer to use.
-     * @param customMigrationResolvers     Custom Migration Resolvers.
+     * @param dbSupport                The database-specific support.
+     * @param scanner                  The Scanner for loading migrations on the classpath.
+     * @param configuration            The Flyway configuration.
+     * @param locations                The locations where migrations are located.
+     * @param placeholderReplacer      The placeholder replacer to use.
+     * @param customMigrationResolvers Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, Scanner scanner, FlywayConfiguration config, Locations locations,
-                                      String encoding,
-                                      String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
-                                      String sqlMigrationSeparator, String sqlMigrationSuffix,
+    public CompositeMigrationResolver(DbSupport dbSupport, Scanner scanner, FlywayConfiguration configuration, Locations locations,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
-        if (!config.isSkipDefaultResolvers()) {
+        if (!configuration.isSkipDefaultResolvers()) {
             for (Location location : locations.getLocations()) {
-                migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, location, placeholderReplacer,
-                        encoding, sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
-                migrationResolvers.add(new JdbcMigrationResolver(scanner, location, config));
+                migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, location, placeholderReplacer, configuration));
+                migrationResolvers.add(new JdbcMigrationResolver(scanner, location, configuration));
 
                 if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {
-                    migrationResolvers.add(new SpringJdbcMigrationResolver(scanner, location, config));
+                    migrationResolvers.add(new SpringJdbcMigrationResolver(scanner, location, configuration));
                 }
             }
         }

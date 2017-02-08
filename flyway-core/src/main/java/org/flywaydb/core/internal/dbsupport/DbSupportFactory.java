@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
+import org.flywaydb.core.internal.dbsupport.enterprisedb.EnterpriseDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaPostgreSQLDriver;
 import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaRedshiftDriver;
@@ -94,6 +95,9 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
         }
+        if (databaseProductName.startsWith("EnterpriseDB")) {
+            return new EnterpriseDBDbSupport(connection);
+        }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
             // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
             // but only supports a subset of features. Therefore, we need to execute a query in order to
@@ -131,8 +135,9 @@ public class DbSupportFactory {
             return new PhoenixDbSupport(connection);
         }
 
-		//Sybase ASE support
-        if (databaseProductName.startsWith("ASE")) {
+        if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive") //Newer Sybase ASE versions
+                || databaseProductName.startsWith("sql server") // Older Sybase ASE 12.5 installations
+                ) {
         	return new SybaseASEDbSupport(connection);
         }
         if (databaseProductName.startsWith("HDB")) {
@@ -157,7 +162,7 @@ public class DbSupportFactory {
         try {
             return connection.getMetaData().getURL();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to retrieve the Jdbc connection Url!", e);
+            throw new FlywaySqlException("Unable to retrieve the Jdbc connection Url!", e);
         }
     }
 
@@ -184,7 +189,7 @@ public class DbSupportFactory {
 
             return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
-            throw new FlywayException("Error while determining database product name", e);
+            throw new FlywaySqlException("Error while determining database product name", e);
         }
     }
 
@@ -211,7 +216,7 @@ public class DbSupportFactory {
 
 			return databaseProductVersion;
 		} catch (SQLException e) {
-			throw new FlywayException("Error while determining database product version", e);
+			throw new FlywaySqlException("Error while determining database product version", e);
 		}
 	}
 
@@ -235,8 +240,7 @@ public class DbSupportFactory {
 
             return driverName;
         } catch (SQLException e) {
-            throw new FlywayException("Error while determining JDBC driver name", e);
+            throw new FlywaySqlException("Error while determining JDBC driver name", e);
         }
     }
-
 }

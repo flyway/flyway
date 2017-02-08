@@ -30,9 +30,6 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Test for PostgreSQLDbSupport.
- */
 @Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLDbSupportMediumTest {
     /**
@@ -43,6 +40,11 @@ public class PostgreSQLDbSupportMediumTest {
         Connection connection = createDataSource().getConnection();
         PostgreSQLDbSupport dbSupport = new PostgreSQLDbSupport(connection);
         Schema schema = dbSupport.getSchema("search_path_test");
+        try {
+            schema.drop();
+        } catch (Exception e) {
+            // Ignore
+        }
         schema.create();
         dbSupport.changeCurrentSchemaTo(dbSupport.getSchema("search_path_test"));
         String searchPath = dbSupport.getJdbcTemplate().queryForString("SHOW search_path");
@@ -50,7 +52,6 @@ public class PostgreSQLDbSupportMediumTest {
         schema.drop();
         JdbcUtils.closeConnection(connection);
     }
-
 
     /**
      * Creates a datasource for use in tests.
@@ -67,8 +68,6 @@ public class PostgreSQLDbSupportMediumTest {
         String password = customProperties.getProperty("postgresql.password", "flyway");
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
-
-
 }

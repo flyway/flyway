@@ -75,9 +75,14 @@ public class SqlStatementBuilder {
     private boolean nonCommentStatementPartSeen = false;
 
     /**
+     * Whether this statement should be executed within a transaction or not.
+     */
+    protected boolean executeInTransaction = true;
+
+    /**
      * The current delimiter to look for to terminate the statement.
      */
-    private Delimiter delimiter = getDefaultDelimiter();
+    protected Delimiter delimiter = getDefaultDelimiter();
 
     /**
      * @return The default delimiter for this database.
@@ -178,11 +183,11 @@ public class SqlStatementBuilder {
             statement.append("\n");
         }
 
-        String lineSimplified = simplifyLine(line);
-
-        if (isCommentDirective(lineSimplified)) {
+        if (isCommentDirective(line.trim())) {
             nonCommentStatementPartSeen = true;
         }
+
+        String lineSimplified = simplifyLine(line);
 
         applyStateChanges(lineSimplified);
         if (endWithOpenMultilineStringLiteral() || insideMultiLineComment) {
@@ -222,7 +227,11 @@ public class SqlStatementBuilder {
      * @return The simplified line.
      */
     protected String simplifyLine(String line) {
-        return removeEscapedQuotes(line).replace("--", " -- ").replaceAll("\\s+", " ").trim().toUpperCase();
+        return removeEscapedQuotes(line)
+                .replace("--", " -- ")
+                .replace("/*", " /* ")
+                .replace("*/", " */ ")
+                .replaceAll("\\s+", " ").trim().toUpperCase();
     }
 
     /**
@@ -304,8 +313,7 @@ public class SqlStatementBuilder {
      * @param line The line that was just added to the statement.
      */
     protected void applyStateChanges(String line) {
-        //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
-        String[] tokens = StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}");
+        String[] tokens = tokenizeLine(line);
 
         List<TokenType> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 
@@ -341,6 +349,15 @@ public class SqlStatementBuilder {
                 nonCommentStatementPartSeen = true;
             }
         }
+    }
+
+    /**
+     * Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals.
+     * @param line The line to tokenize.
+     * @return The tokens.
+     */
+    protected String[] tokenizeLine(String line) {
+        return StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}");
     }
 
     /**
@@ -439,6 +456,16 @@ public class SqlStatementBuilder {
      */
     protected String cleanToken(String token) {
         return token;
+    }
+
+    /**
+     * Whether the execution should take place inside a transaction. This is useful for databases
+     * like PostgreSQL where certain statement can only execute outside a transaction.
+     *
+     * @return {@code true} if a transaction should be used (highly recommended), or {@code false} if not.
+     */
+    public boolean executeInTransaction() {
+        return executeInTransaction;
     }
 
     /**

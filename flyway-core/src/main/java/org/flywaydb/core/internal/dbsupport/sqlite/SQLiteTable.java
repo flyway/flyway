@@ -23,12 +23,18 @@ import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * SQLite-specific table.
  */
 public class SQLiteTable extends Table {
     private static final Log LOG = LogFactory.getLog(SQLiteTable.class);
+
+    /** SQLite system tables are undroppable. */
+    static final String SQLITE_SEQUENCE = "sqlite_sequence";
+    private final boolean undroppable;
 
     /**
      * Creates a new SQLite table.
@@ -40,11 +46,16 @@ public class SQLiteTable extends Table {
      */
     public SQLiteTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
+        undroppable = SQLITE_SEQUENCE.equals(name);
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name));
+        if (undroppable) {
+            LOG.debug("SQLite system table " + this + " cannot be dropped. Ignoring.");
+        } else {
+            jdbcTemplate.execute("DROP TABLE " + dbSupport.quote(schema.getName(), name));
+        }
     }
 
     @Override

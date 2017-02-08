@@ -14,4 +14,4 @@
 -- limitations under the License.
 --
 
-CREATE OR REPLACE VIEW all_view AS SELECT * FROM test_user WHERE name LIKE 'Mr.%';
+CREATE OR REPLACE VIEW all_view AS SELECT 'abc' FROM dual;

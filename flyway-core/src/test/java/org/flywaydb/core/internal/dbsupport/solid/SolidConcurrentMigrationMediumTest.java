@@ -40,6 +40,6 @@ public class SolidConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
         final String url = customProperties.getProperty("solid.url", "jdbc:solid://localhost:1313");
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), "solid.jdbc.SolidDriver",
-                                    url, user, password);
+                                    url, user, password, null);
     }
 }

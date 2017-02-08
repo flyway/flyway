@@ -15,11 +15,12 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
@@ -29,6 +30,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.concurrent.Callable;
 
 /**
  * PostgreSQL-specific support.
@@ -57,14 +59,23 @@ public class PostgreSQLDbSupport extends DbSupport {
             return null;
         }
 
-        String result = originalSchema.replace(doQuote("$user"), "").trim();
+        return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
+    }
+
+    /* private -> testing */ String getFirstSchemaFromSearchPath(String searchPath) {
+        String result = searchPath.replace(doQuote("$user"), "").trim();
         if (result.startsWith(",")) {
             result = result.substring(1);
         }
         if (result.contains(",")) {
             result = result.substring(0, result.indexOf(","));
         }
-        return getSchema(result.trim());
+        result = result.trim();
+        // Unquote if necessary
+        if (result.startsWith("\"") && result.endsWith("\"") && !result.endsWith("\\\"") && (result.length() > 1)) {
+            result = result.substring(1, result.length() - 1);
+        }
+        return result;
     }
 
     @Override
@@ -85,7 +96,7 @@ public class PostgreSQLDbSupport extends DbSupport {
                 doChangeCurrentSchemaTo(schema.toString());
             }
         } catch (SQLException e) {
-            throw new FlywayException("Error setting current schema to " + schema, e);
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 
@@ -141,5 +152,15 @@ public class PostgreSQLDbSupport extends DbSupport {
         } catch (IOException e) {
             throw new SQLException("Unable to execute COPY operation", e);
         }
+    }
+
+    @Override
+    public <T> T lock(Table table, Callable<T> callable) {
+        return new PostgreSQLAdvisoryLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
+    }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
     }
 }

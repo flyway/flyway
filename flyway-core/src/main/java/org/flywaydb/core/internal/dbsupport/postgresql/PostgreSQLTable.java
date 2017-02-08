@@ -45,7 +45,12 @@ public class PostgreSQLTable extends Table {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return exists(null, schema, name);
+        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                "   SELECT 1\n" +
+                "   FROM   information_schema.tables \n" +
+                "   WHERE  table_schema = ?\n" +
+                "   AND    table_name = ?\n" +
+                ")", schema.getName(), name);
     }
 
     @Override

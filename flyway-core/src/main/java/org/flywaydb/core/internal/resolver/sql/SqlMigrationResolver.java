@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
@@ -65,29 +66,9 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final PlaceholderReplacer placeholderReplacer;
 
     /**
-     * The encoding of Sql migrations.
+     * The Flyway configuration.
      */
-    private final String encoding;
-
-    /**
-     * The prefix for sql migrations
-     */
-    private final String sqlMigrationPrefix;
-
-    /**
-     * The prefix for repeatable sql migrations
-     */
-    private final String repeatableSqlMigrationPrefix;
-
-    /**
-     * The separator for sql migrations
-     */
-    private final String sqlMigrationSeparator;
-
-    /**
-     * The suffix for sql migrations
-     */
-    private final String sqlMigrationSuffix;
+    private final FlywayConfiguration configuration;
 
     /**
      * Creates a new instance.
@@ -96,38 +77,28 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param scanner                      The Scanner for loading migrations on the classpath.
      * @param location                     The location on the classpath where to migrations are located.
      * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
-     * @param encoding                     The encoding of Sql migrations.
-     * @param sqlMigrationPrefix           The prefix for sql migrations
-     * @param repeatableSqlMigrationPrefix The prefix for repeatable sql migrations
-     * @param sqlMigrationSeparator        The separator for sql migrations
-     * @param sqlMigrationSuffix           The suffix for sql migrations
+     * @param configuration                The Flyway configuration.
      */
     public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
-                                PlaceholderReplacer placeholderReplacer, String encoding,
-                                String sqlMigrationPrefix, String repeatableSqlMigrationPrefix,
-                                String sqlMigrationSeparator, String sqlMigrationSuffix) {
+                                PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         this.dbSupport = dbSupport;
         this.scanner = scanner;
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
-        this.encoding = encoding;
-        this.sqlMigrationPrefix = sqlMigrationPrefix;
-        this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;
-        this.sqlMigrationSeparator = sqlMigrationSeparator;
-        this.sqlMigrationSuffix = sqlMigrationSuffix;
+        this.configuration = configuration;
     }
 
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        scanForMigrations(migrations, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
-        scanForMigrations(migrations, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix);
+        scanForMigrations(migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
+        scanForMigrations(migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    public void scanForMigrations(List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
+    private void scanForMigrations(List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
         for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
             String filename = resource.getFilename();
             if (isSqlCallback(filename, suffix)) {
@@ -140,10 +111,10 @@ public class SqlMigrationResolver implements MigrationResolver {
             migration.setVersion(info.getLeft());
             migration.setDescription(info.getRight());
             migration.setScript(extractScriptName(resource));
-            migration.setChecksum(calculateChecksum(resource, resource.loadAsString(encoding)));
+            migration.setChecksum(calculateChecksum(resource, resource.loadAsString(configuration.getEncoding())));
             migration.setType(MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
-            migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, encoding));
+            migration.setExecutor(new SqlMigrationExecutor(dbSupport, resource, placeholderReplacer, configuration));
             migrations.add(migration);
         }
     }

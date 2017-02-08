@@ -15,11 +15,12 @@
  */
 package org.flywaydb.core.internal.dbsupport.mysql;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
@@ -28,6 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 /**
  * Mysql-specific support.
@@ -70,7 +72,7 @@ public class MySQLDbSupport extends DbSupport {
         try {
             doChangeCurrentSchemaTo(schema.getName());
         } catch (SQLException e) {
-            throw new FlywayException("Error setting current schema to " + schema, e);
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 
@@ -120,5 +122,10 @@ public class MySQLDbSupport extends DbSupport {
     @Override
     public boolean catalogIsSchema() {
         return true;
+    }
+
+    @Override
+    public <T> T lock(Table table, Callable<T> callable) {
+        return new MySQLNamedLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
     }
 }

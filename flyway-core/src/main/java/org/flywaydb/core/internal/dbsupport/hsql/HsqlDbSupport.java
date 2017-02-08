@@ -69,7 +69,7 @@ public class HsqlDbSupport extends DbSupport {
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + schema);
+        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
     }
 
     public boolean supportsDdlTransactions() {
@@ -101,5 +101,10 @@ public class HsqlDbSupport extends DbSupport {
     @Override
     public boolean catalogIsSchema() {
         return false;
+    }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
     }
 }

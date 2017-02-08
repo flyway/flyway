@@ -31,7 +31,6 @@ public class DbCategory {
     public interface H2 extends EmbeddedDB {}
     public interface HSQL extends EmbeddedDB {}
     public interface SQLite extends EmbeddedDB {}
-    public interface Phoenix extends EmbeddedDB {}
 
     public interface MySQL extends OpenSourceDB {}
     public interface MariaDB extends OpenSourceDB {}
@@ -42,6 +41,8 @@ public class DbCategory {
     public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
 
+    public interface EnterpriseDB extends ContributorSupportedDB {}
+    public interface Phoenix extends ContributorSupportedDB {}
     public interface GoogleCloudSQL extends ContributorSupportedDB {}
     public interface SapHana extends ContributorSupportedDB {}
     public interface DB2zOS extends ContributorSupportedDB {}

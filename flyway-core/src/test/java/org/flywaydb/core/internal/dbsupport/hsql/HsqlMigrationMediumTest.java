@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 public class HsqlMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:hsqldb:mem:flyway_db", "SA", "");
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:hsqldb:mem:flyway_db", "SA", "", null);
     }
 
     @Override

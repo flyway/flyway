@@ -33,6 +33,19 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     private PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
 
     @Test
+    public void columnColumnText() {
+        String sqlScriptSource = "CREATE DOMAIN some_domain AS CHARACTER(3)\n" +
+                "CONSTRAINT some_domain_check CHECK (((VALUE) :: TEXT = ANY (ARRAY ['FOO' :: TEXT, 'BAR' :: TEXT])));";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
     public void regclass() {
         String sqlScriptSource = "CREATE TABLE base_table (\n" +
                 "base_table_id integer DEFAULT nextval('base_table_seq'::regclass) NOT NULL\n" +
@@ -69,12 +82,41 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void eString() {
+        String sqlScriptSource = "CREATE TABLE sometable1 (\n" +
+                "  id        SERIAL PRIMARY KEY,\n" +
+                "  somefield TEXT CHECK (somefield ~ E'.')\n" +
+                ");\n";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
     public void copy() {
         String line = "COPY CSV_FILES FROM '/path/to/filename.csv' DELIMITER ';' CSV HEADER";
         statementBuilder.addLine(line + ";\n");
         assertTrue(statementBuilder.isTerminated());
         assertFalse(statementBuilder.isPgCopyFromStdIn());
         assertEquals(line, statementBuilder.getSqlStatement().getSql());
+    }
+
+    @Test
+    public void alterType() {
+        String line = "ALTER TYPE \"myschema\".\"colors\" ADD ATTRIBUTE f3 int";
+        statementBuilder.addLine(line + ";\n");
+        assertTrue(statementBuilder.executeInTransaction());
+    }
+
+    @Test
+    public void alterTypeAddValue() {
+        String line = "ALTER TYPE \"myschema\".\"colors\" ADD VALUE 'orange' AFTER 'red'";
+        statementBuilder.addLine(line + ";\n");
+        assertFalse(statementBuilder.executeInTransaction());
     }
 
     @Test
