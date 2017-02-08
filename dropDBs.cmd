@@ -29,10 +29,6 @@ mysql -uroot -pflyway < flyway-core/src/test/resources/migration/dbsupport/mysql
 echo MariaDB...
 mysql -uroot -pflyway -P3333 < flyway-core/src/test/resources/migration/dbsupport/mysql/dropDatabase.sql
 
-echo EnterpriseDB...
-set PGPASSWORD=flyway
-edb-psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/edb/dropDatabase.sql
-
 echo PostgreSQL...
 set PGPASSWORD=flyway
 psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/dropDatabase.sql
