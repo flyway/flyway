@@ -78,9 +78,9 @@ public class EnterpriseDBSqlScriptSmallTest {
 
         SqlScript sqlScript = new SqlScript(source, new EnterpriseDBDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
-        assertEquals(3, sqlStatements.size());
-        assertEquals(16, sqlStatements.get(0).getLineNumber());
-        assertEquals(26, sqlStatements.get(1).getLineNumber());
+        assertEquals(2, sqlStatements.size());
+        assertEquals(17, sqlStatements.get(0).getLineNumber());
+        assertEquals(30, sqlStatements.get(1).getLineNumber());
     }
 
     @Test

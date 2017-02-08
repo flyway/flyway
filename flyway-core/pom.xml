@@ -342,7 +342,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -351,7 +351,7 @@
         <profile>
             <id>EnterpriseDBTest</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>

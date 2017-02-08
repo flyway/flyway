@@ -70,6 +70,6 @@ public class EnterpriseDBDbSupportMediumTest {
         String password = customProperties.getProperty("enterprisedb.password", "flyway");
         String url = customProperties.getProperty("enterprisedb.url", "jdbc:edb://localhost/flyway_db");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, new Properties());
     }
 }

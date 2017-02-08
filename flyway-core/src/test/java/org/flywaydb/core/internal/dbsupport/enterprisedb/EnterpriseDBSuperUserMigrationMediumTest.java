@@ -30,7 +30,7 @@ import java.util.Properties;
  * PostgreSQL medium tests that require SuperUser permissions.
  */
 @SuppressWarnings({"JavaDoc"})
-@Category(DbCategory.PostgreSQL.class)
+@Category(DbCategory.EnterpriseDB.class)
 public class EnterpriseDBSuperUserMigrationMediumTest {
     private Flyway flyway;
 
@@ -47,7 +47,7 @@ public class EnterpriseDBSuperUserMigrationMediumTest {
 
         flyway = new Flyway();
         flyway.setSchemas("super_user_test");
-        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, "flyway", password));
+        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, "flyway", password, new Properties()));
         flyway.setValidateOnMigrate(true);
         flyway.clean();
     }
