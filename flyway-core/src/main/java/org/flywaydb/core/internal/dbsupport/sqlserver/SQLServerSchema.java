@@ -277,6 +277,8 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
             query.append(" AND obj.parent_object_id = ").append(parent.objectId);
         }
 
+        query.append(" order by create_date desc");
+
         return jdbcTemplate.query(query.toString(), new RowMapper<DBObject>() {
             @Override
             public DBObject mapRow(ResultSet rs) throws SQLException {
