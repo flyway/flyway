@@ -102,16 +102,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <sourceFileIncludes>
-                        <sourceFileInclude>**/core/Flyway.java</sourceFileInclude>
-                        <sourceFileInclude>**/core/api/**/*.java</sourceFileInclude>
-                    </sourceFileIncludes>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
