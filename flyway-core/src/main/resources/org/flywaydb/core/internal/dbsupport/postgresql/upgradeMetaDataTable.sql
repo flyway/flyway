@@ -14,8 +14,8 @@
 -- limitations under the License.
 --
 
-DROP INDEX "${schema}"."${table}_vr_idx";
-DROP INDEX "${schema}"."${table}_ir_idx";
+--DROP INDEX "${schema}"."${table}_vr_idx";
+--DROP INDEX "${schema}"."${table}_ir_idx"; the create script doesn't have these.
 ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_rank";
 ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT "${table}_pk";
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" DROP NOT NULL;
