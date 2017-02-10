@@ -15,7 +15,7 @@
 --
 
 DROP INDEX IF EXISTS "${schema}"."${table}_vr_idx";
-DROP INDEX IF EXISTS "${schema}"."${table}_ir_idx"; the create script doesn't have these.
+DROP INDEX IF EXISTS "${schema}"."${table}_ir_idx";
 ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_rank";
 ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT "${table}_pk";
 ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" DROP NOT NULL;
