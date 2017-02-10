@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,11 @@ public class MongoValidate implements Validate {
 	private final boolean pending;
 
 	/**
+	 * Whether missing migrations are allowed.
+	 */
+	private final boolean missing;
+
+	/**
 	 * Whether future migrations are allowed.
 	 */
 	private final boolean future;
@@ -85,21 +90,24 @@ public class MongoValidate implements Validate {
 	 * @param target            The target version of the migration.
 	 * @param metaDataTable     The database metadata table.
 	 * @param migrationResolver The migration resolver.
-	 * @param client        The client to use for interacting with Mongo.
+	 * @param client            The client to use for interacting with Mongo.
 	 * @param outOfOrder        Allows migrations to be run "out of order".
 	 * @param pending           Whether pending migrations are allowed.
+	 * @param missing           Whether missing migrations are allowed.
 	 * @param future            Whether future migrations are allowed.
 	 * @param callbacks         The lifecycle callbacks.
 	 */
 	public MongoValidate(MongoClient client, MongoMetaDataTable metaDataTable,
-						 MigrationResolver migrationResolver, MigrationVersion target,
-						 boolean outOfOrder, boolean pending, boolean future, MongoFlywayCallback[] callbacks) {
+											 MigrationResolver migrationResolver, MigrationVersion target,
+											 boolean outOfOrder, boolean pending, boolean missing, boolean future,
+											 MongoFlywayCallback[] callbacks) {
 		this.target = target;
 		this.metaDataTable = metaDataTable;
 		this.migrationResolver = migrationResolver;
 		this.client = client;
 		this.outOfOrder = outOfOrder;
 		this.pending = pending;
+		this.missing = missing;
 		this.future = future;
 		this.callbacks = callbacks;
 	}
@@ -138,8 +146,8 @@ public class MongoValidate implements Validate {
 	}
 
 	private Pair<Integer, String> validationDisjunction() {
-		MigrationInfoServiceImpl migrationInfoService =
-				new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future);
+		MigrationInfoServiceImpl migrationInfoService =	new MigrationInfoServiceImpl(
+			migrationResolver, metaDataTable, target, outOfOrder, pending, missing, future);
 		
 		migrationInfoService.refresh();
 		

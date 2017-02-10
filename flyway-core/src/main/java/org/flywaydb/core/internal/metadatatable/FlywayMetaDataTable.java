@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,12 +91,13 @@ public interface FlywayMetaDataTable {
     void removeFailedMigrations();
 
     /**
-     * Update the checksum for this version to this new value.
+     * Update the description and checksum for this version to these new values.
      *
-     * @param version  The version to update.
-     * @param checksum The new checksum.
+     * @param version      The version to update.
+     * @param description  The new description.
+     * @param checksum     The new checksum.
      */
-    void updateChecksum(MigrationVersion version, Integer checksum);
+    void update(MigrationVersion version, String description, Integer checksum);
 
     /**
      * Upgrades the Metadata table to Flyway 4.0 format if necessary.

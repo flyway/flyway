@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,6 +180,19 @@ public class FlywayExtension {
     public Boolean cleanOnValidationError;
 
     /**
+     * Ignore missing migrations when reading the metadata table. These are migrations that were performed by an
+     * older deployment of the application that are no longer available in this version. For example: we have migrations
+     * available on the classpath with versions 1.0 and 3.0. The metadata table indicates that a migration with version 2.0
+     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
+     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
+     *
+     * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    public Boolean ignoreMissingMigrations;
+
+    /**
      * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -209,7 +222,21 @@ public class FlywayExtension {
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
      *
-     * @param baselineOnMigrate {@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})
+     * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</
      */
     public Boolean baselineOnMigrate;
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>
+     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
+     */
+    public Boolean allowMixedMigrations;
+
+    /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     * <p>
+     * {@code null} for the current database user of the connection. (default: {@code null}).
+     */
+    public String installedBy;
 }

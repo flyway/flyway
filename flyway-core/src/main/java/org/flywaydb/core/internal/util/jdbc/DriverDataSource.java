@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -274,6 +275,10 @@ public class DriverDataSource implements DataSource {
             return "oracle.jdbc.OracleDriver";
         }
 
+        if (url.startsWith("jdbc:edb:")) {
+            return "com.edb.Driver";
+        }
+
         if (url.startsWith("jdbc:phoenix")) {
             return "org.apache.phoenix.jdbc.PhoenixDriver";
         }
@@ -387,7 +392,7 @@ public class DriverDataSource implements DataSource {
         try {
             connection = driver.connect(url, props);
         } catch (SQLException e) {
-            throw new FlywayException(
+            throw new FlywaySqlException(
                     "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "': " + e.getMessage(), e);
         }
 

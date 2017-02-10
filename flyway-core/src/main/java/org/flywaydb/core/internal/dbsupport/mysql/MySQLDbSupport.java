@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.dbsupport.mysql;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -72,7 +72,7 @@ public class MySQLDbSupport extends DbSupport {
         try {
             doChangeCurrentSchemaTo(schema.getName());
         } catch (SQLException e) {
-            throw new FlywayException("Error setting current schema to " + schema, e);
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 

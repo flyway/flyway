@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
                 migrations.add(migrationInfo);
             }
         } catch (Exception e) {
-            throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + location, e);
+            throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + location + " (" + e.getMessage() + ")", e);
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());

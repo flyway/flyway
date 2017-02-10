@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,51 +40,51 @@ import com.mongodb.MongoClient;
  * Main workflow for migrating the Mongo database.
  */
 public class MongoMigrate implements Migrate {
-	private static final Log LOG = LogFactory.getLog(MongoMigrate.class);
+  private static final Log LOG = LogFactory.getLog(MongoMigrate.class);
 
-	/**
-	 * The database metadata table.
-	 */
-	private final MongoMetaDataTable metaDataTable;
+  /**
+   * The database metadata table.
+   */
+  private final MongoMetaDataTable metaDataTable;
 
-	/**
-	 * The migration resolver.
-	 */
-	private final MigrationResolver migrationResolver;
+  /**
+   * The migration resolver.
+   */
+  private final MigrationResolver migrationResolver;
 
-    /**
-     * The Flyway configuration.
-     */
-    private final MongoFlywayConfiguration configuration;
+  /**
+   * The Flyway configuration.
+   */
+  private final MongoFlywayConfiguration configuration;
 
-	/**
-	 * The Mongo client to use for interacting with the database.
-	 */
-	private final MongoClient client;
+  /**
+   * The Mongo client to use for interacting with the database.
+   */
+  private final MongoClient client;
 
-	/**
-	 * Flag whether to ignore future migrations or not.
-	 */
-	private final boolean ignoreFutureMigrations;
+  /**
+   * Flag whether to ignore future migrations or not.
+   */
+  private final boolean ignoreFutureMigrations;
 
-	/**
-	 * Creates a new database migrator.
-	 *
-	 * @param client                    The Mongo client to use for interacting with the database.
-	 * @param metaDataTable             The database metadata table.
-	 * @param migrationResolver         The migration resolver.
-	 * @param ignoreFutureMigrations    Flag whether to ignore future migrations or not.
-     * @param configuration             The Mongo flyway configuration.
-	 */
-	public MongoMigrate(MongoClient client, MongoMetaDataTable metaDataTable,
-						MigrationResolver migrationResolver, boolean ignoreFutureMigrations,
-						MongoFlywayConfiguration configuration) {
-		this.client = client;
-		this.metaDataTable = metaDataTable;
-		this.migrationResolver = migrationResolver;
-		this.ignoreFutureMigrations = ignoreFutureMigrations;
-        this.configuration = configuration;
-	}
+  /**
+   * Creates a new database migrator.
+   *
+   * @param client                    The Mongo client to use for interacting with the database.
+   * @param metaDataTable             The database metadata table.
+   * @param migrationResolver         The migration resolver.
+   * @param ignoreFutureMigrations    Flag whether to ignore future migrations or not.
+   * @param configuration             The Mongo flyway configuration.
+   */
+  public MongoMigrate(MongoClient client, MongoMetaDataTable metaDataTable,
+                      MigrationResolver migrationResolver, boolean ignoreFutureMigrations,
+                      MongoFlywayConfiguration configuration) {
+    this.client = client;
+    this.metaDataTable = metaDataTable;
+    this.migrationResolver = migrationResolver;
+    this.ignoreFutureMigrations = ignoreFutureMigrations;
+    this.configuration = configuration;
+  }
 
 	@Override
 	public int migrate() throws FlywayException {
@@ -121,7 +121,7 @@ public class MongoMigrate implements Migrate {
 
 	private boolean migrationRunner(boolean firstRun, MigrationVersion target, boolean outOfOrder) {
 		MigrationInfoServiceImpl infoService =
-			new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true);
+			new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true, true);
 		infoService.refresh();
 
 		MigrationVersion currentDbVersion = MigrationVersion.EMPTY;
@@ -183,19 +183,18 @@ public class MongoMigrate implements Migrate {
      * @param executionTime         The total time taken to perform this migration run (in ms).
      */
     private void logSummary(int migrationSuccessCount, long executionTime) {
-        if (migrationSuccessCount == 0) {
-            LOG.info("Mongo is up to date. No migration necessary.");
-            return;
-        }
+      if (migrationSuccessCount == 0) {
+        LOG.info("Mongo is up to date. No migration necessary.");
+        return;
+      }
 
-        if (migrationSuccessCount == 1) {
-            LOG.info("Successfully applied 1 migration to MongoDB (execution time " +
-                    TimeFormat.format(executionTime) + ").");
-        } else {
-            LOG.info("Successfully applied " + migrationSuccessCount +
-                    " migrations to MongoDB (execution time " +
-                    TimeFormat.format(executionTime) + ").");
-        }
+      if (migrationSuccessCount == 1) {
+        LOG.info("Successfully applied 1 migration to MongoDB (execution time " +
+                 TimeFormat.format(executionTime) + ").");
+      } else {
+        LOG.info("Successfully applied " + migrationSuccessCount +
+          " migrations to MongoDB (execution time " + TimeFormat.format(executionTime) + ").");
+      }
     }
 
 	/**
@@ -234,7 +233,7 @@ public class MongoMigrate implements Migrate {
 			stopWatch.stop();
 			int executionTime = (int) stopWatch.getTotalTimeMillis();
 			AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(), migration.getType(),
-					 migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
+        migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
 			metaDataTable.addAppliedMigration(appliedMigration);
 				
 			throw e;
@@ -243,16 +242,17 @@ public class MongoMigrate implements Migrate {
 		stopWatch.stop();
 		int executionTime = (int) stopWatch.getTotalTimeMillis();
 		AppliedMigration appliedMigration = new AppliedMigration(version, migration.getDescription(), migration.getType(),
-				 migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
+      migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
 		metaDataTable.addAppliedMigration(appliedMigration);
 
 		return false;
 	}
 
-	private void doMigrate(MigrationInfoImpl migration, FlywayMigrationExecutor migrationExecutor,
-                           String migrationText) throws MongoException {
+	private void doMigrate(MigrationInfoImpl migration,
+                         FlywayMigrationExecutor migrationExecutor,
+                         String migrationText) throws MongoException {
 		AbstractMongoMigrationExecutor mongoExecutor = (AbstractMongoMigrationExecutor) migrationExecutor;
-			
+
 		for (final MongoFlywayCallback callback : configuration.getMongoCallbacks()) {
 			callback.beforeEachMigrate(client, migration);
 		}
@@ -264,4 +264,5 @@ public class MongoMigrate implements Migrate {
 			callback.afterEachMigrate(client, migration);
 		}
 	}
+
 }

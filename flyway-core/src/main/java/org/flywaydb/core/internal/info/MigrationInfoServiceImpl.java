@@ -1,12 +1,12 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
- * <p>
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,6 +69,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     private final boolean pending;
 
     /**
+     * Whether missing migrations are allowed.
+     */
+    private final boolean missing;
+
+    /**
      * Whether future migrations are allowed.
      */
     private final boolean future;
@@ -86,15 +91,17 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
+     * @param missing           Whether missing migrations are allowed.
      * @param future            Whether future migrations are allowed.
      */
     public MigrationInfoServiceImpl(MigrationResolver migrationResolver, FlywayMetaDataTable metaDataTable,
-                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean future) {
+                                    MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future) {
         this.migrationResolver = migrationResolver;
         this.metaDataTable = metaDataTable;
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.pending = pending;
+        this.missing = missing;
         this.future = future;
     }
 
@@ -108,6 +115,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
         MigrationInfoContext context = new MigrationInfoContext();
         context.outOfOrder = outOfOrder;
         context.pending = pending;
+        context.missing = missing;
         context.future = future;
         context.target = target;
 

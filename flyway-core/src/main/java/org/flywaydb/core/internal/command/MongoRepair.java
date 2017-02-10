@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,44 +34,46 @@ import com.mongodb.MongoClient;
  * Handles Flyway's repair command for MongoDB.
  */
 public class MongoRepair implements Repair {
-	private static final Log LOG = LogFactory.getLog(MongoRepair.class);
+  private static final Log LOG = LogFactory.getLog(MongoRepair.class);
 	
-	/**
-	 * Mongo client for interacting with the database.
-	 */
-	private final MongoClient client;
-	
-	/**
-	 * The migration infos.
-	 */
-	private final MigrationInfoServiceImpl migrationInfoService;
+  /**
+   * Mongo client for interacting with the database.
+   */
+  private final MongoClient client;
 
-	/**
-	 * The metadata table.
-	 */
-	private final MongoMetaDataTable metaDataTable;
+  /**
+   * The migration infos.
+   */
+  private final MigrationInfoServiceImpl migrationInfoService;
 
-	/**
-	 * This is a list of callbacks that fire before or after the repair task is executed.
-	 */
-	private final MongoFlywayCallback[] callbacks;
+  /**
+   * The metadata table.
+   */
+  private final MongoMetaDataTable metaDataTable;
 
-	/**
-	 * Creates a new MongoRepair instance.
-	 *
-	 * @param client Mongo client for interacting with the database.
-	 * @param migrationResolver The resolver for migrations.
-	 * @param metaDataTable The Mongo metadata table.
-	 * @param callbacks Callbacks for the Flyway lifecycle.
-	 */
-	public MongoRepair(MongoClient client, MigrationResolver migrationResolver,
-					   MongoMetaDataTable metaDataTable, MongoFlywayCallback[] callbacks) {
-		this.client = client;
-		this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable,
-				MigrationVersion.LATEST, true, true, true);
-		this.metaDataTable = metaDataTable;
-		this.callbacks = callbacks;
-	}
+  /**
+   * This is a list of callbacks that fire before or after the repair task is executed.
+   */
+  private final MongoFlywayCallback[] callbacks;
+
+  /**
+   * Creates a new MongoRepair instance.
+   *
+   * @param client Mongo client for interacting with the database.
+   * @param migrationResolver The resolver for migrations.
+   * @param metaDataTable The Mongo metadata table.
+   * @param callbacks Callbacks for the Flyway lifecycle.
+   */
+  public MongoRepair(MongoClient client,
+                     MigrationResolver migrationResolver,
+                     MongoMetaDataTable metaDataTable,
+                     MongoFlywayCallback[] callbacks) {
+    this.client = client;
+    this.migrationInfoService = new MigrationInfoServiceImpl(
+      migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true, true);
+    this.metaDataTable = metaDataTable;
+    this.callbacks = callbacks;
+  }
 	
 	@Override
 	public void repair() {
@@ -79,7 +81,7 @@ public class MongoRepair implements Repair {
 			callback.beforeRepair(client);
 		}
 		metaDataTable.removeFailedMigrations();
-		repairChecksums();
+		repairChecksumsAndDescriptions();
 		LOG.info("Successfully repaired Mongo metadata table " + metaDataTable.getCollectionName());
 		
 		for (final MongoFlywayCallback callback : callbacks) {
@@ -87,7 +89,7 @@ public class MongoRepair implements Repair {
 		}
 	}
 
-	public void repairChecksums() {
+	public void repairChecksumsAndDescriptions() {
 		migrationInfoService.refresh();
 
 		for (MigrationInfo migrationInfo : migrationInfoService.all()) {
@@ -98,9 +100,10 @@ public class MongoRepair implements Repair {
 			if ((resolved != null) && (applied != null)) {
 				if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
 						&& resolved.getVersion() != null) {
-					metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
+					metaDataTable.update(migrationInfoImpl.getVersion(), resolved.getDescription(), resolved.getChecksum());
 				}
 			}
 		}
 	}
+
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public abstract class Schema<S extends DbSupport> {
         try {
             return doExists();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether schema " + this + " exists", e);
+            throw new FlywaySqlException("Unable to check whether schema " + this + " exists", e);
         }
     }
 
@@ -92,7 +92,7 @@ public abstract class Schema<S extends DbSupport> {
         try {
             return doEmpty();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether schema " + this + " is empty", e);
+            throw new FlywaySqlException("Unable to check whether schema " + this + " is empty", e);
         }
     }
 
@@ -111,7 +111,7 @@ public abstract class Schema<S extends DbSupport> {
         try {
             doCreate();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to create schema " + this, e);
+            throw new FlywaySqlException("Unable to create schema " + this, e);
         }
     }
 
@@ -129,7 +129,7 @@ public abstract class Schema<S extends DbSupport> {
         try {
             doDrop();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to drop schema " + this, e);
+            throw new FlywaySqlException("Unable to drop schema " + this, e);
         }
     }
 
@@ -147,7 +147,7 @@ public abstract class Schema<S extends DbSupport> {
         try {
             doClean();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to clean schema " + this, e);
+            throw new FlywaySqlException("Unable to clean schema " + this, e);
         }
     }
 
@@ -167,7 +167,7 @@ public abstract class Schema<S extends DbSupport> {
         try {
             return doAllTables();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to retrieve all tables in schema " + this, e);
+            throw new FlywaySqlException("Unable to retrieve all tables in schema " + this, e);
         }
     }
 
@@ -196,7 +196,7 @@ public abstract class Schema<S extends DbSupport> {
 
             return types.toArray(new Type[types.size()]);
         } catch (SQLException e) {
-            throw new FlywayException("Unable to retrieve all types in schema " + this, e);
+            throw new FlywaySqlException("Unable to retrieve all types in schema " + this, e);
         } finally {
             JdbcUtils.closeResultSet(resultSet);
         }
@@ -239,7 +239,7 @@ public abstract class Schema<S extends DbSupport> {
         try {
             return doAllFunctions();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to retrieve all functions in schema " + this, e);
+            throw new FlywaySqlException("Unable to retrieve all functions in schema " + this, e);
         }
     }
 

@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2016 Boxfuse GmbH
+-- Copyright 2010-2017 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -14,6 +14,6 @@
 -- limitations under the License.
 --
 
-CREATE TABLE test_table (
-  id INTEGER PRIMARY KEY AUTOINCREMENT
-);
+CREATE ROLE flyway LOGIN UNENCRYPTED PASSWORD 'flyway';
+CREATE DATABASE flyway_db
+  WITH OWNER = flyway ENCODING = 'UTF8' TABLESPACE = pg_default;

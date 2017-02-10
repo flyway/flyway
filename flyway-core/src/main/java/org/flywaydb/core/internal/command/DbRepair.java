@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public class DbRepair implements Repair {
         this.dbSupport = dbSupport;
         this.connection = connection;
         this.schema = schema;
-        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true);
+        this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, metaDataTable, MigrationVersion.LATEST, true, true, true, true);
         this.metaDataTable = metaDataTable;
         this.callbacks = callbacks;
     }
@@ -115,7 +115,7 @@ public class DbRepair implements Repair {
                 public Void call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     metaDataTable.removeFailedMigrations();
-                    repairChecksums();
+                    repairChecksumsAndDescriptions();
                     return null;
                 }
             });
@@ -143,17 +143,17 @@ public class DbRepair implements Repair {
         }
     }
 
-    public void repairChecksums() {
+    public void repairChecksumsAndDescriptions() {
         migrationInfoService.refresh();
         for (MigrationInfo migrationInfo : migrationInfoService.all()) {
             MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
 
             ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
             AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
-            if ((resolved != null) && (applied != null)) {
+            if (resolved != null && applied != null && resolved.getVersion() != null) {
                 if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
-                        && resolved.getVersion() != null) {
-                    metaDataTable.updateChecksum(migrationInfoImpl.getVersion(), resolved.getChecksum());
+                        || !ObjectUtils.nullSafeEquals(resolved.getDescription(), applied.getDescription())) {
+                    metaDataTable.update(migrationInfoImpl.getVersion(), resolved.getDescription(), resolved.getChecksum());
                 }
             }
         }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +146,7 @@ public abstract class MigrationTestCase {
         assertEquals(3, flyway.migrate());
         flyway.validate();
         assertEquals(5, flyway.info().applied().length);
-        assertEquals(814278929, flyway.info().applied()[1].getChecksum().intValue());
+        assertEquals(454910647, flyway.info().applied()[1].getChecksum().intValue());
     }
 
     @Test

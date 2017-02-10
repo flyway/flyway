@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,32 +34,32 @@ public class SbtLargeTest {
     private File sbtLaunchJar = new File(System.getProperty("sbtLaunchDir", "../flyway-sbt"), "sbt-launch.jar");
     private File installDir = new File(System.getProperty("installDir", "flyway-sbt-largetest/target"));
 
-    @Test
+    @Test(timeout = 60000)
     public void cleanMigrate() throws Exception {
         String stdOut = runSbt("test1", 0, "-Dflyway.placeholders.name=James", "flywayClean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
         assertFalse(stdOut.contains("deprecated"));
     }
 
-    @Test
+    @Test(timeout = 60000)
     public void sysPropsOverride() throws Exception {
         String stdOut = runSbt("test1", 0, "-Dflyway.locations=db/migration", "flywayClean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 1 migration"));
     }
 
-    @Test
+    @Test(timeout = 60000)
     public void useTestScope() throws Exception {
         String stdOut = runSbt("test1", 0, "-Dflyway.locations=filesystem:src/main/resources/db/migration,filesystem:src/test/resources/db/migration", "test:flywayClean", "test:flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 2 migration"));
     }
 
-    @Test
+    @Test(timeout = 60000)
     public void flywayUrlAsSysProps() throws Exception {
         String stdOut = runSbt("test2", 0, "-Dflyway.url=jdbc:hsqldb:file:target/flyway_sample;shutdown=true", "flywayClean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully applied 2 migration"));
     }
 
-    @Test
+    @Test(timeout = 60000)
     public void flywayCallbacks() throws Exception {
         String stdOut = runSbt("test3", 0, "-Dflyway.locations=db/migration", "flywayClean");
         assertTrue(stdOut.contains("beforeClean"));

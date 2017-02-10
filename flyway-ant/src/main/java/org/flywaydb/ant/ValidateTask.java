@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ import org.flywaydb.core.Flyway;
  * to detect accidental changes that may prevent the schema(s) from being recreated exactly.</p>
  * <p>Validation fails if</p>
  * <ul>
- *     <li>differences in migration names, types or checksums are found</li>
- *     <li>versions have been applied that aren't resolved locally anymore</li>
- *     <li>versions have been resolved that haven't been applied yet</li>
+ * <li>differences in migration names, types or checksums are found</li>
+ * <li>versions have been applied that aren't resolved locally anymore</li>
+ * <li>versions have been resolved that haven't been applied yet</li>
  * </ul>
- *
+ * <p>
  * <img src="https://flywaydb.org/assets/balsamiq/command-validate.png" alt="validate">
  */
 public class ValidateTask extends AbstractFlywayTask {

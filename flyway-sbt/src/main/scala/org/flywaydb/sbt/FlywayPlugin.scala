@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 Boxfuse GmbH
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@ object FlywayPlugin extends AutoPlugin {
     // settings for migrate
     //*********************
 
+    val flywayIgnoreMissingMigrations = settingKey[Boolean]("Ignores missing migrations when reading the metadata table. (default: false)")
     val flywayIgnoreFutureMigrations = settingKey[Boolean]("Ignores future migrations when reading the metadata table. These are migrations that were performed by a newer deployment of the application that are not yet available in this version. For example: we have migrations available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0 (unknown to us) has already been applied. Instead of bombing out (fail fast) with an exception, a warning is logged and Flyway continues normally. This is useful for situations where one must be able to redeploy an older version of the application after the database has been migrated by a newer one. (default: true)")
     val flywayIgnoreFailedFutureMigration = settingKey[Boolean]("Ignores failed future migrations when reading the metadata table. These are migrations that we performed by a newer deployment of the application that are not yet available in this version. For example: we have migrations available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0 (unknown to us) has already been attempted and failed. Instead of bombing out (fail fast) with an exception, a warning is logged and Flyway terminates normally. This is useful for situations where a database rollback is not an option. An older version of the application can then be redeployed, even though a newer one failed due to a bad migration. (default: false)")
     val flywayPlaceholderReplacement = settingKey[Boolean]("Whether placeholders should be replaced. (default: true)")
@@ -77,7 +78,9 @@ object FlywayPlugin extends AutoPlugin {
     val flywayPlaceholderPrefix = settingKey[String]("The prefix of every placeholder. (default: ${ )")
     val flywayPlaceholderSuffix = settingKey[String]("The suffix of every placeholder. (default: } )")
     val flywayBaselineOnMigrate = settingKey[Boolean]("Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table. This schema will then be baselined with the {@code baselineVersion} before executing the migrations. Only migrations above {@code baselineVersion} will then be applied. This is useful for initial Flyway production deployments on projects with an existing DB. Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})")
-    val flywayValidateOnMigrate = settingKey[Boolean]("Whether to automatically call validate or not when running migrate. (default: {@code true})")
+    val flywayValidateOnMigrate = settingKey[Boolean]("Whether to automatically call validate or not when running migrate. (default: true)")
+    val flywayAllowMixedMigrations = settingKey[Boolean]("Whether to allow mixing transactional and non-transactional statements within the same migration. (default: false)")
+    val flywayInstalledBy = settingKey[String]("The username that will be recorded in the metadata table as having applied the migration. (default: null)")
 
     //*********************
     // flyway tasks
@@ -106,8 +109,8 @@ object FlywayPlugin extends AutoPlugin {
                                             cleanOnValidationError: Boolean, cleanDisabled: Boolean, target: String, outOfOrder: Boolean,
                                             callbacks: Seq[String], skipDefaultCallbacks: Boolean)
   private case class ConfigSqlMigration(sqlMigrationPrefix: String, repeatableSqlMigrationPrefix: String, sqlMigrationSeparator: String, sqlMigrationSuffix: String)
-  private case class ConfigMigrate(ignoreFutureMigrations: Boolean, ignoreFailedFutureMigration: Boolean, placeholderReplacement: Boolean, placeholders: Map[String, String],
-                                   placeholderPrefix: String, placeholderSuffix: String, baselineOnMigrate: Boolean, validateOnMigrate: Boolean)
+  private case class ConfigMigrate(ignoreMissingMigrations: Boolean, ignoreFutureMigrations: Boolean, ignoreFailedFutureMigration: Boolean, placeholderReplacement: Boolean, placeholders: Map[String, String],
+                                   placeholderPrefix: String, placeholderSuffix: String, baselineOnMigrate: Boolean, validateOnMigrate: Boolean, allowMixedMigrations: Boolean, installedBy: String)
   private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading, sqlMigration: ConfigSqlMigration, migrate: ConfigMigrate)
 
 
@@ -148,6 +151,7 @@ object FlywayPlugin extends AutoPlugin {
       flywayOutOfOrder := defaults.isOutOfOrder,
       flywayCallbacks := new Array[String](0),
       flywaySkipDefaultCallbacks := defaults.isSkipDefaultCallbacks,
+      flywayIgnoreMissingMigrations := defaults.isIgnoreMissingMigrations,
       flywayIgnoreFutureMigrations := defaults.isIgnoreFutureMigrations,
       flywayIgnoreFailedFutureMigration := false,
       flywayPlaceholderReplacement := defaults.isPlaceholderReplacement,
@@ -156,6 +160,8 @@ object FlywayPlugin extends AutoPlugin {
       flywayPlaceholderSuffix := defaults.getPlaceholderSuffix,
       flywayBaselineOnMigrate := defaults.isBaselineOnMigrate,
       flywayValidateOnMigrate := defaults.isValidateOnMigrate,
+      flywayAllowMixedMigrations := defaults.isAllowMixedMigrations,
+      flywayInstalledBy := "",
       flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayCleanDisabled := defaults.isCleanDisabled,
       flywayConfigDataSource <<= (flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
@@ -173,9 +179,9 @@ object FlywayPlugin extends AutoPlugin {
         (sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix) =>
           ConfigSqlMigration(sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix)
       },
-      flywayConfigMigrate <<= (flywayIgnoreFutureMigrations, flywayIgnoreFailedFutureMigration, flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayBaselineOnMigrate, flywayValidateOnMigrate) map {
-        (ignoreFutureMigrations, ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, baselineOnMigrate, validateOnMigrate) =>
-          ConfigMigrate(ignoreFutureMigrations, ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, baselineOnMigrate, validateOnMigrate)
+      flywayConfigMigrate <<= (flywayIgnoreMissingMigrations, flywayIgnoreFutureMigrations, flywayIgnoreFailedFutureMigration, flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayBaselineOnMigrate, flywayValidateOnMigrate, flywayAllowMixedMigrations, flywayInstalledBy) map {
+        (ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, baselineOnMigrate, validateOnMigrate, allowMixedMigrations, installedBy) =>
+          ConfigMigrate(ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, baselineOnMigrate, validateOnMigrate, allowMixedMigrations, installedBy)
       },
       flywayConfig <<= (flywayConfigDataSource, flywayConfigBase, flywayConfigMigrationLoading, flywayConfigSqlMigration, flywayConfigMigrate) map {
         (dataSource, base, migrationLoading, sqlMigration, migrate) => Config(dataSource, base, migrationLoading, sqlMigration, migrate)
@@ -282,6 +288,7 @@ object FlywayPlugin extends AutoPlugin {
       flyway
     }
     def configure(config: ConfigMigrate): Flyway = {
+      flyway.setIgnoreMissingMigrations(config.ignoreMissingMigrations)
       flyway.setIgnoreFutureMigrations(config.ignoreFutureMigrations)
       if (config.ignoreFailedFutureMigration) {
         flyway.setIgnoreFailedFutureMigration(config.ignoreFailedFutureMigration)
@@ -291,6 +298,8 @@ object FlywayPlugin extends AutoPlugin {
       flyway.setPlaceholderSuffix(config.placeholderSuffix)
       flyway.setBaselineOnMigrate(config.baselineOnMigrate)
       flyway.setValidateOnMigrate(config.validateOnMigrate)
+      flyway.setAllowMixedMigrations(config.allowMixedMigrations)
+      flyway.setInstalledBy(config.installedBy)
       flyway
     }
     def configureSysProps(config: ConfigDataSource): Flyway = {

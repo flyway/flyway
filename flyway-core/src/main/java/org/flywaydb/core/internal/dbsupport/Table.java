@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public abstract class Table extends SchemaObject {
         try {
             return doExists();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether table " + this + " exists", e);
+            throw new FlywaySqlException("Unable to check whether table " + this + " exists", e);
         }
     }
 
@@ -110,7 +110,7 @@ public abstract class Table extends SchemaObject {
             }
             found = resultSet.next();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether table " + this + " has a primary key", e);
+            throw new FlywaySqlException("Unable to check whether table " + this + " has a primary key", e);
         } finally {
             JdbcUtils.closeResultSet(resultSet);
         }
@@ -135,7 +135,7 @@ public abstract class Table extends SchemaObject {
             }
             found = resultSet.next();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check whether table " + this + " has a column named " + column, e);
+            throw new FlywaySqlException("Unable to check whether table " + this + " has a column named " + column, e);
         } finally {
             JdbcUtils.closeResultSet(resultSet);
         }
@@ -161,7 +161,7 @@ public abstract class Table extends SchemaObject {
             resultSet.next();
             columnSize = resultSet.getInt("COLUMN_SIZE");
         } catch (SQLException e) {
-            throw new FlywayException("Unable to check the size of column " + column + " in table " + this, e);
+            throw new FlywaySqlException("Unable to check the size of column " + column + " in table " + this, e);
         } finally {
             JdbcUtils.closeResultSet(resultSet);
         }
@@ -178,7 +178,7 @@ public abstract class Table extends SchemaObject {
             doLock();
             LOG.debug("Lock acquired for table " + this);
         } catch (SQLException e) {
-            throw new FlywayException("Unable to lock table " + this, e);
+            throw new FlywaySqlException("Unable to lock table " + this, e);
         }
     }
 

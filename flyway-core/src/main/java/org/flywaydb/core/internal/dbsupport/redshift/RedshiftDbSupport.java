@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
  */
 package org.flywaydb.core.internal.dbsupport.redshift;
 
-import java.sql.SQLException;
-
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -26,6 +24,8 @@ import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLSqlStatementBui
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
+
+import java.sql.SQLException;
 
 /**
  * Redshift-specific support.
@@ -92,7 +92,7 @@ public abstract class RedshiftDbSupport extends DbSupport {
                 doChangeCurrentSchemaTo(schema.toString());
             }
         } catch (SQLException e) {
-            throw new FlywayException("Error setting current schema to " + schema, e);
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
         }
     }
 

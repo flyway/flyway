@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,12 +90,11 @@ public class PhoenixDbSupport extends DbSupport {
 
     @Override
     public String getCurrentUserFunction()  {
-        String userName = null;
         try {
-            userName = jdbcTemplate.getMetaData().getUserName();
-        } catch (SQLException e) { }
-
-        return userName;
+            return jdbcTemplate.getMetaData().getUserName();
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     @Override

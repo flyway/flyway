@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
@@ -53,7 +54,7 @@ public class JdbcUtils {
             }
             return connection;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to obtain Jdbc connection from DataSource", e);
+            throw new FlywaySqlException("Unable to obtain Jdbc connection from DataSource", e);
         }
     }
 

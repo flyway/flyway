@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,102 +60,115 @@ import java.util.Set;
  * </p>
  */
 public class MongoFlyway implements MongoFlywayConfiguration {
-	private static final Log LOG = LogFactory.getLog(MongoFlyway.class);
+  private static final Log LOG = LogFactory.getLog(MongoFlyway.class);
 
-    /**
-    * Property name prefix for placeholders that are configured through properties.
-    */
-    private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+  /**
+  * Property name prefix for placeholders that are configured through properties.
+  */
+  private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
+
+  /**
+   * The locations to scan recursively for migrations.
+   * <p/>
+   * <p>The location type is determined by its prefix.
+   * Unprefixed locations or locations starting with {@code classpath:} point to a package on the
+   * classpath and may contain both javaScript and java-based migrations.
+   * Locations starting with {@code filesystem:} point to a directory on the filesystem and may
+   * only contain javascript migrations.</p>
+   * <p/>
+   * (default: db/migration)
+   */
+  private Locations locations = new Locations("db/migration");
+
+  /**
+   * The encoding of Mongo migrations. (default: UTF-8)
+   */
+  private String encoding = "UTF-8";
+
+  /**
+   * <p>The name of the schema metadata table that will be used by Flyway. (default: schema_version)</p><p> By default
+   * (single-schema mode) the metadata table is placed in the default schema for the connection provided by the
+   * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is
+   * placed in the first schema of the list. </p>
+   */
+  private String table = "schema_version";
+
+  /**
+   * The name of the database to connect to in Mongo.
+   */
+  private String databaseName;
+
+  /**
+   * The target version up to which Flyway should consider migrations. Migrations with a higher
+   * version number will be ignored. The special value {@code current} designates the current
+   * version of the schema (default: the latest version)
+   */
+  private MigrationVersion target = MigrationVersion.LATEST;
+
+  /**
+   * Whether placeholders should be replaced. (default: true)
+   */
+  private boolean placeholderReplacement = true;
+
+  /**
+   * The map of &lt;placeholder, replacementValue&gt; to apply to mongo js migration scripts.
+   */
+  private Map<String, String> placeholders = new HashMap<String, String>();
+
+  /**
+   * The prefix of every placeholder. (default: ${ )
+   */
+  private String placeholderPrefix = "${";
+
+  /**
+   * The suffix of every placeholder. (default: } )
+   */
+  private String placeholderSuffix = "}";
+
+  /**
+   * The file name prefix for Mongo migrations. (default: V)
+   * <p/>
+   * <p>Mongo JavaScript migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+   * which using the defaults translates to V1_1__My_description.js</p>
+   */
+  private String mongoMigrationPrefix = "V";
+
+  /**
+   * The file name prefix for repeatable Mongo migrations. (default: R)
+   * <p/>
+   * <p>Repeatable Mongo JavaScript migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
+   * which using the defaults translates to R__My_description.js</p>
+   */
+  private String repeatableMongoMigrationPrefix = "R";
+
+  /**
+   * The file name separator for Mongo JavaScript migrations. (default: __)
+   * <p/>
+   * <p>Mongo JavaScript migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+   * which using the defaults translates to V1_1__My_description.js</p>
+   */
+  private String mongoMigrationSeparator = "__";
+
+  /**
+   * The file name suffix for Mongo JavaScript migrations. (default: .js)
+   * <p/>
+   * <p>Mongo JavaScript migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
+   * which using the defaults translates to V1_1__My_description.js</p>
+   */
+  private String mongoMigrationSuffix = ".js";
 
 	/**
-	 * The locations to scan recursively for migrations.
-	 * <p/>
-	 * <p>The location type is determined by its prefix.
-	 * Unprefixed locations or locations starting with {@code classpath:} point to a package on the
-	 * classpath and may contain both javaScript and java-based migrations.
-	 * Locations starting with {@code filesystem:} point to a directory on the filesystem and may
-	 * only contain javascript migrations.</p>
-	 * <p/>
-	 * (default: db/migration)
+	 * Ignore missing migrations when reading the metadata table. These are migrations that were performed by an
+	 * older deployment of the application that are no longer available in this version. For example: we have migrations
+	 * available on the classpath with versions 1.0 and 3.0. The metadata table indicates that a migration with version 2.0
+	 * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
+	 * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
+	 * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
+	 *
+	 * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
+	 * (default: {@code false})
 	 */
-	private Locations locations = new Locations("db/migration");
-
-	/**
-	 * The encoding of Mongo migrations. (default: UTF-8)
-	 */
-	private String encoding = "UTF-8";
-
-	/**
-	 * <p>The name of the schema metadata table that will be used by Flyway. (default: schema_version)</p><p> By default
-	 * (single-schema mode) the metadata table is placed in the default schema for the connection provided by the
-	 * datasource. </p> <p> When the <i>flyway.schemas</i> property is set (multi-schema mode), the metadata table is
-	 * placed in the first schema of the list. </p>
-	 */
-	private String table = "schema_version";
-
-	/**
-	 * The name of the database to connect to in Mongo.
-	 */
-	private String databaseName;
-
-	/**
-	 * The target version up to which Flyway should consider migrations. Migrations with a higher
-	 * version number will be ignored. The special value {@code current} designates the current
-	 * version of the schema (default: the latest version)
-	 */
-	private MigrationVersion target = MigrationVersion.LATEST;
-
-    /**
-     * Whether placeholders should be replaced. (default: true)
-     */
-    private boolean placeholderReplacement = true;
-
-    /**
-     * The map of &lt;placeholder, replacementValue&gt; to apply to mongo js migration scripts.
-     */
-    private Map<String, String> placeholders = new HashMap<String, String>();
-
-    /**
-     * The prefix of every placeholder. (default: ${ )
-     */
-    private String placeholderPrefix = "${";
-
-    /**
-     * The suffix of every placeholder. (default: } )
-     */
-    private String placeholderSuffix = "}";
-
-	/**
-	 * The file name prefix for Mongo migrations. (default: V)
-	 * <p/>
-	 * <p>Mongo JavaScript migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-	 * which using the defaults translates to V1_1__My_description.js</p>
-	 */
-	private String mongoMigrationPrefix = "V";
-
-	/**
-	 * The file name prefix for repeatable Mongo migrations. (default: R)
-	 * <p/>
-	 * <p>Repeatable Mongo JavaScript migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
-	 * which using the defaults translates to R__My_description.js</p>
-	 */
-	private String repeatableMongoMigrationPrefix = "R";
-
-	/**
-	 * The file name separator for Mongo JavaScript migrations. (default: __)
-	 * <p/>
-	 * <p>Mongo JavaScript migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-	 * which using the defaults translates to V1_1__My_description.js</p>
-	 */
-	private String mongoMigrationSeparator = "__";
-
-	/**
-	 * The file name suffix for Mongo JavaScript migrations. (default: .js)
-	 * <p/>
-	 * <p>Mongo JavaScript migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
-	 * which using the defaults translates to V1_1__My_description.js</p>
-	 */
-	private String mongoMigrationSuffix = ".js";
+	private boolean ignoreMissingMigrations;
 
 	/**
 	 * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
@@ -274,6 +287,13 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 	 */
 	private boolean allowMixedMigrations;
 
+  /**
+   * The username that will be recorded in the metadata table as having applied the migration.
+   * <p>
+   * {@code null} for the current database user of the connection. (default: {@code null}).
+   */
+  private String installedBy;
+
 	/**
 	 * Creates a new instance of MongoFlyway. This is your starting point.
 	 */
@@ -348,6 +368,11 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 	public String getMongoMigrationSuffix() {
 		return mongoMigrationSuffix;
 	}
+
+  @Override
+  public boolean isIgnoreMissingMigrations() {
+    return ignoreMissingMigrations;
+  }
 
 	/**
 	 * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
@@ -463,11 +488,42 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 		return classLoader;
 	}
 
-    @Override
-    public boolean isAllowMixedMigrations() {
-        return allowMixedMigrations;
-    }
+  @Override
+  public boolean isAllowMixedMigrations() {
+      return allowMixedMigrations;
+  }
 
+  @Override
+  public String getInstalledBy() {
+    return installedBy;
+  }
+
+  /**
+   * The username that will be recorded in the metadata table as having applied the migration.
+   *
+   * @param installedBy The username or {@code null} for the current database user of the connection. (default: {@code null}).
+   */
+  public void setInstalledBy(String installedBy) {
+    if ("".equals(installedBy)) {
+      installedBy = null;
+    }
+    this.installedBy = installedBy;
+  }
+
+  /**
+   * Ignore missing migrations when reading the metadata table. These are migrations that were performed by an
+   * older deployment of the application that are no longer available in this version. For example: we have migrations
+   * available on the classpath with versions 1.0 and 3.0. The metadata table indicates that a migration with version 2.0
+   * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
+   * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
+   * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
+   *
+   * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
+   * (default: {@code false})
+   */
+  public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
+    this.ignoreMissingMigrations = ignoreMissingMigrations;
+  }
 
 	/**
 	 * Whether to ignore future migrations when reading the metadata table. These are migrations
@@ -919,7 +975,7 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 	private void doValidate(MongoClient client, MigrationResolver migrationResolver,
 							MongoMetaDataTable metaDataTable, MongoFlywayCallback[] flywayCallbacks, boolean pending) {
 		String validationError = new MongoValidate(client, metaDataTable, migrationResolver, target,
-				outOfOrder, pending, ignoreFutureMigrations, flywayCallbacks).validate();
+				outOfOrder, pending, ignoreFutureMigrations, ignoreFutureMigrations, flywayCallbacks).validate();
 
 		if (validationError != null) {
 			if (cleanOnValidationError) {
@@ -958,14 +1014,13 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 	public MigrationInfoService info() {
 		return execute(new Command<MigrationInfoService>() {
 			public MigrationInfoService execute(MongoClient client, MigrationResolver migrationResolver,
-												MongoMetaDataTable metaDataTable,
-												MongoFlywayCallback[] flywayCallbacks) {
+                                          MongoMetaDataTable metaDataTable, MongoFlywayCallback[] flywayCallbacks) {
 				for (final MongoFlywayCallback callback : flywayCallbacks) {
 					callback.beforeInfo(client);
 				}
 
 				MigrationInfoServiceImpl migrationInfoService =
-					new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true);
+					new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, true, true, true);
 				migrationInfoService.refresh();
 
 				for (final MongoFlywayCallback callback : flywayCallbacks) {
@@ -1050,132 +1105,141 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 	@SuppressWarnings("ConstantConditions")
 	public void configure(Properties properties) {
         Map<String, String> props = new HashMap<String, String>();
-        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            props.put(entry.getKey().toString(), entry.getValue().toString());
-        }
+    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+      props.put(entry.getKey().toString(), entry.getValue().toString());
+    }
 
-        String uriProp = props.remove("flyway.mongoUri");
+    String uriProp = props.remove("flyway.mongoUri");
 
-        if (StringUtils.hasText(uriProp)) {
-            setMongoClientUri(uriProp);
-        } else {
-            LOG.warn("Incomplete MongoDB configuration! flyway.mongoUri must be set.");
-        }
+    if (StringUtils.hasText(uriProp)) {
+      setMongoClientUri(uriProp);
+    } else {
+      LOG.warn("Incomplete MongoDB configuration! flyway.mongoUri must be set.");
+    }
 
-        String locationsProp = props.remove("flyway.locations");
-        if (locationsProp != null) {
-            setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
-        }
-        String placeholderReplacementProp = props.remove("flyway.placeholderReplacement");
-        if (placeholderReplacementProp != null) {
-            setPlaceholderReplacement(Boolean.parseBoolean(placeholderReplacementProp));
-        }
-        String placeholderPrefixProp = props.remove("flyway.placeholderPrefix");
-        if (placeholderPrefixProp != null) {
-            setPlaceholderPrefix(placeholderPrefixProp);
-        }
-        String placeholderSuffixProp = props.remove("flyway.placeholderSuffix");
-        if (placeholderSuffixProp != null) {
-            setPlaceholderSuffix(placeholderSuffixProp);
-        }
-        String mongoMigrationPrefixProp = props.remove("flyway.mongoMigrationPrefix");
-        if (mongoMigrationPrefixProp != null) {
-            setMongoMigrationPrefix(mongoMigrationPrefixProp);
-        }
-        String repeatableMongoMigrationPrefixProp = props.remove("flyway.repeatableMongoMigrationPrefix");
-        if (repeatableMongoMigrationPrefixProp != null) {
-            setRepeatableMongoMigrationPrefix(repeatableMongoMigrationPrefixProp);
-        }
-        String mongoMigrationSeparatorProp = props.remove("flyway.mongoMigrationSeparator");
-        if (mongoMigrationSeparatorProp != null) {
-            setMongoMigrationSeparator(mongoMigrationSeparatorProp);
-        }
-        String mongoMigrationSuffixProp = props.remove("flyway.mongoMigrationSuffix");
-        if (mongoMigrationSuffixProp != null) {
-            setMongoMigrationSuffix(mongoMigrationSuffixProp);
-        }
-        String encodingProp = props.remove("flyway.encoding");
-        if (encodingProp != null) {
-            setEncoding(encodingProp);
-        }
-        String tableProp = props.remove("flyway.table");
-        if (tableProp != null) {
-            setTable(tableProp);
-        }
-        String cleanOnValidationErrorProp = props.remove("flyway.cleanOnValidationError");
-        if (cleanOnValidationErrorProp != null) {
-            setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
-        }
-        String cleanDisabledProp = props.remove("flyway.cleanDisabled");
-        if (cleanDisabledProp != null) {
-            setCleanDisabled(Boolean.parseBoolean(cleanDisabledProp));
-        }
-        String validateOnMigrateProp = props.remove("flyway.validateOnMigrate");
-        if (validateOnMigrateProp != null) {
-            setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
-        }
-        String baselineVersionProp = props.remove("flyway.baselineVersion");
-        if (baselineVersionProp != null) {
-            setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
-        }
-        String baselineDescriptionProp = props.remove("flyway.baselineDescription");
-        if (baselineDescriptionProp != null) {
-            setBaselineDescription(baselineDescriptionProp);
-        }
-        String baselineOnMigrateProp = props.remove("flyway.baselineOnMigrate");
-        if (baselineOnMigrateProp != null) {
-            setBaselineOnMigrate(Boolean.parseBoolean(baselineOnMigrateProp));
-        }
-        String ignoreFutureMigrationsProp = props.remove("flyway.ignoreFutureMigrations");
-        if (ignoreFutureMigrationsProp != null) {
-            setIgnoreFutureMigrations(Boolean.parseBoolean(ignoreFutureMigrationsProp));
-        }
-        String targetProp = props.remove("flyway.target");
-        if (targetProp != null) {
-            setTarget(MigrationVersion.fromVersion(targetProp));
-        }
-        String outOfOrderProp = props.remove("flyway.outOfOrder");
-        if (outOfOrderProp != null) {
-            setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
-        }
-        String resolversProp = props.remove("flyway.resolvers");
-        if (StringUtils.hasLength(resolversProp)) {
-            setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
-        }
-        String skipDefaultResolversProp = props.remove("flyway.skipDefaultResolvers");
-        if (skipDefaultResolversProp != null) {
-            setSkipDefaultResolvers(Boolean.parseBoolean(skipDefaultResolversProp));
-        }
-        String callbacksProp = props.remove("flyway.callbacks");
-        if (StringUtils.hasLength(callbacksProp)) {
-            setMongoCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
-        }
-        String skipDefaultCallbacksProp = props.remove("flyway.skipDefaultCallbacks");
-        if (skipDefaultCallbacksProp != null) {
-            setSkipDefaultCallbacks(Boolean.parseBoolean(skipDefaultCallbacksProp));
-        }
+    String locationsProp = props.remove("flyway.locations");
+    if (locationsProp != null) {
+      setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
+    }
+    String placeholderReplacementProp = props.remove("flyway.placeholderReplacement");
+    if (placeholderReplacementProp != null) {
+      setPlaceholderReplacement(Boolean.parseBoolean(placeholderReplacementProp));
+    }
+    String placeholderPrefixProp = props.remove("flyway.placeholderPrefix");
+    if (placeholderPrefixProp != null) {
+      setPlaceholderPrefix(placeholderPrefixProp);
+    }
+    String placeholderSuffixProp = props.remove("flyway.placeholderSuffix");
+    if (placeholderSuffixProp != null) {
+      setPlaceholderSuffix(placeholderSuffixProp);
+    }
+    String mongoMigrationPrefixProp = props.remove("flyway.mongoMigrationPrefix");
+    if (mongoMigrationPrefixProp != null) {
+      setMongoMigrationPrefix(mongoMigrationPrefixProp);
+    }
+    String repeatableMongoMigrationPrefixProp = props.remove("flyway.repeatableMongoMigrationPrefix");
+    if (repeatableMongoMigrationPrefixProp != null) {
+      setRepeatableMongoMigrationPrefix(repeatableMongoMigrationPrefixProp);
+    }
+    String mongoMigrationSeparatorProp = props.remove("flyway.mongoMigrationSeparator");
+    if (mongoMigrationSeparatorProp != null) {
+      setMongoMigrationSeparator(mongoMigrationSeparatorProp);
+    }
+    String mongoMigrationSuffixProp = props.remove("flyway.mongoMigrationSuffix");
+    if (mongoMigrationSuffixProp != null) {
+      setMongoMigrationSuffix(mongoMigrationSuffixProp);
+    }
+    String encodingProp = props.remove("flyway.encoding");
+    if (encodingProp != null) {
+      setEncoding(encodingProp);
+    }
+    String tableProp = props.remove("flyway.table");
+    if (tableProp != null) {
+      setTable(tableProp);
+    }
+    String cleanOnValidationErrorProp = props.remove("flyway.cleanOnValidationError");
+    if (cleanOnValidationErrorProp != null) {
+      setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
+    }
+    String cleanDisabledProp = props.remove("flyway.cleanDisabled");
+    if (cleanDisabledProp != null) {
+      setCleanDisabled(Boolean.parseBoolean(cleanDisabledProp));
+    }
+    String validateOnMigrateProp = props.remove("flyway.validateOnMigrate");
+    if (validateOnMigrateProp != null) {
+      setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
+    }
+    String baselineVersionProp = props.remove("flyway.baselineVersion");
+    if (baselineVersionProp != null) {
+      setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
+    }
+    String baselineDescriptionProp = props.remove("flyway.baselineDescription");
+    if (baselineDescriptionProp != null) {
+      setBaselineDescription(baselineDescriptionProp);
+    }
+    String baselineOnMigrateProp = props.remove("flyway.baselineOnMigrate");
+    if (baselineOnMigrateProp != null) {
+      setBaselineOnMigrate(Boolean.parseBoolean(baselineOnMigrateProp));
+    }
+    String ignoreMissingMigrationsProp = props.remove("flyway.ignoreMissingMigrations");
+    if (ignoreMissingMigrationsProp != null) {
+      setIgnoreMissingMigrations(Boolean.parseBoolean(ignoreMissingMigrationsProp));
+    }
+    String ignoreFutureMigrationsProp = props.remove("flyway.ignoreFutureMigrations");
+    if (ignoreFutureMigrationsProp != null) {
+      setIgnoreFutureMigrations(Boolean.parseBoolean(ignoreFutureMigrationsProp));
+    }
+    String targetProp = props.remove("flyway.target");
+    if (targetProp != null) {
+      setTarget(MigrationVersion.fromVersion(targetProp));
+    }
+    String outOfOrderProp = props.remove("flyway.outOfOrder");
+    if (outOfOrderProp != null) {
+      setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
+    }
+    String resolversProp = props.remove("flyway.resolvers");
+    if (StringUtils.hasLength(resolversProp)) {
+      setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
+    }
+    String skipDefaultResolversProp = props.remove("flyway.skipDefaultResolvers");
+    if (skipDefaultResolversProp != null) {
+      setSkipDefaultResolvers(Boolean.parseBoolean(skipDefaultResolversProp));
+    }
+    String callbacksProp = props.remove("flyway.callbacks");
+    if (StringUtils.hasLength(callbacksProp)) {
+      setMongoCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
+    }
+    String skipDefaultCallbacksProp = props.remove("flyway.skipDefaultCallbacks");
+    if (skipDefaultCallbacksProp != null) {
+      setSkipDefaultCallbacks(Boolean.parseBoolean(skipDefaultCallbacksProp));
+    }
 
-        Map<String, String> placeholdersFromProps = new HashMap<String, String>(placeholders);
-        Iterator<Map.Entry<String, String>> iterator = props.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> entry = iterator.next();
-            String propertyName = entry.getKey();
+    Map<String, String> placeholdersFromProps = new HashMap<String, String>(placeholders);
+    Iterator<Map.Entry<String, String>> iterator = props.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, String> entry = iterator.next();
+      String propertyName = entry.getKey();
 
-            if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
-                    && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
-                String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
-                String placeholderValue = entry.getValue();
-                placeholdersFromProps.put(placeholderName, placeholderValue);
-                iterator.remove();
-            }
-        }
-        setPlaceholders(placeholdersFromProps);
+      if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
+          && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
+        String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
+        String placeholderValue = entry.getValue();
+        placeholdersFromProps.put(placeholderName, placeholderValue);
+        iterator.remove();
+      }
+    }
+    setPlaceholders(placeholdersFromProps);
 
-        for (String key : props.keySet()) {
-            if (key.startsWith("flyway.")) {
-                LOG.warn("Unknown configuration property: " + key);
-            }
-        }
+    String installedByProp = props.remove("flyway.installedBy");
+    if (installedByProp != null) {
+      setInstalledBy(installedByProp);
+    }
+
+    for (String key : props.keySet()) {
+      if (key.startsWith("flyway.")) {
+        LOG.warn("Unknown configuration property: " + key);
+      }
+    }
 	}
 
 	/**
@@ -1209,7 +1273,7 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 
 			MongoMetaDataTable metaDataTable = new MongoMetaDataTable(client, databaseName, table);
 			if (metaDataTable.upgradeIfNecessary()) {
-				new MongoRepair(client, migrationResolver, metaDataTable, flywayCallbacksArray).repairChecksums();
+				new MongoRepair(client, migrationResolver, metaDataTable, flywayCallbacksArray).repairChecksumsAndDescriptions();
 				LOG.info("Metadata table " + table + " successfully upgraded to the Flyway 4.0 format.");
 			}
 			result = command.execute(client, migrationResolver, metaDataTable, flywayCallbacksArray);
