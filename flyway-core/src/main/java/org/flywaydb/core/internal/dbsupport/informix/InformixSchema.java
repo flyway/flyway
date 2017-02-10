@@ -35,34 +35,31 @@ public class InformixSchema extends Schema<InformixDbSupport> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM systables where owner = ?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM systables where owner = ? and tabid > 99", name) > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT count(*) FROM systables WHERE owner = ?", name) == 0;
+        return jdbcTemplate.queryForInt("SELECT count(*) FROM systables WHERE owner = ? and tabid > 99 ", name) == 0;
     }
 
     @Override
     protected void doCreate() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     protected void doClean() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     protected Table[] doAllTables() throws SQLException {
 
         List<String> tableNames = jdbcTemplate.queryForStringList(
-                "SELECT TRIM(t.tabname) AS table FROM \"informix\".systables  AS t WHERE t.tabtype = 'T' ORDER BY t.tabname");
+                "SELECT TRIM(t.tabname) AS table FROM \"informix\".systables  AS t WHERE t.tabid > 99 ORDER BY t.tabname");
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {

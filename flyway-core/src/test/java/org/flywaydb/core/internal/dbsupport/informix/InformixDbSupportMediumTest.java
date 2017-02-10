@@ -65,13 +65,13 @@ public class InformixDbSupportMediumTest {
             connectionProperties.load(new FileInputStream(customPropertiesFile));
         }
         if (!connectionProperties.containsKey("informix.user")) {
-            connectionProperties.setProperty("informix.user", "flyway");
+            connectionProperties.setProperty("informix.user", "informix");
         }
         if (!connectionProperties.containsKey("informix.password")) {
-            connectionProperties.setProperty("informix.password", "flyway");
+            connectionProperties.setProperty("informix.password", "in4mix");
         }
         if (!connectionProperties.containsKey("informix.url")) {
-            connectionProperties.setProperty("informix.url", "jdbc:informix-sqli://localhost:7102/stores_demo:informixserver=devb_test");
+            connectionProperties.setProperty("informix.url", "jdbc:informix-sqli://localhost:9088/flyway_db:informixserver=dev");
         }
         return connectionProperties;
     }
