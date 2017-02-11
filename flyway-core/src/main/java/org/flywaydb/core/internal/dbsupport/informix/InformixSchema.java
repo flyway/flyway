@@ -23,7 +23,6 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
 import java.util.List;
-import org.flywaydb.core.internal.dbsupport.mysql.MySQLTable;
 
 public class InformixSchema extends Schema<InformixDbSupport> {
 
@@ -63,7 +62,7 @@ public class InformixSchema extends Schema<InformixDbSupport> {
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
-            tables[i] = new MySQLTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
+            tables[i] = new InformixTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
 

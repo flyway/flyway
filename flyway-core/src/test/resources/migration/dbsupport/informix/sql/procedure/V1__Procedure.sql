@@ -19,11 +19,11 @@ CREATE TABLE test_data (
   PRIMARY KEY(value)
 );
 
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE AddData()
   BEGIN
     INSERT INTO test_data (value) VALUES ('Hello');
-  END //
+  END $$
 DELIMITER ;
 
 CALL AddData();
@@ -62,7 +62,7 @@ DELIMITER ;
 CALL sp_temp;
 DROP PROCEDURE IF EXISTS sp_temp;
 
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE get_stats_bonus_cumul (isdn BIGINT, bid VARCHAR(100), dt0 DATE, dt1 DATE)
 
 BEGIN
@@ -78,6 +78,6 @@ PREPARE sqlquery FROM @sqlstatement;
 EXECUTE sqlquery;
 DEALLOCATE PREPARE sqlquery;
 END
-//
+$$
 
 DELIMITER ;

@@ -26,6 +26,8 @@ CREATE TABLE test4(
   b4 INT DEFAULT 0
 );
 
+DELIMITER $$
+
 create procedure "informix".testref_update(newa1 int)
 
     INSERT INTO test2 (a2) values (NEWa1);
@@ -37,3 +39,5 @@ end procedure;
 CREATE TRIGGER "informix".testref INSERT ON "informix".test1 referencing new as new
   FOR EACH ROW
     (execute procedure testref_update(new.a1));
+
+$$

@@ -16,6 +16,6 @@
 
 DELIMITER $$
 
-CREATE VIEW all_misters AS SELECT * FROM test_user WHERE name LIKE 'Mr.%'
+CREATE VIEW all_misters AS SELECT * FROM test_user WHERE name LIKE 'Mr.%';
 
 $$
