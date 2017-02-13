@@ -29,7 +29,6 @@ import java.util.List;
  * SQLServer implementation of Schema.
  */
 public class SQLServerSchema extends Schema<SQLServerDbSupport> {
-
     /**
      * SQL server object types for which we support automatic clean-up. Those types can be used in conjunction with the
      * {@code sys.ojects} catalog. The full list of object types is available in the
@@ -144,9 +143,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-
-
-        boolean empty  = queryDBObjects(ObjectType.SCALAR_FUNCTION, ObjectType.AGGREGATE,
+        boolean empty = queryDBObjects(ObjectType.SCALAR_FUNCTION, ObjectType.AGGREGATE,
                 ObjectType.CLR_SCALAR_FUNCTION, ObjectType.CLR_TABLE_VALUED_FUNCTION, ObjectType.TABLE_VALUED_FUNCTION,
                 ObjectType.STORED_PROCEDURE, ObjectType.CLR_STORED_PROCEDURE, ObjectType.USER_TABLE,
                 ObjectType.SYNONYM, ObjectType.SEQUENCE_OBJECT, ObjectType.FOREIGN_KEY, ObjectType.VIEW).isEmpty();
@@ -177,7 +174,6 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
 
     @Override
     protected void doClean() throws SQLException {
-
         List<DBObject> tables = queryDBObjects(ObjectType.USER_TABLE);
 
         for (String statement : cleanForeignKeys(tables)) {
@@ -242,7 +238,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * Query objects with any of the given types and parent (if non-null).
      *
      * @param parent the parent object or {@code null} if unspecified
-     * @param types the object types to be queried
+     * @param types  the object types to be queried
      * @return the found objects
      * @throws SQLException when the retrieval failed
      */
@@ -254,7 +250,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
                 "AND eps.class = 1 " +    // Class 1 = objects and columns (we are only interested in objects).
                 "AND eps.minor_id = 0 " + // Minor ID, always 0 for objects.
                 "AND eps.name='microsoft_database_tools_support' " + // Select all objects generated from MS database
-                                                                     // tools.
+                // tools.
                 "WHERE SCHEMA_NAME(obj.schema_id) = '" + name + "'  " +
                 "AND eps.major_id IS NULL " + // Left Excluding JOIN (we are only interested in user defined entries).
                 "AND obj.is_ms_shipped = 0 " + // Make sure we do not return anything MS shipped.
@@ -295,7 +291,6 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanForeignKeys(List<DBObject> tables) throws SQLException {
-        assert tables != null;
         List<String> statements = new ArrayList<String>();
         for (DBObject table : tables) {
             List<DBObject> fks = queryDBObjectsWithParent(table, ObjectType.FOREIGN_KEY,
@@ -382,7 +377,6 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanViews() throws SQLException {
-
         List<String> statements = new ArrayList<String>();
         List<DBObject> views = queryDBObjects(ObjectType.VIEW);
         for (DBObject view : views) {
@@ -412,6 +406,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
         }
         return statements;
     }
+
     /**
      * Cleans the CLR assemblies in this schema.
      *
@@ -419,7 +414,6 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanAssemblies() throws SQLException {
-
         List<String> assemblyNames =
                 jdbcTemplate.queryForStringList(
                         "SELECT * FROM sys.assemblies WHERE is_user_defined=1"
@@ -430,6 +424,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
         }
         return statements;
     }
+
     /**
      * Cleans the synonyms in this schema.ter
      *
@@ -437,7 +432,6 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanSynonyms() throws SQLException {
-
         List<String> statements = new ArrayList<String>();
         List<DBObject> synonyms = queryDBObjects(ObjectType.SYNONYM);
         for (DBObject synonym : synonyms) {
