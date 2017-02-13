@@ -140,6 +140,12 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -216,6 +222,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
+                            <skip>false</skip>
                             <systemProperties>
                                 <target.dir>${project.build.directory}</target.dir>
                             </systemProperties>
