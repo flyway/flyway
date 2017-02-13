@@ -43,7 +43,7 @@
         </license>
     </licenses>
     <properties>
-        <jreversion>1.8.0_77</jreversion>
+        <jreversion>1.8.0_74</jreversion>
     </properties>
     <dependencies>
         <dependency>
@@ -132,7 +132,9 @@
                         </goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
-                            <descriptor>src/main/assembly/no-jre.xml</descriptor>
+                            <descriptors>
+                                <descriptor>src/main/assembly/no-jre.xml</descriptor>
+                            </descriptors>
                             <encoding>UTF-8</encoding>
                         </configuration>
                     </execution>
@@ -210,6 +212,14 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemProperties>
+                                <target.dir>${project.build.directory}</target.dir>
+                            </systemProperties>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
