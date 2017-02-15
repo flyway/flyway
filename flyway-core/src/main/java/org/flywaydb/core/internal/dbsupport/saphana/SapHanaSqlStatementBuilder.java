@@ -15,23 +15,19 @@
  */
 package org.flywaydb.core.internal.dbsupport.saphana;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.
  */
 public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
     /**
-     * Are we currently inside a BEGIN END; block?
+     * Are we currently inside a BEGIN END; block? How deeply are begin/end nested?
      */
-    private boolean insideBeginEndBlock;
-
-    /**
-     * Holds the beginning of the statement.
-     */
-    private String statementStart = "";
+    private int beginEndNestedDepth = 0;
+    private boolean insideStatementAllowingNestedBeginEndBlocks = false;
 
     @Override
     protected String cleanToken(String token) {
@@ -44,22 +40,32 @@ public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
-            statementStart += line;
-            statementStart += " ";
+
+        // TODO: When a line contains a CREATE X and and END statement, then the order is significant.
+        // TODO: There are a couple more statements allowing for nested begin/end blocks
+        if (line.startsWith("CREATE PROCEDURE") || line.startsWith("CREATE TRIGGER")) {
+            if (insideStatementAllowingNestedBeginEndBlocks) {
+                throw new FlywayException("Beginning another CREATE TRIGGER/CREATE PROCEDURE inside Trigger or Procedure not supported");
+            }
+            insideStatementAllowingNestedBeginEndBlocks = true;
         }
 
-        if (statementStart.startsWith("CREATE TRIGGER")) {
+        if (insideStatementAllowingNestedBeginEndBlocks) {
             if (line.startsWith("BEGIN")) {
-                insideBeginEndBlock = true;
+                beginEndNestedDepth++;
             }
 
             if (line.endsWith("END;")) {
-                insideBeginEndBlock = false;
+                beginEndNestedDepth--;
+                if (beginEndNestedDepth < 0) {
+                    throw new FlywayException("Syntax error in SQL script: unpaired END; statement");
+                } else if (beginEndNestedDepth == 0) {
+                    insideStatementAllowingNestedBeginEndBlocks = false;
+                }
             }
         }
 
-        if (insideBeginEndBlock) {
+        if (insideStatementAllowingNestedBeginEndBlocks) {
             return null;
         }
         return getDefaultDelimiter();
