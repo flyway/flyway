@@ -15,9 +15,15 @@
  */
 package org.flywaydb.core.internal.dbsupport.saphana;
 
+import junit.framework.AssertionFailedError;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
@@ -76,5 +82,55 @@ public class SapHanaSqlStatementBuilderSmallTest {
         }
 
         assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
+    public void parseProcedureWithEmbeddedSemicola() {
+        final String sqlScriptSource = readResource(PROCEDURE_TEST_SCRIPT_LOCATION);
+        SapHanaSqlStatementBuilder statementBuilder = new SapHanaSqlStatementBuilder();
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        final List<String> statements = new ArrayList<String>();
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+            if (statementBuilder.isTerminated()) {
+                statements.add(statementBuilder.getSqlStatement().getSql());
+                statementBuilder = new SapHanaSqlStatementBuilder();
+            }
+        }
+        assertEquals("Should recognize exactly three statements", 3, statements.size());
+    }
+
+    private static final String PROCEDURE_TEST_SCRIPT_LOCATION = "/org/flywaydb/core/internal/dbsupport/saphana/procedures/procedure.sql";
+
+    private static String readResource(String name) {
+        InputStream resource = null;
+        BufferedReader reader = null;
+        StringWriter content = null;
+        try {
+            resource = SapHanaSqlStatementBuilderSmallTest.class.getResourceAsStream(name);
+            if (null == resource) {
+                throw new AssertionFailedError("Could not read test data file '" + name + '"');
+            }
+            reader = new BufferedReader(new InputStreamReader(resource));
+            content = new StringWriter();
+            final BufferedWriter writer = new BufferedWriter(content);
+            String line;
+            while ((line = reader.readLine()) != null) {
+                writer.write(line);
+                writer.newLine();
+            }
+            writer.close();
+        } catch (IOException iox) {
+            throw new RuntimeException("Problem reading test data file '" + name + "'", iox);
+        } finally {
+            if (null != reader) {
+                try {
+                    reader.close();
+                } catch (IOException iox) {
+                    throw new RuntimeException("Problem closing test data file '" + name + "'", iox);
+                }
+            }
+        }
+        return content.toString();
     }
 }
