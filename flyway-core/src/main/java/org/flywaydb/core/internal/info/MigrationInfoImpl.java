@@ -215,7 +215,7 @@ public class MigrationInfoImpl implements MigrationInfo {
             if (getVersion() == null) {
                 throw new FlywayException("Detected failed repeatable migration: " + getDescription());
             }
-            throw new FlywayException("Detected failed migration to version" + getVersion());
+            throw new FlywayException("Detected failed migration to version " + getVersion() + " (" + getDescription() + ")");
         }
 
         if ((resolvedMigration == null)
