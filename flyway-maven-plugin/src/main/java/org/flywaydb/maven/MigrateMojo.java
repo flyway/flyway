@@ -30,7 +30,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
         flyway.migrate();
 
         MigrationInfo current = flyway.info().current();
-        if (current != null) {
+        if (current != null && current.getVersion() != null) {
             mavenProject.getProperties().setProperty("flyway.current", current.getVersion().toString());
         }
     }
