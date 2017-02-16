@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.saphana;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.StringUtils;
 
 /**
  * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.
@@ -28,6 +29,10 @@ public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
      */
     private int beginEndNestedDepth = 0;
     private boolean insideStatementAllowingNestedBeginEndBlocks = false;
+    /**
+     * Holds the beginning of the statement.
+     */
+    private String statementStart = "";
 
     @Override
     protected String cleanToken(String token) {
@@ -40,6 +45,11 @@ public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+
+        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
+            statementStart += line;
+            statementStart += " ";
+        }
 
         // TODO: When a line contains a CREATE X and and END statement, then the order is significant.
         // TODO: There are a couple more statements allowing for nested begin/end blocks
