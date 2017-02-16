@@ -15,11 +15,10 @@
  */
 package org.flywaydb.core.internal.dbsupport.saphana;
 
-import junit.framework.AssertionFailedError;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Test;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 
 /**
- * Test for PostgreSQLSqlStatementBuilder.
+ * Test for SapHanaSqlStatementBuilder
  */
 public class SapHanaSqlStatementBuilderSmallTest {
     /**
@@ -85,8 +84,31 @@ public class SapHanaSqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void parseProcedureWithEmbeddedSemicola() {
-        final String sqlScriptSource = readResource(PROCEDURE_TEST_SCRIPT_LOCATION);
+    public void parseSimpleProcedure() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedure.sql", 3);
+    }
+
+    @Test
+    public void parseProcedureWithNestedBlocks() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedureWithNestedBlocks.sql", 3);
+    }
+    @Test
+    public void parseProcedureInComment() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedureInComment.sql", 3);
+    }
+    @Test
+    public void parseProcedureWithComments() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedureWithComments.sql", 3);
+    }
+    @Test
+    public void parseProcedureWithLinebreaks() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedureWithLinebreaks.sql", 3);
+    }
+
+    private void parseProcedureWithEmbeddedSemicola(String resourceName, int numStatements) {
+        final String sqlScriptSource =
+                new ClassPathResource(resourceName, SapHanaSqlStatementBuilderSmallTest.class.getClassLoader())
+                        .loadAsString("UTF-8");
         SapHanaSqlStatementBuilder statementBuilder = new SapHanaSqlStatementBuilder();
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         final List<String> statements = new ArrayList<String>();
@@ -97,40 +119,6 @@ public class SapHanaSqlStatementBuilderSmallTest {
                 statementBuilder = new SapHanaSqlStatementBuilder();
             }
         }
-        assertEquals("Should recognize exactly three statements", 3, statements.size());
-    }
-
-    private static final String PROCEDURE_TEST_SCRIPT_LOCATION = "/org/flywaydb/core/internal/dbsupport/saphana/procedures/procedure.sql";
-
-    private static String readResource(String name) {
-        InputStream resource = null;
-        BufferedReader reader = null;
-        StringWriter content = null;
-        try {
-            resource = SapHanaSqlStatementBuilderSmallTest.class.getResourceAsStream(name);
-            if (null == resource) {
-                throw new AssertionFailedError("Could not read test data file '" + name + '"');
-            }
-            reader = new BufferedReader(new InputStreamReader(resource));
-            content = new StringWriter();
-            final BufferedWriter writer = new BufferedWriter(content);
-            String line;
-            while ((line = reader.readLine()) != null) {
-                writer.write(line);
-                writer.newLine();
-            }
-            writer.close();
-        } catch (IOException iox) {
-            throw new RuntimeException("Problem reading test data file '" + name + "'", iox);
-        } finally {
-            if (null != reader) {
-                try {
-                    reader.close();
-                } catch (IOException iox) {
-                    throw new RuntimeException("Problem closing test data file '" + name + "'", iox);
-                }
-            }
-        }
-        return content.toString();
+        assertEquals("Number of recognized statements", numStatements, statements.size());
     }
 }

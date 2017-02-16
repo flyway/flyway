@@ -28,11 +28,7 @@ public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
      * Are we currently inside a BEGIN END; block? How deeply are begin/end nested?
      */
     private int beginEndNestedDepth = 0;
-    private boolean insideStatementAllowingNestedBeginEndBlocks = false;
-    /**
-     * Holds the beginning of the statement.
-     */
-    private String statementStart = "";
+    private String statementStartNormalized = "";
 
     @Override
     protected String cleanToken(String token) {
@@ -46,19 +42,16 @@ public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
 
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
-            statementStart += line;
-            statementStart += " ";
+        // need only accumulate 16 characters of normalized statement start in order to determine if it is an 'interesting' statement
+        if (statementStartNormalized.length() < 16) {
+            final String effectiveLine = cutCommentsFromEnd(line);
+            statementStartNormalized += effectiveLine + " ";
+            statementStartNormalized = StringUtils.trimLeadingWhitespace(StringUtils.collapseWhitespace(statementStartNormalized));
         }
-
-        // TODO: When a line contains a CREATE X and and END statement, then the order is significant.
-        // TODO: There are a couple more statements allowing for nested begin/end blocks
-        if (line.startsWith("CREATE PROCEDURE") || line.startsWith("CREATE TRIGGER")) {
-            if (insideStatementAllowingNestedBeginEndBlocks) {
-                throw new FlywayException("Beginning another CREATE TRIGGER/CREATE PROCEDURE inside Trigger or Procedure not supported");
-            }
-            insideStatementAllowingNestedBeginEndBlocks = true;
-        }
+        boolean insideStatementAllowingNestedBeginEndBlocks =
+                statementStartNormalized.startsWith("CREATE PROCEDURE")
+                || statementStartNormalized.startsWith("CREATE FUNCTION")
+                || statementStartNormalized.startsWith("CREATE TRIGGER");
 
         if (insideStatementAllowingNestedBeginEndBlocks) {
             if (line.startsWith("BEGIN")) {
@@ -79,5 +72,25 @@ public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
             return null;
         }
         return getDefaultDelimiter();
+    }
+
+    private static String cutCommentsFromEnd(String line) {
+        if (null == line) {
+            return line;
+        }
+        final int beginOfLineComment = line.indexOf("--");
+        final int beginOfBlockComment = line.indexOf("/*");
+        if (-1 != beginOfLineComment) {
+            if (-1 != beginOfBlockComment) {
+                return line.substring(0, Math.min(beginOfBlockComment, beginOfLineComment));
+            } else {
+                return line.substring(0, beginOfLineComment);
+            }
+        } else {
+            if (-1 != beginOfBlockComment) {
+                return line.substring(0, beginOfBlockComment);
+            }
+        }
+        return line;
     }
 }
