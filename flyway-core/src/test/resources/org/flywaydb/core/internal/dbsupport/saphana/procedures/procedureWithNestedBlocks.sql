@@ -4,7 +4,7 @@ CREATE VIEW all_misters AS SELECT * FROM test_user WHERE name LIKE 'Mr.%';
 -- a procedure with nested begin-end; blocks
 -- also taken from
 -- SAP HANA SQLScript Reference - SAP Library at:
--- http://help-legacy.sap.com/saphelp_hanaplatform/helpdata/en/f0/a6dceac8b94cca98dd2741ac6541b8/content.htm?frameset=/en/c6/558a64245942ebb52f6a6ddb3e4278/frameset.htm
+-- http://help-legacy.sap.com/saphelp_hanaplatform/helpdata/en/c6/558a64245942ebb52f6a6ddb3e4278/content.htm?frameset=/en/d4/3d91578c3b42b3bacfd89aacf0d62f/frameset.htm&current_toc=/en/ed/4f384562ce4861b48e22a8be3171e5/plain.htm&node_id=60
 CREATE PROCEDURE nested_block(OUT val INT) LANGUAGE SQLSCRIPT
 READS SQL DATA AS
 BEGIN
