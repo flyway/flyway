@@ -28,6 +28,7 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -285,17 +286,24 @@ abstract class AbstractFlywayTask extends DefaultTask {
                     ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(resourcesUrl));
                 }
 
-                for (ResolvedArtifact artifact : getProject().getConfigurations().getByName("testRuntime").getResolvedConfiguration().getResolvedArtifacts()) {
-                    URL artifactUrl = artifact.getFile().toURI().toURL();
-                    getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
-                    ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(artifactUrl));
-                }
+                addDependenciesWithScope("compile");
+                addDependenciesWithScope("runtime");
+                addDependenciesWithScope("testCompile");
+                addDependenciesWithScope("testRuntime");
             }
 
             return run(createFlyway());
         } catch (Exception e) {
             handleException(e);
             return null;
+        }
+    }
+
+    private void addDependenciesWithScope(String scope) throws IOException {
+        for (ResolvedArtifact artifact : getProject().getConfigurations().getByName(scope).getResolvedConfiguration().getResolvedArtifacts()) {
+            URL artifactUrl = artifact.getFile().toURI().toURL();
+            getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
+            ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(artifactUrl));
         }
     }
 
@@ -359,6 +367,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         addConfigFromProperties(conf, System.getProperties());
 
         Flyway flyway = new Flyway();
+        flyway.setClassLoader(ClassLoader.getSystemClassLoader());
         flyway.configure(conf);
         return flyway;
     }
