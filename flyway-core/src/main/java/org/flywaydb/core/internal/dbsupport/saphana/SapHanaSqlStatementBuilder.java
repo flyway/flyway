@@ -15,15 +15,19 @@
  */
 package org.flywaydb.core.internal.dbsupport.saphana;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 /**
  * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.
  */
 public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
+
+    private static final Log LOG = LogFactory.getLog(SapHanaSqlStatementBuilder.class);
+
     /**
      * Are we currently inside a BEGIN END; block? How deeply are begin/end nested?
      */
@@ -61,8 +65,9 @@ public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
             if (line.endsWith("END;")) {
                 beginEndNestedDepth--;
                 if (beginEndNestedDepth < 0) {
-                    throw new FlywayException("Syntax error in SQL script: unpaired END; statement");
-                } else if (beginEndNestedDepth == 0) {
+                    LOG.warn("SQL statement parsed unsuccessfully: found unpaired 'END;' in statement");
+                }
+                if (beginEndNestedDepth <= 0) {
                     insideStatementAllowingNestedBeginEndBlocks = false;
                 }
             }
