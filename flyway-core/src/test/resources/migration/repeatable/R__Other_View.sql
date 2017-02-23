@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2016 Boxfuse GmbH
+-- Copyright 2010-2017 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -14,4 +14,4 @@
 -- limitations under the License.
 --
 
-CREATE OR REPLACE VIEW other_view AS SELECT * FROM test_user WHERE name LIKE 'Mr.%';
+CREATE OR REPLACE VIEW other_view AS SELECT 'other' FROM dual;

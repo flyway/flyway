@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 package org.flywaydb.core.internal.dbsupport.derby;
 
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
+import java.sql.DriverManager;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -39,7 +42,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
     @Override
     public void tearDown() throws Exception {
         try {
-            new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:derby:memory:flyway_db;drop=true", "", "").getConnection();
+            new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:derby:memory:flyway_db;drop=true", "", "", null).getConnection();
         } catch (FlywayException e) {
             //OK, expected error 08006. See http://db.apache.org/derby/docs/dev/devguide/cdevdvlpinmemdb.html
         }
@@ -49,7 +52,7 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:derby:memory:flyway_db;create=true", "", "");
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:derby:memory:flyway_db;create=true", "", "", null);
     }
 
     @Override
@@ -80,6 +83,23 @@ public class DerbyMigrationMediumTest extends MigrationTestCase {
         flyway.setSchemas("non-existant");
         flyway.setValidateOnMigrate(true);
         flyway.migrate();
+    }
+
+    @Test
+    public void testFlyway1331() throws Exception {
+        try {
+            Flyway flyway = new Flyway();
+            flyway.setDataSource("jdbc:derby:memory:fw1331db;create=true", "sa", "sa");
+            flyway.setLocations("migration/sql");
+            flyway.setBaselineOnMigrate(true);
+            flyway.migrate();
+        } finally {
+            try {
+                JdbcUtils.closeConnection(DriverManager.getConnection("jdbc:derby:memory:fw1331db;shutdown=true", "sa", "sa"));
+            } catch (Exception e) {
+                // Suppress
+            }
+        }
     }
 
     @Override

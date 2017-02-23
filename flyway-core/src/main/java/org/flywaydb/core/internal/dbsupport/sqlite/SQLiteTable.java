@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,7 @@ public class SQLiteTable extends Table {
     private static final Log LOG = LogFactory.getLog(SQLiteTable.class);
 
     /** SQLite system tables are undroppable. */
-    private static final Collection<String> SYSTEM_TABLES =
-        Collections.singleton("sqlite_sequence");
-
+    static final String SQLITE_SEQUENCE = "sqlite_sequence";
     private final boolean undroppable;
 
     /**
@@ -48,7 +46,7 @@ public class SQLiteTable extends Table {
      */
     public SQLiteTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
-        undroppable = SYSTEM_TABLES.contains(name);
+        undroppable = SQLITE_SEQUENCE.equals(name);
     }
 
     @Override

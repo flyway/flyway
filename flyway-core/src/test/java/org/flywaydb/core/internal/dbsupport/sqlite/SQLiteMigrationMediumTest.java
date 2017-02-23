@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,18 @@ package org.flywaydb.core.internal.dbsupport.sqlite;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteDataSource;
+import org.sqlite.SQLiteOpenMode;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Properties;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test to demonstrate the migration functionality using SQLite.
@@ -37,7 +37,19 @@ import static org.junit.Assert.assertTrue;
 public class SQLiteMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:sqlite::memory:", "", "");
+        SQLiteConfig config = new SQLiteConfig();
+        config.setOpenMode(SQLiteOpenMode.CREATE);
+        config.setOpenMode(SQLiteOpenMode.DELETEONCLOSE);
+        config.setOpenMode(SQLiteOpenMode.READWRITE);
+        config.setOpenMode(SQLiteOpenMode.TRANSIENT_DB);
+        config.enforceForeignKeys(true);
+
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(),
+                null,
+                "jdbc:sqlite:target/sqlite-" + testName.getMethodName(),
+                "",
+                "",
+                config.toProperties());
     }
 
     @Override
@@ -108,11 +120,44 @@ public class SQLiteMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void cleanWithSystemTables() throws Exception {
+        flyway.clean();
         // AUTOINCREMENT field causes sqlite_sequence table creation
-        flyway.setLocations("migration/dbsupport/sqlite/autoincrement");
+        flyway.setLocations("migration/dbsupport/sqlite/sql/autoincrement");
         flyway.migrate();
         // crashes on "DROP sqlite_sequence": table sqlite_sequence may not be dropped
         flyway.clean();
     }
 
+    @Test
+    public void foreignKey() throws Exception {
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/sqlite/sql/foreign_key");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
+    public void singleConnectionExternalDataSource() {
+        SQLiteConfig config = new SQLiteConfig();
+        config.setJournalMode(SQLiteConfig.JournalMode.WAL);
+        config.setSynchronous(SQLiteConfig.SynchronousMode.NORMAL);
+        SQLiteDataSource dataSource = new SQLiteDataSource(config);
+        dataSource.setUrl("jdbc:sqlite:target/single_external");
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql");
+        flyway.clean();
+        flyway.migrate();
+    }
+
+    @Test
+    public void singleConnectionInternalDataSource() {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:sqlite:target/single_internal", "", "");
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/sql");
+        flyway.clean();
+        flyway.migrate();
+    }
 }

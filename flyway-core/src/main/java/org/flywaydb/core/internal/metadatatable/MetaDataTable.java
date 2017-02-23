@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.concurrent.Callable;
 public interface MetaDataTable {
     /**
      * Acquires an exclusive read-write lock on the metadata table. This lock will be released automatically upon completion.
+     *
      * @return The result of the action.
      */
     <T> T lock(Callable<T> callable);
@@ -37,6 +38,11 @@ public interface MetaDataTable {
      * @param appliedMigration The migration that was executed.
      */
     void addAppliedMigration(AppliedMigration appliedMigration);
+
+    /**
+     * @return Whether the metadata table exists.
+     */
+    boolean exists();
 
     /**
      * Checks whether the metadata table contains at least one applied migration.
@@ -100,12 +106,13 @@ public interface MetaDataTable {
     boolean hasSchemasMarker();
 
     /**
-     * Update the checksum for this version to this new value.
+     * Update the description and checksum for this version to these new values.
      *
-     * @param version  The version to update.
-     * @param checksum The new checksum.
+     * @param version     The version to update.
+     * @param description The new description.
+     * @param checksum    The new checksum.
      */
-    void updateChecksum(MigrationVersion version, Integer checksum);
+    void update(MigrationVersion version, String description, Integer checksum);
 
     /**
      * Upgrades the Metadata table to Flyway 4.0 format if necessary.
@@ -113,4 +120,9 @@ public interface MetaDataTable {
      * @return {@code true} if it was upgraded.
      */
     boolean upgradeIfNecessary();
+
+    /**
+     * Clears the applied migration cache.
+     */
+    void clearCache();
 }

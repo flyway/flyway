@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class VerticaMigrationMediumTest extends MigrationTestCase {
         String password = customProperties.getProperty("vertica.password", "flyway");
         String url = customProperties.getProperty("vertica.url", "jdbc:vertica://localhost/flyway");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class VerticaMigrationMediumTest extends MigrationTestCase {
         Flyway flyway1 = new Flyway();
         DriverDataSource driverDataSource = (DriverDataSource) dataSource;
         flyway1.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(),
-                null, driverDataSource.getUrl(), driverDataSource.getUser(), driverDataSource.getPassword()) {
+                null, driverDataSource.getUrl(), driverDataSource.getUser(), driverDataSource.getPassword(), null) {
             @Override
             public Connection getConnection() throws SQLException {
                 Connection connection = super.getConnection();

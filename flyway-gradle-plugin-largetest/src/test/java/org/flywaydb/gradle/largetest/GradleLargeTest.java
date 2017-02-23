@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,14 +39,21 @@ import static org.junit.Assert.assertTrue;
 public class GradleLargeTest {
     private String installDir = System.getProperty("installDir", "flyway-gradle-plugin-largetest/target/test-classes");
 
-    @Test
+    @Test(timeout = 60000)
     public void regular() throws Exception {
         String stdOut = runGradle(0, "regular", "clean", "flywayMigrate", "-Pflyway.placeholders.name=James");
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
         assertFalse(stdOut.contains("deprecated"));
     }
 
-    @Test
+    @Test(timeout = 60000)
+    public void custom() throws Exception {
+        String stdOut = runGradle(0, "custom", "clean", "someTestMigration", "-Pflyway.placeholders.name=James");
+        assertTrue(stdOut.contains("Successfully applied 2 migrations"));
+        assertFalse(stdOut.contains("deprecated"));
+    }
+
+    @Test(timeout = 60000)
     public void error() throws Exception {
         String stdOut = runGradle(0, "error", "clean", "flywayMigrate");
         assertTrue(stdOut.contains("Successfully validated 0 migrations"));

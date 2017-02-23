@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,18 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.dbsupport.SqlScript;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.sql.CallableStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -86,6 +92,21 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/sqlserver/sql/function");
         flyway.migrate();
 
+        // Test inlined function.
+        jdbcTemplate.execute("INSERT INTO test_data (value) VALUES ('Hello')");
+
+        List<String> reverse = jdbcTemplate.queryForStringList("SELECT * from reverseInlineFunc();");
+        assertEquals(1, reverse.size());
+        assertEquals("olleH", reverse.get(0));
+
+        // Test table valued-function.
+        final int count = 10;
+        List<String> integers = jdbcTemplate.queryForStringList("SELECT * from dbo.positiveIntegers(?)", String.valueOf(count));
+        assertEquals(count, integers.size());
+        for (int i = 1; i <= 10; i++) {
+            assertEquals(i, Integer.parseInt(integers.get(i - 1)));
+        }
+
         flyway.clean();
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
@@ -136,6 +157,71 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
+    }
+
+    /**
+     * Tests clean and migrate for SQL Server assemblies.
+     */
+    @Test
+    public void assembly() throws Exception {
+
+        CallableStatement stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr enabled', 1; RECONFIGURE;");
+        stmt.execute();
+
+        try {
+
+            flyway.setLocations("migration/dbsupport/sqlserver/sql/assembly");
+            flyway.migrate();
+
+            // CLR procedure.
+            stmt = jdbcTemplate.getConnection().prepareCall("EXEC helloFromProc ?, ?");
+            stmt.setString(1, "Alice");
+            stmt.registerOutParameter(2, Types.VARCHAR);
+            stmt.execute();
+            assertEquals("Hello Alice", stmt.getString(2));
+
+            // CLR function.
+            assertEquals("Hello Bob", jdbcTemplate.queryForString("SELECT dbo.helloFromFunc('Bob');"));
+
+            List<String> greetings = jdbcTemplate.queryForStringList("SELECT * FROM dbo.helloFromTableValuedFunction(3, 'Charlie')");
+            assertEquals(3, greetings.size());
+
+            for (String greeting : greetings) {
+                assertEquals("Hello Charlie", greeting);
+            }
+
+            String[] names = new String[]{"Dave", "Erin", "Faythe"};
+
+            for (String name : names) {
+                jdbcTemplate.execute("INSERT INTO names (name) VALUES (?)", name);
+            }
+
+            // CLR trigger.
+            greetings = jdbcTemplate.queryForStringList("SELECT * FROM triggered_greetings");
+
+            assertEquals(names.length, greetings.size());
+
+            for (String name : names) {
+                assertTrue(greetings.remove("Hello " + name));
+            }
+
+            // User aggregate.
+            greetings = jdbcTemplate.queryForStringList("SELECT dbo.helloAll(name) FROM names");
+
+            assertEquals(1, greetings.size());
+            assertEquals("Hello Dave, Erin, Faythe", greetings.get(0));
+
+            flyway.clean();
+
+            // Running migrate again on an unclean database, triggers duplicate object exceptions.
+            flyway.migrate();
+        } finally {
+            try {
+                jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr enabled', 0; RECONFIGURE;");
+            } catch (Exception e) {
+                // Swallow.
+            }
+        }
     }
 
     /**
@@ -249,6 +335,56 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
       assertTrue(e.getStatement().contains("VALUES(1)"));
     }
   }
+
+    @Test
+    public void msDBToolsIgnoredForEmpty() throws Exception {
+        Schema schema = dbSupport.getOriginalSchema();
+
+        new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/createMSDBTools.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                execute(jdbcTemplate);
+
+        try {
+            assertTrue("MS DB tools must be ignored in empty check.", schema.empty());
+        } finally {
+            try {
+                new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/dropMSDBTools.sql",
+                        Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                        execute(jdbcTemplate);
+            } catch (Exception e) {
+                // Swallow to prevent override of test raised exception.
+            }
+        }
+    }
+
+    @Test
+    public void msDBToolsNotCleared() throws Exception {
+        Schema schema = dbSupport.getOriginalSchema();
+
+        new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/createMSDBTools.sql",
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                execute(jdbcTemplate);
+
+        try {
+            final String queryObjectCount = "SELECT COUNT(*) from sys.all_objects";
+
+            int initialObjectsCount = jdbcTemplate.queryForInt(queryObjectCount);
+
+            schema.clean();
+
+            int finalObjectCount = jdbcTemplate.queryForInt(queryObjectCount);
+
+            assertEquals("Cleaning the schema must not delete MS DB Tools objects.", initialObjectsCount, finalObjectCount);
+        } finally {
+            try {
+                new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/dropMSDBTools.sql",
+                        Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                        execute(jdbcTemplate);
+            } catch (Exception e) {
+                // Swallow to prevent override of test raised exception.
+            }
+        }
+    }
 
     @Override
     @Ignore("Not supported on SQL Server")

@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.dbsupport.hsql;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -51,7 +51,7 @@ public class HsqlTable extends Table {
             int majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
             version18 = majorVersion < 2;
         } catch (SQLException e) {
-            throw new FlywayException("Unable to determine the Hsql version", e);
+            throw new FlywaySqlException("Unable to determine the Hsql version", e);
         }
     }
 

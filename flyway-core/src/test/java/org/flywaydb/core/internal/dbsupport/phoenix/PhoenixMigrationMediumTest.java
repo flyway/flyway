@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class PhoenixMigrationMediumTest extends MigrationTestCase {
         String port = testUtility.getConfiguration().get("hbase.zookeeper.property.clientPort");
         String zkServer = server + ":" + port;
 
-        dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:phoenix:" + zkServer, "", "");
+        dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:phoenix:" + zkServer, "", "", null);
     }
 
 
@@ -109,7 +109,6 @@ public class PhoenixMigrationMediumTest extends MigrationTestCase {
     @AfterClass
     public static void afterClassTearDown() throws Exception {
         LOG.info("Shutting down mini-cluster");
-        dataSource.close();
         testUtility.shutdownMiniCluster();
     }
 

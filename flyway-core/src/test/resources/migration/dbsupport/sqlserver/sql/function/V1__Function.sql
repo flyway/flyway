@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2016 Boxfuse GmbH
+-- Copyright 2010-2017 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -41,4 +41,36 @@ CREATE TABLE [dbo].[EventStream](
 GO
 
 ALTER TABLE [dbo].[EventStream] ADD  CONSTRAINT [DF_EventStream_EventDate]  DEFAULT (getdate()) FOR [EventDate]
+GO
+
+CREATE TABLE test_data (
+  value VARCHAR(25) NOT NULL,
+  PRIMARY KEY(value)
+)
+GO
+
+/* Inline user-defined function. */
+CREATE function reverseInlineFunc()
+RETURNS TABLE
+AS
+RETURN (
+	SELECT REVERSE(value) AS value FROM test_data
+)
+GO
+
+/* Table-valued function. Filled with strictly positive integers (starting at 1) up to a upper bound. */
+CREATE FUNCTION positiveIntegers(@to int)
+RETURNS @oneToTen TABLE (
+	number int NOT NULL
+)
+AS
+BEGIN
+	DECLARE @cnt INT = 1
+	WHILE @cnt <= @to
+	BEGIN
+	   INSERT INTO @oneToTen VALUES (@cnt)
+	   SET @cnt = @cnt + 1
+	END
+	RETURN
+END
 GO

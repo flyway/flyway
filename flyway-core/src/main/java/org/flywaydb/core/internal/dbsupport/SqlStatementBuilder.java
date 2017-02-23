@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -313,8 +313,7 @@ public class SqlStatementBuilder {
      * @param line The line that was just added to the statement.
      */
     protected void applyStateChanges(String line) {
-        //Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals
-        String[] tokens = StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}");
+        String[] tokens = tokenizeLine(line);
 
         List<TokenType> delimitingTokens = extractStringLiteralDelimitingTokens(tokens);
 
@@ -350,6 +349,15 @@ public class SqlStatementBuilder {
                 nonCommentStatementPartSeen = true;
             }
         }
+    }
+
+    /**
+     * Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals.
+     * @param line The line to tokenize.
+     * @return The tokens.
+     */
+    protected String[] tokenizeLine(String line) {
+        return StringUtils.tokenizeToStringArray(line, " @<>;:=|(),+{}");
     }
 
     /**

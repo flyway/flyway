@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
@@ -27,6 +26,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +124,12 @@ public class ClassUtils {
                 //Android
                 return null;
             }
-            String url = protectionDomain.getCodeSource().getLocation().getPath();
+            CodeSource codeSource = protectionDomain.getCodeSource();
+            if (codeSource == null) {
+                //Custom classloader with for example classes defined using URLClassLoader#defineClass(String name, byte[] b, int off, int len)
+                return null;
+            }
+            String url = codeSource.getLocation().getPath();
             return URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             //Can never happen.

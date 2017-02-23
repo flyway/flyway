@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.info;
 
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
@@ -158,10 +159,10 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (appliedMigration.getVersion() == null) {
-            if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
-                return MigrationState.SUCCESS;
-            }
             if (appliedMigration.getInstalledRank() == context.latestRepeatableRuns.get(appliedMigration.getDescription())) {
+                if (ObjectUtils.nullSafeEquals(appliedMigration.getChecksum(), resolvedMigration.getChecksum())) {
+                    return MigrationState.SUCCESS;
+                }
                 return MigrationState.OUTDATED;
             }
             return MigrationState.SUPERSEEDED;
@@ -209,26 +210,32 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @return The error message, or {@code null} if everything is fine.
      */
     public String validate() {
+        if (getState().isFailed()
+                && (!context.future || MigrationState.FUTURE_FAILED != getState())) {
+            if (getVersion() == null) {
+                throw new FlywayException("Detected failed repeatable migration: " + getDescription());
+            }
+            throw new FlywayException("Detected failed migration to version " + getVersion() + " (" + getDescription() + ")");
+        }
+
         if ((resolvedMigration == null)
                 && (appliedMigration.getType() != MigrationType.SCHEMA)
                 && (appliedMigration.getType() != MigrationType.BASELINE)
                 && (appliedMigration.getVersion() != null)
-                && (!context.future ||
-                (MigrationState.FUTURE_SUCCESS != getState() && MigrationState.FUTURE_FAILED != getState()))) {
+                && (!context.missing || (MigrationState.MISSING_SUCCESS != getState() && MigrationState.MISSING_FAILED != getState()))
+                && (!context.future || (MigrationState.FUTURE_SUCCESS != getState() && MigrationState.FUTURE_FAILED != getState()))) {
             return "Detected applied migration not resolved locally: " + getVersion();
         }
 
-        if (!context.pending) {
-            if (MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
-                if (getVersion() != null) {
-                    return "Detected resolved migration not applied to database: " + getVersion();
-                }
-                return "Detected resolved repeatable migration not applied to database: " + getDescription();
+        if (!context.pending && MigrationState.PENDING == getState() || MigrationState.IGNORED == getState()) {
+            if (getVersion() != null) {
+                return "Detected resolved migration not applied to database: " + getVersion();
             }
+            return "Detected resolved repeatable migration not applied to database: " + getDescription();
+        }
 
-            if (MigrationState.OUTDATED == getState()) {
-                return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
-            }
+        if (!context.pending && MigrationState.OUTDATED == getState()) {
+            return "Detected outdated resolved repeatable migration that should be re-applied to database: " + getDescription();
         }
 
         if (resolvedMigration != null && appliedMigration != null) {

@@ -6,7 +6,7 @@ services:
   - postgresql
 before_install:
   - sudo rm /etc/mavenrc
-install: "mvn install -P-CommercialDBTest -P-CommandlinePlatformAssemblies -DskipTests=true -B"
+install: "mvn install -P-CommercialDBTest -P-CommandlinePlatformAssemblies -DskipTests -B"
 before_script:
   - psql -U postgres < ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql

@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class SapHanaConcurrentMigrationMediumTest extends ConcurrentMigrationTes
         String password = customProperties.getProperty("saphana.password", "XXXXXXXXXXXXXXXXXXXX");
         String url = customProperties.getProperty("saphana.url", "jdbc:sap://localhost:30XXX");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 
     protected String getBasedir() {

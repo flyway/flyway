@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
+import org.flywaydb.core.internal.dbsupport.enterprisedb.EnterpriseDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
@@ -93,6 +94,9 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
         }
+        if (databaseProductName.startsWith("EnterpriseDB")) {
+            return new EnterpriseDBDbSupport(connection);
+        }
         if (databaseProductName.startsWith("PostgreSQL 8")) {
             // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
             // but only supports a subset of features. Therefore, we need to execute a query in order to
@@ -111,11 +115,11 @@ public class DbSupportFactory {
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-			if (getDatabaseProductVersion(connection).startsWith("DSN")){
-				return new DB2zosDbSupport(connection);
-			} else {
-				return new DB2DbSupport(connection);
-			}
+            if (getDatabaseProductVersion(connection).startsWith("DSN")) {
+                return new DB2zosDbSupport(connection);
+            } else {
+                return new DB2DbSupport(connection);
+            }
         }
         if (databaseProductName.startsWith("Vertica")) {
             return new VerticaDbSupport(connection);
@@ -130,12 +134,13 @@ public class DbSupportFactory {
             return new PhoenixDbSupport(connection);
         }
 
-		//Sybase ASE support
-        if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive")) {
-        	return new SybaseASEDbSupport(connection);
+        if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive") //Newer Sybase ASE versions
+                || databaseProductName.startsWith("sql server") // Older Sybase ASE 12.5 installations
+                ) {
+            return new SybaseASEDbSupport(connection);
         }
         if (databaseProductName.startsWith("HDB")) {
-        	return new SapHanaDbSupport(connection);
+            return new SapHanaDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
@@ -152,7 +157,7 @@ public class DbSupportFactory {
         try {
             return connection.getMetaData().getURL();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to retrieve the Jdbc connection Url!", e);
+            throw new FlywaySqlException("Unable to retrieve the Jdbc connection Url!", e);
         }
     }
 
@@ -179,36 +184,36 @@ public class DbSupportFactory {
 
             return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
-            throw new FlywayException("Error while determining database product name", e);
+            throw new FlywaySqlException("Error while determining database product name", e);
         }
     }
 
-	/**
-	 * Retrieves the database version.
-	 *
-	 * @param connection The connection to use to query the database.
-	 * @return The version of the database product.
-	 * Ex.: DSN11015 DB2 for z/OS Version 11
-	 *      SQL10050 DB" for Linux, UNIX and Windows Version 10.5
-	 */
-	private static String getDatabaseProductVersion(Connection connection) {
-		try {
-			DatabaseMetaData databaseMetaData = connection.getMetaData();
-			if (databaseMetaData == null) {
-				throw new FlywayException("Unable to read database metadata while it is null!");
-			}
+    /**
+     * Retrieves the database version.
+     *
+     * @param connection The connection to use to query the database.
+     * @return The version of the database product.
+     * Ex.: DSN11015 DB2 for z/OS Version 11
+     * SQL10050 DB" for Linux, UNIX and Windows Version 10.5
+     */
+    private static String getDatabaseProductVersion(Connection connection) {
+        try {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            if (databaseMetaData == null) {
+                throw new FlywayException("Unable to read database metadata while it is null!");
+            }
 
-			String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
-			if (databaseProductVersion == null) {
-				throw new FlywayException("Unable to determine database. Product version is null.");
-			}
+            String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
+            if (databaseProductVersion == null) {
+                throw new FlywayException("Unable to determine database. Product version is null.");
+            }
 
 
-			return databaseProductVersion;
-		} catch (SQLException e) {
-			throw new FlywayException("Error while determining database product version", e);
-		}
-	}
+            return databaseProductVersion;
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Error while determining database product version", e);
+        }
+    }
 
     /**
      * Retrieves the name of the JDBC driver
@@ -230,8 +235,7 @@ public class DbSupportFactory {
 
             return driverName;
         } catch (SQLException e) {
-            throw new FlywayException("Error while determining JDBC driver name", e);
+            throw new FlywaySqlException("Error while determining JDBC driver name", e);
         }
     }
-
 }

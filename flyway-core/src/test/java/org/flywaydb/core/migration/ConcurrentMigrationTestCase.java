@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import java.sql.Connection;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test to demonstrate the migration functionality using H2.
@@ -54,9 +54,9 @@ public abstract class ConcurrentMigrationTestCase {
     private String schemaQuoted;
 
     /**
-     * Flag to indicate the concurrent test has failed.
+     * Error message in case the concurrent test has failed.
      */
-    private boolean failed;
+    private String error;
 
     /**
      * The datasource to use for concurrent migration tests.
@@ -73,7 +73,14 @@ public abstract class ConcurrentMigrationTestCase {
     public void setUp() throws Exception {
         flyway = createFlyway();
         flyway.clean();
-        flyway.baseline();
+
+        if (needsBaseline()) {
+            flyway.baseline();
+        }
+    }
+
+    protected boolean needsBaseline() {
+        return false;
     }
 
     protected String getBasedir() {
@@ -100,7 +107,7 @@ public abstract class ConcurrentMigrationTestCase {
                     createFlyway().migrate();
                 } catch (Exception e) {
                     LOG.error("Migrate failed", e);
-                    failed = true;
+                    error = e.getMessage();
                 }
             }
         };
@@ -116,13 +123,16 @@ public abstract class ConcurrentMigrationTestCase {
             threads[i].join();
         }
 
-        assertFalse(failed);
+        assertNull(error, error);
         final MigrationInfo[] applied = flyway.info().applied();
+        int expected = 4;
         if (applied[0].getType() == MigrationType.SCHEMA) {
-            assertEquals(6, applied.length);
-        } else {
-            assertEquals(5, applied.length);
+            expected++;
         }
+        if (needsBaseline()) {
+            expected++;
+        }
+        assertEquals(expected, applied.length);
         assertEquals("2.0", flyway.info().current().getVersion().toString());
         assertEquals(0, flyway.migrate());
 
@@ -130,7 +140,7 @@ public abstract class ConcurrentMigrationTestCase {
         try {
             connection = concurrentMigrationDataSource.getConnection();
             assertEquals(2, new JdbcTemplate(connection, 0).queryForInt(
-                    "SELECT COUNT(*) FROM " +schemaQuoted + ".test_user"));
+                    "SELECT COUNT(*) FROM " + schemaQuoted + ".test_user"));
         } finally {
             JdbcUtils.closeConnection(connection);
         }

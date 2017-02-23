@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2016 Boxfuse GmbH
+-- Copyright 2010-2017 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ select "Hello 'quotes" from dual;
 select "Hello 'quotes'" from dual;
 select "Hello ''quotes" from dual;
 
-select "Hello '
+select "Hellö '
 multi-line
 quotes
 '" from dual;

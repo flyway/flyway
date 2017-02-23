@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -44,7 +44,7 @@ public class DB2DbSupport extends DbSupport {
         try {
             majorVersion = connection.getMetaData().getDatabaseMajorVersion();
         } catch (SQLException e) {
-            throw new FlywayException("Unable to determine DB2 major version", e);
+            throw new FlywaySqlException("Unable to determine DB2 major version", e);
         }
     }
 
@@ -63,7 +63,7 @@ public class DB2DbSupport extends DbSupport {
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("SET SCHEMA " + schema);
+        jdbcTemplate.execute("SET SCHEMA " + quote(schema));
     }
 
     public String getCurrentUserFunction() {

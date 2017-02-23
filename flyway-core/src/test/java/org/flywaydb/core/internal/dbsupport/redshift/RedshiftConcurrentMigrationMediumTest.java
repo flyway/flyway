@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,6 @@ public class RedshiftConcurrentMigrationMediumTest extends ConcurrentMigrationTe
         // Create an ssh tunnel on port 5439 to your Redshift instance before running this test!
         String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost:5439/flyway");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 }

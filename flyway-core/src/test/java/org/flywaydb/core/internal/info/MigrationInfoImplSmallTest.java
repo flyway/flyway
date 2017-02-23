@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,9 @@ public class MigrationInfoImplSmallTest {
         ResolvedMigration b = createResolvedMigration(null, "B");
         MigrationInfoContext context = new MigrationInfoContext();
         context.target = MigrationVersion.LATEST;
+        context.latestRepeatableRuns.put("A", 10);
         context.latestRepeatableRuns.put("B", 7);
+        context.latestRepeatableRuns.put("C", 5);
 
         MigrationInfoImpl r1 = new MigrationInfoImpl(createResolvedMigration(null, "C"), createAppliedMigration(5, null, "C"), context, false);
         MigrationInfoImpl v2 = new MigrationInfoImpl(createResolvedMigration("1", "V1"), createAppliedMigration(6, "1", "V1"), context, false);

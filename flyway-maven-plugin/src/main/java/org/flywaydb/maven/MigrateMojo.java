@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class MigrateMojo extends AbstractFlywayMojo {
         flyway.migrate();
 
         MigrationInfo current = flyway.info().current();
-        if (current != null) {
+        if (current != null && current.getVersion() != null) {
             mavenProject.getProperties().setProperty("flyway.current", current.getVersion().toString());
         }
     }

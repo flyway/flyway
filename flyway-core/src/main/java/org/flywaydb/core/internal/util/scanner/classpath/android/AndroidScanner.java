@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.util.scanner.classpath.android;
 
 import android.content.Context;
 import dalvik.system.DexFile;
-import dalvik.system.PathClassLoader;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.android.ContextHolder;
 import org.flywaydb.core.internal.util.ClassUtils;
@@ -40,10 +39,10 @@ public class AndroidScanner implements ResourceAndClassScanner {
 
     private final Context context;
 
-    private final PathClassLoader classLoader;
+    private final ClassLoader classLoader;
 
     public AndroidScanner(ClassLoader classLoader) {
-        this.classLoader = (PathClassLoader) classLoader;
+        this.classLoader = classLoader;
         context = ContextHolder.getContext();
         if (context == null) {
             throw new FlywayException("Unable to scan for Migrations! Context not set. " +

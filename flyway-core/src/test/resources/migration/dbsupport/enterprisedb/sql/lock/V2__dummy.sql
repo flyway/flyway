@@ -1,5 +1,5 @@
 --
--- Copyright 2010-2016 Boxfuse GmbH
+-- Copyright 2010-2017 Boxfuse GmbH
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -14,12 +14,8 @@
 -- limitations under the License.
 --
 
-
--- Update checksum for a version
-UPSERT INTO "${schema}"."${table}" (
-    "version",
-    "checksum"
-) VALUES (
-     '${version_val}',
-     ${checksum_val}
-);
+/*
+  We need this dummy migration for the test because it ensures that table SCHEMA_VERSION has been created and committed
+  when the lock test is done in next migration file
+*/
+SELECT 1;

@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,19 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
      * Class under test.
      */
     private PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+
+    @Test
+    public void columnColumnText() {
+        String sqlScriptSource = "CREATE DOMAIN some_domain AS CHARACTER(3)\n" +
+                "CONSTRAINT some_domain_check CHECK (((VALUE) :: TEXT = ANY (ARRAY ['FOO' :: TEXT, 'BAR' :: TEXT])));";
+
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+        }
+
+        assertTrue(statementBuilder.isTerminated());
+    }
 
     @Test
     public void regclass() {

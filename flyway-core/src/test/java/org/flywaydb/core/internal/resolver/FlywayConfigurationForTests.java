@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -212,6 +212,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
+    public boolean isIgnoreMissingMigrations() {
+        return false;
+    }
+
+    @Override
     public boolean isIgnoreFutureMigrations() {
         return false;
     }
@@ -234,6 +239,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     @Override
     public boolean isAllowMixedMigrations() {
         return false;
+    }
+
+    @Override
+    public String getInstalledBy() {
+        return null;
     }
 
     @Override

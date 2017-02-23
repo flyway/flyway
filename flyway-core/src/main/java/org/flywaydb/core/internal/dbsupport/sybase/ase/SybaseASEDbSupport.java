@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 /**
  * Sybase specific support
- *
  */
 public class SybaseASEDbSupport extends DbSupport {
 
@@ -38,9 +37,6 @@ public class SybaseASEDbSupport extends DbSupport {
         super(new JdbcTemplate(connection, Types.NULL));
     }
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#getSchema(java.lang.String)
-	 */
 	@Override
 	public Schema getSchema(String name) {
 		//Sybase does not support schema and changing user on the fly. Always return a schema that does not exist
@@ -49,7 +45,6 @@ public class SybaseASEDbSupport extends DbSupport {
 			protected boolean doExists() throws SQLException {
 				return false;
 			}
-			
 		};
 		
 		try {
@@ -63,83 +58,52 @@ public class SybaseASEDbSupport extends DbSupport {
 		return schema;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#createSqlStatementBuilder()
-	 */
 	@Override
 	public SqlStatementBuilder createSqlStatementBuilder() {
 		return new SybaseASESqlStatementBuilder();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#getDbName()
-	 */
 	@Override
 	public String getDbName() {
 		return "sybaseASE";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#doGetCurrentSchemaName()
-	 */
 	@Override
 	protected String doGetCurrentSchemaName() throws SQLException {
 		return jdbcTemplate.queryForString("select USER_NAME()");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#doChangeCurrentSchemaTo(org.flywaydb.core.internal.dbsupport.Schema)
-	 */
 	@Override
 	protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
 		LOG.info("Sybase does not support setting the schema for the current session. Default schema NOT changed to " + schema);
-        // Not currently supported.
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#getCurrentUserFunction()
-	 */
 	@Override
 	public String getCurrentUserFunction() {
 		return "user_name()";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#supportsDdlTransactions()
-	 */
 	@Override
 	public boolean supportsDdlTransactions() {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#getBooleanTrue()
-	 */
 	@Override
 	public String getBooleanTrue() {
 		return "1";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#getBooleanFalse()
-	 */
 	@Override
 	public String getBooleanFalse() {
 		return "0";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#doQuote(java.lang.String)
-	 */
 	@Override
 	protected String doQuote(String identifier) {
 		//Sybase doesn't quote identifiers, skip quotting
 		return identifier;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.flywaydb.core.internal.dbsupport.DbSupport#catalogIsSchema()
-	 */
 	@Override
 	public boolean catalogIsSchema() {
 		return false;

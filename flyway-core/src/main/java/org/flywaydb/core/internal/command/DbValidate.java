@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,11 @@ public class DbValidate {
     private final boolean pending;
 
     /**
+     * Whether missing migrations are allowed.
+     */
+    private final boolean missing;
+
+    /**
      * Whether future migrations are allowed.
      */
     private final boolean future;
@@ -107,12 +112,13 @@ public class DbValidate {
      * @param target            The target version of the migration.
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
+     * @param missing           Whether missing migrations are allowed.
      * @param future            Whether future migrations are allowed.
      * @param callbacks         The lifecycle callbacks.
      */
     public DbValidate(Connection connection,
                       DbSupport dbSupport, MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean future, FlywayCallback[] callbacks) {
+                      MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
@@ -121,6 +127,7 @@ public class DbValidate {
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.pending = pending;
+        this.missing = missing;
         this.future = future;
         this.callbacks = callbacks;
     }
@@ -131,6 +138,13 @@ public class DbValidate {
      * @return The validation error, if any.
      */
     public String validate() {
+        if (!schema.exists()) {
+            if (!migrationResolver.resolveMigrations().isEmpty() && !pending) {
+                return "Schema " + schema + " doesn't exist yet";
+            }
+            return null;
+        }
+
         try {
             for (final FlywayCallback callback : callbacks) {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
@@ -152,7 +166,7 @@ public class DbValidate {
                 public Pair<Integer, String> call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, future);
+                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, missing, future);
 
                     migrationInfoService.refresh();
 

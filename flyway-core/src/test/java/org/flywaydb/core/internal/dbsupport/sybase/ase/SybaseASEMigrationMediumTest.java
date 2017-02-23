@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
         String password = customProperties.getProperty("sybase.password", "test");
         String url = customProperties.getProperty("sybase.jtds_url", "jdbc:jtds:sybase://127.0.0.1:5100/flyway_test");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 
 	@Override

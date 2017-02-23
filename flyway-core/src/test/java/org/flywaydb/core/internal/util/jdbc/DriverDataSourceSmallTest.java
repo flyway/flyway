@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class DriverDataSourceSmallTest {
         String password = "superS3cr3t";
 
         try {
-            new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password).getConnection();
+            new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null).getConnection();
         } catch (FlywayException e) {
             assertTrue(e.getCause() instanceof SQLException);
             assertTrue(e.getMessage().contains(url));

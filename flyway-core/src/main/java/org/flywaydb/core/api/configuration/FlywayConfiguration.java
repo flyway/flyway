@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -232,6 +232,19 @@ public interface FlywayConfiguration {
     boolean isOutOfOrder();
 
     /**
+     * Ignore missing migrations when reading the metadata table. These are migrations that were performed by an
+     * older deployment of the application that are no longer available in this version. For example: we have migrations
+     * available on the classpath with versions 1.0 and 3.0. The metadata table indicates that a migration with version 2.0
+     * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
+     * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
+     * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
+     *
+     * @return {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
+     * (default: {@code false})
+     */
+    boolean isIgnoreMissingMigrations();
+
+    /**
      * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
      * newer deployment of the application that are not yet available in this version. For example: we have migrations
      * available on the classpath up to version 3.0. The metadata table indicates that a migration to version 4.0
@@ -267,7 +280,7 @@ public interface FlywayConfiguration {
      * Whether to disable clean.
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      *
-     * @return {@code true} to disabled clean. {@code false} to leave it enabled.  (default: {@code false})
+     * @return {@code true} to disabled clean. {@code false} to leave it enabled. (default: {@code false})
      */
     boolean isCleanDisabled();
 
@@ -277,4 +290,11 @@ public interface FlywayConfiguration {
      * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
     boolean isAllowMixedMigrations();
+
+    /**
+     * The username that will be recorded in the metadata table as having applied the migration.
+     *
+     * @return The username or {@code null} for the current database user of the connection. (default: {@code null}).
+     */
+    String getInstalledBy();
 }

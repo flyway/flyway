@@ -1,5 +1,5 @@
-/**
- * Copyright 2010-2016 Boxfuse GmbH
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
@@ -142,7 +143,7 @@ public class DbMigrate {
                     @Override
                     public Boolean call() {
                         MigrationInfoServiceImpl infoService =
-                                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, configuration.getTarget(), configuration.isOutOfOrder(), true, true);
+                                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
                         infoService.refresh();
 
                         MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
@@ -182,6 +183,9 @@ public class DbMigrate {
                                     && (configuration.isIgnoreFutureMigrations() || ignoreFailedFutureMigration)) {
                                 LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
                             } else {
+                                if (failed[0].getVersion() == null) {
+                                    throw new FlywayException("Schema " + schema + " contains a failed repeatable migration (" + failed[0].getDescription() + ") !");
+                                }
                                 throw new FlywayException("Schema " + schema + " contains a failed migration to version " + failed[0].getVersion() + " !");
                             }
                         }
@@ -281,7 +285,7 @@ public class DbMigrate {
                 try {
                     doMigrate(migration, migrationExecutor, migrationText);
                 } catch (SQLException e) {
-                    throw new FlywayException("Unable to apply migration", e);
+                    throw new FlywaySqlException("Unable to apply migration", e);
                 }
             }
         } catch (FlywayException e) {
