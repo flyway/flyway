@@ -151,13 +151,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
                 final SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-                new TransactionTemplate(jdbcTemplate.getConnection()).execute(new Callable<Object>() {
-                    @Override
-                    public Object call() throws SQLException {
-                        sqlScript.execute(jdbcTemplate);
-                        return null;
-                    }
-                });
+                sqlScript.execute(jdbcTemplate);
 
                 LOG.debug("Metadata table " + table + " created.");
             } catch (FlywayException e) {
