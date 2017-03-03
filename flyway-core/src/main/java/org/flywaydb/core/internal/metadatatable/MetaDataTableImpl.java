@@ -182,6 +182,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     @Override
     public void addAppliedMigration(AppliedMigration appliedMigration) {
+        dbSupport.changeCurrentSchemaTo(table.getSchema());
         createIfNotExists();
 
         MigrationVersion version = appliedMigration.getVersion();
