@@ -85,11 +85,14 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     public void changeCurrentSchemaTo(Schema schema) {
-        if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
-            return;
-        }
-
         try {
+            // First reset the role in case a migration or callback changed it
+            jdbcTemplate.executeStatement("RESET ROLE");
+
+            if (schema.getName().equals(originalSchema) || originalSchema.startsWith(schema.getName() + ",") || !schema.exists()) {
+                return;
+            }
+
             if (StringUtils.hasText(originalSchema)) {
                 doChangeCurrentSchemaTo(schema.toString() + "," + originalSchema);
             } else {

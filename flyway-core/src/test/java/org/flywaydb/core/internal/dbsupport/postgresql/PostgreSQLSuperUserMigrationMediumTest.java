@@ -52,6 +52,12 @@ public class PostgreSQLSuperUserMigrationMediumTest {
         flyway.clean();
     }
 
+    @Test
+    public void setRole() throws Exception {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/setrole", "migration/sql");
+        flyway.migrate();
+    }
+
     /**
      * Tests clean and migrate for PostgreSQL Types.
      */
