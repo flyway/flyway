@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.After;
 import org.junit.Before;
@@ -147,6 +148,24 @@ public abstract class MigrationTestCase {
         flyway.validate();
         assertEquals(5, flyway.info().applied().length);
         assertEquals(454910647, flyway.info().applied()[1].getChecksum().intValue());
+    }
+
+    @Test
+    public void autoCommitFalse() {
+        testAutoCommit(false);
+    }
+
+    @Test
+    public void autoCommitTrue() {
+        testAutoCommit(true);
+    }
+
+    private void testAutoCommit(boolean autoCommit) {
+        DriverDataSource dataSource = (DriverDataSource) flyway.getDataSource();
+        dataSource.setAutoCommit(autoCommit);
+        flyway.setLocations(BASEDIR);
+        flyway.migrate();
+        assertEquals("2.0", flyway.info().current().getVersion().getVersion());
     }
 
     @Test

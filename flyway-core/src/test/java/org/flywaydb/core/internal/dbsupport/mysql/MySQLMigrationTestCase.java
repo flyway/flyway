@@ -193,8 +193,8 @@ public abstract class MySQLMigrationTestCase extends MigrationTestCase {
         private final DataSource[] dataSources;
         private int count;
 
-        public TwoConnectionsDataSource(DataSource dataSource) throws SQLException {
-            dataSources = new DataSource[] {
+        TwoConnectionsDataSource(DataSource dataSource) throws SQLException {
+            dataSources = new DataSource[]{
                     new SingleConnectionDataSource(dataSource.getConnection(), true),
                     new SingleConnectionDataSource(dataSource.getConnection(), true)
             };
