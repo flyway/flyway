@@ -16,13 +16,18 @@
 package org.flywaydb.core.internal.dbsupport.saphana;
 
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
 /**
- * Test for PostgreSQLSqlStatementBuilder.
+ * Test for SapHanaSqlStatementBuilder
  */
 public class SapHanaSqlStatementBuilderSmallTest {
     /**
@@ -76,5 +81,44 @@ public class SapHanaSqlStatementBuilderSmallTest {
         }
 
         assertTrue(statementBuilder.isTerminated());
+    }
+
+    @Test
+    public void parseSimpleProcedure() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedure.sql", 3);
+    }
+
+    @Test
+    public void parseProcedureWithNestedBlocks() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedureWithNestedBlocks.sql", 3);
+    }
+    @Test
+    public void parseProcedureInComment() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedureInComment.sql", 3);
+    }
+    @Test
+    public void parseProcedureWithComments() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedureWithComments.sql", 3);
+    }
+    @Test
+    public void parseProcedureWithLinebreaks() {
+        parseProcedureWithEmbeddedSemicola("org/flywaydb/core/internal/dbsupport/saphana/procedures/procedureWithLinebreaks.sql", 3);
+    }
+
+    private void parseProcedureWithEmbeddedSemicola(String resourceName, int numStatements) {
+        final String sqlScriptSource =
+                new ClassPathResource(resourceName, SapHanaSqlStatementBuilderSmallTest.class.getClassLoader())
+                        .loadAsString("UTF-8");
+        SapHanaSqlStatementBuilder statementBuilder = new SapHanaSqlStatementBuilder();
+        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
+        final List<String> statements = new ArrayList<String>();
+        for (String line : lines) {
+            statementBuilder.addLine(line);
+            if (statementBuilder.isTerminated()) {
+                statements.add(statementBuilder.getSqlStatement().getSql());
+                statementBuilder = new SapHanaSqlStatementBuilder();
+            }
+        }
+        assertEquals("Number of recognized statements", numStatements, statements.size());
     }
 }
