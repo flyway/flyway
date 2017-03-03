@@ -30,7 +30,10 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -273,37 +276,45 @@ abstract class AbstractFlywayTask extends DefaultTask {
     @TaskAction
     public Object runTask() {
         try {
+            List<URL> extraURLs = new ArrayList<URL>();
             if (isJavaProject()) {
                 JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
 
                 for (SourceSet sourceSet : plugin.getSourceSets()) {
                     URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
                     getLogger().debug("Adding directory to Classpath: " + classesUrl);
-                    ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(classesUrl));
+                    extraURLs.add(classesUrl);
 
                     URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
                     getLogger().debug("Adding directory to Classpath: " + resourcesUrl);
-                    ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(resourcesUrl));
+                    extraURLs.add(resourcesUrl);
                 }
 
-                addDependenciesWithScope("compile");
-                addDependenciesWithScope("runtime");
-                addDependenciesWithScope("testCompile");
-                addDependenciesWithScope("testRuntime");
+                addDependenciesWithScope(extraURLs,"compile");
+                addDependenciesWithScope(extraURLs,"runtime");
+                addDependenciesWithScope(extraURLs,"testCompile");
+                addDependenciesWithScope(extraURLs,"testRuntime");
             }
 
-            return run(createFlyway());
+            ClassLoader classLoader = new URLClassLoader(
+                    extraURLs.toArray(new URL[extraURLs.size()]),
+                    getProject().getBuildscript().getClassLoader());
+
+            Flyway flyway = new Flyway();
+            flyway.setClassLoader(classLoader);
+            flyway.configure(createFlywayConfig());
+            return run(flyway);
         } catch (Exception e) {
             handleException(e);
             return null;
         }
     }
 
-    private void addDependenciesWithScope(String scope) throws IOException {
+    private void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
         for (ResolvedArtifact artifact : getProject().getConfigurations().getByName(scope).getResolvedConfiguration().getResolvedArtifacts()) {
             URL artifactUrl = artifact.getFile().toURI().toURL();
             getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
-            ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(artifactUrl));
+            urls.add(artifactUrl);
         }
     }
 
@@ -313,9 +324,9 @@ abstract class AbstractFlywayTask extends DefaultTask {
     protected abstract Object run(Flyway flyway);
 
     /**
-     * Creates a new, configured flyway instance
+     * Creates the Flyway config to use.
      */
-    private Flyway createFlyway() {
+    private Map<String, String> createFlywayConfig() {
         Map<String, String> conf = new HashMap<String, String>();
         putIfSet(conf, "driver", driver, extension.driver);
         putIfSet(conf, "url", url, extension.url);
@@ -366,10 +377,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, System.getProperties());
 
-        Flyway flyway = new Flyway();
-        flyway.setClassLoader(ClassLoader.getSystemClassLoader());
-        flyway.configure(conf);
-        return flyway;
+        return conf;
     }
 
     private static void addConfigFromProperties(Map<String, String> config, Properties properties) {
