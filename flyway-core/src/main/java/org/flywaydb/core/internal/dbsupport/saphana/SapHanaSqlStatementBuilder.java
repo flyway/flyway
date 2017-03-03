@@ -18,20 +18,21 @@ package org.flywaydb.core.internal.dbsupport.saphana;
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.internal.util.logging.LogFactory;
 
 /**
  * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.
  */
 public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
-    /**
-     * Are we currently inside a BEGIN END; block?
-     */
-    private boolean insideBeginEndBlock;
+
+    private static final Log LOG = LogFactory.getLog(SapHanaSqlStatementBuilder.class);
 
     /**
-     * Holds the beginning of the statement.
+     * Are we currently inside a BEGIN END; block? How deeply are begin/end nested?
      */
-    private String statementStart = "";
+    private int beginEndNestedDepth = 0;
+    private String statementStartNormalized = "";
 
     @Override
     protected String cleanToken(String token) {
@@ -44,24 +45,57 @@ public class SapHanaSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
-        if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
-            statementStart += line;
-            statementStart += " ";
-        }
 
-        if (statementStart.startsWith("CREATE TRIGGER")) {
+        // need only accumulate 16 characters of normalized statement start in order to determine if it is an 'interesting' statement
+        if (statementStartNormalized.length() < 16) {
+            final String effectiveLine = cutCommentsFromEnd(line);
+            statementStartNormalized += effectiveLine + " ";
+            statementStartNormalized = StringUtils.trimLeadingWhitespace(StringUtils.collapseWhitespace(statementStartNormalized));
+        }
+        boolean insideStatementAllowingNestedBeginEndBlocks =
+                statementStartNormalized.startsWith("CREATE PROCEDURE")
+                || statementStartNormalized.startsWith("CREATE FUNCTION")
+                || statementStartNormalized.startsWith("CREATE TRIGGER");
+
+        if (insideStatementAllowingNestedBeginEndBlocks) {
             if (line.startsWith("BEGIN")) {
-                insideBeginEndBlock = true;
+                beginEndNestedDepth++;
             }
 
             if (line.endsWith("END;")) {
-                insideBeginEndBlock = false;
+                beginEndNestedDepth--;
+                if (beginEndNestedDepth < 0) {
+                    LOG.warn("SQL statement parsed unsuccessfully: found unpaired 'END;' in statement");
+                }
+                if (beginEndNestedDepth <= 0) {
+                    insideStatementAllowingNestedBeginEndBlocks = false;
+                }
             }
         }
 
-        if (insideBeginEndBlock) {
+        if (insideStatementAllowingNestedBeginEndBlocks) {
             return null;
         }
         return getDefaultDelimiter();
+    }
+
+    private static String cutCommentsFromEnd(String line) {
+        if (null == line) {
+            return line;
+        }
+        final int beginOfLineComment = line.indexOf("--");
+        final int beginOfBlockComment = line.indexOf("/*");
+        if (-1 != beginOfLineComment) {
+            if (-1 != beginOfBlockComment) {
+                return line.substring(0, Math.min(beginOfBlockComment, beginOfLineComment));
+            } else {
+                return line.substring(0, beginOfLineComment);
+            }
+        } else {
+            if (-1 != beginOfBlockComment) {
+                return line.substring(0, beginOfBlockComment);
+            }
+        }
+        return line;
     }
 }
