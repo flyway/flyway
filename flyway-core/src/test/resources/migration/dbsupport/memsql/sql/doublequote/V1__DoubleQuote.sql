@@ -34,6 +34,4 @@ quotes"
  from dual;
 
 select 'Hello
-"multi-line"
-''quotes"
-' from dual;
+"multi-line" "quotes"' from dual;

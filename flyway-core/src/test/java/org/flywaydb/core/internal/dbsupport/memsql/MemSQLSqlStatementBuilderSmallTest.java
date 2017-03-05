@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.dbsupport.memsql;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
-import org.flywaydb.core.internal.dbsupport.MemSQL.MemSQLSqlStatementBuilder;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

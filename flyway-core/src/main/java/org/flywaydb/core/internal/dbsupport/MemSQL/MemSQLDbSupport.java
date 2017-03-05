@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.MemSQL;
+package org.flywaydb.core.internal.dbsupport.memsql;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
@@ -92,7 +92,7 @@ public class MemSQLDbSupport extends DbSupport {
     }
 
     public boolean supportsDdlTransactions() {
-        return false;
+        return true;
     }
 
     public String getBooleanTrue() {

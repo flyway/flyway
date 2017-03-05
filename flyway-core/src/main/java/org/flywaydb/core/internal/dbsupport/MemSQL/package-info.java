@@ -16,4 +16,4 @@
 /**
  * Private API. No compatibility guarantees provided.
  */
-package org.flywaydb.core.internal.dbsupport.MemSQL;
+package org.flywaydb.core.internal.dbsupport.memsql;

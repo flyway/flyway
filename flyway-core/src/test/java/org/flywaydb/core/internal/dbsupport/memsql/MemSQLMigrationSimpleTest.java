@@ -31,33 +31,21 @@ import static org.junit.Assert.assertEquals;
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.MemSQL.class)
-public class MemSQLMigrationMediumTest extends MemSQLMigrationTestCase {
-    @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("memsql.user", "root");
-        String password = customProperties.getProperty("memsql.password", "");
-        String url = customProperties.getProperty("memsql.url", "jdbc:mysql://127.0.0.1:3306/flyway_memsql_db");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password);
-    }
-
-    @Test
-    public void migrateWithNonExistingSchemaSetInPropertyButNotInUrl() throws Exception {
-        Flyway flyway = new Flyway();
-        flyway.setDataSource("jdbc:mysql://127.0.0.1:3306/", "root", "");
-        flyway.setSchemas("non_existings_chema");
-        flyway.setLocations("migration/dbsupport/memsql/sql/others");
-        flyway.clean();
-        assertEquals(4, flyway.migrate());
-    }
+public class MemSQLMigrationSimpleTest {
 
     @Test
     public void migrateWithExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
-        flyway.setDataSource("jdbc:mysql://127.0.0.1:3306/", "root", "");
-        flyway.setSchemas("flyway_memsql_db");
+        flyway.setDataSource("jdbc:mysql://127.0.0.1:3306/", "flyway_user", "flyway");
+        flyway.setSchemas("WATCHTOWER");
+        flyway.setTable("FLYWAYSCHEMAVERSION");
+        flyway.setValidateOnMigrate(false);
+        //flyway.setCleanDisabled(true);
+        flyway.setOutOfOrder(true);
+        flyway.setBaselineOnMigrate(true);
+        flyway.setSqlMigrationPrefix("Schema");
         flyway.setLocations("migration/dbsupport/memsql/sql/others");
-        flyway.clean();
-        assertEquals(4, flyway.migrate());
+        //flyway.clean();
+        assertEquals(1, flyway.migrate());
     }
 }

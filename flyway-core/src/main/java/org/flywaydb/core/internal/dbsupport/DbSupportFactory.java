@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.dbsupport.MemSQL.MemSQLDbSupport;
+import org.flywaydb.core.internal.dbsupport.memsql.MemSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;

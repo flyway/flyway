@@ -14,6 +14,9 @@
 -- limitations under the License.
 --
 
-CREATE TABLE t (qty INT, price INT, PRIMARY KEY(qty));
-INSERT INTO t VALUES(3, 50);
-CREATE VIEW v AS SELECT qty, price, qty*price AS value FROM t;
+CREATE TABLE couple (
+  id INT NOT NULL,
+  name1 VARCHAR(25) NOT NULL,
+  name2 VARCHAR(25) NOT NULL,
+  PRIMARY KEY(id)
+);

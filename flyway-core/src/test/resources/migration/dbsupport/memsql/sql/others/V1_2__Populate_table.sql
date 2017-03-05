@@ -14,6 +14,5 @@
 -- limitations under the License.
 --
 
-CREATE TABLE t (qty INT, price INT, PRIMARY KEY(qty));
-INSERT INTO t VALUES(3, 50);
-CREATE VIEW v AS SELECT qty, price, qty*price AS value FROM t;
+INSERT INTO test_user (name, id) VALUES ('Mr. Iße T', 1);
+INSERT INTO test_user (name, id) VALUES ('Mr. Semicolon;', 2);
