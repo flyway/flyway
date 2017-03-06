@@ -92,7 +92,7 @@ public class MemSQLDbSupport extends DbSupport {
     }
 
     public boolean supportsDdlTransactions() {
-        return true;
+        return false;
     }
 
     public String getBooleanTrue() {
