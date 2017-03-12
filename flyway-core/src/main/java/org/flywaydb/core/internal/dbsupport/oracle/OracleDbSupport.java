@@ -46,8 +46,13 @@ public class OracleDbSupport extends DbSupport {
     }
 
     @Override
+    protected String doGetCurrentUserName() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT USER FROM DUAL");
+    }
+
+    @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT USER FROM dual");
+        return jdbcTemplate.queryForString("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL");
     }
 
     @Override

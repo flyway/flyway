@@ -15,10 +15,13 @@
 --
 
 CREATE USER "FLYWAY" IDENTIFIED BY flyway;
+CREATE USER "FLYWAY_AUX" IDENTIFIED BY flyway;
 CREATE USER "flyway_proxy" IDENTIFIED BY flyway;
 GRANT all privileges TO "FLYWAY";
+GRANT all privileges TO "FLYWAY_AUX";
 GRANT all privileges TO "flyway_proxy";
 GRANT create session TO "FLYWAY";
+GRANT create session TO "FLYWAY_AUX";
 GRANT create session TO "flyway_proxy";
 
 ALTER USER "FLYWAY" GRANT CONNECT THROUGH "flyway_proxy";
