@@ -71,7 +71,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
         }
 
-        String user = dbSupport.doGetCurrentUserName();
+        String user = dbSupport.getCurrentUserName();
         boolean defaultSchemaForUser = user.equals(name);
 
         if (!defaultSchemaForUser) {
