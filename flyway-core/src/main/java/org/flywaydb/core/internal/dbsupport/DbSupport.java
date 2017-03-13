@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.Connection;
@@ -141,30 +142,6 @@ public abstract class DbSupport {
      * @throws SQLException when the current schema could not be set.
      */
     protected abstract void doChangeCurrentSchemaTo(String schema) throws SQLException;
-
-    /**
-     * Retrieves the current user.
-     *
-     * @return The current user for this connection.
-     */
-    public String getCurrentUserName() {
-        try {
-            return doGetCurrentUserName();
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to retrieve the current user for the connection", e);
-        }
-    }
-
-    /**
-     * Retrieves the current user. This method should be overridden in a database-specific subclass, if the current
-     * user in that database may differ from the one used for opening the JDBC connection.
-     *
-     * @return The current user for this connection.
-     * @throws SQLException when the current schema could not be retrieved.
-     */
-    protected String doGetCurrentUserName() throws SQLException {
-        return jdbcTemplate.getMetaData().getUserName();
-    }
 
     /**
      * @return The database function that returns the current user.
