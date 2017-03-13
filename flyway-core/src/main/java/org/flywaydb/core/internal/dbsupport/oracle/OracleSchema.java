@@ -71,8 +71,8 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
         }
 
-        String user = dbSupport.doGetCurrentSchemaName();
-        boolean defaultSchemaForUser = user.equalsIgnoreCase(name);
+        String user = dbSupport.getCurrentUserName();
+        boolean defaultSchemaForUser = user.equals(name);
 
         if (!defaultSchemaForUser) {
             LOG.warn("Cleaning schema " + name + " by a different user (" + user + "): " +
@@ -272,7 +272,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
             return statements;
         }
-        if (!dbSupport.getCurrentSchemaName().equalsIgnoreCase(name)) {
+        if (!dbSupport.getCurrentUserName().equals(name)) {
             int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", name);
             count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", name);
             if (count > 0) {
