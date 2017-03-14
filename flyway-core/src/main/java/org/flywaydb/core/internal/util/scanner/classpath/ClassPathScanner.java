@@ -308,16 +308,15 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         }
 
         if ("jar".equals(protocol)
-                || "war".equals(protocol)
+                || "war".equals(protocol) //Tomcat
                 || "zip".equals(protocol) //WebLogic
                 || "wsjar".equals(protocol) //WebSphere
-                || "war".equals(protocol) //Tomcat
                 ) {
             JarFileClassPathLocationScanner locationScanner;
             if ("war".equals(protocol)) {
-                locationScanner = new JarFileClassPathLocationScanner();
-            } else {
                 locationScanner = new JarFileClassPathLocationScanner("*/");
+            } else {
+                locationScanner = new JarFileClassPathLocationScanner();
             }
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
