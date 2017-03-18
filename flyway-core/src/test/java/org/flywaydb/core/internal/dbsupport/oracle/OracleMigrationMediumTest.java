@@ -354,6 +354,24 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
     }
 
+    /**
+     * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
+     */
+    @Test(expected = FlywayException.class)
+    public void createCleanScriptWithSystem() throws Exception {
+        flyway.setSchemas("SYSTEM");
+        flyway.clean();
+    }
+
+    /**
+     * Checks that cleaning can not be performed for an Oracle-maintained schema
+     */
+    @Test(expected = FlywayException.class)
+    public void createCleanScriptWithOracleMaintainedSchema() throws Exception {
+        flyway.setSchemas("OUTLN");
+        flyway.clean();
+    }
+
     @Override
     protected void createFlyway3MetadataTable() throws Exception {
         jdbcTemplate.execute("CREATE TABLE \"schema_version\" (\n" +
