@@ -23,6 +23,7 @@ GRANT all privileges TO "flyway_proxy";
 GRANT create session TO "FLYWAY";
 GRANT create session TO "FLYWAY_AUX";
 GRANT create session TO "flyway_proxy";
+GRANT SELECT ANY DICTIONARY TO "FLYWAY";
 
 ALTER USER "FLYWAY" GRANT CONNECT THROUGH "flyway_proxy";
 
