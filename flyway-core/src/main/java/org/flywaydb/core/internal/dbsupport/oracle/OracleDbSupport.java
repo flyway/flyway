@@ -20,10 +20,17 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Oracle-specific support.
@@ -99,4 +106,102 @@ public class OracleDbSupport extends DbSupport {
     public boolean catalogIsSchema() {
         return false;
     }
+
+    /**
+     * Checks whether the specified query returns rows or not. Wraps the query in EXISTS() SQL function and executes it.
+     * This is more preferable to opening a cursor for the original query, because a query inside EXISTS() is implicitly
+     * optimized to return the first row and because the client never fetches more than 1 row despite the fetch size
+     * value.
+     *
+     * @param query  The query to check.
+     * @param params The query parameters.
+     * @return {@code true} if the query returns rows, {@code false} if not.
+     * @throws SQLException when the query execution failed.
+     */
+    public boolean queryReturnsRows(String query, String... params) throws SQLException {
+        return jdbcTemplate.queryForBoolean("SELECT CASE WHEN EXISTS(" + query + ") THEN 1 ELSE 0 END FROM DUAL", params);
+    }
+
+    /**
+     * Checks whether DBA_ static data dictionary is accessible or not. This simply checks if the current user has
+     * privileges to see the whole DBA dictionary, not some particular views.
+     *
+     * @return {@code true} if it is accessible, {@code false} if not.
+     */
+    public boolean isDbaDataDictAccessible() throws SQLException {
+        return queryReturnsRows("SELECT 1 FROM SESSION_PRIVS WHERE PRIVILEGE = 'SELECT ANY DICTIONARY' UNION ALL " +
+                "SELECT 1 FROM SESSION_ROLES WHERE ROLE = 'SELECT_CATALOG_ROLE'");
+    }
+
+    /**
+     * Returns the list of schemas that were created and are maintained by Oracle-supplied scripts and must not be
+     * changed in any other way. The list is composed of default schemas mentioned in the official documentation for
+     * Oracle Database versions from 10.1 to 12.2, and is dynamically extended with schemas from DBA_REGISTRY and
+     * ALL_USERS (marked with ORACLE_MAINTAINED = 'Y' in Oracle 12c).
+     *
+     * @return the set of system schema names
+     */
+    public Set<String> getSystemSchemas() throws SQLException {
+
+        // The list of known default system schemas
+        Set<String> result = new HashSet<String>(Arrays.asList(
+                "SYS", "SYSTEM", // Standard system accounts
+                "SYSBACKUP", "SYSDG", "SYSKM", "SYSRAC", "SYS$UMF", // Auxiliary system accounts
+                "DBSNMP", "MGMT_VIEW", "SYSMAN", // Enterprise Manager accounts
+                "OUTLN", // Stored outlines
+                "AUDSYS", // Unified auditing
+                "ORACLE_OCM", // Oracle Configuration Manager
+                "APPQOSSYS", // Oracle Database QoS Management
+                "OJVMSYS", // Oracle JavaVM
+                "DVF", "DVSYS", // Oracle Database Vault
+                "DBSFWUSER", // Database Service Firewall
+                "REMOTE_SCHEDULER_AGENT", // Remote scheduler agent
+                "DIP", // Oracle Directory Integration Platform
+                "APEX_PUBLIC_USER", "FLOWS_FILES", /*"APEX_######", "FLOWS_######",*/ // Oracle Application Express
+                "ANONYMOUS", "XDB", "XS$NULL", // Oracle XML Database
+                "CTXSYS", // Oracle Text
+                "LBACSYS", // Oracle Label Security
+                "EXFSYS", // Oracle Rules Manager and Expression Filter
+                "MDDATA", "MDSYS", "SPATIAL_CSW_ADMIN_USR", "SPATIAL_WFS_ADMIN_USR", // Oracle Locator and Spatial
+                "ORDDATA", "ORDPLUGINS", "ORDSYS", "SI_INFORMTN_SCHEMA", // Oracle Multimedia
+                "WMSYS", // Oracle Workspace Manager
+                "OLAPSYS", // Oracle OLAP catalogs
+                "OWBSYS", "OWBSYS_AUDIT", // Oracle Warehouse Builder
+                "GSMADMIN_INTERNAL", "GSMCATUSER", "GSMUSER", // Global Data Services
+                "GGSYS", // Oracle GoldenGate
+                "WK_TEST", "WKSYS", "WKPROXY", // Oracle Ultra Search
+                "ODM", "ODM_MTR", "DMSYS" // Oracle Data Mining
+        ));
+
+        // APEX has a schema with a different name for each version, so get it from ALL_USERS. In addition, starting
+        // from Oracle 12.1, there is a special column in ALL_USERS that marks Oracle-maintained schemas.
+        boolean oracle12cOrHigher = jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 12;
+        result.addAll(jdbcTemplate.queryForStringList("SELECT USERNAME FROM ALL_USERS " +
+                "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
+                (oracle12cOrHigher ? " OR ORACLE_MAINTAINED = 'Y'" : "")));
+
+        // For earlier Oracle versions check also DBA_REGISTRY if possible.
+        if (!oracle12cOrHigher && isDbaDataDictAccessible()) {
+            List<List<String>> schemaSuperList = jdbcTemplate.query(
+                    "SELECT SCHEMA, OTHER_SCHEMAS FROM DBA_REGISTRY",
+                    new RowMapper<List<String>>() {
+                        @Override
+                        public List<String> mapRow(ResultSet rs) throws SQLException {
+                            List<String> schemaList = new ArrayList<String>();
+                            schemaList.add(rs.getString("SCHEMA"));
+                            String otherSchemas = rs.getString("OTHER_SCHEMAS");
+                            if (otherSchemas != null && !otherSchemas.trim().isEmpty()) {
+                                schemaList.addAll(Arrays.asList(otherSchemas.trim().split("\\s*,\\s*")));
+                            }
+                            return schemaList;
+                        }
+                    });
+            for (List<String> schemaList : schemaSuperList) {
+                result.addAll(schemaList);
+            }
+        }
+
+        return result;
+    }
+
 }

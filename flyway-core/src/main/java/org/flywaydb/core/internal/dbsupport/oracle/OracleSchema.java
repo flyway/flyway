@@ -43,6 +43,16 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         super(jdbcTemplate, dbSupport, name);
     }
 
+    /**
+     * Checks whether the schema is system, i.e. Oracle-maintained, or not.
+     *
+     * @return {@code true} if it is system, {@code false} if not.
+     */
+    protected boolean isSystem() throws SQLException {
+        return dbSupport.getSystemSchemas().contains(name);
+    }
+
+
     @Override
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username=?", name) > 0;
@@ -67,8 +77,9 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
     @Override
     protected void doClean() throws SQLException {
-        if ("SYSTEM".equals(name.toUpperCase())) {
-            throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
+        if (isSystem()) {
+            throw new FlywayException("Clean not supported on Oracle for system schema " + dbSupport.quote(name) + "! " +
+                    "It must not be changed in any way except by running an Oracle-supplied script!");
         }
 
         String user = dbSupport.getCurrentUserName();
