@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -45,9 +46,22 @@ public class OracleDbSupport extends DbSupport {
         return "USER";
     }
 
+    /**
+     * Retrieves the current user.
+     *
+     * @return The current user for this connection.
+     */
+    public String getCurrentUserName() {
+        try {
+            return jdbcTemplate.queryForString("SELECT USER FROM DUAL");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to retrieve the current user for the connection", e);
+        }
+    }
+
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT USER FROM dual");
+        return jdbcTemplate.queryForString("SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') FROM DUAL");
     }
 
     @Override
