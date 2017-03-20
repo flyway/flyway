@@ -28,6 +28,7 @@ import java.sql.Connection;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Test for the Oracle-specific DB support.
@@ -36,15 +37,23 @@ import static org.junit.Assert.assertEquals;
 @Category(DbCategory.Oracle.class)
 public class OracleDbSupportMediumTest {
     /**
-     * Checks the result of the getCurrentSchemaName call.
+     * Checks the result of the getCurrentUserName and getCurrentSchemaName calls.
      *
      * @param useProxy Flag indicating whether to check it using a proxy user or not.
+     * @param changeSchema Flag indicating whether to change the current schema or not.
      */
-    private void checkCurrentSchema(boolean useProxy) throws Exception {
+    private void checkCurrentUser(boolean useProxy, boolean changeSchema) throws Exception {
         Properties customProperties = getConnectionProperties();
         String user = customProperties.getProperty("oracle.user");
+        String auxUser = customProperties.getProperty("oracle.auxuser");
         String password = customProperties.getProperty("oracle.password");
         String url = customProperties.getProperty("oracle.url");
+
+        //further we treat user names as uppercase strings, so make sure they are not quoted
+        assertFalse("Provided user name (" + user + ") is expected to be unquoted/case-insensitive", user.contains("\""));
+        assertFalse("Provided aux user name (" + auxUser + ") is expected to be unquoted/case-insensitive", auxUser.contains("\""));
+        user = user.toUpperCase();
+        auxUser = auxUser.toUpperCase();
 
         String dataSourceUser = useProxy ? "\"flyway_proxy\"[" + user + "]" : user;
 
@@ -52,10 +61,21 @@ public class OracleDbSupportMediumTest {
 
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
+
+        if (changeSchema) {
+            dbSupport.doChangeCurrentSchemaTo(auxUser);
+        }
+
+        String currentUser = dbSupport.getCurrentUserName();
         String currentSchema = dbSupport.getCurrentSchemaName();
         connection.close();
 
-        assertEquals(user.toUpperCase(), currentSchema);
+        assertEquals(user, currentUser);
+        if (changeSchema) {
+            assertEquals(auxUser, currentSchema);
+        } else {
+            assertEquals(user, currentSchema);
+        }
     }
 
     private Properties getConnectionProperties() throws IOException {
@@ -67,6 +87,9 @@ public class OracleDbSupportMediumTest {
         if (!connectionProperties.containsKey("oracle.user")) {
             connectionProperties.setProperty("oracle.user", "flyway");
         }
+        if (!connectionProperties.containsKey("oracle.auxuser")) {
+            connectionProperties.setProperty("oracle.auxuser", "flyway_aux");
+        }
         if (!connectionProperties.containsKey("oracle.password")) {
             connectionProperties.setProperty("oracle.password", "flyway");
         }
@@ -77,19 +100,36 @@ public class OracleDbSupportMediumTest {
     }
 
     /**
-     * Tests that the current schema for a connection is correct;
+     * Tests that the current user for a connection is correct;
      */
     @Test
-    public void currentSchema() throws Exception {
-        checkCurrentSchema(false);
+    public void currentUser() throws Exception {
+        checkCurrentUser(false, false);
     }
 
     /**
-     * Tests that the current schema for a proxy connection with conn_user[schema_user] is schema_user and not conn_user;
+     * Tests that the current user for a proxy connection with conn_user[schema_user] is schema_user and not conn_user;
+     */
+    @Test
+    public void currentUserWithProxy() throws Exception {
+        checkCurrentUser(true, false);
+    }
+
+    /**
+     * Tests that the current schema for a connection after changing the current schema is aux_schema not schema_user;
+     */
+    @Test
+    public void currentSchema() throws Exception {
+        checkCurrentUser(false, true);
+    }
+
+    /**
+     * Tests that the current schema for a proxy connection with conn_user[schema_user] after changing the current
+     * schema is aux_schema not schema_user;
      */
     @Test
     public void currentSchemaWithProxy() throws Exception {
-        checkCurrentSchema(true);
+        checkCurrentUser(true, true);
     }
 
     /**
