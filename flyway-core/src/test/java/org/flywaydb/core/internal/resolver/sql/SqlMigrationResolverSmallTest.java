@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.resolver.sql;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -41,7 +42,7 @@ public class SqlMigrationResolverSmallTest {
     public void resolveMigrations() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner,
-                        new Location("migration/subdir"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.create());
+                        new Locations("migration/subdir"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.create());
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
 
         assertEquals(3, migrations.size());
@@ -62,7 +63,7 @@ public class SqlMigrationResolverSmallTest {
         FlywayConfigurationForTests configuration = FlywayConfigurationForTests.createWithPrefix("CheckValidate");
         configuration.setRepeatableSqlMigrationPrefix("X");
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, scanner, new Location(""), PlaceholderReplacer.NO_PLACEHOLDERS, configuration);
+                new SqlMigrationResolver(null, scanner, new Locations(""), PlaceholderReplacer.NO_PLACEHOLDERS, configuration);
 
         // changed to 3 as new test cases are added for SybaseASE and DB2
         assertEquals(3, sqlMigrationResolver.resolveMigrations().size());
@@ -72,7 +73,7 @@ public class SqlMigrationResolverSmallTest {
     public void resolveMigrationsNonExisting() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner,
-                        new Location("non/existing"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.createWithPrefix("CheckValidate"));
+                        new Locations("non/existing"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.createWithPrefix("CheckValidate"));
 
         sqlMigrationResolver.resolveMigrations();
     }
@@ -81,29 +82,32 @@ public class SqlMigrationResolverSmallTest {
     public void extractScriptName() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner,
-                        new Location("db/migration"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.createWithPrefix("db_"));
+                        new Locations("db/migration"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.createWithPrefix("db_"));
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(
-                new ClassPathResource("db/migration/db_0__init.sql", Thread.currentThread().getContextClassLoader())));
+                new ClassPathResource("db/migration/db_0__init.sql", Thread.currentThread().getContextClassLoader()),
+                new Location("db/migration")));
     }
 
     @Test
     public void extractScriptNameRootLocation() {
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, scanner, new Location(""),
+                new SqlMigrationResolver(null, scanner, new Locations(""),
                         PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.createWithPrefix("db_"));
 
         assertEquals("db_0__init.sql", sqlMigrationResolver.extractScriptName(
-                new ClassPathResource("db_0__init.sql", Thread.currentThread().getContextClassLoader())));
+                new ClassPathResource("db_0__init.sql", Thread.currentThread().getContextClassLoader()),
+                new Location("")));
     }
 
     @Test
     public void extractScriptNameFileSystemPrefix() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner,
-                        new Location("filesystem:/some/dir"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.create());
+                        new Locations("filesystem:/some/dir"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.create());
 
-        assertEquals("V3.171__patch.sql", sqlMigrationResolver.extractScriptName(new FileSystemResource("/some/dir/V3.171__patch.sql")));
+        assertEquals("V3.171__patch.sql", sqlMigrationResolver.extractScriptName(new FileSystemResource("/some/dir/V3.171__patch.sql"),
+                new Location("filesystem:/some/dir")));
     }
 
     @Test
