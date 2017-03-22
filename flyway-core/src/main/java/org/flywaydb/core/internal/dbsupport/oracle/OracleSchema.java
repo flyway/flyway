@@ -32,6 +32,8 @@ import java.util.List;
 public class OracleSchema extends Schema<OracleDbSupport> {
     private static final Log LOG = LogFactory.getLog(OracleSchema.class);
 
+    private final int majorVersion;
+
     /**
      * Creates a new Oracle schema.
      *
@@ -41,6 +43,18 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      */
     public OracleSchema(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
+
+        majorVersion = readMajorOracleVersion();
+    }
+
+    private int readMajorOracleVersion() {
+        String versionString = null;
+        try {
+            versionString = jdbcTemplate.queryForString("SELECT version FROM v$instance");
+            return Integer.parseInt(versionString.split("\\.", 2)[0]);
+        } catch (SQLException e) {
+           throw new FlywayException("Could not determine Oracle version", e);
+        }
     }
 
     /**
@@ -350,39 +364,86 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList(
-                // For every table this query will count the number of references (including the transitive ones)
-                // and order the result list using that value.
-                " SELECT r FROM" +
-                        "   (SELECT CONNECT_BY_ROOT t r FROM" +
-                        "     (SELECT DISTINCT c1.table_name f, NVL(c2.table_name, at.table_name) t" +
-                        "     FROM all_constraints c1" +
-                        "       RIGHT JOIN all_constraints c2 ON c2.constraint_name = c1.r_constraint_name" +
-                        "       RIGHT JOIN all_tables at ON at.table_name = c2.table_name" +
-                        "     WHERE at.owner = ?" +
-                        // Ignore Recycle bin objects
-                        "       AND at.table_name NOT LIKE 'BIN$%'" +
-                        // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
-                        "       AND at.table_name NOT LIKE 'MDRT_%$'" +
-                        // Ignore Materialized View Logs
-                        "       AND at.table_name NOT LIKE 'MLOG$%' AND at.table_name NOT LIKE 'RUPD$%'" +
-                        // Ignore Oracle Text Index Tables
-                        "       AND at.table_name NOT LIKE 'DR$%'" +
-                        // Ignore Index Organized Tables
-                        "       AND at.table_name NOT LIKE 'SYS_IOT_OVER_%'" +
-                        // Ignore Nested Tables
-                        "       AND at.nested != 'YES'" +
-                        // Ignore Nested Tables
-                        "       AND at.secondary != 'Y')" +
-                        "   CONNECT BY NOCYCLE PRIOR f = t)" +
-                        " GROUP BY r" +
-                        " ORDER BY COUNT(*)", name);
+
+        List<String> tableNames;
+
+        if (majorVersion >= 11)
+            tableNames = allTableNamesOrderedByReferences();
+        else
+            tableNames = allTableNamesWithoutReferenceOrdering();
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
             tables[i] = new OracleTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
+    }
+
+    private List<String> allTableNamesOrderedByReferences() throws SQLException {
+        // reference tables has been introduced in Oracle 11g
+        return jdbcTemplate.queryForStringList(
+                "WITH ref_part_dependencies AS ( " +
+                        // query to create parent-child dependency for reference partitioned tables (one level)
+                        "    SELECT at.table_name, at.owner, c2.table_name AS parent_table_name, c2.owner AS parent_owner " +
+                        "    FROM all_tables at " +
+                        "      JOIN all_part_tables apt " +
+                        "        ON apt.table_name = at.table_name AND " +
+                        "           apt.owner = at.owner AND " +
+                        "           apt.ref_ptn_constraint_name IS NOT NULL " +
+                        "      JOIN all_constraints c1 " +
+                        "        ON apt.owner = c1.owner AND " +
+                        "           apt.ref_ptn_constraint_name = c1.constraint_name AND " +
+                        "           c1.constraint_type = 'R' " +
+                        "      JOIN all_constraints c2 " +
+                        "        ON c2.owner = c1.owner AND " +
+                        "           c2.constraint_name = c1.r_constraint_name AND " +
+                        "           c2.constraint_type = 'P' " +
+                        "), " +
+                        // create view of all tables. Referenced partitioned tables are ordered over an hierarchical view (all levels)
+                        "  all_table_levels(table_name, owner, parent_table_name, parent_owner, lev) AS ( " +
+                        "      SELECT at.table_name, at.owner, NULL, NULL, 1 AS lev " +
+                        "      FROM all_tables at " +
+                        "        LEFT JOIN all_part_tables apt " +
+                        "          ON apt.table_name = at.table_name AND " +
+                        "             apt.owner = at.owner " +
+                        "      WHERE at.owner = ? AND " +
+                        "                        at.table_name NOT LIKE 'BIN$%' AND " +
+                        "                        at.table_name NOT LIKE 'MDRT_%$' AND " +
+                        "                          at.table_name NOT LIKE 'MLOG$%' AND " +
+                        "                                            at.table_name NOT LIKE 'RUPD$%' AND " +
+                        "      at.table_name NOT LIKE 'DR$%' AND " +
+                        "      at.table_name NOT LIKE 'SYS_IOT_OVER_%' AND " +
+                        "                    at.nested != 'YES' AND " +
+                        "      at.secondary != 'Y' AND " +
+                        "      apt.ref_ptn_constraint_name IS NULL " +
+                        "                                     UNION ALL " +
+                        "                                     SELECT h.table_name, h.owner, h.parent_table_name, h.parent_owner, r.lev + 1 AS lev " +
+                        "                                                                                                        FROM ref_part_dependencies h " +
+                        "      JOIN all_table_levels r " +
+                        "      ON h.parent_table_name = r.table_name AND " +
+                        "      h.parent_owner = r.owner " +
+                        "  ) " +
+                        "SELECT table_name FROM all_table_levels ORDER BY lev DESC", name);
+    }
+
+    private List<String> allTableNamesWithoutReferenceOrdering() throws SQLException {
+        // use the old, unsorted mechanism, which is also valid for 10g
+        return jdbcTemplate.queryForStringList(
+                "SELECT table_name FROM all_tables WHERE owner = ?"
+                        // Ignore Recycle bin objects
+                        + " AND table_name NOT LIKE 'BIN$%'"
+                        // Ignore Spatial Index Tables as they get dropped automatically when the index gets dropped.
+                        + " AND table_name NOT LIKE 'MDRT_%$'"
+                        // Ignore Materialized View Logs
+                        + " AND table_name NOT LIKE 'MLOG$%' AND table_name NOT LIKE 'RUPD$%'"
+                        // Ignore Oracle Text Index Tables
+                        + " AND table_name NOT LIKE 'DR$%'"
+                        // Ignore Index Organized Tables
+                        + " AND table_name NOT LIKE 'SYS_IOT_OVER_%'"
+                        // Ignore Nested Tables
+                        + " AND nested != 'YES'"
+                        // Ignore Nested Tables
+                        + " AND secondary != 'Y'", name);
     }
 
     @Override
