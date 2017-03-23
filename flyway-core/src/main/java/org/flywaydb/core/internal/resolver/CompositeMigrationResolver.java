@@ -56,23 +56,24 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param dbSupport                The database-specific support.
-     * @param scanner                  The Scanner for loading migrations on the classpath.
+     * @param dbSupport                    The database-specific support.
+     * @param classLoader                      The classloader for loading migrations on the classpath.
      * @param configuration            The Flyway configuration.
-     * @param locations                The locations where migrations are located.
-     * @param placeholderReplacer      The placeholder replacer to use.
-     * @param customMigrationResolvers Custom Migration Resolvers.
+     * @paramlocations                    The locations where migrations are located.
+
+     * @param placeholderReplacer          The placeholder replacer to use.
+     * @param customMigrationResolvers     Custom Migration Resolvers.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, Scanner scanner, FlywayConfiguration configuration, Locations locations,
+    public CompositeMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, FlywayConfiguration configuration, Locations locations,
                                       PlaceholderReplacer placeholderReplacer,
                                       MigrationResolver... customMigrationResolvers) {
         if (!configuration.isSkipDefaultResolvers()) {
 
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, scanner, locations, placeholderReplacer, configuration));
-            migrationResolvers.add(new JdbcMigrationResolver(scanner, locations, configuration));
+            migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, locations, placeholderReplacer, configuration));
+            migrationResolvers.add(new JdbcMigrationResolver(classLoader, locations, configuration));
 
-            if (new FeatureDetector(scanner.getClassLoader()).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(scanner, locations, configuration));
+            if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {
+                migrationResolvers.add(new SpringJdbcMigrationResolver(classLoader, locations, configuration));
             }
         }
 

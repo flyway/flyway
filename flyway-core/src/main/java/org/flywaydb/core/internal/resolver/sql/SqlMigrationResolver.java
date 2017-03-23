@@ -75,15 +75,15 @@ public class SqlMigrationResolver implements MigrationResolver {
      * Creates a new instance.
      *
      * @param dbSupport                    The database-specific support.
-     * @param scanner                      The Scanner for loading migrations on the classpath.
+     * @param classloader                  The classloader for loading migrations from the classpath.
      * @param locations                    The locations on the classpath where to migrations are located.
      * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
      * @param configuration                The Flyway configuration.
      */
-    public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Locations locations,
+    public SqlMigrationResolver(DbSupport dbSupport, ClassLoader classloader, Locations locations,
                                 PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         this.dbSupport = dbSupport;
-        this.scanner = scanner;
+        this.scanner = Scanner.create(classloader);
         this.locations = locations;
         this.placeholderReplacer = placeholderReplacer;
         this.configuration = configuration;
