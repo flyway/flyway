@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 
 import java.util.*;
@@ -50,15 +51,14 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param configuration                The Flyway configuration.
      */
     public CompositeMigrationResolver(DbSupport dbSupport, FlywayConfiguration configuration) {
-        ClassLoader classLoader = configuration.getClassLoader();
 
         if (!configuration.isSkipDefaultResolvers()) {
 
             migrationResolvers.add(new SqlMigrationResolver(dbSupport, configuration));
-            migrationResolvers.add(new JdbcMigrationResolver(configuration));
+            migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), configuration));
 
-            if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(configuration));
+            if (new FeatureDetector(configuration.getClassLoader()).isSpringJdbcAvailable()) {
+                migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), configuration));
             }
         }
 
@@ -72,6 +72,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * can be found.
      * @throws FlywayException when the available migrations have overlapping versions.
      */
+    @Override
     public List<ResolvedMigration> resolveMigrations() {
         if (availableMigrations == null) {
             availableMigrations = doFindAvailableMigrations();
