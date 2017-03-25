@@ -52,6 +52,14 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         return dbSupport.getSystemSchemas().contains(name);
     }
 
+    /**
+     * Checks whether this schema is default for the current user.
+     *
+     * @return {@code true} if it is default, {@code false} if not.
+     */
+    protected boolean isDefaultSchemaForUser() throws SQLException {
+        return name.equals(dbSupport.getCurrentUserName());
+    }
 
     @Override
     protected boolean doExists() throws SQLException {
@@ -82,19 +90,17 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                     "It must not be changed in any way except by running an Oracle-supplied script!");
         }
 
-        String user = dbSupport.getCurrentUserName();
-        boolean defaultSchemaForUser = user.equals(name);
-
-        if (!defaultSchemaForUser) {
-            LOG.warn("Cleaning schema " + name + " by a different user (" + user + "): " +
-                    "spatial extensions, queue tables, flashback tables and scheduled jobs will not be cleaned due to Oracle limitations");
+        // Disable FBA for schema tables
+        if (dbSupport.isFlashbackDataArchiveAvailable()) {
+            disableFlashbackArchiveForFbaTrackedTables();
         }
 
-        for (String statement : generateDropStatementsForSpatialExtensions(defaultSchemaForUser)) {
-            jdbcTemplate.execute(statement);
+        // Cleanup Oracle Locator metadata
+        if (dbSupport.isLocatorAvailable()) {
+            cleanLocatorMetadata();
         }
 
-        if (defaultSchemaForUser) {
+        if (isDefaultSchemaForUser()) {
             for (String statement : generateDropStatementsForQueueTables()) {
                 try {
                     jdbcTemplate.execute(statement);
@@ -106,10 +112,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                     }
                     throw e;
                 }
-            }
-
-            if (flashbackAvailable()) {
-                executeAlterStatementsForFlashbackTables();
             }
         }
 
@@ -173,23 +175,23 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     }
 
     /**
-     * Executes ALTER statements for all tables that have Flashback enabled.
-     * Flashback is an asynchronous process so we need to wait until it completes, otherwise cleaning the
+     * Executes ALTER statements for all tables that have Flashback Archive enabled.
+     * Flashback Archive is an asynchronous process so we need to wait until it completes, otherwise cleaning the
      * tables in schema will sometimes fail with ORA-55622 or ORA-55610 depending on the race between
-     * Flashback and Java code
+     * Flashback Archive and Java code.
      *
      * @throws SQLException when the statements could not be generated.
      */
-    private void executeAlterStatementsForFlashbackTables() throws SQLException {
-        List<String> tableNames = jdbcTemplate.queryForStringList("SELECT table_name " +
-                "FROM DBA_FLASHBACK_ARCHIVE_TABLES WHERE owner_name = ?", name);
+    private void disableFlashbackArchiveForFbaTrackedTables() throws SQLException {
+        // DBA_FLASHBACK_ARCHIVE_TABLES is granted to PUBLIC
+        String queryForFbaTrackedTables = "SELECT TABLE_NAME FROM DBA_FLASHBACK_ARCHIVE_TABLES WHERE OWNER_NAME = ?";
+        List<String> tableNames = jdbcTemplate.queryForStringList(queryForFbaTrackedTables, name);
         for (String tableName : tableNames) {
             jdbcTemplate.execute("ALTER TABLE " + dbSupport.quote(name, tableName) + " NO FLASHBACK ARCHIVE");
-            String queryForOracleTechnicalTables = "SELECT * FROM USER_FLASHBACK_ARCHIVE_TABLES WHERE TABLE_NAME = ?";
             //wait until the tables disappear
-            while (dbSupport.queryReturnsRows(queryForOracleTechnicalTables, tableName)) {
+            while (dbSupport.queryReturnsRows(queryForFbaTrackedTables + " AND TABLE_NAME = ?", name, tableName)) {
                 try {
-                    LOG.debug("Actively waiting for Flashback cleanup on table: " + tableName);
+                    LOG.debug("Actively waiting for Flashback cleanup on table: " + dbSupport.quote(name, tableName));
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new FlywayException("Waiting for Flashback cleanup interrupted", e);
@@ -197,19 +199,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
         }
     }
-
-    /**
-     * Checks whether Oracle DBA_FLASHBACK_ARCHIVE_TABLES are available or not.
-     *
-     * @return {@code true} if they are available, {@code false} if not.
-     * @throws SQLException when checking availability of the feature failed.
-     */
-    private boolean flashbackAvailable() throws SQLException {
-        return dbSupport.queryReturnsRows("SELECT * " +
-                "FROM ALL_OBJECTS " +
-                "WHERE OBJECT_NAME LIKE 'DBA_FLASHBACK_ARCHIVE_TABLES'");
-    }
-
 
     /**
      * Generates the drop statements for all xml tables.
@@ -268,37 +257,35 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     }
 
     /**
-     * Generates the drop statements for Oracle Spatial Extensions-related database objects.
+     * Checks whether Oracle Locator metadata exists for the schema.
      *
-     * @param defaultSchemaForUser Whether we are currently cleaning the default schema for the logged in user.
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
+     * @return {@code true} if it exists, {@code false} if not.
+     * @throws SQLException when checking checking metadata existence failed.
      */
-    private List<String> generateDropStatementsForSpatialExtensions(boolean defaultSchemaForUser) throws SQLException {
-        List<String> statements = new ArrayList<String>();
+    private boolean locatorMetadataExists() throws SQLException {
+        return dbSupport.queryReturnsRows("SELECT * FROM ALL_SDO_GEOM_METADATA WHERE OWNER = ?", name);
+    }
 
-        if (!spatialExtensionsAvailable()) {
-            LOG.debug("Oracle Spatial Extensions are not available. No cleaning of MDSYS tables and views.");
-            return statements;
-        }
-        if (!dbSupport.getCurrentUserName().equals(name)) {
-            if (dbSupport.queryReturnsRows("SELECT * FROM ALL_SDO_GEOM_METADATA WHERE OWNER = ?", name)
-                    && dbSupport.queryReturnsRows("SELECT * FROM ALL_SDO_INDEX_INFO WHERE SDO_INDEX_OWNER = ?", name)) {
-                LOG.warn("Unable to clean Oracle Spatial objects for schema '" + name + "' as they do not belong to the default schema for this connection!");
-            }
-            return statements;
-        }
-
-        if (defaultSchemaForUser) {
-            statements.add("DELETE FROM mdsys.user_sdo_geom_metadata");
-
-            List<String> indexNames = jdbcTemplate.queryForStringList("select INDEX_NAME from USER_SDO_INDEX_INFO");
-            for (String indexName : indexNames) {
-                statements.add("DROP INDEX \"" + indexName + "\"");
-            }
+    /**
+     * Clean Oracle Locator metadata for the schema. Works only for the user's default schema, prints a warning message
+     * to log otherwise.
+     *
+     * @throws SQLException when performing cleaning failed.
+     */
+    private void cleanLocatorMetadata() throws SQLException {
+        if (!locatorMetadataExists()) {
+            return;
         }
 
-        return statements;
+        if (!isDefaultSchemaForUser()) {
+            LOG.warn("Unable to clean Oracle Locator metadata for schema " + dbSupport.quote(name) +
+                    " by user \"" + dbSupport.getCurrentUserName() + "\": unsupported operation");
+            return;
+        }
+
+        jdbcTemplate.getConnection().commit();
+        jdbcTemplate.execute("DELETE FROM USER_SDO_GEOM_METADATA");
+        jdbcTemplate.getConnection().commit();
     }
 
     /**
@@ -333,16 +320,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         }
 
         return statements;
-    }
-
-    /**
-     * Checks whether Oracle Spatial extensions are available or not.
-     *
-     * @return {@code true} if they are available, {@code false} if not.
-     * @throws SQLException when checking availability of the spatial extensions failed.
-     */
-    private boolean spatialExtensionsAvailable() throws SQLException {
-        return dbSupport.queryReturnsRows("SELECT * FROM ALL_VIEWS WHERE OWNER = 'MDSYS' AND VIEW_NAME = 'USER_SDO_GEOM_METADATA'");
     }
 
     @Override
@@ -386,7 +363,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     public Table getTable(String tableName) {
         return new OracleTable(jdbcTemplate, dbSupport, this, tableName);
     }
-
 
     /**
      * Exposes jdbcTemplate to OracleSchemaObjectType
