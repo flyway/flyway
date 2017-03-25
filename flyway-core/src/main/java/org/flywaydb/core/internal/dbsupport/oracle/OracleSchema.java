@@ -26,10 +26,12 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleSchema.OracleSchemaObjectTypeWithPrefetchedObjects.withPrefetchedObjects;
 import static org.flywaydb.core.internal.dbsupport.oracle.OracleSchemaObjectType.CLUSTER;
 import static org.flywaydb.core.internal.dbsupport.oracle.OracleSchemaObjectType.DOMAIN_INDEX;
 import static org.flywaydb.core.internal.dbsupport.oracle.OracleSchemaObjectType.FUNCTION;
@@ -124,30 +126,32 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             cleanLocatorMetadata();
         }
 
-        // Take a snapshot of existing objects grouped by type.
+        // Take a snapshot of existing objects grouped by type. This map is used for 2 goals:
+        //   1. if the type is not present in the map, skip dropping;
+        //   2. types that cannot get cascadingly dropped by other objects may use it as a cached list of objects to drop.
         Map<String, List<String>> objectsByType = getObjectsGroupedByType();
 
-        // Ordered list of types to be dropped.
+        // Ordered list of types to be dropped (some can be provided with a pre-fetched list of objects).
         @SuppressWarnings("unchecked")
-        List<SchemaObjectType<OracleSchema>> objectTypesToDrop = Arrays.<SchemaObjectType<OracleSchema>>asList(
-                TRIGGER,
+        List<SchemaObjectType<OracleSchema>> objectTypesToDrop = Arrays.asList(
+                withPrefetchedObjects(TRIGGER, objectsByType),
                 QUEUE_TABLE,
-                SCHEDULER_JOB,
-                MATERIALIZED_VIEW,
+                withPrefetchedObjects(SCHEDULER_JOB, objectsByType),
+                withPrefetchedObjects(MATERIALIZED_VIEW, objectsByType),
                 MATERIALIZED_VIEW_LOG,
                 VIEW,
                 DOMAIN_INDEX,
                 XML_TABLE,
                 TABLE,
                 INDEX,
-                CLUSTER,
+                withPrefetchedObjects(CLUSTER, objectsByType),
                 SEQUENCE,
-                FUNCTION,
-                PROCEDURE,
-                PACKAGE,
+                withPrefetchedObjects(FUNCTION, objectsByType),
+                withPrefetchedObjects(PROCEDURE, objectsByType),
+                withPrefetchedObjects(PACKAGE, objectsByType),
                 TYPE,
-                SYNONYM,
-                JAVA_SOURCE
+                withPrefetchedObjects(SYNONYM, objectsByType),
+                withPrefetchedObjects(JAVA_SOURCE, objectsByType)
                 // TODO: add more types
         );
 
@@ -288,5 +292,56 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      */
     OracleDbSupport getDbSupport() {
         return dbSupport;
+    }
+
+
+    /**
+     * A decorator of OracleSchemaObjectType that takes a pre-fetched list of objects to be dropped.
+     * @see #doClean()
+     */
+    static class OracleSchemaObjectTypeWithPrefetchedObjects implements SchemaObjectType<OracleSchema> {
+
+        private final OracleSchemaObjectType objectType;
+        private final List<String> objectNames;
+
+        private OracleSchemaObjectTypeWithPrefetchedObjects(OracleSchemaObjectType objectType, List<String> objectNames) {
+            this.objectType = objectType;
+            this.objectNames = objectNames;
+        }
+
+        static OracleSchemaObjectTypeWithPrefetchedObjects withPrefetchedObjects(OracleSchemaObjectType objectType,
+                                                                             Map<String, List<String>> objectsByType) {
+            return withPrefetchedObjects(
+                    objectType,
+                    objectsByType.containsKey(objectType.getName())
+                            ? objectsByType.get(objectType.getName())
+                            : Collections.<String>emptyList()
+            );
+        }
+
+        static OracleSchemaObjectTypeWithPrefetchedObjects withPrefetchedObjects(OracleSchemaObjectType objectType,
+                                                                             List<String> objectNames) {
+            return new OracleSchemaObjectTypeWithPrefetchedObjects(objectType, objectNames);
+        }
+
+        @Override
+        public String getName() {
+            return objectType.getName();
+        }
+
+        @Override
+        public List<String> getObjectNames(OracleSchema schema) throws SQLException {
+            return objectNames;
+        }
+
+        @Override
+        public String generateDropStatement(OracleSchema schema, String objectName) {
+            return objectType.generateDropStatement(schema, objectName);
+        }
+
+        @Override
+        public void dropObject(OracleSchema schema, String objectName) throws SQLException {
+            objectType.dropObject(schema, objectName);
+        }
     }
 }
