@@ -386,4 +386,19 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     public Table getTable(String tableName) {
         return new OracleTable(jdbcTemplate, dbSupport, this, tableName);
     }
+
+
+    /**
+     * Exposes jdbcTemplate to OracleSchemaObjectType
+     */
+    JdbcTemplate getJdbcTemplate() {
+        return jdbcTemplate;
+    }
+
+    /**
+     * Exposes dbSupport to OracleSchemaObjectType
+     */
+    OracleDbSupport getDbSupport() {
+        return dbSupport;
+    }
 }
