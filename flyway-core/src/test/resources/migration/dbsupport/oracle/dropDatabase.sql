@@ -18,7 +18,7 @@ DROP USER FLYWAY CASCADE;
 DROP USER FLYWAY_AUX CASCADE;
 DROP USER "flyway_proxy" CASCADE;
 
--- create flashback archive if possible
+-- drop flashback archive if possible
 DECLARE
   l_flg NUMBER;
 BEGIN
