@@ -43,14 +43,24 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         super(jdbcTemplate, dbSupport, name);
     }
 
+    /**
+     * Checks whether the schema is system, i.e. Oracle-maintained, or not.
+     *
+     * @return {@code true} if it is system, {@code false} if not.
+     */
+    protected boolean isSystem() throws SQLException {
+        return dbSupport.getSystemSchemas().contains(name);
+    }
+
+
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username=?", name) > 0;
+        return dbSupport.queryReturnsRows("SELECT * FROM ALL_USERS WHERE USERNAME = ?", name);
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT count(*) FROM all_objects WHERE owner = ?", name) == 0;
+        return !dbSupport.queryReturnsRows("SELECT * FROM ALL_OBJECTS WHERE OWNER = ?", name);
     }
 
     @Override
@@ -67,8 +77,9 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
     @Override
     protected void doClean() throws SQLException {
-        if ("SYSTEM".equals(name.toUpperCase())) {
-            throw new FlywayException("Clean not supported on Oracle for user 'SYSTEM'! You should NEVER add your own objects to the SYSTEM schema!");
+        if (isSystem()) {
+            throw new FlywayException("Clean not supported on Oracle for system schema " + dbSupport.quote(name) + "! " +
+                    "It must not be changed in any way except by running an Oracle-supplied script!");
         }
 
         String user = dbSupport.getCurrentUserName();
@@ -174,11 +185,9 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                 "FROM DBA_FLASHBACK_ARCHIVE_TABLES WHERE owner_name = ?", name);
         for (String tableName : tableNames) {
             jdbcTemplate.execute("ALTER TABLE " + dbSupport.quote(name, tableName) + " NO FLASHBACK ARCHIVE");
-            String queryForOracleTechnicalTables = "SELECT count(archive_table_name) " +
-                    "FROM user_flashback_archive_tables " +
-                    "WHERE table_name = ?";
+            String queryForOracleTechnicalTables = "SELECT * FROM USER_FLASHBACK_ARCHIVE_TABLES WHERE TABLE_NAME = ?";
             //wait until the tables disappear
-            while (jdbcTemplate.queryForInt(queryForOracleTechnicalTables, tableName) > 0) {
+            while (dbSupport.queryReturnsRows(queryForOracleTechnicalTables, tableName)) {
                 try {
                     LOG.debug("Actively waiting for Flashback cleanup on table: " + tableName);
                     Thread.sleep(1000);
@@ -196,9 +205,9 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * @throws SQLException when checking availability of the feature failed.
      */
     private boolean flashbackAvailable() throws SQLException {
-        return jdbcTemplate.queryForInt("select count(*) " +
-                "from all_objects " +
-                "where object_name like 'DBA_FLASHBACK_ARCHIVE_TABLES'") > 0;
+        return dbSupport.queryReturnsRows("SELECT * " +
+                "FROM ALL_OBJECTS " +
+                "WHERE OBJECT_NAME LIKE 'DBA_FLASHBACK_ARCHIVE_TABLES'");
     }
 
 
@@ -231,8 +240,8 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * @throws SQLException when checking availability of the extensions failed.
      */
     private boolean xmlDBExtensionsAvailable() throws SQLException {
-        return (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_users WHERE username = 'XDB'") > 0)
-                && (jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE view_name = 'RESOURCE_VIEW'") > 0);
+        return dbSupport.queryReturnsRows("SELECT * FROM ALL_USERS WHERE USERNAME = 'XDB'")
+                && dbSupport.queryReturnsRows("SELECT * FROM ALL_VIEWS WHERE VIEW_NAME = 'RESOURCE_VIEW'");
     }
 
     /**
@@ -273,9 +282,8 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             return statements;
         }
         if (!dbSupport.getCurrentUserName().equals(name)) {
-            int count = jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_geom_metadata WHERE owner=?", name);
-            count += jdbcTemplate.queryForInt("SELECT COUNT (*) FROM all_sdo_index_info WHERE sdo_index_owner=?", name);
-            if (count > 0) {
+            if (dbSupport.queryReturnsRows("SELECT * FROM ALL_SDO_GEOM_METADATA WHERE OWNER = ?", name)
+                    && dbSupport.queryReturnsRows("SELECT * FROM ALL_SDO_INDEX_INFO WHERE SDO_INDEX_OWNER = ?", name)) {
                 LOG.warn("Unable to clean Oracle Spatial objects for schema '" + name + "' as they do not belong to the default schema for this connection!");
             }
             return statements;
@@ -334,7 +342,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * @throws SQLException when checking availability of the spatial extensions failed.
      */
     private boolean spatialExtensionsAvailable() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM all_views WHERE owner = 'MDSYS' AND view_name = 'USER_SDO_GEOM_METADATA'") > 0;
+        return dbSupport.queryReturnsRows("SELECT * FROM ALL_VIEWS WHERE OWNER = 'MDSYS' AND VIEW_NAME = 'USER_SDO_GEOM_METADATA'");
     }
 
     @Override
