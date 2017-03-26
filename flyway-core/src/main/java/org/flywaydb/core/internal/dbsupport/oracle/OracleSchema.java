@@ -110,7 +110,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
 
         if (objectsByType.containsKey("TRIGGER"))
-            for (String statement : generateDropStatementsForObjectType("TRIGGER", "")) {
+            for (String statement : generateDropStatementsForObjectType("TRIGGER", "", objectsByType.get("TRIGGER"))) {
                 jdbcTemplate.execute(statement);
             }
 
@@ -120,12 +120,12 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
 
         if (objectsByType.containsKey("JOB"))
-            for (String statement : generateDropStatementsForSchedulerJobs()) {
+            for (String statement : generateDropStatementsForSchedulerJobs(objectsByType.get("JOB"))) {
                 jdbcTemplate.execute(statement);
             }
 
         if (objectsByType.containsKey("MATERIALIZED VIEW"))
-            for (String statement : generateDropStatementsForObjectType("MATERIALIZED VIEW", "PRESERVE TABLE")) {
+            for (String statement : generateDropStatementsForObjectType("MATERIALIZED VIEW", "PRESERVE TABLE", objectsByType.get("MATERIALIZED VIEW"))) {
                 jdbcTemplate.execute(statement);
             }
 
@@ -160,7 +160,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
 
         if (objectsByType.containsKey("CLUSTER"))
-            for (String statement : generateDropStatementsForObjectType("CLUSTER", "INCLUDING TABLES CASCADE CONSTRAINTS")) {
+            for (String statement : generateDropStatementsForObjectType("CLUSTER", "INCLUDING TABLES CASCADE CONSTRAINTS", objectsByType.get("CLUSTER"))) {
                 jdbcTemplate.execute(statement);
             }
 
@@ -170,17 +170,17 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
 
         if (objectsByType.containsKey("FUNCTION"))
-            for (String statement : generateDropStatementsForObjectType("FUNCTION", "")) {
+            for (String statement : generateDropStatementsForObjectType("FUNCTION", "", objectsByType.get("FUNCTION"))) {
                 jdbcTemplate.execute(statement);
             }
 
         if (objectsByType.containsKey("PROCEDURE"))
-            for (String statement : generateDropStatementsForObjectType("PROCEDURE", "")) {
+            for (String statement : generateDropStatementsForObjectType("PROCEDURE", "", objectsByType.get("PROCEDURE"))) {
                 jdbcTemplate.execute(statement);
             }
 
         if (objectsByType.containsKey("PACKAGE"))
-            for (String statement : generateDropStatementsForObjectType("PACKAGE", "")) {
+            for (String statement : generateDropStatementsForObjectType("PACKAGE", "", objectsByType.get("PACKAGE"))) {
                 jdbcTemplate.execute(statement);
             }
 
@@ -190,12 +190,12 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
 
         if (objectsByType.containsKey("SYNONYM"))
-            for (String statement : generateDropStatementsForObjectType("SYNONYM",  "FORCE")) {
+            for (String statement : generateDropStatementsForObjectType("SYNONYM",  "FORCE", objectsByType.get("SYNONYM"))) {
                 jdbcTemplate.execute(statement);
             }
 
         if (objectsByType.containsKey("JAVA SOURCE"))
-            for (String statement : generateDropStatementsForObjectType("JAVA SOURCE", "")) {
+            for (String statement : generateDropStatementsForObjectType("JAVA SOURCE", "", objectsByType.get("JAVA SOURCE"))) {
                 jdbcTemplate.execute(statement);
             }
 
@@ -335,9 +335,21 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * @throws SQLException when the drop statements could not be generated.
      */
     private List<String> generateDropStatementsForObjectType(String typeName, String dropOptions) throws SQLException {
-        List<String> objectNames = getObjectsByType(typeName);
+        return generateDropStatementsForObjectType(typeName, dropOptions, getObjectsByType(typeName));
+    }
+
+    /**
+     * Generates the drop statements for database objects of this type in a prefetched list of objects.
+     *
+     * @param typeName    The type of database object to drop.
+     * @param dropOptions The extra arguments to add to the drop statement.
+     * @param prefetchedObjects The list of object names.
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForObjectType(String typeName, String dropOptions, List<String> prefetchedObjects) throws SQLException {
         List<String> dropStatements = new ArrayList<String>();
-        for (String objectName : objectNames) {
+        for (String objectName : prefetchedObjects) {
             dropStatements.add(generateDefaultDropStatement(typeName, objectName, dropOptions));
         }
         return dropStatements;
@@ -367,10 +379,20 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * @throws SQLException when the drop statements could not be generated.
      */
     private List<String> generateDropStatementsForSchedulerJobs() throws SQLException {
+        return generateDropStatementsForSchedulerJobs(getObjectsByType("JOB"));
+    }
+
+    /**
+     * Generates the drop statements for scheduler jobs in a prefetched list of objects.
+     *
+     * @param prefetchedObjects The list of object names.
+     * @return The complete drop statements, ready to execute.
+     * @throws SQLException when the drop statements could not be generated.
+     */
+    private List<String> generateDropStatementsForSchedulerJobs(List<String> prefetchedObjects) throws SQLException {
         List<String> statements = new ArrayList<String>();
 
-        List<String> objectNames = getObjectsByType("JOB");
-        for (String objectName : objectNames) {
+        for (String objectName : prefetchedObjects) {
             statements.add("BEGIN DBMS_SCHEDULER.DROP_JOB('" + dbSupport.quote(name, objectName) + "', FORCE => TRUE); END;");
         }
 
