@@ -134,6 +134,67 @@ public class OracleDbSupport extends DbSupport {
     }
 
     /**
+     * Checks whether the specified data dictionary view in the specified system schema is accessible (directly or
+     * through a role) or not.
+     *
+     * @param owner the schema name, unquoted case-sensitive.
+     * @param name  the data dictionary view name to check, unquoted case-sensitive.
+     * @return {@code true} if it is accessible, {@code false} if not.
+     */
+    public boolean isDataDictViewAccessible(String owner, String name) throws SQLException {
+        return queryReturnsRows("SELECT * FROM ALL_TAB_PRIVS WHERE TABLE_SCHEMA = ? AND TABLE_NAME= ?" +
+                " AND PRIVILEGE = 'SELECT'", owner, name);
+    }
+
+    /**
+     * Checks whether the specified SYS view is accessible (directly or through a role) or not.
+     *
+     * @param name the data dictionary view name to check, unquoted case-sensitive.
+     * @return {@code true} if it is accessible, {@code false} if not.
+     */
+    public boolean isDataDictViewAccessible(String name) throws SQLException {
+        return isDataDictViewAccessible("SYS", name);
+    }
+
+    /**
+     * Returns the set of Oracle options available on the target database.
+     * @return the set of option titles.
+     * @throws SQLException if retrieving of options failed.
+     */
+    public Set<String> getAvailableOptions() throws SQLException {
+        return new HashSet<String>(jdbcTemplate.queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
+    }
+
+    /**
+     * Checks whether Flashback Data Archive option is available or not.
+     *
+     * @return {@code true} if it is available, {@code false} if not.
+     * @throws SQLException when checking availability of the feature failed.
+     */
+    public boolean isFlashbackDataArchiveAvailable() throws SQLException {
+        return getAvailableOptions().contains("Flashback Data Archive");
+    }
+
+    /**
+     * Checks whether XDB component is available or not.
+     * @return {@code true} if it is available, {@code false} if not.
+     * @throws SQLException when checking availability of the component failed.
+     */
+    public boolean isXmlDbAvailable() throws SQLException {
+        return isDataDictViewAccessible("ALL_XML_TABLES");
+    }
+
+    /**
+     * Checks whether Oracle Locator component is available or not.
+     *
+     * @return {@code true} if it is available, {@code false} if not.
+     * @throws SQLException when checking availability of the component failed.
+     */
+    public boolean isLocatorAvailable() throws SQLException {
+        return isDataDictViewAccessible("MDSYS", "ALL_SDO_GEOM_METADATA");
+    }
+
+    /**
      * Returns the list of schemas that were created and are maintained by Oracle-supplied scripts and must not be
      * changed in any other way. The list is composed of default schemas mentioned in the official documentation for
      * Oracle Database versions from 10.1 to 12.2, and is dynamically extended with schemas from DBA_REGISTRY and
@@ -170,7 +231,8 @@ public class OracleDbSupport extends DbSupport {
                 "GSMADMIN_INTERNAL", "GSMCATUSER", "GSMUSER", // Global Data Services
                 "GGSYS", // Oracle GoldenGate
                 "WK_TEST", "WKSYS", "WKPROXY", // Oracle Ultra Search
-                "ODM", "ODM_MTR", "DMSYS" // Oracle Data Mining
+                "ODM", "ODM_MTR", "DMSYS", // Oracle Data Mining
+                "TSMSYS" // Transparent Session Migration
         ));
 
         // APEX has a schema with a different name for each version, so get it from ALL_USERS. In addition, starting
@@ -181,7 +243,7 @@ public class OracleDbSupport extends DbSupport {
                 (oracle12cOrHigher ? " OR ORACLE_MAINTAINED = 'Y'" : "")));
 
         // For earlier Oracle versions check also DBA_REGISTRY if possible.
-        if (!oracle12cOrHigher && isDbaDataDictAccessible()) {
+        if (!oracle12cOrHigher && isDataDictViewAccessible("DBA_REGISTRY")) {
             List<List<String>> schemaSuperList = jdbcTemplate.query(
                     "SELECT SCHEMA, OTHER_SCHEMAS FROM DBA_REGISTRY",
                     new RowMapper<List<String>>() {

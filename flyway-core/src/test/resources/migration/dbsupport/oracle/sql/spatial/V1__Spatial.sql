@@ -14,6 +14,13 @@
 -- limitations under the License.
 --
 
+BEGIN
+  IF USER != SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') THEN
+    RAISE_APPLICATION_ERROR(-20000, 'Locator/Spatial indexes can be created in user''s own schema only!');
+  END IF;
+END;
+/
+
 CREATE TABLE GEO_TEST (
   GEO MDSYS.SDO_GEOMETRY
 );
