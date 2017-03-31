@@ -38,7 +38,7 @@ public class CompositeMigrationResolverSmallTest {
         FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1");
         config.setResolvers(new MyCustomMigrationResolver());
 
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(null, config);
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(config);
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
         List<ResolvedMigration> migrationList = new ArrayList<ResolvedMigration>(migrations);
@@ -142,7 +142,7 @@ public class CompositeMigrationResolverSmallTest {
         FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations("migration/outoforder", "org/flywaydb/core/internal/resolver/jdbc/dummy");
         config.setSkipDefaultResolvers(true);
 
-        MigrationResolver migrationResolver = new CompositeMigrationResolver(null, config);
+        MigrationResolver migrationResolver = new CompositeMigrationResolver(config);
 
         Collection<ResolvedMigration> migrations = migrationResolver.resolveMigrations();
 

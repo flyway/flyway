@@ -33,8 +33,8 @@ public class VerticaSqlScriptSmallTest {
         String source = new ClassPathResource(
                 "migration/dbsupport/vertica/sql/dollar/V1__Dollar.sql", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new VerticaDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new VerticaDbSupport(null));
         assertEquals(10, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(19, sqlStatements.get(1).getLineNumber());

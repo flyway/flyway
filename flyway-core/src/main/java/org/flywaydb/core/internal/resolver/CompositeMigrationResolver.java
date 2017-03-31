@@ -19,7 +19,6 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.spring.SpringJdbcMigrationResolver;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
@@ -47,14 +46,13 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * Creates a new CompositeMigrationResolver.
      *
-     * @param dbSupport                    The database-specific support.
      * @param configuration                The Flyway configuration.
      */
-    public CompositeMigrationResolver(DbSupport dbSupport, FlywayConfiguration configuration) {
+    public CompositeMigrationResolver(FlywayConfiguration configuration) {
 
         if (!configuration.isSkipDefaultResolvers()) {
 
-            migrationResolvers.add(new SqlMigrationResolver(dbSupport, configuration));
+            migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new SqlMigrationResolver(), configuration));
             migrationResolvers.add(ConfigurationInjectionUtils.injectFlywayConfiguration(new JdbcMigrationResolver(), configuration));
 
             if (new FeatureDetector(configuration.getClassLoader()).isSpringJdbcAvailable()) {

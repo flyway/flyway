@@ -1131,25 +1131,14 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Creates the MigrationResolver.
      *
-     * @param dbSupport The database-specific support.
      * @return A new, fully configured, MigrationResolver instance.
      */
-    private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
+    private MigrationResolver createMigrationResolver() {
         for (MigrationResolver resolver : resolvers) {
             ConfigurationInjectionUtils.injectFlywayConfiguration(resolver, this);
         }
 
-        return new CompositeMigrationResolver(dbSupport, this);
-    }
-
-    /**
-     * @return A new, fully configured, PlaceholderReplacer.
-     */
-    private PlaceholderReplacer createPlaceholderReplacer() {
-        if (placeholderReplacement) {
-            return new PlaceholderReplacer(placeholders, placeholderPrefix, placeholderSuffix);
-        }
-        return PlaceholderReplacer.NO_PLACEHOLDERS;
+        return new CompositeMigrationResolver(this);
     }
 
     /**
@@ -1391,12 +1380,12 @@ public class Flyway implements FlywayConfiguration {
 
             // force creation of a new Scanner to prevent location caching, because the classpath might have been changed
             Scanner scanner = Scanner.createNew(classLoader);
-            MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
+            MigrationResolver migrationResolver = createMigrationResolver();
 
             if (!skipDefaultCallbacks) {
                 Set<FlywayCallback> flywayCallbacks = new LinkedHashSet<FlywayCallback>(Arrays.asList(callbacks));
                 flywayCallbacks.add(
-                        new SqlScriptFlywayCallback(dbSupport, scanner, locations, createPlaceholderReplacer(), this));
+                        new SqlScriptFlywayCallback(scanner, locations, PlaceholderReplacer.createFrom(this), this));
                 callbacks = flywayCallbacks.toArray(new FlywayCallback[flywayCallbacks.size()]);
             }
 
