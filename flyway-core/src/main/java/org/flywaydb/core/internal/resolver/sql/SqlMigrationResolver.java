@@ -44,6 +44,19 @@ import java.util.zip.CRC32;
 /**
  * Migration resolver for sql files on the classpath. The sql files must have names like
  * V1__Description.sql or V1_1__Description.sql.
+ *
+ * <p>This class an be replaced with a custom subclass. Note however that since this class is considered
+ * internal API, such a subclass is tied to a specific version and my need to be updated when switching to
+ * a new flyway version. In order to use a custom subclass:</p>
+ * <ul>
+ *     <li>create a subclass of this class</li>
+ *     <li>disable the usage of the default resolvers using {@link org.flywaydb.core.Flyway#setSkipDefaultResolvers(boolean)}
+ *     or the respective property in the flyway configuration file</li>
+ *     <li>include the custom subclass as custom resolver using {@link org.flywaydb.core.Flyway#setResolvers(MigrationResolver...)},
+ *     {@link org.flywaydb.core.Flyway#setResolversAsClassNames(String...)} or the respective property in the flyway configuration file</li>
+ *     <li><b>if you replace this class with a subclass, and want to use the other default resolvers, you need
+ *     to include them as custom resolvers as well!</b></li>
+ * </ul>
  */
 public class SqlMigrationResolver implements MigrationResolver, ConfigurationAware {
 
