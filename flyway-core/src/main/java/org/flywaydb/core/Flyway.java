@@ -311,6 +311,13 @@ public class Flyway implements FlywayConfiguration {
     private boolean mixed;
 
     /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     *
+     * {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     */
+    private boolean group;
+
+    /**
      * The username that will be recorded in the metadata table as having applied the migration.
      * <p>
      * {@code null} for the current database user of the connection. (default: {@code null}).
@@ -494,6 +501,20 @@ public class Flyway implements FlywayConfiguration {
     @Override
     public String getInstalledBy() {
         return installedBy;
+    }
+
+    @Override
+    public boolean isGroup() {
+        return group;
+    }
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     *
+     * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     */
+    public void setGroup(boolean group) {
+        this.group = group;
     }
 
     /**
@@ -1343,6 +1364,11 @@ public class Flyway implements FlywayConfiguration {
         String mixedProp = getValueAndRemoveEntry(props, "flyway.mixed");
         if (mixedProp != null) {
             setMixed(Boolean.parseBoolean(mixedProp));
+        }
+
+        String groupProp = getValueAndRemoveEntry(props, "flyway.group");
+        if (groupProp != null) {
+            setGroup(Boolean.parseBoolean(groupProp));
         }
 
         String installedByProp = getValueAndRemoveEntry(props, "flyway.installedBy");

@@ -402,10 +402,20 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      * <p>
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.mixed}</p>
      *
-     * @parameter property="flyway.allowMixedMigrations"
+     * @parameter property="flyway.mixed"
      */
     private boolean mixed = flyway.isMixed();
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     * <p>{@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.group}</p>
+     *
+     * @parameter property="flyway.group"
+     */
+    private boolean group = flyway.isGroup();
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
@@ -544,6 +554,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 flyway.setAllowMixedMigrations(allowMixedMigrations);
             }
             flyway.setMixed(mixed);
+            flyway.setGroup(group);
             flyway.setInstalledBy(installedBy);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setCleanDisabled(cleanDisabled);
