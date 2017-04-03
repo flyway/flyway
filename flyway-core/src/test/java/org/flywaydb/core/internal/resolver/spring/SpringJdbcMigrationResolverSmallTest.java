@@ -23,6 +23,7 @@ import org.flywaydb.core.internal.resolver.spring.dummy.Version3dot5;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.scanner.Scanner;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -36,13 +37,12 @@ import static org.junit.Assert.assertNull;
  * Test for SpringJdbcMigrationResolver.
  */
 public class SpringJdbcMigrationResolverSmallTest {
-    private final Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader());
     private final FlywayConfiguration config = FlywayConfigurationForTests.create();
 
     @Test
     public void resolveMigrations() {
-        SpringJdbcMigrationResolver springJdbcMigrationResolver =
-                new SpringJdbcMigrationResolver(scanner, new Locations("org/flywaydb/core/internal/resolver/spring/dummy"), config);
+        FlywayConfiguration config = FlywayConfigurationForTests.createWithLocations("org/flywaydb/core/internal/resolver/spring/dummy");
+        SpringJdbcMigrationResolver springJdbcMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config);
         Collection<ResolvedMigration> migrations = springJdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
@@ -61,7 +61,7 @@ public class SpringJdbcMigrationResolverSmallTest {
 
     @Test
     public void conventionOverConfiguration() {
-        SpringJdbcMigrationResolver springJdbcMigrationResolver = new SpringJdbcMigrationResolver(scanner, null, null);
+        SpringJdbcMigrationResolver springJdbcMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config);
         ResolvedMigration migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
@@ -70,7 +70,7 @@ public class SpringJdbcMigrationResolverSmallTest {
 
     @Test
     public void explicitInfo() {
-        SpringJdbcMigrationResolver springJdbcMigrationResolver = new SpringJdbcMigrationResolver(scanner, null, null);
+        SpringJdbcMigrationResolver springJdbcMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SpringJdbcMigrationResolver(), config);
         ResolvedMigration migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
         assertEquals("3.5", migrationInfo.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo.getDescription());

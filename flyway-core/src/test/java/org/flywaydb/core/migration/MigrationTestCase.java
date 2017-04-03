@@ -30,11 +30,8 @@ import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
-import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.Locations;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.util.scanner.Scanner;
+import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -298,12 +295,10 @@ public abstract class MigrationTestCase {
      * @param migrationInfo
      *            The migration to check.
      */
-    protected void assertChecksum(MigrationInfo migrationInfo) {
-        SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
-                new Locations(getBasedir()),
-                PlaceholderReplacer.NO_PLACEHOLDERS,
-                FlywayConfigurationForTests.create());
+    private void assertChecksum(MigrationInfo migrationInfo) {
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations(getBasedir());
+
+        SqlMigrationResolver sqlMigrationResolver = ConfigurationInjectionUtils.injectFlywayConfiguration(new SqlMigrationResolver(), config);
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {

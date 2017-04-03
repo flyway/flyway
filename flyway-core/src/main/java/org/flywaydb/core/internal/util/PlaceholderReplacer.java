@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.util;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +65,18 @@ public class PlaceholderReplacer {
         this.placeholders = placeholders;
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
+    }
+
+    /**
+     * Creates a new PlaceholderReplacer from an existing flyway configuration.
+     * @param configuration the FlywayConfiguration to use
+     * @return A new replacer instance, never null
+     */
+    public static PlaceholderReplacer createFrom(FlywayConfiguration configuration) {
+        if (configuration.isPlaceholderReplacement()) {
+            return new PlaceholderReplacer(configuration.getPlaceholders(), configuration.getPlaceholderPrefix(), configuration.getPlaceholderSuffix());
+        }
+        return PlaceholderReplacer.NO_PLACEHOLDERS;
     }
 
     /**

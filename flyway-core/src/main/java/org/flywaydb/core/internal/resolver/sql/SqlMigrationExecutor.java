@@ -17,10 +17,8 @@ package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.sql.Connection;
@@ -29,15 +27,6 @@ import java.sql.Connection;
  * Database migration based on a sql file.
  */
 public class SqlMigrationExecutor implements MigrationExecutor {
-    /**
-     * Database-specific support.
-     */
-    private final DbSupport dbSupport;
-
-    /**
-     * The placeholder replacer to apply to sql migration scripts.
-     */
-    private final PlaceholderReplacer placeholderReplacer;
 
     /**
      * The Resource pointing to the sql script.
@@ -58,16 +47,11 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     /**
      * Creates a new sql script migration based on this sql script.
-     *
-     * @param dbSupport           The database-specific support.
-     * @param sqlScriptResource   The resource containing the sql script.
-     * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
+     *  @param sqlScriptResource   The resource containing the sql script.
      * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationExecutor(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
-        this.dbSupport = dbSupport;
+    public SqlMigrationExecutor(Resource sqlScriptResource, FlywayConfiguration configuration) {
         this.sqlScriptResource = sqlScriptResource;
-        this.placeholderReplacer = placeholderReplacer;
         this.configuration = configuration;
     }
 
@@ -78,7 +62,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     private synchronized SqlScript getSqlScript() {
         if (sqlScript == null) {
-            sqlScript = new SqlScript(dbSupport, sqlScriptResource, placeholderReplacer, configuration.getEncoding(), configuration.isAllowMixedMigrations());
+            sqlScript = new SqlScript(sqlScriptResource, configuration);
         }
         return sqlScript;
     }

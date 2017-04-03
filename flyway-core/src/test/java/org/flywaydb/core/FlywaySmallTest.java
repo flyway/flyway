@@ -21,6 +21,7 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.resolver.MyConfigurationAwareCustomMigrationResolver;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
@@ -207,5 +208,18 @@ public class FlywaySmallTest {
         } catch (FlywayException e) {
             //expected
         }
+    }
+
+    @Test
+    public void customResolversHaveConfigurationInjected() {
+        MyConfigurationAwareCustomMigrationResolver configResolver = new MyConfigurationAwareCustomMigrationResolver();
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:flyway_test;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setResolvers(configResolver);
+
+        flyway.migrate();
+
+        configResolver.assertFlywayConfigurationIsSet();
     }
 }

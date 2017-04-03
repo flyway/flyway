@@ -19,6 +19,7 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
@@ -38,11 +39,7 @@ import java.util.List;
  * Migration resolver for Jdbc migrations. The classes must have a name like R__My_description, V1__Description
  * or V1_1_3__Description.
  */
-public class JdbcMigrationResolver implements MigrationResolver {
-    /**
-     * The base package on the classpath where to migrations are located.
-     */
-    private final Locations locations;
+public class JdbcMigrationResolver implements MigrationResolver, ConfigurationAware {
 
     /**
      * The Scanner to use.
@@ -54,24 +51,16 @@ public class JdbcMigrationResolver implements MigrationResolver {
      */
     private FlywayConfiguration configuration;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param locations     The base packages on the classpath where to migrations are located.
-     * @param scanner       The Scanner for loading migrations on the classpath.
-     * @param configuration The configuration to inject (if necessary) in the migration classes.
-     */
-    public JdbcMigrationResolver(Scanner scanner, Locations locations, FlywayConfiguration configuration) {
-        this.locations = locations;
-        this.scanner = scanner;
+    public void setFlywayConfiguration(FlywayConfiguration configuration) {
         this.configuration = configuration;
+        this.scanner = Scanner.create(configuration.getClassLoader());
     }
 
     @Override
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        for (Location location : locations.getLocations()) {
+        for (Location location : new Locations(configuration.getLocations()).getLocations()) {
             if (!location.isClassPath()) {
                 continue;
             }
