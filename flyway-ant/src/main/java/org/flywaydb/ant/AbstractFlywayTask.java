@@ -232,9 +232,21 @@ public abstract class AbstractFlywayTask extends Task {
      * Also configurable with Ant Property: ${flyway.allowMixedMigrations}
      *
      * @param allowMixedMigrations {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public void setAllowMixedMigrations(boolean allowMixedMigrations) {
         flyway.setAllowMixedMigrations(allowMixedMigrations);
+    }
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.<br>
+     * Also configurable with Ant Property: ${flyway.allowMixedMigrations}
+     *
+     * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     */
+    public void setMixed(boolean mixed) {
+        flyway.setMixed(mixed);
     }
 
     /**

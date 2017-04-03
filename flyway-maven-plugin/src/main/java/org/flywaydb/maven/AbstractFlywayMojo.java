@@ -393,8 +393,19 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      *
      * @parameter property="flyway.allowMixedMigrations"
+     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     private boolean allowMixedMigrations = flyway.isAllowMixedMigrations();
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>
+     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     *
+     * @parameter property="flyway.allowMixedMigrations"
+     */
+    private boolean mixed = flyway.isMixed();
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
@@ -529,7 +540,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
-            flyway.setAllowMixedMigrations(allowMixedMigrations);
+            if (allowMixedMigrations) {
+                flyway.setAllowMixedMigrations(allowMixedMigrations);
+            }
+            flyway.setMixed(mixed);
             flyway.setInstalledBy(installedBy);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setCleanDisabled(cleanDisabled);

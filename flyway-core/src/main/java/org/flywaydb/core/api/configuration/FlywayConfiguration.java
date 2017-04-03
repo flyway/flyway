@@ -288,8 +288,17 @@ public interface FlywayConfiguration {
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      *
      * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * @deprecated Use <code>isMixed()</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     boolean isAllowMixedMigrations();
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     *
+     * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     */
+    boolean isMixed();
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
