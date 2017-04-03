@@ -247,6 +247,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
+    public boolean isGroup() {
+        return false;
+    }
+
+    @Override
     public String getInstalledBy() {
         return null;
     }

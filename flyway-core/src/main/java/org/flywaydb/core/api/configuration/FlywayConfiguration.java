@@ -301,6 +301,13 @@ public interface FlywayConfiguration {
     boolean isMixed();
 
     /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     *
+     * @return {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     */
+    boolean isGroup();
+
+    /**
      * The username that will be recorded in the metadata table as having applied the migration.
      *
      * @return The username or {@code null} for the current database user of the connection. (default: {@code null}).
