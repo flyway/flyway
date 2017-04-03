@@ -34,7 +34,7 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Regex for keywords that can appear after a string literal without being separated by a space.
      */
-    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR)(?!.)");
+    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(USING|THEN|FROM|AND|OR|AS)(?!.)");
 
     /**
      * Delimiter of PL/SQL blocks and statements.
