@@ -30,6 +30,13 @@ import java.util.jar.JarFile;
  * ClassPathLocationScanner for jar files.
  */
 public class JarFileClassPathLocationScanner implements ClassPathLocationScanner {
+    private final String urlSeparator;
+    public JarFileClassPathLocationScanner() {
+        this("!/");
+    }
+    public JarFileClassPathLocationScanner(String urlSeparator) {
+        this.urlSeparator = urlSeparator;
+    }
     public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
         JarFile jarFile = getJarFromUrl(locationUrl);
 
@@ -64,7 +71,7 @@ public class JarFileClassPathLocationScanner implements ClassPathLocationScanner
         // We'll also handle paths with and without leading "file:" prefix.
         String urlFile = locationUrl.getFile();
 
-        int separatorIndex = urlFile.indexOf("!/");
+        int separatorIndex = urlFile.indexOf(urlSeparator);
         if (separatorIndex != -1) {
             String jarFileUrl = urlFile.substring(0, separatorIndex);
             if (jarFileUrl.startsWith("file:")) {
