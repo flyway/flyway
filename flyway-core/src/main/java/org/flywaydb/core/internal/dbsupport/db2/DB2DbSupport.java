@@ -103,4 +103,9 @@ public class DB2DbSupport extends DbSupport {
     public int getDb2MajorVersion() {
         return majorVersion;
     }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
+    }
 }
