@@ -85,4 +85,9 @@ public class DerbyDbSupport extends DbSupport {
     public boolean catalogIsSchema() {
         return false;
     }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
+    }
 }
