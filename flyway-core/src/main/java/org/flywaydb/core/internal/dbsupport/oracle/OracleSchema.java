@@ -24,12 +24,12 @@ import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleSchema.ObjectType.*;
 
 /**
  * Oracle implementation of Schema.
@@ -95,109 +95,45 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                     "It must not be changed in any way except by running an Oracle-supplied script!");
         }
 
-        // Disable FBA for schema tables
+        // Disable FBA for schema tables.
         if (dbSupport.isFlashbackDataArchiveAvailable()) {
             disableFlashbackArchiveForFbaTrackedTables();
         }
 
-        // Cleanup Oracle Locator metadata
+        // Clean Oracle Locator metadata.
         if (dbSupport.isLocatorAvailable()) {
             cleanLocatorMetadata();
         }
 
-        // Take a snapshot of existing objects grouped by type.
-        Map<String, List<String>> objectsByType = getObjectsGroupedByType();
+        // Get existing object types in the schema.
+        Set<String> existingObjectTypeNames = getExistingObjectTypeNames();
 
+        // Define the list of types to drop.
+        List<ObjectType> objectTypesToDrop = Arrays.asList(
+                TRIGGER,
+                QUEUE_TABLE,
+                SCHEDULER_JOB,
+                MATERIALIZED_VIEW,
+                MATERIALIZED_VIEW_LOG,
+                VIEW,
+                DOMAIN_INDEX,
+                TABLE,
+                INDEX,
+                CLUSTER,
+                SEQUENCE,
+                FUNCTION,
+                PROCEDURE,
+                PACKAGE,
+                TYPE,
+                SYNONYM,
+                JAVA_SOURCE
+        );
 
-        if (objectsByType.containsKey("TRIGGER"))
-            for (String statement : generateDropStatementsForObjectType("TRIGGER", "", objectsByType.get("TRIGGER"))) {
-                jdbcTemplate.execute(statement);
+        for (ObjectType objectType : objectTypesToDrop) {
+            if (existingObjectTypeNames.contains(objectType.getName())) {
+                objectType.dropObjects(jdbcTemplate, dbSupport, this);
             }
-
-        if (objectsByType.containsKey("TABLE"))
-            for (String statement : generateDropStatementsForQueueTables()) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("JOB"))
-            for (String statement : generateDropStatementsForSchedulerJobs(objectsByType.get("JOB"))) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("MATERIALIZED VIEW"))
-            for (String statement : generateDropStatementsForObjectType("MATERIALIZED VIEW", "PRESERVE TABLE", objectsByType.get("MATERIALIZED VIEW"))) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("TABLE"))
-            for (String statement : generateDropStatementsForMaterializedViewLogs()) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("VIEW"))
-            for (String statement : generateDropStatementsForObjectType("VIEW", "CASCADE CONSTRAINTS")) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("INDEX"))
-            for (String statement : generateDropStatementsForDomainIndexes()) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("TABLE"))
-            for (String statement : generateDropStatementsForXmlTables()) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("TABLE"))
-            for (Table table : allTables()) {
-                table.drop();
-            }
-
-        if (objectsByType.containsKey("INDEX"))
-            for (String statement : generateDropStatementsForNonDomainIndexes()) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("CLUSTER"))
-            for (String statement : generateDropStatementsForObjectType("CLUSTER", "INCLUDING TABLES CASCADE CONSTRAINTS", objectsByType.get("CLUSTER"))) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("SEQUENCE"))
-            for (String statement : generateDropStatementsForObjectType("SEQUENCE", "")) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("FUNCTION"))
-            for (String statement : generateDropStatementsForObjectType("FUNCTION", "", objectsByType.get("FUNCTION"))) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("PROCEDURE"))
-            for (String statement : generateDropStatementsForObjectType("PROCEDURE", "", objectsByType.get("PROCEDURE"))) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("PACKAGE"))
-            for (String statement : generateDropStatementsForObjectType("PACKAGE", "", objectsByType.get("PACKAGE"))) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("TYPE"))
-            for (String statement : generateDropStatementsForObjectType("TYPE", "FORCE")) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("SYNONYM"))
-            for (String statement : generateDropStatementsForObjectType("SYNONYM",  "FORCE", objectsByType.get("SYNONYM"))) {
-                jdbcTemplate.execute(statement);
-            }
-
-        if (objectsByType.containsKey("JAVA SOURCE"))
-            for (String statement : generateDropStatementsForObjectType("JAVA SOURCE", "", objectsByType.get("JAVA SOURCE"))) {
-                jdbcTemplate.execute(statement);
-            }
+        }
 
         if (isDefaultSchemaForUser()) {
             jdbcTemplate.execute("PURGE RECYCLEBIN");
@@ -209,37 +145,19 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * @return a map of type names to object name lists
      * @throws SQLException if retrieving of objects failed
      */
-    private Map<String, List<String>> getObjectsGroupedByType() throws SQLException {
-        boolean xmlDbAvailable = dbSupport.isXmlDbAvailable();
-        String query =
-                // Most of objects are seen in ALL_OBJECTS
-                "SELECT OBJECT_TYPE, OBJECT_NAME FROM ALL_OBJECTS WHERE OWNER = ? " +
-                        (xmlDbAvailable
-                                // XML tables are seen in a separate dictionary table
-                                ? "UNION ALL SELECT 'TABLE', TABLE_NAME FROM ALL_XML_TABLES WHERE OWNER = ? " +
-                                "AND TABLE_NAME NOT LIKE 'BIN$________________________$_'" //ignore recycle bin objects
-                                : "");
+    private Set<String> getExistingObjectTypeNames() throws SQLException {
+        String query = "SELECT DISTINCT OBJECT_TYPE FROM ALL_OBJECTS WHERE OWNER = ? " +
+                // Materialized view logs are seen as ordinary tables, look up in another view.
+                "UNION SELECT '" + MATERIALIZED_VIEW_LOG.getName() + "' FROM DUAL WHERE EXISTS(" +
+                "SELECT * FROM ALL_MVIEW_LOGS WHERE LOG_OWNER = ?) " +
+                // Queue tables are seen as ordinary tables, look up in another view.
+                "UNION SELECT '" + QUEUE_TABLE.getName() + "' FROM DUAL WHERE EXISTS(" +
+                "SELECT * FROM ALL_QUEUE_TABLES WHERE OWNER = ?)";
 
-        // Count params
-        int n = 1;
-        if (xmlDbAvailable) n += 1;
-        String[] params = new String[n];
-        Arrays.fill(params, name);
+        String[] params = new String[3];
+        Arrays.fill(params, this.getName());
 
-        List<Map<String, String>> rows = jdbcTemplate.queryForList(query, params);
-        Map<String, List<String>> result = new HashMap<String, List<String>>();
-        for (Map<String, String> row : rows) {
-            String objectType = row.get("OBJECT_TYPE");
-            String objectName = row.get("OBJECT_NAME");
-            if (result.containsKey(objectType)) {
-                result.get(objectType).add(objectName);
-            } else {
-                List<String> newList = new ArrayList<String>();
-                newList.add(objectName);
-                result.put(objectType, newList);
-            }
-        }
-        return result;
+        return new HashSet<String>(jdbcTemplate.queryForStringList(query, params));
     }
 
     /**
@@ -300,225 +218,9 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         jdbcTemplate.getConnection().commit();
     }
 
-    /**
-     * Generates the drop statement for the database object.
-     *
-     * @param typeName    The type of database object to drop.
-     * @param objectName  The name of database object to drop.
-     * @param dropOptions The extra arguments to add to the drop statement.
-     * @return The complete drop statement, ready to execute.
-     * @throws SQLException when the drop statement could not be generated.
-     */
-    private String generateDefaultDropStatement(String typeName, String objectName, String dropOptions) {
-        return "DROP " + typeName + " " + dbSupport.quote(name, objectName) + " " +
-                (StringUtils.hasText(dropOptions) ? dropOptions : "");
-    }
-
-    /**
-     * Get the list of database objects of this type.
-     *
-     * @param typeName The type of database objects.
-     * @return The list of such objects in the schema.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> getObjectsByType(String typeName) throws SQLException {
-        return jdbcTemplate.queryForStringList("SELECT OBJECT_NAME FROM ALL_OBJECTS WHERE OWNER = ? AND OBJECT_TYPE = ?",
-                name, typeName);
-    }
-
-    /**
-     * Generates the drop statements for database objects of this type.
-     *
-     * @param typeName    The type of database object to drop.
-     * @param dropOptions The extra arguments to add to the drop statement.
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForObjectType(String typeName, String dropOptions) throws SQLException {
-        return generateDropStatementsForObjectType(typeName, dropOptions, getObjectsByType(typeName));
-    }
-
-    /**
-     * Generates the drop statements for database objects of this type in a prefetched list of objects.
-     *
-     * @param typeName    The type of database object to drop.
-     * @param dropOptions The extra arguments to add to the drop statement.
-     * @param prefetchedObjects The list of object names.
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForObjectType(String typeName, String dropOptions, List<String> prefetchedObjects) throws SQLException {
-        List<String> dropStatements = new ArrayList<String>();
-        for (String objectName : prefetchedObjects) {
-            dropStatements.add(generateDefaultDropStatement(typeName, objectName, dropOptions));
-        }
-        return dropStatements;
-    }
-
-    /**
-     * Generates the drop statements for queue tables.
-     *
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForQueueTables() throws SQLException {
-        List<String> statements = new ArrayList<String>();
-
-        List<String> objectNames = jdbcTemplate.queryForStringList("SELECT QUEUE_TABLE FROM ALL_QUEUE_TABLES WHERE OWNER = ?", name);
-        for (String objectName : objectNames) {
-            statements.add("BEGIN DBMS_AQADM.DROP_QUEUE_TABLE('" + dbSupport.quote(name, objectName) + "', FORCE => TRUE); END;");
-        }
-
-        return statements;
-    }
-
-    /**
-     * Generates the drop statements for scheduler jobs.
-     *
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForSchedulerJobs() throws SQLException {
-        return generateDropStatementsForSchedulerJobs(getObjectsByType("JOB"));
-    }
-
-    /**
-     * Generates the drop statements for scheduler jobs in a prefetched list of objects.
-     *
-     * @param prefetchedObjects The list of object names.
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForSchedulerJobs(List<String> prefetchedObjects) throws SQLException {
-        List<String> statements = new ArrayList<String>();
-
-        for (String objectName : prefetchedObjects) {
-            statements.add("BEGIN DBMS_SCHEDULER.DROP_JOB('" + dbSupport.quote(name, objectName) + "', FORCE => TRUE); END;");
-        }
-
-        return statements;
-    }
-
-    /**
-     * Generates the drop statements for materialized view logs.
-     *
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForMaterializedViewLogs() throws SQLException {
-        List<String> dropStatements = new ArrayList<String>();
-
-        List<String> objectNames = jdbcTemplate.queryForStringList(
-                "SELECT MASTER FROM ALL_MVIEW_LOGS WHERE LOG_OWNER = ?", name);
-
-        for (String objectName : objectNames) {
-            dropStatements.add(generateDefaultDropStatement("MATERIALIZED VIEW LOG ON", objectName, ""));
-        }
-        return dropStatements;
-    }
-
-    /**
-     * Generates the drop statements for domain indexes.
-     *
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForDomainIndexes() throws SQLException {
-        List<String> dropStatements = new ArrayList<String>();
-
-        List<String> objectNames = jdbcTemplate.queryForStringList(
-                "SELECT INDEX_NAME FROM ALL_INDEXES WHERE OWNER = ? AND INDEX_TYPE LIKE '%DOMAIN%'", name);
-
-        for (String objectName : objectNames) {
-            dropStatements.add(generateDefaultDropStatement("INDEX", objectName, "FORCE"));
-        }
-        return dropStatements;
-    }
-
-    /**
-     * Generates the drop statements for non-domain indexes.
-     *
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForNonDomainIndexes() throws SQLException {
-        List<String> dropStatements = new ArrayList<String>();
-
-        List<String> objectNames = jdbcTemplate.queryForStringList(
-                "SELECT INDEX_NAME FROM ALL_INDEXES WHERE OWNER = ? AND INDEX_TYPE NOT LIKE '%DOMAIN%'", name);
-
-        for (String objectName : objectNames) {
-            dropStatements.add(generateDefaultDropStatement("INDEX", objectName, ""));
-        }
-        return dropStatements;
-    }
-
-    /**
-     * Generates the drop statements for xml tables.
-     *
-     * @return The complete drop statements, ready to execute.
-     * @throws SQLException when the drop statements could not be generated.
-     */
-    private List<String> generateDropStatementsForXmlTables() throws SQLException {
-        List<String> dropStatements = new ArrayList<String>();
-
-        List<String> objectNames = dbSupport.isXmlDbAvailable()
-                ? jdbcTemplate.queryForStringList(
-                "SELECT TABLE_NAME FROM ALL_XML_TABLES WHERE OWNER = ? " +
-                        // ALL_XML_TABLES shows objects in RECYCLEBIN, ignore them
-                        "AND TABLE_NAME NOT LIKE 'BIN$________________________$_'",
-                name)
-                : Collections.<String>emptyList();
-
-        for (String objectName : objectNames) {
-            dropStatements.add(generateDefaultDropStatement("TABLE", objectName, "CASCADE CONSTRAINTS PURGE"));
-        }
-        return dropStatements;
-    }
-
     @Override
     protected Table[] doAllTables() throws SQLException {
-        String tablesQuery =
-                "SELECT TABLE_NAME, OWNER\n" +
-                        "FROM ALL_TABLES\n" +
-                        "WHERE OWNER = ?\n" +
-                        "  AND (IOT_TYPE IS NULL OR IOT_TYPE NOT LIKE '%OVERFLOW%')\n" +
-                        "  AND NESTED != 'YES'\n" +
-                        "  AND SECONDARY != 'Y'\n";
-
-        boolean referencePartitionedTablesExist = dbSupport.queryReturnsRows(
-                "SELECT * FROM ALL_PART_TABLES WHERE OWNER = ? AND PARTITIONING_TYPE = 'REFERENCE'",
-                name);
-
-        if (referencePartitionedTablesExist) {
-            tablesQuery =
-                    "WITH TABLES AS (\n" +
-                    tablesQuery +
-                    ")\n" +
-                    "SELECT t.TABLE_NAME\n" +
-                    "FROM TABLES t\n" +
-                    "  LEFT JOIN ALL_PART_TABLES pt\n" +
-                    "    ON t.OWNER = pt.OWNER\n" +
-                    "   AND t.TABLE_NAME = pt.TABLE_NAME\n" +
-                    "   AND pt.PARTITIONING_TYPE = 'REFERENCE'\n" +
-                    "  LEFT JOIN ALL_CONSTRAINTS fk\n" +
-                    "    ON pt.OWNER = fk.OWNER\n" +
-                    "   AND pt.TABLE_NAME = fk.TABLE_NAME\n" +
-                    "   AND pt.REF_PTN_CONSTRAINT_NAME = fk.CONSTRAINT_NAME\n" +
-                    "   AND fk.CONSTRAINT_TYPE = 'R'\n" +
-                    "  LEFT JOIN ALL_CONSTRAINTS puk\n" +
-                    "    ON fk.R_OWNER = puk.OWNER\n" +
-                    "   AND fk.R_CONSTRAINT_NAME = puk.CONSTRAINT_NAME\n" +
-                    "   AND puk.CONSTRAINT_TYPE IN ('P', 'U')\n" +
-                    "  LEFT JOIN TABLES p\n" +
-                    "    ON puk.OWNER = p.OWNER\n" +
-                    "   AND puk.TABLE_NAME = p.TABLE_NAME\n" +
-                    "START WITH p.TABLE_NAME IS NULL\n" +
-                    "CONNECT BY PRIOR t.TABLE_NAME = p.TABLE_NAME\n" +
-                    "ORDER BY LEVEL DESC";
-        }
-
-        List<String> tableNames = jdbcTemplate.queryForStringList(tablesQuery, name);
+        List<String> tableNames = TABLE.getObjectNames(jdbcTemplate, dbSupport, this);
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
@@ -530,5 +232,201 @@ public class OracleSchema extends Schema<OracleDbSupport> {
     @Override
     public Table getTable(String tableName) {
         return new OracleTable(jdbcTemplate, dbSupport, this, tableName);
+    }
+
+
+    /**
+     * Oracle object types.
+     */
+    public enum ObjectType {
+
+        // Tables, including XML tables, except for nested tables, IOT overflow tables and other secondary objects.
+        TABLE("TABLE", "CASCADE CONSTRAINTS PURGE") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                boolean referencePartitionedTablesExist = dbSupport.queryReturnsRows(
+                        "SELECT * FROM ALL_PART_TABLES WHERE OWNER = ? AND PARTITIONING_TYPE = 'REFERENCE'",
+                        schema.getName());
+                boolean xmlDbAvailable = dbSupport.isXmlDbAvailable();
+
+                StringBuilder tablesQuery = new StringBuilder();
+                tablesQuery.append("WITH TABLES AS (\n" +
+                        "  SELECT TABLE_NAME, OWNER\n" +
+                        "  FROM ALL_TABLES\n" +
+                        "  WHERE OWNER = ?\n" +
+                        "    AND (IOT_TYPE IS NULL OR IOT_TYPE NOT LIKE '%OVERFLOW%')\n" +
+                        "    AND NESTED != 'YES'\n" +
+                        "    AND SECONDARY != 'Y'\n");
+
+                if (xmlDbAvailable) {
+                    tablesQuery.append("  UNION ALL\n" +
+                            "  SELECT TABLE_NAME, OWNER\n" +
+                            "  FROM ALL_XML_TABLES\n" +
+                            "  WHERE OWNER = ?\n" +
+                            // ALL_XML_TABLES shows objects in RECYCLEBIN, ignore them
+                            "    AND TABLE_NAME NOT LIKE 'BIN$________________________$_'\n");
+                }
+
+                tablesQuery.append(")\n" +
+                        "SELECT t.TABLE_NAME\n" +
+                        "FROM TABLES t\n");
+
+                if (referencePartitionedTablesExist) {
+                    tablesQuery.append("  LEFT JOIN ALL_PART_TABLES pt\n" +
+                            "    ON t.OWNER = pt.OWNER\n" +
+                            "   AND t.TABLE_NAME = pt.TABLE_NAME\n" +
+                            "   AND pt.PARTITIONING_TYPE = 'REFERENCE'\n" +
+                            "  LEFT JOIN ALL_CONSTRAINTS fk\n" +
+                            "    ON pt.OWNER = fk.OWNER\n" +
+                            "   AND pt.TABLE_NAME = fk.TABLE_NAME\n" +
+                            "   AND pt.REF_PTN_CONSTRAINT_NAME = fk.CONSTRAINT_NAME\n" +
+                            "   AND fk.CONSTRAINT_TYPE = 'R'\n" +
+                            "  LEFT JOIN ALL_CONSTRAINTS puk\n" +
+                            "    ON fk.R_OWNER = puk.OWNER\n" +
+                            "   AND fk.R_CONSTRAINT_NAME = puk.CONSTRAINT_NAME\n" +
+                            "   AND puk.CONSTRAINT_TYPE IN ('P', 'U')\n" +
+                            "  LEFT JOIN TABLES p\n" +
+                            "    ON puk.OWNER = p.OWNER\n" +
+                            "   AND puk.TABLE_NAME = p.TABLE_NAME\n" +
+                            "START WITH p.TABLE_NAME IS NULL\n" +
+                            "CONNECT BY PRIOR t.TABLE_NAME = p.TABLE_NAME\n" +
+                            "ORDER BY LEVEL DESC");
+                }
+
+                // Count params
+                int n = 1; // ALL_TABLES
+                if (xmlDbAvailable) n += 1; // ALL_XML_TABLES
+                String[] params = new String[n];
+                Arrays.fill(params, schema.getName());
+
+                return jdbcTemplate.queryForStringList(tablesQuery.toString(), params);
+            }
+        },
+
+        // Queue tables, have related objects and should be dropped separately prior to other types.
+        QUEUE_TABLE("QUEUE TABLE") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                return jdbcTemplate.queryForStringList(
+                        "SELECT QUEUE_TABLE FROM ALL_QUEUE_TABLES WHERE OWNER = ?",
+                        schema.getName()
+                );
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_AQADM.DROP_QUEUE_TABLE('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+
+        // Materialized view logs, seen as ordinary tables but should be dropped in a special way.
+        MATERIALIZED_VIEW_LOG("MATERIALIZED VIEW LOG") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                return jdbcTemplate.queryForStringList(
+                        "SELECT MASTER FROM ALL_MVIEW_LOGS WHERE LOG_OWNER = ?",
+                        schema.getName()
+                );
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "DROP " + this.getName() + " ON " + dbSupport.quote(schema.getName(), objectName);
+            }
+        },
+
+        // All indexes, except for domain indexes, should be dropped after tables (if any left).
+        INDEX("INDEX") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                return jdbcTemplate.queryForStringList(
+                        "SELECT INDEX_NAME FROM ALL_INDEXES WHERE OWNER = ? AND INDEX_TYPE NOT LIKE '%DOMAIN%'",
+                        schema.getName()
+                );
+            }
+        },
+
+        // Domain indexes, have related objects and should be dropped separately prior to tables.
+        DOMAIN_INDEX("INDEX", "FORCE") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                return jdbcTemplate.queryForStringList(
+                        "SELECT INDEX_NAME FROM ALL_INDEXES WHERE OWNER = ? AND INDEX_TYPE LIKE '%DOMAIN%'",
+                        schema.getName()
+                );
+            }
+        },
+
+        // Clusters.
+        CLUSTER("CLUSTER", "INCLUDING TABLES CASCADE CONSTRAINTS"),
+
+        // Views, including XML views.
+        VIEW("VIEW", "CASCADE CONSTRAINTS"),
+
+        // Materialized views, keep tables as they may be referenced.
+        MATERIALIZED_VIEW("MATERIALIZED VIEW", "PRESERVE TABLE"),
+
+        // Local synonyms.
+        SYNONYM("SYNONYM", "FORCE"),
+
+        // Sequences, no filtering for identity sequences, since they get dropped along with master tables..
+        SEQUENCE("SEQUENCE"),
+
+        // Procedures, functions, packages.
+        PROCEDURE("PROCEDURE"),
+        FUNCTION("FUNCTION"),
+        PACKAGE("PACKAGE"),
+
+        // Triggers of all types, should be dropped at first, because invalid DDL triggers may break the whole clean.
+        TRIGGER("TRIGGER"),
+
+        // Types, should be dropped at the end.
+        TYPE("TYPE", "FORCE"),
+
+        // Java sources, cause cascade drop of object classes (only those compiled from sources).
+        JAVA_SOURCE("JAVA SOURCE"),
+
+        // Scheduler jobs.
+        SCHEDULER_JOB("JOB") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SCHEDULER.DROP_JOB('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        }
+        // TODO: to be extended
+        ;
+
+
+        private final String name;
+        private final String dropOptions;
+
+        ObjectType(String name, String dropOptions) {
+            this.name = name;
+            this.dropOptions = dropOptions;
+        }
+
+        ObjectType(String name) {
+            this(name, "");
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+            return jdbcTemplate.queryForStringList(
+                    "SELECT OBJECT_NAME FROM ALL_OBJECTS WHERE OWNER = ? AND OBJECT_TYPE = ?",
+                    schema.getName(), this.getName()
+            );
+        }
+
+        public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+            return "DROP " + this.getName() + " " + dbSupport.quote(schema.getName(), objectName) +
+                    (StringUtils.hasText(dropOptions) ? " " + dropOptions : "");
+        }
+
+        public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+            for (String objectName : getObjectNames(jdbcTemplate, dbSupport, schema)) {
+                jdbcTemplate.execute(generateDropStatement(jdbcTemplate, dbSupport, schema, objectName));
+            }
+        }
     }
 }
