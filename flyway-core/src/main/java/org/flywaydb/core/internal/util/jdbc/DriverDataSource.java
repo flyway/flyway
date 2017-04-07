@@ -332,6 +332,10 @@ public class DriverDataSource implements DataSource {
             return "com.pivotal.jdbc.GreenplumDriver";
         }
 
+        if (url.startsWith("jdbc:teradata:")) {
+          return "com.teradata.jdbc.TeraDriver";
+        }
+        
         return null;
     }
 
