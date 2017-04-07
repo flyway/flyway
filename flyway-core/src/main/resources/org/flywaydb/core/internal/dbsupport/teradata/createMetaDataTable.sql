@@ -25,7 +25,5 @@ CREATE TABLE "${schema}"."${table}" (
     "installed_on" TIMESTAMP(0) NOT NULL DEFAULT CURRENT_DATE,
     "execution_time" INTEGER NOT NULL,
     "success" BYTEINT NOT NULL,
-CONSTRAINT ${table}_pk PRIMARY KEY ( installed_rank ));
-
-CREATE INDEX "${table}_s_idx" ON "${schema}"."${table}" ("success");
-
+CONSTRAINT "${table}_pk" PRIMARY KEY ( "installed_rank" ))
+INDEX "${table}" ("success");
