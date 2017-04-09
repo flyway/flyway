@@ -117,6 +117,10 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                 SCHEDULER_JOB,
                 SCHEDULER_PROGRAM,
                 SCHEDULE,
+                RULE_SET,
+                RULE,
+                EVALUATION_CONTEXT,
+                FILE_GROUP,
                 XML_SCHEMA,
                 MINING_MODEL,
                 REWRITE_EQUIVALENCE,
@@ -149,10 +153,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                 FILE_WATCHER,
                 DATABASE_DESTINATION,
                 SCHEDULER_GROUP,
-                RULE_SET,
-                RULE,
-                EVALUATION_CONTEXT,
-                FILE_GROUP,
                 CUBE,
                 CUBE_DIMENSION,
                 CUBE_BUILD_PROCESS,
@@ -544,6 +544,32 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
         },
 
+        // Streams/rule objects.
+        RULE_SET("RULE SET") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_RULE_ADM.DROP_RULE_SET('" + dbSupport.quote(schema.getName(), objectName) + "', DELETE_RULES => FALSE); END;";
+            }
+        },
+        RULE("RULE") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_RULE_ADM.DROP_RULE('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+        EVALUATION_CONTEXT("EVALUATION CONTEXT") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_RULE_ADM.DROP_EVALUATION_CONTEXT('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+        FILE_GROUP("FILE GROUP") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_FILE_GROUP.DROP_FILE_GROUP('" + dbSupport.quote(schema.getName(), objectName) + "'); END;";
+            }
+        },
+
         /*** Below are yet unsupported object types. They should be dropped explicitly in callbacks if used. ***/
 
         // The rest scheduler objects - unsupported.
@@ -589,52 +615,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "BEGIN DBMS_SCHEDULER.DROP_GROUP('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
-            }
-        },
-
-        // Streams objects - unsupported.
-        RULE_SET("RULE SET") {
-            @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-                LOG.warn("Unable to clean rule sets for schema " + dbSupport.quote(schema.getName()) +
-                        ": unsupported operation");
-            }
-            @Override
-            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
-                return "BEGIN DBMS_RULE_ADM.DROP_RULE_SET('" + dbSupport.quote(schema.getName(), objectName) + "', DELETE_RULES => FALSE); END;";
-            }
-        },
-        RULE("RULE") {
-            @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-                LOG.warn("Unable to clean rules for schema " + dbSupport.quote(schema.getName()) +
-                        ": unsupported operation");
-            }
-            @Override
-            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
-                return "BEGIN DBMS_RULE_ADM.DROP_RULE('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
-            }
-        },
-        EVALUATION_CONTEXT("EVALUATION CONTEXT") {
-            @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-                LOG.warn("Unable to clean evaluation contexts for schema " + dbSupport.quote(schema.getName()) +
-                        ": unsupported operation");
-            }
-            @Override
-            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
-                return "BEGIN DBMS_RULE_ADM.DROP_EVALUATION_CONTEXT('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
-            }
-        },
-        FILE_GROUP("FILE GROUP") {
-            @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-                LOG.warn("Unable to clean file groups for schema " + dbSupport.quote(schema.getName()) +
-                        ": unsupported operation");
-            }
-            @Override
-            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
-                return "BEGIN DBMS_FILE_GROUP.DROP_FILE_GROUP('" + dbSupport.quote(schema.getName(), objectName) + "'); END;";
             }
         },
 
