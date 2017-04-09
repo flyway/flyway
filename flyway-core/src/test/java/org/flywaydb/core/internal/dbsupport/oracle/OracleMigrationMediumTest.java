@@ -549,6 +549,20 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
+     * Tests support for cleaning together with RULE, RULE SET, EVALUATION CONTEXT, FILE GROUP types.
+     */
+    @Test
+    public void streamsAndRules() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/streams_rules");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
      * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
      */
     @Test(expected = FlywayException.class)

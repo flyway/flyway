@@ -37,6 +37,9 @@ GRANT XDBADMIN TO FLYWAY;
 -- grant for administering advanced rewrite
 GRANT EXECUTE ON SYS.DBMS_ADVANCED_REWRITE TO FLYWAY;
 
+-- grant for administering advanced rewrite
+GRANT EXECUTE ON DBMS_FILE_GROUP TO FLYWAY;
+
 -- create flashback archive if possible
 DECLARE
   l_flg NUMBER;
