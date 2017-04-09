@@ -14,8 +14,9 @@
 -- limitations under the License.
 --
 
-create or replace and compile java source named "JavaTest" as
-public class JavaTest {
-int[] x = { 1, 2, 3 };
-};
+CREATE PACKAGE TEST_CTX_PKG AS
+  DUMMY NUMBER;
+END;
 /
+
+CREATE CONTEXT TEST_CTX USING TEST_CTX_PKG;

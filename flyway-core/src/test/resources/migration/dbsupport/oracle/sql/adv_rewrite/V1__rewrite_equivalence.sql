@@ -14,13 +14,24 @@
 -- limitations under the License.
 --
 
-declare
-  l_prefix VARCHAR2(131) := '"' || SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') || '".';
-begin
-  dbms_scheduler.create_job(
-    job_name    => l_prefix || 'test_job',
-    job_type    => 'PLSQL_BLOCK',
-    job_action  => 'select 1 from dual');
-end;
-/
+CREATE TABLE TEST_TABLE (
+  ID NUMBER PRIMARY KEY,
+  FILLER VARCHAR2(100)
+);
 
+CREATE TABLE TEST_TABLE2 (
+  ID NUMBER PRIMARY KEY,
+  FILLER VARCHAR2(100)
+);
+
+DECLARE
+  l_prefix VARCHAR2(131) := '"' || SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') || '".';
+BEGIN
+  SYS.DBMS_ADVANCED_REWRITE.DECLARE_REWRITE_EQUIVALENCE(
+    NAME             => l_prefix || 'TEST_EQUIVALENCE',
+    SOURCE_STMT      => 'SELECT * FROM TEST_TABLE',
+    DESTINATION_STMT => 'SELECT * FROM TEST_TABLE2',
+    VALIDATE         => FALSE,
+    REWRITE_MODE     => 'TEXT_MATCH');
+END;
+/
