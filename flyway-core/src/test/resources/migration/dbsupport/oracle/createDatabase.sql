@@ -22,8 +22,20 @@ GRANT ALL PRIVILEGES TO FLYWAY_AUX;
 
 ALTER USER FLYWAY GRANT CONNECT THROUGH "flyway_proxy";
 
+-- grants for reading some DBA_ dictionary views
+GRANT SELECT ON DBA_REGISTRY TO FLYWAY;
+GRANT SELECT ON DBA_CONTEXT TO FLYWAY;
+GRANT SELECT ON DBA_XML_SCHEMAS TO FLYWAY;
+--GRANT SELECT ON DBA_DB_LINKS TO FLYWAY;
+
 -- grant for administering queue tables
 GRANT AQ_ADMINISTRATOR_ROLE TO FLYWAY;
+
+-- grant for administering XML schemas
+GRANT XDBADMIN TO FLYWAY;
+
+-- grant for administering advanced rewrite
+GRANT EXECUTE ON SYS.DBMS_ADVANCED_REWRITE TO FLYWAY;
 
 -- create flashback archive if possible
 DECLARE
