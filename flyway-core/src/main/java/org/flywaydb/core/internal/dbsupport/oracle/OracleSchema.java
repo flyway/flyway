@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      *
      * @return {@code true} if it is system, {@code false} if not.
      */
-    protected boolean isSystem() throws SQLException {
+    public boolean isSystem() throws SQLException {
         return dbSupport.getSystemSchemas().contains(name);
     }
 
@@ -62,7 +63,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      *
      * @return {@code true} if it is default, {@code false} if not.
      */
-    protected boolean isDefaultSchemaForUser() throws SQLException {
+    public boolean isDefaultSchemaForUser() throws SQLException {
         return name.equals(dbSupport.getCurrentUserName());
     }
 
@@ -106,31 +107,61 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         }
 
         // Get existing object types in the schema.
-        Set<String> existingObjectTypeNames = getExistingObjectTypeNames();
+        Set<String> objectTypeNames = getObjectTypeNames(jdbcTemplate, dbSupport, this);
 
-        // Define the list of types to drop.
+        // Define the list of types to drop, order is important.
         List<ObjectType> objectTypesToDrop = Arrays.asList(
                 TRIGGER,
                 QUEUE_TABLE,
+                SCHEDULER_CHAIN,
                 SCHEDULER_JOB,
+                SCHEDULER_PROGRAM,
+                SCHEDULE,
+                XML_SCHEMA,
+                MINING_MODEL,
+                REWRITE_EQUIVALENCE,
+                SQL_TRANSLATION_PROFILE,
                 MATERIALIZED_VIEW,
                 MATERIALIZED_VIEW_LOG,
+                DIMENSION,
                 VIEW,
                 DOMAIN_INDEX,
+                DOMAIN_INDEX_TYPE,
                 TABLE,
                 INDEX,
                 CLUSTER,
                 SEQUENCE,
+                OPERATOR,
                 FUNCTION,
                 PROCEDURE,
                 PACKAGE,
+                CONTEXT,
+                LIBRARY,
                 TYPE,
                 SYNONYM,
-                JAVA_SOURCE
+                JAVA_SOURCE,
+                JAVA_CLASS,
+                JAVA_RESOURCE,
+                DATABASE_LINK,
+
+                // yet unsupported types, print warning if found
+                CREDENTIAL,
+                FILE_WATCHER,
+                DATABASE_DESTINATION,
+                SCHEDULER_GROUP,
+                RULE_SET,
+                RULE,
+                EVALUATION_CONTEXT,
+                FILE_GROUP,
+                CUBE,
+                CUBE_DIMENSION,
+                CUBE_BUILD_PROCESS,
+                MEASURE_FOLDER
         );
 
         for (ObjectType objectType : objectTypesToDrop) {
-            if (existingObjectTypeNames.contains(objectType.getName())) {
+            if (objectTypeNames.contains(objectType.getName())) {
+                LOG.debug("Cleaning objects of type " + objectType + " ...");
                 objectType.dropObjects(jdbcTemplate, dbSupport, this);
             }
         }
@@ -138,26 +169,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         if (isDefaultSchemaForUser()) {
             jdbcTemplate.execute("PURGE RECYCLEBIN");
         }
-    }
-
-    /**
-     * Returns the schema's objects grouped in lists by object type (value of ALL_OBJECTS.OBJECT_TYPE column).
-     * @return a map of type names to object name lists
-     * @throws SQLException if retrieving of objects failed
-     */
-    private Set<String> getExistingObjectTypeNames() throws SQLException {
-        String query = "SELECT DISTINCT OBJECT_TYPE FROM ALL_OBJECTS WHERE OWNER = ? " +
-                // Materialized view logs are seen as ordinary tables, look up in another view.
-                "UNION SELECT '" + MATERIALIZED_VIEW_LOG.getName() + "' FROM DUAL WHERE EXISTS(" +
-                "SELECT * FROM ALL_MVIEW_LOGS WHERE LOG_OWNER = ?) " +
-                // Queue tables are seen as ordinary tables, look up in another view.
-                "UNION SELECT '" + QUEUE_TABLE.getName() + "' FROM DUAL WHERE EXISTS(" +
-                "SELECT * FROM ALL_QUEUE_TABLES WHERE OWNER = ?)";
-
-        String[] params = new String[3];
-        Arrays.fill(params, this.getName());
-
-        return new HashSet<String>(jdbcTemplate.queryForStringList(query, params));
     }
 
     /**
@@ -271,6 +282,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                         "SELECT t.TABLE_NAME\n" +
                         "FROM TABLES t\n");
 
+                // Reference partitioned tables should be dropped in child-to-parent order.
                 if (referencePartitionedTablesExist) {
                     tablesQuery.append("  LEFT JOIN ALL_PART_TABLES pt\n" +
                             "    ON t.OWNER = pt.OWNER\n" +
@@ -293,9 +305,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                             "ORDER BY LEVEL DESC");
                 }
 
-                // Count params
-                int n = 1; // ALL_TABLES
-                if (xmlDbAvailable) n += 1; // ALL_XML_TABLES
+                int n = 1 + (xmlDbAvailable ? 1 : 0);
                 String[] params = new String[n];
                 Arrays.fill(params, schema.getName());
 
@@ -318,7 +328,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
         },
 
-        // Materialized view logs, seen as ordinary tables but should be dropped in a special way.
+        // Materialized view logs.
         MATERIALIZED_VIEW_LOG("MATERIALIZED VIEW LOG") {
             @Override
             public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
@@ -355,6 +365,12 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
         },
 
+        // Domain index types.
+        DOMAIN_INDEX_TYPE("INDEXTYPE", "FORCE"),
+
+        // Operators.
+        OPERATOR("OPERATOR", "FORCE"),
+
         // Clusters.
         CLUSTER("CLUSTER", "INCLUDING TABLES CASCADE CONSTRAINTS"),
 
@@ -364,10 +380,21 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         // Materialized views, keep tables as they may be referenced.
         MATERIALIZED_VIEW("MATERIALIZED VIEW", "PRESERVE TABLE"),
 
+        // Dimensions.
+        DIMENSION("DIMENSION") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                return jdbcTemplate.queryForStringList(
+                        "SELECT DIMENSION_NAME FROM ALL_DIMENSIONS WHERE OWNER = ?",
+                        schema.getName()
+                );
+            }
+        },
+
         // Local synonyms.
         SYNONYM("SYNONYM", "FORCE"),
 
-        // Sequences, no filtering for identity sequences, since they get dropped along with master tables..
+        // Sequences, no filtering for identity sequences, since they get dropped along with master tables.
         SEQUENCE("SEQUENCE"),
 
         // Procedures, functions, packages.
@@ -375,24 +402,298 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         FUNCTION("FUNCTION"),
         PACKAGE("PACKAGE"),
 
+        // Contexts, seen in DBA_CONTEXT view, may remain if DBA_CONTEXT is not accessible.
+        CONTEXT("CONTEXT") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                return jdbcTemplate.queryForStringList(
+                        "SELECT NAMESPACE FROM " + dbSupport.dbaOrAll("CONTEXT") + " WHERE SCHEMA = ?",
+                        schema.getName()
+                );
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "DROP " + this.getName() + " " + dbSupport.quote(objectName);
+            }
+        },
+
         // Triggers of all types, should be dropped at first, because invalid DDL triggers may break the whole clean.
         TRIGGER("TRIGGER"),
 
-        // Types, should be dropped at the end.
+        // Types.
         TYPE("TYPE", "FORCE"),
 
-        // Java sources, cause cascade drop of object classes (only those compiled from sources).
+        // Java sources, classes, resources.
         JAVA_SOURCE("JAVA SOURCE"),
+        JAVA_CLASS("JAVA CLASS"),
+        JAVA_RESOURCE("JAVA RESOURCE"),
 
-        // Scheduler jobs.
+        // Libraries.
+        LIBRARY("LIBRARY"),
+
+        // Database links. Only user-owned dblinks can be dropped. Dblinks contain private information (password) and not
+        // always can be re-created, so skip cleaning if the user doesn't have create/drop privileges instead of throwing
+        // an exception.
+        DATABASE_LINK("DATABASE LINK") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                return jdbcTemplate.queryForStringList("SELECT DB_LINK FROM ALL_DB_LINKS WHERE OWNER = ?", schema.getName());
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "DROP " + this.getName() + " " + objectName; // db link name is case-insensitive and needs no owner
+            }
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                if (!schema.isDefaultSchemaForUser()) {
+                    LOG.warn("Unable to clean database links for schema " + dbSupport.quote(schema.getName()) +
+                            " by user \"" + dbSupport.getCurrentUserName() + "\": unsupported operation");
+                    return;
+                }
+                if (!dbSupport.isPrivOrRoleGranted("CREATE DATABASE LINK")) {
+                    LOG.warn("Unable to clean database links for schema " + dbSupport.quote(schema.getName()) +
+                            ": CREATE DATABASE LINK privilege not granted");
+                    return;
+                }
+                super.dropObjects(jdbcTemplate, dbSupport, schema);
+            }
+        },
+
+        // XML schemas.
+        XML_SCHEMA("XML SCHEMA") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                if (!dbSupport.isXmlDbAvailable()) {
+                    return;
+                }
+                super.dropObjects(jdbcTemplate, dbSupport, schema);
+            }
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                return jdbcTemplate.queryForStringList(
+                        "SELECT QUAL_SCHEMA_URL FROM " + dbSupport.dbaOrAll("XML_SCHEMAS") + " WHERE OWNER = ?",
+                        schema.getName()
+                );
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_XMLSCHEMA.DELETESCHEMA('" + objectName + "', DELETE_OPTION => DBMS_XMLSCHEMA.DELETE_CASCADE_FORCE); END;";
+            }
+        },
+
+        // Rewrite equivalences.
+        REWRITE_EQUIVALENCE("REWRITE EQUIVALENCE") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN SYS.DBMS_ADVANCED_REWRITE.DROP_REWRITE_EQUIVALENCE('" + dbSupport.quote(schema.getName(), objectName) + "'); END;";
+            }
+        },
+
+        // SQL translation profiles.
+        SQL_TRANSLATION_PROFILE("SQL TRANSLATION PROFILE") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SQL_TRANSLATOR.DROP_PROFILE('" + dbSupport.quote(schema.getName(), objectName) + "'); END;";
+            }
+        },
+
+        // Data mining models, have related objects, should be dropped prior to tables. In Oracle 10g only user-owned
+        // models can be dropped.
+        MINING_MODEL("MINING MODEL") {
+            @Override
+            public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                if (dbSupport.getMajorVersion() >= 11) {
+                    return super.getObjectNames(jdbcTemplate, dbSupport, schema);
+                }
+                if (schema.isDefaultSchemaForUser() && dbSupport.isDataMiningAvailable()) {
+                    return jdbcTemplate.queryForStringList("SELECT NAME FROM DM_USER_MODELS");
+                }
+                return Collections.emptyList();
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) throws SQLException {
+                return "BEGIN DBMS_DATA_MINING.DROP_MODEL('" +
+                        (dbSupport.getMajorVersion() >= 11 ? dbSupport.quote(schema.getName(), objectName) : objectName) +
+                        "'); END;";
+            }
+        },
+
+        // Scheduler objects.
         SCHEDULER_JOB("JOB") {
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "BEGIN DBMS_SCHEDULER.DROP_JOB('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
             }
-        }
-        // TODO: to be extended
-        ;
+        },
+        SCHEDULER_PROGRAM("PROGRAM") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SCHEDULER.DROP_PROGRAM('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+        SCHEDULE("SCHEDULE") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SCHEDULER.DROP_SCHEDULE('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+        SCHEDULER_CHAIN("CHAIN") {
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SCHEDULER.DROP_CHAIN('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+
+        /*** Below are yet unsupported object types. They should be dropped explicitly in callbacks if used. ***/
+
+        // The rest scheduler objects - unsupported.
+        CREDENTIAL("CREDENTIAL") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean credentials for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SCHEDULER.DROP_CREDENTIAL('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+        FILE_WATCHER("FILE WATCHER") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean file watchers for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SCHEDULER.DROP_FILE_WATCHER('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+        DATABASE_DESTINATION("DESTINATION") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean database destinations for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SCHEDULER.DROP_DATABASE_DESTINATION('" + dbSupport.quote(schema.getName(), objectName) + "'); END;";
+            }
+        },
+        SCHEDULER_GROUP("SCHEDULER GROUP") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean scheduler groups for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_SCHEDULER.DROP_GROUP('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+
+        // Streams objects - unsupported.
+        RULE_SET("RULE SET") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean rule sets for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_RULE_ADM.DROP_RULE_SET('" + dbSupport.quote(schema.getName(), objectName) + "', DELETE_RULES => FALSE); END;";
+            }
+        },
+        RULE("RULE") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean rules for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_RULE_ADM.DROP_RULE('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+        EVALUATION_CONTEXT("EVALUATION CONTEXT") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean evaluation contexts for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_RULE_ADM.DROP_EVALUATION_CONTEXT('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
+            }
+        },
+        FILE_GROUP("FILE GROUP") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean file groups for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+            @Override
+            public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+                return "BEGIN DBMS_FILE_GROUP.DROP_FILE_GROUP('" + dbSupport.quote(schema.getName(), objectName) + "'); END;";
+            }
+        },
+
+        // OLAP objects - unsupported.
+        CUBE("CUBE") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean file groups for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+        },
+        CUBE_DIMENSION("CUBE DIMENSION") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean file groups for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+        },
+        CUBE_BUILD_PROCESS("CUBE BUILD PROCESS") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean file groups for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+        },
+        MEASURE_FOLDER("MEASURE FOLDER") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean file groups for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+        },
+
+        // Undocumented objects.
+        ASSEMBLY("ASSEMBLY") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean asseblies for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+        },
+        JAVA_DATA("JAVA DATA") {
+            @Override
+            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                LOG.warn("Unable to clean java data objects for schema " + dbSupport.quote(schema.getName()) +
+                        ": unsupported operation");
+            }
+        },
+
+        // SYS-owned objects, cannot be dropped when a schema gets cleaned, simply ignore them.
+        CAPTURE("CAPTURE"),
+        APPLY("APPLY"),
+        DIRECTORY("DIRECTORY"),
+        RESOURCE_PLAN("RESOURCE PLAN"),
+        CONSUMER_GROUP("CONSUMER GROUP"),
+        JOB_CLASS("JOB CLASS"),
+        WINDOWS("WINDOW"),
+        EDITION("EDITION"),
+        AGENT_DESTINATION("DESTINATION");
 
 
         private final String name;
@@ -411,6 +712,15 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             return name;
         }
 
+        @Override
+        public String toString() {
+            return super.toString().replace('_', ' ');
+        }
+
+        /**
+         * Returns the list of object names of this type.
+         * @throws SQLException if retrieving of objects failed.
+         */
         public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
             return jdbcTemplate.queryForStringList(
                     "SELECT OBJECT_NAME FROM ALL_OBJECTS WHERE OWNER = ? AND OBJECT_TYPE = ?",
@@ -418,15 +728,71 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             );
         }
 
-        public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
+        /**
+         * Builds the drop statement for the specified object.
+         * @throws SQLException if building of the statement failed.
+         */
+        public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) throws SQLException {
             return "DROP " + this.getName() + " " + dbSupport.quote(schema.getName(), objectName) +
                     (StringUtils.hasText(dropOptions) ? " " + dropOptions : "");
         }
 
+        /**
+         * Drops all objects of this type.
+         * @throws SQLException if cleaning failed.
+         */
         public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
             for (String objectName : getObjectNames(jdbcTemplate, dbSupport, schema)) {
                 jdbcTemplate.execute(generateDropStatement(jdbcTemplate, dbSupport, schema, objectName));
             }
         }
+
+        /**
+         * Returns the schema's object types.
+         * @return a set of object type names.
+         * @throws SQLException if retrieving of object types failed.
+         */
+        public static Set<String> getObjectTypeNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+            boolean xmlDbAvailable = dbSupport.isXmlDbAvailable();
+            boolean dataMining10gForCurrentUser =
+                    schema.isDefaultSchemaForUser()
+                    && (dbSupport.getMajorVersion() < 11)
+                    && dbSupport.isDataMiningAvailable();
+
+            String query =
+                    // Most object types can be correctly selected from DBA_/ALL_OBJECTS.
+                    "SELECT DISTINCT OBJECT_TYPE FROM " + dbSupport.dbaOrAll("OBJECTS") + " WHERE OWNER = ? " +
+                            // Materialized view logs.
+                            "UNION SELECT '" + MATERIALIZED_VIEW_LOG.getName() + "' FROM DUAL WHERE EXISTS(" +
+                            "SELECT * FROM ALL_MVIEW_LOGS WHERE LOG_OWNER = ?) " +
+                            // Dimensions.
+                            "UNION SELECT '" + DIMENSION.getName() + "' FROM DUAL WHERE EXISTS(" +
+                            "SELECT * FROM ALL_DIMENSIONS WHERE OWNER = ?) " +
+                            // Queue tables.
+                            "UNION SELECT '" + QUEUE_TABLE.getName() + "' FROM DUAL WHERE EXISTS(" +
+                            "SELECT * FROM ALL_QUEUE_TABLES WHERE OWNER = ?) " +
+                            // Database links.
+                            "UNION SELECT '" + DATABASE_LINK.getName() + "' FROM DUAL WHERE EXISTS(" +
+                            "SELECT * FROM " + dbSupport.dbaOrAll("DB_LINKS") + " WHERE OWNER = ?) " +
+                            // Contexts.
+                            "UNION SELECT '" + CONTEXT.getName() + "' FROM DUAL WHERE EXISTS(" +
+                            "SELECT * FROM " + dbSupport.dbaOrAll("CONTEXT") + " WHERE SCHEMA = ?) " +
+                            // XML schemas.
+                            (xmlDbAvailable
+                                    ? "UNION SELECT '" + XML_SCHEMA.getName() + "' FROM DUAL WHERE EXISTS(" +
+                                    "SELECT * FROM " + dbSupport.dbaOrAll("XML_SCHEMAS") + " WHERE OWNER = ?) "
+                                    : "") +
+                            (dataMining10gForCurrentUser
+                                    ? "UNION SELECT '" + MINING_MODEL.getName() + "' FROM DUAL WHERE EXISTS(" +
+                                    "SELECT * FROM DM_USER_MODELS) "
+                                    : "");
+
+            int n = 6 + (xmlDbAvailable ? 1 : 0);
+            String[] params = new String[n];
+            Arrays.fill(params, schema.getName());
+
+            return new HashSet<String>(jdbcTemplate.queryForStringList(query, params));
+        }
+
     }
 }

@@ -123,14 +123,24 @@ public class OracleDbSupport extends DbSupport {
     }
 
     /**
-     * Checks whether DBA_ static data dictionary is accessible or not. This simply checks if the current user has
-     * privileges to see the whole DBA dictionary, not some particular views.
+     * Returns the major version number of the database.
      *
-     * @return {@code true} if it is accessible, {@code false} if not.
+     * @return the major version number as int.
+     * @throws SQLException when the query execution failed.
      */
-    public boolean isDbaDataDictAccessible() throws SQLException {
-        return queryReturnsRows("SELECT 1 FROM SESSION_PRIVS WHERE PRIVILEGE = 'SELECT ANY DICTIONARY' UNION ALL " +
-                "SELECT 1 FROM SESSION_ROLES WHERE ROLE = 'SELECT_CATALOG_ROLE'");
+    public int getMajorVersion() throws SQLException {
+        return jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+    }
+
+    /**
+     * Checks whether the specified privilege or role is granted to the current user.
+     *
+     * @return {@code true} if it is granted, {@code false} if not.
+     * @throws SQLException if the check failed.
+     */
+    public boolean isPrivOrRoleGranted(String name) throws SQLException {
+        return queryReturnsRows("SELECT 1 FROM SESSION_PRIVS WHERE PRIVILEGE = ? UNION ALL " +
+                "SELECT 1 FROM SESSION_ROLES WHERE ROLE = ?", name, name);
     }
 
     /**
@@ -140,9 +150,10 @@ public class OracleDbSupport extends DbSupport {
      * @param owner the schema name, unquoted case-sensitive.
      * @param name  the data dictionary view name to check, unquoted case-sensitive.
      * @return {@code true} if it is accessible, {@code false} if not.
+     * @throws SQLException if the check failed.
      */
     public boolean isDataDictViewAccessible(String owner, String name) throws SQLException {
-        return queryReturnsRows("SELECT * FROM ALL_TAB_PRIVS WHERE TABLE_SCHEMA = ? AND TABLE_NAME= ?" +
+        return queryReturnsRows("SELECT * FROM ALL_TAB_PRIVS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?" +
                 " AND PRIVILEGE = 'SELECT'", owner, name);
     }
 
@@ -151,9 +162,23 @@ public class OracleDbSupport extends DbSupport {
      *
      * @param name the data dictionary view name to check, unquoted case-sensitive.
      * @return {@code true} if it is accessible, {@code false} if not.
+     * @throws SQLException if the check failed.
      */
     public boolean isDataDictViewAccessible(String name) throws SQLException {
         return isDataDictViewAccessible("SYS", name);
+    }
+
+    /**
+     * Returns the specified data dictionary name prefixed with DBA_ or ALL_ depending on its accessibility.
+     *
+     * @param baseName the data dictionary view base name, unquoted case-sensitive, e.g. OBJECTS, TABLES.
+     * @return the full name of the view with the proper prefix.
+     * @throws SQLException if the check failed.
+     */
+    public String dbaOrAll(String baseName) throws SQLException {
+        return isPrivOrRoleGranted("SELECT ANY DICTIONARY") || isDataDictViewAccessible("DBA_" + baseName)
+                ? "DBA_" + baseName
+                : "ALL_" + baseName;
     }
 
     /**
@@ -182,6 +207,15 @@ public class OracleDbSupport extends DbSupport {
      */
     public boolean isXmlDbAvailable() throws SQLException {
         return isDataDictViewAccessible("ALL_XML_TABLES");
+    }
+
+    /**
+     * Checks whether Data Mining option is available or not.
+     * @return {@code true} if it is available, {@code false} if not.
+     * @throws SQLException when checking availability of the feature failed.
+     */
+    public boolean isDataMiningAvailable() throws SQLException {
+        return getAvailableOptions().contains("Data Mining");
     }
 
     /**
@@ -237,7 +271,7 @@ public class OracleDbSupport extends DbSupport {
 
         // APEX has a schema with a different name for each version, so get it from ALL_USERS. In addition, starting
         // from Oracle 12.1, there is a special column in ALL_USERS that marks Oracle-maintained schemas.
-        boolean oracle12cOrHigher = jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 12;
+        boolean oracle12cOrHigher = getMajorVersion() >= 12;
         result.addAll(jdbcTemplate.queryForStringList("SELECT USERNAME FROM ALL_USERS " +
                 "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
                 (oracle12cOrHigher ? " OR ORACLE_MAINTAINED = 'Y'" : "")));
