@@ -26,6 +26,7 @@ ALTER USER FLYWAY GRANT CONNECT THROUGH "flyway_proxy";
 GRANT SELECT ON DBA_REGISTRY TO FLYWAY;
 GRANT SELECT ON DBA_CONTEXT TO FLYWAY;
 GRANT SELECT ON DBA_XML_SCHEMAS TO FLYWAY;
+--GRANT SELECT ON DBA_OBJECTS TO FLYWAY;
 --GRANT SELECT ON DBA_DB_LINKS TO FLYWAY;
 
 -- grant for administering queue tables
@@ -37,7 +38,7 @@ GRANT XDBADMIN TO FLYWAY;
 -- grant for administering advanced rewrite
 GRANT EXECUTE ON SYS.DBMS_ADVANCED_REWRITE TO FLYWAY;
 
--- grant for administering advanced rewrite
+-- grant for administering file groups
 GRANT EXECUTE ON DBMS_FILE_GROUP TO FLYWAY;
 
 -- create flashback archive if possible

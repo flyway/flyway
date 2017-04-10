@@ -88,14 +88,18 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         return "migration/quote";
     }
 
-    private void assumeOracleVersionNotLessThan(int expectedVersion) {
-        int version;
+    private void assumeOracleVersionNotLessThan(int expectedMajorVersion, int expectedMinorVersion) {
+        int majorVersion;
+        int minorVersion;
         try {
-            version = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+            majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+            minorVersion = jdbcTemplate.getMetaData().getDatabaseMinorVersion();
         } catch (SQLException e) {
             throw new FlywayException(e);
         }
-        assumeTrue("Oracle major version is " + expectedVersion + " or higher", version >= expectedVersion);
+        assumeTrue("Oracle version is " + expectedMajorVersion + "." + expectedMinorVersion + " or higher",
+                majorVersion == expectedMajorVersion && minorVersion >= expectedMinorVersion ||
+                        majorVersion > expectedMajorVersion);
     }
 
     private enum OracleEdition {XE, SE, EE}
@@ -246,10 +250,10 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests cleaning up after DBMS_SCHEDULE.CREATE_JOB
+     * Tests cleaning up with Scheduler objects.
      */
     @Test
-    public void createSchedulerObjects() throws Exception {
+    public void schedulerObjects() throws Exception {
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/scheduler");
@@ -257,6 +261,21 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         assertTrue(schedJobExists("FLYWAY_AUX", "TEST_JOB"));
         flyway.clean();
         assertFalse(schedJobExists("FLYWAY_AUX", "TEST_JOB"));
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests cleaning up with Scheduler 11g enhancements.
+     */
+    @Test
+    public void scheduler11gEnhancement() throws Exception {
+        assumeOracleVersionNotLessThan(11, 2);
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/scheduler11_2");
+        flyway.migrate();
+        flyway.clean();
         flyway.migrate();
         flyway.clean();
     }
@@ -436,7 +455,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void xml() throws FlywayException {
-        assumeOracleVersionNotLessThan(11);
+        assumeOracleVersionNotLessThan(11, 1);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/xml");
@@ -452,7 +471,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void flashback() throws FlywayException {
-        assumeOracleVersionNotLessThan(11);
+        assumeOracleVersionNotLessThan(11, 1);
         assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -468,7 +487,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void referencePartitionedTable() throws FlywayException {
-        assumeOracleVersionNotLessThan(11);
+        assumeOracleVersionNotLessThan(11, 1);
         assumeOracleEditionNotLessThan(OracleEdition.EE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -591,6 +610,21 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/streams_rules");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with RULE, RULE SET, EVALUATION CONTEXT, FILE GROUP types.
+     */
+    @Test
+    public void sqlTranslator() throws FlywayException {
+        assumeOracleVersionNotLessThan(12, 1);
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/sql_translator");
         flyway.migrate();
         flyway.clean();
         flyway.migrate();

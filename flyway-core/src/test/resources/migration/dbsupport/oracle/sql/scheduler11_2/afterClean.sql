@@ -9,15 +9,13 @@
 --
 
 declare
-  dup_dblink_name exception;
-  pragma exception_init(dup_dblink_name, -2011);
+  l_owner varchar2(128) := SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA');
 begin
-  execute immediate q'[
-    CREATE DATABASE LINK TEST_DBLINK
-    CONNECT TO REMOTE_USER IDENTIFIED BY R3m0t3_pa$$w0rd
-    USING 'REMOTE_DB'
-  ]';
-exception
-  when dup_dblink_name then null;
+  for r in (select * from all_scheduler_credentials where owner = l_owner) loop
+    dbms_scheduler.drop_credential(
+      credential_name => '"' || l_owner || '"."' || r.credential_name || '"'
+    );
+  end loop;
 end;
 /
+
