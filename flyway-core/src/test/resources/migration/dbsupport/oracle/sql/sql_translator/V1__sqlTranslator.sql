@@ -1,4 +1,10 @@
 --
+-- Copyright 2010-2017 Boxfuse GmbH
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
 --         http://www.apache.org/licenses/LICENSE-2.0
 --
 -- Unless required by applicable law or agreed to in writing, software
@@ -9,15 +15,9 @@
 --
 
 declare
-  dup_dblink_name exception;
-  pragma exception_init(dup_dblink_name, -2011);
+  l_prefix VARCHAR2(131) := '"' || SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') || '".';
 begin
-  execute immediate q'[
-    CREATE DATABASE LINK TEST_DBLINK
-    CONNECT TO REMOTE_USER IDENTIFIED BY R3m0t3_pa$$w0rd
-    USING 'REMOTE_DB'
-  ]';
-exception
-  when dup_dblink_name then null;
+  dbms_sql_translator.create_profile(
+    profile_name => l_prefix || 'test_sql_tr_profile');
 end;
 /

@@ -133,6 +133,16 @@ public class OracleDbSupport extends DbSupport {
     }
 
     /**
+     * Returns the minor version number of the database.
+     *
+     * @return the minor version number as int.
+     * @throws SQLException when the query execution failed.
+     */
+    public int getMinorVersion() throws SQLException {
+        return jdbcTemplate.getMetaData().getDatabaseMinorVersion();
+    }
+
+    /**
      * Checks whether the specified privilege or role is granted to the current user.
      *
      * @return {@code true} if it is granted, {@code false} if not.
