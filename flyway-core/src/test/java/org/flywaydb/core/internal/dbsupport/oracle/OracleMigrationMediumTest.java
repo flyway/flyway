@@ -266,10 +266,10 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests cleaning up with Scheduler 11g enhancements.
+     * Tests cleaning up with Scheduler 11.2 enhancements.
      */
     @Test
-    public void scheduler11gEnhancement() throws Exception {
+    public void scheduler112Enhancement() throws Exception {
         assumeOracleVersionNotLessThan(11, 2);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -617,7 +617,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests support for cleaning together with RULE, RULE SET, EVALUATION CONTEXT, FILE GROUP types.
+     * Tests support for cleaning together with SQL TRANSLATION PROFILE type.
      */
     @Test
     public void sqlTranslator() throws FlywayException {
