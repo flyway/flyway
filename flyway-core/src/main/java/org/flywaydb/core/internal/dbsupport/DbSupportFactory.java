@@ -19,6 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
+import org.flywaydb.core.internal.dbsupport.greenplum.GreenPlumDbSupport;
 import org.flywaydb.core.internal.dbsupport.enterprisedb.EnterpriseDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
@@ -141,6 +142,10 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("HDB")) {
             return new SapHanaDbSupport(connection);
+        }
+       
+        if (databaseProductName.startsWith("Greenplum")) {
+            return new GreenPlumDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

@@ -119,6 +119,11 @@
             <id>flyway-repo-private</id>
             <url>s3://flyway-repo/release</url>
         </repository>
+        <repository>
+            <id>git-tzolov</id>
+            <name>tzolov's Git based repo</name>
+            <url>https://github.com/tzolov/maven-repo/raw/master/</url>
+        </repository>
     </repositories>
 
     <properties>
@@ -297,6 +302,12 @@
                 <groupId>com.vertica</groupId>
                 <artifactId>vertica-jdbc</artifactId>
                 <version>7.0.0-0</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.pivotal.jdbc</groupId>
+                <artifactId>greenplumdriver</artifactId>
+                <version>5.1.1</version>
                 <optional>true</optional>
             </dependency>
             <dependency>

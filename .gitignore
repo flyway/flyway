@@ -12,3 +12,4 @@ target
 .idea
 .gradle
 *.h2.db
+.DS_Store

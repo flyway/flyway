@@ -504,5 +504,28 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>GreenPlumDBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.pivotal.jdbc</groupId>
+                    <artifactId>greenplumdriver</artifactId>
+                    <scope>test</scope>
+                </dependency>              
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$EmbeddedDB,org.flywaydb.core.DbCategory$PostgreSQL,org.flywaydb.core.DbCategory$MySQL,org.flywaydb.core.DbCategory$MariaDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>

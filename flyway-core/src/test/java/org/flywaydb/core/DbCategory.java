@@ -27,24 +27,29 @@ public class DbCategory {
     public interface CommercialDB extends InstallableDB {}
     public interface ContributorSupportedDB extends CommercialDB {}
 
+    // Embedded databases support maintained by the core Flyway team
     public interface Derby extends EmbeddedDB {}
     public interface H2 extends EmbeddedDB {}
     public interface HSQL extends EmbeddedDB {}
     public interface SQLite extends EmbeddedDB {}
 
+    // Open-source databases support maintained by the core Flyway team
     public interface MySQL extends OpenSourceDB {}
     public interface MariaDB extends OpenSourceDB {}
     public interface PostgreSQL extends OpenSourceDB {}
 
+    // Commercial databases support maintained by the core Flyway team
     public interface DB2 extends CommercialDB {}
     public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
 
+    // Other databases support maintained by the third party contributors
     public interface EnterpriseDB extends ContributorSupportedDB {}
     public interface Phoenix extends ContributorSupportedDB {}
     public interface GoogleCloudSQL extends ContributorSupportedDB {}
     public interface SapHana extends ContributorSupportedDB {}
     public interface DB2zOS extends ContributorSupportedDB {}
+    public interface GreenPlum extends ContributorSupportedDB {}
     public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}
     public interface SolidDB extends ContributorSupportedDB {}

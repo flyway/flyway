@@ -393,8 +393,29 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      *
      * @parameter property="flyway.allowMixedMigrations"
+     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     private boolean allowMixedMigrations = flyway.isAllowMixedMigrations();
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>
+     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * <p>Also configurable with Maven or System Property: ${flyway.mixed}</p>
+     *
+     * @parameter property="flyway.mixed"
+     */
+    private boolean mixed = flyway.isMixed();
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     * <p>{@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.group}</p>
+     *
+     * @parameter property="flyway.group"
+     */
+    private boolean group = flyway.isGroup();
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
@@ -529,7 +550,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
             flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
             flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
-            flyway.setAllowMixedMigrations(allowMixedMigrations);
+            if (allowMixedMigrations) {
+                flyway.setAllowMixedMigrations(allowMixedMigrations);
+            }
+            flyway.setMixed(mixed);
+            flyway.setGroup(group);
             flyway.setInstalledBy(installedBy);
             flyway.setCleanOnValidationError(cleanOnValidationError);
             flyway.setCleanDisabled(cleanDisabled);
