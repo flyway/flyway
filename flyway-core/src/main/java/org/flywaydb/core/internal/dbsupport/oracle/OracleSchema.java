@@ -109,8 +109,9 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         // Get existing object types in the schema.
         Set<String> objectTypeNames = getObjectTypeNames(jdbcTemplate, dbSupport, this);
 
-        // Define the list of types to drop, order is important.
-        List<ObjectType> objectTypesToDrop = Arrays.asList(
+        // Define the list of types to process, order is important.
+        List<ObjectType> objectTypesToClean = Arrays.asList(
+                // Types to drop.
                 TRIGGER,
                 QUEUE_TABLE,
                 FILE_WATCHER,
@@ -148,11 +149,11 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                 JAVA_CLASS,
                 JAVA_RESOURCE,
 
-                // objects with sensitive information, skip intentionally, print warning if found.
+                // Object types with sensitive information (passwords), skip intentionally, print warning if found.
                 DATABASE_LINK,
                 CREDENTIAL,
 
-                // unsupported types, print warning if found
+                // Unsupported types, print warning if found
                 DATABASE_DESTINATION,
                 SCHEDULER_GROUP,
                 CUBE,
@@ -160,12 +161,12 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                 CUBE_BUILD_PROCESS,
                 MEASURE_FOLDER,
 
-                // undocumented types, print warning if found
+                // Undocumented types, print warning if found
                 ASSEMBLY,
                 JAVA_DATA
         );
 
-        for (ObjectType objectType : objectTypesToDrop) {
+        for (ObjectType objectType : objectTypesToClean) {
             if (objectTypeNames.contains(objectType.getName())) {
                 LOG.debug("Cleaning objects of type " + objectType + " ...");
                 objectType.dropObjects(jdbcTemplate, dbSupport, this);
@@ -419,7 +420,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
-                return "DROP " + this.getName() + " " + dbSupport.quote(objectName);
+                return "DROP " + this.getName() + " " + dbSupport.quote(objectName); // no owner
             }
         },
 
@@ -440,14 +441,10 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         // XML schemas.
         XML_SCHEMA("XML SCHEMA") {
             @Override
-            public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-                if (!dbSupport.isXmlDbAvailable()) {
-                    return;
-                }
-                super.dropObjects(jdbcTemplate, dbSupport, schema);
-            }
-            @Override
             public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
+                if (!dbSupport.isXmlDbAvailable()) {
+                    return Collections.emptyList();
+                }
                 return jdbcTemplate.queryForStringList(
                         "SELECT QUAL_SCHEMA_URL FROM " + dbSupport.dbaOrAll("XML_SCHEMAS") + " WHERE OWNER = ?",
                         schema.getName()
@@ -591,7 +588,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         DATABASE_DESTINATION("DESTINATION") {
             @Override
             public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-                super.warnUnsupported(dbSupport.quote(schema.getName()), "database destinations");
+                super.warnUnsupported(dbSupport.quote(schema.getName()));
             }
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
@@ -662,7 +659,14 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         UNIFIED_AUDIT_POLICY("UNIFIED AUDIT POLICY");
 
 
+        /**
+         * The name of the type as it mentioned in the Data Dictionary and the DROP statement.
+         */
         private final String name;
+
+        /**
+         * The extra options used in the DROP statement to enforce the operation.
+         */
         private final String dropOptions;
 
         ObjectType(String name, String dropOptions) {
@@ -695,8 +699,8 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         }
 
         /**
-         * Builds the drop statement for the specified object.
-         * @throws SQLException if building of the statement failed.
+         * Generates the drop statement for the specified object.
+         * @throws SQLException if generating of the statement failed.
          */
         public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) throws SQLException {
             return "DROP " + this.getName() + " " + dbSupport.quote(schema.getName(), objectName) +
@@ -704,7 +708,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         }
 
         /**
-         * Drops all objects of this type.
+         * Drops all objects of this type in the specified schema.
          * @throws SQLException if cleaning failed.
          */
         public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
@@ -713,17 +717,16 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
         }
 
-        private void warnUnsupported(String schemaNameQuoted, String typeNameLowercasePlural) {
-            LOG.warn("Unable to clean " + typeNameLowercasePlural + " for schema " + schemaNameQuoted +
-                    ": unsupported operation");
+        private void warnUnsupported(String schemaName, String typeDesc) {
+            LOG.warn("Unable to clean " + typeDesc + " for schema " + schemaName + ": unsupported operation");
         }
 
-        private void warnUnsupported(String schemaNameQuoted) {
-            warnUnsupported(schemaNameQuoted, this.toString().toLowerCase() + "s");
+        private void warnUnsupported(String schemaName) {
+            warnUnsupported(schemaName, this.toString().toLowerCase() + "s");
         }
 
         /**
-         * Returns the schema's object types.
+         * Returns the schema's existing object types.
          * @return a set of object type names.
          * @throws SQLException if retrieving of object types failed.
          */
@@ -732,7 +735,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             boolean xmlDbAvailable = dbSupport.isXmlDbAvailable();
             boolean dataMining10gForCurrentUser =
                     schema.isDefaultSchemaForUser()
-                    && (oracleMajorVersion < 11)
+                    && oracleMajorVersion < 11
                     && dbSupport.isDataMiningAvailable();
             boolean oracle11gOrHigher = oracleMajorVersion >= 11;
 
