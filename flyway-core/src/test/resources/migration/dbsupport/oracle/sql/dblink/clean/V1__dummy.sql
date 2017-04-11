@@ -8,16 +8,5 @@
 -- limitations under the License.
 --
 
-declare
-  dup_dblink_name exception;
-  pragma exception_init(dup_dblink_name, -2011);
-begin
-  execute immediate q'[
-    CREATE DATABASE LINK TEST_DBLINK
-    CONNECT TO REMOTE_USER IDENTIFIED BY R3m0t3_pa$$w0rd
-    USING 'REMOTE_DB'
-  ]';
-exception
-  when dup_dblink_name then null;
-end;
+begin null; end;
 /

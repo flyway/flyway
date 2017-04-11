@@ -232,15 +232,17 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Tests cleaning up with Scheduler 11.2 enhancements.
+     * This is also to ensure that skipping CREDENTIALs doesn't break migrations.
      */
     @Test
     public void scheduler112Enhancement() throws Exception {
         assumeOracleVersionNotLessThan(11, 2);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
-        flyway.setLocations("migration/dbsupport/oracle/sql/scheduler11_2");
+        flyway.setLocations("migration/dbsupport/oracle/sql/scheduler11_2/create");
         flyway.migrate();
         flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/scheduler11_2/clean");
         flyway.migrate();
         flyway.clean();
     }
@@ -556,13 +558,15 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
     /**
      * Tests support for cleaning together with DATABASE LINK type.
+     * This is to ensure that skipping DATABASE LINKs doesn't break migrations.
      */
     @Test
     public void dbLink() throws FlywayException {
         flyway.clean();
-        flyway.setLocations("migration/dbsupport/oracle/sql/dblink");
+        flyway.setLocations("migration/dbsupport/oracle/sql/dblink/create");
         flyway.migrate();
         flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/dblink/clean");
         flyway.migrate();
         flyway.clean();
     }

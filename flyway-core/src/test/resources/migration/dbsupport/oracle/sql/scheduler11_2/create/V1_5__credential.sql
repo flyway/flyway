@@ -16,14 +16,10 @@
 
 declare
   l_prefix VARCHAR2(131) := '"' || SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') || '".';
-  already_exists exception;
-  pragma exception_init(already_exists, -27477);
 begin
   dbms_scheduler.create_credential(
     credential_name => l_prefix || 'TEST_CREDENTIAL',
     username        => 'test_user',
     password        => 't3$t_p@$$w0rd');
-exception
-  when already_exists then null;
 end;
 /
