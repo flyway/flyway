@@ -43,6 +43,7 @@ import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
@@ -74,7 +75,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
     protected void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
                 dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
-                new Location(getBasedir() + "/default"),
+                new Locations(getBasedir() + "/default"),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 FlywayConfigurationForTests.create());
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();

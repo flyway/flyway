@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.Connection;

@@ -21,17 +21,15 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.MigrationInfoProvider;
+import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
-import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.Pair;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.resolver.jdbc.JdbcMigrationExecutor;
+import org.flywaydb.core.internal.util.*;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.util.ArrayList;
@@ -45,9 +43,9 @@ import java.util.List;
  */
 public class SpringJdbcMigrationResolver implements MigrationResolver {
     /**
-     * The base package on the classpath where to migrations are located.
+     * The base packages on the classpath where to migrations are located.
      */
-    private final Location location;
+    private final Locations locations;
 
     /**
      * The Scanner to use.
@@ -62,24 +60,32 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
     /**
      * Creates a new instance.
      *
-     * @param location      The base package on the classpath where to migrations are located.
+     * @param locations     The base packages on the classpath where to migrations are located.
      * @param scanner       The Scanner for loading migrations on the classpath.
      * @param configuration The configuration to inject (if necessary) in the migration classes.
      */
-    public SpringJdbcMigrationResolver(Scanner scanner, Location location, FlywayConfiguration configuration) {
-        this.location = location;
+    public SpringJdbcMigrationResolver(Scanner scanner, Locations locations, FlywayConfiguration configuration) {
+        this.locations = locations;
         this.scanner = scanner;
         this.configuration = configuration;
     }
 
     @Override
-    public Collection<ResolvedMigration> resolveMigrations() {
+    public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        if (!location.isClassPath()) {
-            return migrations;
+        for (Location location : locations.getLocations()) {
+            if (!location.isClassPath()) {
+                continue;
+            }
+            resolveMigrationsForSingleLocation(location, migrations);
         }
 
+        Collections.sort(migrations, new ResolvedMigrationComparator());
+        return migrations;
+    }
+
+    protected void resolveMigrationsForSingleLocation(Location location, List<ResolvedMigration> migrations) {
         try {
             Class<?>[] classes = scanner.scanForClasses(location, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
@@ -95,9 +101,6 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         } catch (Exception e) {
             throw new FlywayException("Unable to resolve Spring Jdbc Java migrations in location: " + location, e);
         }
-
-        Collections.sort(migrations, new ResolvedMigrationComparator());
-        return migrations;
     }
 
     /**

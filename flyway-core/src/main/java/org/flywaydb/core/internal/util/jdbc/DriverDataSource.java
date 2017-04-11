@@ -87,6 +87,20 @@ public class DriverDataSource implements DataSource {
      * @param url         The JDBC URL to use for connecting through the Driver. (required)
      * @param user        The JDBC user to use for connecting through the Driver.
      * @param password    The JDBC password to use for connecting through the Driver.
+     * @throws FlywayException when the datasource could not be created.
+     */
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password) throws FlywayException {
+        this(classLoader, driverClass, url, user, password, new Properties());
+    }
+
+    /**
+     * Creates a new DriverDataSource.
+     *
+     * @param classLoader The ClassLoader to use.
+     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
+     * @param url         The JDBC URL to use for connecting through the Driver. (required)
+     * @param user        The JDBC user to use for connecting through the Driver.
+     * @param password    The JDBC password to use for connecting through the Driver.
      * @param props       The properties to pass to the connection.
      * @param initSqls    The (optional) sql statements to execute to initialize a connection immediately after obtaining it.
      * @throws FlywayException when the datasource could not be created.
@@ -312,6 +326,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:sap:")) {
             return "com.sap.db.jdbc.Driver";
+        }
+        
+        if (url.startsWith("jdbc:pivotal:greenplum:")) {
+            return "com.pivotal.jdbc.GreenplumDriver";
         }
 
         return null;

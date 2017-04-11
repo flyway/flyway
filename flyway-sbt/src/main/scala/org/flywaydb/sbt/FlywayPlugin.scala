@@ -80,6 +80,8 @@ object FlywayPlugin extends AutoPlugin {
     val flywayBaselineOnMigrate = settingKey[Boolean]("Whether to automatically call baseline when migrate is executed against a non-empty schema with no metadata table. This schema will then be baselined with the {@code baselineVersion} before executing the migrations. Only migrations above {@code baselineVersion} will then be applied. This is useful for initial Flyway production deployments on projects with an existing DB. Be careful when enabling this as it removes the safety net that ensures Flyway does not migrate the wrong database in case of a configuration mistake! (default: {@code false})")
     val flywayValidateOnMigrate = settingKey[Boolean]("Whether to automatically call validate or not when running migrate. (default: true)")
     val flywayAllowMixedMigrations = settingKey[Boolean]("Whether to allow mixing transactional and non-transactional statements within the same migration. (default: false)")
+    val flywayMixed = settingKey[Boolean]("Whether to allow mixing transactional and non-transactional statements within the same migration. (default: false)")
+    val flywayGroup = settingKey[Boolean]("Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions). (default: false)")
     val flywayInstalledBy = settingKey[String]("The username that will be recorded in the metadata table as having applied the migration. (default: null)")
 
     //*********************
@@ -109,17 +111,22 @@ object FlywayPlugin extends AutoPlugin {
                                             cleanOnValidationError: Boolean, cleanDisabled: Boolean, target: String, outOfOrder: Boolean,
                                             callbacks: Seq[String], skipDefaultCallbacks: Boolean)
   private case class ConfigSqlMigration(sqlMigrationPrefix: String, repeatableSqlMigrationPrefix: String, sqlMigrationSeparator: String, sqlMigrationSuffix: String)
-  private case class ConfigMigrate(ignoreMissingMigrations: Boolean, ignoreFutureMigrations: Boolean, ignoreFailedFutureMigration: Boolean, placeholderReplacement: Boolean, placeholders: Map[String, String],
-                                   placeholderPrefix: String, placeholderSuffix: String, baselineOnMigrate: Boolean, validateOnMigrate: Boolean, allowMixedMigrations: Boolean, installedBy: String)
-  private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading, sqlMigration: ConfigSqlMigration, migrate: ConfigMigrate)
+  private case class ConfigMigrate(ignoreMissingMigrations: Boolean, ignoreFutureMigrations: Boolean, ignoreFailedFutureMigration: Boolean,
+                                   baselineOnMigrate: Boolean, validateOnMigrate: Boolean,
+                                   allowMixedMigrations: Boolean, mixed: Boolean, group: Boolean, installedBy: String)
+  private case class ConfigPlaceholder(placeholderReplacement: Boolean, placeholders: Map[String, String],
+                                   placeholderPrefix: String, placeholderSuffix: String)
+  private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading,
+                            sqlMigration: ConfigSqlMigration, migrate: ConfigMigrate, placeholder: ConfigPlaceholder)
 
 
-  private lazy val flywayConfigDataSource = taskKey[ConfigDataSource]("The flyway data source configuration.")
-  private lazy val flywayConfigBase = taskKey[ConfigBase]("The flyway base configuration.")
-  private lazy val flywayConfigMigrationLoading = taskKey[ConfigMigrationLoading]("The flyway migration loading configuration.")
-  private lazy val flywayConfigSqlMigration = taskKey[ConfigSqlMigration]("The flyway sql migration configuration.")
-  private lazy val flywayConfigMigrate = taskKey[ConfigMigrate]("The flyway migrate configuration.")
-  private lazy val flywayConfig = taskKey[Config]("The flyway configuration.")
+  private lazy val flywayConfigDataSource = taskKey[ConfigDataSource]("The Flyway data source configuration.")
+  private lazy val flywayConfigBase = taskKey[ConfigBase]("The Flyway base configuration.")
+  private lazy val flywayConfigMigrationLoading = taskKey[ConfigMigrationLoading]("The Flyway migration loading configuration.")
+  private lazy val flywayConfigSqlMigration = taskKey[ConfigSqlMigration]("The Flyway sql migration configuration.")
+  private lazy val flywayConfigMigrate = taskKey[ConfigMigrate]("The Flyway migrate configuration.")
+  private lazy val flywayConfigPlaceholder = taskKey[ConfigPlaceholder]("The Flyway placeholder configuration.")
+  private lazy val flywayConfig = taskKey[Config]("The Flyway configuration.")
 
   //*********************
   // flyway defaults
@@ -161,6 +168,8 @@ object FlywayPlugin extends AutoPlugin {
       flywayBaselineOnMigrate := defaults.isBaselineOnMigrate,
       flywayValidateOnMigrate := defaults.isValidateOnMigrate,
       flywayAllowMixedMigrations := defaults.isAllowMixedMigrations,
+      flywayMixed := defaults.isMixed,
+      flywayGroup := defaults.isGroup,
       flywayInstalledBy := "",
       flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayCleanDisabled := defaults.isCleanDisabled,
@@ -179,12 +188,18 @@ object FlywayPlugin extends AutoPlugin {
         (sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix) =>
           ConfigSqlMigration(sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix)
       },
-      flywayConfigMigrate <<= (flywayIgnoreMissingMigrations, flywayIgnoreFutureMigrations, flywayIgnoreFailedFutureMigration, flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix, flywayBaselineOnMigrate, flywayValidateOnMigrate, flywayAllowMixedMigrations, flywayInstalledBy) map {
-        (ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, baselineOnMigrate, validateOnMigrate, allowMixedMigrations, installedBy) =>
-          ConfigMigrate(ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration, placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix, baselineOnMigrate, validateOnMigrate, allowMixedMigrations, installedBy)
+      flywayConfigMigrate <<= (flywayIgnoreMissingMigrations, flywayIgnoreFutureMigrations, flywayIgnoreFailedFutureMigration,
+        flywayBaselineOnMigrate, flywayValidateOnMigrate, flywayAllowMixedMigrations, flywayMixed, flywayGroup, flywayInstalledBy) map {
+        (ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration,
+         baselineOnMigrate, validateOnMigrate, allowMixedMigrations, mixed, group, installedBy) =>
+          ConfigMigrate(ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration, baselineOnMigrate, validateOnMigrate, allowMixedMigrations, mixed, group, installedBy)
       },
-      flywayConfig <<= (flywayConfigDataSource, flywayConfigBase, flywayConfigMigrationLoading, flywayConfigSqlMigration, flywayConfigMigrate) map {
-        (dataSource, base, migrationLoading, sqlMigration, migrate) => Config(dataSource, base, migrationLoading, sqlMigration, migrate)
+      flywayConfigPlaceholder <<= (flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix) map {
+        (placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix) =>
+          ConfigPlaceholder(placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix)
+      },
+      flywayConfig <<= (flywayConfigDataSource, flywayConfigBase, flywayConfigMigrationLoading, flywayConfigSqlMigration, flywayConfigMigrate, flywayConfigPlaceholder) map {
+        (dataSource, base, migrationLoading, sqlMigration, migrate, placeholder) => Config(dataSource, base, migrationLoading, sqlMigration, migrate, placeholder)
       },
       flywayMigrate <<= (fullClasspath in conf, flywayConfig, streams) map {
         (cp, config, s) => withPrepared(cp, s) { Flyway(config).migrate() }
@@ -258,6 +273,7 @@ object FlywayPlugin extends AutoPlugin {
       .configure(config.migrationLoading)
       .configure(config.sqlMigration)
       .configure(config.migrate)
+      .configure(config.placeholder)
       .configureSysProps(config.dataSource)
     }
     def configure(config: ConfigBase): Flyway = {
@@ -293,13 +309,21 @@ object FlywayPlugin extends AutoPlugin {
       if (config.ignoreFailedFutureMigration) {
         flyway.setIgnoreFailedFutureMigration(config.ignoreFailedFutureMigration)
       }
+      flyway.setBaselineOnMigrate(config.baselineOnMigrate)
+      flyway.setValidateOnMigrate(config.validateOnMigrate)
+      if (config.allowMixedMigrations) {
+        flyway.setAllowMixedMigrations(config.allowMixedMigrations)
+      }
+      flyway.setMixed(config.mixed)
+      flyway.setGroup(config.group)
+      flyway.setInstalledBy(config.installedBy)
+      flyway
+    }
+    def configure(config: ConfigPlaceholder): Flyway = {
+      flyway.setPlaceholderReplacement(config.placeholderReplacement)
       flyway.setPlaceholders(config.placeholders)
       flyway.setPlaceholderPrefix(config.placeholderPrefix)
       flyway.setPlaceholderSuffix(config.placeholderSuffix)
-      flyway.setBaselineOnMigrate(config.baselineOnMigrate)
-      flyway.setValidateOnMigrate(config.validateOnMigrate)
-      flyway.setAllowMixedMigrations(config.allowMixedMigrations)
-      flyway.setInstalledBy(config.installedBy)
       flyway
     }
     def configureSysProps(config: ConfigDataSource): Flyway = {
