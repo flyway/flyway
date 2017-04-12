@@ -226,7 +226,7 @@ public class SqlScript {
         if (!mixed && transactionalStatementFound && nonTransactionalStatementFound) {
             throw new FlywayException(
                     "Detected both transactional and non-transactional statements within the same migration"
-                            + " (even though allowMixedMigrations is false). Offending statement found at line "
+                            + " (even though mixed is false). Offending statement found at line "
                             + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
                             + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
         }
