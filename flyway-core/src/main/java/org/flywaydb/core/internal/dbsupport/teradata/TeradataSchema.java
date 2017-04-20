@@ -40,7 +40,7 @@ public class TeradataSchema extends Schema<TeradataDbSupport> {
 
   @Override
   protected boolean doEmpty() throws SQLException {
-    return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM dbc.tables WHERE databasename=?", name) > 0;
+    return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM dbc.tables WHERE databasename=?", name) == 0;
   }
 
   @Override
