@@ -327,15 +327,15 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:sap:")) {
             return "com.sap.db.jdbc.Driver";
         }
-        
+
         if (url.startsWith("jdbc:pivotal:greenplum:")) {
             return "com.pivotal.jdbc.GreenplumDriver";
         }
 
         if (url.startsWith("jdbc:teradata:")) {
-          return "com.teradata.jdbc.TeraDriver";
+            return "com.teradata.jdbc.TeraDriver";
         }
-        
+
         return null;
     }
 

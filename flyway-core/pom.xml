@@ -333,7 +333,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <dependencies>
-                <dependency>
+<!--            <dependency>
                     <groupId>com.microsoft.sqlserver</groupId>
                     <artifactId>sqljdbc4</artifactId>
                     <scope>test</scope>
@@ -353,6 +353,18 @@
                     <artifactId>ngdbc</artifactId>
                     <scope>test</scope>
                 </dependency>
+ -->			<dependency>
+					<groupId>com.teradata</groupId>
+					<artifactId>terajdbc4</artifactId>
+					<version>15.10.00.05</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>com.teradata</groupId>
+					<artifactId>tdgssconfig</artifactId>
+					<version>15.10.00.05</version>
+					<scope>test</scope>
+				</dependency>
             </dependencies>
             <build>
                 <plugins>
