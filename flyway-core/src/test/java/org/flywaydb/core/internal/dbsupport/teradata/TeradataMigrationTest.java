@@ -11,6 +11,25 @@ import javax.sql.DataSource;
 
 public class TeradataMigrationTest extends MigrationTestCase {
 
+    /**
+     * A simple test that ensures mixing transactional and non-transactional statements within the same migration works.
+     */
+    @Test
+    public void migrateWithMixedMigrationsWorks() throws Exception {
+        Assert.notNull(dataSource);
+        Assert.notNull(flyway);
+
+        flyway.setLocations("migration/dbsupport/teradata/");
+        flyway.setAllowMixedMigrations(true);
+
+        Assert.isTrue(flyway.migrate() == 4);
+    }
+
+    /**
+     * Creates a datasource for use in tests.
+     *
+     * @return The new datasource.
+     */
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         String user = customProperties.getProperty("teradata.user", "DBC");
@@ -23,16 +42,5 @@ public class TeradataMigrationTest extends MigrationTestCase {
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
-    }
-
-    @Test
-    public void myTest() throws Exception {
-        Assert.notNull(dataSource);
-        Assert.notNull(flyway);
-
-        flyway.setLocations("migration/dbsupport/teradata/");
-        flyway.setAllowMixedMigrations(true);
-
-        Assert.isTrue(flyway.migrate() == 4);
     }
 }
