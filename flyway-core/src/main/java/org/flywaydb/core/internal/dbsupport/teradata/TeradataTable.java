@@ -50,7 +50,6 @@ public class TeradataTable extends Table {
 
     @Override
     protected void doLock() throws SQLException {
-        // TODO PL
-
+        jdbcTemplate.execute("LOCKING TABLE " + this + " FOR ACCESS");
     }
 }
