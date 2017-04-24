@@ -1,0 +1,13 @@
+-- Execute only one DDL statement
+CREATE SET TABLE financial.accts ,NO FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO
+     (
+      cust_id INTEGER NOT NULL,
+      acct_type CHAR(2) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      acct_nbr CHAR(16) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+      acct_start_date DATE FORMAT 'YYYYMMDD' NOT NULL,
+      acct_end_date DATE FORMAT 'YYYYMMDD')
+PRIMARY INDEX ( cust_id ,acct_type );
