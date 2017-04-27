@@ -40,7 +40,7 @@ import java.util.Properties;
 /**
  * A base class for all flyway tasks.
  */
-abstract class AbstractFlywayTask extends DefaultTask {
+public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Property name prefix for placeholders that are configured through System properties.
      */
