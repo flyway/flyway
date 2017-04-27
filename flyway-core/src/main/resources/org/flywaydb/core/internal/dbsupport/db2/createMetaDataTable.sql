@@ -26,7 +26,7 @@ CREATE TABLE "${schema}"."${table}" (
     "execution_time" INT NOT NULL,
     "success" SMALLINT NOT NULL,
     CONSTRAINT "${table}_s" CHECK ("success" in(0,1))
-);
+) ORGANIZE BY ROW; -- Row organization is default for db2 but not for dashDB
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
 
 CREATE INDEX "${schema}"."${table}_s_idx" ON "${schema}"."${table}" ("success");
