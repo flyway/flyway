@@ -644,6 +644,17 @@ public class FlywayMediumTest {
         assertEquals(2, flyway.migrate());
     }
 
+    @Test(expected = FlywayException.class)
+    public void repeatableVersion() {
+        DriverDataSource dataSource =
+                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable_version;DB_CLOSE_DELAY=-1", "sa", "", null);
+
+        Flyway flyway = new Flyway();
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("migration/repeatable_version");
+        assertEquals(0, flyway.migrate());
+    }
+
     @Test
     public void currentEmpty() {
         Flyway flyway = new Flyway();

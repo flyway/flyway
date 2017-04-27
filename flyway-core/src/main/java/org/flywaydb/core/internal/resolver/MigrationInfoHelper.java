@@ -39,24 +39,36 @@ public class MigrationInfoHelper {
      * @param prefix        The migration prefix.
      * @param separator     The migration separator.
      * @param suffix        The migration suffix.
+     * @param repeatable
      * @return The extracted schema version.
      * @throws FlywayException if the migration name does not follow the standard conventions.
      */
     public static Pair<MigrationVersion, String> extractVersionAndDescription(String migrationName,
-                                                                              String prefix, String separator, String suffix) {
+                                                                              String prefix, String separator, String suffix, boolean repeatable) {
         String cleanMigrationName = migrationName.substring(prefix.length(), migrationName.length() - suffix.length());
 
         // Handle the description
         int descriptionPos = cleanMigrationName.indexOf(separator);
         if (descriptionPos < 0) {
             throw new FlywayException("Wrong migration name format: " + migrationName
-                    + "(It should look like this: " + prefix + "1_2" + separator + "Description" + suffix + ")");
+                    + "(It should look like this: "
+                    + prefix + (repeatable ? "" :  "1.2") + separator + "Description" + suffix + ")");
         }
 
         String version = cleanMigrationName.substring(0, descriptionPos);
         String description = cleanMigrationName.substring(descriptionPos + separator.length()).replaceAll("_", " ");
         if (StringUtils.hasText(version)) {
+            if (repeatable) {
+                throw new FlywayException("Wrong repeatable migration name format: " + migrationName
+                        + "(It cannot contain a version and should look like this: "
+                        + prefix + separator + description + suffix + ")");
+            }
             return Pair.of(MigrationVersion.fromVersion(version), description);
+        }
+        if (!repeatable) {
+            throw new FlywayException("Wrong versioned migration name format: " + migrationName
+                    + "(It must contain a version and should look like this: "
+                    + prefix + "1.2" + separator + description + suffix + ")");
         }
         return Pair.of(null, description);
     }
