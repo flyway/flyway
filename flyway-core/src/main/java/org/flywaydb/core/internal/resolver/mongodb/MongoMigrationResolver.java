@@ -125,6 +125,7 @@ public class MongoMigrationResolver implements MigrationResolver {
 		} else {
 			String shortName = ClassUtils.getShortName(mongoMigration.getClass());
 			String prefix;
+			boolean repeatable = shortName.startsWith("R");
 			if (shortName.startsWith("V") || shortName.startsWith("R")) {
 				prefix = shortName.substring(0, 1);
 			} else {
@@ -132,7 +133,7 @@ public class MongoMigrationResolver implements MigrationResolver {
                         mongoMigration.getClass().getName() + " => ensure it starts with V or R," +
                         " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
 			}
-			Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
+			Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "", repeatable);
 			version = info.getLeft();
 			description = info.getRight();
 		}

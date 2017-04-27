@@ -30,7 +30,7 @@ public class FlywaySqlScriptException extends FlywaySqlException {
     /**
      * Creates new instance of FlywaySqlScriptException.
      *
-     * @param resource     The resource containg the failed statement.
+     * @param resource     The resource containing the failed statement.
      * @param statement    The failed SQL statement.
      * @param sqlException Cause of the problem.
      */
@@ -41,12 +41,19 @@ public class FlywaySqlScriptException extends FlywaySqlException {
     }
 
     /**
+     * @return The resource containing the failed statement.
+     */
+    public Resource getResource() {
+        return resource;
+    }
+
+    /**
      * Returns the line number in migration SQL script where exception occurred.
      *
      * @return The line number.
      */
     public int getLineNumber() {
-        return statement.getLineNumber();
+        return statement == null ? -1 : statement.getLineNumber();
     }
 
     /**
@@ -55,7 +62,16 @@ public class FlywaySqlScriptException extends FlywaySqlException {
      * @return The failed statement.
      */
     public String getStatement() {
-        return statement.getSql();
+        return statement == null ? "" : statement.getSql();
+    }
+
+    /**
+     * Returns the failed statement in SQL script.
+     *
+     * @return The failed statement.
+     */
+    public SqlStatement getSqlStatement() {
+        return statement;
     }
 
     @Override
@@ -64,9 +80,10 @@ public class FlywaySqlScriptException extends FlywaySqlException {
         if (resource != null) {
             message += "Location   : " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")\n";
         }
-        message += "Line       : " + getLineNumber() + "\n";
-        message += "Statement  : " + getStatement() + "\n";
-
+        if (statement != null) {
+            message += "Line       : " + getLineNumber() + "\n";
+            message += "Statement  : " + getStatement() + "\n";
+        }
         return message;
     }
 }

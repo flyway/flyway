@@ -212,6 +212,16 @@ public class MongoFlywayConfigurationForTests implements MongoFlywayConfiguratio
     return false;
   }
 
+  @Override
+  public boolean isMixed() {
+    return false;
+  }
+
+  @Override
+  public boolean isGroup() {
+    return false;
+  }
+
   public void setRepeatableMongoMigrationPrefix(String repeatablePrefix) {
     this.repeatableMongoMigrationPrefix = repeatablePrefix;
   }

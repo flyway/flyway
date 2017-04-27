@@ -285,7 +285,14 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 	 *
 	 * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
 	 */
-	private boolean allowMixedMigrations;
+	private boolean mixed;
+
+  /**
+   * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+   *
+   * {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+   */
+  private boolean group;
 
   /**
    * The username that will be recorded in the metadata table as having applied the migration.
@@ -489,8 +496,22 @@ public class MongoFlyway implements MongoFlywayConfiguration {
 	}
 
   @Override
+  public boolean isMixed() {
+    return mixed;
+  }
+
+  /**
+   * @deprecated Use <code>isMixed()</code> instead. Will be removed in Flyway 5.0.
+   */
+  @Deprecated
+  @Override
   public boolean isAllowMixedMigrations() {
-      return allowMixedMigrations;
+      return mixed;
+  }
+
+  @Override
+  public boolean isGroup() {
+    return group;
   }
 
   @Override

@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.enterprisedb;
+package org.flywaydb.core.internal.dbsupport.greenplum;
 
-import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.dbsupport.oracle.OracleSchema;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-/**
- * Small Test for OracleSchema.
- */
-@SuppressWarnings({"JavaDoc"})
-public class EnterpriseDBSchemaSmallTest {
-    /**
-     * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
-     */
-    @Test(expected = FlywayException.class)
-    public void createCleanScriptWithSystem() throws Exception {
-        OracleSchema schema = new OracleSchema(null, null, "SYSTEM");
-        schema.clean();
+public class GreenPlumDbSupportSmallTest {
+    @Test
+    public void doQuote() {
+    	GreenPlumDbSupport dbSupport = new GreenPlumDbSupport(null);
+        assertEquals("\"abc\"", dbSupport.doQuote("abc"));
+        assertEquals("\"a\"\"b\"\"c\"", dbSupport.doQuote("a\"b\"c"));
     }
 }

@@ -75,6 +75,25 @@ public class DriverDataSource implements DataSource {
     private final ClassLoader classLoader;
 
     /**
+     * Whether connection should have auto commit activated or not. Default: {@code true}
+     */
+    private boolean autoCommit = true;
+
+    /**
+     * Creates a new DriverDataSource.
+     *
+     * @param classLoader The ClassLoader to use.
+     * @param driverClass The name of the JDBC Driver class to use. {@code null} for url-based autodetection.
+     * @param url         The JDBC URL to use for connecting through the Driver. (required)
+     * @param user        The JDBC user to use for connecting through the Driver.
+     * @param password    The JDBC password to use for connecting through the Driver.
+     * @throws FlywayException when the datasource could not be created.
+     */
+    public DriverDataSource(ClassLoader classLoader, String driverClass, String url, String user, String password) throws FlywayException {
+        this(classLoader, driverClass, url, user, password, new Properties());
+    }
+
+    /**
      * Creates a new DriverDataSource.
      *
      * @param classLoader The ClassLoader to use.
@@ -308,6 +327,10 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:sap:")) {
             return "com.sap.db.jdbc.Driver";
         }
+        
+        if (url.startsWith("jdbc:pivotal:greenplum:")) {
+            return "com.pivotal.jdbc.GreenplumDriver";
+        }
 
         return null;
     }
@@ -406,7 +429,23 @@ public class DriverDataSource implements DataSource {
             }
         }
 
+        connection.setAutoCommit(autoCommit);
+
         return connection;
+    }
+
+    /**
+     * @return Whether connection should have auto commit activated or not. Default: {@code true}
+     */
+    public boolean isAutoCommit() {
+        return autoCommit;
+    }
+
+    /**
+     * @param autoCommit Whether connection should have auto commit activated or not. Default: {@code true}
+     */
+    public void setAutoCommit(boolean autoCommit) {
+        this.autoCommit = autoCommit;
     }
 
     public int getLoginTimeout() throws SQLException {

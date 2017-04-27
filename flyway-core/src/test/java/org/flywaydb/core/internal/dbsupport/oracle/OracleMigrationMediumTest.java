@@ -88,18 +88,18 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void cleanSpatialExtensions() throws Exception {
-        assertEquals(0, objectsCount());
+        assertEquals(0, userObjectsCount());
 
         flyway.setLocations("migration/dbsupport/oracle/sql/spatial");
         flyway.migrate();
-        assertTrue(objectsCount() > 0);
+        assertTrue(userObjectsCount() > 0);
 
         flyway.clean();
-        assertEquals(0, objectsCount());
+        assertEquals(0, userObjectsCount());
 
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
-        assertTrue(objectsCount() > 0);
+        assertTrue(userObjectsCount() > 0);
     }
 
     /**
@@ -140,6 +140,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Ignore("Disabled due to missing functionality in Oracle XE 11g. Works fine with XE 10g.")
     @Test
     public void createMaterializedView() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/materialized");
         flyway.migrate();
         flyway.clean();
@@ -150,28 +152,28 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void cleanWithRecycleBin() throws Exception {
-        assertEquals(0, recycleBinCount());
+        assertEquals(0, userRecycleBinCount());
 
         // in SYSTEM tablespace the recycle bin is deactivated
         jdbcTemplate.update("CREATE TABLE test_user (name VARCHAR(25) NOT NULL,  PRIMARY KEY(name)) tablespace USERS");
         jdbcTemplate.update("DROP TABLE test_user");
-        assertTrue(recycleBinCount() > 0);
+        assertTrue(userRecycleBinCount() > 0);
 
         flyway.clean();
-        assertEquals(0, recycleBinCount());
+        assertEquals(0, userRecycleBinCount());
     }
 
     /**
      * @return The number of objects for the current user.
      */
-    private int objectsCount() throws Exception {
+    private int userObjectsCount() throws Exception {
         return jdbcTemplate.queryForInt("select count(*) from user_objects");
     }
 
     /**
-     * @return The number of objects in the recycle bin.
+     * @return The number of objects in the recycle bin for the current user.
      */
-    private int recycleBinCount() throws Exception {
+    private int userRecycleBinCount() throws Exception {
         return jdbcTemplate.queryForInt("select count(*) from recyclebin");
     }
 
@@ -180,11 +182,21 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void createScheduledJob() throws Exception {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/scheduled_job");
         flyway.migrate();
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from user_scheduler_jobs where job_name='TEST_JOB'"));
+        assertTrue(schedJobExists("FLYWAY_AUX", "TEST_JOB"));
         flyway.clean();
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from user_scheduler_jobs where job_name='TEST_JOB'"));
+        assertFalse(schedJobExists("FLYWAY_AUX", "TEST_JOB"));
+    }
+
+    /**
+     * @return {@code true} if the specified job exists in the schema, {@code false} if not.
+     */
+    private boolean schedJobExists(String schemaName, String jobName) throws Exception {
+        return ((OracleDbSupport)dbSupport).queryReturnsRows("SELECT * FROM ALL_SCHEDULER_JOBS " +
+                "WHERE OWNER = ? AND JOB_NAME = ?", schemaName, jobName);
     }
 
     /**
@@ -201,6 +213,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void type() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/type");
         flyway.migrate();
         flyway.clean();
@@ -212,6 +226,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void procedure() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/procedure");
         flyway.migrate();
     }
@@ -221,6 +237,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void function() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/function");
         flyway.migrate();
     }
@@ -234,6 +252,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void trigger() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/trigger");
         flyway.migrate();
         flyway.clean();
@@ -245,6 +265,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void text() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/text");
         flyway.migrate();
         flyway.clean();
@@ -256,6 +278,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void indexOrganizedTable() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/iot");
         flyway.migrate();
         flyway.clean();
@@ -267,6 +291,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void nestedTable() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/nested");
         flyway.migrate();
         flyway.clean();
@@ -278,6 +304,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void queueTable() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/queue");
         flyway.migrate();
         flyway.clean();
@@ -289,6 +317,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void cluster() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/cluster");
         flyway.migrate();
         flyway.clean();
@@ -312,6 +342,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Ignore("Disabled due to missing functionality in Oracle XE 10g. Works fine with XE 11g.")
     @Test
     public void xml() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/xml");
         flyway.migrate();
         flyway.clean();
@@ -325,6 +357,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Ignore("Disabled due to missing flashback functionality in Oracle XE.")
     @Test
     public void flashback() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/flashback");
         flyway.migrate();
         flyway.clean();
@@ -337,6 +371,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Ignore("Disabled due to missing functionality in Oracle XE.")
     @Test
     public void referencePartitionedTable() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/refpart");
         flyway.migrate();
         flyway.clean();
@@ -349,8 +385,28 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Ignore("Disabled due to missing functionality in Oracle XE.")
     @Test
     public void javaSource() throws FlywayException, SQLException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/javasource");
         flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Checks that cleaning can not be performed for the SYSTEM schema (Issue 102)
+     */
+    @Test(expected = FlywayException.class)
+    public void createCleanScriptWithSystem() throws Exception {
+        flyway.setSchemas("SYSTEM");
+        flyway.clean();
+    }
+
+    /**
+     * Checks that cleaning can not be performed for an Oracle-maintained schema
+     */
+    @Test(expected = FlywayException.class)
+    public void createCleanScriptWithOracleMaintainedSchema() throws Exception {
+        flyway.setSchemas("OUTLN");
         flyway.clean();
     }
 

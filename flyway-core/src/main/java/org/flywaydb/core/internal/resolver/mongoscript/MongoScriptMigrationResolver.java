@@ -115,21 +115,21 @@ public class MongoScriptMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        scanForMigrations(migrations, mongoMigrationPrefix, mongoMigrationSeparator, mongoMigrationSuffix);
-        scanForMigrations(migrations, mongoRepeatableMigrationPrefix, mongoMigrationSeparator, mongoMigrationSuffix);
+        scanForMigrations(migrations, mongoMigrationPrefix, mongoMigrationSeparator, mongoMigrationSuffix, false);
+        scanForMigrations(migrations, mongoRepeatableMigrationPrefix, mongoMigrationSeparator, mongoMigrationSuffix, true);
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    public void scanForMigrations(List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
+    private void scanForMigrations(List<ResolvedMigration> migrations, String prefix, String separator, String suffix, boolean repeatable) {
         for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
             String filename = resource.getFilename();
             if (isMongoScriptCallback(filename, suffix)) {
                 continue;
             }
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix);
+                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix, repeatable);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());

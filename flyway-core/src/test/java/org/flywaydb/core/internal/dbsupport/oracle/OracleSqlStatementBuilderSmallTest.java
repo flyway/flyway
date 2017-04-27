@@ -70,6 +70,12 @@ public class OracleSqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void asNoSpace() {
+        builder.addLine("select '1'as \"QUANTITY\" from dual;");
+        assertTrue(builder.isTerminated());
+    }
+
+    @Test
     public void multilineCommentQuote() {
         String sqlScriptSource = "create or replace procedure Test_proc\n" +
                 "is\n" +

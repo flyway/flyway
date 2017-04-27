@@ -150,7 +150,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 placeholders.put("table", table.getName());
                 String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                final SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
                 sqlScript.execute(jdbcTemplate);
 
                 LOG.debug("Metadata table " + table + " created.");
@@ -176,6 +176,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     @Override
     public void addAppliedMigration(AppliedMigration appliedMigration) {
+        dbSupport.changeCurrentSchemaTo(table.getSchema());
         createIfNotExists();
 
         MigrationVersion version = appliedMigration.getVersion();

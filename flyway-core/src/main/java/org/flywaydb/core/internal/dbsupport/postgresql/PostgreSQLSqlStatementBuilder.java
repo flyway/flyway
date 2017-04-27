@@ -73,7 +73,7 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
 
         if (statementStart.matches("(CREATE|DROP) (DATABASE|TABLESPACE) .*")
                 || statementStart.matches("ALTER SYSTEM .*")
-                || statementStart.matches("CREATE( UNIQUE)? INDEX CONCURRENTLY .*")
+                || statementStart.matches("(CREATE|DROP)( UNIQUE)? INDEX CONCURRENTLY .*")
                 || statementStart.matches("REINDEX( VERBOSE)? (SCHEMA|DATABASE|SYSTEM) .*")
                 || statementStart.matches("VACUUM .*")
                 || statementStart.matches("DISCARD ALL .*")

@@ -30,14 +30,17 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 /**
  * A base class for all flyway tasks.
  */
-abstract class AbstractFlywayTask extends DefaultTask {
+public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Property name prefix for placeholders that are configured through System properties.
      */
@@ -252,10 +255,23 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
-     * <p>
-     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
+     * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
+     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public Boolean allowMixedMigrations;
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
+     */
+    public Boolean mixed;
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     * <p>{@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})</p>
+     */
+    public Boolean group;
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
@@ -273,37 +289,45 @@ abstract class AbstractFlywayTask extends DefaultTask {
     @TaskAction
     public Object runTask() {
         try {
+            List<URL> extraURLs = new ArrayList<URL>();
             if (isJavaProject()) {
                 JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
 
                 for (SourceSet sourceSet : plugin.getSourceSets()) {
                     URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
                     getLogger().debug("Adding directory to Classpath: " + classesUrl);
-                    ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(classesUrl));
+                    extraURLs.add(classesUrl);
 
                     URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
                     getLogger().debug("Adding directory to Classpath: " + resourcesUrl);
-                    ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(resourcesUrl));
+                    extraURLs.add(resourcesUrl);
                 }
 
-                addDependenciesWithScope("compile");
-                addDependenciesWithScope("runtime");
-                addDependenciesWithScope("testCompile");
-                addDependenciesWithScope("testRuntime");
+                addDependenciesWithScope(extraURLs,"compile");
+                addDependenciesWithScope(extraURLs,"runtime");
+                addDependenciesWithScope(extraURLs,"testCompile");
+                addDependenciesWithScope(extraURLs,"testRuntime");
             }
 
-            return run(createFlyway());
+            ClassLoader classLoader = new URLClassLoader(
+                    extraURLs.toArray(new URL[extraURLs.size()]),
+                    getProject().getBuildscript().getClassLoader());
+
+            Flyway flyway = new Flyway();
+            flyway.setClassLoader(classLoader);
+            flyway.configure(createFlywayConfig());
+            return run(flyway);
         } catch (Exception e) {
             handleException(e);
             return null;
         }
     }
 
-    private void addDependenciesWithScope(String scope) throws IOException {
+    private void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
         for (ResolvedArtifact artifact : getProject().getConfigurations().getByName(scope).getResolvedConfiguration().getResolvedArtifacts()) {
             URL artifactUrl = artifact.getFile().toURI().toURL();
             getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
-            ClassUtils.addJarOrDirectoryToClasspath(UrlUtils.toFilePath(artifactUrl));
+            urls.add(artifactUrl);
         }
     }
 
@@ -313,9 +337,9 @@ abstract class AbstractFlywayTask extends DefaultTask {
     protected abstract Object run(Flyway flyway);
 
     /**
-     * Creates a new, configured flyway instance
+     * Creates the Flyway config to use.
      */
-    private Flyway createFlyway() {
+    private Map<String, String> createFlywayConfig() {
         Map<String, String> conf = new HashMap<String, String>();
         putIfSet(conf, "driver", driver, extension.driver);
         putIfSet(conf, "url", url, extension.url);
@@ -329,6 +353,8 @@ abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, "sqlMigrationSeparator", sqlMigrationSeparator, extension.sqlMigrationSeparator);
         putIfSet(conf, "sqlMigrationSuffix", sqlMigrationSuffix, extension.sqlMigrationSuffix);
         putIfSet(conf, "allowMixedMigrations", allowMixedMigrations, extension.allowMixedMigrations);
+        putIfSet(conf, "mixed", mixed, extension.mixed);
+        putIfSet(conf, "group", group, extension.group);
         putIfSet(conf, "installedBy", installedBy, extension.installedBy);
         putIfSet(conf, "encoding", encoding, extension.encoding);
         putIfSet(conf, "placeholderReplacement", placeholderReplacement, extension.placeholderReplacement);
@@ -366,10 +392,7 @@ abstract class AbstractFlywayTask extends DefaultTask {
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, System.getProperties());
 
-        Flyway flyway = new Flyway();
-        flyway.setClassLoader(ClassLoader.getSystemClassLoader());
-        flyway.configure(conf);
-        return flyway;
+        return conf;
     }
 
     private static void addConfigFromProperties(Map<String, String> config, Properties properties) {

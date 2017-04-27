@@ -72,6 +72,10 @@
             <artifactId>jtds</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.pivotal.jdbc</groupId>
+            <artifactId>greenplumdriver</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
         </dependency>
@@ -150,7 +154,11 @@
     </build>
     <profiles>
         <profile>
+            <id>CommercialDBTest</id>
+            <!--
+            Should work, but somehow doesn't as any attempt to disable this profile for TravisCI fails
             <id>CommandlinePlatformAssemblies</id>
+            -->
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>

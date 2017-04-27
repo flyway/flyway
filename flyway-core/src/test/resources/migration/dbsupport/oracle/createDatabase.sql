@@ -14,14 +14,27 @@
 -- limitations under the License.
 --
 
-CREATE USER "FLYWAY" IDENTIFIED BY flyway;
-CREATE USER "flyway_proxy" IDENTIFIED BY flyway;
-GRANT all privileges TO "FLYWAY";
-GRANT all privileges TO "flyway_proxy";
-GRANT create session TO "FLYWAY";
-GRANT create session TO "flyway_proxy";
+CREATE USER FLYWAY IDENTIFIED BY "flyway";
+CREATE USER FLYWAY_AUX IDENTIFIED BY "flyway";
+CREATE USER "flyway_proxy" IDENTIFIED BY "flyway";
+GRANT ALL PRIVILEGES TO FLYWAY;
+GRANT ALL PRIVILEGES TO FLYWAY_AUX;
 
-ALTER USER "FLYWAY" GRANT CONNECT THROUGH "flyway_proxy";
+ALTER USER FLYWAY GRANT CONNECT THROUGH "flyway_proxy";
 
--- grants for administering queue tables
-GRANT EXECUTE ON DBMS_AQADM TO flyway;
+-- grant for reading system schemas
+GRANT SELECT ON DBA_REGISTRY TO FLYWAY;
+
+-- grant for administering queue tables
+GRANT AQ_ADMINISTRATOR_ROLE TO FLYWAY;
+
+-- create flashback archive if possible
+DECLARE
+  l_flg NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO l_flg FROM V$OPTION WHERE PARAMETER = 'Flashback Data Archive' AND VALUE = 'TRUE';
+  IF l_flg > 0 THEN
+    EXECUTE IMMEDIATE 'CREATE FLASHBACK ARCHIVE FDA_TRAC TABLESPACE USERS QUOTA 10 M RETENTION 1 DAY';
+  END IF;
+END;
+/

@@ -128,4 +128,9 @@ public class MySQLDbSupport extends DbSupport {
     public <T> T lock(Table table, Callable<T> callable) {
         return new MySQLNamedLockTemplate(jdbcTemplate, table.toString().hashCode()).execute(callable);
     }
+
+    @Override
+    public boolean useSingleConnection() {
+        return true;
+    }
 }

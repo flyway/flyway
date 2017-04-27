@@ -45,7 +45,7 @@ public class SqlScript {
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
-    private final boolean allowMixedMigrations;
+    private final boolean mixed;
 
     /**
      * The sql statements contained in this script.
@@ -75,7 +75,7 @@ public class SqlScript {
      */
     public SqlScript(String sqlScriptSource, DbSupport dbSupport) {
         this.dbSupport = dbSupport;
-        this.allowMixedMigrations = false;
+        this.mixed = false;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
     }
@@ -83,15 +83,15 @@ public class SqlScript {
     /**
      * Creates a new sql script from this resource.
      *
-     * @param dbSupport            The database-specific support.
-     * @param sqlScriptResource    The resource containing the statements.
-     * @param placeholderReplacer  The placeholder replacer.
-     * @param encoding             The encoding to use.
-     * @param allowMixedMigrations Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * @param dbSupport           The database-specific support.
+     * @param sqlScriptResource   The resource containing the statements.
+     * @param placeholderReplacer The placeholder replacer.
+     * @param encoding            The encoding to use.
+     * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
-    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean allowMixedMigrations) {
+    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed) {
         this.dbSupport = dbSupport;
-        this.allowMixedMigrations = allowMixedMigrations;
+        this.mixed = mixed;
 
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
@@ -223,10 +223,10 @@ public class SqlScript {
             nonTransactionalStatementFound = true;
         }
 
-        if (!allowMixedMigrations && transactionalStatementFound && nonTransactionalStatementFound) {
+        if (!mixed && transactionalStatementFound && nonTransactionalStatementFound) {
             throw new FlywayException(
                     "Detected both transactional and non-transactional statements within the same migration"
-                            + " (even though allowMixedMigrations is false). Offending statement found at line "
+                            + " (even though mixed is false). Offending statement found at line "
                             + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
                             + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
         }

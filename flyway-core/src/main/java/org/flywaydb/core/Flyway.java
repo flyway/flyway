@@ -315,7 +315,14 @@ public class Flyway implements SQLFlywayConfiguration {
      * <p>
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
-    private boolean allowMixedMigrations;
+    private boolean mixed;
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     *
+     * {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     */
+    private boolean group;
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
@@ -485,13 +492,36 @@ public class Flyway implements SQLFlywayConfiguration {
     }
 
     @Override
+    public boolean isMixed() {
+        return mixed;
+    }
+
+    /**
+     * @deprecated Use <code>isMixed()</code> instead. Will be removed in Flyway 5.0.
+     */
+    @Deprecated
+    @Override
     public boolean isAllowMixedMigrations() {
-        return allowMixedMigrations;
+        return mixed;
     }
 
     @Override
     public String getInstalledBy() {
         return installedBy;
+    }
+
+    @Override
+    public boolean isGroup() {
+        return group;
+    }
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     *
+     * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     */
+    public void setGroup(boolean group) {
+        this.group = group;
     }
 
     /**
@@ -509,10 +539,21 @@ public class Flyway implements SQLFlywayConfiguration {
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      *
-     * @param allowMixedMigrations {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
+    public void setMixed(boolean mixed) {
+        this.mixed = mixed;
+    }
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     *
+     * @param allowMixedMigrations {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * @deprecated Use <code>setMixed()</code> instead. Will be removed in Flyway 5.0.
+     */
+    @Deprecated
     public void setAllowMixedMigrations(boolean allowMixedMigrations) {
-        this.allowMixedMigrations = allowMixedMigrations;
+        this.mixed = allowMixedMigrations;
     }
 
     /**
@@ -1354,6 +1395,16 @@ public class Flyway implements SQLFlywayConfiguration {
         String allowMixedMigrationsProp = getValueAndRemoveEntry(props, "flyway.allowMixedMigrations");
         if (allowMixedMigrationsProp != null) {
             setAllowMixedMigrations(Boolean.parseBoolean(allowMixedMigrationsProp));
+        }
+
+        String mixedProp = getValueAndRemoveEntry(props, "flyway.mixed");
+        if (mixedProp != null) {
+            setMixed(Boolean.parseBoolean(mixedProp));
+        }
+
+        String groupProp = getValueAndRemoveEntry(props, "flyway.group");
+        if (groupProp != null) {
+            setGroup(Boolean.parseBoolean(groupProp));
         }
 
         String installedByProp = getValueAndRemoveEntry(props, "flyway.installedBy");

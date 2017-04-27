@@ -248,6 +248,16 @@ public class FlywayConfigurationForTests implements SQLFlywayConfiguration {
     }
 
     @Override
+    public boolean isMixed() {
+        return false;
+    }
+
+    @Override
+    public boolean isGroup() {
+        return false;
+    }
+
+    @Override
     public String getInstalledBy() {
         return null;
     }
