@@ -52,6 +52,7 @@ import org.flywaydb.core.internal.util.scanner.Scanner;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,7 +77,7 @@ public class Flyway implements FlywayConfiguration {
      * Property name prefix for placeholders that are configured through properties.
      */
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
-
+    
     /**
      * The locations to scan recursively for migrations.
      * <p/>
@@ -213,6 +214,16 @@ public class Flyway implements FlywayConfiguration {
      * Whether to automatically call validate or not when running migrate. (default: {@code true})
      */
     private boolean validateOnMigrate = true;
+
+    /**
+     * Whether to perform a dry-run. (default: {@code false})
+     */
+    private boolean dryRun = false;
+    
+    /**
+     * The isolation level of the dry-run.  (default: TRANSACTION_READ_UNCOMMITTED (1) )
+     */
+    private int dryRunTransactionIsolationLevel = Connection.TRANSACTION_READ_UNCOMMITTED;
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})
@@ -434,6 +445,33 @@ public class Flyway implements FlywayConfiguration {
         return validateOnMigrate;
     }
 
+    /**
+     * Whether to perform a dry run of the migration
+     *
+     * @return {@code true} if the migration should roll back entirely when complete {@code false} if not. (default: {@code false})
+     */
+    public boolean isDryRun() {
+        return dryRun;
+    }
+
+    /**
+     * 
+     * @return int value of Connection.TRANSACTION_{selected_isolation_level}
+     */
+    public int getDryRunTransactionIsolationLevel() {
+        return dryRunTransactionIsolationLevel;
+    }
+    
+    /**
+     * Whether to automatically call clean or not when a validation error occurs.
+     * <p> This is exclusively intended as a convenience for development. Even tough we
+     * strongly recommend not to change migration scripts once they have been checked into SCM and run, this provides a
+     * way of dealing with this case in a smooth manner. The database will be wiped clean automatically, ensuring that
+     * the next migration will bring you back to the state checked into SCM.</p>
+     * <p><b>Warning ! Do not enable in production !</b></p>
+     *
+     * @return {@code true} if clean should be called. {@code false} if not. (default: {@code false})
+     */
     @Override
     public boolean isCleanOnValidationError() {
         return cleanOnValidationError;
@@ -605,6 +643,38 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setValidateOnMigrate(boolean validateOnMigrate) {
         this.validateOnMigrate = validateOnMigrate;
+    }
+
+    /**
+     * Whether to perform a Dry Run.
+     *
+     * @param dryRun {@code true} if the migration should roll back entirely when complete {@code false} if not. (default: {@code false})
+     */
+    public void setDryRun(boolean dryRun) {
+        this.dryRun = dryRun;
+    }
+
+    /**
+     * Set the specific dry-run transaction isolation level.  
+     * <br/>
+     * Valid values are:
+     * <ul>
+     * <li>{@code Connection.TRANSACTION_READ_COMMITTED}
+     * <li>{@code Connection.TRANSACTION_READ_UNCOMMITTED}
+     * <li>{@code Connection.TRANSACTION_REPEATABLE_READ}
+     * <li>{@code Connection.TRANSACTION_SERIALIZABLE}
+     * </ul>
+     * 
+     * Consult your database documentation to see if any of the above are not supported by your specific database.  Future exceptions will be thrown if it is not.
+     * 
+     * @param dryRunTransactionIsolationLevel 
+     */
+    public void setDryRunTransactionIsolationLevel(int dryRunTransactionIsolationLevel) {
+        if(dryRunTransactionIsolationLevel == Connection.TRANSACTION_NONE || !Arrays.asList(Connection.TRANSACTION_READ_COMMITTED, Connection.TRANSACTION_READ_UNCOMMITTED, Connection.TRANSACTION_REPEATABLE_READ, Connection.TRANSACTION_SERIALIZABLE).contains(dryRunTransactionIsolationLevel)){
+            LOG.warn("An invalid transaction isolation level has been set for the 'dry-run' transaction; using the currently set level of: " + this.dryRunTransactionIsolationLevel + " instead of the provided value of "+dryRunTransactionIsolationLevel);
+        } else {
+            this.dryRunTransactionIsolationLevel = dryRunTransactionIsolationLevel;
+        }
     }
 
     /**
@@ -1001,14 +1071,19 @@ public class Flyway implements FlywayConfiguration {
                 }
 
                 Connection connectionUserObjects = null;
+                Savepoint dryRunSavepoint = null;
                 try {
                     connectionUserObjects =
                             dbSupport.useSingleConnection() ? connectionMetaDataTable : JdbcUtils.openConnection(dataSource);
+                    if (dryRun) {
+                        dryRunSavepoint = startDryRun(dbSupport, connectionMetaDataTable);
+                    }
                     DbMigrate dbMigrate =
                             new DbMigrate(connectionUserObjects, dbSupport, metaDataTable,
                                     schemas[0], migrationResolver, ignoreFailedFutureMigration, Flyway.this);
                     return dbMigrate.migrate();
                 } finally {
+                    rollbackDryRun(dryRunSavepoint, connectionMetaDataTable);
                     if (!dbSupport.useSingleConnection()) {
                         JdbcUtils.closeConnection(connectionUserObjects);
                     }
@@ -1291,6 +1366,10 @@ public class Flyway implements FlywayConfiguration {
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
         }
+        String dryRunProp = getValueAndRemoveEntry(props, "flyway.dryRun");
+        if (dryRunProp != null) {
+            setDryRun(Boolean.parseBoolean(dryRunProp));
+        }
         String baselineVersionProp = getValueAndRemoveEntry(props, "flyway.baselineVersion");
         if (baselineVersionProp != null) {
             setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
@@ -1396,6 +1475,29 @@ public class Flyway implements FlywayConfiguration {
         return value;
     }
 
+    private Savepoint startDryRun(DbSupport dbSupport, Connection connection) {
+        if (!dbSupport.supportsDdlTransactions()) {
+            throw new FlywayException("Dry-run is not supported with this database: " + dbSupport.getDbName());
+        }
+        try {
+            connection.setTransactionIsolation(dryRunTransactionIsolationLevel);
+            connection.setAutoCommit(false);
+            return connection.setSavepoint();
+        } catch (Exception e) {
+            throw new FlywayException("Dry-run is not supported with this database: " + dbSupport.getDbName(), e);
+        }
+    }
+
+    private void rollbackDryRun(Savepoint dryRunSavepoint, Connection connectionMetaDataTable) {
+        if (dryRun && dryRunSavepoint != null) {
+            try {
+                connectionMetaDataTable.rollback(dryRunSavepoint);
+            } catch (SQLException e) {
+                throw new FlywayException("Fatal error, unable to rollback 'Dry-run' database transaction", e);
+            }
+        }
+    }
+
     /**
      * Executes this command with proper resource handling and cleanup.
      *
@@ -1409,6 +1511,7 @@ public class Flyway implements FlywayConfiguration {
         VersionPrinter.printVersion();
 
         Connection connectionMetaDataTable = null;
+        Savepoint dryRunSavepoint = null;
 
         try {
             if (dataSource == null) {
@@ -1418,6 +1521,10 @@ public class Flyway implements FlywayConfiguration {
             connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
 
             DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
+            if (dryRun) {
+                dryRunSavepoint = startDryRun(dbSupport, connectionMetaDataTable);
+            }
+
             dbConnectionInfoPrinted = true;
             LOG.debug("DDL Transactions Supported: " + dbSupport.supportsDdlTransactions());
 
@@ -1463,6 +1570,7 @@ public class Flyway implements FlywayConfiguration {
 
             result = command.execute(connectionMetaDataTable, migrationResolver, metaDataTable, dbSupport, schemas, callbacks);
         } finally {
+            rollbackDryRun(dryRunSavepoint, connectionMetaDataTable);
             JdbcUtils.closeConnection(connectionMetaDataTable);
         }
         return result;
