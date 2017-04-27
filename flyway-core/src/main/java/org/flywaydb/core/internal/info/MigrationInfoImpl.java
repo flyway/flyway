@@ -213,9 +213,9 @@ public class MigrationInfoImpl implements MigrationInfo {
         if (getState().isFailed()
                 && (!context.future || MigrationState.FUTURE_FAILED != getState())) {
             if (getVersion() == null) {
-                throw new FlywayException("Detected failed repeatable migration: " + getDescription());
+                return "Detected failed repeatable migration: " + getDescription();
             }
-            throw new FlywayException("Detected failed migration to version " + getVersion() + " (" + getDescription() + ")");
+            return "Detected failed migration to version " + getVersion() + " (" + getDescription() + ")";
         }
 
         if ((resolvedMigration == null)
