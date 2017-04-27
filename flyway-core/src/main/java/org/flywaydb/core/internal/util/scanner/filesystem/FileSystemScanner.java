@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.logging.Log;
 import org.flywaydb.core.internal.util.logging.LogFactory;
@@ -30,6 +31,17 @@ import java.util.TreeSet;
  */
 public class FileSystemScanner {
     private static final Log LOG = LogFactory.getLog(FileSystemScanner.class);
+    private final boolean checkLocation;
+
+    /**
+     * Creates a new FileSystemScanner.
+     *
+     * @param checkLocation If set to true, Flyway will throw an exception if the location does not
+     *                      contain any migration script.
+     */
+    public FileSystemScanner(boolean checkLocation) {
+        this.checkLocation = checkLocation;
+    }
 
     /**
      * Scans the FileSystem for resources under the specified location, starting with the specified prefix and ending with
@@ -40,6 +52,7 @@ public class FileSystemScanner {
      * @param suffix   The suffix of the resource names to match.
      * @return The resources that were found.
      * @throws java.io.IOException when the location could not be scanned.
+     * @throws FlywayException if the location does not contain any migration script
      */
     public Resource[] scanForResources(Location location, String prefix, String suffix) throws IOException {
         String path = location.getPath();
@@ -48,6 +61,9 @@ public class FileSystemScanner {
         File dir = new File(path);
         if (!dir.isDirectory() || !dir.canRead()) {
             LOG.warn("Unable to resolve location filesystem:" + path);
+            if (checkLocation) {
+                throw new FlywayException("No migration detected at filesystem location " + path);
+            }
             return new Resource[0];
         }
 

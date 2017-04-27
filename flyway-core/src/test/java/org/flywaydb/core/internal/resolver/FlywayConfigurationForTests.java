@@ -31,6 +31,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     private ClassLoader classLoader;
     private String[] locations = new String[0];
+    private boolean checkLocation;
     private String encoding;
     private String sqlMigrationPrefix;
     private String repeatableSqlMigrationPrefix;
@@ -59,6 +60,10 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     public void setLocations(String[] locations) {
         this.locations = locations;
+    }
+
+    public void setCheckLocation(boolean checkLocation) {
+        this.checkLocation= checkLocation;
     }
 
     public void setEncoding(String encoding) {
@@ -199,6 +204,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     @Override
     public String[] getLocations() {
         return this.locations;
+    }
+
+    @Override
+    public boolean getCheckLocation() {
+        return this.checkLocation;
     }
 
     @Override
