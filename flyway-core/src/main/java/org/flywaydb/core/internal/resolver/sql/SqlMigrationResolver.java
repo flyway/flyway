@@ -93,22 +93,22 @@ public class SqlMigrationResolver implements MigrationResolver {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         for (Location location: locations.getLocations()) {
-            scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
-            scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
+            scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), false);
+            scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), true);
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
+    private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix, boolean repeatable) {
         for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
             String filename = resource.getFilename();
             if (isSqlCallback(filename, suffix)) {
                 continue;
             }
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix);
+                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix, repeatable);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());
