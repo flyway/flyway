@@ -22,3 +22,4 @@ ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" DROP NOT NULL;
 call ADMIN_CMD('REORG TABLE "${schema}"."${table}"');
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
 UPDATE "${schema}"."${table}" SET "type"='BASELINE' WHERE "type"='INIT';
+DROP INDEX "${schema}"."${table}_pk";
