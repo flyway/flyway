@@ -17,8 +17,6 @@ package org.flywaydb.core.internal.util;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Various string-related utilities.
@@ -129,7 +127,7 @@ public class StringUtils {
      * @return The transformed str.
      */
     public static String replaceAll(String str, String originalToken, String replacementToken) {
-        return str.replaceAll(Pattern.quote(originalToken), Matcher.quoteReplacement(replacementToken));
+        return str.replace(originalToken, replacementToken);
     }
 
     /**
