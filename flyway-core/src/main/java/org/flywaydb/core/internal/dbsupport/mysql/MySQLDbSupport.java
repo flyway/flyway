@@ -111,7 +111,7 @@ public class MySQLDbSupport extends DbSupport {
 
     @Override
     public String doQuote(String identifier) {
-        return "`" + identifier + "`";
+        return "`" + identifier.replace("`", "``") + "`";
     }
 
     @Override
