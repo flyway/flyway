@@ -20,6 +20,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
 import org.junit.experimental.categories.Category;
@@ -34,5 +35,14 @@ public class DB2zOSConcurrentMigrationMediumTest extends ConcurrentMigrationTest
         String url = customProperties.getProperty("db2.url", "jdbc:db2://host:port/schemaname");
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+    }
+
+    /**
+     * Name of an authorization ID or name of a security label. 8 bytes
+     *
+     * @return Name of an authorization ID
+     */
+    protected String getSchemaName(DbSupport dbSupport) {
+        return "con_test";
     }
 }

@@ -21,7 +21,7 @@ CREATE TABLE PERSON (
      firstname VARCHAR(255) NOT NULL,
      lastname VARCHAR(255) NOT NULL
 )
- IN "AURINT".SPERS;
+ IN ${dbname}.SPERS;
 
 -- Indexes and constraints
 CREATE UNIQUE INDEX PERSON_pk_idx ON PERSON (id ASC);

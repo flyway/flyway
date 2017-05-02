@@ -21,4 +21,4 @@ CREATE TABLE couple (
   PRIMARY KEY(id),
   CONSTRAINT couple_user1_fk FOREIGN KEY (name1) REFERENCES test_user(name),
   CONSTRAINT couple_user2_fk FOREIGN KEY (name2) REFERENCES test_user(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;

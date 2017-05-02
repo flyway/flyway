@@ -19,6 +19,6 @@ SET CURRENT SQLID = 'AURINT';
 CREATE TABLE test_user (
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
 
 CREATE UNIQUE INDEX test_user_pk_idx ON test_user (name ASC);

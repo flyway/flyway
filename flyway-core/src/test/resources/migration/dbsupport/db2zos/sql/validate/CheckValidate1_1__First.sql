@@ -22,4 +22,4 @@ CREATE TABLE PERSON (
     id INT NOT NULL,
      firstname VARCHAR(255) NOT NULL,
      lastname VARCHAR(255) NOT NULL
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;

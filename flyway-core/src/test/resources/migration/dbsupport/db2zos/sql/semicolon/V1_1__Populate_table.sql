@@ -21,7 +21,7 @@ CREATE TABLE PERSON (
      firstname VARCHAR(255) NOT NULL,
      lastname VARCHAR(255) NOT NULL
 )
- IN "AURINT".SPERS;
+ IN ${dbname}.SPERS;
 
 INSERT INTO PERSON (id,firstname,lastname) VALUES (1, 'Mr.', 'T');
 INSERT INTO PERSON (id,firstname,lastname) VALUES (2, 'Mr.', 'Semicolon;');

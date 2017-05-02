@@ -24,7 +24,7 @@ CREATE TABLE PERSON1 (
   name VARCHAR(25) NOT NULL,
   -- second '
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
 
 CREATE TABLE GROUP1 (
 /*
@@ -32,14 +32,14 @@ CREATE TABLE GROUP1 (
  */
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
 
 -- 'fourth'
 CREATE TABLE TABLE1 (
 -- ' fifth
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
 
 CREATE TABLE TABLE2 (
 /*'
@@ -47,4 +47,4 @@ CREATE TABLE TABLE2 (
  '*/
   name VARCHAR(25) NOT NULL,
   PRIMARY KEY(name)
-) IN "AURINT".SPERS;
+) IN ${dbname}.SPERS;
