@@ -218,7 +218,7 @@ public class Main {
         LOG.info("Usage");
         LOG.info("=====");
         LOG.info("");
-        LOG.info("flyway [options] command");
+        LOG.info("flyway [options] [flags] command");
         LOG.info("");
         LOG.info("By default, the configuration will be read from conf/flyway.conf.");
         LOG.info("Options passed from the command-line override the configuration.");
@@ -269,6 +269,11 @@ public class Main {
         LOG.info("configFile                   : Config file to use (default: <install-dir>/conf/flyway.conf)");
         LOG.info("configFileEncoding           : Encoding of the config file (default: UTF-8)");
         LOG.info("jarDirs                      : Dirs for Jdbc drivers & Java migrations (default: jars)");
+        LOG.info("");
+        LOG.info("Flags (Format: -flag)");
+        LOG.info("=======");
+        LOG.info("userPrompt             : Prompt for username");
+        LOG.info("passwordPrompt         : Prompt for password");
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
@@ -485,9 +490,30 @@ public class Main {
      */
     /* private -> for testing*/
     static void overrideConfiguration(Properties properties, String[] args) {
+        boolean userPrompt = false;
+        boolean passwordPrompt = false;
+        
         for (String arg : args) {
             if (isPropertyArgument(arg)) {
                 properties.put("flyway." + getArgumentProperty(arg), getArgumentValue(arg));
+            } else if (arg.equals("-userPrompt")){
+                userPrompt = true;
+            } else if (arg.equals("-passwordPrompt")){
+                passwordPrompt = true;
+            }
+        }
+
+        if (userPrompt || passwordPrompt) {
+            Console console = System.console();
+        
+            if (userPrompt) {
+                System.out.print("Enter user: ");
+                properties.put("flyway.user", console.readLine());
+            }
+
+            if (passwordPrompt) {
+                System.out.print("Enter password: ");
+                properties.put("flyway.password", String.valueOf(console.readPassword()));
             }
         }
     }
