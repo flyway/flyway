@@ -251,6 +251,7 @@ public class Main {
         LOG.info("encoding                     : Encoding of sql migrations");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
+        LOG.info("systemProperties             : System properties to set in Flyway's JVM at runtime");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
         LOG.info("placeholderSuffix            : Suffix of every placeholder");
         LOG.info("installedBy                  : Username that will be recorded in the metadata table");

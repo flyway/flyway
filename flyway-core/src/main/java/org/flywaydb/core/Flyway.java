@@ -78,6 +78,11 @@ public class Flyway implements FlywayConfiguration {
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
+     * Property name prefix for system properties that are configured through properties.
+     */
+    private static final String SYSTEM_PROPERTY_PREFIX = "flyway.systemProperties.";
+
+    /**
      * The locations to scan recursively for migrations.
      * <p/>
      * <p>The location type is determined by its prefix.
@@ -1351,6 +1356,12 @@ public class Flyway implements FlywayConfiguration {
                 String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
                 String placeholderValue = entry.getValue();
                 placeholdersFromProps.put(placeholderName, placeholderValue);
+                iterator.remove();
+            } else if (propertyName.startsWith(SYSTEM_PROPERTY_PREFIX)
+                    && propertyName.length() > SYSTEM_PROPERTY_PREFIX.length()) {
+                String systemPropertyName = propertyName.substring(SYSTEM_PROPERTY_PREFIX.length());
+                String systemPropertyValue = entry.getValue();
+                System.setProperty(systemPropertyName, systemPropertyValue);
                 iterator.remove();
             }
         }

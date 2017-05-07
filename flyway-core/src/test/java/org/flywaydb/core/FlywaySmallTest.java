@@ -108,6 +108,19 @@ public class FlywaySmallTest {
     }
 
     @Test
+    public void configureSystemProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("flyway.systemProperties.my.system.property", "myvalue");
+        properties.setProperty("flyway.systemProperties.my.other.system.property", "myothervalue");
+
+        Flyway flyway = new Flyway();
+        flyway.configure(properties);
+
+        assertEquals(System.getProperty("my.system.property"), "myvalue");
+        assertEquals(System.getProperty("my.other.system.property"), "myothervalue");
+    }
+
+    @Test
     public void configurePlaceholders() {
         Flyway flyway = new Flyway();
         flyway.getPlaceholders().put("mykey", "myvalue");
