@@ -28,6 +28,7 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -325,9 +326,15 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
     private void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
         for (ResolvedArtifact artifact : getProject().getConfigurations().getByName(scope).getResolvedConfiguration().getResolvedArtifacts()) {
-            URL artifactUrl = artifact.getFile().toURI().toURL();
-            getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
-            urls.add(artifactUrl);
+            File artifactFile = artifact.getFile();
+            if (artifactFile.exists()) {
+                URL artifactUrl = artifactFile.toURI().toURL();
+                getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
+                urls.add(artifactUrl);
+            } else {
+                getLogger().debug("Dependency " + artifactFile + " not added to Classpath. File does not exist.");
+            }
+
         }
     }
 
