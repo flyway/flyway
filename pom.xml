@@ -127,7 +127,7 @@
     </repositories>
 
     <properties>
-        <version.spring>2.5.6</version.spring>
+        <version.spring>4.1.7.RELEASE</version.spring>
         <version.appengine>1.9.10</version.appengine>
         <version.maven>2.2.1</version.maven>
         <version.gradle>2.3</version.gradle>
