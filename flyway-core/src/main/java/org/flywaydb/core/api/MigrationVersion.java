@@ -17,6 +17,7 @@ package org.flywaydb.core.api;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -37,6 +38,12 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     public static final MigrationVersion LATEST = new MigrationVersion(BigInteger.valueOf(-1), "<< Latest Version >>");
 
     /**
+     * Special value for {@link #LATEST}{@code .}{@link #getVersion()}.
+     */
+    // @VisibleForTesting
+    static final String LATEST_VERSION_STRING = Long.toString(Long.MAX_VALUE);
+
+    /**
      * Current version. Only a marker. For the real version use Flyway.info().current() instead.
      */
     public static final MigrationVersion CURRENT = new MigrationVersion(BigInteger.valueOf(-2), "<< Current Version >>");
@@ -44,7 +51,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Compiled pattern for matching proper version format
      */
-    private static Pattern splitPattern = Pattern.compile("\\.(?=\\d)");
+    private static final Pattern splitPattern = Pattern.compile("\\.(?=\\d)");
 
     /**
      * The individual parts this version string is composed of. Ex. 1.2.3.4.0 -> [1, 2, 3, 4, 0]
@@ -66,7 +73,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     @SuppressWarnings("ConstantConditions")
     public static MigrationVersion fromVersion(String version) {
         if ("current".equalsIgnoreCase(version)) return CURRENT;
-        if (LATEST.getVersion().equals(version)) return LATEST;
+        if (LATEST_VERSION_STRING.equals(version)) return LATEST;
         if (version == null) return EMPTY;
         return new MigrationVersion(version);
     }
@@ -74,8 +81,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     /**
      * Creates a Version using this version string.
      *
-     * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                means that this version refers to an empty schema.
+     * @param version The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021.
      */
     private MigrationVersion(String version) {
         String normalizedVersion = version.replace('_', '.');
@@ -84,15 +90,17 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
     }
 
     /**
-     * Creates a Version using this version string.
+     * Creates a special MigrationVersion value.
      *
-     * @param version     The version in one of the following formats: 6, 6.0, 005, 1.2.3.4, 201004200021. <br/>{@code null}
-     *                    means that this version refers to an empty schema.
+     * @param version     The only comparable number for this version or null.
      * @param displayText The alternative text to display instead of the version number.
      */
     private MigrationVersion(BigInteger version, String displayText) {
-        this.versionParts = new ArrayList<BigInteger>();
-        this.versionParts.add(version);
+        if (version != null) {
+            this.versionParts = Collections.singletonList(version);
+        } else {
+            this.versionParts = Collections.emptyList();
+        }
         this.displayText = displayText;
     }
 
@@ -108,8 +116,8 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @return Numeric version as String
      */
     public String getVersion() {
-        if (this.equals(EMPTY)) return null;
-        if (this.equals(LATEST)) return Long.toString(Long.MAX_VALUE);
+        if (this == EMPTY) return null;
+        if (this == LATEST) return LATEST_VERSION_STRING;
         return displayText;
     }
 
@@ -125,7 +133,19 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
 
     @Override
     public int hashCode() {
-        return versionParts == null ? 0 : versionParts.hashCode();
+        return versionParts.hashCode();
+    }
+
+    private static final int CATEGORY_EMPTY = 0;
+    private static final int CATEGORY_CURRENT = 1;
+    private static final int CATEGORY_NORMAL = 2;
+    private static final int CATEGORY_LATEST = 3;
+
+    private int category() {
+        if (this == EMPTY) return CATEGORY_EMPTY;
+        if (this == CURRENT) return CATEGORY_CURRENT;
+        if (this == LATEST) return CATEGORY_LATEST;
+        return CATEGORY_NORMAL;
     }
 
     @SuppressWarnings("NullableProblems")
@@ -133,43 +153,26 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
         if (o == null) {
             return 1;
         }
-
-        if (this == EMPTY) {
-            return o == EMPTY ? 0 : Integer.MIN_VALUE;
+        final int category = category();
+        final int oCategory = o.category();
+        if (category != oCategory) {
+            return category - oCategory;
         }
-
-        if (this == CURRENT) {
-            return o == CURRENT ? 0 : Integer.MIN_VALUE;
-        }
-
-        if (this == LATEST) {
-            return o == LATEST ? 0 : Integer.MAX_VALUE;
-        }
-
-        if (o == EMPTY) {
-            return Integer.MAX_VALUE;
-        }
-
-        if (o == CURRENT) {
-            return Integer.MAX_VALUE;
-        }
-
-        if (o == LATEST) {
-            return Integer.MIN_VALUE;
-        }
-        final List<BigInteger> elements1 = versionParts;
-        final List<BigInteger> elements2 = o.versionParts;
-        int largestNumberOfElements = Math.max(elements1.size(), elements2.size());
-        for (int i = 0; i < largestNumberOfElements; i++) {
-            final int compared = getOrZero(elements1, i).compareTo(getOrZero(elements2, i));
-            if (compared != 0) {
-                return compared;
+        if (category == CATEGORY_NORMAL) {
+            final List<BigInteger> elements1 = versionParts;
+            final List<BigInteger> elements2 = o.versionParts;
+            int largestNumberOfElements = Math.max(elements1.size(), elements2.size());
+            for (int i = 0; i < largestNumberOfElements; i++) {
+                final int compared = getOrZero(elements1, i).compareTo(getOrZero(elements2, i));
+                if (compared != 0) {
+                    return compared;
+                }
             }
         }
         return 0;
     }
 
-    private BigInteger getOrZero(List<BigInteger> elements, int i) {
+    private static BigInteger getOrZero(List<BigInteger> elements, int i) {
         return i < elements.size() ? elements.get(i) : BigInteger.ZERO;
     }
 
@@ -179,7 +182,7 @@ public final class MigrationVersion implements Comparable<MigrationVersion> {
      * @param str The string to split.
      * @return The resulting array.
      */
-    private List<BigInteger> tokenize(String str) {
+    private static List<BigInteger> tokenize(String str) {
         List<BigInteger> numbers = new ArrayList<BigInteger>();
         for (String number : splitPattern.split(str)) {
             try {
