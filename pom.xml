@@ -74,6 +74,7 @@
         <module>flyway-core</module>
         <module>flyway-gradle-plugin</module>
         <module>flyway-gradle-plugin-largetest</module>
+        <module>flyway-guice</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-maven-plugin-largetest</module>
         <module>flyway-sample</module>
