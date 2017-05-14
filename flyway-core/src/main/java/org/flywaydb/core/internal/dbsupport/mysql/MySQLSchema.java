@@ -41,7 +41,7 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name=?", name) > 0;
+        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME=?", name) > 0;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
     private List<String> cleanEvents() throws SQLException {
         List<Map<String, String>> eventNames =
                 jdbcTemplate.queryForList(
-                        "SELECT event_name FROM information_schema.events WHERE event_schema=?",
+                        "SELECT event_name FROM information_schema.EVENTS WHERE EVENT_SCHEMA=?",
                         name);
 
         List<String> statements = new ArrayList<String>();
@@ -117,7 +117,7 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
     private List<String> cleanRoutines() throws SQLException {
         List<Map<String, String>> routineNames =
                 jdbcTemplate.queryForList(
-                        "SELECT routine_name, routine_type FROM information_schema.routines WHERE routine_schema=?",
+                        "SELECT routine_name, routine_type FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA=?",
                         name);
 
         List<String> statements = new ArrayList<String>();
@@ -138,7 +138,7 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
     private List<String> cleanViews() throws SQLException {
         List<String> viewNames =
                 jdbcTemplate.queryForStringList(
-                        "SELECT table_name FROM information_schema.views WHERE table_schema=?", name);
+                        "SELECT table_name FROM information_schema.VIEWS WHERE TABLE_SCHEMA=?", name);
 
         List<String> statements = new ArrayList<String>();
         for (String viewName : viewNames) {
@@ -150,7 +150,7 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
     @Override
     protected Table[] doAllTables() throws SQLException {
         List<String> tableNames = jdbcTemplate.queryForStringList(
-                "SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'", name);
+                "SELECT table_name FROM information_schema.TABLES WHERE TABLE_SCHEMA=? AND TABLE_TYPE='BASE TABLE'", name);
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
