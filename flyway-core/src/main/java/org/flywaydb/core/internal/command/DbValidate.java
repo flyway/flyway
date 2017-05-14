@@ -181,13 +181,8 @@ public class DbValidate {
             String error = result.getRight();
             if (error == null) {
                 int count = result.getLeft();
-                if (count == 1) {
-                    LOG.info(String.format("Successfully validated 1 migration (execution time %s)",
-                            TimeFormat.format(stopWatch.getTotalTimeMillis())));
-                } else {
-                    LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
-                            count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
-                }
+                LOG.info(String.format("Successfully validated %d migrations (execution time %s)",
+                        count, TimeFormat.format(stopWatch.getTotalTimeMillis())));
             }
 
             for (final FlywayCallback callback : callbacks) {
