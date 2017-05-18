@@ -56,7 +56,7 @@ if $linux; then
 fi
 
 if `command -v cygpath > /dev/null`; then
-  CP=$(cygpath -pw "$CP")
+  CP=`cygpath -pw "$CP"`
 fi
 
 "$JAVA_CMD" $JAVA_ARGS -cp "$CP" org.flywaydb.commandline.Main "$@"
