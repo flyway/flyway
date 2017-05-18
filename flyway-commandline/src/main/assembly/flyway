@@ -15,11 +15,9 @@
 # limitations under the License.
 #
 
-# Detect cygwin
-cygwin=false
+# Detect OS
 linux=false
 case "`uname`" in
-  CYGWIN*|MINGW*) cygwin=true;;
   Linux*) linux=true;;
 esac
 
@@ -57,7 +55,7 @@ if $linux; then
   JAVA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
 fi
 
-if $cygwin; then
+if `command -v cygpath > /dev/null`; then
   CP=$(cygpath -pw "$CP")
 fi
 
