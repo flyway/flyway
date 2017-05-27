@@ -77,7 +77,15 @@ public class DB2Schema extends Schema<DB2DbSupport> {
 
         if (dbSupport.getDb2MajorVersion() >= 10) {
             // drop versioned table link -> not supported for DB2 9.x
-            for (String dropVersioningStatement : generateDropVersioningStatement()) {
+            List<String> dropVersioningStatements = generateDropVersioningStatement();
+            if (!dropVersioningStatements.isEmpty()) {
+                // Do a explicit drop of MQTs in order to be able to drop the Versioning
+                for (String dropTableStatement : generateDropStatements("S", "TABLE")) {
+                    jdbcTemplate.execute(dropTableStatement);
+                }
+            }
+
+            for (String dropVersioningStatement : dropVersioningStatements) {
                 jdbcTemplate.execute(dropVersioningStatement);
             }
         }
