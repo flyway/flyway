@@ -46,6 +46,7 @@ import java.util.Properties;
  * @requiresDependencyResolution test
  * @configurator include-project-dependencies
  * @phase pre-integration-test
+ * @threadSafe
  */
 @SuppressWarnings({"JavaDoc", "FieldCanBeLocal", "UnusedDeclaration"})
 abstract class AbstractFlywayMojo extends AbstractMojo {
