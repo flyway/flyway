@@ -56,4 +56,16 @@ public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigration
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
+
+    protected String getBasedir() {
+        return "migration/dbsupport/postgresql/sql/concurrent";
+    }
+
+    @Override
+    protected boolean isMixed() {
+        // V1_1__View.sql has both a SELECT pg_sleep and CREATE INDEX CONCURRENTLY to help
+        // to reproduce the deadlock which can occur with the use of advisory locks.
+        // See #1654 for details.
+        return true;
+    }
 }
