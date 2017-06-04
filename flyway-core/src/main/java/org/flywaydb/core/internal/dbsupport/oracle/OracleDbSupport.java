@@ -179,7 +179,7 @@ public class OracleDbSupport extends DbSupport {
     }
 
     /**
-     * Returns the specified data dictionary name prefixed with DBA_ or ALL_ depending on its accessibility.
+     * Returns the specified data dictionary view name prefixed with DBA_ or ALL_ depending on its accessibility.
      *
      * @param baseName the data dictionary view base name, unquoted case-sensitive, e.g. OBJECTS, TABLES.
      * @return the full name of the view with the proper prefix.

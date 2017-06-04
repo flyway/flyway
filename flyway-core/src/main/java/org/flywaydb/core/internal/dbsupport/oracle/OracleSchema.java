@@ -187,8 +187,17 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * @throws SQLException when the statements could not be generated.
      */
     private void disableFlashbackArchiveForFbaTrackedTables() throws SQLException {
-        // DBA_FLASHBACK_ARCHIVE_TABLES is granted to PUBLIC
-        String queryForFbaTrackedTables = "SELECT TABLE_NAME FROM DBA_FLASHBACK_ARCHIVE_TABLES WHERE OWNER_NAME = ?";
+        boolean dbaViewAccessible = dbSupport.isPrivOrRoleGranted("SELECT ANY DICTIONARY")
+                || dbSupport.isDataDictViewAccessible("DBA_FLASHBACK_ARCHIVE_TABLES");
+
+        if (!dbaViewAccessible && !isDefaultSchemaForUser()) {
+            LOG.warn("Unable to check and disable Flashback Archive for tables in schema " + dbSupport.quote(name) +
+                    " by user \"" + dbSupport.getCurrentUserName() + "\": DBA_FLASHBACK_ARCHIVE_TABLES is not accessible");
+            return;
+        }
+
+        String queryForFbaTrackedTables = "SELECT TABLE_NAME FROM " + (dbaViewAccessible ? "DBA_" : "USER_") +
+                "FLASHBACK_ARCHIVE_TABLES WHERE OWNER_NAME = ?";
         List<String> tableNames = jdbcTemplate.queryForStringList(queryForFbaTrackedTables, name);
         for (String tableName : tableNames) {
             jdbcTemplate.execute("ALTER TABLE " + dbSupport.quote(name, tableName) + " NO FLASHBACK ARCHIVE");
