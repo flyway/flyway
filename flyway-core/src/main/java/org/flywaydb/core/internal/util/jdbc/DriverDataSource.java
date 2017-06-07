@@ -247,6 +247,10 @@ public class DriverDataSource implements DataSource {
      * @return The Jdbc driver.
      */
     private String detectDriverForUrl(String url) {
+        if (url.startsWith("jdbc:tc:")) {
+            return "org.testcontainers.jdbc.ContainerDatabaseDriver";
+        }
+
         if (url.startsWith("jdbc:db2:")) {
             return "com.ibm.db2.jcc.DB2Driver";
         }
