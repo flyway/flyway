@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -188,5 +189,25 @@ public class OracleSqlScriptSmallTest {
         SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
         assertEquals(2, sqlStatements.size());
+    }
+
+    @Test
+    public void parseWheneverSqlerrorStatement() throws Exception {
+        String source = "SELECT * FROM DUAL;\n" +
+                "\n" +
+                "WHENEVER SQLERROR CONTINUE;\n" +
+                "SELECT * FROM DUAL;\n" +
+                "SELECT * FROM DUAL;\n" +
+                "WHENEVER   SQLERROR " +
+                "  EXIT FAILURE  ;  \n" +
+                "\n" +
+                "SELECT * FROM DUAL;\n";
+
+        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        assertTrue(sqlStatements.get(0).getFailOnException());
+        assertFalse(sqlStatements.get(1).getFailOnException());
+        assertFalse(sqlStatements.get(2).getFailOnException());
+        assertTrue(sqlStatements.get(3).getFailOnException());
     }
 }

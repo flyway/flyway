@@ -38,4 +38,17 @@ public interface SqlStatement {
      * @throws SQLException when the execution fails.
      */
     void execute(JdbcTemplate jdbcTemplate) throws SQLException;
+
+    /**
+     * @return {@code true} if the executor should treat exceptions as failures and stop the migration.
+     */
+    boolean getFailOnException();
+
+    /**
+     * Specify whether the executor should treat exceptions as failures and stop the migration.
+     *
+     * @param failOnException {@code false} if the executor should ignore exceptions and continue
+     *                                    with the rest of the migration.
+     */
+    void setFailOnException(boolean failOnException);
 }

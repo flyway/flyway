@@ -123,8 +123,17 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     private boolean isSqlPlusCommand() {
         return statementStart.matches("SET\\s+(DEFINE|ECHO|TIMING|SERVEROUTPUT)\\s+(ON|OFF).*")
-                || statementStart.matches("WHENEVER\\s+SQLERROR.*")
                 || statementStart.matches("COLUMN\\s+SPOOLFILE.*")
                 || statementStart.matches("SPOOL\\s+(OFF|&V_SPOOLFILE).*");
+    }
+
+    @Override
+    public boolean isIgnoreExceptionDirective() {
+        return statementStart.matches("WHENEVER\\s+SQLERROR\\s+CONTINUE\\s*;\\s*");
+    }
+
+    @Override
+    public boolean isFailOnExceptionDirective() {
+        return statementStart.matches("WHENEVER\\s+SQLERROR\\s+EXIT\\s+FAILURE\\s*;\\s*");
     }
 }
