@@ -37,6 +37,11 @@ public class SqlStatement {
     private boolean pgCopy;
 
     /**
+     * Whether the executor should treat exceptions as failures and stop the migration.
+     */
+    private boolean failOnException;
+
+    /**
      * Creates a new sql statement.
      *
      * @param lineNumber The original line number where the statement was located in the script it came from.
@@ -47,6 +52,7 @@ public class SqlStatement {
         this.lineNumber = lineNumber;
         this.sql = sql;
         this.pgCopy = pgCopy;
+        this.failOnException = true;
     }
 
     /**
@@ -68,5 +74,22 @@ public class SqlStatement {
      */
     public boolean isPgCopy() {
         return pgCopy;
+    }
+
+    /**
+     * @return {@code true} if the executor should treat exceptions as failures and stop the migration.
+     */
+    public boolean getFailOnException() {
+        return failOnException;
+    }
+
+    /**
+     * Specify whether the executor should treat exceptions as failures and stop the migration.
+     *
+     * @param failOnException {@code false} if the executor should ignore exceptions and continue
+     *                                    with the rest of the migration.
+     */
+    public void setFailOnException(boolean failOnException) {
+        this.failOnException = failOnException;
     }
 }

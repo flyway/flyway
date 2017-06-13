@@ -46,12 +46,6 @@ public class OracleSqlStatementBuilderSmallTest {
         builder.addLine("set timing on;");
         assertTrue(builder.canDiscard());
         builder = new OracleSqlStatementBuilder();
-        builder.addLine("WHENEVER SQLERROR EXIT FAILURE;");
-        assertTrue(builder.canDiscard());
-        builder = new OracleSqlStatementBuilder();
-        builder.addLine("WHENEVER SQLERROR CONTINUE;\n");
-        assertTrue(builder.canDiscard());
-        builder = new OracleSqlStatementBuilder();
         builder.addLine("SET echo off");
         assertTrue(builder.canDiscard());
         builder = new OracleSqlStatementBuilder();
