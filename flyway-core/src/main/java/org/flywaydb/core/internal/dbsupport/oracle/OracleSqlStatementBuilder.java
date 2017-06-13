@@ -118,6 +118,13 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     public boolean canDiscard() {
-        return super.canDiscard() || statementStart.startsWith("SET DEFINE OFF");
+        return super.canDiscard() || isSqlPlusCommand();
+    }
+
+    private boolean isSqlPlusCommand() {
+        return statementStart.matches("SET\\s+(DEFINE|ECHO|TIMING|SERVEROUTPUT)\\s+(ON|OFF).*")
+                || statementStart.matches("WHENEVER\\s+SQLERROR.*")
+                || statementStart.matches("COLUMN\\s+SPOOLFILE.*")
+                || statementStart.matches("SPOOL\\s+(OFF|&V_SPOOLFILE).*");
     }
 }
