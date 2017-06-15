@@ -43,6 +43,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
+import static java.lang.String.format;
+
 /**
  * ClassPath scanner.
  */
@@ -199,6 +201,11 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                     } catch (URISyntaxException ex) {
                         // Fallback for URLs that are not valid URIs (should hardly ever happen).
                         jarFile = new JarFile(url.getPath().substring("file:".length()));
+                    } catch (Throwable e){
+                        //jvm may be started with wild char class path entries, e.g. -cp :partialfilename*.jar:
+                        //these will cause exception that we should handle
+                        LOG.warn(format("Unable to open jar %s, error: %s", url, e.getMessage()));
+                        continue;
                     }
 
                     try {

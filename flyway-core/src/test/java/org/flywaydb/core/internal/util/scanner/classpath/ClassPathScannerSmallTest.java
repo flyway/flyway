@@ -19,6 +19,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -173,5 +175,14 @@ public class ClassPathScannerSmallTest {
         for (Resource resource : resources) {
             assertFalse(resource.getLocation(), resource.getLocation().startsWith("net/sourceforge/jtds/jdbcx/"));
         }
+    }
+    @Test
+    public void scanShouldNotFailIfClassPathContainsWildcharEntries() throws Exception {
+        ClassPathScanner scanner = new ClassPathScanner(new URLClassLoader(new URL[]{new URL("file://somepath/filename*.jar")}, Thread.currentThread().getContextClassLoader()));
+        
+        Resource[] resources = scanner.scanForResources(new Location("classpath:migration/sql"), "V", ".sql");
+
+        assertEquals("migration/sql/V1.1__View.sql", resources[0].getLocation());
+        
     }
 }
