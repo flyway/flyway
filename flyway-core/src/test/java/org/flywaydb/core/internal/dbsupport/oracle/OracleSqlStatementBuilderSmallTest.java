@@ -54,6 +54,27 @@ public class OracleSqlStatementBuilderSmallTest {
         builder = new OracleSqlStatementBuilder();
         builder.addLine("spool off;");
         assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors view;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors view myview_v;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors view myschema.myview_v;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors package body;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors package body pkgb;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors package body myschema.pkgb;");
+        assertTrue(builder.canDiscard());
     }
 
     @Test

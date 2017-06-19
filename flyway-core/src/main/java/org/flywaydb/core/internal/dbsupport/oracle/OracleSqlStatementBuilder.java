@@ -122,9 +122,12 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     private boolean isSqlPlusCommand() {
-        return statementStart.matches("SET\\s+(DEFINE|ECHO|TIMING|SERVEROUTPUT)\\s+(ON|OFF).*")
-                || statementStart.matches("COLUMN\\s+SPOOLFILE.*")
-                || statementStart.matches("SPOOL\\s+(OFF|&V_SPOOLFILE).*");
+        final String COMMAND_END = "(\\s*;)?\\s*";
+        return statementStart.matches("SET\\s+(DEFINE|ECHO|TIMING|SERVEROUTPUT)\\s+(ON|OFF)" + COMMAND_END)
+                || statementStart.matches("COLUMN\\s+\\w+\\s+NEW_VALUE\\s+\\w+" + COMMAND_END)
+                || statementStart.matches("SPOOL\\s+(OFF|(&?\\w+(.\\w*)?))" + COMMAND_END)
+                || statementStart.matches("SHOW\\s+ERRORS(\\s+(FUNCTION|PROCEDURE|PACKAGE|PACKAGE BODY|TRIGGER|" +
+                "VIEW|TYPE|TYPE BODY|DIMENSION|JAVA CLASS)(\\s+(\\w+\\.)?\\w+)?)?" + COMMAND_END);
     }
 
     @Override
