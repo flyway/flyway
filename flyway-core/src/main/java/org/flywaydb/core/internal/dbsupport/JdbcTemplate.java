@@ -270,6 +270,10 @@ public class JdbcTemplate {
                 while (warning != null) {
                     if ("00000".equals(warning.getSQLState())) {
                         LOG.info("DB: " + warning.getMessage());
+                    } else if (("99999".equals(warning.getSQLState())) && (warning.getErrorCode() == 17110)) {
+                        LOG.error("DB: " + warning.getMessage()
+                                + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
+                        throw new SQLException(warning.getMessage(), warning.getSQLState(), warning.getErrorCode(), warning.getCause());
                     } else {
                         LOG.warn("DB: " + warning.getMessage()
                                 + " (SQL State: " + warning.getSQLState() + " - Error Code: " + warning.getErrorCode() + ")");
