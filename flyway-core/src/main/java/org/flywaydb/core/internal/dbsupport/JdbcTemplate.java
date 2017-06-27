@@ -280,7 +280,7 @@ public class JdbcTemplate {
                 int updateCount = -1;
                 while (hasResults || (updateCount = statement.getUpdateCount()) != -1) {
                     if (updateCount != -1) {
-                        LOG.debug("Update Count: " + updateCount);
+                        LOG.info("Update Count: " + updateCount);
                     }
                     hasResults = statement.getMoreResults();
                 }
