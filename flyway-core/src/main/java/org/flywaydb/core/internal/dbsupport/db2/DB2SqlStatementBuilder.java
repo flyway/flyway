@@ -19,6 +19,8 @@ import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.regex.Pattern;
+
 /**
  * SqlStatementBuilder supporting DB2-specific delimiter changes.
  */
@@ -27,6 +29,11 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
      * The keyword that indicates a change in delimiter.
      */
     private static final String DELIMITER_KEYWORD = "--#SET TERMINATOR";
+
+    /**
+     * Regex to check for a BEGIN statement of a SQL PL block.
+     */
+    private static final Pattern BEGIN_REGEX = Pattern.compile("^([A-Z]+[A-Z0-9]*\\s?:\\s?)?BEGIN(\\sATOMIC)?(\\s.*)?");
 
     /**
      * Are we currently inside a BEGIN END; block?
@@ -47,8 +54,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     @Override
     public Delimiter extractNewDelimiterFromLine(String line) {
         if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {
-            currentDelimiter = new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
-            return currentDelimiter;
+            return new Delimiter(line.substring(DELIMITER_KEYWORD.length()).trim(), false);
         }
 
         return null;
@@ -69,6 +75,12 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
+        if (delimiter != null && !delimiter.equals(currentDelimiter)) {
+            // Synchronize current delimiter with main delimiter in case it was changed
+            // due to a --#SET TERMINATOR directive earlier in the SQL script
+            currentDelimiter = delimiter;
+        }
+
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 4) {
             statementStart += line;
             statementStart += " ";
@@ -80,11 +92,12 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
                 || statementStart.startsWith("CREATE OR REPLACE FUNCTION")
                 || statementStart.startsWith("CREATE OR REPLACE PROCEDURE")
                 || statementStart.startsWith("CREATE OR REPLACE TRIGGER")) {
-            if (line.startsWith("BEGIN")) {
+            // Optional label followed by BEGIN
+            if (isBegin(line)) {
                 insideBeginEndBlock = true;
             }
 
-            if (line.endsWith("END;")) {
+            if (line.matches(".*\\s?END\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?")) {
                 insideBeginEndBlock = false;
             }
         }
@@ -93,5 +106,9 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             return null;
         }
         return currentDelimiter;
+    }
+
+    static boolean isBegin(String line) {
+        return BEGIN_REGEX.matcher(line).find();
     }
 }
