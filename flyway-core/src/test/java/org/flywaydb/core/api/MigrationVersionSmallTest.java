@@ -172,4 +172,3 @@ public class MigrationVersionSmallTest {
         assertEquals(raw, longVersions.getVersion());
     }
 }
-
