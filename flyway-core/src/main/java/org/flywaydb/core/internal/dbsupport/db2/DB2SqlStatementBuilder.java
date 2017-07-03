@@ -31,7 +31,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     private static final String DELIMITER_KEYWORD = "--#SET TERMINATOR";
 
     /**
-     * Regex to check for a BEGIN statement of a SQL PL block.
+     * Regex to check for a BEGIN statement of a SQL PL block (Optional label followed by BEGIN).
      */
     private static final Pattern BEGIN_REGEX = Pattern.compile("^([A-Z]+[A-Z0-9]*\\s?:\\s?)?BEGIN(\\sATOMIC)?(\\s.*)?");
 
@@ -86,18 +86,12 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             statementStart += " ";
         }
 
-        if (statementStart.startsWith("CREATE FUNCTION")
-                || statementStart.startsWith("CREATE PROCEDURE")
-                || statementStart.startsWith("CREATE TRIGGER")
-                || statementStart.startsWith("CREATE OR REPLACE FUNCTION")
-                || statementStart.startsWith("CREATE OR REPLACE PROCEDURE")
-                || statementStart.startsWith("CREATE OR REPLACE TRIGGER")) {
-            // Optional label followed by BEGIN
+        if (statementStart.matches("^CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|TRIGGER)(\\s.*)?")) {
             if (isBegin(line)) {
                 insideBeginEndBlock = true;
             }
 
-            if (line.matches(".*\\s?END\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?")) {
+            if (isEnd(line)) {
                 insideBeginEndBlock = false;
             }
         }
@@ -110,5 +104,9 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
     static boolean isBegin(String line) {
         return BEGIN_REGEX.matcher(line).find();
+    }
+
+    private boolean isEnd(String line) {
+        return line.matches(".*\\s?END\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
     }
 }
