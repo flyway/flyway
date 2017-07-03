@@ -27,8 +27,53 @@ public class OracleSqlStatementBuilderSmallTest {
     private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder();
 
     @Test
-    public void setDefineOff() {
+    public void sqlPlusCommands() {
+        builder.addLine("column spoolfile new_value v_spoolfile;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("spool &v_spoolfile.\n");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("set serveroutput on;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("set echo on;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
         builder.addLine("set define off;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("set timing on;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("SET echo off");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("SET DEFINE on;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("spool off;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors view;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors view myview_v;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors view myschema.myview_v;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors package body;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors package body pkgb;");
+        assertTrue(builder.canDiscard());
+        builder = new OracleSqlStatementBuilder();
+        builder.addLine("show errors package body myschema.pkgb;");
         assertTrue(builder.canDiscard());
     }
 

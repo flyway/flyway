@@ -469,6 +469,24 @@ public class SqlStatementBuilder {
     }
 
     /**
+     * Whether this statement is an instruction for flyway to ignore all exceptions from this point forward.
+     *
+     * @return {@code true} if this is a directive to ignore all exceptions from this point forward.
+     */
+    public boolean isIgnoreExceptionDirective() {
+        return false;
+    }
+
+    /**
+     * Whether this statement is an instruction for flyway to fail on any exception from this point forward.
+     *
+     * @return {@code true} if this is a directive to fail on any exception from this point forward.
+     */
+    public boolean isFailOnExceptionDirective() {
+        return false;
+    }
+
+    /**
      * The types of tokens relevant for string delimiter related parsing.
      */
     private enum TokenType {

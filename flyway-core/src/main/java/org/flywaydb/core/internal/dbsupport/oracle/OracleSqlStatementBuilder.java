@@ -118,6 +118,25 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
 
     @Override
     public boolean canDiscard() {
-        return super.canDiscard() || statementStart.startsWith("SET DEFINE OFF");
+        return super.canDiscard() || isSqlPlusCommand();
+    }
+
+    private boolean isSqlPlusCommand() {
+        final String COMMAND_END = "(\\s*;)?\\s*";
+        return statementStart.matches("SET\\s+(DEFINE|ECHO|TIMING|SERVEROUTPUT)\\s+(ON|OFF)" + COMMAND_END)
+                || statementStart.matches("COLUMN\\s+\\w+\\s+NEW_VALUE\\s+\\w+" + COMMAND_END)
+                || statementStart.matches("SPOOL\\s+(OFF|(&?\\w+(.\\w*)?))" + COMMAND_END)
+                || statementStart.matches("SHOW\\s+ERRORS(\\s+(FUNCTION|PROCEDURE|PACKAGE|PACKAGE BODY|TRIGGER|" +
+                "VIEW|TYPE|TYPE BODY|DIMENSION|JAVA CLASS)(\\s+(\\w+\\.)?\\w+)?)?" + COMMAND_END);
+    }
+
+    @Override
+    public boolean isIgnoreExceptionDirective() {
+        return statementStart.matches("WHENEVER\\s+SQLERROR\\s+CONTINUE\\s*;\\s*");
+    }
+
+    @Override
+    public boolean isFailOnExceptionDirective() {
+        return statementStart.matches("WHENEVER\\s+SQLERROR\\s+EXIT\\s+FAILURE\\s*;\\s*");
     }
 }
