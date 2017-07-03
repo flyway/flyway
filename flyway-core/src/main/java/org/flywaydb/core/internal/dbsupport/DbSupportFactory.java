@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.memsql.MemSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
@@ -41,7 +42,10 @@ import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Factory for obtaining the correct DbSupport instance for the current connection.
@@ -87,10 +91,15 @@ public class DbSupportFactory {
             return new SQLServerDbSupport(connection);
         }
         if (databaseProductName.contains("MySQL")) {
-            // For regular MySQL, MariaDB and Google Cloud SQL.
+            // For regular MemSQL, MySQL, MariaDB and Google Cloud SQL.
             // Google Cloud SQL returns different names depending on the environment and the SDK version.
             //   ex.: Google SQL Service/MySQL
-            return new MySQLDbSupport(connection);
+            if(getCatalog(connection).contains("memsql")){
+                return new MemSQLDbSupport(connection);
+            }
+            else{
+                return new MySQLDbSupport(connection);
+            }
         }
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
@@ -242,5 +251,29 @@ public class DbSupportFactory {
         } catch (SQLException e) {
             throw new FlywaySqlException("Error while determining JDBC driver name", e);
         }
+    }
+
+    /**
+     * Retrieves the databases from the Server as a list
+     *
+     * @param connection The connection to use to query the database.
+     * @return List of Databases present
+     */
+    private static List<String> getCatalog(Connection connection) {
+        List<String> dblist;
+        try {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            dblist = new ArrayList();
+            if (databaseMetaData == null) {
+                throw new FlywayException("Unable to read database metadata while it is null!");
+            }
+            ResultSet catalog = databaseMetaData.getCatalogs();
+            while (catalog.next()) {
+                dblist.add(catalog.getString(1));
+            }
+        } catch (SQLException e) {
+            throw new FlywayException("Error while determining JDBC driver name", e);
+        }
+        return dblist;
     }
 }
