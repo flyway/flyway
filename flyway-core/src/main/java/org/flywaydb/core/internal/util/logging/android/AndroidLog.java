@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.logging.android;
 
-import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.api.logging.Log;
 
 /**
  * Wrapper for an Android logger.

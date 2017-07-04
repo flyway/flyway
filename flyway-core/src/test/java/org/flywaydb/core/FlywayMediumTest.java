@@ -25,7 +25,7 @@ import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.logging.StringLogCreator;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.AfterClass;

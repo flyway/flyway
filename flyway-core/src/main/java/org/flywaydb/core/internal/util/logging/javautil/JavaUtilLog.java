@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.logging.javautil;
 
-import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.api.logging.Log;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;

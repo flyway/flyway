@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
 import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.File;

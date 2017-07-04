@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

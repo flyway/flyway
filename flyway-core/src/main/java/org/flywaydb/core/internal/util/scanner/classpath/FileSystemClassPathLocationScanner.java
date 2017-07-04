@@ -16,13 +16,12 @@
 package org.flywaydb.core.internal.util.scanner.classpath;
 
 import org.flywaydb.core.internal.util.UrlUtils;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.Set;
 import java.util.TreeSet;
 

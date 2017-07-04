@@ -20,8 +20,8 @@ import org.flywaydb.core.api.pro.errorhandler.ErrorContext;
 import org.flywaydb.core.api.pro.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.BufferedReader;

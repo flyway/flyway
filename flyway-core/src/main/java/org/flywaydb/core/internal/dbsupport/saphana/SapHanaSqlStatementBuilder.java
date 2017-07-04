@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.dbsupport.saphana;
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 /**
  * SqlStatementBuilder supporting SAP HANA-specific delimiter changes.

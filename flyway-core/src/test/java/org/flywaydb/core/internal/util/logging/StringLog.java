@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.util.logging;
 
+import org.flywaydb.core.api.logging.Log;
+
 /**
  * Logger that captures output as a string.
  */

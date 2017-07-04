@@ -22,8 +22,8 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
 

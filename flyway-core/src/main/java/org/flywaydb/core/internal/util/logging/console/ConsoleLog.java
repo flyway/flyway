@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.logging.console;
 
-import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.api.logging.Log;
 
 /**
  * Wrapper around a simple Console output.

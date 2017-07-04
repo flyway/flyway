@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.util;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;

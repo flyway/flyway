@@ -21,8 +21,8 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.android.ContextHolder;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.ResourceAndClassScanner;
 

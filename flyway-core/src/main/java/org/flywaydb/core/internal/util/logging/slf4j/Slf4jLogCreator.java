@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.util.logging.slf4j;
 
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogCreator;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogCreator;
 import org.slf4j.LoggerFactory;
 
 /**

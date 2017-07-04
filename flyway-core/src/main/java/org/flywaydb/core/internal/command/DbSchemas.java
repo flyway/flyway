@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.command;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.Connection;
 import java.util.concurrent.Callable;

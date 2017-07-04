@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util.logging;
-
 /**
- * Factory for implementation-specific loggers.
+ * Interfaces for Flyway's log abstraction.
  */
-public interface LogCreator {
-    /**
-     * Creates an implementation-specific logger for this class.
-     *
-     * @param clazz The class to create the logger for.
-     * @return The logger.
-     */
-    Log createLogger(Class<?> clazz);
-}
+package org.flywaydb.core.api.logging;
