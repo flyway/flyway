@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.util.logging.console;
 
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogCreator;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogCreator;
 
 /**
  * Log Creator for the Command-Line console.

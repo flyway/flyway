@@ -18,8 +18,8 @@ package org.flywaydb.sbt
 import java.util.Properties
 
 import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.logging.{Log, LogCreator, LogFactory}
 import org.flywaydb.core.internal.info.MigrationInfoDumper
-import org.flywaydb.core.internal.util.logging.{LogCreator, LogFactory}
 import sbt.Keys._
 import sbt._
 import sbt.classpath._
@@ -364,7 +364,7 @@ object FlywayPlugin extends AutoPlugin {
     def createLogger(clazz: Class[_]) = FlywaySbtLog
   }
 
-  private object FlywaySbtLog extends org.flywaydb.core.internal.util.logging.Log {
+  private object FlywaySbtLog extends Log {
     var streams: Option[TaskStreams] = None
     def debug(message: String) { streams map (_.log.debug(message)) }
     def info(message: String) { streams map (_.log.info(message)) }

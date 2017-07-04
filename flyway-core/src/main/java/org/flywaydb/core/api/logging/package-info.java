@@ -13,16 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util.logging.android;
-
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogCreator;
-
 /**
- * Log Creator for Android.
+ * Interfaces for Flyway's log abstraction.
  */
-public class AndroidLogCreator implements LogCreator {
-    public Log createLogger(Class<?> clazz) {
-        return new AndroidLog();
-    }
-}
+package org.flywaydb.core.api.logging;
