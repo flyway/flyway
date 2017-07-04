@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 /**
