@@ -86,11 +86,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
                     continue;
                 }
 
-                try {
-                    ClassUtils.instantiate(className, classLoader);
-                } catch (Exception e) {
-                    throw new FlywayException("Unable to instantiate class: " + className);
-                }
+                ClassUtils.instantiate(className, classLoader);
 
                 classes.add(clazz);
                 LOG.debug("Found class: " + className);

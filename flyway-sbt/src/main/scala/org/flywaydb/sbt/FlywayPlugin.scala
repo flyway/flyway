@@ -84,6 +84,9 @@ object FlywayPlugin extends AutoPlugin {
     val flywayGroup = settingKey[Boolean]("Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions). (default: false)")
     val flywayInstalledBy = settingKey[String]("The username that will be recorded in the metadata table as having applied the migration. (default: null)")
 
+
+
+
     //*********************
     // flyway tasks
     //*********************
@@ -113,7 +116,11 @@ object FlywayPlugin extends AutoPlugin {
   private case class ConfigSqlMigration(sqlMigrationPrefix: String, repeatableSqlMigrationPrefix: String, sqlMigrationSeparator: String, sqlMigrationSuffix: String)
   private case class ConfigMigrate(ignoreMissingMigrations: Boolean, ignoreFutureMigrations: Boolean, ignoreFailedFutureMigration: Boolean,
                                    baselineOnMigrate: Boolean, validateOnMigrate: Boolean,
-                                   allowMixedMigrations: Boolean, mixed: Boolean, group: Boolean, installedBy: String)
+                                   allowMixedMigrations: Boolean, mixed: Boolean, group: Boolean, installedBy: String
+
+
+
+                                  )
   private case class ConfigPlaceholder(placeholderReplacement: Boolean, placeholders: Map[String, String],
                                    placeholderPrefix: String, placeholderSuffix: String)
   private case class Config(dataSource: ConfigDataSource, base: ConfigBase, migrationLoading: ConfigMigrationLoading,
@@ -171,6 +178,9 @@ object FlywayPlugin extends AutoPlugin {
       flywayMixed := defaults.isMixed,
       flywayGroup := defaults.isGroup,
       flywayInstalledBy := "",
+
+
+
       flywayCleanOnValidationError := defaults.isCleanOnValidationError,
       flywayCleanDisabled := defaults.isCleanDisabled,
       flywayConfigDataSource <<= (flywayDriver, flywayUrl, flywayUser, flywayPassword) map {
@@ -189,10 +199,22 @@ object FlywayPlugin extends AutoPlugin {
           ConfigSqlMigration(sqlMigrationPrefix, repeatableSqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix)
       },
       flywayConfigMigrate <<= (flywayIgnoreMissingMigrations, flywayIgnoreFutureMigrations, flywayIgnoreFailedFutureMigration,
-        flywayBaselineOnMigrate, flywayValidateOnMigrate, flywayAllowMixedMigrations, flywayMixed, flywayGroup, flywayInstalledBy) map {
+        flywayBaselineOnMigrate, flywayValidateOnMigrate, flywayAllowMixedMigrations, flywayMixed, flywayGroup, flywayInstalledBy
+
+
+
+      ) map {
         (ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration,
-         baselineOnMigrate, validateOnMigrate, allowMixedMigrations, mixed, group, installedBy) =>
-          ConfigMigrate(ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration, baselineOnMigrate, validateOnMigrate, allowMixedMigrations, mixed, group, installedBy)
+         baselineOnMigrate, validateOnMigrate, allowMixedMigrations, mixed, group, installedBy
+
+
+
+        ) =>
+          ConfigMigrate(ignoreMissingMigrations, ignoreFutureMigrations, ignoreFailedFutureMigration, baselineOnMigrate, validateOnMigrate, allowMixedMigrations, mixed, group, installedBy
+
+
+
+          )
       },
       flywayConfigPlaceholder <<= (flywayPlaceholderReplacement, flywayPlaceholders, flywayPlaceholderPrefix, flywayPlaceholderSuffix) map {
         (placeholderReplacement, placeholders, placeholderPrefix, placeholderSuffix) =>
@@ -317,6 +339,9 @@ object FlywayPlugin extends AutoPlugin {
       flyway.setMixed(config.mixed)
       flyway.setGroup(config.group)
       flyway.setInstalledBy(config.installedBy)
+
+
+
       flyway
     }
     def configure(config: ConfigPlaceholder): Flyway = {
@@ -348,5 +373,4 @@ object FlywayPlugin extends AutoPlugin {
     def error(message: String, e: Exception) { streams map (_.log.error(message)); streams map (_.log.trace(e)) }
   }
 }
-
 

@@ -23,7 +23,6 @@ import java.sql.SQLException;
  * This specific exception thrown when Flyway encounters a problem in SQL script
  */
 public class FlywaySqlScriptException extends FlywaySqlException {
-
     private final Resource resource;
     private final SqlStatement statement;
 
