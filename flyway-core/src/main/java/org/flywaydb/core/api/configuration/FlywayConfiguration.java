@@ -17,6 +17,7 @@ package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -313,4 +314,15 @@ public interface FlywayConfiguration {
      * @return The username or {@code null} for the current database user of the connection. (default: {@code null}).
      */
     String getInstalledBy();
+
+
+
+
+
+
+
+
+
+
+
 }

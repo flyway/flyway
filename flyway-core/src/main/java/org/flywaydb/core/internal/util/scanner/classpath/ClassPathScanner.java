@@ -126,8 +126,6 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             } catch (NoClassDefFoundError e) {
                 LOG.debug("Skipping non-loadable class: " + className);
                 continue;
-            } catch (Exception e) {
-                throw new FlywayException("Unable to instantiate class: " + className, e);
             }
 
             classes.add(clazz);

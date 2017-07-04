@@ -280,6 +280,15 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String installedBy;
 
+
+
+
+
+
+
+
+
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -377,6 +386,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
         putIfSet(conf, "resolvers", StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
         putIfSet(conf, "callbacks", StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
+
+
+
+
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {
