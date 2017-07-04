@@ -280,6 +280,15 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String installedBy;
 
+    //[pro]
+    /**
+     * The fully qualified class name of the ErrorHandler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * <p>{@code null} if the default internal handler should be used instead. (default: {@code null})</p>
+     */
+    public String errorHandler;
+    //[/pro]
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -377,6 +386,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
 
         putIfSet(conf, "resolvers", StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
         putIfSet(conf, "callbacks", StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
+
+        //[pro]
+        putIfSet(conf, "errorHandler", errorHandler, extension.errorHandler);
+        //[/pro]
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {

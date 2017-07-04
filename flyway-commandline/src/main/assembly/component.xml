@@ -92,7 +92,7 @@
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.flywaydb:flyway-*</include>
+                <include>com.boxfuse.flyway-pro:flyway-*</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -101,7 +101,7 @@
                 <include>*</include>
             </includes>
             <excludes>
-                <exclude>org.flywaydb:flyway-*</exclude>
+                <exclude>com.boxfuse.flyway-pro:flyway-*</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

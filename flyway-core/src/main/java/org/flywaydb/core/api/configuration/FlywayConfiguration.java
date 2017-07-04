@@ -17,6 +17,7 @@ package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.pro.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -313,4 +314,15 @@ public interface FlywayConfiguration {
      * @return The username or {@code null} for the current database user of the connection. (default: {@code null}).
      */
     String getInstalledBy();
+
+    //[pro]
+
+    /**
+     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     *
+     * @return The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
+     */
+    ErrorHandler getErrorHandler();
+    //[/pro]
 }

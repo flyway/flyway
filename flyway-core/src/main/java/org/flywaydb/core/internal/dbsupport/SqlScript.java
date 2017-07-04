@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.pro.errorhandler.ErrorContext;
+import org.flywaydb.core.api.pro.errorhandler.ErrorHandler;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.logging.Log;
@@ -41,6 +43,13 @@ public class SqlScript {
      * The database-specific support.
      */
     private final DbSupport dbSupport;
+
+    //[pro]
+    /**
+     * The error handler to use.
+     */
+    private final ErrorHandler errorHandler;
+    //[/pro]
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
@@ -78,6 +87,8 @@ public class SqlScript {
         this.mixed = false;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
+        /*[pro]*/
+        this.errorHandler = null;//[/pro]
     }
 
     /**
@@ -88,8 +99,13 @@ public class SqlScript {
      * @param placeholderReplacer The placeholder replacer.
      * @param encoding            The encoding to use.
      * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
+     *                            [pro]
+     * @param errorHandler        The error handler to use.
+     *                            [/pro]
      */
-    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed) {
+    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
+                     /*[pro]*/, ErrorHandler errorHandler//[/pro]
+    ) {
         this.dbSupport = dbSupport;
         this.mixed = mixed;
 
@@ -97,6 +113,9 @@ public class SqlScript {
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
 
         this.resource = sqlScriptResource;
+        //[pro]
+        this.errorHandler = errorHandler;
+        //[/pro]
     }
 
     /**
@@ -141,7 +160,18 @@ public class SqlScript {
                 } else {
                     jdbcTemplate.executeStatement(sql);
                 }
-            } catch (SQLException e) {
+            } catch (final SQLException e) {
+                //[pro]
+                if (errorHandler != null) {
+                    errorHandler.handleError(new ErrorContext() {
+                        @Override
+                        public SQLException getSQLException() {
+                            return e;
+                        }
+                    });
+                    return;
+                }
+                //[/pro]
                 throw new FlywaySqlScriptException(resource, sqlStatement, e);
             }
         }

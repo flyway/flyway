@@ -41,7 +41,7 @@
     mvn -P-CommandlinePlatformAssemblies
     -->
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.flywaydb</groupId>
+    <groupId>com.boxfuse.flyway-pro</groupId>
     <artifactId>flyway-parent</artifactId>
     <version>0-SNAPSHOT</version>
     <packaging>pom</packaging>

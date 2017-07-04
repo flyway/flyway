@@ -97,7 +97,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
                 migrations.add(migrationInfo);
             }
         } catch (Exception e) {
-            throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + location + " (" + e.getMessage() + ")", e);
+            throw new FlywayException("Unable to resolve Jdbc Java migrations in location " + location + " : " + e.getMessage(), e);
         }
     }
 

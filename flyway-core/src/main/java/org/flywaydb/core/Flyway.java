@@ -21,6 +21,7 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.pro.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.command.DbBaseline;
@@ -179,7 +180,7 @@ public class Flyway implements FlywayConfiguration {
      * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     *
+     * <p>
      * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
      */
@@ -312,7 +313,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
-     *
+     * <p>
      * {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
      */
     private boolean group;
@@ -323,6 +324,14 @@ public class Flyway implements FlywayConfiguration {
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     private String installedBy;
+
+    //[pro]
+    /**
+     * Handler errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     */
+    private ErrorHandler errorHandler;
+    //[/pro]
 
     /**
      * Creates a new instance of Flyway. This is your starting point.
@@ -508,6 +517,34 @@ public class Flyway implements FlywayConfiguration {
         return group;
     }
 
+    //[pro]
+    @Override
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
+    }
+
+    /**
+     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     *
+     * @param errorHandler The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
+     */
+    public void setErrorHandler(ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+    }
+
+    /**
+     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     *
+     * @param errorHandlerClassName The fully qualified class name of the ErrorHandler or
+     *                              {@code null} if the default internal handler should be used instead. (default: {@code null})
+     */
+    public void setErrorHandlerAsClassName(String errorHandlerClassName) {
+        this.errorHandler = ClassUtils.instantiate(errorHandlerClassName, classLoader);
+    }
+    //[/pro]
+
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
      *
@@ -558,7 +595,7 @@ public class Flyway implements FlywayConfiguration {
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      *
      * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     *                                (default: {@code false})
      */
     public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
         this.ignoreMissingMigrations = ignoreMissingMigrations;
@@ -1375,6 +1412,13 @@ public class Flyway implements FlywayConfiguration {
         if (installedByProp != null) {
             setInstalledBy(installedByProp);
         }
+
+        //[pro]
+        String errorHandlerProp = getValueAndRemoveEntry(props, "flyway.errorHandler");
+        if (errorHandlerProp != null) {
+            setErrorHandlerAsClassName(errorHandlerProp);
+        }
+        //[/pro]
 
         for (String key : props.keySet()) {
             if (key.startsWith("flyway.")) {

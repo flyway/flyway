@@ -251,7 +251,7 @@ public abstract class AbstractFlywayTask extends Task {
 
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
-     *
+     * <p>
      * Also configurable with Ant Property: ${flyway.group}
      *
      * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
@@ -262,12 +262,27 @@ public abstract class AbstractFlywayTask extends Task {
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
+     * <p>Also configurable with Ant Property: ${flyway.installedBy}</p>
      *
      * @param installedBy The username or <i>blank</i> for the current database user of the connection. (default: <i>blank</i>).
      */
     public void setInstalledBy(String installedBy) {
         flyway.setInstalledBy(installedBy);
     }
+
+    //[pro]
+
+    /**
+     * The fully qualified class name of the ErrorHandler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * <p>Also configurable with Ant Property: ${flyway.errorHandler}</p>
+     *
+     * @param errorHandler The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
+     */
+    public void setErrorHandler(String errorHandler) {
+        flyway.setErrorHandlerAsClassName(errorHandler);
+    }
+    //[/pro]
 
     /**
      * Creates the datasource base on the provided parameters.
