@@ -15,28 +15,32 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public interface SqlStatement {
+public abstract class AbstractSqlStatement implements SqlStatement {
     /**
-     * @return The original line number where the statement was located in the script it came from.
+     * The original line number where the statement was located in the script it came from.
      */
-    int getLineNumber();
+    protected int lineNumber;
 
     /**
-     * @return The sql to send to the database.
+     * The sql to send to the database.
      */
-    String getSql();
+    protected String sql;
 
-    /**
-     * Executes this statement against the database.
-     *
-     * @param connection The connection to use to execute this script.
-     * @throws SQLException when the execution fails.
-     */
-    void execute(Connection connection) throws SQLException;
+    public AbstractSqlStatement(String sql, int lineNumber) {
+        this.sql = sql;
+        this.lineNumber = lineNumber;
+    }
+
+    @Override
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    @Override
+    public String getSql() {
+        return sql;
+    }
 }

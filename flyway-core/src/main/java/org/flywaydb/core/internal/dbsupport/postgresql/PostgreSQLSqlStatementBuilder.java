@@ -16,7 +16,9 @@
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
+import org.flywaydb.core.internal.dbsupport.SqlStatement;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.dbsupport.StandardSqlStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.util.regex.Matcher;
@@ -56,6 +58,17 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
      * Holds the beginning of the statement.
      */
     private String statementStart = "";
+
+    /**
+     * @return The assembled statement, with the delimiter stripped off.
+     */
+    @Override
+    public SqlStatement getSqlStatement() {
+        if (pgCopy) {
+            return new PostgreSQLCopyStatement(lineNumber, statement.toString());
+        }
+        return new StandardSqlStatement(lineNumber, statement.toString());
+    }
 
     @Override
     protected void applyStateChanges(String line) {
@@ -118,11 +131,6 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
         }
 
         return delimiter;
-    }
-
-    @Override
-    public boolean isPgCopyFromStdIn() {
-        return pgCopy;
     }
 
     @Override
