@@ -21,22 +21,19 @@ import java.sql.SQLException;
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public interface SqlStatement {
+public class StandardSqlStatement extends AbstractSqlStatement {
     /**
-     * @return The original line number where the statement was located in the script it came from.
-     */
-    int getLineNumber();
-
-    /**
-     * @return The sql to send to the database.
-     */
-    String getSql();
-
-    /**
-     * Executes this statement against the database.
+     * Creates a new sql statement.
      *
-     * @param connection The connection to use to execute this script.
-     * @throws SQLException when the execution fails.
+     * @param lineNumber The original line number where the statement was located in the script it came from.
+     * @param sql        The sql to send to the database.
      */
-    void execute(Connection connection) throws SQLException;
+    public StandardSqlStatement(int lineNumber, String sql) {
+        super(sql, lineNumber);
+    }
+
+    @Override
+    public void execute(Connection connection) throws SQLException {
+        new JdbcTemplate(connection).executeStatement(sql);
+    }
 }

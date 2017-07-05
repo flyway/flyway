@@ -155,11 +155,7 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                if (sqlStatement.isPgCopy()) {
-                    dbSupport.executePgCopy(jdbcTemplate.getConnection(), sql);
-                } else {
-                    jdbcTemplate.executeStatement(sql);
-                }
+                sqlStatement.execute(jdbcTemplate.getConnection());
             } catch (final SQLException e) {
 
 
