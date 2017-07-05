@@ -21,7 +21,7 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 
@@ -44,7 +44,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * The complete sql script is not held as a member field here because this would use the total size of all
      * sql migrations files in heap space during db migration, see issue 184.
      */
-    private final Resource sqlScriptResource;
+    private final LoadableResource sqlScriptResource;
 
     /**
      * The Flyway configuration.
@@ -64,7 +64,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationExecutor(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
+    public SqlMigrationExecutor(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         this.dbSupport = dbSupport;
         this.sqlScriptResource = sqlScriptResource;
         this.placeholderReplacer = placeholderReplacer;

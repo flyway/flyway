@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.BufferedReader;
@@ -103,7 +104,7 @@ public class SqlScript {
 
 
      */
-    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
+    public SqlScript(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
 
     ) {
         this.dbSupport = dbSupport;
@@ -157,6 +158,8 @@ public class SqlScript {
             try {
                 sqlStatement.execute(jdbcTemplate.getConnection());
             } catch (final SQLException e) {
+
+
 
 
 

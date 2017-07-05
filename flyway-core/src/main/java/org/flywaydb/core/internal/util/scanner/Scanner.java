@@ -49,7 +49,7 @@ public class Scanner {
      * @param suffix   The suffix of the resource names to match.
      * @return The resources that were found.
      */
-    public Resource[] scanForResources(Location location, String prefix, String suffix) {
+    public LoadableResource[] scanForResources(Location location, String prefix, String suffix) {
         try {
             if (location.isFileSystem()) {
                 return fileSystemScanner.scanForResources(location, prefix, suffix);
