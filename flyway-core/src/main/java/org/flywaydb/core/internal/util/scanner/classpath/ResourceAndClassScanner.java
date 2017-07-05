@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.util.scanner.classpath;
 
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 /**
@@ -32,7 +33,7 @@ public interface ResourceAndClassScanner {
      * @return The resources that were found.
      * @throws Exception when the location could not be scanned.
      */
-    Resource[] scanForResources(Location location, String prefix, String suffix) throws Exception;
+    LoadableResource[] scanForResources(Location location, String prefix, String suffix) throws Exception;
 
     /**
      * Scans the classpath for concrete classes under the specified package implementing this interface.

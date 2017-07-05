@@ -30,6 +30,7 @@ import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -102,7 +103,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
     private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix, boolean repeatable) {
-        for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
+        for (LoadableResource resource : scanner.scanForResources(location, prefix, suffix)) {
             String filename = resource.getFilename();
             if (isSqlCallback(filename, suffix)) {
                 continue;

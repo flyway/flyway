@@ -19,11 +19,11 @@ import android.content.Context;
 import dalvik.system.DexFile;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.android.ContextHolder;
-import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ResourceAndClassScanner;
 
 import java.lang.reflect.Modifier;
@@ -50,8 +50,8 @@ public class AndroidScanner implements ResourceAndClassScanner {
         }
     }
 
-    public Resource[] scanForResources(Location location, String prefix, String suffix) throws Exception {
-        List<Resource> resources = new ArrayList<Resource>();
+    public LoadableResource[] scanForResources(Location location, String prefix, String suffix) throws Exception {
+        List<LoadableResource> resources = new ArrayList<LoadableResource>();
 
         String path = location.getPath();
         for (String asset : context.getAssets().list(path)) {
@@ -63,7 +63,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
             }
         }
 
-        return resources.toArray(new Resource[resources.size()]);
+        return resources.toArray(new LoadableResource[resources.size()]);
     }
 
     public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {

@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.pro.errorhandler;
+package org.flywaydb.core.internal.util.scanner;
 
 /**
- * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
- * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+ * A loadable resource.
  */
-public interface ErrorHandler {
+public interface LoadableResource extends Resource {
+
     /**
-     * Handles an error that occurred during a migration.
+     * Loads this resource as a string.
      *
-     * @param context The SQL Exception that was thrown by the JDBC driver.
-     * @return {@code true} if the error was handled, {@code false} if it wasn't and Flyway should fall back to its default handling.
+     * @param encoding The encoding to use.
+     * @return The string contents of the resource.
      */
-    boolean handleError(ErrorContext context);
+    String loadAsString(String encoding);
+
+    /**
+     * Loads this resource as a byte array.
+     *
+     * @return The contents of the resource.
+     */
+    byte[] loadAsBytes();
 }

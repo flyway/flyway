@@ -15,10 +15,10 @@
  */
 package org.flywaydb.core.internal.util.scanner.filesystem;
 
-import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,17 +41,17 @@ public class FileSystemScanner {
      * @return The resources that were found.
      * @throws java.io.IOException when the location could not be scanned.
      */
-    public Resource[] scanForResources(Location location, String prefix, String suffix) throws IOException {
+    public LoadableResource[] scanForResources(Location location, String prefix, String suffix) throws IOException {
         String path = location.getPath();
         LOG.debug("Scanning for filesystem resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
 
         File dir = new File(path);
         if (!dir.isDirectory() || !dir.canRead()) {
             LOG.warn("Unable to resolve location filesystem:" + path);
-            return new Resource[0];
+            return new LoadableResource[0];
         }
 
-        Set<Resource> resources = new TreeSet<Resource>();
+        Set<LoadableResource> resources = new TreeSet<LoadableResource>();
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffix);
         for (String resourceName : resourceNames) {
@@ -59,7 +59,7 @@ public class FileSystemScanner {
             LOG.debug("Found filesystem resource: " + resourceName);
         }
 
-        return resources.toArray(new Resource[resources.size()]);
+        return resources.toArray(new LoadableResource[resources.size()]);
     }
 
     /**

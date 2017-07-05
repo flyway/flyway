@@ -22,6 +22,7 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.BufferedReader;
@@ -103,7 +104,7 @@ public class SqlScript {
      * @param errorHandler        The error handler to use.
      *                            [/pro]
      */
-    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
+    public SqlScript(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
                      /*[pro]*/, ErrorHandler errorHandler//[/pro]
     ) {
         this.dbSupport = dbSupport;
@@ -159,13 +160,15 @@ public class SqlScript {
             } catch (final SQLException e) {
                 //[pro]
                 if (errorHandler != null) {
-                    errorHandler.handleError(new ErrorContext() {
+                    ErrorContext errorContext = new ErrorContext() {
                         @Override
                         public SQLException getSQLException() {
                             return e;
                         }
-                    });
-                    return;
+                    };
+                    if (errorHandler.handleError(errorContext)) {
+                        return;
+                    }
                 }
                 //[/pro]
                 throw new FlywaySqlScriptException(resource, sqlStatement, e);
