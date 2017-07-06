@@ -37,6 +37,11 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern BEGIN_REGEX = Pattern.compile("^(([A-Z]+[A-Z0-9]*)\\s?:\\s?)?BEGIN(\\sATOMIC)?(\\s.*)?");
 
     /**
+     * Regex for keywords that can appear after a string literal without being separated by a space.
+     */
+    private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(DO)(?!.)");
+
+    /**
      * How deep are we inside a BEGIN ... END blocks?
      */
     private int beginEndDepth;
@@ -76,6 +81,12 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
         if (token.startsWith("X'")) {
             return token.substring(token.indexOf("'"));
         }
+
+        Matcher afterMatcher = KEYWORDS_AFTER_STRING_LITERAL_REGEX.matcher(token);
+        if (afterMatcher.find()) {
+            token = afterMatcher.group(1);
+        }
+
         return super.cleanToken(token);
     }
 
@@ -100,7 +111,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
                 beginEndDepth++;
             }
 
-            if (isEnd(line)) {
+            if (isEnd(line, label, currentDelimiter)) {
                 beginEndDepth--;
             }
         }
@@ -120,9 +131,9 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
         return line.contains(":") && matcher.matches() ? matcher.group(2) : null;
     }
 
-    private boolean isEnd(String line) {
+    static boolean isEnd(String line, String label, Delimiter currentDelimiter) {
         if (label == null) {
-            return line.matches(".*\\s?END\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
+            return line.matches(".*\\s?END(\\s?" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
         }
         return line.matches(".*\\s?END(\\s" + Pattern.quote(label) + ")?\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
     }
