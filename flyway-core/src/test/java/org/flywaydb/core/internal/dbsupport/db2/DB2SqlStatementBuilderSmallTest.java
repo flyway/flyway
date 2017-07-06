@@ -32,9 +32,17 @@ public class DB2SqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void extractLabel() throws Exception {
+        assertNull(DB2SqlStatementBuilder.extractLabel("BEGIN"));
+        assertEquals("LABEL", DB2SqlStatementBuilder.extractLabel("LABEL:BEGIN"));
+        assertEquals("LABEL", DB2SqlStatementBuilder.extractLabel("LABEL: BEGIN"));
+        assertEquals("LABEL", DB2SqlStatementBuilder.extractLabel("LABEL :BEGIN"));
+        assertEquals("LABEL", DB2SqlStatementBuilder.extractLabel("LABEL : BEGIN"));
+    }
+
+    @Test
     public void isTerminated() {
-        DB2SqlStatementBuilder builder = new DB2SqlStatementBuilder();
-        String sqlScriptSource = "CREATE OR REPLACE PROCEDURE IP_ROLLUP(\n" +
+        assertTerminated("CREATE OR REPLACE PROCEDURE IP_ROLLUP(\n" +
                 "  IN iODLID INTEGER,\n" +
                 "  IN iNDLID INTEGER,\n" +
                 "  IN iOID INTEGER,\n" +
@@ -47,11 +55,49 @@ public class DB2SqlStatementBuilderSmallTest {
                 "\n" +
                 "\n" +
                 "END\n" +
-                "@";
+                "@", "@");
+    }
 
-        builder.setDelimiter(new Delimiter("@", false));
+    @Test
+    public void isTerminatedLabel() {
+        assertTerminated("CREATE OR REPLACE PROCEDURE CUST_INSERT_IP_GL(\n" +
+                "  IN iORDER_INTERLINER_ID INTEGER,\n" +
+                "  IN iACCT_CODE VARCHAR(50),\n" +
+                "  IN iACCT_TYPE CHAR(3),\n" +
+                "  IN iAMOUNT DOUBLE,\n" +
+                "  IN iSOURCE_TYPE VARCHAR(20),\n" +
+                "  OUT oLEAVE_MAIN VARCHAR(5)\n" +
+                "  )\n" +
+                "  LANGUAGE SQL\n" +
+                "SPECIFIC SP_CUST_INSERT_IP_GL\n" +
+                "MAIN : BEGIN\n" +
+                "  SET oLEAVE_MAIN = 'False';\n" +
+                "END MAIN\n" +
+                "@", "@");
+    }
+
+    @Test
+    public void isTerminatedNested() {
+        assertTerminated("CREATE PROCEDURE dummy_proc ()\n" +
+                "LANGUAGE SQL\n" +
+                "BEGIN\n" +
+                "    declare var1 TIMESTAMP;\n" +
+                "    \n" +
+                "    SELECT CURRENT_TIMESTAMP INTO var1 FROM SYSIBM.DUAL;\n" +
+                "    \n" +
+                "    BEGIN\n" +
+                "        declare var2 DATE;\n" +
+                "        SELECT CURRENT_DATE INTO var2 FROM SYSIBM.DUAL;\n" +
+                "    END;\n" +
+                "END;", ";");
+    }
+
+    private void assertTerminated(String sqlScriptSource, String delimiter) {
+        DB2SqlStatementBuilder builder = new DB2SqlStatementBuilder();
+        builder.setDelimiter(new Delimiter(delimiter, false));
         String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
         for (String line : lines) {
+            assertFalse(builder.isTerminated());
             builder.addLine(line);
         }
 
