@@ -346,7 +346,7 @@ public class DbMigrate {
             } catch (SQLException e) {
                 throw new FlywayMigrateSqlException(migration, isOutOfOrder, e);
             }
-            LOG.debug("Successfully completed migration of " + migrationText);
+            LOG.info("Successfully completed migration of " + migrationText);
 
             for (final FlywayCallback callback : configuration.getCallbacks()) {
                 callback.afterEachMigrate(connectionUserObjects, migration);
