@@ -19,6 +19,7 @@ import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -33,12 +34,17 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Regex to check for a BEGIN statement of a SQL PL block (Optional label followed by BEGIN).
      */
-    private static final Pattern BEGIN_REGEX = Pattern.compile("^([A-Z]+[A-Z0-9]*\\s?:\\s?)?BEGIN(\\sATOMIC)?(\\s.*)?");
+    private static final Pattern BEGIN_REGEX = Pattern.compile("^(([A-Z]+[A-Z0-9]*)\\s?:\\s?)?BEGIN(\\sATOMIC)?(\\s.*)?");
 
     /**
-     * Are we currently inside a BEGIN END; block?
+     * How deep are we inside a BEGIN ... END blocks?
      */
-    private boolean insideBeginEndBlock;
+    private int beginEndDepth;
+
+    /**
+     * The label for the current BEGIN ... END block.
+     */
+    private String label;
 
     /**
      * Holds the beginning of the statement.
@@ -88,15 +94,18 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
         if (statementStart.matches("^CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|TRIGGER)(\\s.*)?")) {
             if (isBegin(line)) {
-                insideBeginEndBlock = true;
+                if (beginEndDepth == 0) {
+                    label = extractLabel(line);
+                }
+                beginEndDepth++;
             }
 
             if (isEnd(line)) {
-                insideBeginEndBlock = false;
+                beginEndDepth--;
             }
         }
 
-        if (insideBeginEndBlock) {
+        if (beginEndDepth > 0) {
             return null;
         }
         return currentDelimiter;
@@ -106,7 +115,15 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
         return BEGIN_REGEX.matcher(line).find();
     }
 
+    static String extractLabel(String line) {
+        Matcher matcher = BEGIN_REGEX.matcher(line);
+        return line.contains(":") && matcher.matches() ? matcher.group(2) : null;
+    }
+
     private boolean isEnd(String line) {
-        return line.matches(".*\\s?END\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
+        if (label == null) {
+            return line.matches(".*\\s?END\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
+        }
+        return line.matches(".*\\s?END(\\s" + Pattern.quote(label) + ")?\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
     }
 }
