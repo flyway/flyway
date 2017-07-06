@@ -25,9 +25,9 @@ import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import java.sql.Connection;
@@ -83,14 +83,14 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
 
         LOG.debug("Scanning for SQL callbacks ...");
         for (Location location : locations.getLocations()) {
-            Resource[] resources;
+            LoadableResource[] resources;
             try {
                 resources = scanner.scanForResources(location, "", configuration.getSqlMigrationSuffix());
             } catch (FlywayException e) {
                 // Ignore missing locations
                 continue;
             }
-            for (Resource resource : resources) {
+            for (LoadableResource resource : resources) {
                 String key = resource.getFilename().replace(configuration.getSqlMigrationSuffix(), "");
                 if (scripts.keySet().contains(key)) {
                     SqlScript existing = scripts.get(key);
@@ -100,7 +100,10 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                                 "-> " + existing.getResource().getLocationOnDisk() + "\n" +
                                 "-> " + resource.getLocationOnDisk());
                     }
-                    scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, configuration.getEncoding(), configuration.isMixed()));
+                    scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, configuration.getEncoding(),
+                            configuration.isMixed()
+
+                    ));
                 }
             }
         }

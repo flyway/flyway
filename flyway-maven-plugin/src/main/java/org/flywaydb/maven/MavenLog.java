@@ -15,7 +15,7 @@
  */
 package org.flywaydb.maven;
 
-import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.api.logging.Log;
 
 /**
  * Wrapper around a Maven Logger.

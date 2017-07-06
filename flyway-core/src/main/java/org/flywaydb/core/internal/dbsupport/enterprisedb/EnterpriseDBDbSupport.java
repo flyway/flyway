@@ -128,18 +128,4 @@ public class EnterpriseDBDbSupport extends DbSupport {
     public boolean catalogIsSchema() {
         return false;
     }
-
-    @Override
-    public void executePgCopy(Connection connection, String sql) throws SQLException {
-        int split = sql.indexOf(";");
-        String statement = sql.substring(0, split);
-        String data = sql.substring(split + 1).trim();
-
-        CopyManager copyManager = new CopyManager(connection.unwrap(BaseConnection.class));
-        try {
-            copyManager.copyIn(statement, new StringReader(data));
-        } catch (IOException e) {
-            throw new SQLException("Unable to execute COPY operation", e);
-        }
-    }
 }

@@ -18,7 +18,7 @@ package org.flywaydb.core.internal.util.scanner.classpath.android;
 import android.content.res.AssetManager;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.FileCopyUtils;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,7 +26,7 @@ import java.io.InputStreamReader;
 /**
  * Resource within an Android App.
  */
-public class AndroidResource implements Resource {
+public class AndroidResource implements LoadableResource {
     private final AssetManager assetManager;
     private final String path;
     private final String name;

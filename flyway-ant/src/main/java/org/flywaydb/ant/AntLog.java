@@ -15,7 +15,7 @@
  */
 package org.flywaydb.ant;
 
-import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.api.logging.Log;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 

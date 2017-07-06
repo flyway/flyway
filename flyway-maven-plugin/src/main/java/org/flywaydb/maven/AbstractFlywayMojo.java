@@ -25,8 +25,8 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Location;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -182,7 +182,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * The file name prefix for Sql migrations (default: V) <p>Also configurable with Maven or System Property:
      * ${flyway.sqlMigrationPrefix}</p>
-     *
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -193,7 +193,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * The file name prefix for repeatable sql migrations (default: R) <p>Also configurable with Maven or System Property:
      * ${flyway.repeatableSqlMigrationPrefix}</p>
-     *
+     * <p>
      * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      *
@@ -204,7 +204,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * The file name separator for Sql migrations (default: __) <p>Also configurable with Maven or System Property:
      * ${flyway.sqlMigrationSeparator}</p>
-     *
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -215,7 +215,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     /**
      * The file name suffix for Sql migrations (default: .sql) <p>Also configurable with Maven or System Property:
      * ${flyway.sqlMigrationSuffix}</p>
-     *
+     * <p>
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      *
@@ -272,7 +272,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     *
+     * <p>
      * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
      *
@@ -304,7 +304,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.ignoreFailedFutureMigration}</p>
      *
      * @parameter property="flyway.ignoreFailedFutureMigration"
-     *
      * @deprecated Use the more generic <code>ignoreFutureMigrations</code> instead. Will be removed in Flyway 5.0.
      */
     @Deprecated
@@ -419,12 +418,24 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
-     * <p>
-     * {@code null} for the current database user of the connection. (default: {@code null}).
+     * <p>{@code null} for the current database user of the connection. (default: {@code null}).</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.installedBy}</p>
      *
      * @parameter property="flyway.installedBy"
      */
     private String installedBy;
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
@@ -536,7 +547,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     }
                 }
             } else {
-                locations = new String[] {
+                locations = new String[]{
                         Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"
                 };
             }
@@ -573,6 +584,10 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                 flyway.setBaselineOnMigrate(baselineOnMigrate);
             }
             flyway.setValidateOnMigrate(validateOnMigrate);
+
+
+
+
 
             Properties properties = new Properties();
             properties.putAll(mavenProject.getProperties());

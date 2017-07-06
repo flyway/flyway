@@ -21,6 +21,7 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.command.DbBaseline;
@@ -45,8 +46,8 @@ import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import javax.sql.DataSource;
@@ -179,7 +180,7 @@ public class Flyway implements FlywayConfiguration {
      * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     *
+     * <p>
      * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
      */
@@ -312,7 +313,7 @@ public class Flyway implements FlywayConfiguration {
 
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
-     *
+     * <p>
      * {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
      */
     private boolean group;
@@ -323,6 +324,14 @@ public class Flyway implements FlywayConfiguration {
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     private String installedBy;
+
+
+
+
+
+
+
+
 
     /**
      * Creates a new instance of Flyway. This is your starting point.
@@ -508,6 +517,34 @@ public class Flyway implements FlywayConfiguration {
         return group;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
      *
@@ -558,7 +595,7 @@ public class Flyway implements FlywayConfiguration {
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
      *
      * @param ignoreMissingMigrations {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
-     * (default: {@code false})
+     *                                (default: {@code false})
      */
     public void setIgnoreMissingMigrations(boolean ignoreMissingMigrations) {
         this.ignoreMissingMigrations = ignoreMissingMigrations;
@@ -1375,6 +1412,13 @@ public class Flyway implements FlywayConfiguration {
         if (installedByProp != null) {
             setInstalledBy(installedByProp);
         }
+
+
+
+
+
+
+
 
         for (String key : props.keySet()) {
             if (key.startsWith("flyway.")) {

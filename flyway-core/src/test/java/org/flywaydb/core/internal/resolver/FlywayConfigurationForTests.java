@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 /**
@@ -260,6 +261,13 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     public String getEncoding() {
         return this.encoding;
     }
+
+
+
+
+
+
+
 
     public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefix) {
         this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;

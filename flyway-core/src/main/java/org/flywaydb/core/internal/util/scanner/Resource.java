@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.util.scanner;
 
 /**
- * A loadable resource.
+ * A resource (such as a .sql file) used by Flyway.
  */
 public interface Resource {
     /**
@@ -30,21 +30,6 @@ public interface Resource {
      * @return The location of this resource on disk.
      */
     String getLocationOnDisk();
-
-    /**
-     * Loads this resource as a string.
-     *
-     * @param encoding The encoding to use.
-     * @return The string contents of the resource.
-     */
-    String loadAsString(String encoding);
-
-    /**
-     * Loads this resource as a byte array.
-     *
-     * @return The contents of the resource.
-     */
-    byte[] loadAsBytes();
 
     /**
      * @return The filename of this resource, without the path.

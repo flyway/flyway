@@ -15,8 +15,8 @@
  */
 package org.flywaydb.maven;
 
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogCreator;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogCreator;
 import org.apache.maven.plugin.AbstractMojo;
 
 /**

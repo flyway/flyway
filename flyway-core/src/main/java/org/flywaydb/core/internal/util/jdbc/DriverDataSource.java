@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.util.jdbc;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -121,16 +122,16 @@ public class DriverDataSource implements DataSource {
 
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
-        } catch (Exception e) {
+        } catch (FlywayException e) {
             String backupDriverClass = detectBackupDriverForUrl(url);
             if (backupDriverClass == null) {
-                throw new FlywayException("Unable to instantiate JDBC driver " + driverClass + " : " + e.getMessage(), e);
+                throw new FlywayException("Unable to instantiate JDBC driver " + driverClass + " : " + ExceptionUtils.getRootCause(e).getMessage(), e);
             }
             try {
                 this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
             } catch (Exception e1) {
                 // Only report original exception about primary driver
-                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass + " : " + e.getMessage(), e);
+                throw new FlywayException("Unable to instantiate JDBC driver " + driverClass + " : " + ExceptionUtils.getRootCause(e).getMessage(), e);
             }
         }
 
