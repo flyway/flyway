@@ -111,7 +111,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
                 beginEndDepth++;
             }
 
-            if (isEnd(line, label, currentDelimiter)) {
+            if (isEnd(line, label, currentDelimiter, beginEndDepth)) {
                 beginEndDepth--;
             }
         }
@@ -131,10 +131,12 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
         return line.contains(":") && matcher.matches() ? matcher.group(2) : null;
     }
 
-    static boolean isEnd(String line, String label, Delimiter currentDelimiter) {
+    static boolean isEnd(String line, String label, Delimiter currentDelimiter, int beginEndDepth) {
+        String actualDelimiter = beginEndDepth > 1 ? ";" : currentDelimiter.getDelimiter();
+
         if (label == null) {
-            return line.matches(".*\\s?END(\\s?" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
+            return line.matches(".*\\s?END(\\s?" + Pattern.quote(actualDelimiter) + ")?");
         }
-        return line.matches(".*\\s?END(\\s" + Pattern.quote(label) + ")?\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
+        return line.matches(".*\\s?END(\\s" + Pattern.quote(label) + ")?\\s?(" + Pattern.quote(actualDelimiter) + ")?");
     }
 }
