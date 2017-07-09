@@ -121,8 +121,8 @@ public class Main {
 
     /* private -> testing */  static void initSystemPropertiesFromConfig(Properties properties) {
         for (String name : properties.stringPropertyNames()) {
-            if (name.startsWith("sysprop.")) {
-                defineSystemProperty(name.substring("sysprop.".length()), properties.getProperty(name));
+            if (name.startsWith("sysprops.")) {
+                defineSystemProperty(name.substring("sysprops.".length()), properties.getProperty(name));
             }
         }
     }
