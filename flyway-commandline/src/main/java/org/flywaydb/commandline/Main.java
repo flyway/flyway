@@ -87,6 +87,7 @@ public class Main {
             initializeDefaults(properties);
             loadConfiguration(properties, args);
             overrideConfiguration(properties, args);
+            initSystemPropertiesFromConfig(properties);
 
             if (!isSuppressPrompt(args)) {
                 promptForCredentialsIfMissing(properties);
@@ -118,15 +119,25 @@ public class Main {
         }
     }
 
+    private static void initSystemPropertiesFromConfig(Properties properties) {
+        for (String name : properties.stringPropertyNames()) {
+            if (name.startsWith("sysprop.")) {
+                defineSystemProperty(name.substring("sysprop.".length()), properties.getProperty(name));
+            }
+        }
+    }
+
     /* private -> testing */ static void initSystemProperties(String[] args) {
         for (String arg : args) {
             if (isSystemPropertyArgument(arg)) {
-                String key = getArgumentSystemProperty(arg);
-                String value = getArgumentValue(arg);
-                LOG.debug("Defining system property: " + key + "=" + value);
-                System.setProperty(key, value);
+                defineSystemProperty(getArgumentSystemProperty(arg), getArgumentValue(arg));
             }
         }
+    }
+
+    private static void defineSystemProperty(String key, String value) {
+        LOG.debug("Defining system property: " + key + "=" + value);
+        System.setProperty(key, value);
     }
 
     private static boolean isPrintVersionAndExit(String[] args) {
