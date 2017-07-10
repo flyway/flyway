@@ -119,6 +119,23 @@ public class DB2SqlStatementBuilderSmallTest {
     }
 
     @Test
+    public void isTerminatedNestedLabel() {
+        assertTerminated("CREATE OR REPLACE PROCEDURE TEST2\n" +
+                "BEGIN\n" +
+                " MAIN: BEGIN\n" +
+                "  MAIN1: BEGIN\n" +
+                "  END MAIN1;\n" +
+                " END MAIN;\n" +
+                " \n" +
+                " TEST: BEGIN\n" +
+                "  TEST1: BEGIN\n" +
+                "  END TEST1;\n" +
+                " END TEST;\n" +
+                "END\n" +
+                "@", "@");
+    }
+
+    @Test
     public void isTerminatedForIf() {
         assertTerminated("CREATE OR REPLACE PROCEDURE FORIF(\n" +
                 "  IN my_arg INTEGER\n" +
