@@ -135,8 +135,8 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
         String actualDelimiter = beginEndDepth > 1 ? ";" : currentDelimiter.getDelimiter();
 
         if (label == null) {
-            return line.matches(".*\\s?END(\\s?" + Pattern.quote(actualDelimiter) + ")?");
+            return line.matches("(.*\\s)?END(\\s?" + Pattern.quote(actualDelimiter) + ")?");
         }
-        return line.matches(".*\\s?END(\\s" + Pattern.quote(label) + ")?\\s?(" + Pattern.quote(actualDelimiter) + ")?");
+        return line.matches("(.*\\s)?END(\\s" + Pattern.quote(label) + ")?\\s?(" + Pattern.quote(actualDelimiter) + ")?");
     }
 }

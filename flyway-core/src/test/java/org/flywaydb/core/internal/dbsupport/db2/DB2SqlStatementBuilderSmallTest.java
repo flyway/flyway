@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport.db2;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -43,6 +44,7 @@ public class DB2SqlStatementBuilderSmallTest {
         assertFalse(DB2SqlStatementBuilder.isEnd("END FOR", "LABEL", new Delimiter(";", false), 1));
         assertFalse(DB2SqlStatementBuilder.isEnd("END IF", null, new Delimiter(";", false), 1));
         assertFalse(DB2SqlStatementBuilder.isEnd("END IF", "LABEL", new Delimiter(";", false), 1));
+        assertFalse(DB2SqlStatementBuilder.isEnd("SELECT XXX INTO YYY_END", "LABEL", new Delimiter(";", false), 1));
     }
 
     @Test
