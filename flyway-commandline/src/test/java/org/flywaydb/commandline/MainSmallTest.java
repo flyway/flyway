@@ -83,7 +83,7 @@ public class MainSmallTest {
     @Test
     public void initSystemPropertiesFromConfig() {
         Properties properties = new Properties();
-        properties.put("sysprop.flywayPropertyTestConfig123", "success");
+        properties.put("sysprops.flywayPropertyTestConfig123", "success");
         Main.initSystemPropertiesFromConfig(properties);
         assertEquals("success", System.getProperty("flywayPropertyTestConfig123"));
     }
