@@ -134,9 +134,14 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     static boolean isEnd(String line, String label, Delimiter currentDelimiter, int beginEndDepth) {
         String actualDelimiter = beginEndDepth > 1 ? ";" : currentDelimiter.getDelimiter();
 
-        if (label == null) {
-            return line.matches("(.*\\s)?END(\\s?" + Pattern.quote(actualDelimiter) + ")?");
-        }
-        return line.matches("(.*\\s)?END(\\s" + Pattern.quote(label) + ")?\\s?(" + Pattern.quote(actualDelimiter) + ")?");
+        return line.matches(
+                // First optionally match preceding part of statement
+                "(.*\\s)?"
+                        // Then require END
+                        + "END"
+                        // Now optionally match label
+                        + (label == null ? "" : "(\\s" + Pattern.quote(label) + ")?")
+                        // Finally optionally match delimitert
+                        + "\\s?(" + Pattern.quote(actualDelimiter) + ")?");
     }
 }
