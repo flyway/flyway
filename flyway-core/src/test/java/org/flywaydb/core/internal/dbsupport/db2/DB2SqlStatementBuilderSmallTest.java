@@ -43,6 +43,7 @@ public class DB2SqlStatementBuilderSmallTest {
         assertFalse(DB2SqlStatementBuilder.isEnd("END FOR", "LABEL", new Delimiter(";", false), 1));
         assertFalse(DB2SqlStatementBuilder.isEnd("END IF", null, new Delimiter(";", false), 1));
         assertFalse(DB2SqlStatementBuilder.isEnd("END IF", "LABEL", new Delimiter(";", false), 1));
+        assertFalse(DB2SqlStatementBuilder.isEnd("SELECT XXX INTO YYY_END", "LABEL", new Delimiter(";", false), 1));
     }
 
     @Test
