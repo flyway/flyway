@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.dbsupport.db2;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
