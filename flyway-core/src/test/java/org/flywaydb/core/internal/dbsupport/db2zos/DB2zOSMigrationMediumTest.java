@@ -15,13 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2zos;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +30,11 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
@@ -50,8 +45,11 @@ import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import static org.junit.Assert.*;
 
 @Category(DbCategory.DB2zOS.class)
 public class DB2zOSMigrationMediumTest extends MigrationTestCase {
@@ -247,6 +245,31 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations(getAliasLocation());
         flyway.baseline();
         flyway.migrate();
+    }
+
+    /**
+     * Override autoCommit tests.
+     *
+     * @throws Exception
+     */
+    @Override
+    @Test
+    public void autoCommitFalse() {
+        testAutoCommit(false);
+    }
+
+    @Override
+    @Test
+    public void autoCommitTrue() {
+        testAutoCommit(true);
+    }
+
+    private void testAutoCommit(boolean autoCommit) {
+        DriverDataSource dataSource = (DriverDataSource) flyway.getDataSource();
+        dataSource.setAutoCommit(autoCommit);
+        flyway.setLocations(getMigrationDir());
+        flyway.migrate();
+        assertEquals("1.3", flyway.info().current().getVersion().getVersion());
     }
 
     /**
@@ -456,6 +479,11 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         flyway.baseline();
         int countTablesAfterInit = jdbcTemplate.queryForInt(query);
         assertEquals(1, countTablesAfterInit);
+    }
+
+    @Test
+    @Ignore("Ignored as the setting does not change DB2 z/OS behaviour")
+    public void group() throws Exception {
     }
 
     /**
@@ -910,7 +938,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         assertEquals(3, flyway.migrate());
         flyway.validate();
         assertEquals(5, flyway.info().applied().length);
-        assertEquals(801496293, flyway.info().applied()[1].getChecksum().intValue());
+        assertEquals(1778069124, flyway.info().applied()[1].getChecksum().intValue());
     }
 
     /**
