@@ -32,6 +32,7 @@ public class DB2SqlStatementBuilderSmallTest {
         assertTrue(DB2SqlStatementBuilder.isBegin("LABEL: BEGIN"));
         assertTrue(DB2SqlStatementBuilder.isBegin("LABEL :BEGIN"));
         assertTrue(DB2SqlStatementBuilder.isBegin("LABEL : BEGIN"));
+        assertTrue(DB2SqlStatementBuilder.isBegin("REFERENCING NEW AS NEW FOR EACH ROW BEGIN ATOMIC"));
     }
 
     @Test
@@ -160,14 +161,41 @@ public class DB2SqlStatementBuilderSmallTest {
                 "END@", "@");
     }
 
+    @Test
+    public void isTerminatedTrigger1() throws IOException {
+        assertTerminated("CREATE OR REPLACE TRIGGER I_TRIGGER_I\n" +
+                "BEFORE INSERT ON I_TRIGGER\n" +
+                "REFERENCING NEW AS NEW FOR EACH ROW\n" +
+                "BEGIN ATOMIC\n" +
+                "IF NEW.ID IS NULL\n" +
+                "THEN SET NEW.ID = NEXTVAL FOR SEQ_I_TRIGGER;\n" +
+                "END IF;\n" +
+                "END\n" +
+                "/", "/");
+    }
+
+    @Test
+    public void isTerminatedTrigger2() throws IOException {
+        assertTerminated("CREATE OR REPLACE TRIGGER I_TRIGGER_I\n" +
+                "BEFORE INSERT ON I_TRIGGER\n" +
+                "REFERENCING NEW AS NEW FOR EACH ROW BEGIN ATOMIC\n" +
+                "IF NEW.ID IS NULL\n" +
+                "THEN SET NEW.ID = NEXTVAL FOR SEQ_I_TRIGGER;\n" +
+                "END IF;\n" +
+                "END\n" +
+                "/", "/");
+    }
+
     private void assertTerminated(String sqlScriptSource, String delimiter) throws IOException {
         DB2SqlStatementBuilder builder = new DB2SqlStatementBuilder();
         builder.setDelimiter(new Delimiter(delimiter, false));
 
         BufferedReader bufferedReader = new BufferedReader(new StringReader(sqlScriptSource));
+        int num = 0;
         String line;
         while ((line = bufferedReader.readLine()) != null) {
-            assertFalse("Line should not terminate: " + line, builder.isTerminated());
+            num++;
+            assertFalse("Line " + num + " should not terminate: " + line, builder.isTerminated());
             builder.addLine(line);
         }
 
