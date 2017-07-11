@@ -108,12 +108,13 @@ public class SqlScript {
                      /*[pro]*/, ErrorHandler errorHandler//[/pro]
     ) {
         this.dbSupport = dbSupport;
-        this.mixed = mixed;
+        this.resource = sqlScriptResource;
+
 
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
+        this.mixed = mixed;
 
-        this.resource = sqlScriptResource;
         //[pro]
         this.errorHandler = errorHandler;
         //[/pro]
@@ -184,6 +185,7 @@ public class SqlScript {
      */
     /* private -> for testing */
     List<SqlStatement> parse(String sqlScriptSource) {
+        LOG.debug("Parsing " + resource.getLocation() + " ...");
         return linesToStatements(readLines(new StringReader(sqlScriptSource)));
     }
 

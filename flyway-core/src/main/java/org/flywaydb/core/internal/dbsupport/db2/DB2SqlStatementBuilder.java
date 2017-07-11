@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -106,6 +107,9 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             }
 
             if (isEnd(line, beginEndLabels.isEmpty() ? null : beginEndLabels.getLast(), currentDelimiter, beginEndLabels.size())) {
+                if (beginEndLabels.isEmpty()) {
+                    throw new FlywayException("Flyway parsing bug (line should not terminate statement): " + line);
+                }
                 beginEndLabels.removeLast();
             }
         }
