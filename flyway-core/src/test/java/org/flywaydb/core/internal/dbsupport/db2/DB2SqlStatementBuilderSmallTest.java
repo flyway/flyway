@@ -200,6 +200,5 @@ public class DB2SqlStatementBuilderSmallTest {
         }
 
         assertTrue(builder.isTerminated());
-        System.out.println(builder.getSqlStatement().getSql());
     }
 }

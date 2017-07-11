@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
