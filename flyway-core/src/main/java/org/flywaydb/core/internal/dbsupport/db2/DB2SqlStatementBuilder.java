@@ -19,6 +19,8 @@ import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,14 +44,9 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     private static final Pattern KEYWORDS_AFTER_STRING_LITERAL_REGEX = Pattern.compile("(.*')(DO)(?!.)");
 
     /**
-     * How deep are we inside a BEGIN ... END blocks?
+     * The labels associated with nested BEGIN ... END blocks.
      */
-    private int beginEndDepth;
-
-    /**
-     * The label for the current BEGIN ... END block.
-     */
-    private String label;
+    private Deque<String> beginEndLabels = new LinkedList<String>();
 
     /**
      * Holds the beginning of the statement.
@@ -105,18 +102,15 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
         if (statementStart.matches("^CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|TRIGGER)(\\s.*)?")) {
             if (isBegin(line)) {
-                if (beginEndDepth == 0) {
-                    label = extractLabel(line);
-                }
-                beginEndDepth++;
+                beginEndLabels.addLast(extractLabel(line));
             }
 
-            if (isEnd(line, label, currentDelimiter)) {
-                beginEndDepth--;
+            if (isEnd(line, beginEndLabels.isEmpty() ? null : beginEndLabels.getLast(), currentDelimiter, beginEndLabels.size())) {
+                beginEndLabels.removeLast();
             }
         }
 
-        if (beginEndDepth > 0) {
+        if (!beginEndLabels.isEmpty()) {
             return null;
         }
         return currentDelimiter;
@@ -131,10 +125,17 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
         return line.contains(":") && matcher.matches() ? matcher.group(2) : null;
     }
 
-    static boolean isEnd(String line, String label, Delimiter currentDelimiter) {
-        if (label == null) {
-            return line.matches(".*\\s?END(\\s?" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
-        }
-        return line.matches(".*\\s?END(\\s" + Pattern.quote(label) + ")?\\s?(" + Pattern.quote(currentDelimiter.getDelimiter()) + ")?");
+    static boolean isEnd(String line, String label, Delimiter currentDelimiter, int beginEndDepth) {
+        String actualDelimiter = beginEndDepth > 1 ? ";" : currentDelimiter.getDelimiter();
+
+        return line.matches(
+                // First optionally match preceding part of statement
+                "(.*\\s)?"
+                        // Then require END
+                        + "END"
+                        // Now optionally match label
+                        + (label == null ? "" : "(\\s" + Pattern.quote(label) + ")?")
+                        // Finally optionally match delimitert
+                        + "\\s?(" + Pattern.quote(actualDelimiter) + ")?");
     }
 }
