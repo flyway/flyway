@@ -36,7 +36,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Regex to check for a BEGIN statement of a SQL PL block (Optional label followed by BEGIN).
      */
-    private static final Pattern BEGIN_REGEX = Pattern.compile("^(([A-Z]+[A-Z0-9]*)\\s?:\\s?)?BEGIN(\\sATOMIC)?(\\s.*)?");
+    private static final Pattern BEGIN_REGEX = Pattern.compile("((([A-Z]+[A-Z0-9]*)\\s?:\\s?)|(.*\\s))?BEGIN(\\sATOMIC)?(\\s.*)?");
 
     /**
      * Regex for keywords that can appear after a string literal without being separated by a space.
@@ -122,7 +122,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
 
     static String extractLabel(String line) {
         Matcher matcher = BEGIN_REGEX.matcher(line);
-        return line.contains(":") && matcher.matches() ? matcher.group(2) : null;
+        return line.contains(":") && matcher.matches() ? matcher.group(3) : null;
     }
 
     static boolean isEnd(String line, String label, Delimiter currentDelimiter, int beginEndDepth) {

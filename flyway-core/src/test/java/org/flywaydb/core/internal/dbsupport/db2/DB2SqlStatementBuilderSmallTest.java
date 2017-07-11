@@ -16,8 +16,11 @@
 package org.flywaydb.core.internal.dbsupport.db2;
 
 import org.flywaydb.core.internal.dbsupport.Delimiter;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +32,7 @@ public class DB2SqlStatementBuilderSmallTest {
         assertTrue(DB2SqlStatementBuilder.isBegin("LABEL: BEGIN"));
         assertTrue(DB2SqlStatementBuilder.isBegin("LABEL :BEGIN"));
         assertTrue(DB2SqlStatementBuilder.isBegin("LABEL : BEGIN"));
+        assertTrue(DB2SqlStatementBuilder.isBegin("REFERENCING NEW AS NEW FOR EACH ROW BEGIN ATOMIC"));
     }
 
     @Test
@@ -44,6 +48,7 @@ public class DB2SqlStatementBuilderSmallTest {
         assertFalse(DB2SqlStatementBuilder.isEnd("END IF", null, new Delimiter(";", false), 1));
         assertFalse(DB2SqlStatementBuilder.isEnd("END IF", "LABEL", new Delimiter(";", false), 1));
         assertFalse(DB2SqlStatementBuilder.isEnd("SELECT XXX INTO YYY_END", "LABEL", new Delimiter(";", false), 1));
+        assertFalse(DB2SqlStatementBuilder.isEnd("IF (COALESCE(XXX.END_YYY,'') <> '') THEN", "LABEL", new Delimiter(";", false), 1));
     }
 
     @Test
@@ -56,7 +61,7 @@ public class DB2SqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void isTerminated() {
+    public void isTerminated() throws IOException {
         assertTerminated("CREATE OR REPLACE PROCEDURE IP_ROLLUP(\n" +
                 "  IN iODLID INTEGER,\n" +
                 "  IN iNDLID INTEGER,\n" +
@@ -67,14 +72,13 @@ public class DB2SqlStatementBuilderSmallTest {
                 "  LANGUAGE SQL\n" +
                 "SPECIFIC SP_IP_ROLLUP\n" +
                 "MAIN : BEGIN\n" +
-                "\n" +
-                "\n" +
+                "  -- COMMENT WITH END\n" +
                 "END\n" +
                 "@", "@");
     }
 
     @Test
-    public void isTerminatedLabel() {
+    public void isTerminatedLabel() throws IOException {
         assertTerminated("CREATE OR REPLACE PROCEDURE CUST_INSERT_IP_GL(\n" +
                 "  IN iORDER_INTERLINER_ID INTEGER,\n" +
                 "  IN iACCT_CODE VARCHAR(50),\n" +
@@ -92,7 +96,7 @@ public class DB2SqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void isTerminatedNested() {
+    public void isTerminatedNested() throws IOException {
         assertTerminated("CREATE PROCEDURE dummy_proc ()\n" +
                 "LANGUAGE SQL\n" +
                 "BEGIN\n" +
@@ -108,7 +112,7 @@ public class DB2SqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void isTerminatedNestedDelimiter() {
+    public void isTerminatedNestedDelimiter() throws IOException {
         assertTerminated("CREATE OR REPLACE PROCEDURE NESTED () LANGUAGE SQL\n" +
                 "MAIN: BEGIN\n" +
                 "  BEGIN\n" +
@@ -119,7 +123,7 @@ public class DB2SqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void isTerminatedNestedLabel() {
+    public void isTerminatedNestedLabel() throws IOException {
         assertTerminated("CREATE OR REPLACE PROCEDURE TEST2\n" +
                 "BEGIN\n" +
                 " MAIN: BEGIN\n" +
@@ -136,7 +140,7 @@ public class DB2SqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void isTerminatedForIf() {
+    public void isTerminatedForIf() throws IOException {
         assertTerminated("CREATE OR REPLACE PROCEDURE FORIF(\n" +
                 "  IN my_arg INTEGER\n" +
                 "  )\n" +
@@ -157,12 +161,41 @@ public class DB2SqlStatementBuilderSmallTest {
                 "END@", "@");
     }
 
-    private void assertTerminated(String sqlScriptSource, String delimiter) {
+    @Test
+    public void isTerminatedTrigger1() throws IOException {
+        assertTerminated("CREATE OR REPLACE TRIGGER I_TRIGGER_I\n" +
+                "BEFORE INSERT ON I_TRIGGER\n" +
+                "REFERENCING NEW AS NEW FOR EACH ROW\n" +
+                "BEGIN ATOMIC\n" +
+                "IF NEW.ID IS NULL\n" +
+                "THEN SET NEW.ID = NEXTVAL FOR SEQ_I_TRIGGER;\n" +
+                "END IF;\n" +
+                "END\n" +
+                "/", "/");
+    }
+
+    @Test
+    public void isTerminatedTrigger2() throws IOException {
+        assertTerminated("CREATE OR REPLACE TRIGGER I_TRIGGER_I\n" +
+                "BEFORE INSERT ON I_TRIGGER\n" +
+                "REFERENCING NEW AS NEW FOR EACH ROW BEGIN ATOMIC\n" +
+                "IF NEW.ID IS NULL\n" +
+                "THEN SET NEW.ID = NEXTVAL FOR SEQ_I_TRIGGER;\n" +
+                "END IF;\n" +
+                "END\n" +
+                "/", "/");
+    }
+
+    private void assertTerminated(String sqlScriptSource, String delimiter) throws IOException {
         DB2SqlStatementBuilder builder = new DB2SqlStatementBuilder();
         builder.setDelimiter(new Delimiter(delimiter, false));
-        String[] lines = StringUtils.tokenizeToStringArray(sqlScriptSource, "\n");
-        for (String line : lines) {
-            assertFalse("Line should not terminate: " + line, builder.isTerminated());
+
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(sqlScriptSource));
+        int num = 0;
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            num++;
+            assertFalse("Line " + num + " should not terminate: " + line, builder.isTerminated());
             builder.addLine(line);
         }
 

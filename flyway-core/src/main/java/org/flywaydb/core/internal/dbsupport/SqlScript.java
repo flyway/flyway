@@ -108,12 +108,12 @@ public class SqlScript {
 
     ) {
         this.dbSupport = dbSupport;
+        this.resource = sqlScriptResource;
         this.mixed = mixed;
 
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
 
-        this.resource = sqlScriptResource;
 
 
 
@@ -184,6 +184,9 @@ public class SqlScript {
      */
     /* private -> for testing */
     List<SqlStatement> parse(String sqlScriptSource) {
+        if (resource != null) {
+            LOG.debug("Parsing " + resource.getFilename() + " ...");
+        }
         return linesToStatements(readLines(new StringReader(sqlScriptSource)));
     }
 
@@ -224,7 +227,11 @@ public class SqlScript {
                 }
             }
 
-            sqlStatementBuilder.addLine(line);
+            try {
+                sqlStatementBuilder.addLine(line);
+            } catch (Exception e) {
+                throw new FlywayException("Flyway parsing bug (" + e.getMessage() + ") at line " + lineNumber + ": " + line);
+            }
 
             if (sqlStatementBuilder.canDiscard()) {
                 sqlStatementBuilder = dbSupport.createSqlStatementBuilder();

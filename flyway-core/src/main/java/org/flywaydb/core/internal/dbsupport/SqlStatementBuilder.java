@@ -180,7 +180,7 @@ public class SqlStatementBuilder {
         String lineSimplified = simplifyLine(line);
 
         applyStateChanges(lineSimplified);
-        if (endWithOpenMultilineStringLiteral() || insideMultiLineComment) {
+        if (endWithOpenMultilineStringLiteral() || insideMultiLineComment || isSingleLineComment(lineSimplified)) {
             statement.append(line);
             return;
         }
