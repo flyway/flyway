@@ -100,8 +100,12 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
             statementStart += " ";
         }
 
+        if (!";".equals(currentDelimiter.getDelimiter())) {
+            return currentDelimiter;
+        }
+
         if (statementStart.matches("^CREATE( OR REPLACE)? (FUNCTION|PROCEDURE|TRIGGER)(\\s.*)?")) {
-            if (isBegin(line)) {
+            if (isBegin(line) || line.matches("(.*\\s)?CASE(\\sWHEN)?(\\s.*)?")) {
                 beginEndLabels.addLast(extractLabel(line));
             }
 
