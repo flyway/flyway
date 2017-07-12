@@ -260,7 +260,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
     public void tearDown() throws Exception {
         try {
             jdbcTemplate.execute("DROP TABLESPACE AURINT.SPERS\n");
-        } catch (Exception e) {
+        } catch (SQLException e) {
             if (!e.getMessage().contains("-204")) {
                 fail();
             }
