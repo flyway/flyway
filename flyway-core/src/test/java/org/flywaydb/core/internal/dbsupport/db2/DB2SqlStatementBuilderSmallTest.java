@@ -186,6 +186,18 @@ public class DB2SqlStatementBuilderSmallTest {
                 "/", "/");
     }
 
+    @Test
+    public void isTerminatedCase() throws IOException {
+        assertTerminated("SELECT EMPNO, LASTNAME,\n" +
+                "       CASE SUBSTR(WORKDEPT,1,1)\n" +
+                "       WHEN 'A' THEN 'Administration'\n" +
+                "       WHEN 'B' THEN 'Human Resources'\n" +
+                "       WHEN 'C' THEN 'Design'\n" +
+                "       WHEN 'D' THEN 'Operations'\n" +
+                "       END\n" +
+                "   FROM EMPLOYEE;", ";");
+    }
+
     private void assertTerminated(String sqlScriptSource, String delimiter) throws IOException {
         DB2SqlStatementBuilder builder = new DB2SqlStatementBuilder();
         builder.setDelimiter(new Delimiter(delimiter, false));
