@@ -15,13 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2zos;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +30,12 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.command.DbMigrate;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
 import org.flywaydb.core.internal.util.Location;
@@ -50,8 +46,11 @@ import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import static org.junit.Assert.*;
 
 @Category(DbCategory.DB2zOS.class)
 public class DB2zOSMigrationMediumTest extends MigrationTestCase {
@@ -127,6 +126,33 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         jdbcTemplate.execute("CREATE TABLE t1 (\n" +
                 "  name VARCHAR(25) NOT NULL,\n" +
                 "  PRIMARY KEY(name)) IN AURINT.SPERS;");
+    }
+
+    protected void createTablespace() throws Exception {
+        jdbcTemplate.execute("CREATE TABLESPACE " + "\"CLNTST\"" +
+                "       IN AURINT " +
+                "       MAXPARTITIONS 4 " +
+                "       SEGSIZE 4 " +
+                "       BUFFERPOOL BP3 " +
+                "       LOCKSIZE PAGE " +
+                "       LOCKMAX SYSTEM " +
+                "       CLOSE YES " +
+                "       COMPRESS YES;");
+        jdbcTemplate.execute("CREATE TABLE \"TSTFLYWAY\" (\n" +
+                "    \"version_rank\" INT NOT NULL,\n" +
+                "    \"installed_rank\" INT NOT NULL,\n" +
+                "    \"version\" VARCHAR(50) NOT NULL,\n" +
+                "    \"description\" VARCHAR(200) NOT NULL,\n" +
+                "    \"type\" VARCHAR(20) NOT NULL,\n" +
+                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
+                "    \"checksum\" INT,\n" +
+                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+                "    \"installed_on\" TIMESTAMP NOT NULL WITH DEFAULT,\n" +
+                "    \"execution_time\" INT NOT NULL,\n" +
+                "    \"success\" SMALLINT NOT NULL,\n" +
+                "    CONSTRAINT \"schema_version_s\" CHECK (\"success\" in(0,1))\n" +
+                ")\n" +
+                "IN AURINT.\"CLNTST\";");
     }
 
     protected String getAliasLocation() {
@@ -234,7 +260,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
     public void tearDown() throws Exception {
         try {
             jdbcTemplate.execute("DROP TABLESPACE AURINT.SPERS\n");
-        } catch (SQLException e) {
+        } catch (Exception e) {
             if (!e.getMessage().contains("-204")) {
                 fail();
             }
@@ -247,6 +273,48 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations(getAliasLocation());
         flyway.baseline();
         flyway.migrate();
+    }
+
+    /**
+     * Testing that clean works with tables partitioned tablespaces
+     *
+     * @throws Exception
+     */
+    @Test
+    public void clean() throws Exception {
+        createTablespace();
+        createTestTable();
+        flyway.clean();
+    }
+
+    /**
+     * Override auto commit tests. Expect failure when migrating with auto commit off.
+     *
+     * @throws Exception
+     */
+    @Override
+    @Test
+    public void autoCommitFalse() {
+        try {
+            testAutoCommit(false);
+        } catch (DbMigrate.FlywayMigrateSqlException e) {
+            System.out.println(e.getCause());
+            assertTrue(e.getCause().toString().contains("SQLCODE=-913"));
+        }
+    }
+
+    @Override
+    @Test
+    public void autoCommitTrue() {
+        testAutoCommit(true);
+    }
+
+    private void testAutoCommit(boolean autoCommit) {
+        DriverDataSource dataSource = (DriverDataSource) flyway.getDataSource();
+        dataSource.setAutoCommit(autoCommit);
+        flyway.setLocations(getMigrationDir());
+        flyway.migrate();
+        assertEquals("1.3", flyway.info().current().getVersion().getVersion());
     }
 
     /**
@@ -447,6 +515,11 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
                 assertTrue(e.getMessage().contains("contains a failed migration"));
             }
         }
+    }
+
+    @Ignore("Grouping does not change DB2 z/OS behaviour")
+    @Test
+    public void group() throws Exception {
     }
 
     @Test
@@ -910,7 +983,7 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         assertEquals(3, flyway.migrate());
         flyway.validate();
         assertEquals(5, flyway.info().applied().length);
-        assertEquals(801496293, flyway.info().applied()[1].getChecksum().intValue());
+        assertEquals(1778069124, flyway.info().applied()[1].getChecksum().intValue());
     }
 
     /**
