@@ -94,6 +94,7 @@
             <includes>
                 <include>org.flywaydb:flyway-*</include>
             </includes>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>
         <dependencySet>
             <outputDirectory>drivers</outputDirectory>
@@ -103,6 +104,7 @@
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
             </excludes>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>
     </dependencySets>
 </component>
