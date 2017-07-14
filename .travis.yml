@@ -12,3 +12,5 @@ before_install:
   - echo "mariadb.url=jdbc:mariadb://localhost/flyway_maria_db" > ~/flyway-mediumtests.properties
 #  - export M2_HOME=~/.m2
 install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
+before_script: echo OK
+script: echo Done.
