@@ -321,6 +321,12 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
+                <groupId>net.snowflake</groupId>
+                <artifactId>snowflake-jdbc</artifactId>
+                <version>3.1.0</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>2.3.0</version>
