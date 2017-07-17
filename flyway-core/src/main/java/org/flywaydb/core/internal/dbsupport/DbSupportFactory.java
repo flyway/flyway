@@ -32,6 +32,7 @@ import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaRedshif
 import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
 import org.flywaydb.core.internal.dbsupport.saphana.SapHanaDbSupport;
 import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
+import org.flywaydb.core.internal.dbsupport.snowflake.SnowflakeDbSupport;;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
 import org.flywaydb.core.internal.dbsupport.sybase.ase.SybaseASEDbSupport;
@@ -146,6 +147,10 @@ public class DbSupportFactory {
        
         if (databaseProductName.startsWith("Greenplum")) {
             return new GreenPlumDbSupport(connection);
+        }
+
+        if (databaseProductName.startsWith("Snowflake")) {
+            return new SnowflakeDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
