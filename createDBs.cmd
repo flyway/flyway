@@ -46,4 +46,8 @@ db2cmd -c "db2 -tvf flyway-core/src/test/resources/migration/dbsupport/db2/creat
 echo SolidDB...
 solsql -f flyway-core/src/test/resources/migration/dbsupport/solid/createDatabase.sql "tcp localhost 1313"
 
+echo Snowflake...
+@REM Set connection properties in ${user.home}\.snowsql\config prior to execution
+snowsql -f flyway-core/src/test/resources/migration/dbsupport/snowflake/createDatabase.sql
+
 echo Done.

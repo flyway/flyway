@@ -14,16 +14,6 @@
 -- limitations under the License.
 --
 
-CREATE TABLE "${schema}"."${table}" (
-	"installed_rank" NUMBER(38,0) NOT NULL,
-	"version" VARCHAR(50),
-	"description" VARCHAR(200),
-	"type" VARCHAR(20) NOT NULL,
-	"script" VARCHAR(1000) NOT NULL,
-	"checksum" NUMBER(38,0),
-	"installed_by" VARCHAR(100) NOT NULL,
-	"installed_on" TIMESTAMP_LTZ(9) NOT NULL DEFAULT CURRENT_TIMESTAMP(),
-	"execution_time" NUMBER(38,0) NOT NULL,
-	"success" BOOLEAN NOT NULL,
-	primary key ("installed_rank")
-);
+CREATE TABLE t (qty INT, price INT);
+INSERT INTO t VALUES(3, 50);
+CREATE VIEW v AS SELECT qty, price, qty*price AS value FROM t;

@@ -53,28 +53,31 @@ public class SnowflakeSchema extends Schema<SnowflakeDbSupport> {
 
     @Override
     protected void doCreate() throws SQLException {
-        jdbcTemplate.execute("CREATE SCHEMA " + dbSupport.quote(name));
+        jdbcTemplate.executeStatement("CREATE SCHEMA " + dbSupport.quote(name));
     }
 
     @Override
     protected void doDrop() throws SQLException {
-        jdbcTemplate.execute("DROP SCHEMA " + dbSupport.quote(name) + " CASCADE");
+        jdbcTemplate.executeStatement("DROP SCHEMA " + dbSupport.quote(name) + " CASCADE");
     }
 
     @Override
     protected void doClean() throws SQLException {
+        for (String statement : generateDropStatementsForViews()) {
+            jdbcTemplate.executeStatement(statement);
+        }
         for (Table table : allTables()) {
             table.drop();
         }
-
-        //Drop views that are based on a system table (views are normally dropped with the parent table when using cascade)
-        for (String statement : generateDropStatementsForViews()) {
-            jdbcTemplate.execute(statement);
+        for (String statement : generateDropStatementsForStages()) {
+            jdbcTemplate.executeStatement(statement);
         }
-
-        // TODO: Stages
-        // TODO: File Formats
-        // TODO: Sequences
+        for (String statement : generateDropStatementsForFileFormats()) {
+            jdbcTemplate.executeStatement(statement);
+        }
+        for (String statement : generateDropStatementsForSequences()) {
+            jdbcTemplate.executeStatement(statement);
+        }
     }
 
     @Override
@@ -96,6 +99,39 @@ public class SnowflakeSchema extends Schema<SnowflakeDbSupport> {
         List<String> statements = new ArrayList<String>();
         for (String viewName : viewNames) {
             statements.add("DROP VIEW " + dbSupport.quote(name, viewName));
+        }
+        return statements;
+    }
+
+    protected List<String> generateDropStatementsForStages() throws SQLException {
+        List<String> stageNames =
+                jdbcTemplate.queryForStringList("SELECT STAGE_NAME FROM INFORMATION_SCHEMA.STAGES WHERE STAGE_SCHEMA = ?", this.getName());
+
+        List<String> statements = new ArrayList<String>();
+        for (String stageName : stageNames) {
+            statements.add("DROP STAGE " + dbSupport.quote(name, stageName));
+        }
+        return statements;
+    }
+
+    protected List<String> generateDropStatementsForFileFormats() throws SQLException {
+        List<String> fileFormatNames =
+                jdbcTemplate.queryForStringList("SELECT FILE_FORMAT_NAME FROM INFORMATION_SCHEMA.FILE_FORMATS WHERE FILE_FORMAT_SCHEMA = ?", this.getName());
+
+        List<String> statements = new ArrayList<String>();
+        for (String fileFormatName : fileFormatNames) {
+            statements.add("DROP FILE FORMAT " + dbSupport.quote(name, fileFormatName));
+        }
+        return statements;
+    }
+
+    protected List<String> generateDropStatementsForSequences() throws SQLException {
+        List<String> sequenceNames =
+                jdbcTemplate.queryForStringList("SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SEQUENCES WHERE SEQUENCE_SCHEMA = ?", this.getName());
+
+        List<String> statements = new ArrayList<String>();
+        for (String sequenceName : sequenceNames) {
+            statements.add("DROP SEQUENCE " + dbSupport.quote(name, sequenceName));
         }
         return statements;
     }

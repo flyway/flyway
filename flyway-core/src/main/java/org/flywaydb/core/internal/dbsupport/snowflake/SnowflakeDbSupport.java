@@ -44,7 +44,7 @@ public class SnowflakeDbSupport extends DbSupport {
     }
 
     public String getDbName() {
-        return "Snowflake";
+        return "snowflake";
     }
 
     public String getCurrentUserFunction() {
@@ -53,29 +53,20 @@ public class SnowflakeDbSupport extends DbSupport {
 
     @Override
     public Schema getOriginalSchema() {
-        if (originalSchema == null) {
-            return null;
-        }
-
-        // Defaults to: "$user", public
-        String result = originalSchema.replace(doQuote("$user"), "").trim();
-        if (result.startsWith(",")) {
-            result = result.substring(2);
-        }
-        if (result.contains(",")) {
-            return getSchema(result.substring(0, result.indexOf(",")));
-        }
-        return getSchema(result);
+        return getSchema("PUBLIC");
     }
 
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA()");
+        String currentSchemaName = jdbcTemplate.queryForString("SELECT CURRENT_SCHEMA()");
+        if (currentSchemaName == null)
+            currentSchemaName = "PUBLIC";
+        return currentSchemaName;
     }
 
     @Override
     public void changeCurrentSchemaTo(Schema schema) {
-        if (schema.getName().equals(originalSchema) || !schema.exists()) {
+        if (schema.getName().equals(getOriginalSchema()) || !schema.exists()) {
             return;
         }
 
@@ -88,7 +79,7 @@ public class SnowflakeDbSupport extends DbSupport {
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        jdbcTemplate.execute("USE SCHEMA " + schema);
+        jdbcTemplate.executeStatement("USE SCHEMA " + schema);
     }
 
     public boolean supportsDdlTransactions() {
