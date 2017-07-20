@@ -141,6 +141,7 @@
         <version.mariadb>2.2.0</version.mariadb>
         <version.mssql-jdbc>6.2.2.jre7</version.mssql-jdbc>
         <version.postgresql>42.1.4.jre6</version.postgresql>
+        <version.snowflake>3.1.0</version.snowflake>
         <version.sqlite>3.20.1</version.sqlite>
         <version.osgi>4.3.1</version.osgi>
         <version.equinox>3.12.0</version.equinox>
@@ -323,7 +324,7 @@
             <dependency>
                 <groupId>net.snowflake</groupId>
                 <artifactId>snowflake-jdbc</artifactId>
-                <version>3.1.0</version>
+                <version>${version.snowflake}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
