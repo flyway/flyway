@@ -44,7 +44,7 @@ import java.util.zip.CRC32;
 
 /**
  * Migration resolver for sql files on the classpath. The sql files must have names like
- * V1__Description.sql or V1_1__Description.sql.
+ * V1__Description.sql or V1_1__Description.sql or R__Description.sql.
  */
 public class SqlMigrationResolver implements MigrationResolver {
     /**
