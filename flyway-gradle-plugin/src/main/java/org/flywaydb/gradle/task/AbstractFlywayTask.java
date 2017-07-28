@@ -17,18 +17,14 @@ package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 
-import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -302,20 +298,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             if (isJavaProject()) {
                 JavaPluginConvention plugin = getProject().getConvention().getPlugin(JavaPluginConvention.class);
 
-                for (SourceSet sourceSet : plugin.getSourceSets()) {
-                    URL classesUrl = sourceSet.getOutput().getClassesDir().toURI().toURL();
-                    getLogger().debug("Adding directory to Classpath: " + classesUrl);
-                    extraURLs.add(classesUrl);
-
-                    URL resourcesUrl = sourceSet.getOutput().getResourcesDir().toURI().toURL();
-                    getLogger().debug("Adding directory to Classpath: " + resourcesUrl);
-                    extraURLs.add(resourcesUrl);
+                for (File file : plugin.getSourceSets().findByName("test").getRuntimeClasspath().getFiles()) {
+                    extraURLs.add(file.toURI().toURL());
                 }
-
-                addDependenciesWithScope(extraURLs,"compile");
-                addDependenciesWithScope(extraURLs,"runtime");
-                addDependenciesWithScope(extraURLs,"testCompile");
-                addDependenciesWithScope(extraURLs,"testRuntime");
             }
 
             ClassLoader classLoader = new URLClassLoader(
@@ -329,14 +314,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         } catch (Exception e) {
             handleException(e);
             return null;
-        }
-    }
-
-    private void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
-        for (ResolvedArtifact artifact : getProject().getConfigurations().getByName(scope).getResolvedConfiguration().getResolvedArtifacts()) {
-            URL artifactUrl = artifact.getFile().toURI().toURL();
-            getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
-            urls.add(artifactUrl);
         }
     }
 
