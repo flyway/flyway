@@ -541,7 +541,9 @@ public class Flyway implements FlywayConfiguration {
      *                              {@code null} if the default internal handler should be used instead. (default: {@code null})
      */
     public void setErrorHandlerAsClassName(String errorHandlerClassName) {
-        this.errorHandler = ClassUtils.instantiate(errorHandlerClassName, classLoader);
+        if (errorHandlerClassName != null) {
+            this.errorHandler = ClassUtils.instantiate(errorHandlerClassName, classLoader);
+        }
     }
     //[/pro]
 

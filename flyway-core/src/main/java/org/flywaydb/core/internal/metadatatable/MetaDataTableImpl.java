@@ -187,7 +187,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             // Try load an updateMetaDataTable.sql file if it exists
             String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateMetaDataTable.sql";
             ClassPathResource classPathResource = new ClassPathResource(resourceName, getClass().getClassLoader());
-            int installedRank = calculateInstalledRank();
+            int installedRank = appliedMigration.getType() == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
             if (classPathResource.exists()) {
                 String source = classPathResource.loadAsString("UTF-8");
                 Map<String, String> placeholders = new HashMap<String, String>();
@@ -366,6 +366,10 @@ public class MetaDataTableImpl implements MetaDataTable {
     @Override
     public void addSchemasMarker(final Schema[] schemas) {
         createIfNotExists();
+
+        // Lock again for databases with no DDL transaction to prevent implicit commits from triggering deadlocks
+        // in highly concurrent environments
+        table.lock();
 
         addAppliedMigration(new AppliedMigration(null, "<< Flyway Schema Creation >>",
                 MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));

@@ -14,6 +14,6 @@
 -- limitations under the License.
 --
 
-DROP ROLE IF EXISTS test;
-CREATE ROLE test LOGIN PASSWORD 'test';
-SET ROLE test;
+DROP ROLE IF EXISTS testrole;
+CREATE ROLE testrole LOGIN PASSWORD 'testrole';
+SET ROLE testrole;

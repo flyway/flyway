@@ -145,6 +145,7 @@
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
         <version.jre>8.74</version.jre>
+        <version.testcontainers>1.4.2</version.testcontainers>
     </properties>
 
     <dependencyManagement>
@@ -481,6 +482,18 @@
                 <version>${version.jre}</version>
                 <classifier>macosx-x64</classifier>
                 <type>tar.gz</type>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${version.testcontainers}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${version.testcontainers}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
