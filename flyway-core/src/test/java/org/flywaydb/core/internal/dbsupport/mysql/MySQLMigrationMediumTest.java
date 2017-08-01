@@ -18,8 +18,10 @@ package org.flywaydb.core.internal.dbsupport.mysql;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.testcontainers.containers.MySQLContainer;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -32,19 +34,22 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.MySQL.class)
 public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
-    @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("mysql.user", "flyway");
-        String password = customProperties.getProperty("mysql.password", "flyway");
-        String url = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
+    static final String DOCKER_IMAGE_NAME = "mysql:5.5.57";
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+    @ClassRule
+    public static MySQLContainer mysql = new MySQLContainer(DOCKER_IMAGE_NAME);
+
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                mysql.getJdbcUrl(), "root", mysql.getPassword(), null);
     }
 
     @Test
     public void migrateWithNonExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
-        flyway.setDataSource("jdbc:mysql://localhost/flyway_db", "flyway", "flyway");
+        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                mysql.getJdbcUrl(), "root", mysql.getPassword(), null));
         flyway.setSchemas("non-existing-schema");
         flyway.setLocations(BASEDIR);
         flyway.clean();
@@ -54,8 +59,9 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
     @Test
     public void migrateWithExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
-        flyway.setDataSource("jdbc:mysql://localhost/flyway_db", "flyway", "flyway");
-        flyway.setSchemas("flyway_db");
+        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                mysql.getJdbcUrl(), "root", mysql.getPassword(), null));
+        flyway.setSchemas("test");
         flyway.setLocations(getBasedir());
         flyway.clean();
         assertEquals(4, flyway.migrate());

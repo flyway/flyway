@@ -15,23 +15,26 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
+import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.flywaydb.core.DbCategory;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
 import java.sql.Connection;
-import java.util.Properties;
 
+import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.DOCKER_IMAGE_NAME;
 import static org.junit.Assert.assertEquals;
 
 @Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLDbSupportMediumTest {
+    @ClassRule
+    public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
+
     /**
      * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.
      */
@@ -59,15 +62,7 @@ public class PostgreSQLDbSupportMediumTest {
      * @return The new datasource.
      */
     private DataSource createDataSource() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
-        String user = customProperties.getProperty("postgresql.user", "flyway");
-        String password = customProperties.getProperty("postgresql.password", "flyway");
-        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                postgreSQL.getJdbcUrl(), postgreSQL.getUsername(), postgreSQL.getPassword(), null);
     }
 }

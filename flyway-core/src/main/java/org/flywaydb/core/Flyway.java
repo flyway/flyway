@@ -545,6 +545,8 @@ public class Flyway implements FlywayConfiguration {
 
 
 
+
+
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
      *
