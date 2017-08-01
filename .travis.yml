@@ -9,6 +9,14 @@ services:
 before_install:
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
   - echo "mariadb.url=jdbc:mariadb://localhost/flyway_maria_db" > ~/flyway-mediumtests.properties
-install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
+install:
+  - |
+       DOCKER_HOST=unix:///var/run/docker.sock DOCKER_TLS_VERIFY= docker run -t --rm \
+       -v "$HOME/.m2":/root/.m2/ \
+       -v /var/run/docker.sock:/var/run/docker.sock \
+       -v "$(pwd)":"$(pwd)" \
+       -w "$(pwd)" \
+       openjdk:8-jdk-alpine \
+       "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
 before_script: echo OK
 script: echo Done.
