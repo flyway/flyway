@@ -94,6 +94,8 @@
             <includes>
                 <include>org.flywaydb:flyway-*</include>
             </includes>
+            <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>
         <dependencySet>
             <outputDirectory>drivers</outputDirectory>
@@ -103,6 +105,8 @@
             <excludes>
                 <exclude>org.flywaydb:flyway-*</exclude>
             </excludes>
+            <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>
     </dependencySets>
 </component>
