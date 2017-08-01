@@ -16,10 +16,8 @@
 
 net start SQLBrowser
 net start MSSQL$SQLEXPRESS
-net start postgresql-x64-9.0
 net start OracleXETNSListener
 net start OracleServiceXE
-net start MySQL
 net start MariaDB
 net start DB2MGMTSVC_DB2COPY1
 net start DB2DAS00

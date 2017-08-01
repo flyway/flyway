@@ -17,23 +17,27 @@ package org.flywaydb.core.internal.dbsupport.mysql;
 
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.junit.ClassRule;
 import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
+import org.testcontainers.containers.MySQLContainer;
 
 import javax.sql.DataSource;
 import java.util.Properties;
+
+import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTest.DOCKER_IMAGE_NAME;
 
 /**
  * Test to demonstrate the migration functionality using MySQL.
  */
 @Category(DbCategory.MySQL.class)
 public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-    @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("mysql.user", "flyway");
-        String password = customProperties.getProperty("mysql.password", "flyway");
-        String url = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
+    @ClassRule
+    public static MySQLContainer mysql = new MySQLContainer(DOCKER_IMAGE_NAME);
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                mysql.getJdbcUrl(), "root", mysql.getPassword(), null);
     }
 }

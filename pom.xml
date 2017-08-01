@@ -145,6 +145,7 @@
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
         <version.jre>8.74</version.jre>
+        <version.testcontainers>1.4.2</version.testcontainers>
     </properties>
 
     <dependencyManagement>
@@ -298,7 +299,7 @@
                 <version>4.0.2206.100</version>
                 <optional>true</optional>
             </dependency>
-             <dependency>
+            <dependency>
                 <groupId>com.vertica</groupId>
                 <artifactId>vertica-jdbc</artifactId>
                 <version>7.0.0-0</version>
@@ -482,6 +483,27 @@
                 <classifier>macosx-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${version.testcontainers}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${version.testcontainers}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- currently broken -->
+            <!--
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mariadb</artifactId>
+                <version>1.3.0</version>
+                <scope>test</scope>
+            </dependency>
+            -->
         </dependencies>
     </dependencyManagement>
 
