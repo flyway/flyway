@@ -299,7 +299,7 @@
                 <version>4.0.2206.100</version>
                 <optional>true</optional>
             </dependency>
-             <dependency>
+            <dependency>
                 <groupId>com.vertica</groupId>
                 <artifactId>vertica-jdbc</artifactId>
                 <version>7.0.0-0</version>
@@ -495,6 +495,15 @@
                 <version>${version.testcontainers}</version>
                 <scope>test</scope>
             </dependency>
+            <!-- currently broken -->
+            <!--
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mariadb</artifactId>
+                <version>1.3.0</version>
+                <scope>test</scope>
+            </dependency>
+            -->
         </dependencies>
     </dependencyManagement>
 
