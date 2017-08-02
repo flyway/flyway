@@ -15,6 +15,14 @@
  */
 package org.flywaydb.core.internal.util.scanner.classpath;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.internal.dbsupport.db2.DB2MigrationMediumTest;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
@@ -28,12 +36,6 @@ import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.mockito.MockSettings;
 import org.mockito.internal.creation.MockSettingsImpl;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.*;
 
 /**
  * Tests for ClassPathScanner.
