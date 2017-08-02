@@ -17,7 +17,9 @@ package org.flywaydb.core.internal.dbsupport.mysql;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.junit.ClassRule;
 import org.junit.experimental.categories.Category;
+import org.testcontainers.containers.MariaDBContainer;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -27,12 +29,14 @@ import java.util.Properties;
  */
 @Category(DbCategory.MariaDB.class)
 public class MariaDBMigrationMediumTest extends MySQLMigrationTestCase {
-    @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("mariadb.user", "flyway");
-        String password = customProperties.getProperty("mariadb.password", "flyway");
-        String url = customProperties.getProperty("mariadb.url", "jdbc:mariadb://localhost:3333/flyway_db");
+    static final String DOCKER_IMAGE_NAME = "mariadb:10.0.31";
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+    @ClassRule
+    public static MariaDBContainer mariadb = new MariaDBContainer(DOCKER_IMAGE_NAME);
+
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                mariadb.getJdbcUrl(), "root", mariadb.getPassword(), null);
     }
 }
