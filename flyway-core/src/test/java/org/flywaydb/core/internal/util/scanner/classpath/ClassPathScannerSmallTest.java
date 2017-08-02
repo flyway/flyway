@@ -33,6 +33,7 @@ import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.migration.MigrationTestCase;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.MockSettings;
 import org.mockito.internal.creation.MockSettingsImpl;
@@ -144,6 +145,7 @@ public class ClassPathScannerSmallTest {
         assertEquals(V4__DummyExtendedAbstractJdbcMigration.class, classes[1]);
     }
 
+    @Ignore("For TravisCI")
     @Test
     public void scanForClassesSubPackage() throws Exception {
         Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal/dbsupport"), MigrationTestCase.class);
