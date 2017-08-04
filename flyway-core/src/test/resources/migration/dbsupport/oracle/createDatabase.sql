@@ -22,9 +22,6 @@ GRANT ALL PRIVILEGES TO FLYWAY_AUX;
 
 ALTER USER FLYWAY GRANT CONNECT THROUGH "flyway_proxy";
 
--- grant for reading system schemas
-GRANT SELECT ON DBA_REGISTRY TO FLYWAY;
-
 -- grant for administering queue tables
 GRANT AQ_ADMINISTRATOR_ROLE TO FLYWAY;
 

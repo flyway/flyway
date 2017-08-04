@@ -17,16 +17,17 @@ package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.testcontainers.containers.OracleContainer;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.Connection;
-import java.util.Properties;
 
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.DOCKER_IMAGE_NAME;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.initOracleContainer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -36,18 +37,24 @@ import static org.junit.Assert.assertFalse;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.Oracle.class)
 public class OracleDbSupportMediumTest {
+    @ClassRule
+    public static OracleContainer oracle = new OracleContainer(DOCKER_IMAGE_NAME);
+
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        initOracleContainer(oracle);
+    }
+
     /**
      * Checks the result of the getCurrentUserName and getCurrentSchemaName calls.
      *
-     * @param useProxy Flag indicating whether to check it using a proxy user or not.
+     * @param useProxy     Flag indicating whether to check it using a proxy user or not.
      * @param changeSchema Flag indicating whether to change the current schema or not.
      */
     private void checkCurrentUser(boolean useProxy, boolean changeSchema) throws Exception {
-        Properties customProperties = getConnectionProperties();
-        String user = customProperties.getProperty("oracle.user");
-        String auxUser = customProperties.getProperty("oracle.auxuser");
-        String password = customProperties.getProperty("oracle.password");
-        String url = customProperties.getProperty("oracle.url");
+        String user = "flyway";
+        String auxUser = "flyway_aux";
+        String password = "flyway";
 
         //further we treat user names as uppercase strings, so make sure they are not quoted
         assertFalse("Provided user name (" + user + ") is expected to be unquoted/case-insensitive", user.contains("\""));
@@ -57,7 +64,7 @@ public class OracleDbSupportMediumTest {
 
         String dataSourceUser = useProxy ? "\"flyway_proxy\"[" + user + "]" : user;
 
-        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, dataSourceUser, password, null);
+        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, oracle.getJdbcUrl(), dataSourceUser, password, null);
 
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
@@ -76,27 +83,6 @@ public class OracleDbSupportMediumTest {
         } else {
             assertEquals(user, currentSchema);
         }
-    }
-
-    private Properties getConnectionProperties() throws IOException {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties connectionProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            connectionProperties.load(new FileInputStream(customPropertiesFile));
-        }
-        if (!connectionProperties.containsKey("oracle.user")) {
-            connectionProperties.setProperty("oracle.user", "flyway");
-        }
-        if (!connectionProperties.containsKey("oracle.auxuser")) {
-            connectionProperties.setProperty("oracle.auxuser", "flyway_aux");
-        }
-        if (!connectionProperties.containsKey("oracle.password")) {
-            connectionProperties.setProperty("oracle.password", "flyway");
-        }
-        if (!connectionProperties.containsKey("oracle.url")) {
-            connectionProperties.setProperty("oracle.url", "jdbc:oracle:thin:@localhost:1521:XE");
-        }
-        return connectionProperties;
     }
 
     /**
@@ -162,17 +148,8 @@ public class OracleDbSupportMediumTest {
         connection.close();
     }
 
-    /**
-     * Creates a datasource for use in tests.
-     *
-     * @return The new datasource.
-     */
     private DataSource createDataSource() throws Exception {
-        Properties customProperties = getConnectionProperties();
-        String user = customProperties.getProperty("oracle.user");
-        String password = customProperties.getProperty("oracle.password");
-        String url = customProperties.getProperty("oracle.url");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                oracle.getJdbcUrl(), "flyway", "flyway", null);
     }
 }
