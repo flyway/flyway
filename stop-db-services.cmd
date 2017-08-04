@@ -16,11 +16,6 @@
 
 net stop SQLBrowser
 net stop MSSQL$SQLEXPRESS
-net stop postgresql-x64-9.0
-net stop OracleXETNSListener
-net stop OracleServiceXE
-net stop MySQL
-net stop MariaDB
 net stop DB2MGMTSVC_DB2COPY1
 net stop DB2DAS00
 net stop DB2REMOTECMD_DB2COPY1

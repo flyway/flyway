@@ -501,6 +501,12 @@
                 <version>1.3.0</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>oracle-xe</artifactId>
+                <version>1.2.1</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -738,8 +744,8 @@
                                 <user.timezone>+00:00</user.timezone>
                             </systemPropertyVariables>
                             <parallel>classes</parallel>
-                            <threadCount>1</threadCount>
-                            <perCoreThreadCount>true</perCoreThreadCount>
+                            <threadCount>2</threadCount>
+                            <perCoreThreadCount>false</perCoreThreadCount>
                             <argLine>-XX:ReservedCodeCacheSize=128m -Xmx1536m</argLine>
                         </configuration>
                     </execution>
