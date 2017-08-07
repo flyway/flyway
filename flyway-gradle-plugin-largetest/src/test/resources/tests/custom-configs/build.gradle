@@ -1,0 +1,43 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.hsqldb:hsqldb:2.2.8'
+        classpath "org.flywaydb:flyway-gradle-plugin:${flywayVersion}"
+    }
+}
+
+apply plugin: 'org.flywaydb.flyway'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    flywayJavaMigration
+}
+
+sourceSets {
+    main.compileClasspath += configurations.flywayJavaMigration //needed for flyway java migration at compile time
+}
+
+dependencies {
+    compile 'org.springframework:spring-jdbc:3.0.5.RELEASE'
+    compile "org.flywaydb:flyway-core:${flywayVersion}"
+    flywayJavaMigration "org.apache.commons:commons-lang3:3.6"
+}
+
+flyway {
+    url = "jdbc:hsqldb:file:${buildDir}/db/flyway_sample;shutdown=true"
+    placeholders = ['execUserName' : "${project.name}"]
+    baselineVersion = 0
+    target = '7'
+    locations = [ 'classpath:db/migration' ]
+}
+
+flywayMigrate.dependsOn classes
