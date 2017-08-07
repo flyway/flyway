@@ -59,6 +59,13 @@ public class GradleLargeTest {
         assertTrue(stdOut.contains("Successfully applied 2 migrations"));
         assertFalse(stdOut.contains("deprecated"));
     }
+    
+    @Test(timeout = 60000)
+    public void customGradleConfigs() throws Exception {
+        String stdOut = runGradle(0, "custom-configs", "clean", "flywayMigrate", "-Pflyway.placeholders.name=James");
+        assertTrue(stdOut.contains("Successfully applied 2 migrations"));
+        assertFalse(stdOut.contains("deprecated"));
+    }
 
     @Test(timeout = 60000)
     public void error() throws Exception {
