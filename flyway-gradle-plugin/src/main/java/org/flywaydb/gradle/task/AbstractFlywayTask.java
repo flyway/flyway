@@ -17,25 +17,21 @@ package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * A base class for all flyway tasks.
@@ -280,6 +276,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String installedBy;
 
+    /**
+     * Configurations that will be added to the classpath for running flyway tasks.
+     * <p>
+     * By default flyway respects <code>compile</code>, <code>runtime</code>, <code>testCompile</code>, <code>testRuntime</code> (in this order).
+     * {@code empty list or null} for accepting the default classpath. (default: {@code null}).
+     */
+    public List<Configuration> classpathExtensions;
 
 
 
@@ -312,10 +315,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.add(resourcesUrl);
                 }
 
-                addDependenciesWithScope(extraURLs,"compile");
-                addDependenciesWithScope(extraURLs,"runtime");
-                addDependenciesWithScope(extraURLs,"testCompile");
-                addDependenciesWithScope(extraURLs,"testRuntime");
+                addClasspathDependencies(extraURLs);
             }
 
             ClassLoader classLoader = new URLClassLoader(
@@ -332,10 +332,35 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         }
     }
 
-    private void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
-        for (ResolvedArtifact artifact : getProject().getConfigurations().getByName(scope).getResolvedConfiguration().getResolvedArtifacts()) {
+    // classpath methods having protected access to allow for adaption/override in a users custom flyway tasks
+    protected void addClasspathDependencies(List<URL> urls) throws IOException {
+        addDefaultClasspathDependencies(urls);
+        addClasspathExtensionDependencies(urls);
+    }
+
+    protected void addDefaultClasspathDependencies(List<URL> urls) throws IOException {
+        for (String scope : Arrays.asList("compile", "runtime", "testCompile", "testRuntime")) {
+            addDependenciesWithScope(urls, scope);
+        }
+    }
+
+    protected void addDependenciesWithScope(List<URL> urls, String scope) throws IOException {
+        final Configuration configuration = getProject().getConfigurations().getByName(scope);
+        addDependenciesWithScope(urls, configuration);
+    }
+
+    protected void addClasspathExtensionDependencies(List<URL> urls) throws IOException {
+        List<Configuration> classPathConfigs = this.classpathExtensions != null ? this.classpathExtensions : nullToEmpty(this.extension.classpathExtensions);
+        for (Configuration configuration : classPathConfigs) {
+            getLogger().debug("Adding extension to classpath: " + configuration);
+            addDependenciesWithScope(urls, configuration);
+        }
+    }
+
+    protected void addDependenciesWithScope(List<URL> urls, Configuration configuration) throws MalformedURLException {
+        for (ResolvedArtifact artifact : configuration.getResolvedConfiguration().getResolvedArtifacts()) {
             URL artifactUrl = artifact.getFile().toURI().toURL();
-            getLogger().debug("Adding Dependency to Classpath: " + artifactUrl);
+            getLogger().debug("Adding dependency to classpath: " + artifactUrl);
             urls.add(artifactUrl);
         }
     }
@@ -408,6 +433,13 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         return conf;
     }
 
+    private List<Configuration> nullToEmpty(List<Configuration> input) {
+        if (input != null) {
+            return input;
+        }
+        return Collections.emptyList();
+    }
+
     private static void addConfigFromProperties(Map<String, String> config, Properties properties) {
         for (String prop : properties.stringPropertyNames()) {
             if (prop.startsWith("flyway.")) {
@@ -456,6 +488,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * @param extensionValue The value in the extension.
      */
     private void putIfSet(Map<String, String> config, String key, Object propValue, Object extensionValue) {
+        getLogger().lifecycle("putIfSet: "+key + "  val("+propValue+") // ext("+extensionValue+")");
         if (propValue != null) {
             config.put("flyway." + key, propValue.toString());
         } else if (extensionValue != null) {
