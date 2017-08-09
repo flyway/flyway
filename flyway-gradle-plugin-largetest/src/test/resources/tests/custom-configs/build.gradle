@@ -38,6 +38,7 @@ flyway {
     baselineVersion = 0
     target = '7'
     locations = [ 'classpath:db/migration' ]
+    classpathExtensions = [ configurations.flywayJavaMigration ] //needed for flyway java migration at runtime
 }
 
 flywayMigrate.dependsOn classes
