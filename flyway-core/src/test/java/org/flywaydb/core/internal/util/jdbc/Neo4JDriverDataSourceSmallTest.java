@@ -43,16 +43,16 @@ public class Neo4JDriverDataSourceSmallTest {
               		"MATCH (sv :SchemaVersion) \n" + 
               		"CREATE (sv)-[:SchemaVersionToMigration]->\n" + 
               		"(Migration? :Migration \n" + 
-              		"	{installed_rank: \"?\" , \n" + 
-              		"	version :\"?\",\n" + 
-              		"	description:\"?\",\n" + 
-              		"	type:\"?\",\n" + 
-              		"	script:\"?\",\n" + 
-              		"	checksum:\"?\",\n" + 
-              		"	installed_by:\"?\",\n" + 
-              		"	installed_on:\"?\",\n" + 
-              		"	execution_time:\"?\",\n" + 
-              		"	success:\"?\"});";
+              		"	{installed_rank: 'installed_rank' , \n" + 
+              		"	version : 'version',\n" + 
+              		"	description:'description',\n" + 
+              		"	type:'type',\n" + 
+              		"	script:'script',\n" + 
+              		"	checksum:'checksum',\n" + 
+              		"	installed_by:'installed_by',\n" + 
+              		"	installed_on:'installed_on',\n" + 
+              		"	execution_time:'execution_time',\n" + 
+              		"	success:'success'});";
               
               assertEquals(expected, source);
 
