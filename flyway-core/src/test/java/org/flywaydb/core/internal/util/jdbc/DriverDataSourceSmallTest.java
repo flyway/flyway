@@ -30,7 +30,7 @@ public class DriverDataSourceSmallTest {
         String user = "axel";
         String password = "superS3cr3t";
 
-        try {
+        try { 
             new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null).getConnection();
         } catch (FlywayException e) {
             assertTrue(e.getCause() instanceof SQLException);
