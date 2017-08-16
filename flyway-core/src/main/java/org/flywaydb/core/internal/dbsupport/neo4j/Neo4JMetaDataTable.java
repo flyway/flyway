@@ -47,7 +47,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 	        if (installedBy == null) {
 	            this.installedBy = dbSupport.getCurrentUserFunction();
 	        } else {
-	            this.installedBy =   installedBy  ;
+	            this.installedBy = "'" + installedBy + "'";
 	        }
 	    }
 
@@ -125,7 +125,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
             LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to insert row for version " + version + " in metadata table " + table, e);
+            throw new FlywaySqlException("Unable to insert row for version '" + version + "' in metadata table " + table, e);
         }
 
 	}
@@ -145,7 +145,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 
 	        try {
-	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE NOT n." + "type" + "  IN [SCHEMA, INIT, BASELINE] RETURN COUNT(n)");
+	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE NOT n." + "type" + "  IN ['SCHEMA', 'INIT', 'BASELINE'] RETURN COUNT(n)");
 	            return count > 0;
 	        } catch (SQLException e) {
 	            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has applied migrations", e);
@@ -175,7 +175,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 
 	        try {
-	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE n." + "type" + "  IN [INIT, BASELINE]  RETURN COUNT(n)");
+	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE n." + "type" + "  IN ['INIT', 'BASELINE']  RETURN COUNT(n)");
 	            return count > 0;
 	        } catch (SQLException e) {
 	            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
@@ -200,7 +200,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         try {
             int failedCount = jdbcTemplate.queryForInt("MATCH (n : Migration)"
-                    + " WHERE n." + "success" + "=" + dbSupport.getBooleanFalse() + "COUNT(n)");
+                    + " WHERE n." + "success" + "=" + dbSupport.getBooleanFalse() + "RETURN COUNT(n)");
             if (failedCount == 0) {
                 LOG.info("Repair of failed migration in metadata table " + table + " not necessary. No failed migration detected.");
                 return;
@@ -239,7 +239,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 	        try {
 	            int count = jdbcTemplate.queryForInt(
-	                    "MATCH (n : Migration) WHERE n.type=SCHEMA COUNT(n)" );
+	                    "MATCH (n : Migration) WHERE n.type='SCHEMA' RETURN COUNT(n)" );
 	            return count > 0;
 	        } catch (SQLException e) {
 	            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has a schema marker migration", e);
@@ -278,7 +278,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
                 jdbcTemplate.update("Match (n :Migration)"
                         + " SET n.description=" + description + " , n."
                         + "checksum" + "=" + checksum
-                        + " WHERE n." + "version" + "=" +  version  );
+                        + " WHERE n." + "version" + "='" + version + "'");
             } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to repair metadata table " + table
                         + " for version " + version, e);
@@ -358,7 +358,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
                 if (i > 0) {
                     query += ",";
                 }
-                query +=   migrationTypes[i] ;
+                query += "'" + migrationTypes[i] + "'";
             }
             query += ")";
         }
