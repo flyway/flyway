@@ -328,9 +328,13 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:sap:")) {
             return "com.sap.db.jdbc.Driver";
         }
-        
+                                                                                                                                                                                                                                                                                               
         if (url.startsWith("jdbc:pivotal:greenplum:")) {
             return "com.pivotal.jdbc.GreenplumDriver";
+        }
+        
+        if (url.startsWith("jdbc:neo4j:")) {
+            return "org.neo4j.jdbc.Driver";
         }
 
         return null;
