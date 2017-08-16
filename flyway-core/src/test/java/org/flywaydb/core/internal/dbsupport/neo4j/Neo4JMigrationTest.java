@@ -24,7 +24,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 		Assert.notNull(dataSource);
 		Assert.notNull(flyway);
 
-		flyway.setLocations("migration/dbsupport/teradata/");
+		flyway.setLocations("migration/dbsupport/neo4j/");
 		flyway.setMixed(true);
 
 		Assert.isTrue(flyway.migrate() == 4);
