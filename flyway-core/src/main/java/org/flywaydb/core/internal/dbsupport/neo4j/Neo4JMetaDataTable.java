@@ -40,7 +40,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 	
 	private String installedBy;
 
-	public Neo4JMetaDataTable(DbSupport dbSupport, Table table) {
+	public Neo4JMetaDataTable(DbSupport dbSupport, Table table, String installedBy) {
 	        this.jdbcTemplate = dbSupport.getJdbcTemplate();
 	        this.dbSupport = dbSupport;
 	        this.table = table;
@@ -51,6 +51,9 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 	        }
 	    }
 
+	public Neo4JMetaDataTable(DbSupport dbSupport, Table table) {
+		this(dbSupport,table, null);
+    }
 	
 	@Override
 	public <T> T lock(Callable<T> callable) {
@@ -98,15 +101,15 @@ public class Neo4JMetaDataTable implements MetaDataTable {
             } else {
                 // Fall back to hard-coded statements
                 jdbcTemplate.update("INSERT INTO " + table
-                                + " (" + dbSupport.quote("installed_rank")
-                                + "," + dbSupport.quote("version")
-                                + "," + dbSupport.quote("description")
-                                + "," + dbSupport.quote("type")
-                                + "," + dbSupport.quote("script")
-                                + "," + dbSupport.quote("checksum")
-                                + "," + dbSupport.quote("installed_by")
-                                + "," + dbSupport.quote("execution_time")
-                                + "," + dbSupport.quote("success")
+                                + "(" + "installed_rank"
+                                + "," + "version"
+                                + "," + "description"
+                                + "," + "type"
+                                + "," + "script"
+                                + "," + "checksum"
+                                + "," + "installed_by"
+                                + "," + "execution_time"
+                                + "," + "success"
                                 + ")"
                                 + " VALUES (?, ?, ?, ?, ?, ?, " + installedBy + ", ?, ?)",
                         installedRank,
@@ -142,7 +145,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 
 	        try {
-	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE NOT n." + dbSupport.quote("type") + "  IN ['SCHEMA', 'INIT', 'BASELINE'] RETURN COUNT(n)");
+	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE NOT n." + "type" + "  IN ['SCHEMA', 'INIT', 'BASELINE'] RETURN COUNT(n)");
 	            return count > 0;
 	        } catch (SQLException e) {
 	            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has applied migrations", e);
@@ -172,7 +175,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 
 	        try {
-	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE n." + dbSupport.quote("type") + "  IN ['INIT', 'BASELINE']  RETURN COUNT(n)");
+	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE n." + "type" + "  IN ['INIT', 'BASELINE']  RETURN COUNT(n)");
 	            return count > 0;
 	        } catch (SQLException e) {
 	            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
@@ -197,7 +200,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         try {
             int failedCount = jdbcTemplate.queryForInt("MATCH (n : Migration)"
-                    + " WHERE n." + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse() + "COUNT(n)");
+                    + " WHERE n." + "success" + "=" + dbSupport.getBooleanFalse() + "COUNT(n)");
             if (failedCount == 0) {
                 LOG.info("Repair of failed migration in metadata table " + table + " not necessary. No failed migration detected.");
                 return;
@@ -208,7 +211,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         try {
             jdbcTemplate.execute("MATCH (n : Migration)<-[r]-() "
-                    + " WHERE n." + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse() + "DELETE n , r");
+                    + " WHERE n." + "success" + " = " + dbSupport.getBooleanFalse() + "DELETE n , r");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair metadata table " + table, e);
         }
@@ -236,7 +239,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 	        try {
 	            int count = jdbcTemplate.queryForInt(
-	                    "MATCH (n : Migration) WHERE n." + dbSupport.quote("type") + "='SCHEMA' COUNT(n)" );
+	                    "MATCH (n : Migration) WHERE n.type='SCHEMA' COUNT(n)" );
 	            return count > 0;
 	        } catch (SQLException e) {
 	            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has a schema marker migration", e);
@@ -273,9 +276,9 @@ public class Neo4JMetaDataTable implements MetaDataTable {
         } else {
             try {
                 jdbcTemplate.update("Match (n :Migration)"
-                        + " SET n." + dbSupport.quote("description") + "='" + description + "' , n."
-                        + dbSupport.quote("checksum") + "=" + checksum
-                        + " WHERE n." + dbSupport.quote("version") + "='" + version + "'");
+                        + " SET n.description=" + description + " , n."
+                        + "checksum" + "=" + checksum
+                        + " WHERE n." + "version" + "='" + version + "'");
             } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to repair metadata table " + table
                         + " for version " + version, e);
@@ -324,7 +327,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 
     private int calculateInstalledRank() throws SQLException {
-        int currentMax = jdbcTemplate.queryForInt("MATCH (n:Migration) RETURN MAX(n." + dbSupport.quote("installed_rank") + ")");
+        int currentMax = jdbcTemplate.queryForInt("MATCH (n:Migration) RETURN MAX(n." + "installed_rank" + ")");
         return currentMax + 1;
     }
     
@@ -336,21 +339,21 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         int minInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
 
-        String query = "SELECT " + dbSupport.quote("installed_rank")
-                + "," + dbSupport.quote("version")
-                + "," + dbSupport.quote("description")
-                + "," + dbSupport.quote("type")
-                + "," + dbSupport.quote("script")
-                + "," + dbSupport.quote("checksum")
-                + "," + dbSupport.quote("installed_on")
-                + "," + dbSupport.quote("installed_by")
-                + "," + dbSupport.quote("execution_time")
-                + "," + dbSupport.quote("success")
+        String query = "SELECT " + "installed_rank"
+                + "," + "version"
+                + "," + "description"
+                + "," + "type"
+                + "," + "script"
+                + "," + "checksum"
+                + "," + "installed_on"
+                + "," + "installed_by"
+                + "," + "execution_time"
+                + "," + "success"
                 + " FROM " + table
-                + " WHERE " + dbSupport.quote("installed_rank") + " > " + minInstalledRank;
+                + " WHERE " + "installed_rank" + " > " + minInstalledRank;
 
         if (migrationTypes.length > 0) {
-            query += " AND " + dbSupport.quote("type") + " IN (";
+            query += " AND " + "type" + " IN (";
             for (int i = 0; i < migrationTypes.length; i++) {
                 if (i > 0) {
                     query += ",";
@@ -360,7 +363,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
             query += ")";
         }
 
-        query += " ORDER BY " + dbSupport.quote("installed_rank");
+        query += " ORDER BY " + "installed_rank";
 
         try {
             cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
