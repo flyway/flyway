@@ -149,7 +149,7 @@ public class DbSupportFactory {
             return new GreenPlumDbSupport(connection);
         }
         
-        if(databaseProductName.startsWith("Neo4J")) {
+        if(databaseProductName.startsWith("Neo4j")) {
         	return new Neo4JDbSupport(connection);
         }
 

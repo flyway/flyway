@@ -1,4 +1,4 @@
-package org.flywaydb.core.internal.util.jdbc;
+package org.flywaydb.core.internal.dbsupport.neo4j;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.neo4j.Neo4JMetaDataTable;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Test;
 

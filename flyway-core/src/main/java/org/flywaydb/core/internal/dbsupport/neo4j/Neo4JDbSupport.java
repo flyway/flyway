@@ -25,6 +25,8 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.StringUtils;
 
 public class Neo4JDbSupport extends DbSupport {
@@ -94,6 +96,9 @@ public class Neo4JDbSupport extends DbSupport {
 		return false;
 	}
 	
-	
+	@Override
+	public MetaDataTable getMetadataTable(Table table, String installedBy) {
+		return new Neo4JMetaDataTable(this,table, installedBy);
+	}
 
 }
