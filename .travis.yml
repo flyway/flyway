@@ -1,14 +1,13 @@
-dist: precise
+dist: trusty
 sudo: required
 language: java
 jdk:
   - oraclejdk8
 services:
   - mysql
-  - docker
 before_install:
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
   - echo "mariadb.url=jdbc:mariadb://localhost/flyway_maria_db" > ~/flyway-mediumtests.properties
-install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
+install: travis_wait "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
 before_script: echo OK
 script: echo Done.
