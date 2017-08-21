@@ -10,6 +10,6 @@ before_install:
   - psql -U postgres < ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
   - echo "mariadb.url=jdbc:mariadb://localhost/flyway_maria_db" > ~/flyway-mediumtests.properties
-install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
+install: "sh ./mvnw install -q -P-CommercialDBTest,-CommandlinePlatformAssemblies"
 before_script: echo OK
 script: echo Done.
