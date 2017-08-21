@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.sql.DataSource;
@@ -51,6 +52,8 @@ public abstract class ConcurrentMigrationTestCase {
      */
     private static final int NUM_THREADS = 10;
 
+    protected static Properties customProperties = new Properties();
+
     /**
      * The quoted schema placeholder for the tests.
      */
@@ -72,13 +75,16 @@ public abstract class ConcurrentMigrationTestCase {
     private Flyway flyway;
     private String schemaName;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void loadProperties() throws Exception {
         File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
         if (customPropertiesFile.canRead()) {
             customProperties.load(new FileInputStream(customPropertiesFile));
         }
+    }
+
+    @Before
+    public void setUp() throws Exception {
         concurrentMigrationDataSource = createDataSource(customProperties);
 
         Connection connection = concurrentMigrationDataSource.getConnection();

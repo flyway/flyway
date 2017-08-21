@@ -177,7 +177,12 @@ public class MetaDataTableImpl implements MetaDataTable {
     @Override
     public void addAppliedMigration(AppliedMigration appliedMigration) {
         dbSupport.changeCurrentSchemaTo(table.getSchema());
+
         createIfNotExists();
+
+        // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
+        // in highly concurrent environments
+        table.lock();
 
         MigrationVersion version = appliedMigration.getVersion();
 
@@ -367,7 +372,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     public void addSchemasMarker(final Schema[] schemas) {
         createIfNotExists();
 
-        // Lock again for databases with no DDL transaction to prevent implicit commits from triggering deadlocks
+        // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
         // in highly concurrent environments
         table.lock();
 

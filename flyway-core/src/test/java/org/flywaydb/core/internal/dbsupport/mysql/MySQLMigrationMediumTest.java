@@ -21,7 +21,10 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExternalResource;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.wait.HostPortWaitStrategy;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -36,20 +39,52 @@ import static org.junit.Assert.assertEquals;
 public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
     static final String DOCKER_IMAGE_NAME = "mysql:5.5.57";
 
+    private static String jdbcUrl;
+    private static String jdbcUser;
+    private static String jdbcPassword;
+
     @ClassRule
-    public static MySQLContainer mysql = new MySQLContainer(DOCKER_IMAGE_NAME);
+    public static ExternalResource initMySQL() {
+        return new ExternalResource() {
+            private MySQLContainer mysql;
+
+            @Override
+            protected void before() throws Throwable {
+                try {
+                    DockerClientFactory.instance().client();
+                    mysql = new MySQLContainer(DOCKER_IMAGE_NAME);
+                    mysql.start();
+                    new HostPortWaitStrategy().waitUntilReady(mysql);
+                    jdbcUrl = mysql.getJdbcUrl();
+                    jdbcUser = "root";
+                    jdbcPassword = mysql.getPassword();
+                } catch (Exception e) {
+                    // Docker not found, fall back to local MySQL instance.
+                    jdbcUrl = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
+                    jdbcUser = customProperties.getProperty("mysql.user", "flyway");
+                    jdbcPassword = customProperties.getProperty("mysql.password", "flyway");
+                }
+            }
+
+            @Override
+            protected void after() {
+                if (mysql != null) {
+                    mysql.stop();
+                }
+            }
+        };
+    }
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                mysql.getJdbcUrl(), "root", mysql.getPassword(), null);
+                jdbcUrl, jdbcUser, jdbcPassword, null);
     }
 
     @Test
     public void migrateWithNonExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
-        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                mysql.getJdbcUrl(), "root", mysql.getPassword(), null));
+        flyway.setDataSource(createDataSource(null));
         flyway.setSchemas("non-existing-schema");
         flyway.setLocations(BASEDIR);
         flyway.clean();
@@ -59,8 +94,7 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
     @Test
     public void migrateWithExistingSchemaSetInPropertyButNotInUrl() throws Exception {
         Flyway flyway = new Flyway();
-        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                mysql.getJdbcUrl(), "root", mysql.getPassword(), null));
+        flyway.setDataSource(createDataSource(null));
         flyway.setSchemas("test");
         flyway.setLocations(getBasedir());
         flyway.clean();
