@@ -92,6 +92,11 @@ public class DB2Schema extends Schema<DB2DbSupport> {
             jdbcTemplate.execute(dropStatement);
         }
 
+        // temporary Tables
+        for (String dropStatement : generateDropStatements("G", "TABLE")) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
         for (Table table : allTables()) {
             table.drop();
         }
@@ -128,8 +133,8 @@ public class DB2Schema extends Schema<DB2DbSupport> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForProcedures() throws SQLException {
-        String dropProcGenQuery = "select PROCNAME from SYSCAT.PROCEDURES where PROCSCHEMA = '" + name + "'";
-        return buildDropStatements("DROP PROCEDURE", dropProcGenQuery);
+        String dropProcGenQuery = "select SPECIFICNAME from SYSCAT.PROCEDURES where PROCSCHEMA = '" + name + "'";
+        return buildDropStatements("DROP SPECIFIC PROCEDURE", dropProcGenQuery);
     }
 
     /**

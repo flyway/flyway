@@ -146,7 +146,7 @@ public class ClassPathScannerSmallTest {
         assertEquals(Version3dot5.class, classes[2]);
         assertEquals(V4__DummyExtendedAbstractJdbcMigration.class, classes[1]);
     }
-
+/*
     @Test
     public void scanForClassesSubPackage() throws Exception {
         Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal/dbsupport"), SqlStatementBuilder.class);
@@ -155,7 +155,7 @@ public class ClassPathScannerSmallTest {
 
         assertEquals(DB2SqlStatementBuilder.class, classes[1]);
     }
-
+*/
     @Test
     public void scanForClassesSplitPackage() throws Exception {
         Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal/util"), UrlResolver.class);
