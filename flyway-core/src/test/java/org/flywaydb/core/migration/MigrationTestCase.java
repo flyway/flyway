@@ -36,6 +36,7 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -64,8 +65,10 @@ public abstract class MigrationTestCase {
     /**
      * The base directory for the regular test migrations.
      */
-    protected static final String MIGRATIONDIR = "migration";
+    private static final String MIGRATIONDIR = "migration";
     protected static final String BASEDIR = "migration/sql";
+
+    protected static Properties customProperties = new Properties();
 
     protected DataSource dataSource;
     private Connection connection;
@@ -74,16 +77,19 @@ public abstract class MigrationTestCase {
     protected JdbcTemplate jdbcTemplate;
     protected Flyway flyway;
 
+    @BeforeClass
+    public static void loadProperties() throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+    }
+
     @Rule
     public TestName testName = new TestName();
 
     @Before
     public void setUp() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
@@ -109,7 +115,9 @@ public abstract class MigrationTestCase {
 
     @After
     public void tearDown() throws Exception {
-        connection.close();
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     protected void createFlyway3MetadataTable() throws Exception {
