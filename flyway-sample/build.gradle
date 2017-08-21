@@ -13,9 +13,9 @@ buildscript {
     }
 }
 
-apply plugin: 'org.flywaydb.flyway'
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'org.flywaydb.flyway'
 
 def mavenXml = new XmlParser().parseText(file("${projectDir}/pom.xml").getText('UTF-8'))
 group = mavenXml.parent.groupId.text()

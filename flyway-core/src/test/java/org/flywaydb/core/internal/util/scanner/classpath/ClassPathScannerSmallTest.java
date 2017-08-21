@@ -24,7 +24,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.db2.DB2MigrationMediumTest;
+import org.flywaydb.core.internal.dbsupport.db2.DB2SqlStatementBuilder;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V4__DummyExtendedAbstractJdbcMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.Version3dot5;
@@ -146,11 +149,11 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSubPackage() throws Exception {
-        Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal/dbsupport"), MigrationTestCase.class);
+        Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal/dbsupport"), SqlStatementBuilder.class);
 
         assertTrue(classes.length >= 10);
 
-        assertEquals(DB2MigrationMediumTest.class, classes[0]);
+        assertEquals(DB2SqlStatementBuilder.class, classes[1]);
     }
 
     @Test
