@@ -91,6 +91,7 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
+            <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>com.boxfuse.flyway-pro:flyway-core</include>
@@ -99,6 +100,8 @@
         </dependencySet>
         <dependencySet>
             <outputDirectory>drivers</outputDirectory>
+            <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>*</include>
             </includes>
