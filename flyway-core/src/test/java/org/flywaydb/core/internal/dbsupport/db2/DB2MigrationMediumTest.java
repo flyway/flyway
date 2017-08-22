@@ -181,6 +181,16 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = ?", user.toUpperCase()));
     }
 
+    // Issue #1722: (DB2) clean fails due to sqlcode=476 following a DROP PROCEDURE statement
+    @Test
+    public void dropProceduresWithSameName() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/procedure");
+        flyway.migrate();
+        flyway.clean();
+
+        //THE ONLY PROCEDURES DEFINED USES THE SAME NAME "SP_EQIP_HOURS_AGGRGT_DAY_VIS", SO IT SHOULD NOT EXIST ANYMORE ON SYSTEM CATALOG
+        assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSCAT.PROCEDURES WHERE PROCNAME = ?", "SP_EQIP_HOURS_AGGRGT_DAY_VIS"));
+    }
     @Override
     protected void createFlyway3MetadataTable() throws Exception {
         jdbcTemplate.execute("CREATE TABLE \"schema_version\" (\n" +
