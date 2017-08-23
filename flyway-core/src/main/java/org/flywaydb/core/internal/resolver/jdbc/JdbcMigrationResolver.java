@@ -97,7 +97,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
                 migrations.add(migrationInfo);
             }
         } catch (Exception e) {
-            throw new FlywayException("Unable to resolve Jdbc Java migrations in location: " + location + " (" + e.getMessage() + ")", e);
+            throw new FlywayException("Unable to resolve Jdbc Java migrations in location " + location + " : " + e.getMessage(), e);
         }
     }
 
@@ -126,14 +126,15 @@ public class JdbcMigrationResolver implements MigrationResolver {
         } else {
             String shortName = ClassUtils.getShortName(jdbcMigration.getClass());
             String prefix;
-            if (shortName.startsWith("V") || shortName.startsWith("R")) {
+            boolean repeatable = shortName.startsWith("R");
+            if (shortName.startsWith("V") || repeatable) {
                 prefix = shortName.substring(0, 1);
             } else {
                 throw new FlywayException("Invalid Jdbc migration class name: " + jdbcMigration.getClass().getName()
                         + " => ensure it starts with V or R," +
                         " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
             }
-            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
+            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "", repeatable);
             version = info.getLeft();
             description = info.getRight();
         }

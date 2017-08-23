@@ -16,8 +16,8 @@
 package org.flywaydb.core.internal.util;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,8 +55,12 @@ public class ClassUtils {
      */
     @SuppressWarnings({"unchecked"})
     // Must be synchronized for the Maven Parallel Junit runner to work
-    public static synchronized <T> T instantiate(String className, ClassLoader classLoader) throws Exception {
-        return (T) Class.forName(className, true, classLoader).newInstance();
+    public static synchronized <T> T instantiate(String className, ClassLoader classLoader) {
+        try {
+            return (T) Class.forName(className, true, classLoader).newInstance();
+        } catch (Exception e) {
+            throw new FlywayException("Unable to instantiate class " + className + " : " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -71,11 +75,7 @@ public class ClassUtils {
         List<T> clazzes = new ArrayList<T>();
         for (String clazz : classes) {
             if (StringUtils.hasLength(clazz)) {
-                try {
-                    clazzes.add(ClassUtils.<T>instantiate(clazz, classLoader));
-                } catch (Exception e) {
-                    throw new FlywayException("Unable to instantiate class: " + clazz, e);
-                }
+                clazzes.add(ClassUtils.<T>instantiate(clazz, classLoader));
             }
         }
         return clazzes;

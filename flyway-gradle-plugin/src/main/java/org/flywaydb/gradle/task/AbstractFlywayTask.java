@@ -40,7 +40,7 @@ import java.util.Properties;
 /**
  * A base class for all flyway tasks.
  */
-abstract class AbstractFlywayTask extends DefaultTask {
+public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Property name prefix for placeholders that are configured through System properties.
      */
@@ -280,6 +280,15 @@ abstract class AbstractFlywayTask extends DefaultTask {
      */
     public String installedBy;
 
+
+
+
+
+
+
+
+
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -377,6 +386,10 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         putIfSet(conf, "resolvers", StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
         putIfSet(conf, "callbacks", StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
+
+
+
+
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {

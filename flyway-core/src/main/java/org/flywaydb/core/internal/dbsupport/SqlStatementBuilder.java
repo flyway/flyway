@@ -27,12 +27,12 @@ public class SqlStatementBuilder {
     /**
      * The current statement, as it is being built.
      */
-    private StringBuilder statement = new StringBuilder();
+    protected StringBuilder statement = new StringBuilder();
 
     /**
      * The initial line number of this statement.
      */
-    private int lineNumber;
+    protected int lineNumber;
 
     /**
      * Flag indicating whether the current statement is still empty.
@@ -94,7 +94,7 @@ public class SqlStatementBuilder {
     /**
      * @param lineNumber The initial line number of this statement.
      */
-    public void setLineNumber(int lineNumber) {
+    void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
     }
 
@@ -127,8 +127,7 @@ public class SqlStatementBuilder {
      * @return The assembled statement, with the delimiter stripped off.
      */
     public SqlStatement getSqlStatement() {
-        String sql = statement.toString();
-        return new SqlStatement(lineNumber, sql, isPgCopyFromStdIn());
+        return new StandardSqlStatement(lineNumber, statement.toString());
     }
 
     /**
@@ -140,15 +139,6 @@ public class SqlStatementBuilder {
     @SuppressWarnings("UnusedParameters")
     public Delimiter extractNewDelimiterFromLine(String line) {
         return null;
-    }
-
-    /**
-     * Checks whether this statement is a COPY statement for PostgreSQL.
-     *
-     * @return {@code true} if it is, {@code false} if not.
-     */
-    public boolean isPgCopyFromStdIn() {
-        return false;
     }
 
     /**
@@ -190,7 +180,7 @@ public class SqlStatementBuilder {
         String lineSimplified = simplifyLine(line);
 
         applyStateChanges(lineSimplified);
-        if (endWithOpenMultilineStringLiteral() || insideMultiLineComment) {
+        if (endWithOpenMultilineStringLiteral() || insideMultiLineComment || isSingleLineComment(lineSimplified)) {
             statement.append(line);
             return;
         }
@@ -500,6 +490,6 @@ public class SqlStatementBuilder {
         /**
          * Token closes a multi-line comment
          */
-        MULTI_LINE_COMMENT_CLOSE;
+        MULTI_LINE_COMMENT_CLOSE
     }
 }

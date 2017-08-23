@@ -22,7 +22,7 @@ import java.sql.Connection;
 
 /**
  * This is the main callback interface that should be implemented to get access to flyway lifecycle notifications.
- * Simply add code to the callback method you are interested in having. A convenience implementation will all methods
+ * Simply add code to the callback method you are interested in having. A convenience implementation with all methods
  * doing nothing is provided with {@link BaseFlywayCallback}. To ensure backward compatibility, you are encouraged
  * to subclass that class instead of implementing this interface directly.
  *

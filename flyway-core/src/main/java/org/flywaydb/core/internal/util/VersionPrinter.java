@@ -15,8 +15,8 @@
  */
 package org.flywaydb.core.internal.util;
 
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 /**
@@ -42,6 +42,8 @@ public class VersionPrinter {
         }
         printed = true;
         String version = new ClassPathResource("org/flywaydb/core/internal/version.txt", VersionPrinter.class.getClassLoader()).loadAsString("UTF-8");
-        LOG.info("Flyway " + version + " by Boxfuse");
+        LOG.info("Flyway "
+
+                + version + " by Boxfuse");
     }
 }

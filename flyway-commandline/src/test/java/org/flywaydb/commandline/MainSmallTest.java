@@ -35,14 +35,27 @@ public class MainSmallTest {
     }
 
     @Test
+    public void isSystemPropertyArgument() {
+        assertTrue(Main.isSystemPropertyArgument("-Duser=SA"));
+        assertFalse(Main.isSystemPropertyArgument("-user=SA"));
+        assertFalse(Main.isSystemPropertyArgument("baseline"));
+    }
+
+    @Test
     public void isPropertyArgument() {
         assertTrue(Main.isPropertyArgument("-user=SA"));
+        assertFalse(Main.isPropertyArgument("-Duser=SA"));
         assertFalse(Main.isPropertyArgument("baseline"));
     }
 
     @Test
     public void getArgumentProperty() {
         assertEquals("user", Main.getArgumentProperty("-user=SA"));
+    }
+
+    @Test
+    public void getArgumentSystemProperty() {
+        assertEquals("user", Main.getArgumentSystemProperty("-Duser=SA"));
     }
 
     @Test
@@ -59,5 +72,19 @@ public class MainSmallTest {
         Main.overrideConfiguration(properties, args);
 
         assertEquals("SA", properties.getProperty("flyway.user"));
+    }
+
+    @Test
+    public void initSystemProperties() {
+        Main.initSystemProperties(new String[]{"-DflywayPropertyTest123=success"});
+        assertEquals("success", System.getProperty("flywayPropertyTest123"));
+    }
+
+    @Test
+    public void initSystemPropertiesFromConfig() {
+        Properties properties = new Properties();
+        properties.put("sysprops.flywayPropertyTestConfig123", "success");
+        Main.initSystemPropertiesFromConfig(properties);
+        assertEquals("success", System.getProperty("flywayPropertyTestConfig123"));
     }
 }
