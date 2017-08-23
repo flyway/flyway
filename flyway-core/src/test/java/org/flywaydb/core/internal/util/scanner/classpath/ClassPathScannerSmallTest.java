@@ -24,11 +24,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
+import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.db2.DB2MigrationMediumTest;
+import org.flywaydb.core.internal.dbsupport.db2.DB2SqlStatementBuilder;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V4__DummyExtendedAbstractJdbcMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.Version3dot5;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.migration.MigrationTestCase;
@@ -44,7 +48,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResources() throws Exception {
-        Resource[] resources = classPathScanner.scanForResources(new Location("classpath:migration/sql"), "V", ".sql");
+        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:migration/sql"), "V", ".sql");
 
         assertEquals(4, resources.length);
 
@@ -56,7 +60,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesRoot() throws Exception {
-        Resource[] resources = classPathScanner.scanForResources(new Location("classpath:"), "CheckValidate", ".sql");
+        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:"), "CheckValidate", ".sql");
 
         // changed to 3 as new test cases are added for SybaseASE and DB2 z/OS
         assertEquals(3, resources.length);
@@ -73,7 +77,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
-        Resource[] resources = classPathScanner.scanForResources(new Location("classpath:migration"), "CheckValidate", ".sql");
+        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:migration"), "CheckValidate", ".sql");
 
         // changed to 3 as new test cases are added for SybaseASE and DB2 z/OS
         assertEquals(3, resources.length);
@@ -90,7 +94,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesDefaultPackage() throws Exception {
-        Resource[] resources = classPathScanner.scanForResources(new Location("classpath:"), "logback", "");
+        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:"), "logback", "");
 
         assertEquals(1, resources.length);
 
@@ -99,7 +103,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSubDirectory() throws Exception {
-        Resource[] resources = classPathScanner.scanForResources(new Location("classpath:migration/subdir"), "V", ".sql");
+        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:migration/subdir"), "V", ".sql");
 
         assertEquals(3, resources.length);
 
@@ -115,7 +119,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSplitDirectory() throws Exception {
-        Resource[] resources = classPathScanner.scanForResources(new Location("classpath:org/flywaydb/core/internal/dbsupport"), "create", ".sql");
+        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:org/flywaydb/core/internal/dbsupport"), "create", ".sql");
 
         assertTrue(resources.length > 7);
 
@@ -124,7 +128,7 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesJarFile() throws Exception {
-        Resource[] resources = classPathScanner.scanForResources(new Location("classpath:org/junit"), "Af", ".class");
+        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:org/junit"), "Af", ".class");
 
         assertEquals(2, resources.length);
 
@@ -145,11 +149,11 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSubPackage() throws Exception {
-        Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal/dbsupport"), MigrationTestCase.class);
+        Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal/dbsupport"), SqlStatementBuilder.class);
 
         assertTrue(classes.length >= 10);
 
-        assertEquals(DB2MigrationMediumTest.class, classes[0]);
+        assertEquals(DB2SqlStatementBuilder.class, classes[1]);
     }
 
     @Test

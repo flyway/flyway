@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util.logging;
+package org.flywaydb.core.api.logging;
 
 /**
  * A logger.

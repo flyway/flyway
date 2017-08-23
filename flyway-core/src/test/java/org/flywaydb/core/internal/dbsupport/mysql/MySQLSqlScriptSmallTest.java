@@ -22,7 +22,6 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test for MySQL SqlScript.
@@ -46,7 +45,7 @@ public class MySQLSqlScriptSmallTest {
                 "/*!50001 CREATE TABLE `viewname` (\n" +
                 "`id` int(10) unsigned,\n" +
                 "`name` varchar(10)\n" +
-                ") ENGINE=MyISAM */;\n" +                
+                ") ENGINE=MyISAM */;\n" +
                 "INSERT INTO tablename VALUES ('a','b');";
         SqlScript sqlScript = new SqlScript(source, new MySQLDbSupport(null));
         List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();

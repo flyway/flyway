@@ -22,8 +22,8 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
 
@@ -69,6 +69,8 @@ public class Main {
         Level logLevel = getLogLevel(args);
         initLogging(logLevel);
 
+        initSystemProperties(args);
+
         try {
             printVersion();
             if (isPrintVersionAndExit(args)) {
@@ -85,6 +87,7 @@ public class Main {
             initializeDefaults(properties);
             loadConfiguration(properties, args);
             overrideConfiguration(properties, args);
+            initSystemPropertiesFromConfig(properties);
 
             if (!isSuppressPrompt(args)) {
                 promptForCredentialsIfMissing(properties);
@@ -114,6 +117,27 @@ public class Main {
             }
             System.exit(1);
         }
+    }
+
+    /* private -> testing */  static void initSystemPropertiesFromConfig(Properties properties) {
+        for (String name : properties.stringPropertyNames()) {
+            if (name.startsWith("sysprops.")) {
+                defineSystemProperty(name.substring("sysprops.".length()), properties.getProperty(name));
+            }
+        }
+    }
+
+    /* private -> testing */ static void initSystemProperties(String[] args) {
+        for (String arg : args) {
+            if (isSystemPropertyArgument(arg)) {
+                defineSystemProperty(getArgumentSystemProperty(arg), getArgumentValue(arg));
+            }
+        }
+    }
+
+    private static void defineSystemProperty(String key, String value) {
+        LOG.debug("Defining system property: " + key + "=" + value);
+        System.setProperty(key, value);
     }
 
     private static boolean isPrintVersionAndExit(String[] args) {
@@ -269,6 +293,11 @@ public class Main {
         LOG.info("configFile                   : Config file to use (default: <install-dir>/conf/flyway.conf)");
         LOG.info("configFileEncoding           : Encoding of the config file (default: UTF-8)");
         LOG.info("jarDirs                      : Dirs for Jdbc drivers & Java migrations (default: jars)");
+
+
+
+        LOG.info("");
+        LOG.info("-Dkey=value                  : Define a System Property to pass to the JVM");
         LOG.info("");
         LOG.info("Add -X to print debug output");
         LOG.info("Add -q to suppress all output, except for errors and warnings");
@@ -500,7 +529,31 @@ public class Main {
      */
     /* private -> for testing*/
     static boolean isPropertyArgument(String arg) {
-        return arg.startsWith("-") && arg.contains("=");
+        return arg.startsWith("-") && !arg.startsWith("-D") && arg.contains("=");
+    }
+
+    /**
+     * Checks whether this command-line argument tries to set a system property.
+     *
+     * @param arg The command-line argument to check.
+     * @return {@code true} if it does, {@code false} if not.
+     */
+    /* private -> for testing*/
+    static boolean isSystemPropertyArgument(String arg) {
+        return arg.startsWith("-D") && arg.contains("=");
+    }
+
+    /**
+     * Retrieves the property this command-line argument tries to assign.
+     *
+     * @param arg The command-line argument to check, typically in the form -key=value.
+     * @return The property.
+     */
+    /* private -> for testing*/
+    static String getArgumentSystemProperty(String arg) {
+        int index = arg.indexOf("=");
+
+        return arg.substring(2, index);
     }
 
     /**
