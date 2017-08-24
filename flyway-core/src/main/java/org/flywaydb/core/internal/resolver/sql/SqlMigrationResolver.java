@@ -29,6 +29,7 @@ import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -79,21 +80,21 @@ public class SqlMigrationResolver implements MigrationResolver, ConfigurationAwa
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
         for (Location location : new Locations(configuration.getLocations()).getLocations()) {
-            scanForMigrationsInSingleLocation(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
-            scanForMigrationsInSingleLocation(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
+            scanForMigrationsInSingleLocation(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), false);
+            scanForMigrationsInSingleLocation(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), true);
         }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    protected void scanForMigrationsInSingleLocation(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
-        for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
+    protected void scanForMigrationsInSingleLocation(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix, boolean repeatable) {
+        for (LoadableResource resource : scanner.scanForResources(location, prefix, suffix)) {
             if (isSqlCallback(resource.getFilename(), suffix)) {
                 continue;
             }
             Pair<MigrationVersion, String> info =
-                    extractVersionAndDescription(prefix, separator, suffix, resource, location);
+                    extractVersionAndDescription(prefix, separator, suffix, resource, location, repeatable);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());
@@ -115,10 +116,11 @@ public class SqlMigrationResolver implements MigrationResolver, ConfigurationAwa
      * @param resource the resource whose metadata should be obtained
      * @param location The location from which the resource is obtained. This can be used to base the version
      *                 on the relative path of the migration instead of only the filename.
+     * @param repeatable if the extracted data is for a repeatable migration
      * @return A pair containing a version and a description.
      */
-    protected Pair<MigrationVersion, String> extractVersionAndDescription(String prefix, String separator, String suffix, Resource resource, Location location) {
-        return MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(), prefix, separator, suffix);
+    protected Pair<MigrationVersion, String> extractVersionAndDescription(String prefix, String separator, String suffix, Resource resource, Location location, boolean repeatable) {
+        return MigrationInfoHelper.extractVersionAndDescription(resource.getFilename(), prefix, separator, suffix, repeatable);
     }
 
     /**

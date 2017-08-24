@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -83,12 +83,10 @@ public class TransactionTemplate {
             if (e instanceof RollbackWithSavepointException) {
                 savepoint = ((RollbackWithSavepointException) e).getSavepoint();
                 rethrow = (RuntimeException) e.getCause();
+            } else if (e instanceof RuntimeException) {
+                rethrow = (RuntimeException) e;
             } else {
-                if (e instanceof RuntimeException) {
-                    rethrow = (RuntimeException) e;
-                } else {
-                    rethrow = new FlywayException(e);
-                }
+                rethrow = new FlywayException(e);
             }
 
             if (rollbackOnException) {

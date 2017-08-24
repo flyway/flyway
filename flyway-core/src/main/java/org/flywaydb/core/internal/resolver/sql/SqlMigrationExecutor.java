@@ -19,7 +19,7 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 
 import java.sql.Connection;
 
@@ -33,7 +33,7 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      * The complete sql script is not held as a member field here because this would use the total size of all
      * sql migrations files in heap space during db migration, see issue 184.
      */
-    private final Resource sqlScriptResource;
+    private final LoadableResource sqlScriptResource;
 
     /**
      * The Flyway configuration.
@@ -50,13 +50,18 @@ public class SqlMigrationExecutor implements MigrationExecutor {
      *  @param sqlScriptResource   The resource containing the sql script.
      * @param configuration       The Flyway configuration.
      */
-    public SqlMigrationExecutor(Resource sqlScriptResource, FlywayConfiguration configuration) {
+    public SqlMigrationExecutor(LoadableResource sqlScriptResource, FlywayConfiguration configuration) {
         this.sqlScriptResource = sqlScriptResource;
         this.configuration = configuration;
     }
 
     @Override
     public void execute(Connection connection) {
+        // TODO: This reverts parts of commit ca87e59aed534e4ad9bef610517fc595cf2c39c8
+//        JdbcTemplate jdbcTemplate = connection == dbSupport.getJdbcTemplate().getConnection()
+//                ? dbSupport.getJdbcTemplate()
+//                : new JdbcTemplate(connection, 0);
+
         getSqlScript().execute(new JdbcTemplate(connection, 0));
     }
 

@@ -24,8 +24,8 @@ import org.flywaydb.core.internal.util.scanner.Resource;
 public class CustomSqlMigrationResolver extends SqlMigrationResolver {
 
     @Override
-    protected Pair<MigrationVersion, String> extractVersionAndDescription(String prefix, String separator, String suffix, Resource resource, Location location) {
-        Pair<MigrationVersion, String> result = super.extractVersionAndDescription(prefix, separator, suffix, resource, location);
+    protected Pair<MigrationVersion, String> extractVersionAndDescription(String prefix, String separator, String suffix, Resource resource, Location location, boolean repeatable) {
+        Pair<MigrationVersion, String> result = super.extractVersionAndDescription(prefix, separator, suffix, resource, location, repeatable);
 
         return Pair.of(MigrationVersion.fromVersion("99." + result.getLeft().getVersion()), result.getRight());
     }

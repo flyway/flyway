@@ -25,8 +25,8 @@ import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -232,19 +232,57 @@ public abstract class AbstractFlywayTask extends Task {
      * Also configurable with Ant Property: ${flyway.allowMixedMigrations}
      *
      * @param allowMixedMigrations {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public void setAllowMixedMigrations(boolean allowMixedMigrations) {
         flyway.setAllowMixedMigrations(allowMixedMigrations);
     }
 
     /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.<br>
+     * Also configurable with Ant Property: ${flyway.mixed}
+     *
+     * @param mixed {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     */
+    public void setMixed(boolean mixed) {
+        flyway.setMixed(mixed);
+    }
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     * <p>
+     * Also configurable with Ant Property: ${flyway.group}
+     *
+     * @param group {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     */
+    public void setGroup(boolean group) {
+        flyway.setGroup(group);
+    }
+
+    /**
      * The username that will be recorded in the metadata table as having applied the migration.
+     * <p>Also configurable with Ant Property: ${flyway.installedBy}</p>
      *
      * @param installedBy The username or <i>blank</i> for the current database user of the connection. (default: <i>blank</i>).
      */
     public void setInstalledBy(String installedBy) {
         flyway.setInstalledBy(installedBy);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Creates the datasource base on the provided parameters.

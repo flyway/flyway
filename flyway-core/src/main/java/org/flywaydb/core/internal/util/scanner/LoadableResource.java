@@ -13,17 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.util.logging;
+package org.flywaydb.core.internal.util.scanner;
 
 /**
- * Factory for implementation-specific loggers.
+ * A loadable resource.
  */
-public interface LogCreator {
+public interface LoadableResource extends Resource {
+
     /**
-     * Creates an implementation-specific logger for this class.
+     * Loads this resource as a string.
      *
-     * @param clazz The class to create the logger for.
-     * @return The logger.
+     * @param encoding The encoding to use.
+     * @return The string contents of the resource.
      */
-    Log createLogger(Class<?> clazz);
+    String loadAsString(String encoding);
+
+    /**
+     * Loads this resource as a byte array.
+     *
+     * @return The contents of the resource.
+     */
+    byte[] loadAsBytes();
 }

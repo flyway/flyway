@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.util.logging.slf4j;
 
-import org.flywaydb.core.internal.util.logging.Log;
+import org.flywaydb.core.api.logging.Log;
 import org.slf4j.Logger;
 
 /**

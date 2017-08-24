@@ -101,7 +101,7 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
         String line = "COPY CSV_FILES FROM '/path/to/filename.csv' DELIMITER ';' CSV HEADER";
         statementBuilder.addLine(line + ";\n");
         assertTrue(statementBuilder.isTerminated());
-        assertFalse(statementBuilder.isPgCopyFromStdIn());
+        assertFalse(statementBuilder.getSqlStatement() instanceof PostgreSQLCopyStatement);
         assertEquals(line, statementBuilder.getSqlStatement().getSql());
     }
 

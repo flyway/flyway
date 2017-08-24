@@ -25,7 +25,7 @@ import org.flywaydb.core.internal.resolver.AbstractJdbcResolver;
 /**
  * Migration resolver for Spring Jdbc migrations. The classes must have a name like V1 or V1_1_3 or V1__Description
  * or V1_1_3__Description.
- * 
+ *
  * <p>This class an be replaced with a custom subclass. Note however that since this class is considered
  * internal API, such a subclass is tied to a specific version and my need to be updated when switching to
  * a new flyway version. In order to use a custom subclass:</p>

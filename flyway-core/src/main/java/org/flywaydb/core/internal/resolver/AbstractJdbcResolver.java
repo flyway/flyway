@@ -144,14 +144,15 @@ public abstract class AbstractJdbcResolver<T> implements MigrationResolver, Conf
         } else {
             String shortName = ClassUtils.getShortName(jdbcMigration.getClass());
             String prefix;
-            if (shortName.startsWith("V") || shortName.startsWith("R")) {
+            boolean repeatable = shortName.startsWith("R");
+            if (shortName.startsWith("V") || repeatable) {
                 prefix = shortName.substring(0, 1);
             } else {
                 throw new FlywayException("Invalid migration class name: " + jdbcMigration.getClass().getName()
                         + " => ensure it starts with V or R," +
                         " or implement org.flywaydb.core.api.migration.MigrationInfoProvider for non-default naming");
             }
-            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "");
+            Pair<MigrationVersion, String> info = MigrationInfoHelper.extractVersionAndDescription(shortName, prefix, "__", "", false);
             version = info.getLeft();
             description = info.getRight();
         }

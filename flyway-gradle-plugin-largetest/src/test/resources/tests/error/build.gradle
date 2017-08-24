@@ -9,9 +9,9 @@ buildscript {
     }
 }
 
-apply plugin: 'org.flywaydb.flyway'
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'org.flywaydb.flyway'
 
 repositories {
     mavenLocal()

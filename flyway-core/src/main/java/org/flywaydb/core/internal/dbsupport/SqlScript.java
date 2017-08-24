@@ -19,8 +19,9 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.BufferedReader;
@@ -41,7 +42,7 @@ public class SqlScript {
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
-    private final boolean allowMixedMigrations;
+    private final boolean mixed;
 
     /**
      * The resource containing the statements.
@@ -74,7 +75,7 @@ public class SqlScript {
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
      */
     public SqlScript(String sqlScriptSource) {
-        this.allowMixedMigrations = false;
+        this.mixed = false;
         this.sqlScriptSource = sqlScriptSource;
         this.resource = null;
         this.placeholderReplacer = PlaceholderReplacer.NO_PLACEHOLDERS;
@@ -86,9 +87,9 @@ public class SqlScript {
      * @param sqlScriptResource    The resource containing the statements.
      * @param configuration        The flyway configuration.
      */
-    public SqlScript(Resource sqlScriptResource, FlywayConfiguration configuration) {
+    public SqlScript(LoadableResource sqlScriptResource, FlywayConfiguration configuration) {
         this.placeholderReplacer = PlaceholderReplacer.createFrom(configuration);
-        this.allowMixedMigrations = configuration.isAllowMixedMigrations();
+        this.mixed = configuration.isMixed();
         this.sqlScriptSource = sqlScriptResource.loadAsString(configuration.getEncoding());
         this.resource = sqlScriptResource;
     }
@@ -131,12 +132,21 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                if (sqlStatement.isPgCopy()) {
-                    dbSupport.executePgCopy(jdbcTemplate.getConnection(), sql);
-                } else {
-                    jdbcTemplate.executeStatement(sql);
-                }
-            } catch (SQLException e) {
+                sqlStatement.execute(jdbcTemplate.getConnection());
+            } catch (final SQLException e) {
+
+
+
+
+
+
+
+
+
+
+
+
+
                 throw new FlywaySqlScriptException(resource, sqlStatement, e);
             }
         }
@@ -150,6 +160,9 @@ public class SqlScript {
      */
     /* private -> for testing */
     List<SqlStatement> parse(String sqlScriptSource, DbSupport dbSupport) {
+        if (resource != null) {
+            LOG.debug("Parsing " + resource.getFilename() + " ...");
+        }
         return linesToStatements(readLines(new StringReader(sqlScriptSource)), dbSupport);
     }
 
@@ -191,7 +204,11 @@ public class SqlScript {
                 }
             }
 
-            sqlStatementBuilder.addLine(line);
+            try {
+                sqlStatementBuilder.addLine(line);
+            } catch (Exception e) {
+                throw new FlywayException("Flyway parsing bug (" + e.getMessage() + ") at line " + lineNumber + ": " + line);
+            }
 
             if (sqlStatementBuilder.canDiscard()) {
                 sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
@@ -219,10 +236,10 @@ public class SqlScript {
             nonTransactionalStatementFound = true;
         }
 
-        if (!allowMixedMigrations && transactionalStatementFound && nonTransactionalStatementFound) {
+        if (!mixed && transactionalStatementFound && nonTransactionalStatementFound) {
             throw new FlywayException(
                     "Detected both transactional and non-transactional statements within the same migration"
-                            + " (even though allowMixedMigrations is false). Offending statement found at line "
+                            + " (even though mixed is false). Offending statement found at line "
                             + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql()
                             + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
         }

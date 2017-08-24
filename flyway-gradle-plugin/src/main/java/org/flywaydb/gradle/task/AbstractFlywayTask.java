@@ -40,7 +40,7 @@ import java.util.Properties;
 /**
  * A base class for all flyway tasks.
  */
-abstract class AbstractFlywayTask extends DefaultTask {
+public abstract class AbstractFlywayTask extends DefaultTask {
     /**
      * Property name prefix for placeholders that are configured through System properties.
      */
@@ -255,10 +255,23 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
-     * <p>
-     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
+     * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
+     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public Boolean allowMixedMigrations;
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
+     */
+    public Boolean mixed;
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     * <p>{@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})</p>
+     */
+    public Boolean group;
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
@@ -266,6 +279,15 @@ abstract class AbstractFlywayTask extends DefaultTask {
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     public String installedBy;
+
+
+
+
+
+
+
+
+
 
     public AbstractFlywayTask() {
         super();
@@ -340,6 +362,8 @@ abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, "sqlMigrationSeparator", sqlMigrationSeparator, extension.sqlMigrationSeparator);
         putIfSet(conf, "sqlMigrationSuffix", sqlMigrationSuffix, extension.sqlMigrationSuffix);
         putIfSet(conf, "allowMixedMigrations", allowMixedMigrations, extension.allowMixedMigrations);
+        putIfSet(conf, "mixed", mixed, extension.mixed);
+        putIfSet(conf, "group", group, extension.group);
         putIfSet(conf, "installedBy", installedBy, extension.installedBy);
         putIfSet(conf, "encoding", encoding, extension.encoding);
         putIfSet(conf, "placeholderReplacement", placeholderReplacement, extension.placeholderReplacement);
@@ -362,6 +386,10 @@ abstract class AbstractFlywayTask extends DefaultTask {
 
         putIfSet(conf, "resolvers", StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
         putIfSet(conf, "callbacks", StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
+
+
+
+
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {

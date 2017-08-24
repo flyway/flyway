@@ -21,9 +21,15 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.MigrationTestCase;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExternalResource;
+import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.HostPortWaitStrategy;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -41,13 +47,48 @@ import static org.junit.Assert.assertThat;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
+    static final String DOCKER_IMAGE_NAME = "postgres:9.2.21-alpine";
+
+    private static String jdbcUrl;
+    private static String jdbcUser;
+    private static String jdbcPassword;
+
+    @ClassRule
+    public static ExternalResource initPostgreSQL() {
+        return new ExternalResource() {
+            private PostgreSQLContainer postgreSQL;
+
+            @Override
+            protected void before() throws Throwable {
+                try {
+                    DockerClientFactory.instance().client();
+                    postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
+                    postgreSQL.start();
+                    new HostPortWaitStrategy().waitUntilReady(postgreSQL);
+                    jdbcUrl = postgreSQL.getJdbcUrl();
+                    jdbcUser = postgreSQL.getUsername();
+                    jdbcPassword = postgreSQL.getPassword();
+                } catch (Exception e) {
+                    // Docker not found, fall back to local PostgreSQL instance.
+                    jdbcUrl = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
+                    jdbcUser = customProperties.getProperty("postgresql.user", "flyway");
+                    jdbcPassword = customProperties.getProperty("postgresql.password", "flyway");
+                }
+            }
+
+            @Override
+            protected void after() {
+                if (postgreSQL != null) {
+                    postgreSQL.stop();
+                }
+            }
+        };
+    }
+
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("postgresql.user", "flyway");
-        String password = customProperties.getProperty("postgresql.password", "flyway");
-        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                jdbcUrl, jdbcUser, jdbcPassword, null);
     }
 
     @Override

@@ -22,9 +22,9 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
@@ -34,6 +34,7 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -62,8 +63,10 @@ public abstract class MigrationTestCase {
     /**
      * The base directory for the regular test migrations.
      */
-    protected static final String MIGRATIONDIR = "migration";
+    private static final String MIGRATIONDIR = "migration";
     protected static final String BASEDIR = "migration/sql";
+
+    protected static Properties customProperties = new Properties();
 
     protected DataSource dataSource;
     private Connection connection;
@@ -72,16 +75,19 @@ public abstract class MigrationTestCase {
     protected JdbcTemplate jdbcTemplate;
     protected Flyway flyway;
 
+    @BeforeClass
+    public static void loadProperties() throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+    }
+
     @Rule
     public TestName testName = new TestName();
 
     @Before
     public void setUp() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
@@ -100,15 +106,16 @@ public abstract class MigrationTestCase {
     /**
      * Creates the datasource for this testcase based on these optional custom properties from the user home.
      *
-     * @param customProperties
-     *            The optional custom properties.
+     * @param customProperties The optional custom properties.
      * @return The new datasource.
      */
     protected abstract DataSource createDataSource(Properties customProperties) throws Exception;
 
     @After
     public void tearDown() throws Exception {
-        connection.close();
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     protected void createFlyway3MetadataTable() throws Exception {
@@ -164,6 +171,29 @@ public abstract class MigrationTestCase {
         flyway.setLocations(BASEDIR);
         flyway.migrate();
         assertEquals("2.0", flyway.info().current().getVersion().getVersion());
+    }
+
+    @Test
+    public void group() throws Exception {
+        flyway.setLocations(getFutureFailedLocation());
+        flyway.setGroup(true);
+        assertEquals(4, flyway.info().all().length);
+
+        try {
+            flyway.migrate();
+            fail();
+        } catch (DbMigrate.FlywayMigrateSqlException e) {
+            assertEquals("3", e.getMigration().getVersion().getVersion());
+        }
+
+        LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
+        if (dbSupport.supportsDdlTransactions()) {
+            assertNull(flyway.info().current());
+            assertEquals(4, flyway.info().pending().length);
+        } else {
+            assertEquals("3", flyway.info().current().getVersion().toString());
+            assertEquals(MigrationState.FAILED, flyway.info().current().getState());
+        }
     }
 
     @Test
@@ -292,8 +322,7 @@ public abstract class MigrationTestCase {
     /**
      * Compares the DB checksum to the classpath checksum of this migration.
      *
-     * @param migrationInfo
-     *            The migration to check.
+     * @param migrationInfo The migration to check.
      */
     private void assertChecksum(MigrationInfo migrationInfo) {
         FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations(getBasedir());
@@ -356,12 +385,13 @@ public abstract class MigrationTestCase {
         try {
             flyway.migrate();
             fail();
-        } catch (FlywaySqlScriptException e) {
+        } catch (DbMigrate.FlywayMigrateSqlException e) {
             System.out.println(e.getMessage());
             // root cause of exception must be defined, and it should be FlywaySqlScriptException
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof SQLException);
             // and make sure the failed statement was properly recorded
+            assertEquals("1", e.getMigration().getVersion().getVersion());
             assertEquals(21, e.getLineNumber());
             assertEquals("THIS IS NOT VALID SQL", e.getStatement());
         }

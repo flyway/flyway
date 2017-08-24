@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * The flyway's configuration properties.
- *
+ * <p>
  * <p>More info: <a href="https://flywaydb.org/documentation/gradle">https://flywaydb.org/documentation/gradle</a></p>
  */
 public class FlywayExtension {
@@ -186,7 +186,7 @@ public class FlywayExtension {
      * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     *
+     * <p>
      * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
      */
@@ -221,7 +221,7 @@ public class FlywayExtension {
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
-     *
+     * <p>
      * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</
      */
     public Boolean baselineOnMigrate;
@@ -230,8 +230,24 @@ public class FlywayExtension {
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      * <p>
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
+     *
+     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     public Boolean allowMixedMigrations;
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     * <p>
+     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
+     */
+    public Boolean mixed;
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     * <p>{@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})</p>
+     */
+    public Boolean group;
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
@@ -239,4 +255,13 @@ public class FlywayExtension {
      * {@code null} for the current database user of the connection. (default: {@code null}).
      */
     public String installedBy;
+
+
+
+
+
+
+
+
+
 }
