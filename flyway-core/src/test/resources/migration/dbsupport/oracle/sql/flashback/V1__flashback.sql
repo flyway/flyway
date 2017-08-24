@@ -29,8 +29,8 @@ CREATE TABLE table1 (
 
 -- unfortunately you need to specify archive name, but I do not have the permissions to create it in my environment
 -- so I will not even try to write it properly, with creating the archive from scratch
-ALTER TABLE table1 FLASHBACK ARCHIVE fda_trac;
-ALTER TABLE test FLASHBACK ARCHIVE fda_trac;
+ALTER TABLE table1 FLASHBACK ARCHIVE FLYWAY_FBA;
+ALTER TABLE test FLASHBACK ARCHIVE FLYWAY_FBA;
 --from now on you will be unable to delete the tables with plain DROP command
 
 BEGIN

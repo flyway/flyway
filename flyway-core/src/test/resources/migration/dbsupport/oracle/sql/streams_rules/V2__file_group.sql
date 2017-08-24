@@ -14,17 +14,10 @@
 -- limitations under the License.
 --
 
-DROP USER FLYWAY CASCADE;
-DROP USER FLYWAY_AUX CASCADE;
-DROP USER "flyway_proxy" CASCADE;
-
--- drop flashback archive if possible
 DECLARE
-  l_flg NUMBER;
+  l_prefix VARCHAR2(131) := '"' || SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') || '".';
 BEGIN
-  SELECT COUNT(*) INTO l_flg FROM V$OPTION WHERE PARAMETER = 'Flashback Data Archive' AND VALUE = 'TRUE';
-  IF l_flg > 0 THEN
-    EXECUTE IMMEDIATE 'DROP FLASHBACK ARCHIVE FLYWAY_FBA';
-  END IF;
+  DBMS_FILE_GROUP.CREATE_FILE_GROUP(
+    file_group_name => l_prefix || 'TEST_FILE_GROUP');
 END;
 /
