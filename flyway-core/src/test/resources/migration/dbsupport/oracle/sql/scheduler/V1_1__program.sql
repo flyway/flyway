@@ -14,17 +14,13 @@
 -- limitations under the License.
 --
 
-DROP USER FLYWAY CASCADE;
-DROP USER FLYWAY_AUX CASCADE;
-DROP USER "flyway_proxy" CASCADE;
-
--- drop flashback archive if possible
-DECLARE
-  l_flg NUMBER;
-BEGIN
-  SELECT COUNT(*) INTO l_flg FROM V$OPTION WHERE PARAMETER = 'Flashback Data Archive' AND VALUE = 'TRUE';
-  IF l_flg > 0 THEN
-    EXECUTE IMMEDIATE 'DROP FLASHBACK ARCHIVE FLYWAY_FBA';
-  END IF;
-END;
+declare
+  l_prefix VARCHAR2(131) := '"' || SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') || '".';
+begin
+  dbms_scheduler.create_program(
+    program_name    => l_prefix || 'TEST_PROGRAM',
+    program_type    => 'PLSQL_BLOCK',
+    program_action  => 'begin null; end;');
+end;
 /
+

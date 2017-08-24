@@ -14,13 +14,10 @@
 -- limitations under the License.
 --
 
-declare
-  l_prefix VARCHAR2(131) := '"' || SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') || '".';
 begin
-  dbms_scheduler.create_job(
-    job_name    => l_prefix || 'test_job',
-    job_type    => 'PLSQL_BLOCK',
-    job_action  => 'select 1 from dual');
+  for r in (select * from user_db_links) loop
+    execute immediate 'DROP DATABASE LINK ' || r.db_link;
+  end loop;
 end;
 /
 

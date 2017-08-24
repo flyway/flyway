@@ -14,17 +14,4 @@
 -- limitations under the License.
 --
 
-DROP USER FLYWAY CASCADE;
-DROP USER FLYWAY_AUX CASCADE;
-DROP USER "flyway_proxy" CASCADE;
-
--- drop flashback archive if possible
-DECLARE
-  l_flg NUMBER;
-BEGIN
-  SELECT COUNT(*) INTO l_flg FROM V$OPTION WHERE PARAMETER = 'Flashback Data Archive' AND VALUE = 'TRUE';
-  IF l_flg > 0 THEN
-    EXECUTE IMMEDIATE 'DROP FLASHBACK ARCHIVE FLYWAY_FBA';
-  END IF;
-END;
-/
+CREATE LIBRARY test_lib AS '/opt/lib/ext_lib.so';

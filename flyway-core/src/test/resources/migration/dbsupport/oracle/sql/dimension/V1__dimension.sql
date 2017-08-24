@@ -14,17 +14,21 @@
 -- limitations under the License.
 --
 
-DROP USER FLYWAY CASCADE;
-DROP USER FLYWAY_AUX CASCADE;
-DROP USER "flyway_proxy" CASCADE;
+CREATE TABLE CALENDAR (
+    DAY NUMBER PRIMARY KEY,
+    MONTH NUMBER,
+    QUARTER NUMBER,
+    YEAR NUMBER
+);
 
--- drop flashback archive if possible
-DECLARE
-  l_flg NUMBER;
-BEGIN
-  SELECT COUNT(*) INTO l_flg FROM V$OPTION WHERE PARAMETER = 'Flashback Data Archive' AND VALUE = 'TRUE';
-  IF l_flg > 0 THEN
-    EXECUTE IMMEDIATE 'DROP FLASHBACK ARCHIVE FLYWAY_FBA';
-  END IF;
-END;
-/
+CREATE DIMENSION CALENDAR_DIM
+   LEVEL day         IS CALENDAR.DAY
+   LEVEL month       IS CALENDAR.MONTH
+   LEVEL quarter     IS CALENDAR.QUARTER
+   LEVEL year        IS CALENDAR.YEAR
+   HIERARCHY CALENDAR_ROLLUP    (
+             day     CHILD OF
+             month   CHILD OF
+             quarter CHILD OF
+             year
+   );
