@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -35,8 +34,8 @@ public interface SqlStatement {
     /**
      * Executes this statement against the database.
      *
-     * @param connection The connection to use to execute this script.
+     * @param jdbcTemplate The template to use to execute this script.
      * @throws SQLException when the execution fails.
      */
-    void execute(Connection connection) throws SQLException;
+    void execute(JdbcTemplate jdbcTemplate) throws SQLException;
 }

@@ -156,7 +156,7 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                sqlStatement.execute(jdbcTemplate.getConnection());
+                sqlStatement.execute(jdbcTemplate);
             } catch (final SQLException e) {
 
 
