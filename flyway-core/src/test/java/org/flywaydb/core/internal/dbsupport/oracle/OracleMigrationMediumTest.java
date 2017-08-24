@@ -15,22 +15,20 @@
  */
 package org.flywaydb.core.internal.dbsupport.oracle;
 
+import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.migration.MigrationTestCase;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.flywaydb.core.DbCategory;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.wait.HostPortWaitStrategy;
-import org.testcontainers.containers.wait.WaitStrategy;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -63,7 +61,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         new HostPortWaitStrategy().waitUntilReady(oracle);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         DriverDataSource dataSource = new DriverDataSource(classLoader, null,
-                oracle.getJdbcUrl(), oracle.getUsername(), oracle.getPassword(), null);
+                oracle.getJdbcUrl()
+                        .replace("system/oracle", "")
+                , "sys as sysdba", "oracle", null);
 
         Connection connection = dataSource.getConnection();
         try {
@@ -272,6 +272,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Test
     public void scheduler112Enhancement() throws Exception {
         assumeOracleVersionNotLessThan(11, 2);
+        assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/scheduler11_2/create");
@@ -286,7 +287,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      * @return {@code true} if the specified job exists in the schema, {@code false} if not.
      */
     private boolean schedJobExists(String schemaName, String jobName) throws Exception {
-        return ((OracleDbSupport)dbSupport).queryReturnsRows("SELECT * FROM ALL_SCHEDULER_JOBS " +
+        return ((OracleDbSupport) dbSupport).queryReturnsRows("SELECT * FROM ALL_SCHEDULER_JOBS " +
                 "WHERE OWNER = ? AND JOB_NAME = ?", schemaName, jobName);
     }
 
@@ -445,10 +446,10 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/oracle/sql/comment");
         assertEquals(3, flyway.migrate());
 
-        String statusWithComment = jdbcTemplate.queryForString( "select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITH_COMMENT' " );
-        String statusWithoutComment = jdbcTemplate.queryForString( "select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITHOUT_COMMENT' " );
-        assertEquals( "VALID", statusWithoutComment );
-        assertEquals( "VALID", statusWithComment );
+        String statusWithComment = jdbcTemplate.queryForString("select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITH_COMMENT' ");
+        String statusWithoutComment = jdbcTemplate.queryForString("select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITHOUT_COMMENT' ");
+        assertEquals("VALID", statusWithoutComment);
+        assertEquals("VALID", statusWithComment);
         flyway.clean();
     }
 
