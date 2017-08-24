@@ -475,8 +475,10 @@ public abstract class MigrationTestCase {
             fail();
         } catch (FlywayException e) {
             if (dbSupport.supportsDdlTransactions()) {
+            	e.printStackTrace();
                 assertTrue(e.getMessage().contains("THIS IS NOT VALID SQL"));
             } else {
+            	e.printStackTrace();
                 assertTrue(e.getMessage().contains("contains a failed migration"));
             }
         }

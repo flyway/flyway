@@ -1,7 +1,24 @@
+/*
+ * Copyright 2010-2017 Boxfuse GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.flywaydb.core.internal.dbsupport.neo4j;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -83,44 +100,24 @@ public class Neo4JMetaDataTable implements MetaDataTable {
                 placeholders.put("table", table.getName());
 
                 // Placeholders for column values
-                placeholders.put("installed_rank_val", String.valueOf(installedRank));
-                placeholders.put("version_val", versionStr);
-                placeholders.put("description_val", appliedMigration.getDescription());
-                placeholders.put("type_val", appliedMigration.getType().name());
-                placeholders.put("script_val", appliedMigration.getScript());
-                placeholders.put("checksum_val", String.valueOf(appliedMigration.getChecksum()));
-                placeholders.put("installed_by_val", installedBy);
-                placeholders.put("execution_time_val", String.valueOf(appliedMigration.getExecutionTime() * 1000L));
-                placeholders.put("success_val", String.valueOf(appliedMigration.isSuccess()));
+                placeholders.put("installed_rank", String.valueOf(installedRank));
+                placeholders.put("version", versionStr);
+                placeholders.put("description",  dbSupport.quote(appliedMigration.getDescription()));
+                placeholders.put("type", dbSupport.quote(appliedMigration.getType().name()));
+                placeholders.put("script", dbSupport.quote(appliedMigration.getScript()));
+                placeholders.put("checksum", String.valueOf(appliedMigration.getChecksum()));           
+                placeholders.put("installed_by", dbSupport.quote(installedBy));
+                placeholders.put("installed_on", dbSupport.quote(Timestamp.valueOf(LocalDateTime.now()).toString()));
+                placeholders.put("execution_time", String.valueOf(appliedMigration.getExecutionTime() * 1000L));
+                placeholders.put("success", String.valueOf(appliedMigration.isSuccess()));
 
-                String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+                String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "\'", "\'").replacePlaceholders(source);
 
                 SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
 
                 sqlScript.execute(jdbcTemplate);
             } else {
-                // Fall back to hard-coded statements
-                jdbcTemplate.update("INSERT INTO " + table
-                                + "(" + "installed_rank"
-                                + "," + "version"
-                                + "," + "description"
-                                + "," + "type"
-                                + "," + "script"
-                                + "," + "checksum"
-                                + "," + "installed_by"
-                                + "," + "execution_time"
-                                + "," + "success"
-                                + ")"
-                                + " VALUES (?, ?, ?, ?, ?, ?, " + installedBy + ", ?, ?)",
-                        installedRank,
-                        versionStr,
-                        appliedMigration.getDescription(),
-                        appliedMigration.getType().name(),
-                        appliedMigration.getScript(),
-                        appliedMigration.getChecksum(),
-                        appliedMigration.getExecutionTime(),
-                        appliedMigration.isSuccess()
-                );
+            	throw new SQLException("Table creation sql file is missing");
             }
 
             LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
@@ -142,8 +139,6 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 		  if (!table.exists()) {
 	            return false;
 	        }
-
-
 	        try {
 	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE NOT n." + "type" + "  IN ['SCHEMA', 'INIT', 'BASELINE'] RETURN COUNT(n)");
 	            return count > 0;
@@ -169,17 +164,15 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 	
 	@Override
 	public boolean hasBaselineMarker() {
-		 if (!table.exists()) {
+		if (!table.exists()) {
 	            return false;
-	        }
-
-
-	        try {
-	            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE n." + "type" + "  IN ['INIT', 'BASELINE']  RETURN COUNT(n)");
-	            return count > 0;
-	        } catch (SQLException e) {
-	            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
-	        }
+        }
+        try {
+            int count = jdbcTemplate.queryForInt("MATCH (n : Migration) WHERE n." + "type" + "  IN ['INIT', 'BASELINE']  RETURN COUNT(n)");
+            return count > 0;
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
+        }
 	}
 
 	
@@ -255,7 +248,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
         LOG.info("Repairing metadata for version " + version + " (Description: " + description + ", Checksum: " + checksum + ")  ...");
 
         // Try load an update.sql file if it exists
-        String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/update.sql";
+        String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
         ClassPathResource resource = new ClassPathResource(resourceName, getClass().getClassLoader());
         if (resource.exists()) {
             String source = resource.loadAsString("UTF-8");
@@ -327,7 +320,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 
     private int calculateInstalledRank() throws SQLException {
-        int currentMax = jdbcTemplate.queryForInt("MATCH (n:Migration) RETURN MAX(n." + "installed_rank" + ")");
+        int currentMax = jdbcTemplate.queryForInt("MATCH (n:migration) Return coalesce(Max(n.intalled_rank), 0 )");
         return currentMax + 1;
     }
     
@@ -339,31 +332,32 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         int minInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
 
-        String query = "SELECT " + "installed_rank"
-                + "," + "version"
-                + "," + "description"
-                + "," + "type"
-                + "," + "script"
-                + "," + "checksum"
-                + "," + "installed_on"
-                + "," + "installed_by"
-                + "," + "execution_time"
-                + "," + "success"
-                + " FROM " + table
-                + " WHERE " + "installed_rank" + " > " + minInstalledRank;
+        String query = "MATCH (m:Migration)"
+        		+ " WHERE " + "m.installed_rank" + " > " + minInstalledRank
+                + " RETURN" + " m.version "
+                + ",m." + "description"
+                + ",m." + "type"
+                + ",m." + "script"
+                + ",m." + "checksum"
+                + ",m." + "installed_on"
+                + ",m." + "installed_by"
+                + ",m." + "execution_time"
+                + ",m." + "success";
 
-        if (migrationTypes.length > 0) {
-            query += " AND " + "type" + " IN (";
-            for (int i = 0; i < migrationTypes.length; i++) {
-                if (i > 0) {
-                    query += ",";
-                }
-                query += "'" + migrationTypes[i] + "'";
-            }
-            query += ")";
-        }
+                
 
-        query += " ORDER BY " + "installed_rank";
+//        if (migrationTypes.length > 0) {
+//            query += " AND " + "type" + " IN (";
+//            for (int i = 0; i < migrationTypes.length; i++) {
+//                if (i > 0) {
+//                    query += ",";
+//                }
+//                query += "'" + migrationTypes[i] + "'";
+//            }
+//            query += ")";
+//        }
+
+        query += " ORDER BY " + "m.installed_rank";
 
         try {
             cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
