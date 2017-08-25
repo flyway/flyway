@@ -18,8 +18,12 @@ package org.flywaydb.core.internal.dbsupport.neo4j;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +47,8 @@ import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+
+import com.google.appengine.repackaged.org.joda.time.DateTime;
 
 public class Neo4JMetaDataTable implements MetaDataTable {
 
@@ -90,7 +96,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
             // Try load an updateMetaDataTable.sql file if it exists
             String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
             ClassPathResource classPathResource = new ClassPathResource(resourceName, getClass().getClassLoader());
-            int installedRank = appliedMigration.getType() == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
+            int installedRank = calculateInstalledRank();
             if (classPathResource.exists()) {
                 String source = classPathResource.loadAsString("UTF-8");
                 Map<String, String> placeholders = new HashMap<String, String>();
@@ -320,7 +326,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
 
     private int calculateInstalledRank() throws SQLException {
-        int currentMax = jdbcTemplate.queryForInt("MATCH (n:migration) Return coalesce(Max(n.intalled_rank), 0 )");
+        int currentMax = jdbcTemplate.queryForInt("MATCH (n:Migration) Return coalesce(Max(n.installed_rank), 0 )");
         return currentMax + 1;
     }
     
@@ -334,7 +340,8 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         String query = "MATCH (m:Migration)"
         		+ " WHERE " + "m.installed_rank" + " > " + minInstalledRank
-                + " RETURN" + " m.version "
+                + " RETURN" + " m.installed_rank "
+                + " ,m.version "
                 + ",m." + "description"
                 + ",m." + "type"
                 + ",m." + "script"
@@ -342,42 +349,36 @@ public class Neo4JMetaDataTable implements MetaDataTable {
                 + ",m." + "installed_on"
                 + ",m." + "installed_by"
                 + ",m." + "execution_time"
-                + ",m." + "success";
-
-                
-
-//        if (migrationTypes.length > 0) {
-//            query += " AND " + "type" + " IN (";
-//            for (int i = 0; i < migrationTypes.length; i++) {
-//                if (i > 0) {
-//                    query += ",";
-//                }
-//                query += "'" + migrationTypes[i] + "'";
-//            }
-//            query += ")";
-//        }
-
-        query += " ORDER BY " + "m.installed_rank";
+                + ",m." + "success"
+                + " ORDER BY " + "m.installed_rank";
 
         try {
             cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
                 public AppliedMigration mapRow(final ResultSet rs) throws SQLException {
-                    Integer checksum = rs.getInt("checksum");
+                    Integer checksum = rs.getInt("m.checksum");
                     if (rs.wasNull()) {
                         checksum = null;
                     }
-
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+                    Date parsedDate;
+					try {
+						parsedDate = dateFormat.parse(rs.getString("m.installed_on"));
+					} catch (ParseException e) {
+						parsedDate = Date.from(Instant.now());
+					}
+                    Timestamp installedOnTimestamp = new java.sql.Timestamp(parsedDate.getTime());
+                    
                     return new AppliedMigration(
-                            rs.getInt("installed_rank"),
-                            rs.getString("version") != null ? MigrationVersion.fromVersion(rs.getString("version")) : null,
-                            rs.getString("description"),
-                            MigrationType.valueOf(rs.getString("type")),
-                            rs.getString("script"),
+                            rs.getInt("m.installed_rank"),
+                            rs.getString("m.version") != null ? MigrationVersion.fromVersion(rs.getString("m.version")) : null,
+                            rs.getString("m.description"),
+                            MigrationType.valueOf(rs.getString("m.type")),
+                            rs.getString("m.script"),
                             checksum,
-                            rs.getTimestamp("installed_on"),
-                            rs.getString("installed_by"),
-                            rs.getInt("execution_time"),
-                            rs.getBoolean("success")
+                            installedOnTimestamp,
+                            rs.getString("m.installed_by"),
+                            rs.getInt("m.execution_time"),
+                            rs.getBoolean("m.success")
                     );
                 }
             }));

@@ -45,7 +45,6 @@ public class Neo4JDriverDataSourceSmallTest {
 
 	    @Test
 	    public void nullInitSqls() throws Exception {
-	        //Used to fail with NPE
 	        new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:neo4j:bolt://localhost:7687/", "neo4j", "test", null).getConnection().close();
 	    }
 	    

@@ -1,10 +1,11 @@
 package org.flywaydb.core.internal.dbsupport.neo4j;
 
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.mockito.cglib.proxy.Proxy;
+
 import org.neo4j.jdbc.Driver;
 
 public class Neo4JMigrationDriver extends Driver {

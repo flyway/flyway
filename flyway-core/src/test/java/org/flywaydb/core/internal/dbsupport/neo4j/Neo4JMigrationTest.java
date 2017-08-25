@@ -44,7 +44,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 		flyway.setLocations("migration/dbsupport/neo4j/");
 		flyway.setMixed(true);
 
-		Assert.isTrue(flyway.migrate() == 1);
+		Assert.isTrue(flyway.migrate() == 2);
 	}
 
 	@Override

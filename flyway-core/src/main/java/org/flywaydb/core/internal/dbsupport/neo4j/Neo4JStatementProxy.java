@@ -1,14 +1,14 @@
 package org.flywaydb.core.internal.dbsupport.neo4j;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.Statement;
 
-import org.mockito.cglib.proxy.InvocationHandler;
 
 
 public class Neo4JStatementProxy implements InvocationHandler {
 
-	Statement proxiedStatement;
+	private Statement proxiedStatement;
 	
 	public Neo4JStatementProxy(Statement statement) {
 		this.proxiedStatement = statement;
