@@ -44,6 +44,9 @@ public class DriverDataSource implements DataSource {
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
     private static final String MYSQL_5_JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String REDSHIFT_JDBC_42_DRIVER = "com.amazon.redshift.jdbc42.Driver";
+    private static final String REDSHIFT_JDBC_41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
+    private static final String REDSHIFT_JDBC_4_DRIVER = "com.amazon.redshift.jdbc4.Driver";
 
     /**
      * The JDBC Driver instance to use.
@@ -240,7 +243,13 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:redshift:")) {
-            return "com.amazon.redshift.jdbc4.Driver";
+            if (ClassUtils.isPresent(REDSHIFT_JDBC_42_DRIVER, classLoader)) {
+                return REDSHIFT_JDBC_42_DRIVER;
+            }
+            if (ClassUtils.isPresent(REDSHIFT_JDBC_41_DRIVER, classLoader)) {
+                return REDSHIFT_JDBC_41_DRIVER;
+            }
+            return REDSHIFT_JDBC_4_DRIVER;
         }
 
         return null;
