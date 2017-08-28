@@ -315,7 +315,7 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:redshift:")) {
             // The new format of Redshift JDBC urls, using the new Redshift-specific JDBC driver:
-            return "com.amazon.redshift.jdbc41.Driver";
+            return "com.amazon.redshift.jdbc.Driver";
         }
 
         if (url.startsWith("jdbc:jtds:")) {
