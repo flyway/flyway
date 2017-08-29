@@ -1,0 +1,4 @@
+CREATE (t:test_user { name:"Mr. Semicolon"});
+
+THIS IS NOT VALID CYPHER;
+THIS MIGRATION SHOULD FAIL;

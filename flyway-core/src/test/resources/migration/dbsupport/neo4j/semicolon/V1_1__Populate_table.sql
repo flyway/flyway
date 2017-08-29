@@ -13,5 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-
-MATCH (n) RETURN n;
+CREATE (t:test_user { name:"Mr. T"});
+CREATE (t:test_user { name:"Mr. Semicolon;"});
+CREATE (t:test_user { name:"Mr. Semicolon+Linebreak;
+another line"});

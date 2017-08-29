@@ -14,4 +14,4 @@
 -- limitations under the License.
 --
 
-MATCH (n) RETURN n;
+INSERT INTO test_user (name) VALUES ('Mr. T');

@@ -30,7 +30,7 @@ public class Neo4JTable extends Table{
 
 	@Override
 	protected boolean doExists() throws SQLException {
-		return true; //jdbcTemplate.queryForInt("MATCH n = (:SchemaVersion)-->() RETURN COUNT(n)") != 0;
+		return true; 
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class Neo4JTable extends Table{
 
 	@Override
 	protected void doDrop() throws SQLException {
-		jdbcTemplate.execute("MATCH n = (:SchemaVersion)-->() DELETE n");
+		jdbcTemplate.execute("MATCH n = (:schema_version)-->() DELETE n");
 	}
 
 }

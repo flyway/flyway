@@ -48,7 +48,7 @@ public class Neo4JDbSupport extends DbSupport {
 
 	@Override
 	public SqlStatementBuilder createSqlStatementBuilder() {
-		return new Neo4JSqlStatementBuilder();
+		return new SqlStatementBuilder();
 	}
 
 	@Override
