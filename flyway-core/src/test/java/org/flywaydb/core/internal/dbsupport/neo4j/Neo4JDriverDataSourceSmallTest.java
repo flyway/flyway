@@ -53,10 +53,10 @@ public class Neo4JDriverDataSourceSmallTest {
 	    	  String resourceName = "org/flywaydb/core/internal/dbsupport/" + "neo4j" + "/createMetaDataTable.sql";
               String source = new ClassPathResource(resourceName, Neo4JMetaDataTable.class.getClassLoader()).loadAsString("UTF-8");
               
-              String expected = "MERGE (schemaVersion :SchemaVersion);\n" + 
+              String expected = "MERGE (schemaVersion :schema_version);\n" + 
               		"\n" + 
-              		"MATCH (sv :SchemaVersion) \n" + 
-              		"CREATE (sv)-[:SchemaVersionToMigration]->\n" + 
+              		"MATCH (sv :schema_version) \n" + 
+              		"CREATE (sv)-[:schema_versionToMigration]->\n" + 
               		"(Migration? :Migration \n" + 
               		"	{installed_rank: 'installed_rank' , \n" + 
               		"	version : 'version',\n" + 

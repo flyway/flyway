@@ -1,0 +1,1 @@
+CREATE (t:test_user { name:"Dr. Evil"});

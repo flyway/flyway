@@ -92,9 +92,9 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         try {
             String versionStr = version == null ? null : version.toString();
-
-            // Try load an updateMetaDataTable.sql file if it exists
-            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
+            
+            jdbcTemplate.execute("MERGE (schemaVersion :schema_version);");
+            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/insertIntoMetaDataTable.sql";
             ClassPathResource classPathResource = new ClassPathResource(resourceName, getClass().getClassLoader());
             int installedRank = calculateInstalledRank();
             if (classPathResource.exists()) {
@@ -107,8 +107,8 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
                 // Placeholders for column values
                 placeholders.put("installed_rank", String.valueOf(installedRank));
-                placeholders.put("version", versionStr);
-                placeholders.put("description",  dbSupport.quote(appliedMigration.getDescription()));
+                placeholders.put("version_val", dbSupport.quote(versionStr));
+                placeholders.put("description_val",  dbSupport.quote(appliedMigration.getDescription()));
                 placeholders.put("type", dbSupport.quote(appliedMigration.getType().name()));
                 placeholders.put("script", dbSupport.quote(appliedMigration.getScript()));
                 placeholders.put("checksum", String.valueOf(appliedMigration.getChecksum()));           
@@ -117,7 +117,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
                 placeholders.put("execution_time", String.valueOf(appliedMigration.getExecutionTime() * 1000L));
                 placeholders.put("success", String.valueOf(appliedMigration.isSuccess()));
 
-                String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "\'", "\'").replacePlaceholders(source);
+                String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
                 SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
 
