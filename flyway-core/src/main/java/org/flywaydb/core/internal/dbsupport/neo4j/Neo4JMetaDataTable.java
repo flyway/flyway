@@ -91,7 +91,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
         MigrationVersion version = appliedMigration.getVersion();
 
         try {
-            String versionStr = version == null ? null : version.toString();
+            String versionStr = version == null ? "null" : version.toString();
             
             jdbcTemplate.execute("MERGE (schemaVersion :schema_version);");
             String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/insertIntoMetaDataTable.sql";

@@ -1,24 +1,21 @@
-  /*
-   First ' comment
- */
+  
+//First ' comment'
+ 
 CREATE (t:test_user
-  name VARCHAR(25) NOT NULL,
-  -- second '
+  //' second '
   { name:"Mr. Iße T"});
 
 CREATE (t:test_user
-/*
-  third '
- */
+
+//  'third '
+ 
   { name:"Mr. Semicolon"});
 
--- 'fourth'
+// 'fourth'
 CREATE (t:test_user
--- ' fifth
+// ' fifth'
  { name:"Mr. Semicolon2"});
 
 CREATE (
-/*'
-  sixth
- '*/
+//  'sixth'
    t:test_user { name:"Mr. Iße T2"});
