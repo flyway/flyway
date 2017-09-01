@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ScuteraTech Unip.LDA
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,6 @@ public class Neo4JMetaDataTable implements MetaDataTable {
                 placeholders.put("script", dbSupport.quote(appliedMigration.getScript()));
                 placeholders.put("checksum", String.valueOf(appliedMigration.getChecksum()));           
                 placeholders.put("installed_by", dbSupport.quote(installedBy));
-                placeholders.put("installed_on", dbSupport.quote(Timestamp.valueOf(LocalDateTime.now()).toString()));
                 placeholders.put("execution_time", String.valueOf(appliedMigration.getExecutionTime() * 1000L));
                 placeholders.put("success", String.valueOf(appliedMigration.isSuccess()));
 
@@ -358,14 +357,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
                     if (rs.wasNull()) {
                         checksum = null;
                     }
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-                    Date parsedDate;
-					try {
-						parsedDate = dateFormat.parse(rs.getString("m.installed_on"));
-					} catch (ParseException e) {
-						parsedDate = Date.from(Instant.now());
-					}
-                    Timestamp installedOnTimestamp = new java.sql.Timestamp(parsedDate.getTime());
+                    Timestamp installedOnTimestamp = new java.sql.Timestamp(rs.getLong("m.installed_on"));
                     
                     return new AppliedMigration(
                             rs.getInt("m.installed_rank"),

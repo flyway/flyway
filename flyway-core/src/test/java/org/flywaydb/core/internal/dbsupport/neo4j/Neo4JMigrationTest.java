@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ScuteraTech Unip.LDA
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 /**
  * 
@@ -93,13 +92,13 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 		jdbcTemplate.execute("CREATE (t:test_user { name: "+ dbSupport.quote("testUser1") +"} )");
 		insertIntoFlyway3MetadataTable(jdbcTemplate, 1, 1, "0.1", "<< BASELINE >>", "BASELINE", "<< BASELINE >>", null, "flyway3",
 				0, true);
-		insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__dummy.sql", -247070801, "flyway3", 15,
+		insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__dummy.sql", 293523237, "flyway3", 15,
 				true);
 		flyway.setLocations(getBasedir());
 		assertEquals(3, flyway.migrate());
 		flyway.validate();
 		assertEquals(5, flyway.info().applied().length);
-		assertEquals(-247070801, flyway.info().applied()[1].getChecksum().intValue());
+		assertEquals(293523237, flyway.info().applied()[1].getChecksum().intValue());
 	}
 
 	private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank,
@@ -117,7 +116,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 				"	,script:"+ dbSupport.quote(script) + 
 				"	,checksum:"+ checksumValue  + 
 				"	,installed_by:"+ dbSupport.quote(installedBy) + 
-				"	,installed_on:" + dbSupport.quote(Timestamp.valueOf(LocalDateTime.now()).toString()) + 
+				"	,installed_on:timestamp()" + 
 				"	,execution_time:"+ executionTime + 
 				"	,success:" + success +"});");
 	}
@@ -254,7 +253,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
             assertTrue(e.getCause() instanceof SQLException);
             // and make sure the failed statement was properly recorded
             assertEquals("1", e.getMigration().getVersion().getVersion());
-            assertEquals(19, e.getLineNumber());
+            assertEquals(35, e.getLineNumber());
             assertEquals("THIS IS NOT VALID CYPHER", e.getStatement());
         }
 

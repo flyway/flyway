@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ScuteraTech Unip.LDA
+ * Copyright 2010-2017 Boxfuse GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.flywaydb.core.internal.dbsupport.neo4j;
 
 import java.lang.reflect.Proxy;
