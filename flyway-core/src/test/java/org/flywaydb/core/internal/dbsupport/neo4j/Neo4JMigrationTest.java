@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 Boxfuse GmbH
+ * Copyright 2017 ScuteraTech Unip.LDA
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
 /**
  * 
  */
@@ -26,9 +28,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -38,25 +37,17 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.internal.command.DbMigrate;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
-import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.springframework.util.Assert;
 
 /**
@@ -102,13 +93,13 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 		jdbcTemplate.execute("CREATE (t:test_user { name: "+ dbSupport.quote("testUser1") +"} )");
 		insertIntoFlyway3MetadataTable(jdbcTemplate, 1, 1, "0.1", "<< BASELINE >>", "BASELINE", "<< BASELINE >>", null, "flyway3",
 				0, true);
-		insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__dummy.sql", 1694047048, "flyway3", 15,
+		insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__dummy.sql", -247070801, "flyway3", 15,
 				true);
 		flyway.setLocations(getBasedir());
 		assertEquals(3, flyway.migrate());
 		flyway.validate();
 		assertEquals(5, flyway.info().applied().length);
-		assertEquals(1694047048, flyway.info().applied()[1].getChecksum().intValue());
+		assertEquals(-247070801, flyway.info().applied()[1].getChecksum().intValue());
 	}
 
 	private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank,
@@ -263,7 +254,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
             assertTrue(e.getCause() instanceof SQLException);
             // and make sure the failed statement was properly recorded
             assertEquals("1", e.getMigration().getVersion().getVersion());
-            assertEquals(3, e.getLineNumber());
+            assertEquals(19, e.getLineNumber());
             assertEquals("THIS IS NOT VALID CYPHER", e.getStatement());
         }
 
