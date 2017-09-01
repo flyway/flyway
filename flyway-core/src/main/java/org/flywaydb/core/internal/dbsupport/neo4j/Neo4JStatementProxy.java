@@ -20,7 +20,11 @@ public class Neo4JStatementProxy implements InvocationHandler {
 			return null;
 		if (method.getName().equals("getMoreResults")) 
 			return false;
-		return method.invoke(proxiedStatement, args);
+		try {
+			return method.invoke(proxiedStatement, args);
+		}catch(Exception e) {
+			throw e.getCause();
+		}
 	}
 
 }

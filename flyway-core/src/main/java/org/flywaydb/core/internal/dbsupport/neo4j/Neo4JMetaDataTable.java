@@ -199,7 +199,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         try {
             int failedCount = jdbcTemplate.queryForInt("MATCH (n : Migration)"
-                    + " WHERE n." + "success" + "=" + dbSupport.getBooleanFalse() + "RETURN COUNT(n)");
+                    + " WHERE n." + "success" + "=" + dbSupport.getBooleanFalse() + " RETURN COUNT(n)");
             if (failedCount == 0) {
                 LOG.info("Repair of failed migration in metadata table " + table + " not necessary. No failed migration detected.");
                 return;
@@ -210,7 +210,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 
         try {
             jdbcTemplate.execute("MATCH (n : Migration)<-[r]-() "
-                    + " WHERE n." + "success" + " = " + dbSupport.getBooleanFalse() + "DELETE n , r");
+                    + " WHERE n." + "success" + " = " + dbSupport.getBooleanFalse() + " DELETE n , r");
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair metadata table " + table, e);
         }
@@ -275,9 +275,10 @@ public class Neo4JMetaDataTable implements MetaDataTable {
         } else {
             try {
                 jdbcTemplate.update("Match (n :Migration)"
-                        + " SET n.description=" + description + " , n."
+                		+ " WHERE n." + "version" + "='" + version + "'"
+                        + " SET n.description=" + dbSupport.quote(description) + " , n."
                         + "checksum" + "=" + checksum
-                        + " WHERE n." + "version" + "='" + version + "'");
+                        +" RETURN n");
             } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to repair metadata table " + table
                         + " for version " + version, e);

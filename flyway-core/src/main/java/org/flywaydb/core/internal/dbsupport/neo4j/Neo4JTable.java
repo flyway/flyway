@@ -43,5 +43,14 @@ public class Neo4JTable extends Table{
 	protected void doDrop() throws SQLException {
 		jdbcTemplate.execute("MATCH n = (:schema_version)-->() DELETE n");
 	}
+	
+	@Override
+	public boolean hasColumn(String column) {
+		try {
+			return jdbcTemplate.queryForInt("MATCH (n:Migration) WHERE NOT n." + column + " IS NULL RETURN COUNT(*)") != 0;
+		} catch (SQLException e) {
+			return false;
+		}
+	}
 
 }

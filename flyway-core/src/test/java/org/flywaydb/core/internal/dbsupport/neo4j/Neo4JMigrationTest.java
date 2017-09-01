@@ -19,6 +19,7 @@
 package org.flywaydb.core.internal.dbsupport.neo4j;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -48,9 +49,11 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -111,7 +114,6 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 	private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank,
 			String version, String description, String type, String script, Integer checksum, String installedBy,
 			int executionTime, boolean success) throws SQLException {
-			jdbcTemplate.execute("MERGE (schemaVersion :schema_version);");
 			int checksumValue = checksum != null ? checksum : 0; 
 			jdbcTemplate.execute("MERGE (schemaVersion :schema_version);"); 
 			jdbcTemplate.execute(" MATCH (sv :schema_version)  " + 
@@ -141,7 +143,6 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 
 	@Override
 	protected void createTestTable() throws SQLException {
-		jdbcTemplate.execute("MERGE (schemaVersion :schema_version);");
 		jdbcTemplate.execute("CREATE (t:test_user { name: " + dbSupport.quote("testUser1") + "} )");
 	}
 
@@ -174,7 +175,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 		assertEquals("Populate table", flyway.info().current().getDescription());
 
 		assertEquals("Mr. Semicolon+Linebreak;\nanother line",
-				jdbcTemplate.queryForString("select name from test_user where name like '%line'"));
+				jdbcTemplate.queryForString("MATCH (n:test_user) WHERE n.name CONTAINS 'line' RETURN n.name"));
 	}
 	
     @Override
@@ -202,7 +203,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
         flyway.migrate();
         assertEquals("1.1", flyway.info().current().getVersion().toString());
 
-        jdbcTemplate.update("MATCH (n : " + flyway.getTable() + ") OPTIONAL MATCH (n)-[r]->(m) DELETE n,r");
+        jdbcTemplate.update("MATCH (n : " + flyway.getTable() + ") OPTIONAL MATCH (n)-[r]->(m) DELETE n,r,m");
         flyway.setBaselineVersion(MigrationVersion.fromVersion("1.1"));
         flyway.setBaselineDescription("initial version 1.1");
         flyway.baseline();
@@ -262,7 +263,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
             assertTrue(e.getCause() instanceof SQLException);
             // and make sure the failed statement was properly recorded
             assertEquals("1", e.getMigration().getVersion().getVersion());
-            assertEquals(21, e.getLineNumber());
+            assertEquals(3, e.getLineNumber());
             assertEquals("THIS IS NOT VALID CYPHER", e.getStatement());
         }
 
@@ -299,7 +300,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
         flyway.setLocations(getBasedir());
         flyway.setTable("my_custom_table");
         flyway.migrate();
-        int count = jdbcTemplate.queryForInt("MATCH (n:my_custom_table) RETURN COUNT(n) ");
+        int count = jdbcTemplate.queryForInt("MATCH (n:Migration) RETURN COUNT(n) ");
 
         // Same as 'migrate()', count is 5 when we have a schema creation marker
         if (flyway.info().applied()[0].getType() == MigrationType.SCHEMA) {
@@ -338,54 +339,19 @@ public class Neo4JMigrationTest extends MigrationTestCase {
     }
     
     @Override
+    @Ignore("Ignoring this test because schema notion dosent exist on Neo4J")
     public void setCurrentSchema() throws Exception {
-        Schema schema = dbSupport.getSchema("current_schema_test");
-        try {
-            schema.create();
-
-            flyway.setSchemas("current_schema_test");
-            flyway.clean();
-
-            flyway.setLocations(getMigrationDir() + "/current_schema");
-            Map<String, String> placeholders = new HashMap<String, String>();
-            placeholders.put("schema1", dbSupport.quote("current_schema_test"));
-            flyway.setPlaceholders(placeholders);
-            flyway.migrate();
-        } finally {
-            schema.drop();
-        }
     }
 
     @Override
-    @Test(expected = FlywayException.class)
+    @Test
+    @Ignore("Ignoring this test because schema notion dosent exist on Neo4J")
     public void nonEmptySchema() throws Exception {
-        createTestTable();
-        flyway.setLocations(getBasedir());
-        flyway.migrate();
     }
     
     @Test
+    @Ignore("Ignoring this test because schema notion dosent exist on Neo4J")
     public void migrateMultipleSchemas() throws Exception {
-        flyway.setSchemas("flyway_1", "flyway_2", "flyway_3");
-        flyway.clean();
-
-        flyway.setLocations(getMigrationDir() + "/multi");
-        Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema1", "flyway_1");
-        placeholders.put("schema2","flyway_2");
-        placeholders.put("schema3", "flyway_3");
-        flyway.setPlaceholders(placeholders);
-        flyway.migrate();
-        assertEquals("2.0", flyway.info().current().getVersion().toString());
-        assertEquals("Add foreign key", flyway.info().current().getDescription());
-        assertEquals(0, flyway.migrate());
-
-        assertEquals(4, flyway.info().applied().length);
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1") + ".test_user1"));
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_2") + ".test_user2"));
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_3") + ".test_user3"));
-
-        flyway.clean();
     }
     
     @Override
@@ -393,6 +359,54 @@ public class Neo4JMigrationTest extends MigrationTestCase {
         flyway.setLocations(getQuoteLocation());
         flyway.migrate();
         assertEquals("0",
-                jdbcTemplate.queryForString("MATCH (t : test_user) WHERE t.name CONTAINS " + dbSupport.quote(flyway.getSchemas()[0], "table") + " COUNT(name)  "));
+                jdbcTemplate.queryForString("MATCH (t : test_user) WHERE t.name CONTAINS " + dbSupport.quote(flyway.getSchemas()[0]) + " RETURN COUNT(t)"));
     }
+    
+    @Override
+    public void quotesAroundTableName() {
+        flyway.setLocations(getQuoteLocation());
+        flyway.migrate();
+
+        // Clean script must also be able to properly deal with these reserved keywords in table names.
+        flyway.clean();
+    }
+    
+    @Override
+    public void columnExists() throws Exception {
+    	createTestTable();
+        flyway.baseline();
+        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("installed_rank"));
+        assertFalse(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
+    }
+    
+    
+    @Override
+    @Ignore("Ignoring this test because schema notion dosent exist on Neo4J")
+    public void nonEmptySchemaWithInitOnMigrateHighVersion() throws Exception {
+    }
+    
+    @Override
+    @Ignore("Ignoring this test because schema notion dosent exist on Neo4J")
+    public void nonEmptySchemaWithInitOnMigrate() throws Exception {
+    }
+    
+	@Override
+	public void repair() throws Exception {
+		flyway.setLocations(getFutureFailedLocation());
+		assertEquals(4, flyway.info().all().length);
+
+		try {
+			flyway.migrate();
+			fail();
+		} catch (FlywayException e) {
+			e.printStackTrace();
+		}
+
+		assertEquals("3", flyway.info().current().getVersion().toString());
+		assertEquals(MigrationState.FAILED, flyway.info().current().getState());
+
+		flyway.repair();
+		assertEquals("2.0", flyway.info().current().getVersion().toString());
+		assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
+	}
 }
