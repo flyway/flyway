@@ -10,6 +10,10 @@ before_install:
   - psql -U postgres < ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
   - echo "mariadb.url=jdbc:mariadb://localhost/flyway_maria_db" > ~/flyway-mediumtests.properties
+  - wget -qO- https://binaries.cockroachdb.com/cockroach-v1.0.5.linux-amd64.tgz | tar  xvz
+  - cp -i cockroach-v1.0.5.linux-amd64/cockroach /usr/local/bin
+  - cockroach start --insecure --host=localhost &
+  - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
 install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
 before_script: echo OK
 script: echo Done.
