@@ -40,6 +40,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.junit.rules.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -61,6 +63,9 @@ import static org.junit.Assert.*;
 @SuppressWarnings({"JavaDoc"})
 public abstract class MigrationTestCase {
     private static final Logger LOG = LoggerFactory.getLogger(MigrationTestCase.class);
+
+    @Rule
+    public Timeout globalTimeout = new Timeout(15, TimeUnit.SECONDS);
 
     /**
      * The base directory for the regular test migrations.
