@@ -13,7 +13,7 @@ before_install:
   - wget -qO- https://binaries.cockroachdb.com/cockroach-v1.0.5.linux-amd64.tgz | tar  xvz
   - sudo cp -i cockroach-v1.0.5.linux-amd64/cockroach /usr/local/bin
   - cockroach start --insecure --host=localhost --background
-  - cockroach node
+  - cockroach node status
   - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
 install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
 before_script: echo OK
