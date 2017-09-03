@@ -47,14 +47,6 @@ echo SolidDB...
 solsql -f flyway-core/src/test/resources/migration/dbsupport/solid/createDatabase.sql "tcp localhost 1313"
 
 echo CockroackDB
-cockroach user set flyway --insecure
-cockroach sql --insecure -e "CREATE DATABASE flyway_db"
-cockroach sql --insecure -e "CREATE DATABASE flyway_1"
-cockroach sql --insecure -e "CREATE DATABASE flyway_2"
-cockroach sql --insecure -e "CREATE DATABASE flyway_3"
-cockroach sql --insecure -e "GRANT ALL ON DATABASE flyway_db TO flyway"
-cockroach sql --insecure -e "GRANT ALL ON DATABASE flyway_1 TO flyway"
-cockroach sql --insecure -e "GRANT ALL ON DATABASE flyway_2 TO flyway"
-cockroach sql --insecure -e "GRANT ALL ON DATABASE flyway_3 TO flyway"
+cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
 
 echo Done.
