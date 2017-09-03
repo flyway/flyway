@@ -745,7 +745,7 @@
                             <includes>
                                 <include>**/*MediumTest.java</include>
                             </includes>
-                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                            <redirectTestOutputToFile>false</redirectTestOutputToFile>
                             <systemPropertyVariables>
                                 <user.timezone>+00:00</user.timezone>
                             </systemPropertyVariables>
