@@ -12,8 +12,7 @@ before_install:
   - echo "mariadb.url=jdbc:mariadb://localhost/flyway_maria_db" > ~/flyway-mediumtests.properties
   - wget -qO- https://binaries.cockroachdb.com/cockroach-v1.0.5.linux-amd64.tgz | tar  xvz
   - sudo cp -i cockroach-v1.0.5.linux-amd64/cockroach /usr/local/bin
-  - cockroach start --insecure --host=localhost --pidfile cockroach.pid &
-  - while [ ! -f cockroach.pid ]; do sleep 1; done
+  - cockroach start --insecure --host=localhost --background
   - cockroach node
   - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
 install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
