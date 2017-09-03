@@ -170,7 +170,7 @@ public abstract class MigrationTestCase {
     private void testAutoCommit(boolean autoCommit) {
         DriverDataSource dataSource = (DriverDataSource) flyway.getDataSource();
         dataSource.setAutoCommit(autoCommit);
-        flyway.setLocations(BASEDIR);
+        flyway.setLocations(getBasedir());
         flyway.migrate();
         assertEquals("2.0", flyway.info().current().getVersion().getVersion());
     }

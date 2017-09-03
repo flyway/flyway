@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.hsql;
+package org.flywaydb.core.internal.dbsupport.cockroachdb;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -26,33 +25,21 @@ import org.flywaydb.core.internal.dbsupport.Table;
 import java.sql.SQLException;
 
 /**
- * Hsql-specific table.
+ * CockroachDB-specific table.
  */
-public class HsqlTable extends Table {
-    private static final Log LOG = LogFactory.getLog(HsqlTable.class);
+public class CockroachDBTable extends Table {
+    private static final Log LOG = LogFactory.getLog(CockroachDBTable.class);
 
     /**
-     * Flag indicating whether we are running against the old Hsql 1.8 instead of the newer 2.x.
-     */
-    private boolean version18;
-
-    /**
-     * Creates a new Hsql table.
+     * Creates a new CockroachDB table.
      *
      * @param jdbcTemplate The Jdbc Template for communicating with the DB.
      * @param dbSupport    The database-specific support.
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public HsqlTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    CockroachDBTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
-
-        try {
-            int majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-            version18 = majorVersion < 2;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine the Hsql version", e);
-        }
     }
 
     @Override
@@ -62,15 +49,16 @@ public class HsqlTable extends Table {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return exists(null, schema, name);
+        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
+                "   SELECT 1\n" +
+                "   FROM   information_schema.tables \n" +
+                "   WHERE  table_schema = ?\n" +
+                "   AND    table_name = ?\n" +
+                ")", schema.getName(), name);
     }
 
     @Override
     protected void doLock() throws SQLException {
-        if (version18) {
-            LOG.debug("Unable to lock " + this + " as Hsql 1.8 does not support locking. No concurrent migration supported.");
-        } else {
-            jdbcTemplate.execute("LOCK TABLE " + this + " WRITE");
-        }
+        LOG.debug("Unable to lock " + this + " as CockroachDB does not support locking. No concurrent migration supported.");
     }
 }
