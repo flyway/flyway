@@ -18,10 +18,15 @@ package org.flywaydb.maven;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.apache.maven.settings.building.SettingsProblem;
+import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
+import org.apache.maven.settings.crypto.SettingsDecrypter;
+import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
@@ -29,11 +34,6 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Location;
-import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
-import org.sonatype.plexus.components.cipher.PlexusCipherException;
-import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -402,11 +402,9 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     /* private -> for testing */ MavenProject mavenProject;
-/*
-    @Component(role = ComponentConfigurator.class, hint = "include-project-dependencies")
-    @Requirement(role = ConverterLookup.class, hint = "default")
-    private IncludeProjectDependenciesComponentConfigurator includeProjectDependenciesComponentConfigurator;
-*/
+
+    @Component
+    private SettingsDecrypter settingsDecrypter;
 
     /**
      * Load username password from settings
@@ -418,16 +416,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         if (user == null) {
             if (server != null) {
                 user = server.getUsername();
-                try {
-                    SecDispatcher secDispatcher = new DefaultSecDispatcher() {{
-                        _cipher = new DefaultPlexusCipher();
-                    }};
-                    password = secDispatcher.decrypt(server.getPassword());
-                } catch (SecDispatcherException e) {
-                    throw new FlywayException("Unable to decrypt password", e);
-                } catch (PlexusCipherException e) {
-                    throw new FlywayException("Unable to initialize password decryption", e);
+                SettingsDecryptionResult result =
+                        settingsDecrypter.decrypt(new DefaultSettingsDecryptionRequest(server));
+                for (SettingsProblem problem : result.getProblems()) {
+                    if (problem.getSeverity() == SettingsProblem.Severity.ERROR
+                            || problem.getSeverity() == SettingsProblem.Severity.FATAL) {
+                        throw new FlywayException("Unable to decrypt password: " + problem, problem.getException());
+                    }
                 }
+                password = result.getServer().getPassword();
             }
         } else if (server != null) {
             throw new FlywayException("You specified credentials both in the Flyway config and settings.xml. Use either one or the other");
