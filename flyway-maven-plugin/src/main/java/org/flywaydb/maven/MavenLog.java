@@ -31,7 +31,7 @@ public class MavenLog implements Log {
      *
      * @param logger The original Maven Logger.
      */
-    public MavenLog(org.apache.maven.plugin.logging.Log logger) {
+    MavenLog(org.apache.maven.plugin.logging.Log logger) {
         this.logger = logger;
     }
 

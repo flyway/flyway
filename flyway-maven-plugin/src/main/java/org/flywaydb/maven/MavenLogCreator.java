@@ -33,7 +33,7 @@ public class MavenLogCreator implements LogCreator {
      *
      * @param mojo The Maven Mojo to log for.
      */
-    public MavenLogCreator(AbstractMojo mojo) {
+    MavenLogCreator(AbstractMojo mojo) {
         this.mojo = mojo;
     }
 
