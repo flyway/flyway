@@ -48,10 +48,10 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt(
-                "SELECT count(*) FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'",
-                name);
-        return objectCount == 0;
+        return !jdbcTemplate.queryForBoolean("SELECT EXISTS (   SELECT 1\n" +
+                "   FROM   pg_catalog.pg_class c\n" +
+                "   JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                "   WHERE  n.nspname = ?)", name);
     }
 
     @Override
