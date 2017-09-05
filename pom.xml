@@ -129,7 +129,7 @@
     <properties>
         <version.spring>2.5.6</version.spring>
         <version.appengine>1.9.10</version.appengine>
-        <version.maven>2.2.1</version.maven>
+        <version.maven>3.0</version.maven>
         <version.gradle>2.3</version.gradle>
         <version.derby>10.12.1.1</version.derby>
         <version.h2>1.4.193</version.h2>
@@ -438,13 +438,13 @@
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-artifact</artifactId>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
-                <artifactId>maven-project</artifactId>
+                <artifactId>maven-artifact</artifactId>
                 <version>${version.maven}</version>
             </dependency>
             <dependency>
