@@ -69,7 +69,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         try {
             OracleDbSupport dbSupport = new OracleDbSupport(connection);
             new SqlScript(new ClassPathResource("migration/dbsupport/oracle/createDatabase.sql", classLoader)
-                    .loadAsString("UTF-8"), dbSupport).execute(dbSupport.getJdbcTemplate());
+                    .loadAsString("UTF-8")).execute(dbSupport.getJdbcTemplate());
         } finally {
             if (connection != null) {
                 connection.close();

@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.oracle;
 
+import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.dbsupport.SqlStatement;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -29,13 +30,16 @@ import static org.junit.Assert.assertTrue;
  * Test for OracleSqlScript.
  */
 public class OracleSqlScriptSmallTest {
+    
+    private DbSupport dbSupport = new OracleDbSupport(null);
+    
     @Test
     public void parseSqlStatements() throws Exception {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/placeholders/V1__Placeholders.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(3, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
         assertEquals(27, sqlStatements.get(1).getLineNumber());
@@ -48,8 +52,8 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V2__FunctionWithConditionals.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(1, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
         assertTrue(sqlStatements.get(0).getSql().contains("/* for the rich */"));
@@ -60,8 +64,8 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/function/V1__Function.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(5, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(26, sqlStatements.get(1).getLineNumber());
@@ -76,8 +80,8 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/package/V1__Package.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(2, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(33, sqlStatements.get(1).getLineNumber());
@@ -88,8 +92,8 @@ public class OracleSqlScriptSmallTest {
         String source = new ClassPathResource("migration/dbsupport/oracle/sql/qquote/V1__Q_Quote.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(12, sqlStatements.size());
     }
 
@@ -125,8 +129,8 @@ public class OracleSqlScriptSmallTest {
                 "END <trigger-name>;\n" +
                 "/";
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(1, sqlStatements.size());
     }
 
@@ -148,8 +152,8 @@ public class OracleSqlScriptSmallTest {
                 "AND D.IDS = IDS\n" +
                 ");";
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(1, sqlStatements.size());
     }
 
@@ -185,8 +189,8 @@ public class OracleSqlScriptSmallTest {
                 "\n" +
                 "EXECUTE set_right_value_for_sequence('SEQ_ATR', 'TOTCATTRIB', 'ATTRIB_ID');";
 
-        SqlScript sqlScript = new SqlScript(source, new OracleDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(dbSupport);
         assertEquals(2, sqlStatements.size());
     }
 }

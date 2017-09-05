@@ -108,7 +108,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                             placeholders.put("table", table.getName());
                             String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-                            SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                            SqlScript sqlScript = new SqlScript(sourceNoPlaceholders);
                             sqlScript.execute(jdbcTemplate);
                             return null;
                         }
@@ -150,7 +150,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 placeholders.put("table", table.getName());
                 String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-                final SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                final SqlScript sqlScript = new SqlScript(sourceNoPlaceholders);
                 sqlScript.execute(jdbcTemplate);
 
                 LOG.debug("Metadata table " + table + " created.");
@@ -214,7 +214,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
                 String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders);
 
                 sqlScript.execute(jdbcTemplate);
             } else {
@@ -461,7 +461,7 @@ public class MetaDataTableImpl implements MetaDataTable {
 
             String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-            new SqlScript(sourceNoPlaceholders, dbSupport).execute(jdbcTemplate);
+            new SqlScript(sourceNoPlaceholders).execute(jdbcTemplate);
         } else {
             try {
                 jdbcTemplate.update("UPDATE " + table

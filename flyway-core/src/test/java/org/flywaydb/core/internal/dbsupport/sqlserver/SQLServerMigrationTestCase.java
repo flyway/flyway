@@ -341,7 +341,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         Schema schema = dbSupport.getOriginalSchema();
 
         new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/createMSDBTools.sql",
-                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8")).
                 execute(jdbcTemplate);
 
         try {
@@ -349,7 +349,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         } finally {
             try {
                 new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/dropMSDBTools.sql",
-                        Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                        Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8")).
                         execute(jdbcTemplate);
             } catch (Exception e) {
                 // Swallow to prevent override of test raised exception.
@@ -362,7 +362,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         Schema schema = dbSupport.getOriginalSchema();
 
         new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/createMSDBTools.sql",
-                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8")).
                 execute(jdbcTemplate);
 
         try {
@@ -378,7 +378,7 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         } finally {
             try {
                 new SqlScript(new ClassPathResource("migration/dbsupport/sqlserver/dropMSDBTools.sql",
-                        Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8"), dbSupport).
+                        Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8")).
                         execute(jdbcTemplate);
             } catch (Exception e) {
                 // Swallow to prevent override of test raised exception.

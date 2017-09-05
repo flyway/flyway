@@ -34,8 +34,9 @@ public class EnterpriseDBSqlScriptSmallTest {
         String source = new ClassPathResource("migration/dbsupport/enterprisedb/sql/placeholders/V1__Placeholders.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new EnterpriseDBDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        EnterpriseDBDbSupport dbSupport = new EnterpriseDBDbSupport(null);
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new EnterpriseDBDbSupport(null));
         assertEquals(3, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
         assertEquals(27, sqlStatements.get(1).getLineNumber());
@@ -48,8 +49,8 @@ public class EnterpriseDBSqlScriptSmallTest {
         String source = new ClassPathResource("migration/dbsupport/enterprisedb/sql/function/V2__FunctionWithConditionals.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new EnterpriseDBDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new EnterpriseDBDbSupport(null));
         assertEquals(1, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
         assertTrue(sqlStatements.get(0).getSql().contains("/* for the rich */"));
@@ -60,8 +61,8 @@ public class EnterpriseDBSqlScriptSmallTest {
         String source = new ClassPathResource("migration/dbsupport/enterprisedb/sql/function/V1__Function.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new EnterpriseDBDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new EnterpriseDBDbSupport(null));
         assertEquals(5, sqlStatements.size());
         assertEquals(18, sqlStatements.get(0).getLineNumber());
         assertEquals(33, sqlStatements.get(1).getLineNumber());
@@ -76,8 +77,8 @@ public class EnterpriseDBSqlScriptSmallTest {
         String source = new ClassPathResource("migration/dbsupport/enterprisedb/sql/package/V1__Package.sql",
                 Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new EnterpriseDBDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new EnterpriseDBDbSupport(null));
         assertEquals(2, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(30, sqlStatements.get(1).getLineNumber());
@@ -115,8 +116,8 @@ public class EnterpriseDBSqlScriptSmallTest {
                 "END <trigger-name>;\n" +
                 "/";
 
-        SqlScript sqlScript = new SqlScript(source, new EnterpriseDBDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new EnterpriseDBDbSupport(null));
         assertEquals(1, sqlStatements.size());
     }
 
@@ -138,8 +139,8 @@ public class EnterpriseDBSqlScriptSmallTest {
                 "AND D.IDS = IDS\n" +
                 ");";
 
-        SqlScript sqlScript = new SqlScript(source, new EnterpriseDBDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new EnterpriseDBDbSupport(null));
         assertEquals(1, sqlStatements.size());
     }
 
@@ -175,8 +176,8 @@ public class EnterpriseDBSqlScriptSmallTest {
                 "\n" +
                 "EXECUTE set_right_value_for_sequence('SEQ_ATR', 'TOTCATTRIB', 'ATTRIB_ID');";
 
-        SqlScript sqlScript = new SqlScript(source, new EnterpriseDBDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new EnterpriseDBDbSupport(null));
         assertEquals(2, sqlStatements.size());
     }
 }

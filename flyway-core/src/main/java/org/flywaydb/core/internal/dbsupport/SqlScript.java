@@ -16,8 +16,7 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
-
-
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.api.logging.Log;
@@ -41,26 +40,9 @@ public class SqlScript {
     private static final Log LOG = LogFactory.getLog(SqlScript.class);
 
     /**
-     * The database-specific support.
-     */
-    private final DbSupport dbSupport;
-
-
-
-
-
-
-
-
-    /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      */
     private final boolean mixed;
-
-    /**
-     * The sql statements contained in this script.
-     */
-    private final List<SqlStatement> sqlStatements;
 
     /**
      * The resource containing the statements.
@@ -78,45 +60,38 @@ public class SqlScript {
     private boolean nonTransactionalStatementFound;
 
     /**
+     * Controls which tokens are to be replaced.
+     */
+    private PlaceholderReplacer placeholderReplacer;
+
+    /**
+     * The actual script content.
+     */
+    private String sqlScriptSource;
+
+    /**
      * Creates a new sql script from this source.
      *
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
-     * @param dbSupport       The database-specific support.
      */
-    public SqlScript(String sqlScriptSource, DbSupport dbSupport) {
-        this.dbSupport = dbSupport;
+    public SqlScript(String sqlScriptSource) {
         this.mixed = false;
-        this.sqlStatements = parse(sqlScriptSource);
+        this.sqlScriptSource = sqlScriptSource;
         this.resource = null;
-
-
+        this.placeholderReplacer = PlaceholderReplacer.NO_PLACEHOLDERS;
     }
 
     /**
      * Creates a new sql script from this resource.
      *
-     * @param dbSupport           The database-specific support.
-     * @param sqlScriptResource   The resource containing the statements.
-     * @param placeholderReplacer The placeholder replacer.
-     * @param encoding            The encoding to use.
-     * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
-
-
-
+     * @param sqlScriptResource    The resource containing the statements.
+     * @param configuration        The flyway configuration.
      */
-    public SqlScript(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
-
-    ) {
-        this.dbSupport = dbSupport;
+    public SqlScript(LoadableResource sqlScriptResource, FlywayConfiguration configuration) {
+        this.placeholderReplacer = PlaceholderReplacer.createFrom(configuration);
+        this.mixed = configuration.isMixed();
+        this.sqlScriptSource = sqlScriptResource.loadAsString(configuration.getEncoding());
         this.resource = sqlScriptResource;
-        this.mixed = mixed;
-
-        String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
-        this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
-
-
-
-
     }
 
     /**
@@ -134,8 +109,8 @@ public class SqlScript {
      *
      * @return The sql statements contained in this script.
      */
-    public List<SqlStatement> getSqlStatements() {
-        return sqlStatements;
+    public List<SqlStatement> getSqlStatements(DbSupport dbSupport) {
+        return parse(placeholderReplacer.replacePlaceholders(sqlScriptSource), dbSupport);
     }
 
     /**
@@ -151,7 +126,8 @@ public class SqlScript {
      * @param jdbcTemplate The jdbc template to use to execute this script.
      */
     public void execute(final JdbcTemplate jdbcTemplate) {
-        for (SqlStatement sqlStatement : sqlStatements) {
+        DbSupport dbSupport = DbSupportFactory.createDbSupport(jdbcTemplate.getConnection(), false);
+        for (SqlStatement sqlStatement : getSqlStatements(dbSupport)) {
             String sql = sqlStatement.getSql();
             LOG.debug("Executing SQL: " + sql);
 
@@ -183,21 +159,22 @@ public class SqlScript {
      * @return The parsed statements.
      */
     /* private -> for testing */
-    List<SqlStatement> parse(String sqlScriptSource) {
+    List<SqlStatement> parse(String sqlScriptSource, DbSupport dbSupport) {
         if (resource != null) {
             LOG.debug("Parsing " + resource.getFilename() + " ...");
         }
-        return linesToStatements(readLines(new StringReader(sqlScriptSource)));
+        return linesToStatements(readLines(new StringReader(sqlScriptSource)), dbSupport);
     }
 
     /**
      * Turns these lines in a series of statements.
      *
      * @param lines The lines to analyse.
+     * @param dbSupport
      * @return The statements contained in these lines (in order).
      */
     /* private -> for testing */
-    List<SqlStatement> linesToStatements(List<String> lines) {
+    List<SqlStatement> linesToStatements(List<String> lines, DbSupport dbSupport) {
         List<SqlStatement> statements = new ArrayList<SqlStatement>();
 
         Delimiter nonStandardDelimiter = null;

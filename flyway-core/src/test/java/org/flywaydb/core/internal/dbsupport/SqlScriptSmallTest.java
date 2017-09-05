@@ -35,7 +35,9 @@ public class SqlScriptSmallTest {
     /**
      * Class under test.
      */
-    private SqlScript sqlScript = new SqlScript("", new MySQLDbSupport(null));
+    private SqlScript sqlScript = new SqlScript("");
+
+    private DbSupport dbSupport = new MySQLDbSupport(null);
 
     /**
      * Input lines.
@@ -45,14 +47,14 @@ public class SqlScriptSmallTest {
     @Test
     public void stripSqlCommentsNoComment() {
         lines.add("select * from table;");
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertEquals("select * from table", sqlStatements.get(0).getSql());
     }
 
     @Test
     public void stripSqlCommentsSingleLineComment() {
         lines.add("--select * from table;");
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertEquals(0, sqlStatements.size());
     }
 
@@ -60,7 +62,7 @@ public class SqlScriptSmallTest {
     public void stripSqlCommentsMultiLineCommentSingleLine() {
         lines.add("/*comment line*/");
         lines.add("select * from table;");
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertEquals("select * from table", sqlStatements.get(0).getSql());
     }
 
@@ -68,7 +70,7 @@ public class SqlScriptSmallTest {
     public void stripSqlCommentsMultiLineCommentMultipleLines() {
         lines.add("/*comment line");
         lines.add("more comment text*/");
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertEquals(0, sqlStatements.size());
     }
 
@@ -78,7 +80,7 @@ public class SqlScriptSmallTest {
         lines.add("from mytable");
         lines.add("where col1 > 10;");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -99,7 +101,7 @@ public class SqlScriptSmallTest {
         lines.add("DELIMITER ;");
         lines.add("*/");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertEquals(1, sqlStatements.size());
 
         SqlStatement sqlStatement = sqlStatements.get(0);
@@ -122,7 +124,7 @@ public class SqlScriptSmallTest {
         lines.add("--these statements are imported the above multiline is detected");
         lines.add("INSERT INTO mytable (id, data1, data2)VALUES (5,1,'hi');");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertEquals(2, sqlStatements.size());
 
         assertEquals(6, sqlStatements.get(0).getLineNumber());
@@ -140,7 +142,7 @@ public class SqlScriptSmallTest {
         lines.add("select 4;");
         lines.add("$$");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertEquals(4, sqlStatements.size());
 
         assertEquals("select 1", sqlStatements.get(0).getSql());
@@ -155,7 +157,7 @@ public class SqlScriptSmallTest {
         lines.add("DROP TABLE IF EXISTS account;");
         lines.add("/*!40101 SET character_set_client = utf8 */;");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(3, sqlStatements.size());
 
@@ -172,7 +174,7 @@ public class SqlScriptSmallTest {
         }
         lines.add("(1, '2', '3', '4');");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -187,7 +189,7 @@ public class SqlScriptSmallTest {
         lines.add("-----------------------------------------*/");
         lines.add("SELECT 1;");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -204,7 +206,7 @@ public class SqlScriptSmallTest {
         lines.add("Please find your quote attached in PDF format.'");
         lines.add("where templatename = 'quote_template';");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -227,7 +229,7 @@ public class SqlScriptSmallTest {
         lines.add("");
         lines.add("update emailtemplate set body = 'Howdy';");
 
-        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines);
+        List<SqlStatement> sqlStatements = sqlScript.linesToStatements(lines, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(3, sqlStatements.size());
 
@@ -250,7 +252,7 @@ public class SqlScriptSmallTest {
         placeholders.put("or_replace", "OR REPLACE");
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(placeholders, "${", "}");
 
-        List<SqlStatement> sqlStatements = sqlScript.parse(placeholderReplacer.replacePlaceholders(source));
+        List<SqlStatement> sqlStatements = sqlScript.parse(placeholderReplacer.replacePlaceholders(source), dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -268,7 +270,7 @@ public class SqlScriptSmallTest {
                 "    Please find your quote attached in PDF format.'\n" +
                 "where templatename = 'quote_template'";
 
-        List<SqlStatement> sqlStatements = sqlScript.parse(source);
+        List<SqlStatement> sqlStatements = sqlScript.parse(source, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -283,7 +285,7 @@ public class SqlScriptSmallTest {
                 "    set   body='Thanks !' /* my pleasure */\n" +
                 "  and  subject = 'To our favorite customer!'";
 
-        List<SqlStatement> sqlStatements = sqlScript.parse(source);
+        List<SqlStatement> sqlStatements = sqlScript.parse(source, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(1, sqlStatements.size());
 
@@ -299,7 +301,7 @@ public class SqlScriptSmallTest {
                 "INSERT INTO `bonlayout` (`vertriebslinie`, `lang`, `position`, `layout`) VALUES ('CH01RE', 'en', 'EC_KNR_1_0', '<RIGHT>Account #: \n" +
                 "___________________________</RIGHT>');";
 
-        List<SqlStatement> sqlStatements = sqlScript.parse(source);
+        List<SqlStatement> sqlStatements = sqlScript.parse(source, dbSupport);
         assertNotNull(sqlStatements);
         assertEquals(2, sqlStatements.size());
     }
@@ -309,7 +311,7 @@ public class SqlScriptSmallTest {
     public void parseWithTrailingComment() {
         String sql = "ALTER TABLE A RENAME TO B; -- trailing comment\r\n" +
                 "ALTER TABLE B RENAME TO C;";
-        List<SqlStatement> statements = sqlScript.parse(sql);
+        List<SqlStatement> statements = sqlScript.parse(sql, dbSupport);
         assertEquals(2, statements.size());
     }
 }

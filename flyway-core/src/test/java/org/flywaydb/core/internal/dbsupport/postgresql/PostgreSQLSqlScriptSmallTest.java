@@ -33,8 +33,8 @@ public class PostgreSQLSqlScriptSmallTest {
         String source = new ClassPathResource(
                 "migration/dbsupport/postgresql/sql/dollar/V2__Even_more_dollars.sql", Thread.currentThread().getContextClassLoader()).loadAsString("UTF-8");
 
-        SqlScript sqlScript = new SqlScript(source, new PostgreSQLDbSupport(null));
-        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements();
+        SqlScript sqlScript = new SqlScript(source);
+        List<SqlStatement> sqlStatements = sqlScript.getSqlStatements(new PostgreSQLDbSupport(null));
         assertEquals(3, sqlStatements.size());
         assertEquals(17, sqlStatements.get(0).getLineNumber());
         assertEquals(23, sqlStatements.get(1).getLineNumber());
