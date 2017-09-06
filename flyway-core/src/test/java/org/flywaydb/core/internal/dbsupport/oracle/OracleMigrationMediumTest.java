@@ -19,19 +19,12 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.migration.MigrationTestCase;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.containers.wait.HostPortWaitStrategy;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,41 +39,10 @@ import static org.junit.Assume.assumeTrue;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.Oracle.class)
 public class OracleMigrationMediumTest extends MigrationTestCase {
-    static final String DOCKER_IMAGE_NAME = "wnameless/oracle-xe-11g:16.04";
-
-    @ClassRule
-    public static OracleContainer oracle = new OracleContainer(DOCKER_IMAGE_NAME);
-
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        initOracleContainer(oracle);
-    }
-
-    static void initOracleContainer(OracleContainer oracle) throws SQLException {
-        oracle.start();
-        new HostPortWaitStrategy().waitUntilReady(oracle);
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        DriverDataSource dataSource = new DriverDataSource(classLoader, null,
-                oracle.getJdbcUrl()
-                        .replace("system/oracle", "")
-                , "sys as sysdba", "oracle", null);
-
-        Connection connection = dataSource.getConnection();
-        try {
-            OracleDbSupport dbSupport = new OracleDbSupport(connection);
-            new SqlScript(new ClassPathResource("migration/dbsupport/oracle/createDatabase.sql", classLoader)
-                    .loadAsString("UTF-8"), dbSupport).execute(dbSupport.getJdbcTemplate());
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
-        }
-    }
-
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                oracle.getJdbcUrl(), "flyway", "flyway", null);
+                "jdbc:oracle:thin:@//localhost:62201/xe", "flyway", "flyway", null);
     }
 
     @Override

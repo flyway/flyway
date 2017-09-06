@@ -40,8 +40,10 @@ public class DbCategory {
     public interface CockroachDB extends OpenSourceDB {}
 
     // Commercial databases support maintained by the core Flyway team
+    public interface Oracle extends InstallableDB {}
+
+    // Commercial databases support maintained by the core Flyway team and not tested on TravisCI
     public interface DB2 extends CommercialDB {}
-    public interface Oracle extends CommercialDB {}
     public interface SQLServer extends CommercialDB {}
 
     // Other databases support maintained by the third party contributors
