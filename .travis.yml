@@ -7,6 +7,7 @@ services:
   - postgresql
   - docker
 before_install:
+  - docker-compose up -d
   - psql -U postgres < ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
   - echo "mariadb.url=jdbc:mariadb://localhost/flyway_maria_db" > ~/flyway-mediumtests.properties

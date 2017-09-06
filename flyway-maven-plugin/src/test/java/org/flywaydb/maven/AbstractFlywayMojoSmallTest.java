@@ -15,7 +15,6 @@
  */
 package org.flywaydb.maven;
 
-import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.classworlds.ClassWorld;
@@ -26,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
