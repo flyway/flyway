@@ -443,14 +443,14 @@
             <dependencies>
                 <dependency>
                     <groupId>com.ibm.db2</groupId>
-                    <artifactId>db2jcc</artifactId>
-                    <version>3.4.65</version>
+                    <artifactId>db2jcc4</artifactId>
+                    <version>4.21.29</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.ibm.db2</groupId>
                     <artifactId>db2jcc_license_cisuz</artifactId>
-                    <version>3.4.65</version>
+                    <version>4.21.29</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>

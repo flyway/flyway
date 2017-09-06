@@ -72,6 +72,11 @@ public class DB2zosSchema extends Schema<DB2zosDbSupport> {
         // MQTs are dropped when the backing views or tables are dropped
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
+        // tablespace
+        for (String dropStatement : generateDropStatementsForTablespace(name)) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
         // views
         for (String dropStatement : generateDropStatements(name, "V", "VIEW")) {
             jdbcTemplate.execute(dropStatement);
@@ -82,18 +87,13 @@ public class DB2zosSchema extends Schema<DB2zosDbSupport> {
             jdbcTemplate.execute(dropStatement);
         }
 
+        // tables
         for (Table table : allTables()) {
             table.drop();
         }
 
-        // slett testtabeller
+        // test tables
         for (String dropStatement : generateDropStatementsForTestTable(name, "T", "TABLE")) {
-            jdbcTemplate.execute(dropStatement);
-        }
-
-
-        // tablespace
-        for (String dropStatement : generateDropStatementsForTablespace(name)) {
             jdbcTemplate.execute(dropStatement);
         }
 
@@ -112,7 +112,7 @@ public class DB2zosSchema extends Schema<DB2zosDbSupport> {
             jdbcTemplate.execute(dropStatement);
         }
 
-        // usertypes
+        // user types
         for (String dropStatement : generateDropStatementsForUserTypes(name)) {
             jdbcTemplate.execute(dropStatement);
         }
