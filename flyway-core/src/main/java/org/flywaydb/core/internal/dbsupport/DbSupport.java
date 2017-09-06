@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
@@ -68,7 +67,7 @@ public abstract class DbSupport {
     public abstract SqlStatementBuilder createSqlStatementBuilder();
 
     /**
-     * @return The name of the db.
+     * @return The name of the db. Used for loading db-specific scripts such as <code>createMetaDataTable.sql</code>.
      */
     public abstract String getDbName();
 
@@ -171,18 +170,18 @@ public abstract class DbSupport {
      * @return The fully qualified quoted identifiers.
      */
     public String quote(String... identifiers) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         boolean first = true;
         for (String identifier : identifiers) {
             if (!first) {
-                result += ".";
+                result.append(".");
             }
             first = false;
-            result += doQuote(identifier);
+            result.append(doQuote(identifier));
         }
 
-        return result;
+        return result.toString();
     }
 
     /**
@@ -197,16 +196,6 @@ public abstract class DbSupport {
      * @return {@code true} if this database use a catalog to represent a schema. {@code false} if a schema is simply a schema.
      */
     public abstract boolean catalogIsSchema();
-
-    /**
-     * Executes this COPY statement (PostgreSQL only).
-     *
-     * @param connection The connection to use.
-     * @param sql        The statement to execute.
-     */
-    public void executePgCopy(Connection connection, String sql) throws SQLException {
-        // Do nothing by default
-    }
 
     /**
      * Locks this table and executes this callable.

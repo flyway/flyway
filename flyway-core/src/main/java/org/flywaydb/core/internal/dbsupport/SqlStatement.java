@@ -15,58 +15,28 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 /**
  * A sql statement from a script that can be executed at once against a database.
  */
-public class SqlStatement {
-    /**
-     * The original line number where the statement was located in the script it came from.
-     */
-    private int lineNumber;
-
-    /**
-     * The sql to send to the database.
-     */
-    private String sql;
-
-    /**
-     * Whether this is a PostgreSQL COPY FROM STDIN statement.
-     * <p/>
-     * Note: This may have to be generalized if additional special cases appear.
-     */
-    private boolean pgCopy;
-
-    /**
-     * Creates a new sql statement.
-     *
-     * @param lineNumber The original line number where the statement was located in the script it came from.
-     * @param sql        The sql to send to the database.
-     * @param pgCopy     Whether this is a PostgreSQL COPY FROM STDIN statement.
-     */
-    public SqlStatement(int lineNumber, String sql, boolean pgCopy) {
-        this.lineNumber = lineNumber;
-        this.sql = sql;
-        this.pgCopy = pgCopy;
-    }
-
+public interface SqlStatement {
     /**
      * @return The original line number where the statement was located in the script it came from.
      */
-    public int getLineNumber() {
-        return lineNumber;
-    }
+    int getLineNumber();
 
     /**
      * @return The sql to send to the database.
      */
-    public String getSql() {
-        return sql;
-    }
+    String getSql();
 
     /**
-     * @return Whether this is a PostgreSQL COPY FROM STDIN statement.
+     * Executes this statement against the database.
+     *
+     * @param connection The connection to use to execute this script.
+     * @throws SQLException when the execution fails.
      */
-    public boolean isPgCopy() {
-        return pgCopy;
-    }
+    void execute(Connection connection) throws SQLException;
 }

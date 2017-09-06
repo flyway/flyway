@@ -15,8 +15,8 @@
  */
 package org.flywaydb.maven;
 
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogCreator;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogCreator;
 import org.apache.maven.plugin.AbstractMojo;
 
 /**
@@ -33,7 +33,7 @@ public class MavenLogCreator implements LogCreator {
      *
      * @param mojo The Maven Mojo to log for.
      */
-    public MavenLogCreator(AbstractMojo mojo) {
+    MavenLogCreator(AbstractMojo mojo) {
         this.mojo = mojo;
     }
 

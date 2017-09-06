@@ -15,13 +15,13 @@
  */
 package org.flywaydb.core.internal.dbsupport.hsql;
 
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.SQLException;
 
@@ -29,7 +29,7 @@ import java.sql.SQLException;
  * Hsql-specific table.
  */
 public class HsqlTable extends Table {
-    private static final Log LOG = LogFactory.getLog(HsqlDbSupport.class);
+    private static final Log LOG = LogFactory.getLog(HsqlTable.class);
 
     /**
      * Flag indicating whether we are running against the old Hsql 1.8 instead of the newer 2.x.

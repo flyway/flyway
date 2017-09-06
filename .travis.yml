@@ -1,13 +1,20 @@
+sudo: required
 language: java
 jdk:
-  - oraclejdk7
+  - oraclejdk8
 services:
   - mysql
   - postgresql
+  - docker
 before_install:
-  - sudo rm /etc/mavenrc
   - psql -U postgres < ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
   - echo "mariadb.url=jdbc:mariadb://localhost/flyway_maria_db" > ~/flyway-mediumtests.properties
-  - export M2_HOME=~/.m2
+  - wget -qO- https://binaries.cockroachdb.com/cockroach-v1.1-alpha.20170817.linux-amd64.tgz | tar  xvz
+  - sudo cp -i cockroach-v1.1-alpha.20170817.linux-amd64/cockroach /usr/local/bin
+  - cockroach start --insecure --host=localhost --background
+  - cockroach node status --insecure
+  - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
 install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
+before_script: echo OK
+script: echo Done.

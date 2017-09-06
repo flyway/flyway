@@ -46,4 +46,7 @@ db2cmd -c "db2 -tvf flyway-core/src/test/resources/migration/dbsupport/db2/creat
 echo SolidDB...
 solsql -f flyway-core/src/test/resources/migration/dbsupport/solid/createDatabase.sql "tcp localhost 1313"
 
+echo CockroackDB
+cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
+
 echo Done.

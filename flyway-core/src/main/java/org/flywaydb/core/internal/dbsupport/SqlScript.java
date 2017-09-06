@@ -16,10 +16,13 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+
+
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
 import java.io.BufferedReader;
@@ -41,6 +44,13 @@ public class SqlScript {
      * The database-specific support.
      */
     private final DbSupport dbSupport;
+
+
+
+
+
+
+
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
@@ -78,6 +88,8 @@ public class SqlScript {
         this.mixed = false;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
+
+
     }
 
     /**
@@ -88,15 +100,23 @@ public class SqlScript {
      * @param placeholderReplacer The placeholder replacer.
      * @param encoding            The encoding to use.
      * @param mixed               Whether to allow mixing transactional and non-transactional statements within the same migration.
+
+
+
      */
-    public SqlScript(DbSupport dbSupport, Resource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed) {
+    public SqlScript(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
+
+    ) {
         this.dbSupport = dbSupport;
+        this.resource = sqlScriptResource;
         this.mixed = mixed;
 
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
 
-        this.resource = sqlScriptResource;
+
+
+
     }
 
     /**
@@ -136,12 +156,21 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                if (sqlStatement.isPgCopy()) {
-                    dbSupport.executePgCopy(jdbcTemplate.getConnection(), sql);
-                } else {
-                    jdbcTemplate.executeStatement(sql);
-                }
-            } catch (SQLException e) {
+                sqlStatement.execute(jdbcTemplate.getConnection());
+            } catch (final SQLException e) {
+
+
+
+
+
+
+
+
+
+
+
+
+
                 throw new FlywaySqlScriptException(resource, sqlStatement, e);
             }
         }
@@ -155,6 +184,9 @@ public class SqlScript {
      */
     /* private -> for testing */
     List<SqlStatement> parse(String sqlScriptSource) {
+        if (resource != null) {
+            LOG.debug("Parsing " + resource.getFilename() + " ...");
+        }
         return linesToStatements(readLines(new StringReader(sqlScriptSource)));
     }
 
@@ -195,7 +227,11 @@ public class SqlScript {
                 }
             }
 
-            sqlStatementBuilder.addLine(line);
+            try {
+                sqlStatementBuilder.addLine(line);
+            } catch (Exception e) {
+                throw new FlywayException("Flyway parsing bug (" + e.getMessage() + ") at line " + lineNumber + ": " + line);
+            }
 
             if (sqlStatementBuilder.canDiscard()) {
                 sqlStatementBuilder = dbSupport.createSqlStatementBuilder();

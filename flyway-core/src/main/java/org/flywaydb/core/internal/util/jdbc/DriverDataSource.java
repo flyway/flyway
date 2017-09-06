@@ -16,8 +16,11 @@
 package org.flywaydb.core.internal.util.jdbc;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.util.ClassUtils;
+import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -26,6 +29,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
 import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -34,6 +38,8 @@ import java.util.logging.Logger;
  * YAGNI: The simplest DataSource implementation that works for Flyway.
  */
 public class DriverDataSource implements DataSource {
+    private static final Log LOG = LogFactory.getLog(DriverDataSource.class);
+
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
@@ -121,16 +127,16 @@ public class DriverDataSource implements DataSource {
 
         try {
             this.driver = ClassUtils.instantiate(driverClass, classLoader);
-        } catch (Exception e) {
+        } catch (FlywayException e) {
             String backupDriverClass = detectBackupDriverForUrl(url);
             if (backupDriverClass == null) {
-                throw new FlywayException("Unable to instantiate JDBC driver " + driverClass + " : " + e.getMessage(), e);
+                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass + " => Check whether the jar file is present", e);
             }
             try {
                 this.driver = ClassUtils.instantiate(backupDriverClass, classLoader);
             } catch (Exception e1) {
                 // Only report original exception about primary driver
-                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass + " : " + e.getMessage(), e);
+                throw new FlywayException("Unable to instantiate JDBC driver: " + driverClass + " => Check whether the jar file is present", e);
             }
         }
 
@@ -327,7 +333,7 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:sap:")) {
             return "com.sap.db.jdbc.Driver";
         }
-        
+
         if (url.startsWith("jdbc:pivotal:greenplum:")) {
             return "com.pivotal.jdbc.GreenplumDriver";
         }
@@ -411,13 +417,28 @@ public class DriverDataSource implements DataSource {
         if (password != null) {
             props.setProperty("password", password);
         }
-        Connection connection;
-        try {
-            connection = driver.connect(url, props);
-        } catch (SQLException e) {
-            throw new FlywaySqlException(
-                    "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "': " + e.getMessage(), e);
-        }
+        int retries = 0;
+        Connection connection = null;
+        do {
+            try {
+                connection = driver.connect(url, props);
+            } catch (SQLRecoverableException e) {
+                if (++retries >= 10) {
+                    throw new FlywaySqlException(
+                            "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "': " + e.getMessage(), e);
+                }
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                String msg = "Connection error: " + e.getMessage();
+                if (rootCause != null && rootCause != e) {
+                    msg += " (caused by " + rootCause.getMessage() + ")";
+                }
+                LOG.warn(msg + " Retrying in 1 sec...");
+            } catch (SQLException e) {
+                throw new FlywaySqlException(
+                        "Unable to obtain Jdbc connection from DataSource (" + url + ") for user '" + user + "': " + e.getMessage(), e);
+            }
+        } while (connection == null);
+
 
         for (String initSql : initSqls) {
             Statement statement = null;

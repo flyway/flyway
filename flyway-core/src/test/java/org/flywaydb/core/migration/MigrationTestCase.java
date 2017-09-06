@@ -36,9 +36,11 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.junit.rules.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
@@ -61,11 +64,16 @@ import static org.junit.Assert.*;
 public abstract class MigrationTestCase {
     private static final Logger LOG = LoggerFactory.getLogger(MigrationTestCase.class);
 
+    @Rule
+    public Timeout globalTimeout = new Timeout(15, TimeUnit.SECONDS);
+
     /**
      * The base directory for the regular test migrations.
      */
-    protected static final String MIGRATIONDIR = "migration";
+    private static final String MIGRATIONDIR = "migration";
     protected static final String BASEDIR = "migration/sql";
+
+    protected static Properties customProperties = new Properties();
 
     protected DataSource dataSource;
     private Connection connection;
@@ -74,16 +82,19 @@ public abstract class MigrationTestCase {
     protected JdbcTemplate jdbcTemplate;
     protected Flyway flyway;
 
+    @BeforeClass
+    public static void loadProperties() throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+    }
+
     @Rule
     public TestName testName = new TestName();
 
     @Before
     public void setUp() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
@@ -109,7 +120,9 @@ public abstract class MigrationTestCase {
 
     @After
     public void tearDown() throws Exception {
-        connection.close();
+        if (connection != null) {
+            connection.close();
+        }
     }
 
     protected void createFlyway3MetadataTable() throws Exception {
@@ -162,7 +175,7 @@ public abstract class MigrationTestCase {
     private void testAutoCommit(boolean autoCommit) {
         DriverDataSource dataSource = (DriverDataSource) flyway.getDataSource();
         dataSource.setAutoCommit(autoCommit);
-        flyway.setLocations(BASEDIR);
+        flyway.setLocations(getBasedir());
         flyway.migrate();
         assertEquals("2.0", flyway.info().current().getVersion().getVersion());
     }

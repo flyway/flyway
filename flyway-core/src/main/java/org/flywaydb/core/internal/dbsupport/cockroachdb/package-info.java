@@ -13,14 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.maven.largetest;
-
 /**
- * Executes the tests against Maven 2.
+ * Private API. No compatibility guarantees provided.
  */
-public class Maven2LargeTest extends MavenTestCase {
-    @Override
-    protected String getMavenVersion() {
-        return "2.2.1";
-    }
-}
+package org.flywaydb.core.internal.dbsupport.cockroachdb;

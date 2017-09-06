@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,16 @@ public class JdbcTemplate {
      * The type to assign to a null value.
      */
     private final int nullType;
+
+    /**
+     * Creates a new JdbcTemplate.
+     *
+     * @param connection The DB connection to use.
+     */
+    public JdbcTemplate(Connection connection) {
+        this.connection = connection;
+        this.nullType = Types.NULL;
+    }
 
     /**
      * Creates a new JdbcTemplate.
