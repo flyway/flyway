@@ -275,9 +275,9 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>com.ibm.db2</groupId>
+                <groupId>com.ibm.db2.jcc</groupId>
                 <artifactId>db2jcc4</artifactId>
-                <version>4.17.29</version>
+                <version>10.1</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
