@@ -39,10 +39,14 @@ import static org.junit.Assume.assumeTrue;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.Oracle.class)
 public class OracleMigrationMediumTest extends MigrationTestCase {
+    static final String JDBC_URL = "jdbc:oracle:thin:@//localhost:62202/xe";
+    static final String JDBC_USER = "flyway";
+    static final String JDBC_PASSWORD = "flyway";
+
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                "jdbc:oracle:thin:@//localhost:62201/xe", "flyway", "flyway", null);
+                JDBC_URL, JDBC_USER, JDBC_PASSWORD, null);
     }
 
     @Override

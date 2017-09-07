@@ -23,6 +23,9 @@ import org.junit.experimental.categories.Category;
 import javax.sql.DataSource;
 import java.sql.Connection;
 
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_PASSWORD;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_URL;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_USER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -137,6 +140,6 @@ public class OracleDbSupportMediumTest {
 
     private DataSource createDataSource() throws Exception {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                "jdbc:oracle:thin:@//localhost:62201/xe", "flyway", "flyway", null);
+                JDBC_URL, JDBC_USER, JDBC_PASSWORD, null);
     }
 }
