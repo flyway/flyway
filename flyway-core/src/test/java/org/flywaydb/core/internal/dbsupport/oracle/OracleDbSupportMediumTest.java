@@ -54,7 +54,7 @@ public class OracleDbSupportMediumTest {
 
         String dataSourceUser = useProxy ? "\"flyway_proxy\"[" + user + "]" : user;
 
-        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:oracle:thin:@//localhost:62201/xe", dataSourceUser, password, null);
+        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, JDBC_URL, dataSourceUser, password, null);
 
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
