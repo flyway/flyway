@@ -121,8 +121,11 @@
         </repository>
         <repository>
             <id>git-tzolov</id>
-            <name>tzolov's Git based repo</name>
             <url>https://github.com/tzolov/maven-repo/raw/master/</url>
+        </repository>
+        <repository>
+            <id>alfresco</id>
+            <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
         </repository>
     </repositories>
 
