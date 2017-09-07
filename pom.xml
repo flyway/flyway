@@ -751,7 +751,7 @@
                             <systemPropertyVariables>
                                 <user.timezone>+00:00</user.timezone>
                             </systemPropertyVariables>
-                            <parallel>classes</parallel>
+                            <!--parallel>classes</parallel-->
                             <threadCount>2</threadCount>
                             <perCoreThreadCount>false</perCoreThreadCount>
                             <argLine>-XX:ReservedCodeCacheSize=128m -Xmx1536m</argLine>
