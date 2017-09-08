@@ -29,6 +29,10 @@ import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.util.StringUtils;
 
+/**
+ * @author Ricardo Silva (ScuteraTech)
+ *
+ */
 public class Neo4JDbSupport extends DbSupport {
 	 
 	private static final Log LOG = LogFactory.getLog(Neo4JDbSupport.class);
@@ -53,7 +57,7 @@ public class Neo4JDbSupport extends DbSupport {
 
 	@Override
 	public String getDbName() {
-		return "Neo4J";
+		return "neo4j";
 	}
 
 	@Override

@@ -50,7 +50,7 @@ import org.junit.Test;
 import org.springframework.util.Assert;
 
 /**
- * @author ricardo.silva
+ * @author Ricardo Silva (ScuteraTech)
  *
  */
 public class Neo4JMigrationTest extends MigrationTestCase {
@@ -92,13 +92,13 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 		jdbcTemplate.execute("CREATE (t:test_user { name: "+ dbSupport.quote("testUser1") +"} )");
 		insertIntoFlyway3MetadataTable(jdbcTemplate, 1, 1, "0.1", "<< BASELINE >>", "BASELINE", "<< BASELINE >>", null, "flyway3",
 				0, true);
-		insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__dummy.sql", 293523237, "flyway3", 15,
+		insertIntoFlyway3MetadataTable(jdbcTemplate, 2, 2, "1", "First", "SQL", "V1__dummy.sql", -1883856720, "flyway3", 15,
 				true);
 		flyway.setLocations(getBasedir());
 		assertEquals(3, flyway.migrate());
 		flyway.validate();
 		assertEquals(5, flyway.info().applied().length);
-		assertEquals(293523237, flyway.info().applied()[1].getChecksum().intValue());
+		assertEquals(-1883856720, flyway.info().applied()[1].getChecksum().intValue());
 	}
 
 	private void insertIntoFlyway3MetadataTable(JdbcTemplate jdbcTemplate, int versionRank, int installedRank,
@@ -253,7 +253,7 @@ public class Neo4JMigrationTest extends MigrationTestCase {
             assertTrue(e.getCause() instanceof SQLException);
             // and make sure the failed statement was properly recorded
             assertEquals("1", e.getMigration().getVersion().getVersion());
-            assertEquals(35, e.getLineNumber());
+            assertEquals(24, e.getLineNumber());
             assertEquals("THIS IS NOT VALID CYPHER", e.getStatement());
         }
 

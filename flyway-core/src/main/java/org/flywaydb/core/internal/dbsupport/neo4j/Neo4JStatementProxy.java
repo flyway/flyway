@@ -20,7 +20,10 @@ import java.lang.reflect.Method;
 import java.sql.Statement;
 
 
-
+/**
+ * @author Ricardo Silva (ScuteraTech)
+ *
+ */
 public class Neo4JStatementProxy implements InvocationHandler {
 
 	private Statement proxiedStatement;
