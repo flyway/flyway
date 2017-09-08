@@ -15,13 +15,26 @@
  */
 package org.flywaydb.core.internal.dbsupport.neo4j;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
+import org.neo4j.driver.v1.Session;
 import org.neo4j.jdbc.Driver;
+import org.neo4j.jdbc.bolt.BoltConnection;
+import org.neo4j.jdbc.http.HttpConnection;
 
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
+/**
+ * @author Ricardo Silva (ScuteraTech)
+ *
+ */
 public class Neo4JMigrationDriver extends Driver {
 
 	public Neo4JMigrationDriver() throws SQLException {
@@ -32,9 +45,43 @@ public class Neo4JMigrationDriver extends Driver {
 	public Connection connect(String url, Properties info) throws SQLException {
 		Connection connection = super.connect(url, info);
 
-		Connection proxyConnnection = (Connection) Proxy.newProxyInstance(Neo4JConnectionProxy.class.getClassLoader(),
-				new Class[] { Connection.class }, new Neo4JConnectionProxy(connection));
-		return proxyConnnection;
+		Enhancer enhancer = new Enhancer();
+		enhancer.setCallback(new MethodInterceptor() {
+			@Override
+			public Object intercept(Object arg0, Method arg1, Object[] arg2, MethodProxy arg3) throws Throwable {
+				if (arg1.getName().equals("createStatement")) {
+					Statement statement = (Statement) arg1.invoke(connection, arg2);
+
+					Statement proxyStatement = (Statement) Proxy.newProxyInstance(
+							Neo4JStatementProxy.class.getClassLoader(), new Class[] { Statement.class },
+							new Neo4JStatementProxy(statement));
+
+					return proxyStatement;
+				}
+				return arg1.invoke(connection, arg2);
+			}
+		});
+		
+		if (url.contains("bolt")) {
+			enhancer.setSuperclass(BoltConnection.class);
+			Class<?>[] argumentTypes = { Session.class, Properties.class, String.class };
+			Object[] arguments = { null, info, url };
+			BoltConnection proxyConnection = (BoltConnection) enhancer.create(argumentTypes, arguments);
+			return proxyConnection;
+		} 
+		if (url.contains("http")) {
+			enhancer.setSuperclass(HttpConnection.class);
+			Class<?>[] argumentTypes = { Session.class, Properties.class, String.class };
+			Object[] arguments = { null, info, url };
+			HttpConnection proxyConnection = (HttpConnection) enhancer.create(argumentTypes, arguments);
+			return proxyConnection;
+		}else {
+			Connection proxyConnection = (Connection) Proxy.newProxyInstance(
+					Neo4JConnectionProxy.class.getClassLoader(), new Class[] { Connection.class },
+					new Neo4JConnectionProxy(connection));
+			return proxyConnection;
+		}
+
 	}
 
 }

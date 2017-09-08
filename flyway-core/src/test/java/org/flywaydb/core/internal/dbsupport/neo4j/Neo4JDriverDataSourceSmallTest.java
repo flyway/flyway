@@ -23,7 +23,10 @@ import java.sql.SQLException;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
-
+/**
+ * @author Ricardo Silva (ScuteraTech)
+ *
+ */
 public class Neo4JDriverDataSourceSmallTest {
 	
 	@Test  

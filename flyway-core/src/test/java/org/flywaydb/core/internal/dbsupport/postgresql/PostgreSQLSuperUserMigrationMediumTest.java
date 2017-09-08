@@ -33,16 +33,16 @@ import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigratio
 @Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLSuperUserMigrationMediumTest {
     private Flyway flyway;
-
-    @ClassRule
-    public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
+//
+//    @ClassRule
+//    public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
 
     @Before
     public void setUp() throws Exception {
         flyway = new Flyway();
         flyway.setSchemas("super_user_test");
         flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                postgreSQL.getJdbcUrl(), postgreSQL.getUsername(), postgreSQL.getPassword(), null));
+        		"jdbc:postgresql:sxsuite", "sxsuite", "sxsuite", null));
         flyway.setValidateOnMigrate(true);
         flyway.clean();
     }

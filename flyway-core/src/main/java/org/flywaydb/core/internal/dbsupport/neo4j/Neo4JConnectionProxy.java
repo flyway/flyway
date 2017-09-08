@@ -22,7 +22,10 @@ import java.sql.Connection;
 import java.sql.Statement;
 
 
-
+/**
+ * @author Ricardo Silva (ScuteraTech)
+ *
+ */
 public class Neo4JConnectionProxy implements InvocationHandler {
 
 	private Connection proxiedConnection;

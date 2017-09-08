@@ -25,6 +25,10 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 
+/**
+ * @author Ricardo Silva (ScuteraTech)
+ *
+ */
 public class Neo4JSchema extends Schema<DbSupport> {
 	private static final Log LOG = LogFactory.getLog(Neo4JSchema.class);
 

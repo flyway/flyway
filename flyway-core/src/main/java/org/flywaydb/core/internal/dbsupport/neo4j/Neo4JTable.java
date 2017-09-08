@@ -22,6 +22,10 @@ import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 
+/**
+ * @author Ricardo Silva (ScuteraTech)
+ *
+ */
 public class Neo4JTable extends Table{
 
 	public Neo4JTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {

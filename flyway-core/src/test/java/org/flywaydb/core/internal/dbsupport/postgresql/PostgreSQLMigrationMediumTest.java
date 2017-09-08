@@ -45,13 +45,13 @@ import static org.junit.Assert.assertThat;
 public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     static final String DOCKER_IMAGE_NAME = "postgres:9.2.21-alpine";
 
-    @ClassRule
-    public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
+//    @ClassRule
+//    public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                postgreSQL.getJdbcUrl(), postgreSQL.getUsername(), postgreSQL.getPassword(), null);
+        		"jdbc:postgresql:flyway", "sxsuite", "sxsuite", null);
     }
 
     @Override

@@ -32,12 +32,12 @@ import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigratio
  */
 @Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-    @ClassRule
-    public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
+	// @ClassRule
+    //public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                postgreSQL.getJdbcUrl(), postgreSQL.getUsername(), postgreSQL.getPassword(), null);
+                "jdbc:postgresql:sxsuite", "sxsuite", "sxsuite", null);
     }
 }

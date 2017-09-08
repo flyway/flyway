@@ -48,6 +48,10 @@ import org.flywaydb.core.internal.util.jdbc.RowMapper;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
+/**
+ * @author Ricardo Silva (ScuteraTech)
+ *
+ */
 public class Neo4JMetaDataTable implements MetaDataTable {
 
 	private static final Log LOG = LogFactory.getLog(Neo4JMetaDataTable.class);
