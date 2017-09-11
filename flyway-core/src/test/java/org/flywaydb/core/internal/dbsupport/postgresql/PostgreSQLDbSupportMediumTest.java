@@ -32,8 +32,8 @@ import static org.junit.Assert.assertEquals;
 
 @Category(DbCategory.PostgreSQL.class)
 public class PostgreSQLDbSupportMediumTest {
-//    @ClassRule
-//    public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
+    @ClassRule
+    public static PostgreSQLContainer postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
 
     /**
      * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.
@@ -62,7 +62,7 @@ public class PostgreSQLDbSupportMediumTest {
      * @return The new datasource.
      */
     private DataSource createDataSource() throws Exception {
-    	 return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                 "jdbc:postgresql:sxsuite", "sxsuite", "sxsuite", null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                postgreSQL.getJdbcUrl(), postgreSQL.getUsername(), postgreSQL.getPassword(), null);
     }
 }
