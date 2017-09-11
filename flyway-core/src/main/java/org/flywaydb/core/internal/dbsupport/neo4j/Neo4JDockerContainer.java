@@ -10,7 +10,7 @@ import org.testcontainers.containers.wait.HostPortWaitStrategy;
  * @author Ricardo Silva (ScuteraTech)
  *
  */
-public class Neo4JDockerContainer extends JdbcDatabaseContainer<Neo4JDockerContainer>{
+public class Neo4JDockerContainer<SELF extends Neo4JDockerContainer<SELF>> extends JdbcDatabaseContainer<SELF>{
 
 	static final String NAME = "neo4j";
 	    static final String IMAGE = "neo4j";
@@ -63,16 +63,16 @@ public class Neo4JDockerContainer extends JdbcDatabaseContainer<Neo4JDockerConta
 	        return "RETURN 1";
 	    }
 
-	    public Neo4JDockerContainer withDatabaseName(final String databaseName) {
+	    public SELF withDatabaseName(final String databaseName) {
 	        return self();
 	    }
 
-	    public Neo4JDockerContainer withUsername(final String username) {
+	    public SELF withUsername(final String username) {
 	        this.username = username;
 	        return self();
 	    }
 
-	    public Neo4JDockerContainer withPassword(final String password) {
+	    public SELF withPassword(final String password) {
 	        this.password = password;
 	        return self();
 	    }
