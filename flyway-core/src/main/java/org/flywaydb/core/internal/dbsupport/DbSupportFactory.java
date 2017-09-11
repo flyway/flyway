@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.dbsupport.cockroachdb.CockroachDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
@@ -114,6 +115,9 @@ public class DbSupportFactory {
             }
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
+            if (isCockroachDB(connection)) {
+                return new CockroachDBDbSupport(connection);
+            }
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
@@ -136,9 +140,9 @@ public class DbSupportFactory {
             return new PhoenixDbSupport(connection);
         }
 
-        if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive") //Newer Sybase ASE versions
-                || databaseProductName.startsWith("sql server") // Older Sybase ASE 12.5 installations
-                ) {
+        if (databaseProductName.startsWith("ASE")
+                || databaseProductName.startsWith("Adaptive") //Newer Sybase ASE versions
+                || databaseProductName.startsWith("sql server")) { // Older Sybase ASE 12.5 installations
             return new SybaseASEDbSupport(connection);
         }
         if (databaseProductName.startsWith("HDB")) {
@@ -154,6 +158,14 @@ public class DbSupportFactory {
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
+    }
+
+    private static boolean isCockroachDB(Connection connection) {
+        try {
+            return new JdbcTemplate(connection).queryForString("SELECT version()").contains("CockroachDB");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**

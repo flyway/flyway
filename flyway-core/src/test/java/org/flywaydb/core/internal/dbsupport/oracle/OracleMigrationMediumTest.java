@@ -15,31 +15,23 @@
  */
 package org.flywaydb.core.internal.dbsupport.oracle;
 
+import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
-import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
-import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Ignore;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.flywaydb.core.DbCategory;
-import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.containers.wait.HostPortWaitStrategy;
-import org.testcontainers.containers.wait.WaitStrategy;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test to demonstrate the migration functionality using Oracle.
@@ -47,44 +39,48 @@ import static org.junit.Assert.*;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.Oracle.class)
 public class OracleMigrationMediumTest extends MigrationTestCase {
-    static final String DOCKER_IMAGE_NAME = "wnameless/oracle-xe-11g:16.04";
-
-    @ClassRule
-    public static OracleContainer oracle = new OracleContainer(DOCKER_IMAGE_NAME);
-
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        initOracleContainer(oracle);
-    }
-
-    static void initOracleContainer(OracleContainer oracle) throws SQLException {
-        oracle.start();
-        new HostPortWaitStrategy().waitUntilReady(oracle);
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        DriverDataSource dataSource = new DriverDataSource(classLoader, null,
-                oracle.getJdbcUrl(), oracle.getUsername(), oracle.getPassword(), null);
-
-        Connection connection = dataSource.getConnection();
-        try {
-            OracleDbSupport dbSupport = new OracleDbSupport(connection);
-            new SqlScript(new ClassPathResource("migration/dbsupport/oracle/createDatabase.sql", classLoader)
-                    .loadAsString("UTF-8"), dbSupport).execute(dbSupport.getJdbcTemplate());
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
-        }
-    }
+    static final String JDBC_URL = "jdbc:oracle:thin:@//localhost:62202/xe";
+    static final String JDBC_USER = "flyway";
+    static final String JDBC_PASSWORD = "flyway";
 
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                oracle.getJdbcUrl(), "flyway", "flyway", null);
+                JDBC_URL, JDBC_USER, JDBC_PASSWORD, null);
     }
 
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
+    }
+
+    private void assumeOracleVersionNotLessThan(int expectedMajorVersion, int expectedMinorVersion) {
+        int majorVersion;
+        int minorVersion;
+        try {
+            majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+            minorVersion = jdbcTemplate.getMetaData().getDatabaseMinorVersion();
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+        assumeTrue("Oracle version is " + expectedMajorVersion + "." + expectedMinorVersion + " or higher",
+                majorVersion == expectedMajorVersion && minorVersion >= expectedMinorVersion ||
+                        majorVersion > expectedMajorVersion);
+    }
+
+    private enum OracleEdition {XE, SE, EE}
+
+    private void assumeOracleEditionNotLessThan(OracleEdition expectedEdition) {
+        OracleEdition edition;
+        try {
+            edition = OracleEdition.valueOf(jdbcTemplate.queryForString(
+                    "SELECT CASE WHEN BANNER LIKE '%Enterprise%' THEN 'EE'" +
+                            " WHEN BANNER LIKE '%Express%' THEN 'XE' ELSE 'SE' END " +
+                            "FROM V$VERSION WHERE BANNER LIKE 'Oracle Database%'"));
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+        assumeTrue("Oracle edition is " + expectedEdition + " or higher", edition.compareTo(expectedEdition) >= 0);
     }
 
     /**
@@ -134,6 +130,8 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         // Running migrate again on an unclean database, triggers duplicate object exceptions.
         flyway.migrate();
         assertTrue(userObjectsCount() > 0);
+
+        flyway.clean();
     }
 
     /**
@@ -143,6 +141,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     public void createPackage() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/package");
         flyway.migrate();
+        flyway.clean();
     }
 
     @Test
@@ -151,12 +150,14 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations(getBasedir());
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     @Test
     public void count() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/count");
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
@@ -166,17 +167,20 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     public void objectNames() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/objectnames");
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
      * Tests cleaning up after CREATE MATERIALIZED VIEW.
      */
-    @Ignore("Disabled due to missing functionality in Oracle XE 11g. Works fine with XE 10g.")
     @Test
     public void createMaterializedView() throws FlywayException {
+        assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/materialized");
+        flyway.migrate();
+        flyway.clean();
         flyway.migrate();
         flyway.clean();
     }
@@ -212,24 +216,44 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     }
 
     /**
-     * Tests cleaning up after DBMS_SCHEDULE.CREATE_JOB
+     * Tests cleaning up with Scheduler objects.
      */
     @Test
-    public void createScheduledJob() throws Exception {
+    public void schedulerObjects() throws Exception {
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
-        flyway.setLocations("migration/dbsupport/oracle/sql/scheduled_job");
+        flyway.setLocations("migration/dbsupport/oracle/sql/scheduler");
         flyway.migrate();
         assertTrue(schedJobExists("FLYWAY_AUX", "TEST_JOB"));
         flyway.clean();
         assertFalse(schedJobExists("FLYWAY_AUX", "TEST_JOB"));
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests cleaning up with Scheduler 11.2 enhancements.
+     * This is also to ensure that skipping CREDENTIALs doesn't break migrations.
+     */
+    @Test
+    public void scheduler112Enhancement() throws Exception {
+        assumeOracleVersionNotLessThan(11, 2);
+        assumeOracleEditionNotLessThan(OracleEdition.SE);
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/scheduler11_2/create");
+        flyway.migrate();
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/scheduler11_2/clean");
+        flyway.migrate();
+        flyway.clean();
     }
 
     /**
      * @return {@code true} if the specified job exists in the schema, {@code false} if not.
      */
     private boolean schedJobExists(String schemaName, String jobName) throws Exception {
-        return ((OracleDbSupport)dbSupport).queryReturnsRows("SELECT * FROM ALL_SCHEDULER_JOBS " +
+        return ((OracleDbSupport) dbSupport).queryReturnsRows("SELECT * FROM ALL_SCHEDULER_JOBS " +
                 "WHERE OWNER = ? AND JOB_NAME = ?", schemaName, jobName);
     }
 
@@ -240,6 +264,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     public void qQuote() throws FlywayException {
         flyway.setLocations("migration/dbsupport/oracle/sql/qquote");
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
@@ -253,6 +278,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
@@ -264,6 +290,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/procedure");
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
@@ -275,6 +302,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/function");
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
@@ -292,6 +320,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
@@ -305,6 +334,21 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for clean together with domain indexes, index types and operators.
+     */
+    @Test
+    public void domainIndex() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/domain_index");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
     }
 
     /**
@@ -318,6 +362,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
@@ -331,10 +376,11 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
-     * Tests support for clean together with queue Tables.
+     * Tests support for clean together with queue tables.
      */
     @Test
     public void queueTable() throws FlywayException {
@@ -344,10 +390,11 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
-     * Tests support for clean together with cluster Tables.
+     * Tests support for clean together with cluster tables.
      */
     @Test
     public void cluster() throws FlywayException {
@@ -357,6 +404,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     @Test
@@ -364,64 +412,192 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setLocations("migration/dbsupport/oracle/sql/comment");
         assertEquals(3, flyway.migrate());
 
-        String statusWithComment = jdbcTemplate.queryForString( "select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITH_COMMENT' " );
-        String statusWithoutComment = jdbcTemplate.queryForString( "select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITHOUT_COMMENT' " );
-        assertEquals( "VALID", statusWithoutComment );
-        assertEquals( "VALID", statusWithComment );
+        String statusWithComment = jdbcTemplate.queryForString("select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITH_COMMENT' ");
+        String statusWithoutComment = jdbcTemplate.queryForString("select ob.STATUS from user_objects ob where ob.OBJECT_NAME = 'PERSON_WITHOUT_COMMENT' ");
+        assertEquals("VALID", statusWithoutComment);
+        assertEquals("VALID", statusWithComment);
+        flyway.clean();
     }
 
     /**
      * Tests support for clean together with XML Type.
      */
-    @Ignore("Disabled due to missing functionality in Oracle XE 10g. Works fine with XE 11g.")
     @Test
     public void xml() throws FlywayException {
+        assumeOracleVersionNotLessThan(11, 1);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/xml");
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
      * Tests support for cleaning of tables with Flashback/Total Recall enabled.
      * Schema containing such tables has to be first cleaned by disabling flashback on each table;
      */
-    @Ignore("Disabled due to missing flashback functionality in Oracle XE.")
     @Test
     public void flashback() throws FlywayException {
+        assumeOracleVersionNotLessThan(11, 1);
+        assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/flashback");
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
      * Tests support for reference partitioned tables.
      */
-    @Ignore("Disabled due to missing functionality in Oracle XE.")
     @Test
     public void referencePartitionedTable() throws FlywayException {
+        assumeOracleVersionNotLessThan(11, 1);
+        assumeOracleEditionNotLessThan(OracleEdition.EE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/refpart");
         flyway.migrate();
         flyway.clean();
         flyway.migrate();
+        flyway.clean();
     }
 
     /**
-     * Tests support for cleaning together with JAVA SOURCE Type.
+     * Tests support for cleaning together with JAVA SOURCE, JAVA CLASS, JAVA RESOURCE types.
      */
-    @Ignore("Disabled due to missing functionality in Oracle XE.")
     @Test
-    public void javaSource() throws FlywayException, SQLException {
+    public void javaObjects() throws FlywayException {
+        assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
-        flyway.setLocations("migration/dbsupport/oracle/sql/javasource");
+        flyway.setLocations("migration/dbsupport/oracle/sql/java");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with CONTEXT type.
+     */
+    @Test
+    public void context() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/context");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with LIBRARY type.
+     */
+    @Test
+    public void library() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/library");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with DIMENSION type.
+     */
+    @Test
+    public void dimension() throws FlywayException {
+        assumeOracleEditionNotLessThan(OracleEdition.EE);
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/dimension");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with MINING MODEL type.
+     */
+    @Test
+    public void mining() throws FlywayException, SQLException {
+        assumeOracleEditionNotLessThan(OracleEdition.EE);
+        // Starting from Oracle 11.1 Data Mining API works with non-default schemas.
+        if (jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 11) {
+            flyway.setSchemas("FLYWAY_AUX");
+        }
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/mining");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with REWRITE EQUIVALENCE type.
+     */
+    @Test
+    public void rewriteEquivalence() throws FlywayException {
+        assumeOracleEditionNotLessThan(OracleEdition.SE);
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/adv_rewrite");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with DATABASE LINK type.
+     * This is to ensure that skipping DATABASE LINKs doesn't break migrations.
+     */
+    @Test
+    public void dbLink() throws FlywayException {
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/dblink/create");
+        flyway.migrate();
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/dblink/clean");
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with RULE, RULE SET, EVALUATION CONTEXT, FILE GROUP types.
+     */
+    @Test
+    public void streamsAndRules() throws FlywayException {
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/streams_rules");
+        flyway.migrate();
+        flyway.clean();
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    /**
+     * Tests support for cleaning together with SQL TRANSLATION PROFILE type.
+     */
+    @Test
+    public void sqlTranslator() throws FlywayException {
+        assumeOracleVersionNotLessThan(12, 1);
+        flyway.setSchemas("FLYWAY_AUX");
+        flyway.clean();
+        flyway.setLocations("migration/dbsupport/oracle/sql/sql_translator");
+        flyway.migrate();
+        flyway.clean();
         flyway.migrate();
         flyway.clean();
     }

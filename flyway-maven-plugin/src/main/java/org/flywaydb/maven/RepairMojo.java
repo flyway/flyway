@@ -15,6 +15,9 @@
  */
 package org.flywaydb.maven;
 
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.flywaydb.core.Flyway;
 
 /**
@@ -23,10 +26,12 @@ import org.flywaydb.core.Flyway;
  *     <li>Remove any failed migrations on databases without DDL transactions (User objects left behind must still be cleaned up manually)</li>
  *     <li>Correct wrong checksums</li>
  * </ul>
- *
- * @goal repair
  */
 @SuppressWarnings({"UnusedDeclaration", "JavaDoc"})
+@Mojo(name = "repair",
+        requiresDependencyResolution = ResolutionScope.TEST,
+        defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST,
+        threadSafe = true)
 public class RepairMojo extends AbstractFlywayMojo {
     @Override
     protected void doExecute(Flyway flyway) throws Exception {
