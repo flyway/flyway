@@ -22,12 +22,17 @@ import java.sql.SQLException;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.junit.ClassRule;
 import org.junit.Test;
 /**
  * @author Ricardo Silva (ScuteraTech)
  *
  */
 public class Neo4JDriverDataSourceSmallTest {
+	private static final String DOCKER_IMAGE_NAME = "neo4j:latest";
+	
+	@ClassRule
+	public static Neo4JDockerContainer neo4jDockerContainer = new Neo4JDockerContainer(DOCKER_IMAGE_NAME);
 	
 	@Test  
 	public void getConnectionException() throws Exception {
@@ -47,6 +52,6 @@ public class Neo4JDriverDataSourceSmallTest {
 
 	    @Test
 	    public void nullInitSqls() throws Exception {
-	        new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:neo4j:bolt://localhost:7687/", "neo4j", "test", null).getConnection().close();
+	        new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, neo4jDockerContainer.getJdbcUrl(), neo4jDockerContainer.getUsername(), neo4jDockerContainer.getPassword(), null).getConnection().close();
 	    }
 }
