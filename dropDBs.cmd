@@ -43,4 +43,7 @@ sqlcmd -U sa -P flyway -S localhost\SQLExpress -i flyway-core\src\test\resources
 echo DB2...
 db2cmd -c "db2 -tvf flyway-core/src/test/resources/migration/dbsupport/db2/dropDatabase.sql"
 
+echo CockroachDB...
+cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/dropDatabase.sql
+
 echo Done.
