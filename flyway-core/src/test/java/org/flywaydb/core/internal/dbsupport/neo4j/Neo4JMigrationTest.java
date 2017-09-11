@@ -45,15 +45,21 @@ import org.flywaydb.core.internal.command.DbMigrate;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.util.Assert;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 /**
  * @author Ricardo Silva (ScuteraTech)
  *
  */
 public class Neo4JMigrationTest extends MigrationTestCase {
+	private static final String DOCKER_IMAGE_NAME = "neo4j:latest";
+	 
+	@ClassRule
+	public static Neo4JDockerContainer neo4jDockerContainer = new Neo4JDockerContainer(DOCKER_IMAGE_NAME);
 	
 	protected static final String BASEDIR = "migration/dbsupport/neo4j/sql";
 	
@@ -74,10 +80,9 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 
 	@Override
 	protected DataSource createDataSource(Properties customProperties) throws Exception {
-		String user = customProperties.getProperty("neo4j.user", "neo4j");
-		String password = customProperties.getProperty("neo4j.password", "test");
-		String url = customProperties.getProperty("neo4j.url", "jdbc:neo4j:bolt://localhost:7687/");
-		return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+
+	        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+	                neo4jDockerContainer.getJdbcUrl(), neo4jDockerContainer.getUsername(), neo4jDockerContainer.getPassword(), null);
 	}
 
 	@Override
@@ -399,4 +404,6 @@ public class Neo4JMigrationTest extends MigrationTestCase {
 		assertEquals("2.0", flyway.info().current().getVersion().toString());
 		assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
 	}
+	
+	
 }
