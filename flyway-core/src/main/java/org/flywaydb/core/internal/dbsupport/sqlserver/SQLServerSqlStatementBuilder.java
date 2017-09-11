@@ -48,4 +48,12 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
 
         return token;
     }
+
+    /**
+     * @return {@code true} because we want all comments sent to the database.
+     */
+    @Override
+    public boolean isCommentDirective(String line) {
+        return true;
+    }
 }
