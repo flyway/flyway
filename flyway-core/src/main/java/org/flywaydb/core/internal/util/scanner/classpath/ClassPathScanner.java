@@ -304,17 +304,9 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             return locationScanner;
         }
 
-        if ("jar".equals(protocol)
-                || "war".equals(protocol) //Tomcat
-                || "zip".equals(protocol) //WebLogic
-                || "wsjar".equals(protocol) //WebSphere
-                ) {
-            JarFileClassPathLocationScanner locationScanner;
-            if ("war".equals(protocol)) {
-                locationScanner = new JarFileClassPathLocationScanner("*/");
-            } else {
-                locationScanner = new JarFileClassPathLocationScanner();
-            }
+        if ("jar".equals(protocol) || isTomcat(protocol) || isWebLogic(protocol) || isWebSphere(protocol)) {
+            String separator = isTomcat(protocol) ? "*/" : "!/";
+            ClassPathLocationScanner locationScanner = new JarFileClassPathLocationScanner(separator);
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
             return locationScanner;
@@ -327,10 +319,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
             return locationScanner;
         }
-        if (featureDetector.isOsgiFrameworkAvailable() && (
-                "bundle".equals(protocol) // Felix
-                        || "bundleresource".equals(protocol)) //Equinox
-                ) {
+        if (featureDetector.isOsgiFrameworkAvailable() && (isFelix(protocol) || isEquinox(protocol))) {
             OsgiClassPathLocationScanner locationScanner = new OsgiClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
@@ -338,6 +327,26 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         }
 
         return null;
+    }
+
+    private boolean isEquinox(String protocol) {
+        return "bundleresource".equals(protocol);
+    }
+
+    private boolean isFelix(String protocol) {
+        return "bundle".equals(protocol);
+    }
+
+    private boolean isWebSphere(String protocol) {
+        return "wsjar".equals(protocol);
+    }
+
+    private boolean isWebLogic(String protocol) {
+        return "zip".equals(protocol);
+    }
+
+    private boolean isTomcat(String protocol) {
+        return "war".equals(protocol);
     }
 
     /**

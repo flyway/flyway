@@ -18,33 +18,23 @@ package org.flywaydb.core.internal.dbsupport.oracle;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.experimental.categories.Category;
-import org.testcontainers.containers.OracleContainer;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
-import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.DOCKER_IMAGE_NAME;
-import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.initOracleContainer;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_PASSWORD;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_URL;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_USER;
 
 /**
  * Test to demonstrate the migration functionality using Oracle.
  */
 @Category(DbCategory.Oracle.class)
 public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-    @ClassRule
-    public static OracleContainer oracle = new OracleContainer(DOCKER_IMAGE_NAME);
-
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        initOracleContainer(oracle);
-    }
-
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                oracle.getJdbcUrl(), "flyway", "flyway", null);
+                JDBC_URL, JDBC_USER, JDBC_PASSWORD, null);
     }
 }

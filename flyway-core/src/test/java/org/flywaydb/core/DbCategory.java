@@ -37,10 +37,13 @@ public class DbCategory {
     public interface MySQL extends OpenSourceDB {}
     public interface MariaDB extends OpenSourceDB {}
     public interface PostgreSQL extends OpenSourceDB {}
+    public interface CockroachDB extends OpenSourceDB {}
 
     // Commercial databases support maintained by the core Flyway team
-    public interface DB2 extends CommercialDB {}
-    public interface Oracle extends CommercialDB {}
+    public interface Oracle extends InstallableDB {}
+    public interface DB2 extends InstallableDB {}
+
+    // Commercial databases support maintained by the core Flyway team and not tested on TravisCI
     public interface SQLServer extends CommercialDB {}
 
     // Other databases support maintained by the third party contributors
