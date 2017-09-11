@@ -14,8 +14,10 @@
 -- limitations under the License.
 --
 
-create or replace and compile java source named "JavaTest" as
-public class JavaTest {
-int[] x = { 1, 2, 3 };
-};
+declare
+  l_prefix VARCHAR2(131) := '"' || SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') || '".';
+begin
+  dbms_sql_translator.create_profile(
+    profile_name => l_prefix || 'test_sql_tr_profile');
+end;
 /

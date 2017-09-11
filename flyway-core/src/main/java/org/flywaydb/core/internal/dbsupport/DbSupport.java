@@ -69,7 +69,7 @@ public abstract class DbSupport {
     public abstract SqlStatementBuilder createSqlStatementBuilder();
 
     /**
-     * @return The name of the db.
+     * @return The name of the db. Used for loading db-specific scripts such as <code>createMetaDataTable.sql</code>.
      */
     public abstract String getDbName();
 
