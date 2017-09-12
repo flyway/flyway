@@ -236,13 +236,6 @@
                             </systemProperties>
                         </configuration>
                     </plugin>
-                    <plugin>
-		                <artifactId>maven-surefire-plugin</artifactId>
-		                <configuration>
-		                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
-		                    <useFile>false</useFile>
-		                </configuration>
-            		</plugin>
                 </plugins>
             </build>
         </profile>
