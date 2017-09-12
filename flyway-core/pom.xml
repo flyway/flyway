@@ -63,6 +63,11 @@
             <artifactId>postgresql</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>ru.yandex.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 
 

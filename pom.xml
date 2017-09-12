@@ -283,6 +283,13 @@
                 <optional>true</optional>
             </dependency>
 
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>0.1.42</version>
+                <optional>true</optional>
+            </dependency>
+
 
 
 

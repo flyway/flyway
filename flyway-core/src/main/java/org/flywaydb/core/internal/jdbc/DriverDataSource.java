@@ -352,6 +352,10 @@ public class DriverDataSource implements DataSource {
             return "com.informix.jdbc.IfxDriver";
         }
 
+        if (url.startsWith("jdbc:clickhouse:")) {
+            return "ru.yandex.clickhouse.ClickHouseDriver";
+        }
+
         return null;
     }
 
