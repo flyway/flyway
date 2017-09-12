@@ -39,8 +39,6 @@ public class Neo4JTable extends Table{
 
 	@Override
 	protected void doLock() throws SQLException {
-		// TODO Auto-generated method stub investigate Neo4jLockSystem
-		
 	}
 
 	@Override
