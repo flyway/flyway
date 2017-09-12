@@ -50,10 +50,11 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
     }
 
     /**
-     * @return {@code true} because we want all comments sent to the database.
-     */
+    * @return Whether the current statement is only closed comments so far and can be discarded.
+    * on SQL Server, we never want to discard comments.
+    */
     @Override
-    public boolean isCommentDirective(String line) {
-        return true;
+    public boolean canDiscard() {
+        return false;
     }
 }
