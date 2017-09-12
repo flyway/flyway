@@ -338,6 +338,10 @@ public class DriverDataSource implements DataSource {
             return "com.pivotal.jdbc.GreenplumDriver";
         }
 
+        if (url.startsWith("jdbc:clickhouse:")) {
+            return "ru.yandex.clickhouse.ClickHouseDriver";
+        }
+
         return null;
     }
 

@@ -165,8 +165,10 @@ public class JdbcTemplate {
                 statement.setString(i + 1, params[i]);
             }
             resultSet = statement.executeQuery();
-            resultSet.next();
-            result = resultSet.getInt(1);
+            result = 0;
+            if (resultSet.next()) {
+                result = resultSet.getInt(1);
+            }
         } finally {
             JdbcUtils.closeResultSet(resultSet);
             JdbcUtils.closeStatement(statement);
