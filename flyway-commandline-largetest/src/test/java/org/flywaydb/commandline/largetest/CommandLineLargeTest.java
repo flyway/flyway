@@ -62,7 +62,7 @@ public class CommandLineLargeTest {
     @Test
     public void quietMode() throws Exception {
         String stdOut = runFlywayCommandLine(0, null, null, "-q");
-        assertTrue("$" + stdOut +"$", stdOut.isEmpty());
+        assertTrue("$ " + stdOut +" $", stdOut.isEmpty());
     }
 
     @Test
