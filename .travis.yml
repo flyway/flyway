@@ -19,3 +19,5 @@ before_install:
 install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
 before_script: echo OK
 script: echo Done.
+after_failure:
+  - cat flyway-commandline-largetest/target/surefire-reports/*-output.txt 
