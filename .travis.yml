@@ -16,7 +16,7 @@ before_install:
   - cockroach start --insecure --host=localhost --background
   - cockroach node status --insecure
   - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
- after_failure:
+after_failure:
   - echo "Printing output"
   - cat flyway-commandline-largetest/target/surefire-reports/*-output.txt 
 install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
