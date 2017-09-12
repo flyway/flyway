@@ -48,4 +48,13 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
 
         return token;
     }
+
+    /**
+    * @return Whether the current statement is only closed comments so far and can be discarded.
+    * on SQL Server, we never want to discard comments.
+    */
+    @Override
+    public boolean canDiscard() {
+        return false;
+    }
 }
