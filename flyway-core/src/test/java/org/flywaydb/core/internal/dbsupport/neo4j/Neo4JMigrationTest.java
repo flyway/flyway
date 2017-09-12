@@ -49,7 +49,6 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.util.Assert;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 /**
  * @author Ricardo Silva (ScuteraTech)
