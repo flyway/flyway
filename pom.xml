@@ -725,8 +725,7 @@
                         <exclude>**/*MediumTest.java</exclude>
                     </excludes>
                     <parallel>methods</parallel>
-                    <useFile>false</useFile>
-                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <threadCount>2</threadCount>
                     <!--perCoreThreadCount>true</perCoreThreadCount-->
                 </configuration>
