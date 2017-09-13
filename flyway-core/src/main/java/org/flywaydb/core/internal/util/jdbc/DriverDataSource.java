@@ -337,6 +337,10 @@ public class DriverDataSource implements DataSource {
         if (url.startsWith("jdbc:pivotal:greenplum:")) {
             return "com.pivotal.jdbc.GreenplumDriver";
         }
+        
+        if (url.startsWith("jdbc:neo4j:")) {
+            return "org.flywaydb.core.internal.dbsupport.neo4j.Neo4JMigrationDriver";
+        }
 
         return null;
     }
