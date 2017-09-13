@@ -25,6 +25,7 @@ import org.flywaydb.core.internal.dbsupport.enterprisedb.EnterpriseDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
+import org.flywaydb.core.internal.dbsupport.neo4j.Neo4JDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
@@ -150,6 +151,10 @@ public class DbSupportFactory {
        
         if (databaseProductName.startsWith("Greenplum")) {
             return new GreenPlumDbSupport(connection);
+        }
+        
+        if(databaseProductName.startsWith("Neo4j")) {
+        	return new Neo4JDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

@@ -16,6 +16,7 @@ before_install:
   - cockroach start --insecure --host=localhost --background
   - cockroach node status --insecure
   - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
-install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
+  - unset JAVA_TOOL_OPTIONS && unset _JAVA_OPTIONS
+install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies -B"
 before_script: echo OK
 script: echo Done.

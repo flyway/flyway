@@ -15,6 +15,8 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
+import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 
 import java.sql.SQLException;
@@ -219,5 +221,9 @@ public abstract class DbSupport {
      */
     public boolean useSingleConnection() {
         return false;
+    }
+    
+    public MetaDataTable getMetadataTable(Table table, String installedBy){
+    	return new MetaDataTableImpl(this, table,installedBy);
     }
 }
