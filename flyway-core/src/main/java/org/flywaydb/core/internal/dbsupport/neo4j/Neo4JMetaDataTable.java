@@ -249,13 +249,12 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 	
 	@Override
 	public void update(MigrationVersion version, String description, Integer checksum) {
-		// TODO Auto-generated method stub
 		clearCache();
 
         LOG.info("Repairing metadata for version " + version + " (Description: " + description + ", Checksum: " + checksum + ")  ...");
 
         // Try load an update.sql file if it exists
-        String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
+        String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/insertIntoMetaDataTable.sql";
         ClassPathResource resource = new ClassPathResource(resourceName, getClass().getClassLoader());
         if (resource.exists()) {
             String source = resource.loadAsString("UTF-8");
@@ -299,8 +298,7 @@ public class Neo4JMetaDataTable implements MetaDataTable {
 	                        @Override
 	                        public Object call() throws Exception {
 	                            LOG.info("Upgrading metadata table " + table + " to the Flyway 4.0 format ...");
-	                            //TODO upgradeMetaDataTable
-	                            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
+	                            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/insertIntoMetaDataTable.sql";
 	                            String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
 
 	                            Map<String, String> placeholders = new HashMap<String, String>();

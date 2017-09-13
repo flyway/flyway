@@ -61,21 +61,21 @@ public class Neo4JMigrationDriver extends Driver {
 				return arg1.invoke(connection, arg2);
 			}
 		});
-		
+
 		if (url.contains("bolt")) {
 			enhancer.setSuperclass(BoltConnection.class);
 			Class<?>[] argumentTypes = { Session.class, Properties.class, String.class };
 			Object[] arguments = { null, info, url };
 			BoltConnection proxyConnection = (BoltConnection) enhancer.create(argumentTypes, arguments);
 			return proxyConnection;
-		} 
+		}
 		if (url.contains("http")) {
 			enhancer.setSuperclass(HttpConnection.class);
 			Class<?>[] argumentTypes = { Session.class, Properties.class, String.class };
 			Object[] arguments = { null, info, url };
 			HttpConnection proxyConnection = (HttpConnection) enhancer.create(argumentTypes, arguments);
 			return proxyConnection;
-		}else {
+		} else {
 			Connection proxyConnection = (Connection) Proxy.newProxyInstance(
 					Neo4JConnectionProxy.class.getClassLoader(), new Class[] { Connection.class },
 					new Neo4JConnectionProxy(connection));
