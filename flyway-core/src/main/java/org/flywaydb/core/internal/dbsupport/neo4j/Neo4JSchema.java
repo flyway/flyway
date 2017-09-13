@@ -61,7 +61,7 @@ public class Neo4JSchema extends Schema<DbSupport> {
 
 	@Override
 	protected void doClean() throws SQLException {
-		jdbcTemplate.queryForString("MATCH (n) DETACH DELETE n" );
+		jdbcTemplate.queryForString("MATCH (n) DETACH DELETE n");
 
 	}
 

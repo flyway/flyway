@@ -26,7 +26,7 @@ import org.flywaydb.core.internal.dbsupport.Table;
  * @author Ricardo Silva (ScuteraTech)
  *
  */
-public class Neo4JTable extends Table{
+public class Neo4JTable extends Table {
 
 	public Neo4JTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
 		super(jdbcTemplate, dbSupport, schema, name);
@@ -34,7 +34,7 @@ public class Neo4JTable extends Table{
 
 	@Override
 	protected boolean doExists() throws SQLException {
-		return true; 
+		return true;
 	}
 
 	@Override
@@ -45,11 +45,12 @@ public class Neo4JTable extends Table{
 	protected void doDrop() throws SQLException {
 		jdbcTemplate.execute("MATCH n = (:schema_version)-->() DELETE n");
 	}
-	
+
 	@Override
 	public boolean hasColumn(String column) {
 		try {
-			return jdbcTemplate.queryForInt("MATCH (n:Migration) WHERE NOT n." + column + " IS NULL RETURN COUNT(*)") != 0;
+			return jdbcTemplate
+					.queryForInt("MATCH (n:Migration) WHERE NOT n." + column + " IS NULL RETURN COUNT(*)") != 0;
 		} catch (SQLException e) {
 			return false;
 		}
