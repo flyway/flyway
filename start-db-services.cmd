@@ -14,10 +14,6 @@
 @REM limitations under the License.
 @REM
 
+docker-compose up --force-recreate -d
 net start SQLBrowser
 net start MSSQL$SQLEXPRESS
-net start DB2MGMTSVC_DB2COPY1
-net start DB2DAS00
-net start DB2REMOTECMD_DB2COPY1
-net start DB2
-
