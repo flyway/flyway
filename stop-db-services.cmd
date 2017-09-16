@@ -16,7 +16,4 @@
 
 net stop SQLBrowser
 net stop MSSQL$SQLEXPRESS
-net stop DB2MGMTSVC_DB2COPY1
-net stop DB2DAS00
-net stop DB2REMOTECMD_DB2COPY1
-net stop DB2
+docker-compose rm
