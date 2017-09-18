@@ -22,9 +22,10 @@ import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Snowflake-specific table.
@@ -70,7 +71,12 @@ public class SnowflakeTable extends Table {
     @Override
     protected boolean exists(Schema catalog, Schema schema, String table, String... tableTypes) throws SQLException {
         boolean found;
-        List<String> tableNames = jdbcTemplate.queryForStringList("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = ?", schema.getName(), table);
+        List<Map<String, String>> resultSet = jdbcTemplate.queryForList("SHOW TABLES LIKE '" + name + "' IN SCHEMA \"" + schema.getName() + "\"");
+        List<String> tableNames = new ArrayList<String>();
+        for (final Map<String, String> result : resultSet) {
+            tableNames.add(result.get("name"));
+        }
+
         found = !tableNames.isEmpty();
 
         return found;
