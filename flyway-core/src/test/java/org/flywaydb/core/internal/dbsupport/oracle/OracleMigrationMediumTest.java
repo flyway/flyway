@@ -19,7 +19,11 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.MigrationTestCase;
@@ -48,6 +52,8 @@ import static org.junit.Assume.assumeTrue;
 @Category(DbCategory.Oracle.class)
 @RunWith(Parameterized.class)
 public class OracleMigrationMediumTest extends MigrationTestCase {
+    private static final Log LOG = LogFactory.getLog(OracleMigrationMediumTest.class);
+
     static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62010/xe";
     // [pro]
     static final String JDBC_URL_ORACLE_10 = "jdbc:oracle:thin:@//localhost:62011/xe";
@@ -83,17 +89,28 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
                 } else {
                     throw new FlywayException("Unexpected result: " + result);
                 }
-            } catch (SQLRecoverableException e) {
-                if (e.getErrorCode() == 1033) {
-                    // ORA-01033: ORACLE initialization or shutdown in progress
-                    // Retry in 1 second
-                    Thread.sleep(1000);
+            } catch (FlywaySqlException e) {
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                if (rootCause instanceof SQLRecoverableException) {
+                    handleSQLException((SQLRecoverableException) rootCause);
                 } else {
                     throw e;
                 }
+            } catch (SQLRecoverableException e) {
+                handleSQLException(e);
             } finally {
                 JdbcUtils.closeConnection(connection);
             }
+        }
+    }
+
+    private static void handleSQLException(SQLRecoverableException e) throws InterruptedException, SQLRecoverableException {
+        if (e.getErrorCode() == 1033) {
+            // ORA-01033: ORACLE initialization or shutdown in progress
+            LOG.info("Oracle is not up yet. Retrying in 1 second...");
+            Thread.sleep(1000);
+        } else {
+            throw e;
         }
     }
 
