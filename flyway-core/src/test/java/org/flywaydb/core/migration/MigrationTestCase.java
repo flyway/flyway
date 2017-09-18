@@ -65,7 +65,7 @@ public abstract class MigrationTestCase {
     private static final Logger LOG = LoggerFactory.getLogger(MigrationTestCase.class);
 
     @Rule
-    public Timeout globalTimeout = new Timeout(60, TimeUnit.SECONDS);
+    public Timeout globalTimeout = new Timeout(120, TimeUnit.SECONDS);
 
     /**
      * The base directory for the regular test migrations.
