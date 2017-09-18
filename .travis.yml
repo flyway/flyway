@@ -16,6 +16,8 @@ before_install:
   - cockroach start --insecure --host=localhost --background
   - cockroach node status --insecure
   - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
+  - echo "Waiting 3 minutes for databases to come up ..."
+  - sleep 180
 install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
 before_script: echo OK
 script: echo Done.
