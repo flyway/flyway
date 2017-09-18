@@ -16,12 +16,12 @@
 package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public OracleSchema(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, String name) {
+    OracleSchema(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -63,7 +63,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      *
      * @return {@code true} if it is default, {@code false} if not.
      */
-    public boolean isDefaultSchemaForUser() throws SQLException {
+    boolean isDefaultSchemaForUser() throws SQLException {
         return name.equals(dbSupport.getCurrentUserName());
     }
 
@@ -338,6 +338,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                         schema.getName()
                 );
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "BEGIN DBMS_AQADM.DROP_QUEUE_TABLE('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
@@ -353,6 +354,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                         schema.getName()
                 );
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "DROP " + this.getName() + " ON " + dbSupport.quote(schema.getName(), objectName);
@@ -427,6 +429,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                         schema.getName()
                 );
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "DROP " + this.getName() + " " + dbSupport.quote(objectName); // no owner
@@ -459,6 +462,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                         schema.getName()
                 );
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "BEGIN DBMS_XMLSCHEMA.DELETESCHEMA('" + objectName + "', DELETE_OPTION => DBMS_XMLSCHEMA.DELETE_CASCADE_FORCE); END;";
@@ -481,24 +485,37 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             }
         },
 
-        // Data mining models, have related objects, should be dropped prior to tables. In Oracle 10g only user-owned
-        // models can be dropped.
+        // Data mining models, have related objects, should be dropped prior to tables.
+
+
+
         MINING_MODEL("MINING MODEL") {
             @Override
             public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-                if (dbSupport.getMajorVersion() >= 11) {
+
+
+
                     return super.getObjectNames(jdbcTemplate, dbSupport, schema);
-                }
-                if (schema.isDefaultSchemaForUser() && dbSupport.isDataMiningAvailable()) {
-                    return jdbcTemplate.queryForStringList("SELECT NAME FROM DM_USER_MODELS");
-                }
-                return Collections.emptyList();
+
+
+
+
+
+
+
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) throws SQLException {
                 return "BEGIN DBMS_DATA_MINING.DROP_MODEL('" +
-                        (dbSupport.getMajorVersion() >= 11 ? dbSupport.quote(schema.getName(), objectName) : objectName) +
-                        "'); END;";
+
+
+
+                                dbSupport.quote(schema.getName(), objectName)
+
+
+
+                        + "'); END;";
             }
         },
 
@@ -570,6 +587,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
                 super.warnUnsupported(dbSupport.quote(schema.getName()));
             }
+
             @Override
             public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
                 return jdbcTemplate.queryForStringList(
@@ -577,6 +595,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                         schema.getName()
                 );
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "DROP " + this.getName() + " " + objectName; // db link name is case-insensitive and needs no owner
@@ -587,6 +606,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
                 super.warnUnsupported(dbSupport.quote(schema.getName()));
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "BEGIN DBMS_SCHEDULER.DROP_CREDENTIAL('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
@@ -599,6 +619,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
                 super.warnUnsupported(dbSupport.quote(schema.getName()));
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "BEGIN DBMS_SCHEDULER.DROP_DATABASE_DESTINATION('" + dbSupport.quote(schema.getName(), objectName) + "'); END;";
@@ -609,6 +630,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
                 super.warnUnsupported(dbSupport.quote(schema.getName()));
             }
+
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) {
                 return "BEGIN DBMS_SCHEDULER.DROP_GROUP('" + dbSupport.quote(schema.getName(), objectName) + "', FORCE => TRUE); END;";
@@ -667,7 +689,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         AGENT_DESTINATION("DESTINATION"),
         UNIFIED_AUDIT_POLICY("UNIFIED AUDIT POLICY");
 
-
         /**
          * The name of the type as it mentioned in the Data Dictionary and the DROP statement.
          */
@@ -698,6 +719,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
         /**
          * Returns the list of object names of this type.
+         *
          * @throws SQLException if retrieving of objects failed.
          */
         public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
@@ -709,6 +731,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
         /**
          * Generates the drop statement for the specified object.
+         *
          * @throws SQLException if generating of the statement failed.
          */
         public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) throws SQLException {
@@ -718,6 +741,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
         /**
          * Drops all objects of this type in the specified schema.
+         *
          * @throws SQLException if cleaning failed.
          */
         public void dropObjects(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
@@ -736,17 +760,20 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
         /**
          * Returns the schema's existing object types.
+         *
          * @return a set of object type names.
          * @throws SQLException if retrieving of object types failed.
          */
         public static Set<String> getObjectTypeNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-            int oracleMajorVersion = dbSupport.getMajorVersion();
             boolean xmlDbAvailable = dbSupport.isXmlDbAvailable();
-            boolean dataMining10gForCurrentUser =
-                    schema.isDefaultSchemaForUser()
-                    && oracleMajorVersion < 11
-                    && dbSupport.isDataMiningAvailable();
-            boolean oracle11gOrHigher = oracleMajorVersion >= 11;
+
+
+
+
+
+
+
+
 
             String query =
                     // Most object types can be correctly selected from DBA_/ALL_OBJECTS.
@@ -772,17 +799,30 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                                     "SELECT * FROM " + dbSupport.dbaOrAll("XML_SCHEMAS") + " WHERE OWNER = ?) "
                                     : "") +
                             // Credentials.
-                            (oracle11gOrHigher
-                                    ?  "UNION SELECT '" + CREDENTIAL.getName() + "' FROM DUAL WHERE EXISTS(" +
-                                    "SELECT * FROM ALL_SCHEDULER_CREDENTIALS WHERE OWNER = ?) "
-                                    : "") +
-                            // Mining models in Oracle 10.
-                            (dataMining10gForCurrentUser
-                                    ? "UNION SELECT '" + MINING_MODEL.getName() + "' FROM DUAL WHERE EXISTS(" +
-                                    "SELECT * FROM DM_USER_MODELS) "
-                                    : "");
 
-            int n = 6 + (xmlDbAvailable ? 1 : 0) + (oracle11gOrHigher ? 1 : 0);
+
+
+                                    "UNION SELECT '" + CREDENTIAL.getName() + "' FROM DUAL WHERE EXISTS(" +
+                                            "SELECT * FROM ALL_SCHEDULER_CREDENTIALS WHERE OWNER = ?) "
+
+
+
+
+
+
+
+
+                    ;
+
+            int n = 6 + (xmlDbAvailable ? 1 : 0) +
+
+
+
+                            1
+
+
+
+                    ;
             String[] params = new String[n];
             Arrays.fill(params, schema.getName());
 
@@ -791,6 +831,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
         /**
          * Checks whether the specified schema contains object types that can be cleaned.
+         *
          * @return {@code true} if it contains, {@code false} if not.
          * @throws SQLException if retrieving of object types failed.
          */
@@ -813,6 +854,5 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
             return !existingTypeNames.isEmpty();
         }
-
     }
 }

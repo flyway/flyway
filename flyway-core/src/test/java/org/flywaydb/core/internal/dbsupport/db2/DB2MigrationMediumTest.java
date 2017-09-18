@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.dbsupport.db2;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
  */
 @Category(DbCategory.DB2.class)
 public class DB2MigrationMediumTest extends MigrationTestCase {
-    static final String JDBC_URL = "jdbc:db2://localhost:62201/flyway";
+    static final String JDBC_URL = "jdbc:db2://localhost:62000/flyway";
     static final String JDBC_USER = "db2inst1";
     static final String JDBC_PASSWORD = "flywaypwd";
 
@@ -189,6 +189,7 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         //THE ONLY PROCEDURES DEFINED USES THE SAME NAME "SP_EQIP_HOURS_AGGRGT_DAY_VIS", SO IT SHOULD NOT EXIST ANYMORE ON SYSTEM CATALOG
         assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSCAT.PROCEDURES WHERE PROCNAME = ?", "SP_EQIP_HOURS_AGGRGT_DAY_VIS"));
     }
+
     @Override
     protected void createFlyway3MetadataTable() throws Exception {
         jdbcTemplate.execute("CREATE TABLE \"schema_version\" (\n" +
