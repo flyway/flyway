@@ -23,9 +23,13 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -38,15 +42,35 @@ import static org.junit.Assume.assumeTrue;
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.Oracle.class)
+@RunWith(Parameterized.class)
 public class OracleMigrationMediumTest extends MigrationTestCase {
-    static final String JDBC_URL = "jdbc:oracle:thin:@//localhost:62202/xe";
+    static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62010/xe";
+
+
+
     static final String JDBC_USER = "flyway";
     static final String JDBC_PASSWORD = "flyway";
+
+    private final String jdbcUrl;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_ORACLE_12}
+
+
+
+        });
+    }
+
+    public OracleMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
 
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                JDBC_URL, JDBC_USER, JDBC_PASSWORD, null);
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD, null);
     }
 
     @Override
@@ -54,19 +78,21 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         return "migration/quote";
     }
 
-    private void assumeOracleVersionNotLessThan(int expectedMajorVersion, int expectedMinorVersion) {
-        int majorVersion;
-        int minorVersion;
-        try {
-            majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-            minorVersion = jdbcTemplate.getMetaData().getDatabaseMinorVersion();
-        } catch (SQLException e) {
-            throw new FlywayException(e);
-        }
-        assumeTrue("Oracle version is " + expectedMajorVersion + "." + expectedMinorVersion + " or higher",
-                majorVersion == expectedMajorVersion && minorVersion >= expectedMinorVersion ||
-                        majorVersion > expectedMajorVersion);
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private enum OracleEdition {XE, SE, EE}
 
@@ -146,12 +172,23 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void schemaWithDash() throws FlywayException {
+
+
+
         flyway.setSchemas("my-schema");
         flyway.setLocations(getBasedir());
         flyway.clean();
         flyway.migrate();
         flyway.clean();
     }
+
+
+
+
+
+
+
+
 
     @Test
     public void count() throws FlywayException {
@@ -237,7 +274,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void scheduler112Enhancement() throws Exception {
-        assumeOracleVersionNotLessThan(11, 2);
+
+
+
         assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -424,7 +463,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void xml() throws FlywayException {
-        assumeOracleVersionNotLessThan(11, 1);
+
+
+
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/xml");
@@ -440,7 +481,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void flashback() throws FlywayException {
-        assumeOracleVersionNotLessThan(11, 1);
+
+
+
         assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -456,7 +499,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void referencePartitionedTable() throws FlywayException {
-        assumeOracleVersionNotLessThan(11, 1);
+
+
+
         assumeOracleEditionNotLessThan(OracleEdition.EE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -531,10 +576,14 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Test
     public void mining() throws FlywayException, SQLException {
         assumeOracleEditionNotLessThan(OracleEdition.EE);
-        // Starting from Oracle 11.1 Data Mining API works with non-default schemas.
-        if (jdbcTemplate.getMetaData().getDatabaseMajorVersion() >= 11) {
+
+
+
+
             flyway.setSchemas("FLYWAY_AUX");
-        }
+
+
+
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/mining");
         flyway.migrate();
@@ -578,6 +627,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void streamsAndRules() throws FlywayException {
+
+
+
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/streams_rules");
@@ -592,7 +644,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void sqlTranslator() throws FlywayException {
-        assumeOracleVersionNotLessThan(12, 1);
+
+
+
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/sql_translator");

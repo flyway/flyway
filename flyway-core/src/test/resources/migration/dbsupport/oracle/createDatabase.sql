@@ -14,12 +14,12 @@
 -- limitations under the License.
 --
 
+-- create test users
 CREATE USER FLYWAY IDENTIFIED BY "flyway";
 CREATE USER FLYWAY_AUX IDENTIFIED BY "flyway";
 CREATE USER "flyway_proxy" IDENTIFIED BY "flyway";
 GRANT ALL PRIVILEGES TO FLYWAY;
 GRANT ALL PRIVILEGES TO FLYWAY_AUX;
-
 ALTER USER FLYWAY GRANT CONNECT THROUGH "flyway_proxy";
 
 -- grants for reading some DBA_ dictionary views
