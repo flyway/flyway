@@ -148,7 +148,7 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("HDB")) {
             return new SapHanaDbSupport(connection);
         }
-       
+
         if (databaseProductName.startsWith("Greenplum")) {
             return new GreenPlumDbSupport(connection);
         }
@@ -229,7 +229,6 @@ public class DbSupportFactory {
             if (databaseProductVersion == null) {
                 throw new FlywayException("Unable to determine database. Product version is null.");
             }
-
 
             return databaseProductVersion;
         } catch (SQLException e) {
