@@ -47,8 +47,9 @@ public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTest
 
     private final String jdbcUrl;
 
-    public OracleConcurrentMigrationMediumTest(String jdbcUrl) {
+    public OracleConcurrentMigrationMediumTest(String jdbcUrl) throws Exception {
         this.jdbcUrl = jdbcUrl;
+        ensureOracleIsUp(createDataSource(null));
     }
 
     @Override
