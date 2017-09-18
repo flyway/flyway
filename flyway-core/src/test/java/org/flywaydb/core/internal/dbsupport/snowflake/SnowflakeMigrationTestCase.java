@@ -95,4 +95,17 @@ public class SnowflakeMigrationTestCase extends MigrationTestCase {
         flyway.migrate();
     }
 
+    /**
+     * Tests clean and migrate for Snowflake file formats.
+     */
+    @Test
+    public void function() throws Exception {
+        flyway.setLocations("migration/dbsupport/snowflake/sql/function");
+        flyway.migrate();
+
+        assertEquals(68, jdbcTemplate.queryForInt("SELECT MULTIPLY(4, 17);"));
+        assertEquals("SecondValue", jdbcTemplate.queryForString("SELECT VAL FROM TABLE(PUBLIC.GET_VALUE_FROM_ID(2))"));
+        assertEquals(5040, jdbcTemplate.queryForInt("SELECT FACTORIAL(7)"));
+    }
+
 }

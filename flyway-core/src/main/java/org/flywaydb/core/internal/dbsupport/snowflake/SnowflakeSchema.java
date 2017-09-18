@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.snowflake;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -40,15 +41,16 @@ public class SnowflakeSchema extends Schema<SnowflakeDbSupport> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForInt("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME=?", name) > 0;
+        ArrayList<ArrayList<String>> schemasMetadata = getMetadataForObjectType("SCHEMAS", "name");
+
+        return schemasMetadata.size() > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        int objectCount = jdbcTemplate.queryForInt(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'",
-                name);
-        return objectCount == 0;
+        ArrayList<ArrayList<String>> tablesMetadata = getMetadataForObjectType("TABLES", "name");
+
+        return tablesMetadata.size() == 0;
     }
 
     @Override
@@ -78,62 +80,112 @@ public class SnowflakeSchema extends Schema<SnowflakeDbSupport> {
         for (String statement : generateDropStatementsForSequences()) {
             jdbcTemplate.executeStatement(statement);
         }
+        for (String statement : generateDropStatementsForFunctions()) {
+            jdbcTemplate.executeStatement(statement);
+        }
     }
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-        List<String> tableNames =
-                jdbcTemplate.queryForStringList("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'", name);
+        ArrayList<ArrayList<String>> tablesMetadata = getMetadataForObjectType("TABLES", "name");
 
-        Table[] tables = new Table[tableNames.size()];
-        for (int i = 0; i < tableNames.size(); i++) {
-            tables[i] = new SnowflakeTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
+        Table[] tables = new Table[tablesMetadata.size()];
+        for (int i = 0; i < tablesMetadata.size(); i++) {
+            String tableName = tablesMetadata.get(i).get(0);
+            tables[i] = new SnowflakeTable(jdbcTemplate, dbSupport, this, tableName);
         }
+
         return tables;
     }
 
     protected List<String> generateDropStatementsForViews() throws SQLException {
-        List<String> viewNames =
-                jdbcTemplate.queryForStringList("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'VIEW'", name);
+        ArrayList<ArrayList<String>> viewsMetadata = getMetadataForObjectType("VIEWS", "name");
 
         List<String> statements = new ArrayList<String>();
-        for (String viewName : viewNames) {
+        for (int i = 0; i < viewsMetadata.size(); i++) {
+            String viewName = viewsMetadata.get(i).get(0);
             statements.add("DROP VIEW " + dbSupport.quote(name, viewName));
         }
         return statements;
     }
 
     protected List<String> generateDropStatementsForStages() throws SQLException {
-        List<String> stageNames =
-                jdbcTemplate.queryForStringList("SELECT STAGE_NAME FROM INFORMATION_SCHEMA.STAGES WHERE STAGE_SCHEMA = ?", this.getName());
+        ArrayList<ArrayList<String>> stagesMetadata = getMetadataForObjectType("STAGES", "name");
 
         List<String> statements = new ArrayList<String>();
-        for (String stageName : stageNames) {
+        for (int i = 0; i < stagesMetadata.size(); i++) {
+            String stageName = stagesMetadata.get(i).get(0);
             statements.add("DROP STAGE " + dbSupport.quote(name, stageName));
         }
         return statements;
     }
 
     protected List<String> generateDropStatementsForFileFormats() throws SQLException {
-        List<String> fileFormatNames =
-                jdbcTemplate.queryForStringList("SELECT FILE_FORMAT_NAME FROM INFORMATION_SCHEMA.FILE_FORMATS WHERE FILE_FORMAT_SCHEMA = ?", this.getName());
+
+        ArrayList<ArrayList<String>> fileFormatsMetadata = getMetadataForObjectType("FILE FORMATS", "name");
 
         List<String> statements = new ArrayList<String>();
-        for (String fileFormatName : fileFormatNames) {
+        for (int i = 0; i < fileFormatsMetadata.size(); i++) {
+            String fileFormatName = fileFormatsMetadata.get(i).get(0);
             statements.add("DROP FILE FORMAT " + dbSupport.quote(name, fileFormatName));
         }
         return statements;
     }
 
     protected List<String> generateDropStatementsForSequences() throws SQLException {
-        List<String> sequenceNames =
-                jdbcTemplate.queryForStringList("SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SEQUENCES WHERE SEQUENCE_SCHEMA = ?", this.getName());
+        ArrayList<ArrayList<String>> sequencesMetadata = getMetadataForObjectType("SEQUENCES", "name");
 
         List<String> statements = new ArrayList<String>();
-        for (String sequenceName : sequenceNames) {
+        for (int i = 0; i < sequencesMetadata.size(); i++) {
+            String sequenceName = sequencesMetadata.get(i).get(0);
             statements.add("DROP SEQUENCE " + dbSupport.quote(name, sequenceName));
         }
         return statements;
+    }
+
+    protected List<String> generateDropStatementsForFunctions() throws SQLException {
+        ArrayList<ArrayList<String>> functionsMetadata = getMetadataForObjectType("USER FUNCTIONS", "arguments");
+
+        List<String> statements = new ArrayList<String>();
+        for (int i = 0; i < functionsMetadata.size(); i++) {
+            String functionNameWithArguments = functionsMetadata.get(i).get(0);
+            functionNameWithArguments = functionNameWithArguments.replaceAll("\\sRETURN\\s.*", "");
+            statements.add("DROP FUNCTION " + functionNameWithArguments);
+        }
+        return statements;
+    }
+
+    /**
+     * Helper method to retrieve a result set of metadata using SHOW
+     *
+     * @param objectType The type of object to return metadata for (expects plural)
+     * @param params Set of column names to select from the result set
+     * @return A list of result set rows
+     * @throws SQLException when the query execution failed.
+     */
+    private ArrayList<ArrayList<String>> getMetadataForObjectType(String objectType, String... resultColumnNames) throws SQLException {
+        String inSchemaString;
+        String objectPattern;
+        if (objectType != "SCHEMAS") {
+            inSchemaString = " IN SCHEMA " + dbSupport.quote(name);
+            objectPattern = "%";
+        }
+        else {
+            inSchemaString = "";
+            objectPattern = name;
+        }
+
+        List<Map<String, String>> resultSet = jdbcTemplate.queryForList("SHOW " + objectType + " LIKE '" + objectPattern + "'" + inSchemaString);
+        ArrayList<ArrayList<String>> resultRows = new ArrayList<>();
+        for (final Map<String, String> result : resultSet) {
+            ArrayList<String> resultRow = new ArrayList<>();
+            for (String resultColumnName : resultColumnNames) {
+                resultRow.add(result.get(resultColumnName));
+            }
+            resultRows.add(resultRow);
+        }
+
+        return resultRows;
     }
 
     @Override
