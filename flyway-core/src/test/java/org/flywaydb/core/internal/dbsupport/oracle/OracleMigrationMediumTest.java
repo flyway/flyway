@@ -107,7 +107,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     private static void handleSQLException(SQLRecoverableException e) throws InterruptedException, SQLRecoverableException {
         if (e.getErrorCode() == 1033 || e.getErrorCode() == 12528) {
             // ORA-01033: ORACLE initialization or shutdown in progress
-            // ORA-12528, TNS:listener: all appropriate instances are blocking new connections
+            // ORA-12528: TNS:listener: all appropriate instances are blocking new connections
             LOG.info("Oracle is not up yet. Retrying in 1 second...");
             Thread.sleep(1000);
         } else {
