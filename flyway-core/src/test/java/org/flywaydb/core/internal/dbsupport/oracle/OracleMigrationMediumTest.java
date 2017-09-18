@@ -19,7 +19,9 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -27,7 +29,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -63,8 +67,34 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         });
     }
 
-    public OracleMigrationMediumTest(String jdbcUrl) {
+    public OracleMigrationMediumTest(String jdbcUrl) throws Exception {
         this.jdbcUrl = jdbcUrl;
+        ensureOracleIsUp(createDataSource(null));
+    }
+
+    static void ensureOracleIsUp(DataSource dataSource) throws Exception {
+        while (true) {
+            Connection connection = null;
+            try {
+                connection = dataSource.getConnection();
+                String result = new JdbcTemplate(connection).queryForString("select ? from dual", "ok");
+                if ("ok".equals(result)) {
+                    break;
+                } else {
+                    throw new FlywayException("Unexpected result: " + result);
+                }
+            } catch (SQLRecoverableException e) {
+                if (e.getErrorCode() == 1033) {
+                    // ORA-01033: ORACLE initialization or shutdown in progress
+                    // Retry in 1 second
+                    Thread.sleep(1000);
+                } else {
+                    throw e;
+                }
+            } finally {
+                JdbcUtils.closeConnection(connection);
+            }
+        }
     }
 
     @Override

@@ -50,8 +50,9 @@ public class OracleDbSupportMediumTest {
 
     private final String jdbcUrl;
 
-    public OracleDbSupportMediumTest(String jdbcUrl) {
+    public OracleDbSupportMediumTest(String jdbcUrl) throws Exception {
         this.jdbcUrl = jdbcUrl;
+        ensureOracleIsUp(createDataSource());
     }
 
     /**
