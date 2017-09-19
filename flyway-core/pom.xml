@@ -366,6 +366,22 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>SAPHANADBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>com.sap.db.jdbc</groupId>

@@ -18,6 +18,7 @@ before_install:
   - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
   - echo "Waiting 4 minutes for databases to come up ..."
   - sleep 240
+  - docker ps -a
 install: "sh ./mvnw install -P-CommandlinePlatformAssemblies -q -e"
 before_script: echo OK
 script: echo Done.

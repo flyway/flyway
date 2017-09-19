@@ -15,5 +15,3 @@
 @REM
 
 docker-compose up --force-recreate -d
-net start SQLBrowser
-net start MSSQL$SQLEXPRESS

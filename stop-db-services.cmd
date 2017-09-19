@@ -14,6 +14,4 @@
 @REM limitations under the License.
 @REM
 
-net stop SQLBrowser
-net stop MSSQL$SQLEXPRESS
 docker-compose rm
