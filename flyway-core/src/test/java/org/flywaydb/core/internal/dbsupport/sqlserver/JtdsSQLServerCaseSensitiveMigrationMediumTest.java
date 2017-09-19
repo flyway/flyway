@@ -22,6 +22,10 @@ import org.flywaydb.core.DbCategory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+import static org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerMigrationTestCase.JDBC_PASSWORD;
+import static org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerMigrationTestCase.JDBC_PORT;
+import static org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerMigrationTestCase.JDBC_USER;
+
 /**
  * Test to demonstrate the migration functionality using SQL Server with the Jtds driver.
  */
@@ -29,10 +33,7 @@ import java.util.Properties;
 public class JtdsSQLServerCaseSensitiveMigrationMediumTest extends SQLServerCaseSensitiveMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("sqlserver.user", "sa");
-        String password = customProperties.getProperty("sqlserver.password", "flyway");
-        String url = customProperties.getProperty("sqlserver.jtds_url", "jdbc:jtds:sqlserver://localhost:1433/flyway_db_jtds_case_sensitive");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                "jdbc:jtds:sqlserver://localhost:"+ JDBC_PORT +"/flyway_db_jtds_case_sensitive", JDBC_USER, JDBC_PASSWORD);
     }
 }
