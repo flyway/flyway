@@ -43,14 +43,14 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        List<HashMap<String, String>> schemasMetadata = getMetadataForObjectType("SCHEMAS", "name");
+        List<HashMap<String, String>> schemasMetadata = getMetadataForObjectType("SCHEMAS", name,"name");
 
         return schemasMetadata.size() > 0;
     }
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        List<HashMap<String, String>> tablesMetadata = getMetadataForObjectType("TABLES", "name");
+        List<HashMap<String, String>> tablesMetadata = getMetadataForObjectType("TABLES", "%","name");
 
         return tablesMetadata.size() == 0;
     }
@@ -89,7 +89,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-        List<HashMap<String, String>> tablesMetadata = getMetadataForObjectType("TABLES", "name");
+        List<HashMap<String, String>> tablesMetadata = getMetadataForObjectType("TABLES", "%","name");
 
         Table[] tables = new Table[tablesMetadata.size()];
         for (int i = 0; i < tablesMetadata.size(); i++) {
@@ -101,7 +101,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
     }
 
     protected List<String> generateDropStatementsForViews() throws SQLException {
-        List<HashMap<String, String>> viewsMetadata = getMetadataForObjectType("VIEWS", "name");
+        List<HashMap<String, String>> viewsMetadata = getMetadataForObjectType("VIEWS", "%","name");
 
         List<String> statements = new ArrayList<String>();
         for (int i = 0; i < viewsMetadata.size(); i++) {
@@ -112,7 +112,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
     }
 
     protected List<String> generateDropStatementsForStages() throws SQLException {
-        List<HashMap<String, String>> stagesMetadata = getMetadataForObjectType("STAGES", "name");
+        List<HashMap<String, String>> stagesMetadata = getMetadataForObjectType("STAGES", "%","name");
 
         List<String> statements = new ArrayList<String>();
         for (int i = 0; i < stagesMetadata.size(); i++) {
@@ -123,7 +123,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
     }
 
     protected List<String> generateDropStatementsForFileFormats() throws SQLException {
-        List<HashMap<String, String>> fileFormatsMetadata = getMetadataForObjectType("FILE FORMATS", "name");
+        List<HashMap<String, String>> fileFormatsMetadata = getMetadataForObjectType("FILE FORMATS", "%","name");
 
         List<String> statements = new ArrayList<String>();
         for (int i = 0; i < fileFormatsMetadata.size(); i++) {
@@ -134,7 +134,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
     }
 
     protected List<String> generateDropStatementsForSequences() throws SQLException {
-        List<HashMap<String, String>> sequencesMetadata = getMetadataForObjectType("SEQUENCES", "name");
+        List<HashMap<String, String>> sequencesMetadata = getMetadataForObjectType("SEQUENCES", "%","name");
 
         List<String> statements = new ArrayList<String>();
         for (int i = 0; i < sequencesMetadata.size(); i++) {
@@ -145,7 +145,7 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
     }
 
     protected List<String> generateDropStatementsForFunctions() throws SQLException {
-        List<HashMap<String, String>> functionsMetadata = getMetadataForObjectType("USER FUNCTIONS", "arguments", "name");
+        List<HashMap<String, String>> functionsMetadata = getMetadataForObjectType("USER FUNCTIONS", "%", "arguments");
 
         List<String> statements = new ArrayList<String>();
         for (int i = 0; i < functionsMetadata.size(); i++) {
@@ -164,19 +164,16 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
      * @return A list of result set rows
      * @throws SQLException when the query execution failed.
      */
-    private List<HashMap<String, String>> getMetadataForObjectType(String objectType, String... resultColumnNames) throws SQLException {
+    private List<HashMap<String, String>> getMetadataForObjectType(String objectType, String objectFilter, String... resultColumnNames) throws SQLException {
         String inSchemaString;
-        String objectPattern;
         if (objectType != "SCHEMAS") {
             inSchemaString = " IN SCHEMA " + database.quote(name);
-            objectPattern = "%";
         }
         else {
             inSchemaString = "";
-            objectPattern = name;
         }
 
-        String metadataQuery = "SHOW " + objectType + " LIKE '" + objectPattern + "'" + inSchemaString;
+        String metadataQuery = "SHOW " + objectType + " LIKE '" + objectFilter + "'" + inSchemaString;
         List<HashMap<String, String>> resultRows = jdbcTemplate.query(
                 metadataQuery,
                 new RowMapper<HashMap<String, String>>() {
