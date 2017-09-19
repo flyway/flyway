@@ -32,11 +32,8 @@ import java.util.Properties;
 public class MsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("sqlserver.user", "sa");
-        String password = customProperties.getProperty("sqlserver.password", "flyway");
-        String url = customProperties.getProperty("sqlserver.ms_url", "jdbc:sqlserver://localhost:1433;databaseName=flyway_db_ms");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                "jdbc:sqlserver://localhost:" + JDBC_PORT + ";databaseName=flyway_db_ms", JDBC_USER, JDBC_PASSWORD);
     }
 
     /**

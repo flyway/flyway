@@ -40,6 +40,10 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"JavaDoc"})
 public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
+    static String JDBC_USER = "sa";
+    static String JDBC_PASSWORD = "flywayPWD000";
+    static String JDBC_PORT = "62030";
+
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
@@ -164,9 +168,15 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
      */
     @Test
     public void assembly() throws Exception {
-
         CallableStatement stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr enabled', 1; RECONFIGURE;");
         stmt.execute();
+        stmt.close();
+        stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'show advanced options', 1; RECONFIGURE;");
+        stmt.execute();
+        stmt.close();
+        stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr strict security', 0; RECONFIGURE;");
+        stmt.execute();
+        stmt.close();
 
         try {
 

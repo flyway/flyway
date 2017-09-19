@@ -210,16 +210,22 @@
             <artifactId>db2jcc4</artifactId>
             <scope>test</scope>
         </dependency>
-		<dependency>
-		    <groupId>org.neo4j</groupId>
-		    <artifactId>neo4j-jdbc-driver</artifactId>
-		    <version>3.1.0</version>
-		</dependency>
-		<dependency>
-		    <groupId>cglib</groupId>
-		    <artifactId>cglib-nodep</artifactId>
-		    <version>3.2.5</version>
-		</dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-jdbc-driver</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>3.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>sqljdbc4</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -371,12 +377,23 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>SAPHANADBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <dependencies>
-                <dependency>
-                    <groupId>com.microsoft.sqlserver</groupId>
-                    <artifactId>sqljdbc4</artifactId>
-                    <scope>test</scope>
-                </dependency>
                 <dependency>
                     <groupId>com.sap.db.jdbc</groupId>
                     <artifactId>ngdbc</artifactId>
