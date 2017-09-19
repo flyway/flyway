@@ -16,10 +16,10 @@
 
 version: "3"
 services:
-  db2:
+  db2-10:
     image: "ibmcom/db2express-c:10.5.0.5-3.10.0"
     ports:
-     - "62201:50000"
+     - "62000:50000"
     environment:
      - DB2INST1_PASSWORD=flywaypwd
      - LICENSE=accept
@@ -27,13 +27,37 @@ services:
      - ./flyway-core/src/test/resources/migration/dbsupport/db2/entrypoint.sh:/entrypoint.sh
      - ./flyway-core/src/test/resources/migration/dbsupport/db2/createDatabase.sql:/createDatabase.sql
     command: "db2start"
-  oracle:
-    image: "wnameless/oracle-xe-11g"
+
+
+
+
+
+
+
+
+
+  oracle-12:
+    image: "sath89/oracle-12c"
     ports:
-     - "62202:1521"
+     - "62011:1521"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-  postgresql:
+  postgresql-92:
     image: "postgres:9.2.21-alpine"
     ports:
-     - "62203:5432"
+     - "62020:5432"
+  sqlserver-2017:
+    image: "microsoft/mssql-server-linux"
+    ports:
+     - "62030:1433"
+    cap_add:
+     - SYS_PTRACE
+    environment:
+     - ACCEPT_EULA=Y
+     - MSSQL_PID=Developer
+     - MSSQL_SA_PASSWORD=flywayPWD000
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/sqlserver/entrypoint.sh:/entrypoint.sh
+     - ./flyway-core/src/test/resources/migration/dbsupport/sqlserver/createDatabase.sql:/createDatabase.sql
+    entrypoint:
+     - /entrypoint.sh

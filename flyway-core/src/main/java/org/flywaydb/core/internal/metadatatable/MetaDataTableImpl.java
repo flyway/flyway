@@ -188,11 +188,11 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         try {
             String versionStr = version == null ? null : version.toString();
+            int installedRank = appliedMigration.getType() == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
 
             // Try load an updateMetaDataTable.sql file if it exists
             String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateMetaDataTable.sql";
             ClassPathResource classPathResource = new ClassPathResource(resourceName, getClass().getClassLoader());
-            int installedRank = appliedMigration.getType() == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
             if (classPathResource.exists()) {
                 String source = classPathResource.loadAsString("UTF-8");
                 Map<String, String> placeholders = new HashMap<String, String>();

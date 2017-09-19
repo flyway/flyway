@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.dbsupport.sqlserver;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationState;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -40,6 +40,10 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"JavaDoc"})
 public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
+    static String JDBC_USER = "sa";
+    static String JDBC_PASSWORD = "flywayPWD000";
+    static String JDBC_PORT = "62030";
+
     @Override
     protected String getQuoteLocation() {
         return "migration/quote";
@@ -164,9 +168,15 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
      */
     @Test
     public void assembly() throws Exception {
-
         CallableStatement stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr enabled', 1; RECONFIGURE;");
         stmt.execute();
+        stmt.close();
+        stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'show advanced options', 1; RECONFIGURE;");
+        stmt.execute();
+        stmt.close();
+        stmt = jdbcTemplate.getConnection().prepareCall("EXEC sp_configure 'clr strict security', 0; RECONFIGURE;");
+        stmt.execute();
+        stmt.close();
 
         try {
 
@@ -308,33 +318,33 @@ public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
         assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
         assertTrue(jdbcTemplate.queryForInt("SELECT COUNT(*) FROM dbo.CHANGELOG") > 0);
     }
-	
-  /**
-   * Tests that dml errors that occur in the middle of a batch are correctly detected
-   * see issue 718
-   */
-  @Test
-  public void dmlErrorsCorrectlyDetected() throws Exception {
-    String tableName = "sample_table";
 
-    flyway.setLocations("migration/dbsupport/sqlserver/sql/dmlErrorDetection");
-    Map<String, String> placeholders = new HashMap<String, String>();
-    placeholders.put("tableName", dbSupport.quote(tableName));
-    flyway.setPlaceholders(placeholders);
+    /**
+     * Tests that dml errors that occur in the middle of a batch are correctly detected
+     * see issue 718
+     */
+    @Test
+    public void dmlErrorsCorrectlyDetected() throws Exception {
+        String tableName = "sample_table";
 
-    try {
-      flyway.migrate();
-      fail("This migration should have failed and this point shouldn't have been reached");
-    } catch (FlywaySqlScriptException e) {
-      // root cause of exception must be defined, and it should be FlywaySqlScriptException
-      assertNotNull(e.getCause());
-      assertTrue(e.getCause() instanceof SQLException);
-      // and make sure the failed statement was properly recorded
-      assertEquals(23, e.getLineNumber());
-      assertTrue(e.getStatement().contains("INSERT INTO"));
-      assertTrue(e.getStatement().contains("VALUES(1)"));
+        flyway.setLocations("migration/dbsupport/sqlserver/sql/dmlErrorDetection");
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("tableName", dbSupport.quote(tableName));
+        flyway.setPlaceholders(placeholders);
+
+        try {
+            flyway.migrate();
+            fail("This migration should have failed and this point shouldn't have been reached");
+        } catch (FlywaySqlScriptException e) {
+            // root cause of exception must be defined, and it should be FlywaySqlScriptException
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof SQLException);
+            // and make sure the failed statement was properly recorded
+            assertEquals(23, e.getLineNumber());
+            assertTrue(e.getStatement().contains("INSERT INTO"));
+            assertTrue(e.getStatement().contains("VALUES(1)"));
+        }
     }
-  }
 
     @Test
     public void msDBToolsIgnoredForEmpty() throws Exception {

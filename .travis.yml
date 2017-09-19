@@ -7,6 +7,7 @@ services:
   - postgresql
   - docker
 before_install:
+  - docker-compose pull --parallel
   - docker-compose up -d
   - psql -U postgres < ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
   - mysql --verbose -uroot < ./flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
@@ -16,6 +17,9 @@ before_install:
   - cockroach start --insecure --host=localhost --background
   - cockroach node status --insecure
   - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
-install: "sh ./mvnw install -P-CommercialDBTest,-CommandlinePlatformAssemblies"
+  - echo "Waiting 4 minutes for databases to come up ..."
+  - sleep 240
+  - docker ps -a
+install: "sh ./mvnw install -P-CommandlinePlatformAssemblies -q -e"
 before_script: echo OK
 script: echo Done.

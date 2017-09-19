@@ -29,10 +29,7 @@ import java.util.Properties;
 public class JtdsSQLServerMigrationMediumTest extends SQLServerMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("sqlserver.user", "sa");
-        String password = customProperties.getProperty("sqlserver.password", "flyway");
-        String url = customProperties.getProperty("sqlserver.jtds_url", "jdbc:jtds:sqlserver://localhost:1433/flyway_db_jtds");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                "jdbc:jtds:sqlserver://localhost:" + JDBC_PORT + "/flyway_db_jtds", JDBC_USER, JDBC_PASSWORD);
     }
 }

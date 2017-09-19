@@ -19,13 +19,15 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.util.Arrays;
+import java.util.Collection;
 
-import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_PASSWORD;
-import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_URL;
-import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_USER;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -34,7 +36,25 @@ import static org.junit.Assert.assertFalse;
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.Oracle.class)
+@RunWith(Parameterized.class)
 public class OracleDbSupportMediumTest {
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_ORACLE_12}
+
+
+
+        });
+    }
+
+    private final String jdbcUrl;
+
+    public OracleDbSupportMediumTest(String jdbcUrl) throws Exception {
+        this.jdbcUrl = jdbcUrl;
+        ensureOracleIsUp(createDataSource());
+    }
+
     /**
      * Checks the result of the getCurrentUserName and getCurrentSchemaName calls.
      *
@@ -54,7 +74,7 @@ public class OracleDbSupportMediumTest {
 
         String dataSourceUser = useProxy ? "\"flyway_proxy\"[" + user + "]" : user;
 
-        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, JDBC_URL, dataSourceUser, password, null);
+        DataSource dataSource = new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, jdbcUrl, dataSourceUser, password, null);
 
         Connection connection = dataSource.getConnection();
         OracleDbSupport dbSupport = new OracleDbSupport(connection);
@@ -140,6 +160,6 @@ public class OracleDbSupportMediumTest {
 
     private DataSource createDataSource() throws Exception {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                JDBC_URL, JDBC_USER, JDBC_PASSWORD, null);
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD, null);
     }
 }
