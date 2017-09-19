@@ -21,11 +21,12 @@ import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.exception.FlywaySqlException;
 import org.flywaydb.core.internal.util.jdbc.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Snowflake-specific table.
@@ -70,16 +71,9 @@ public class SnowflakeTable extends Table {
      */
     @Override
     protected boolean exists(Schema catalog, Schema schema, String table, String... tableTypes) throws SQLException {
-        boolean found;
-        List<Map<String, String>> resultSet = jdbcTemplate.queryForList("SHOW TABLES LIKE '" + name + "' IN SCHEMA \"" + schema.getName() + "\"");
-        List<String> tableNames = new ArrayList<String>();
-        for (final Map<String, String> result : resultSet) {
-            tableNames.add(result.get("name"));
-        }
+        List<HashMap<String, String>> tablesMetadata = getMetadataForObjectType("TABLES", "name");
 
-        found = !tableNames.isEmpty();
-
-        return found;
+        return tablesMetadata.size() > 0;
     }
 
     /**
@@ -104,5 +98,42 @@ public class SnowflakeTable extends Table {
         found = !tableNames.isEmpty();
 
         return found;
+    }
+
+    /**
+     * Helper method to retrieve a result set of metadata using SHOW
+     *
+     * @param objectType The type of object to return metadata for (expects plural)
+     * @param resultColumnNames Set of column names to select from the result set
+     * @return A list of result set rows
+     * @throws SQLException when the query execution failed.
+     */
+    private List<HashMap<String, String>> getMetadataForObjectType(String objectType, String... resultColumnNames) throws SQLException {
+        String inSchemaString;
+        String objectPattern;
+        if (objectType != "SCHEMAS") {
+            inSchemaString = " IN SCHEMA " + database.quote(name);
+            objectPattern = "%";
+        }
+        else {
+            inSchemaString = "";
+            objectPattern = name;
+        }
+
+        String metadataQuery = "SHOW " + objectType + " LIKE '" + objectPattern + "'" + inSchemaString;
+        List<HashMap<String, String>> resultRows = jdbcTemplate.query(
+                metadataQuery,
+                new RowMapper<HashMap<String, String>>() {
+                    @Override
+                    public HashMap<String, String> mapRow(ResultSet rs) throws SQLException {
+                        HashMap<String, String> objectList = new HashMap<String, String>();
+                        for(String resultColumnName : resultColumnNames) {
+                            objectList.put(resultColumnName, rs.getString(resultColumnName));
+                        }
+                        return objectList;
+                    }
+                });
+
+        return resultRows;
     }
 }
