@@ -413,6 +413,13 @@
                 <classifier>macosx-x64</classifier>
                 <type>tar.gz</type>
             </dependency>
+
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>0.1.42</version>
+                <optional>true</optional>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
