@@ -27,22 +27,37 @@ services:
      - ./flyway-core/src/test/resources/migration/dbsupport/db2/entrypoint.sh:/entrypoint.sh
      - ./flyway-core/src/test/resources/migration/dbsupport/db2/createDatabase.sql:/createDatabase.sql
     command: "db2start"
+
+
+
+
+
+
+
+
+
   oracle-12:
     image: "sath89/oracle-12c"
     ports:
-     - "62010:1521"
+     - "62011:1521"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-
-
-
-
-
-
-
-
-
   postgresql-92:
     image: "postgres:9.2.21-alpine"
     ports:
      - "62020:5432"
+  sqlserver-2017:
+    image: "microsoft/mssql-server-linux"
+    ports:
+     - "62030:1433"
+    cap_add:
+     - SYS_PTRACE
+    environment:
+     - ACCEPT_EULA=Y
+     - MSSQL_PID=Developer
+     - MSSQL_SA_PASSWORD=flywayPWD000
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/sqlserver/entrypoint.sh:/entrypoint.sh
+     - ./flyway-core/src/test/resources/migration/dbsupport/sqlserver/createDatabase.sql:/createDatabase.sql
+    entrypoint:
+     - /entrypoint.sh
