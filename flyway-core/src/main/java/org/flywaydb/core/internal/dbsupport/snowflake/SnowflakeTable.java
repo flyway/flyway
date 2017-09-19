@@ -66,7 +66,7 @@ public class SnowflakeTable extends Table {
      */
     @Override
     protected boolean exists(Schema catalog, Schema schema, String table, String... tableTypes) throws SQLException {
-        List<HashMap<String, String>> tablesMetadata = getMetadataForObjectType("TABLES", "name");
+        List<HashMap<String, String>> tablesMetadata = getMetadataForObjectType("TABLES", name, "name");
 
         return tablesMetadata.size() > 0;
     }
@@ -103,19 +103,16 @@ public class SnowflakeTable extends Table {
      * @return A list of result set rows
      * @throws SQLException when the query execution failed.
      */
-    private List<HashMap<String, String>> getMetadataForObjectType(String objectType, String... resultColumnNames) throws SQLException {
+    private List<HashMap<String, String>> getMetadataForObjectType(String objectType, String objectFilter, String... resultColumnNames) throws SQLException {
         String inSchemaString;
-        String objectPattern;
         if (objectType != "SCHEMAS") {
-            inSchemaString = " IN SCHEMA " + dbSupport.quote(name);
-            objectPattern = "%";
+            inSchemaString = " IN SCHEMA " + dbSupport.quote(schema.getName());
         }
         else {
             inSchemaString = "";
-            objectPattern = name;
         }
 
-        String metadataQuery = "SHOW " + objectType + " LIKE '" + objectPattern + "'" + inSchemaString;
+        String metadataQuery = "SHOW " + objectType + " LIKE '" + objectFilter + "'" + inSchemaString;
         List<HashMap<String, String>> resultRows = jdbcTemplate.query(
                 metadataQuery,
                 new RowMapper<HashMap<String, String>>() {
