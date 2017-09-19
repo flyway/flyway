@@ -210,6 +210,11 @@
             <artifactId>db2jcc4</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>sqljdbc4</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -362,11 +367,6 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <dependencies>
-                <dependency>
-                    <groupId>com.microsoft.sqlserver</groupId>
-                    <artifactId>sqljdbc4</artifactId>
-                    <scope>test</scope>
-                </dependency>
                 <dependency>
                     <groupId>com.sap.db.jdbc</groupId>
                     <artifactId>ngdbc</artifactId>
