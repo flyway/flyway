@@ -154,11 +154,7 @@
     </build>
     <profiles>
         <profile>
-            <id>CommercialDBTest</id>
-            <!--
-            Should work, but somehow doesn't as any attempt to disable this profile for TravisCI fails
             <id>CommandlinePlatformAssemblies</id>
-            -->
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
