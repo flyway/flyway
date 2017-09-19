@@ -544,7 +544,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$EmbeddedDB,org.flywaydb.core.DbCategory$EnterpriseDB,org.flywaydb.core.DbCategory$Phoenix,org.flywaydb.core.DbCategory$GoogleCloudSQL,org.flywaydb.core.DbCategory$SapHana,org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$GreenPlum,org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$Snowflake,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$SybaseASE</excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$EmbeddedDB,org.flywaydb.core.DbCategory$EnterpriseDB,org.flywaydb.core.DbCategory$Phoenix,org.flywaydb.core.DbCategory$GoogleCloudSQL,org.flywaydb.core.DbCategory$SapHana,org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$GreenPlum,org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$SybaseASE</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
