@@ -15,65 +15,45 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.ClassRule;
-import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
-import org.junit.rules.ExternalResource;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.HostPortWaitStrategy;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
-import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.DOCKER_IMAGE_NAME;
+import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.*;
 
 /**
  * Test to demonstrate the migration functionality using PostgreSQL.
  */
 @Category(DbCategory.PostgreSQL.class)
+@RunWith(Parameterized.class)
 public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-    private static String jdbcUrl;
-    private static String jdbcUser;
-    private static String jdbcPassword;
+    private final String jdbcUrl;
 
-    @ClassRule
-    public static ExternalResource initPostgreSQL() {
-        return new ExternalResource() {
-            private PostgreSQLContainer postgreSQL;
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_POSTGRESQL_93}
 
-            @Override
-            protected void before() throws Throwable {
-                try {
-                    DockerClientFactory.instance().client();
-                    postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
-                    postgreSQL.start();
-                    new HostPortWaitStrategy().waitUntilReady(postgreSQL);
-                    jdbcUrl = postgreSQL.getJdbcUrl();
-                    jdbcUser = postgreSQL.getUsername();
-                    jdbcPassword = postgreSQL.getPassword();
-                } catch (Exception e) {
-                    // Docker not found, fall back to local PostgreSQL instance.
-                    jdbcUrl = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
-                    jdbcUser = customProperties.getProperty("postgresql.user", "flyway");
-                    jdbcPassword = customProperties.getProperty("postgresql.password", "flyway");
-                }
-            }
 
-            @Override
-            protected void after() {
-                if (postgreSQL != null) {
-                    postgreSQL.stop();
-                }
-            }
-        };
+
+        });
+    }
+
+    public PostgreSQLConcurrentMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
     }
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                jdbcUrl, jdbcUser, jdbcPassword, null);
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
 }
