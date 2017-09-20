@@ -47,10 +47,12 @@ public class PostgreSQLTable extends Table {
     protected boolean doExists() throws SQLException {
         return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
                 "   SELECT 1\n" +
-                "   FROM   information_schema.tables \n" +
-                "   WHERE  table_schema = ?\n" +
-                "   AND    table_name = ?\n" +
-                ")", schema.getName(), name);
+                "   FROM   pg_catalog.pg_class c\n" +
+                "   JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
+                "   WHERE  n.nspname = ?\n" +
+                "   AND    c.relname = ?\n" +
+                "   AND    c.relkind = 'r'    -- only tables\n" +
+                "   );", schema.getName(), name);
     }
 
     @Override

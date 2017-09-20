@@ -18,21 +18,46 @@ package org.flywaydb.core.internal.dbsupport.mysql;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
  * Test to demonstrate the migration functionality using Mysql.
  */
 @Category(DbCategory.MariaDB.class)
+@RunWith(Parameterized.class)
 public class MariaDBMigrationMediumTest extends MySQLMigrationTestCase {
-    @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("mariadb.user", "flyway");
-        String password = customProperties.getProperty("mariadb.password", "flyway");
-        String url = customProperties.getProperty("mariadb.url", "jdbc:mariadb://localhost:3333/flyway_db");
 
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+
+
+    private static final String JDBC_URL_MARIADB_100 = "jdbc:mysql://localhost:62011/flyway_db";
+    private static final String JDBC_USER = "root";
+    private static final String JDBC_PASSWORD = "flywayPWD000";
+
+    private final String jdbcUrl;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_MARIADB_100}
+
+
+
+        });
+    }
+
+    public MariaDBMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
+
+    @Override
+    protected DataSource createDataSource(Properties customProperties) {
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
 }

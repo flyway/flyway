@@ -185,6 +185,21 @@
             <artifactId>phoenix-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.noraui</groupId>
+            <artifactId>ojdbc7</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.db2.jcc</groupId>
+            <artifactId>db2jcc4</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>sqljdbc4</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -305,7 +320,9 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <!-- Don't run the embedded Phoenix test by default, it has its own profile -->
-                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                            <excludedGroups>
+                                org.flywaydb.core.DbCategory$InstallableDB,org.flywaydb.core.DbCategory$Phoenix
+                            </excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -321,7 +338,9 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                            <excludedGroups>
+                                org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$Phoenix
+                            </excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -332,22 +351,23 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>SAPHANADBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <dependencies>
-                <dependency>
-                    <groupId>com.microsoft.sqlserver</groupId>
-                    <artifactId>sqljdbc4</artifactId>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>com.oracle</groupId>
-                    <artifactId>ojdbc6</artifactId>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>com.ibm.db2</groupId>
-                    <artifactId>db2jcc4</artifactId>
-                    <scope>test</scope>
-                </dependency>
                 <dependency>
                     <groupId>com.sap.db.jdbc</groupId>
                     <artifactId>ngdbc</artifactId>
@@ -383,7 +403,9 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <!-- exclude all but EnterpriseDB -->
-                            <excludedGroups>org.flywaydb.core.DbCategory$DB2,org.flywaydb.core.DbCategory$Oracle,org.flywaydb.core.DbCategory$SQLServer,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$Derby,org.flywaydb.core.DbCategory$H2,org.flywaydb.core.DbCategory$HSQL,org.flywaydb.core.DbCategory$SQLite,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                            <excludedGroups>
+                                org.flywaydb.core.DbCategory$DB2,org.flywaydb.core.DbCategory$Oracle,org.flywaydb.core.DbCategory$SQLServer,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$Derby,org.flywaydb.core.DbCategory$H2,org.flywaydb.core.DbCategory$HSQL,org.flywaydb.core.DbCategory$SQLite,org.flywaydb.core.DbCategory$Phoenix
+                            </excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -406,7 +428,9 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                            <excludedGroups>
+                                org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$Phoenix
+                            </excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -436,7 +460,9 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                            <excludedGroups>
+                                org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$Phoenix
+                            </excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -459,7 +485,9 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Phoenix</excludedGroups>
+                            <excludedGroups>
+                                org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$Phoenix
+                            </excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -491,7 +519,9 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <!-- Exclude everything but Phoenix -->
-                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$Derby,org.flywaydb.core.DbCategory$H2,org.flywaydb.core.DbCategory$HSQL,org.flywaydb.core.DbCategory$SQLite</excludedGroups>
+                            <excludedGroups>
+                                org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$Derby,org.flywaydb.core.DbCategory$H2,org.flywaydb.core.DbCategory$HSQL,org.flywaydb.core.DbCategory$SQLite
+                            </excludedGroups>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -514,14 +544,16 @@
                     <groupId>com.pivotal.jdbc</groupId>
                     <artifactId>greenplumdriver</artifactId>
                     <scope>test</scope>
-                </dependency>              
+                </dependency>
             </dependencies>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$EmbeddedDB,org.flywaydb.core.DbCategory$PostgreSQL,org.flywaydb.core.DbCategory$MySQL,org.flywaydb.core.DbCategory$MariaDB</excludedGroups>
+                            <excludedGroups>
+                                org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$ContributorSupportedDB,org.flywaydb.core.DbCategory$EmbeddedDB,org.flywaydb.core.DbCategory$PostgreSQL,org.flywaydb.core.DbCategory$MySQL,org.flywaydb.core.DbCategory$MariaDB
+                            </excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>

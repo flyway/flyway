@@ -15,13 +15,17 @@
  */
 package org.flywaydb.core.internal.dbsupport.mysql;
 
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
 import java.util.Properties;
+
+import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTest.JDBC_PASSWORD;
+import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTest.JDBC_URL;
+import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTest.JDBC_USER;
 
 /**
  * Test to demonstrate the migration functionality using MySQL.
@@ -29,11 +33,8 @@ import java.util.Properties;
 @Category(DbCategory.MySQL.class)
 public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
-    protected DataSource createDataSource(Properties customProperties) throws Exception {
-        String user = customProperties.getProperty("mysql.user", "flyway");
-        String password = customProperties.getProperty("mysql.password", "flyway");
-        String url = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+    protected DataSource createDataSource(Properties customProperties) {
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                JDBC_URL, JDBC_USER, JDBC_PASSWORD);
     }
 }

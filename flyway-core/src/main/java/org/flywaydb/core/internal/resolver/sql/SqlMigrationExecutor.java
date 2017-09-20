@@ -73,7 +73,11 @@ public class SqlMigrationExecutor implements MigrationExecutor {
 
     @Override
     public void execute(Connection connection) {
-        getSqlScript().execute(new JdbcTemplate(connection, 0));
+        JdbcTemplate jdbcTemplate = connection == dbSupport.getJdbcTemplate().getConnection()
+                ? dbSupport.getJdbcTemplate()
+                : new JdbcTemplate(connection, 0);
+
+        getSqlScript().execute(jdbcTemplate);
     }
 
     private synchronized SqlScript getSqlScript() {

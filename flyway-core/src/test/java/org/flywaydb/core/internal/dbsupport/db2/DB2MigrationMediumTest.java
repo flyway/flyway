@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.dbsupport.db2;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -33,15 +33,13 @@ import static org.junit.Assert.assertEquals;
  */
 @Category(DbCategory.DB2.class)
 public class DB2MigrationMediumTest extends MigrationTestCase {
-    private String user;
+    static final String JDBC_URL = "jdbc:db2://localhost:62000/flyway";
+    static final String JDBC_USER = "db2inst1";
+    static final String JDBC_PASSWORD = "flywaypwd";
 
     @Override
     protected DataSource createDataSource(Properties customProperties) throws Exception {
-        user = customProperties.getProperty("db2.user", "db2admin");
-        String password = customProperties.getProperty("db2.password", "flyway");
-        String url = customProperties.getProperty("db2.url", "jdbc:db2://localhost:50000/flyway");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, JDBC_URL, JDBC_USER, JDBC_PASSWORD, null);
     }
 
     @Override
@@ -178,7 +176,18 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.clean();
 
         // default schema is username in upper case, so we need to use that.
-        assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = ?", user.toUpperCase()));
+        assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = ?", JDBC_USER.toUpperCase()));
+    }
+
+    // Issue #1722: (DB2) clean fails due to sqlcode=476 following a DROP PROCEDURE statement
+    @Test
+    public void dropProceduresWithSameName() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/procedure");
+        flyway.migrate();
+        flyway.clean();
+
+        //THE ONLY PROCEDURES DEFINED USES THE SAME NAME "SP_EQIP_HOURS_AGGRGT_DAY_VIS", SO IT SHOULD NOT EXIST ANYMORE ON SYSTEM CATALOG
+        assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSCAT.PROCEDURES WHERE PROCNAME = ?", "SP_EQIP_HOURS_AGGRGT_DAY_VIS"));
     }
 
     @Override

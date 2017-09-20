@@ -15,23 +15,47 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
+import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.flywaydb.core.DbCategory;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
 import java.sql.Connection;
-import java.util.Properties;
+import java.util.Arrays;
+import java.util.Collection;
 
+import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.*;
 import static org.junit.Assert.assertEquals;
 
 @Category(DbCategory.PostgreSQL.class)
+@RunWith(Parameterized.class)
 public class PostgreSQLDbSupportMediumTest {
+    private final String jdbcUrl;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_POSTGRESQL_93}
+
+
+
+        });
+    }
+
+    public PostgreSQLDbSupportMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
+
+    protected DataSource createDataSource() {
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD);
+    }
+
     /**
      * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.
      */
@@ -51,23 +75,5 @@ public class PostgreSQLDbSupportMediumTest {
         assertEquals("search_path_test, \"$user\", public", searchPath);
         schema.drop();
         JdbcUtils.closeConnection(connection);
-    }
-
-    /**
-     * Creates a datasource for use in tests.
-     *
-     * @return The new datasource.
-     */
-    private DataSource createDataSource() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
-        String user = customProperties.getProperty("postgresql.user", "flyway");
-        String password = customProperties.getProperty("postgresql.password", "flyway");
-        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
 }

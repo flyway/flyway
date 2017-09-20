@@ -15,25 +15,45 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
+
+import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.*;
 
 /**
  * Test to demonstrate the migration functionality using PostgreSQL.
  */
 @Category(DbCategory.PostgreSQL.class)
+@RunWith(Parameterized.class)
 public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+    private final String jdbcUrl;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_POSTGRESQL_93}
+
+
+
+        });
+    }
+
+    public PostgreSQLConcurrentMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
+
     @Override
     protected DataSource createDataSource(Properties customProperties) {
-        String user = customProperties.getProperty("postgresql.user", "flyway");
-        String password = customProperties.getProperty("postgresql.password", "flyway");
-        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
-
-        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
 }

@@ -37,7 +37,8 @@ import static org.junit.Assert.assertTrue;
  * Large Test for the Flyway Maven Plugin.
  */
 @SuppressWarnings({"JavaDoc"})
-public abstract class MavenTestCase {
+public class MavenLargeTest {
+    private static final String MAVEN_VERSION = "3.0";
     private String installDir = System.getProperty("installDir", "flyway-maven-plugin-largetest/target");
 
     /**
@@ -152,7 +153,7 @@ public abstract class MavenTestCase {
             extension = ".bat";
         }
 
-        String mavenHome = installDir + "/install/apache-maven-" + getMavenVersion();
+        String mavenHome = installDir + "/install/apache-maven-" + MAVEN_VERSION;
 
         List<String> args = new ArrayList<String>();
         args.add(mavenHome + "/bin/mvn" + extension);
@@ -199,9 +200,4 @@ public abstract class MavenTestCase {
             throw new IllegalStateException("Unable to read POM version", e);
         }
     }
-
-    /**
-     * @return The Maven version to test against.
-     */
-    protected abstract String getMavenVersion();
 }
