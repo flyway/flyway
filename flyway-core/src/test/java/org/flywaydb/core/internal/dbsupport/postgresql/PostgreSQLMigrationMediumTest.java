@@ -47,9 +47,9 @@ import static org.junit.Assert.assertThat;
 @RunWith(Parameterized.class)
 public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     // [pro]
-    static final String JDBC_URL_POSTGRESQL_92 = "jdbc:postgresql://localhost:62020/flyway_db";
+    static final String JDBC_URL_POSTGRESQL_92 = "jdbc:postgresql://localhost:62040/flyway_db";
     // [/pro]
-    static final String JDBC_URL_POSTGRESQL_93 = "jdbc:postgresql://localhost:62021/flyway_db";
+    static final String JDBC_URL_POSTGRESQL_93 = "jdbc:postgresql://localhost:62041/flyway_db";
     static final String JDBC_USER = "flyway";
     static final String JDBC_PASSWORD = "flyway";
 
