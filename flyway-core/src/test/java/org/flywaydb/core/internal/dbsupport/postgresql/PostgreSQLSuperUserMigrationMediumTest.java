@@ -28,9 +28,6 @@ import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.JDBC_URL_POSTGRESQL_92;
-import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.JDBC_URL_POSTGRESQL_93;
-
 /**
  * PostgreSQL medium tests that require SuperUser permissions.
  */
@@ -45,7 +42,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_POSTGRESQL_93}
+                {org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.JDBC_URL_POSTGRESQL_93}
 
 
 
