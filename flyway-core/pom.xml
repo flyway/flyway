@@ -373,6 +373,18 @@
                     <artifactId>ngdbc</artifactId>
                     <scope>test</scope>
                 </dependency>
+                <dependency>
+					<groupId>com.teradata</groupId>
+					<artifactId>terajdbc4</artifactId>
+					<version>15.10.00.05</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>com.teradata</groupId>
+					<artifactId>tdgssconfig</artifactId>
+					<version>15.10.00.05</version>
+					<scope>test</scope>
+				</dependency>
             </dependencies>
             <build>
                 <plugins>
