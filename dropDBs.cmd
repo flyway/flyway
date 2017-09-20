@@ -37,4 +37,8 @@ psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/
 echo CockroachDB...
 cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/dropDatabase.sql
 
+echo Snowflake...
+@REM Set connection properties in ${user.home}\.snowsql\config prior to execution
+snowsql -f flyway-core/src/test/resources/migration/dbsupport/snowflake/dropDatabase.sql
+
 echo Done.

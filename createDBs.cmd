@@ -40,4 +40,8 @@ solsql -f flyway-core/src/test/resources/migration/dbsupport/solid/createDatabas
 echo CockroackDB
 cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
 
+echo Snowflake...
+@REM Set connection properties in ${user.home}\.snowsql\config prior to execution
+snowsql -f flyway-core/src/test/resources/migration/dbsupport/snowflake/createDatabase.sql
+
 echo Done.

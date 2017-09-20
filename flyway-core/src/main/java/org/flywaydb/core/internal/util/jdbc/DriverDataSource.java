@@ -338,6 +338,10 @@ public class DriverDataSource implements DataSource {
             return "com.pivotal.jdbc.GreenplumDriver";
         }
 
+        if (url.startsWith("jdbc:snowflake:")) {
+            return "net.snowflake.client.jdbc.SnowflakeDriver";
+        }
+
         return null;
     }
 

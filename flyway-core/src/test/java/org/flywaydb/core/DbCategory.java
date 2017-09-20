@@ -53,6 +53,7 @@ public class DbCategory {
     public interface GreenPlum extends ContributorSupportedDB {}
     public interface Vertica extends ContributorSupportedDB {}
     public interface Redshift extends ContributorSupportedDB {}
+    public interface Snowflake extends ContributorSupportedDB {}
     public interface SolidDB extends ContributorSupportedDB {}
     public interface SybaseASE extends ContributorSupportedDB {}
 }

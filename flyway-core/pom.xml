@@ -559,5 +559,28 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>SnowflakeDBTest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>net.snowflake</groupId>
+                    <artifactId>snowflake-jdbc</artifactId>
+                    <scope>test</scope>
+                </dependency>              
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$OpenSourceDB,org.flywaydb.core.DbCategory$EmbeddedDB,org.flywaydb.core.DbCategory$EnterpriseDB,org.flywaydb.core.DbCategory$Phoenix,org.flywaydb.core.DbCategory$GoogleCloudSQL,org.flywaydb.core.DbCategory$SapHana,org.flywaydb.core.DbCategory$DB2zOS,org.flywaydb.core.DbCategory$GreenPlum,org.flywaydb.core.DbCategory$Vertica,org.flywaydb.core.DbCategory$Redshift,org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$SybaseASE</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
