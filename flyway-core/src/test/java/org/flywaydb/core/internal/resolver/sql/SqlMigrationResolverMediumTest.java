@@ -20,7 +20,6 @@ import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.junit.Test;
 
 import java.io.File;
@@ -42,7 +41,7 @@ public class SqlMigrationResolverMediumTest {
         String path = URLDecoder.decode(getClass().getClassLoader().getResource("migration/subdir").getPath(), "UTF-8");
 
         SqlMigrationResolver sqlMigrationResolver =
-                new SqlMigrationResolver(null, new Scanner(Thread.currentThread().getContextClassLoader()),
+                new SqlMigrationResolver(null, Thread.currentThread().getContextClassLoader(),
                         new Locations("filesystem:" + new File(path).getPath()), PlaceholderReplacer.NO_PLACEHOLDERS,
                         FlywayConfigurationForTests.create());
         Collection<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();

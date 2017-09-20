@@ -40,7 +40,7 @@ public class CompositeMigrationResolverSmallTest {
 
         PlaceholderReplacer placeholderReplacer = new PlaceholderReplacer(new HashMap<String, String>(), "${", "}");
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                new Scanner(Thread.currentThread().getContextClassLoader()), config,
+                Thread.currentThread().getContextClassLoader(), config,
                 new Locations("migration/subdir/dir2", "migration.outoforder", "migration/subdir/dir1"),
                 placeholderReplacer, new MyCustomMigrationResolver());
 
@@ -147,7 +147,7 @@ public class CompositeMigrationResolverSmallTest {
         config.setSkipDefaultResolvers(true);
 
         MigrationResolver migrationResolver = new CompositeMigrationResolver(null,
-                new Scanner(Thread.currentThread().getContextClassLoader()), config,
+                Thread.currentThread().getContextClassLoader(), config,
                 new Locations("migration/outoforder", "org/flywaydb/core/internal/resolver/jdbc/dummy"),
                 PlaceholderReplacer.NO_PLACEHOLDERS);
 

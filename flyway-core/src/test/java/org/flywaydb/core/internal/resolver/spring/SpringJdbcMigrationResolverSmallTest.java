@@ -36,13 +36,12 @@ import static org.junit.Assert.assertNull;
  * Test for SpringJdbcMigrationResolver.
  */
 public class SpringJdbcMigrationResolverSmallTest {
-    private final Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader());
     private final FlywayConfiguration config = FlywayConfigurationForTests.create();
 
     @Test
     public void resolveMigrations() {
         SpringJdbcMigrationResolver springJdbcMigrationResolver =
-                new SpringJdbcMigrationResolver(scanner, new Locations("org/flywaydb/core/internal/resolver/spring/dummy"), config);
+                new SpringJdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), new Locations("org/flywaydb/core/internal/resolver/spring/dummy"), config);
         Collection<ResolvedMigration> migrations = springJdbcMigrationResolver.resolveMigrations();
 
         assertEquals(2, migrations.size());
@@ -61,7 +60,7 @@ public class SpringJdbcMigrationResolverSmallTest {
 
     @Test
     public void conventionOverConfiguration() {
-        SpringJdbcMigrationResolver springJdbcMigrationResolver = new SpringJdbcMigrationResolver(scanner, null, null);
+        SpringJdbcMigrationResolver springJdbcMigrationResolver = new SpringJdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), null, null);
         ResolvedMigration migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new V2__InterfaceBasedMigration());
         assertEquals("2", migrationInfo.getVersion().toString());
         assertEquals("InterfaceBasedMigration", migrationInfo.getDescription());
@@ -70,7 +69,7 @@ public class SpringJdbcMigrationResolverSmallTest {
 
     @Test
     public void explicitInfo() {
-        SpringJdbcMigrationResolver springJdbcMigrationResolver = new SpringJdbcMigrationResolver(scanner, null, null);
+        SpringJdbcMigrationResolver springJdbcMigrationResolver = new SpringJdbcMigrationResolver(Thread.currentThread().getContextClassLoader(), null, null);
         ResolvedMigration migrationInfo = springJdbcMigrationResolver.extractMigrationInfo(new Version3dot5());
         assertEquals("3.5", migrationInfo.getVersion().toString());
         assertEquals("Three Dot Five", migrationInfo.getDescription());

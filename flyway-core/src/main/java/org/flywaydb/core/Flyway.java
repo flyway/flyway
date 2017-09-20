@@ -1212,15 +1212,14 @@ public class Flyway implements FlywayConfiguration {
      * Creates the MigrationResolver.
      *
      * @param dbSupport The database-specific support.
-     * @param scanner   The Scanner for resolving migrations.
      * @return A new, fully configured, MigrationResolver instance.
      */
-    private MigrationResolver createMigrationResolver(DbSupport dbSupport, Scanner scanner) {
+    private MigrationResolver createMigrationResolver(DbSupport dbSupport) {
         for (MigrationResolver resolver : resolvers) {
             ConfigurationInjectionUtils.injectFlywayConfiguration(resolver, this);
         }
 
-        return new CompositeMigrationResolver(dbSupport, scanner, this, locations, createPlaceholderReplacer(), resolvers);
+        return new CompositeMigrationResolver(dbSupport, classLoader, this, locations, createPlaceholderReplacer(), resolvers);
     }
 
     /**
@@ -1487,8 +1486,9 @@ public class Flyway implements FlywayConfiguration {
                 schemas[i] = dbSupport.getSchema(schemaNames[i]);
             }
 
-            Scanner scanner = new Scanner(classLoader);
-            MigrationResolver migrationResolver = createMigrationResolver(dbSupport, scanner);
+            // force creation of a new Scanner to prevent location caching, because the classpath might have been changed
+            Scanner scanner = Scanner.createNew(classLoader);
+            MigrationResolver migrationResolver = createMigrationResolver(dbSupport);
 
             if (!skipDefaultCallbacks) {
                 Set<FlywayCallback> flywayCallbacks = new LinkedHashSet<FlywayCallback>(Arrays.asList(callbacks));

@@ -333,7 +333,7 @@ public abstract class MigrationTestCase {
      */
     protected void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
+                dbSupport, Thread.currentThread().getContextClassLoader(),
                 new Locations(getBasedir()),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 FlywayConfigurationForTests.create());
