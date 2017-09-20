@@ -71,13 +71,9 @@ public class DB2zOSMigrationMediumTest extends MigrationTestCase {
         }
     }
 
-    @Override
     protected void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
-                new Locations(getBasedir() + "/default"),
-                PlaceholderReplacer.NO_PLACEHOLDERS,
-                FlywayConfigurationForTests.create());
+                dbSupport, FlywayConfigurationForTests.createWithLocations(getBasedir() + "/default"));
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {
