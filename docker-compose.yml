@@ -42,10 +42,20 @@ services:
      - "62011:1521"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-  postgresql-92:
-    image: "postgres:9.2.21-alpine"
+
+
+
+
+
+
+
+
+  postgresql-93:
+    image: "postgres:9.3.19-alpine"
     ports:
-     - "62020:5432"
+     - "62021:5432"
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   sqlserver-2017:
     image: "microsoft/mssql-server-linux"
     ports:
