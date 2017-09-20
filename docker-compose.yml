@@ -27,10 +27,23 @@ services:
      - ./flyway-core/src/test/resources/migration/dbsupport/db2/entrypoint.sh:/entrypoint.sh
      - ./flyway-core/src/test/resources/migration/dbsupport/db2/createDatabase.sql:/createDatabase.sql
     command: "db2start"
-  mariadb-55:
-    image: "mariadb:5.5.57"
+
+
+
+
+
+
+
+
+
+
+
+
+
+  mariadb-100:
+    image: "mariadb:10.0.32"
     ports:
-     - "62010:3306"
+     - "62011:3306"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
