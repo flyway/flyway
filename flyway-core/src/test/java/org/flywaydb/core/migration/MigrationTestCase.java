@@ -331,12 +331,10 @@ public abstract class MigrationTestCase {
      *
      * @param migrationInfo The migration to check.
      */
-    protected void assertChecksum(MigrationInfo migrationInfo) {
-        SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
-                new Locations(getBasedir()),
-                PlaceholderReplacer.NO_PLACEHOLDERS,
-                FlywayConfigurationForTests.create());
+    private void assertChecksum(MigrationInfo migrationInfo) {
+        FlywayConfigurationForTests config = FlywayConfigurationForTests.createWithLocations(getBasedir());
+
+        SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(dbSupport, config);
         List<ResolvedMigration> migrations = sqlMigrationResolver.resolveMigrations();
         for (ResolvedMigration migration : migrations) {
             if (migration.getVersion().toString().equals(migrationInfo.getVersion().toString())) {
