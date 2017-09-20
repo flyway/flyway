@@ -57,7 +57,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
 
 
-    static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62011/xe";
+    static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62031/xe";
     static final String JDBC_USER = "flyway";
     static final String JDBC_PASSWORD = "flyway";
 

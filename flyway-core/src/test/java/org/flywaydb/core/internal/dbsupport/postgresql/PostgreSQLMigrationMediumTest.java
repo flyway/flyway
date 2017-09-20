@@ -49,7 +49,7 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
 
 
 
-    static final String JDBC_URL_POSTGRESQL_93 = "jdbc:postgresql://localhost:62021/flyway_db";
+    static final String JDBC_URL_POSTGRESQL_93 = "jdbc:postgresql://localhost:62041/flyway_db";
     static final String JDBC_USER = "flyway";
     static final String JDBC_PASSWORD = "flyway";
 

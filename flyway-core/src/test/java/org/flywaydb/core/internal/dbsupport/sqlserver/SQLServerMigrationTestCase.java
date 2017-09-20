@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 public abstract class SQLServerMigrationTestCase extends MigrationTestCase {
     static String JDBC_USER = "sa";
     static String JDBC_PASSWORD = "flywayPWD000";
-    static String JDBC_PORT = "62030";
+    static String JDBC_PORT = "62050";
 
     @Override
     protected String getQuoteLocation() {
