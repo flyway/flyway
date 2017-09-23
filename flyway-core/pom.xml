@@ -408,38 +408,6 @@
             </build>
         </profile>
         <profile>
-            <id>DB2zOSDBTest</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.ibm.db2</groupId>
-                    <artifactId>db2jcc</artifactId>
-                    <version>3.4.65</version>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>com.ibm.db2</groupId>
-                    <artifactId>db2jcc_license_cisuz</artifactId>
-                    <version>3.4.65</version>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <excludedGroups>
-                                org.flywaydb.core.DbCategory$SolidDB,org.flywaydb.core.DbCategory$Phoenix
-                            </excludedGroups>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>SolidDBTest</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
