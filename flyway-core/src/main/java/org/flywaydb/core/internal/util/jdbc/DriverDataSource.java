@@ -309,13 +309,7 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith("jdbc:postgresql:")) {
-            // The old format of Redshift JDBC urls is the same as PostgreSQL, and Redshift can still use the same JDBC driver:
             return "org.postgresql.Driver";
-        }
-
-        if (url.startsWith("jdbc:redshift:")) {
-            // The new format of Redshift JDBC urls, using the new Redshift-specific JDBC driver:
-            return "com.amazon.redshift.jdbc41.Driver";
         }
 
         if (url.startsWith("jdbc:jtds:")) {
@@ -326,16 +320,8 @@ public class DriverDataSource implements DataSource {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         }
 
-        if (url.startsWith("jdbc:vertica:")) {
-            return "com.vertica.jdbc.Driver";
-        }
-
         if (url.startsWith("jdbc:sap:")) {
             return "com.sap.db.jdbc.Driver";
-        }
-
-        if (url.startsWith("jdbc:pivotal:greenplum:")) {
-            return "com.pivotal.jdbc.GreenplumDriver";
         }
 
         return null;

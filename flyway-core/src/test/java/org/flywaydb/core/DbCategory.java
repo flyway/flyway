@@ -50,9 +50,6 @@ public class DbCategory {
     public interface GoogleCloudSQL extends ContributorSupportedDB {}
     public interface SapHana extends ContributorSupportedDB {}
     public interface DB2zOS extends ContributorSupportedDB {}
-    public interface GreenPlum extends ContributorSupportedDB {}
-    public interface Vertica extends ContributorSupportedDB {}
-    public interface Redshift extends ContributorSupportedDB {}
     public interface SolidDB extends ContributorSupportedDB {}
     public interface SybaseASE extends ContributorSupportedDB {}
 }
