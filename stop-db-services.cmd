@@ -14,4 +14,4 @@
 @REM limitations under the License.
 @REM
 
-docker-compose rm
+docker-compose rm -s -f -v

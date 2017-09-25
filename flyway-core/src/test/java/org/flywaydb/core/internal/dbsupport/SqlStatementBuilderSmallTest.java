@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.internal.dbsupport.db2.DB2SqlStatementBuilder;
-import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosSqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.derby.DerbySqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.h2.H2SqlStatementBuilder;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleSqlStatementBuilder;
@@ -24,9 +23,7 @@ import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLSqlStatementBui
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerSqlStatementBuilder;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test for SqlStatementBuilder.
@@ -140,14 +137,6 @@ public class SqlStatementBuilderSmallTest {
     }
 
     @Test
-    public void db2zosEndsWithOpenMultilineStringLiteral() {
-        assertFalse(endsWithOpenMultilineStringLiteral(new DB2zosSqlStatementBuilder(), "SELECT' 'FROM DUAL;"));
-        assertFalse(endsWithOpenMultilineStringLiteral(new DB2zosSqlStatementBuilder(), "SELECT '123' FROM DUAL;"));
-        assertFalse(endsWithOpenMultilineStringLiteral(new DB2zosSqlStatementBuilder(), "SELECT X'0123' FROM DUAL;"));
-        assertFalse(endsWithOpenMultilineStringLiteral(new DB2zosSqlStatementBuilder(), "SELECT X'0123',X'0456' FROM DUAL;"));
-    }
-
-    @Test
     public void derbyEndsWithOpenMultilineStringLiteral() {
         assertFalse(endsWithOpenMultilineStringLiteral(new DerbySqlStatementBuilder(), "SELECT' 'FROM DUAL;"));
         assertFalse(endsWithOpenMultilineStringLiteral(new DerbySqlStatementBuilder(), "SELECT '123' FROM DUAL;"));
@@ -195,7 +184,7 @@ public class SqlStatementBuilderSmallTest {
         SqlStatementBuilder.stripDelimiter(sql, new Delimiter(";", false));
         assertEquals("SELECT * FROM t WHERE a = 'BİRİNİ'", sql.toString());
     }
-    
+
     private boolean endsWithOpenMultilineStringLiteral(SqlStatementBuilder builder, String line) {
         builder.applyStateChanges(builder.simplifyLine(line));
         return builder.endWithOpenMultilineStringLiteral();
