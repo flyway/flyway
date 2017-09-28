@@ -182,7 +182,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         boolean locationResolved = !locationUrls.isEmpty();
 
-        // Make an additional attempt at finding resources in jar files that don't contain directory entries
+        // Make an additional attempt at finding resources in jar files
         if (classLoader instanceof URLClassLoader) {
             URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
             for (URL url : urlClassLoader.getURLs()) {
@@ -199,16 +199,23 @@ public class ClassPathScanner implements ResourceAndClassScanner {
                     }
 
                     try {
-                        boolean directoryFound = false;
-                        Enumeration<JarEntry> entries = jarFile.entries();
-                        while (entries.hasMoreElements()) {
-                            if (entries.nextElement().isDirectory()) {
-                                directoryFound = true;
-                                break;
+                        // Look up resources from jar files within an Ant task
+                        boolean shouldLookupResources = classLoader.getParent() != null
+                                            && "AntClassLoader".equals(classLoader.getParent().getClass().getSimpleName());
+
+                        // Look up resources from jar files that don't contain directory entries
+                        if (!shouldLookupResources) {
+                            shouldLookupResources = true;
+                            Enumeration<JarEntry> entries = jarFile.entries();
+                            while (entries.hasMoreElements()) {
+                                if (entries.nextElement().isDirectory()) {
+                                    shouldLookupResources = false;
+                                    break;
+                                }
                             }
                         }
-                        if (!directoryFound) {
-                            entries = jarFile.entries();
+                        if (shouldLookupResources) {
+                            Enumeration<JarEntry> entries = jarFile.entries();
                             while (entries.hasMoreElements()) {
                                 String entryName = entries.nextElement().getName();
                                 if (entryName.startsWith(location.getPath())) {

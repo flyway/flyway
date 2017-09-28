@@ -15,8 +15,8 @@
  */
 package org.flywaydb.ant;
 
-import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
@@ -25,17 +25,23 @@ import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.scanner.classpath.FileSystemClassPathLocationScanner;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Base class for all Flyway Ant tasks.
@@ -346,9 +352,52 @@ public abstract class AbstractFlywayTask extends Task {
             }
         }
 
-        ClassLoader classLoader =
-                new AntClassLoader(getClass().getClassLoader(), getProject(), classPath);
+        ClassLoader classLoader = createClassLoaderFromClasspath();
         Thread.currentThread().setContextClassLoader(classLoader);
+    }
+
+    private ClassLoader createClassLoaderFromClasspath() {
+        List<URL> classpathUrls = convertClasspathToUrls(classPath);
+        List<URL> jarsOnClasspath = resolveJarsOnClasspathAsUrls(classpathUrls);
+        classpathUrls.addAll(jarsOnClasspath);
+
+        return new URLClassLoader(classpathUrls.toArray(new URL[]{}), getClass().getClassLoader());
+    }
+
+    private List<URL> convertClasspathToUrls(Path classPath) {
+        Path actualClasspath = classPath.concatSystemClasspath("ignore");
+        String[] pathElements = actualClasspath.list();
+        List<URL> urls = new ArrayList<URL>(pathElements.length);
+        for (int i = 0; i < pathElements.length; i++) {
+            try {
+                urls.add(new File(pathElements[i]).toURI().toURL());
+            } catch (MalformedURLException e) {
+                log("Cannot convert classpath element into URL " + pathElements[i], Project.MSG_WARN);
+            }
+        }
+        return urls;
+    }
+
+    private FileSystemClassPathLocationScanner locationScanner = new FileSystemClassPathLocationScanner();
+
+    private List<URL> resolveJarsOnClasspathAsUrls(List<URL> classpathUrls) {
+        List<URL> urls = new ArrayList<URL>();
+        for (URL url : classpathUrls) {
+            String protocol = url.getProtocol();
+            if ("file".equals(protocol)) {
+                try {
+                    Set<String> resources = locationScanner.findResourceNames("", url);
+                    for (String resourceName : resources) {
+                        if (resourceName.endsWith(".jar")) {
+                            urls.add(new URL(url, resourceName));
+                        }
+                    }
+                } catch (IOException e) {
+                    log("Cannot load URL " + url + ": " + e.getMessage(), Project.MSG_WARN);
+                }
+            }
+        }
+        return urls;
     }
 
     /**
