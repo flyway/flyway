@@ -35,7 +35,6 @@ import static org.junit.Assert.*;
  * Testcase for SqlMigration.
  */
 public class SqlMigrationResolverSmallTest {
-
     private final Scanner scanner = new Scanner(Thread.currentThread().getContextClassLoader());
 
     @Test
@@ -65,8 +64,7 @@ public class SqlMigrationResolverSmallTest {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner, new Locations(""), PlaceholderReplacer.NO_PLACEHOLDERS, configuration);
 
-        // changed to 3 as new test cases are added for SybaseASE and DB2
-        assertEquals(3, sqlMigrationResolver.resolveMigrations().size());
+        assertEquals(2, sqlMigrationResolver.resolveMigrations().size());
     }
 
     @Test
