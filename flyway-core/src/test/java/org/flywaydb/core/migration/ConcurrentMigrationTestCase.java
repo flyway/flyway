@@ -113,6 +113,10 @@ public abstract class ConcurrentMigrationTestCase {
         return "concurrent_test";
     }
 
+    protected boolean isMixed() {
+        return false;
+    }
+
     /**
      * Creates the datasource for this testcase based on these optional custom properties from the user home.
      *
@@ -178,6 +182,7 @@ public abstract class ConcurrentMigrationTestCase {
         placeholders.put("schema", schemaQuoted);
 
         newFlyway.setPlaceholders(placeholders);
+        newFlyway.setMixed(isMixed());
         newFlyway.setBaselineVersionAsString("0.1");
         return newFlyway;
     }
