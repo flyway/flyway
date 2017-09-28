@@ -80,6 +80,7 @@
         <module>flyway-sample-webapp</module>
         <module>flyway-sample-osgi</module>
         <module>flyway-sample-osgi-fragment</module>
+        <module>flyway-sample-osgi-separate</module>
         <module>flyway-osgi-largetest</module>
         <module>flyway-commandline</module>
         <module>flyway-commandline-largetest</module>

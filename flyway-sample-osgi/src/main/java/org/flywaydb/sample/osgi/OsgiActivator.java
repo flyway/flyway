@@ -18,7 +18,9 @@ package org.flywaydb.sample.osgi;
 import org.flywaydb.core.Flyway;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceFactory;
 
+import java.util.Hashtable;
 import java.util.Properties;
 
 /**
@@ -27,6 +29,9 @@ import java.util.Properties;
 public class OsgiActivator implements BundleActivator {
     public void start(BundleContext context) throws Exception {
         System.out.println("Starting Flyway Sample OSGi");
+
+        ServiceFactory factory = new FlywayMigrationServiceFactory();
+        context.registerService(FlywayMigrationService.class.getName(), factory, new Hashtable<String, Object>());
 
         try {
             Properties properties = new Properties();
@@ -41,11 +46,8 @@ public class OsgiActivator implements BundleActivator {
             flyway.migrate();
 
             System.out.println("New schema version: " + flyway.info().current().getVersion());
-
-            System.exit(0);
         } catch (Throwable t) {
             t.printStackTrace();
-           // System.exit(0);
         }
     }
 
