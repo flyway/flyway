@@ -57,34 +57,28 @@ public class ClassPathScannerSmallTest {
     public void scanForResourcesRoot() throws Exception {
         LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:"), "CheckValidate", ".sql");
 
-        // changed to 3 as new test cases are added for SybaseASE and DB2 z/OS
-        assertEquals(3, resources.length);
+        assertEquals(2, resources.length);
 
         Set<String> validPaths = new HashSet<String>();
         validPaths.add("migration/validate/CheckValidate1__First.sql");
         validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
-        validPaths.add("migration/dbsupport/db2zos/sql/validate/CheckValidate1_1__First.sql");
 
         assertEquals(true, validPaths.contains(resources[0].getLocation()));
         assertEquals(true, validPaths.contains(resources[1].getLocation()));
-        assertEquals(true, validPaths.contains(resources[2].getLocation()));
     }
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
         LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:migration"), "CheckValidate", ".sql");
 
-        // changed to 3 as new test cases are added for SybaseASE and DB2 z/OS
-        assertEquals(3, resources.length);
+        assertEquals(2, resources.length);
 
         Set<String> validPaths = new HashSet<String>();
         validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
         validPaths.add("migration/validate/CheckValidate1__First.sql");
-        validPaths.add("migration/dbsupport/db2zos/sql/validate/CheckValidate1_1__First.sql");
 
         assertEquals(true, validPaths.contains(resources[0].getLocation()));
         assertEquals(true, validPaths.contains(resources[1].getLocation()));
-        assertEquals(true, validPaths.contains(resources[2].getLocation()));
     }
 
     @Test

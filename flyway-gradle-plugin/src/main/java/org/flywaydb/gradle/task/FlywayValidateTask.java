@@ -16,7 +16,6 @@
 package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
-import org.omg.CORBA.Object;
 
 /**
  * <p>Validate applied migrations against resolved ones (on the filesystem or classpath)

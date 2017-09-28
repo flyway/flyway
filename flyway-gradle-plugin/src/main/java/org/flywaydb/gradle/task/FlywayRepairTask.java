@@ -16,7 +16,6 @@
 package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
-import org.omg.CORBA.Object;
 
 /**
  * Repairs the Flyway metadata table. This will perform the following actions:
