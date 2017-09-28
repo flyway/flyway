@@ -78,6 +78,11 @@ public class SqlScript {
     private boolean nonTransactionalStatementFound;
 
     /**
+     * Whether exceptions in the subsequent statements should cause the migration to fail.
+     */
+    private boolean failOnException;
+
+    /**
      * Creates a new sql script from this source.
      *
      * @param sqlScriptSource The sql script as a text block with all placeholders already replaced.
@@ -86,6 +91,7 @@ public class SqlScript {
     public SqlScript(String sqlScriptSource, DbSupport dbSupport) {
         this.dbSupport = dbSupport;
         this.mixed = false;
+        this.failOnException = true;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
 
@@ -110,6 +116,7 @@ public class SqlScript {
         this.dbSupport = dbSupport;
         this.resource = sqlScriptResource;
         this.mixed = mixed;
+        this.failOnException = true;
 
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
@@ -156,24 +163,43 @@ public class SqlScript {
             LOG.debug("Executing SQL: " + sql);
 
             try {
-                sqlStatement.execute(jdbcTemplate.getConnection());
+                sqlStatement.execute(jdbcTemplate);
             } catch (final SQLException e) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-                throw new FlywaySqlScriptException(resource, sqlStatement, e);
+                if (sqlStatement.getFailOnException()) {
+                    throw new FlywaySqlScriptException(resource, sqlStatement, e);
+                } else {
+                    LOG.warn(createExceptionWarning(resource, sqlStatement, e));
+                }
             }
         }
+    }
+
+    private String createExceptionWarning(Resource resource, SqlStatement statement, SQLException e) {
+        StringBuilder msg = new StringBuilder("Statement failed");
+        String underline = StringUtils.trimOrPad("", msg.length(), '-');
+        msg.append("\n");
+        msg.append(underline);
+        msg.append("\n");
+
+        SQLException rootCause = e;
+        while (rootCause.getNextException() != null) {
+            rootCause = rootCause.getNextException();
+        }
+
+        msg.append("SQL State  : " + rootCause.getSQLState() + "\n");
+        msg.append("Error Code : " + rootCause.getErrorCode() + "\n");
+        if (rootCause.getMessage() != null) {
+            msg.append("Message    : " + rootCause.getMessage().trim() + "\n");
+        }
+
+        if (resource != null) {
+            msg.append("Location   : " + resource.getLocation() + " (" + resource.getLocationOnDisk() + ")\n");
+        }
+        if (statement != null) {
+            msg.append("Line       : " + statement.getLineNumber() + "\n");
+            msg.append("Statement  : " + statement.getSql() + "\n");
+        }
+        return msg.toString();
     }
 
     /**
@@ -250,7 +276,13 @@ public class SqlScript {
     }
 
     private void addStatement(List<SqlStatement> statements, SqlStatementBuilder sqlStatementBuilder) {
+        if (isExceptionDirective(sqlStatementBuilder)) {
+            processExceptionDirective(sqlStatementBuilder);
+            return;
+        }
+
         SqlStatement sqlStatement = sqlStatementBuilder.getSqlStatement();
+        sqlStatement.setFailOnException(failOnException);
         statements.add(sqlStatement);
 
         if (sqlStatementBuilder.executeInTransaction()) {
@@ -268,6 +300,38 @@ public class SqlScript {
         }
 
         LOG.debug("Found statement at line " + sqlStatement.getLineNumber() + ": " + sqlStatement.getSql() + (sqlStatementBuilder.executeInTransaction() ? "" : " [non-transactional]"));
+    }
+
+    /**
+     * Determines if this statement is an exception directive.
+     *
+     * An exception directive is a statement whose only purpose is to instruct flyway how to handle exceptions
+     * for all subsequent statements.
+     *
+     * @param sqlStatementBuilder the statement to evaluate
+     * @return {@code true} if this statement is an exception directive, {@code false} otherwise.
+     */
+    private boolean isExceptionDirective(SqlStatementBuilder sqlStatementBuilder) {
+        if (sqlStatementBuilder.isIgnoreExceptionDirective() || sqlStatementBuilder.isFailOnExceptionDirective()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Records the instructions from an exception directive.
+     *
+     * An exception directive is a statement whose only purpose is to instruct flyway how to handle exceptions
+     * for all subsequent statements.
+     *
+     * @param sqlStatementBuilder the exception directive statement.
+     */
+    private void processExceptionDirective(SqlStatementBuilder sqlStatementBuilder) {
+        if (sqlStatementBuilder.isIgnoreExceptionDirective()) {
+            failOnException = false;
+        } else if (sqlStatementBuilder.isFailOnExceptionDirective()) {
+            failOnException = true;
+        }
     }
 
     /**

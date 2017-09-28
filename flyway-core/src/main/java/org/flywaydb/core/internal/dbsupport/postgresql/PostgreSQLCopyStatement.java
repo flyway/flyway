@@ -16,12 +16,12 @@
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
 import org.flywaydb.core.internal.dbsupport.AbstractSqlStatement;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -39,12 +39,12 @@ public class PostgreSQLCopyStatement extends AbstractSqlStatement {
     }
 
     @Override
-    public void execute(Connection connection) throws SQLException {
+    public void execute(JdbcTemplate jdbcTemplate) throws SQLException {
         int split = sql.indexOf(";");
         String statement = sql.substring(0, split);
         String data = sql.substring(split + 1).trim();
 
-        CopyManager copyManager = new CopyManager(connection.unwrap(BaseConnection.class));
+        CopyManager copyManager = new CopyManager(jdbcTemplate.getConnection().unwrap(BaseConnection.class));
         try {
             copyManager.copyIn(statement, new StringReader(data));
         } catch (IOException e) {

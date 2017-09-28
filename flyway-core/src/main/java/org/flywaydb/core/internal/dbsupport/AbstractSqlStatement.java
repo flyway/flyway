@@ -29,9 +29,15 @@ public abstract class AbstractSqlStatement implements SqlStatement {
      */
     protected String sql;
 
+    /**
+     * Whether the executor should treat exceptions as failures and stop the migration.
+     */
+    private boolean failOnException;
+
     public AbstractSqlStatement(String sql, int lineNumber) {
         this.sql = sql;
         this.lineNumber = lineNumber;
+        this.failOnException = true;
     }
 
     @Override
@@ -42,5 +48,15 @@ public abstract class AbstractSqlStatement implements SqlStatement {
     @Override
     public String getSql() {
         return sql;
+    }
+
+    @Override
+    public boolean getFailOnException() {
+        return failOnException;
+    }
+
+    @Override
+    public void setFailOnException(boolean failOnException) {
+        this.failOnException = failOnException;
     }
 }

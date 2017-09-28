@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -35,8 +34,21 @@ public interface SqlStatement {
     /**
      * Executes this statement against the database.
      *
-     * @param connection The connection to use to execute this script.
+     * @param jdbcTemplate The template to use to execute this script.
      * @throws SQLException when the execution fails.
      */
-    void execute(Connection connection) throws SQLException;
+    void execute(JdbcTemplate jdbcTemplate) throws SQLException;
+
+    /**
+     * @return {@code true} if the executor should treat exceptions as failures and stop the migration.
+     */
+    boolean getFailOnException();
+
+    /**
+     * Specify whether the executor should treat exceptions as failures and stop the migration.
+     *
+     * @param failOnException {@code false} if the executor should ignore exceptions and continue
+     *                                    with the rest of the migration.
+     */
+    void setFailOnException(boolean failOnException);
 }
