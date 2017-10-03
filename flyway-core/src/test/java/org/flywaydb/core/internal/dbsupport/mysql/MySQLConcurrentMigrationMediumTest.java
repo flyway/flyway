@@ -15,66 +15,26 @@
  */
 package org.flywaydb.core.internal.dbsupport.mysql;
 
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.junit.ClassRule;
-import org.junit.experimental.categories.Category;
 import org.flywaydb.core.DbCategory;
-import org.junit.rules.ExternalResource;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.wait.HostPortWaitStrategy;
+import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
-import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTest.DOCKER_IMAGE_NAME;
+import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTest.JDBC_PASSWORD;
+import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTest.JDBC_URL;
+import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTest.JDBC_USER;
 
 /**
  * Test to demonstrate the migration functionality using MySQL.
  */
 @Category(DbCategory.MySQL.class)
 public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-
-    private static String jdbcUrl;
-    private static String jdbcUser;
-    private static String jdbcPassword;
-
-    @ClassRule
-    public static ExternalResource initMySQL() {
-        return new ExternalResource() {
-            private MySQLContainer mysql;
-
-            @Override
-            protected void before() throws Throwable {
-                try {
-                    DockerClientFactory.instance().client();
-                    mysql = new MySQLContainer(DOCKER_IMAGE_NAME);
-                    mysql.start();
-                    new HostPortWaitStrategy().waitUntilReady(mysql);
-                    jdbcUrl = mysql.getJdbcUrl();
-                    jdbcUser = "root";
-                    jdbcPassword = mysql.getPassword();
-                } catch (Exception e) {
-                    // Docker not found, fall back to local MySQL instance.
-                    jdbcUrl = customProperties.getProperty("mysql.url", "jdbc:mysql://localhost/flyway_db");
-                    jdbcUser = customProperties.getProperty("mysql.user", "flyway");
-                    jdbcPassword = customProperties.getProperty("mysql.password", "flyway");
-                }
-            }
-
-            @Override
-            protected void after() {
-                if (mysql != null) {
-                    mysql.stop();
-                }
-            }
-        };
-    }
-
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                jdbcUrl, jdbcUser, jdbcPassword, null);
+                JDBC_URL, JDBC_USER, JDBC_PASSWORD);
     }
 }

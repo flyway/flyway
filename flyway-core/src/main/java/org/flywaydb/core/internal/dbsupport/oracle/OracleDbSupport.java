@@ -58,7 +58,7 @@ public class OracleDbSupport extends DbSupport {
      *
      * @return The current user for this connection.
      */
-    public String getCurrentUserName() {
+    String getCurrentUserName() {
         try {
             return jdbcTemplate.queryForString("SELECT USER FROM DUAL");
         } catch (SQLException e) {
@@ -118,29 +118,21 @@ public class OracleDbSupport extends DbSupport {
      * @return {@code true} if the query returns rows, {@code false} if not.
      * @throws SQLException when the query execution failed.
      */
-    public boolean queryReturnsRows(String query, String... params) throws SQLException {
+    boolean queryReturnsRows(String query, String... params) throws SQLException {
         return jdbcTemplate.queryForBoolean("SELECT CASE WHEN EXISTS(" + query + ") THEN 1 ELSE 0 END FROM DUAL", params);
     }
 
-    /**
-     * Returns the major version number of the database.
-     *
-     * @return the major version number as int.
-     * @throws SQLException when the query execution failed.
-     */
-    public int getMajorVersion() throws SQLException {
-        return jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-    }
 
-    /**
-     * Returns the minor version number of the database.
-     *
-     * @return the minor version number as int.
-     * @throws SQLException when the query execution failed.
-     */
-    public int getMinorVersion() throws SQLException {
-        return jdbcTemplate.getMetaData().getDatabaseMinorVersion();
-    }
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Checks whether the specified privilege or role is granted to the current user.
@@ -148,7 +140,7 @@ public class OracleDbSupport extends DbSupport {
      * @return {@code true} if it is granted, {@code false} if not.
      * @throws SQLException if the check failed.
      */
-    public boolean isPrivOrRoleGranted(String name) throws SQLException {
+    boolean isPrivOrRoleGranted(String name) throws SQLException {
         return queryReturnsRows("SELECT 1 FROM SESSION_PRIVS WHERE PRIVILEGE = ? UNION ALL " +
                 "SELECT 1 FROM SESSION_ROLES WHERE ROLE = ?", name, name);
     }
@@ -162,7 +154,7 @@ public class OracleDbSupport extends DbSupport {
      * @return {@code true} if it is accessible, {@code false} if not.
      * @throws SQLException if the check failed.
      */
-    public boolean isDataDictViewAccessible(String owner, String name) throws SQLException {
+    private boolean isDataDictViewAccessible(String owner, String name) throws SQLException {
         return queryReturnsRows("SELECT * FROM ALL_TAB_PRIVS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?" +
                 " AND PRIVILEGE = 'SELECT'", owner, name);
     }
@@ -174,7 +166,7 @@ public class OracleDbSupport extends DbSupport {
      * @return {@code true} if it is accessible, {@code false} if not.
      * @throws SQLException if the check failed.
      */
-    public boolean isDataDictViewAccessible(String name) throws SQLException {
+    boolean isDataDictViewAccessible(String name) throws SQLException {
         return isDataDictViewAccessible("SYS", name);
     }
 
@@ -185,7 +177,7 @@ public class OracleDbSupport extends DbSupport {
      * @return the full name of the view with the proper prefix.
      * @throws SQLException if the check failed.
      */
-    public String dbaOrAll(String baseName) throws SQLException {
+    String dbaOrAll(String baseName) throws SQLException {
         return isPrivOrRoleGranted("SELECT ANY DICTIONARY") || isDataDictViewAccessible("DBA_" + baseName)
                 ? "DBA_" + baseName
                 : "ALL_" + baseName;
@@ -193,10 +185,11 @@ public class OracleDbSupport extends DbSupport {
 
     /**
      * Returns the set of Oracle options available on the target database.
+     *
      * @return the set of option titles.
      * @throws SQLException if retrieving of options failed.
      */
-    public Set<String> getAvailableOptions() throws SQLException {
+    private Set<String> getAvailableOptions() throws SQLException {
         return new HashSet<String>(jdbcTemplate.queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
     }
 
@@ -206,25 +199,27 @@ public class OracleDbSupport extends DbSupport {
      * @return {@code true} if it is available, {@code false} if not.
      * @throws SQLException when checking availability of the feature failed.
      */
-    public boolean isFlashbackDataArchiveAvailable() throws SQLException {
+    boolean isFlashbackDataArchiveAvailable() throws SQLException {
         return getAvailableOptions().contains("Flashback Data Archive");
     }
 
     /**
      * Checks whether XDB component is available or not.
+     *
      * @return {@code true} if it is available, {@code false} if not.
      * @throws SQLException when checking availability of the component failed.
      */
-    public boolean isXmlDbAvailable() throws SQLException {
+    boolean isXmlDbAvailable() throws SQLException {
         return isDataDictViewAccessible("ALL_XML_TABLES");
     }
 
     /**
      * Checks whether Data Mining option is available or not.
+     *
      * @return {@code true} if it is available, {@code false} if not.
      * @throws SQLException when checking availability of the feature failed.
      */
-    public boolean isDataMiningAvailable() throws SQLException {
+    boolean isDataMiningAvailable() throws SQLException {
         return getAvailableOptions().contains("Data Mining");
     }
 
@@ -234,7 +229,7 @@ public class OracleDbSupport extends DbSupport {
      * @return {@code true} if it is available, {@code false} if not.
      * @throws SQLException when checking availability of the component failed.
      */
-    public boolean isLocatorAvailable() throws SQLException {
+    boolean isLocatorAvailable() throws SQLException {
         return isDataDictViewAccessible("MDSYS", "ALL_SDO_GEOM_METADATA");
     }
 
@@ -246,7 +241,7 @@ public class OracleDbSupport extends DbSupport {
      *
      * @return the set of system schema names
      */
-    public Set<String> getSystemSchemas() throws SQLException {
+    Set<String> getSystemSchemas() throws SQLException {
 
         // The list of known default system schemas
         Set<String> result = new HashSet<String>(Arrays.asList(
@@ -279,35 +274,45 @@ public class OracleDbSupport extends DbSupport {
                 "TSMSYS" // Transparent Session Migration
         ));
 
-        // APEX has a schema with a different name for each version, so get it from ALL_USERS. In addition, starting
-        // from Oracle 12.1, there is a special column in ALL_USERS that marks Oracle-maintained schemas.
-        boolean oracle12cOrHigher = getMajorVersion() >= 12;
-        result.addAll(jdbcTemplate.queryForStringList("SELECT USERNAME FROM ALL_USERS " +
-                "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
-                (oracle12cOrHigher ? " OR ORACLE_MAINTAINED = 'Y'" : "")));
 
-        // For earlier Oracle versions check also DBA_REGISTRY if possible.
-        if (!oracle12cOrHigher && isDataDictViewAccessible("DBA_REGISTRY")) {
-            List<List<String>> schemaSuperList = jdbcTemplate.query(
-                    "SELECT SCHEMA, OTHER_SCHEMAS FROM DBA_REGISTRY",
-                    new RowMapper<List<String>>() {
-                        @Override
-                        public List<String> mapRow(ResultSet rs) throws SQLException {
-                            List<String> schemaList = new ArrayList<String>();
-                            schemaList.add(rs.getString("SCHEMA"));
-                            String otherSchemas = rs.getString("OTHER_SCHEMAS");
-                            if (otherSchemas != null && !otherSchemas.trim().isEmpty()) {
-                                schemaList.addAll(Arrays.asList(otherSchemas.trim().split("\\s*,\\s*")));
-                            }
-                            return schemaList;
-                        }
-                    });
-            for (List<String> schemaList : schemaSuperList) {
-                result.addAll(schemaList);
-            }
-        }
+
+
+
+
+        result.addAll(jdbcTemplate.queryForStringList("SELECT USERNAME FROM ALL_USERS " +
+                        "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
+
+
+
+                                " OR ORACLE_MAINTAINED = 'Y'"
+
+
+
+        ));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         return result;
     }
-
 }

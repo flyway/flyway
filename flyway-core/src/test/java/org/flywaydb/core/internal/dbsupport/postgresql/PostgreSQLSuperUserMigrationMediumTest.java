@@ -19,79 +19,43 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.ExternalResource;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.HostPortWaitStrategy;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
-
-import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.DOCKER_IMAGE_NAME;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * PostgreSQL medium tests that require SuperUser permissions.
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.PostgreSQL.class)
+@RunWith(Parameterized.class)
 public class PostgreSQLSuperUserMigrationMediumTest {
     private Flyway flyway;
 
-    private static Properties customProperties = new Properties();
+    private final String jdbcUrl;
 
-    private static String jdbcUrl;
-    private static String jdbcUser;
-    private static String jdbcPassword;
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.JDBC_URL_POSTGRESQL_93}
 
-    @BeforeClass
-    public static void loadProperties() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
+
+
+        });
     }
 
-    @ClassRule
-    public static ExternalResource initPostgreSQL() {
-        return new ExternalResource() {
-            private PostgreSQLContainer postgreSQL;
-
-            @Override
-            protected void before() throws Throwable {
-                try {
-                    DockerClientFactory.instance().client();
-                    postgreSQL = new PostgreSQLContainer(DOCKER_IMAGE_NAME);
-                    postgreSQL.start();
-                    new HostPortWaitStrategy().waitUntilReady(postgreSQL);
-                    jdbcUrl = postgreSQL.getJdbcUrl();
-                    jdbcUser = postgreSQL.getUsername();
-                    jdbcPassword = postgreSQL.getPassword();
-                } catch (Exception e) {
-                    // Docker not found, fall back to local PostgreSQL instance.
-                    jdbcUrl = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
-                    jdbcUser = customProperties.getProperty("postgresql.user", "postgres");
-                    jdbcPassword = customProperties.getProperty("postgresql.password", "flyway");
-                }
-            }
-
-            @Override
-            protected void after() {
-                if (postgreSQL != null) {
-                    postgreSQL.stop();
-                }
-            }
-        };
+    public PostgreSQLSuperUserMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
     }
 
-    private DataSource createDataSource() {
+    protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                jdbcUrl, jdbcUser, jdbcPassword, null);
+                jdbcUrl, "postgres", "postgres");
     }
 
     @Before
