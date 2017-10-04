@@ -16,8 +16,10 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.dbsupport.cockroachdb.CockroachDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
-import org.flywaydb.core.internal.dbsupport.db2zos.DB2zosDbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
 import org.flywaydb.core.internal.dbsupport.enterprisedb.EnterpriseDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
@@ -26,17 +28,11 @@ import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
-import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaPostgreSQLDriver;
-import org.flywaydb.core.internal.dbsupport.redshift.RedshfitDbSupportViaRedshiftDriver;
-import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
 import org.flywaydb.core.internal.dbsupport.saphana.SapHanaDbSupport;
 import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
 import org.flywaydb.core.internal.dbsupport.sybase.ase.SybaseASEDbSupport;
-import org.flywaydb.core.internal.dbsupport.vertica.VerticaDbSupport;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -97,32 +93,14 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("EnterpriseDB")) {
             return new EnterpriseDBDbSupport(connection);
         }
-        if (databaseProductName.startsWith("PostgreSQL 8")) {
-            // Redshift reports a databaseProductName of "PostgreSQL 8.0", and it uses the same JDBC driver,
-            // but only supports a subset of features. Therefore, we need to execute a query in order to
-            // distinguish it from the real PostgreSQL 8:
-            RedshiftDbSupport redshift;
-            if ("RedshiftJDBC".equals(getDriverName(connection))) {
-                redshift = new RedshfitDbSupportViaRedshiftDriver(connection);
-            } else {
-                redshift = new RedshfitDbSupportViaPostgreSQLDriver(connection);
-            }
-            if (redshift.detect()) {
-                return redshift;
-            }
-        }
         if (databaseProductName.startsWith("PostgreSQL")) {
+            if (isCockroachDB(connection)) {
+                return new CockroachDBDbSupport(connection);
+            }
             return new PostgreSQLDbSupport(connection);
         }
         if (databaseProductName.startsWith("DB2")) {
-            if (getDatabaseProductVersion(connection).startsWith("DSN")) {
-                return new DB2zosDbSupport(connection);
-            } else {
-                return new DB2DbSupport(connection);
-            }
-        }
-        if (databaseProductName.startsWith("Vertica")) {
-            return new VerticaDbSupport(connection);
+            return new DB2DbSupport(connection);
         }
         if (databaseProductName.contains("solidDB")) {
             // SolidDB was originally developed by a company named Solid and was sold afterwards to IBM.
@@ -133,10 +111,9 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("Phoenix")) {
             return new PhoenixDbSupport(connection);
         }
-
-        if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive") //Newer Sybase ASE versions
-                || databaseProductName.startsWith("sql server") // Older Sybase ASE 12.5 installations
-                ) {
+        if (databaseProductName.startsWith("ASE")
+                || databaseProductName.startsWith("Adaptive") //Newer Sybase ASE versions
+                || databaseProductName.startsWith("sql server")) { // Older Sybase ASE 12.5 installations
             return new SybaseASEDbSupport(connection);
         }
         if (databaseProductName.startsWith("HDB")) {
@@ -144,6 +121,14 @@ public class DbSupportFactory {
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
+    }
+
+    private static boolean isCockroachDB(Connection connection) {
+        try {
+            return new JdbcTemplate(connection).queryForString("SELECT version()").contains("CockroachDB");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -207,7 +192,6 @@ public class DbSupportFactory {
             if (databaseProductVersion == null) {
                 throw new FlywayException("Unable to determine database. Product version is null.");
             }
-
 
             return databaseProductVersion;
         } catch (SQLException e) {

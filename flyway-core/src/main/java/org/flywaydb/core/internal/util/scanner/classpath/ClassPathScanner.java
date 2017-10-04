@@ -15,14 +15,13 @@
  */
 package org.flywaydb.core.internal.util.scanner.classpath;
 
-import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.UrlUtils;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
-import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv2UrlResolver;
 import org.flywaydb.core.internal.util.scanner.classpath.jboss.JBossVFSv3ClassPathLocationScanner;
 
@@ -79,10 +78,10 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     }
 
     @Override
-    public Resource[] scanForResources(Location path, String prefix, String suffix) throws IOException {
+    public LoadableResource[] scanForResources(Location path, String prefix, String suffix) throws IOException {
         LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
 
-        Set<Resource> resources = new TreeSet<Resource>();
+        Set<LoadableResource> resources = new TreeSet<LoadableResource>();
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffix);
         for (String resourceName : resourceNames) {
@@ -90,7 +89,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             LOG.debug("Found resource: " + resourceName);
         }
 
-        return resources.toArray(new Resource[resources.size()]);
+        return resources.toArray(new LoadableResource[resources.size()]);
     }
 
     @Override
@@ -126,8 +125,6 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             } catch (NoClassDefFoundError e) {
                 LOG.debug("Skipping non-loadable class: " + className);
                 continue;
-            } catch (Exception e) {
-                throw new FlywayException("Unable to instantiate class: " + className, e);
             }
 
             classes.add(clazz);
@@ -307,12 +304,9 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             return locationScanner;
         }
 
-        if ("jar".equals(protocol)
-                || "war".equals(protocol)
-                || "zip".equals(protocol) //WebLogic
-                || "wsjar".equals(protocol) //WebSphere
-                ) {
-            JarFileClassPathLocationScanner locationScanner = new JarFileClassPathLocationScanner();
+        if ("jar".equals(protocol) || isTomcat(protocol) || isWebLogic(protocol) || isWebSphere(protocol)) {
+            String separator = isTomcat(protocol) ? "*/" : "!/";
+            ClassPathLocationScanner locationScanner = new JarFileClassPathLocationScanner(separator);
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
             return locationScanner;
@@ -325,10 +319,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
             resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
             return locationScanner;
         }
-        if (featureDetector.isOsgiFrameworkAvailable() && (
-                "bundle".equals(protocol) // Felix
-                        || "bundleresource".equals(protocol)) //Equinox
-                ) {
+        if (featureDetector.isOsgiFrameworkAvailable() && (isFelix(protocol) || isEquinox(protocol))) {
             OsgiClassPathLocationScanner locationScanner = new OsgiClassPathLocationScanner();
             locationScannerCache.put(protocol, locationScanner);
             resourceNameCache.put(locationScanner, new HashMap<URL, Set<String>>());
@@ -336,6 +327,26 @@ public class ClassPathScanner implements ResourceAndClassScanner {
         }
 
         return null;
+    }
+
+    private boolean isEquinox(String protocol) {
+        return "bundleresource".equals(protocol);
+    }
+
+    private boolean isFelix(String protocol) {
+        return "bundle".equals(protocol);
+    }
+
+    private boolean isWebSphere(String protocol) {
+        return "wsjar".equals(protocol);
+    }
+
+    private boolean isWebLogic(String protocol) {
+        return "zip".equals(protocol);
+    }
+
+    private boolean isTomcat(String protocol) {
+        return "war".equals(protocol);
     }
 
     /**

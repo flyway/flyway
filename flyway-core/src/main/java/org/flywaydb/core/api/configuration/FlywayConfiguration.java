@@ -17,6 +17,7 @@ package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -288,8 +289,24 @@ public interface FlywayConfiguration {
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      *
      * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     * @deprecated Use <code>isMixed()</code> instead. Will be removed in Flyway 5.0.
      */
+    @Deprecated
     boolean isAllowMixedMigrations();
+
+    /**
+     * Whether to allow mixing transactional and non-transactional statements within the same migration.
+     *
+     * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
+     */
+    boolean isMixed();
+
+    /**
+     * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
+     *
+     * @return {@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})
+     */
+    boolean isGroup();
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
@@ -297,4 +314,15 @@ public interface FlywayConfiguration {
      * @return The username or {@code null} for the current database user of the connection. (default: {@code null}).
      */
     String getInstalledBy();
+
+
+
+
+
+
+
+
+
+
+
 }

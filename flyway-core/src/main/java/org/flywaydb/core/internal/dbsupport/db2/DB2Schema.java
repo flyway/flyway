@@ -77,7 +77,15 @@ public class DB2Schema extends Schema<DB2DbSupport> {
 
         if (dbSupport.getDb2MajorVersion() >= 10) {
             // drop versioned table link -> not supported for DB2 9.x
-            for (String dropVersioningStatement : generateDropVersioningStatement()) {
+            List<String> dropVersioningStatements = generateDropVersioningStatement();
+            if (!dropVersioningStatements.isEmpty()) {
+                // Do a explicit drop of MQTs in order to be able to drop the Versioning
+                for (String dropTableStatement : generateDropStatements("S", "TABLE")) {
+                    jdbcTemplate.execute(dropTableStatement);
+                }
+            }
+
+            for (String dropVersioningStatement : dropVersioningStatements) {
                 jdbcTemplate.execute(dropVersioningStatement);
             }
         }
@@ -89,6 +97,11 @@ public class DB2Schema extends Schema<DB2DbSupport> {
 
         // aliases
         for (String dropStatement : generateDropStatements("A", "ALIAS")) {
+            jdbcTemplate.execute(dropStatement);
+        }
+
+        // temporary Tables
+        for (String dropStatement : generateDropStatements("G", "TABLE")) {
             jdbcTemplate.execute(dropStatement);
         }
 
@@ -128,8 +141,8 @@ public class DB2Schema extends Schema<DB2DbSupport> {
      * @throws SQLException when the statements could not be generated.
      */
     private List<String> generateDropStatementsForProcedures() throws SQLException {
-        String dropProcGenQuery = "select PROCNAME from SYSCAT.PROCEDURES where PROCSCHEMA = '" + name + "'";
-        return buildDropStatements("DROP PROCEDURE", dropProcGenQuery);
+        String dropProcGenQuery = "select SPECIFICNAME from SYSCAT.PROCEDURES where PROCSCHEMA = '" + name + "'";
+        return buildDropStatements("DROP SPECIFIC PROCEDURE", dropProcGenQuery);
     }
 
     /**

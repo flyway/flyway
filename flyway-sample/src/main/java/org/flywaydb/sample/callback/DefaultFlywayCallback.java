@@ -19,8 +19,8 @@ import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.MigrationInfo;
 
 import java.sql.Connection;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 
 /**
  * Default FlywayCallback implementation.  If you don't want to have to 

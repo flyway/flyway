@@ -27,8 +27,10 @@ import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -56,9 +58,9 @@ public class SqlMigrationResolver implements MigrationResolver {
     private final Scanner scanner;
 
     /**
-     * The base directory on the classpath where to migrations are located.
+     * The base directories on the classpath where the migrations are located.
      */
-    private final Location location;
+    private final Locations locations;
 
     /**
      * The placeholder replacer to apply to sql migration scripts.
@@ -75,15 +77,15 @@ public class SqlMigrationResolver implements MigrationResolver {
      *
      * @param dbSupport                    The database-specific support.
      * @param scanner                      The Scanner for loading migrations on the classpath.
-     * @param location                     The location on the classpath where to migrations are located.
+     * @param locations                    The locations on the classpath where to migrations are located.
      * @param placeholderReplacer          The placeholder replacer to apply to sql migration scripts.
      * @param configuration                The Flyway configuration.
      */
-    public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Location location,
+    public SqlMigrationResolver(DbSupport dbSupport, Scanner scanner, Locations locations,
                                 PlaceholderReplacer placeholderReplacer, FlywayConfiguration configuration) {
         this.dbSupport = dbSupport;
         this.scanner = scanner;
-        this.location = location;
+        this.locations = locations;
         this.placeholderReplacer = placeholderReplacer;
         this.configuration = configuration;
     }
@@ -91,26 +93,28 @@ public class SqlMigrationResolver implements MigrationResolver {
     public List<ResolvedMigration> resolveMigrations() {
         List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
 
-        scanForMigrations(migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
-        scanForMigrations(migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix());
+        for (Location location: locations.getLocations()) {
+            scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), false);
+            scanForMigrations(location, migrations, configuration.getRepeatableSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), true);
+        }
 
         Collections.sort(migrations, new ResolvedMigrationComparator());
         return migrations;
     }
 
-    private void scanForMigrations(List<ResolvedMigration> migrations, String prefix, String separator, String suffix) {
-        for (Resource resource : scanner.scanForResources(location, prefix, suffix)) {
+    private void scanForMigrations(Location location, List<ResolvedMigration> migrations, String prefix, String separator, String suffix, boolean repeatable) {
+        for (LoadableResource resource : scanner.scanForResources(location, prefix, suffix)) {
             String filename = resource.getFilename();
             if (isSqlCallback(filename, suffix)) {
                 continue;
             }
             Pair<MigrationVersion, String> info =
-                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix);
+                    MigrationInfoHelper.extractVersionAndDescription(filename, prefix, separator, suffix, repeatable);
 
             ResolvedMigrationImpl migration = new ResolvedMigrationImpl();
             migration.setVersion(info.getLeft());
             migration.setDescription(info.getRight());
-            migration.setScript(extractScriptName(resource));
+            migration.setScript(extractScriptName(resource, location));
             migration.setChecksum(calculateChecksum(resource, resource.loadAsString(configuration.getEncoding())));
             migration.setType(MigrationType.SQL);
             migration.setPhysicalLocation(resource.getLocationOnDisk());
@@ -138,7 +142,7 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param resource The resource to process.
      * @return The script name.
      */
-    /* private -> for testing */ String extractScriptName(Resource resource) {
+    /* private -> for testing */ String extractScriptName(Resource resource, Location location) {
         if (location.getPath().isEmpty()) {
             return resource.getLocation();
         }

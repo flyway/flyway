@@ -65,6 +65,22 @@ public class MigrationInfoImplSmallTest {
     }
 
     @Test
+    public void validateFailed() {
+        String versionStr = "1";
+        MigrationVersion version = MigrationVersion.fromVersion(versionStr);
+        String description = "test";
+        MigrationType type = MigrationType.SQL;
+
+        AppliedMigration appliedMigration = new AppliedMigration(1, version, description, type, null, 123, new Date(), "abc", 0, false);
+
+        MigrationInfoImpl migrationInfo =
+                new MigrationInfoImpl(createResolvedMigration(versionStr, description), appliedMigration, new MigrationInfoContext(), false);
+        String message = migrationInfo.validate();
+
+        assertTrue(message, message.contains("Detected failed"));
+    }
+
+    @Test
     public void compareToRepeatable() {
         ResolvedMigration b = createResolvedMigration(null, "B");
         MigrationInfoContext context = new MigrationInfoContext();

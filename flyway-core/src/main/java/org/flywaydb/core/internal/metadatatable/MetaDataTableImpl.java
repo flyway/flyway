@@ -28,8 +28,8 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.sql.ResultSet;
@@ -159,7 +159,7 @@ public class MetaDataTableImpl implements MetaDataTable {
                 placeholders.put("table", table.getName());
                 String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
+                final SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
                 sqlScript.execute(jdbcTemplate);
 
                 LOG.debug("Metadata table " + table + " created.");
@@ -198,17 +198,23 @@ public class MetaDataTableImpl implements MetaDataTable {
 
     @Override
     public void addAppliedMigration(AppliedMigration appliedMigration) {
+        dbSupport.changeCurrentSchemaTo(table.getSchema());
+
         createIfNotExists();
+
+        // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
+        // in highly concurrent environments
+        table.lock();
 
         MigrationVersion version = appliedMigration.getVersion();
 
         try {
             String versionStr = version == null ? null : version.toString();
+            int installedRank = appliedMigration.getType() == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
 
             // Try load an updateMetaDataTable.sql file if it exists
             String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateMetaDataTable.sql";
             ClassPathResource classPathResource = new ClassPathResource(resourceName, getClass().getClassLoader());
-            int installedRank = calculateInstalledRank();
             if (classPathResource.exists()) {
                 String source = classPathResource.loadAsString("UTF-8");
                 Map<String, String> placeholders = new HashMap<String, String>();
@@ -387,6 +393,10 @@ public class MetaDataTableImpl implements MetaDataTable {
     @Override
     public void addSchemasMarker(final Schema[] schemas) {
         createIfNotExists();
+
+        // Lock again for databases with no DDL transactions to prevent implicit commits from triggering deadlocks
+        // in highly concurrent environments
+        table.lock();
 
         addAppliedMigration(new AppliedMigration(null, "<< Flyway Schema Creation >>",
                 MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));

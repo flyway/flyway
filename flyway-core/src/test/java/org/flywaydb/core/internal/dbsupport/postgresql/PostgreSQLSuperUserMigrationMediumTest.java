@@ -21,35 +21,56 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
+import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * PostgreSQL medium tests that require SuperUser permissions.
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.PostgreSQL.class)
+@RunWith(Parameterized.class)
 public class PostgreSQLSuperUserMigrationMediumTest {
     private Flyway flyway;
 
+    private final String jdbcUrl;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.JDBC_URL_POSTGRESQL_93}
+
+
+
+        });
+    }
+
+    public PostgreSQLSuperUserMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
+
+    protected DataSource createDataSource() {
+        return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                jdbcUrl, "postgres", "postgres");
+    }
+
     @Before
     public void setUp() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
-
-        String password = customProperties.getProperty("postgresql.password", "flyway");
-        String url = customProperties.getProperty("postgresql.url", "jdbc:postgresql://localhost/flyway_db");
-
         flyway = new Flyway();
         flyway.setSchemas("super_user_test");
-        flyway.setDataSource(new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, "postgres", password, null));
+        flyway.setDataSource(createDataSource());
         flyway.setValidateOnMigrate(true);
         flyway.clean();
+    }
+
+    @Test
+    public void setRole() throws Exception {
+        flyway.setLocations("migration/dbsupport/postgresql/sql/setrole", "migration/sql");
+        flyway.migrate();
     }
 
     /**

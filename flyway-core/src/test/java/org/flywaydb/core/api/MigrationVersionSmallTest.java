@@ -17,6 +17,8 @@ package org.flywaydb.core.api;
 
 import org.junit.Test;
 
+import static org.flywaydb.core.api.MigrationVersion.EMPTY;
+import static org.flywaydb.core.api.MigrationVersion.LATEST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -48,18 +50,18 @@ public class MigrationVersionSmallTest {
         assertTrue(v201004171859.compareTo(v201004180000) < 0);
         assertTrue(v201004180000.compareTo(v201004171859) > 0);
 
-        assertTrue(v2.compareTo(MigrationVersion.LATEST) < 0);
-        assertTrue(MigrationVersion.LATEST.compareTo(v2) > 0);
-        assertTrue(v201004180000.compareTo(MigrationVersion.LATEST) < 0);
-        assertTrue(MigrationVersion.LATEST.compareTo(v201004180000) > 0);
+        assertTrue(v2.compareTo(LATEST) < 0);
+        assertTrue(LATEST.compareTo(v2) > 0);
+        assertTrue(v201004180000.compareTo(LATEST) < 0);
+        assertTrue(LATEST.compareTo(v201004180000) > 0);
     }
 
     @Test
     public void testEquals() {
-        final MigrationVersion a1 = MigrationVersion.fromVersion("1.2.3.3");
-        final MigrationVersion a2 = MigrationVersion.fromVersion("1.2.3.3");
-        assertTrue(a1.compareTo(a2) == 0);
-        assertEquals(a1.hashCode(), a2.hashCode());
+        final MigrationVersion v1 = MigrationVersion.fromVersion("1.2.3.3");
+        final MigrationVersion v2 = MigrationVersion.fromVersion("1.2.3.3");
+        assertTrue(v1.compareTo(v2) == 0);
+        assertEquals(v1.hashCode(), v2.hashCode());
     }
 
     @Test
@@ -86,52 +88,52 @@ public class MigrationVersionSmallTest {
     @Test
     public void leadingZeroes() {
         final MigrationVersion v1 = MigrationVersion.fromVersion("1.0");
-        final MigrationVersion v2 = MigrationVersion.fromVersion("001.0");
-        assertTrue(v1.compareTo(v2) == 0);
-        assertTrue(v1.equals(v2));
-        assertEquals(v1.hashCode(), v2.hashCode());
+        final MigrationVersion v001 = MigrationVersion.fromVersion("001.0");
+        assertTrue(v1.compareTo(v001) == 0);
+        assertTrue(v1.equals(v001));
+        assertEquals(v1.hashCode(), v001.hashCode());
     }
 
     @Test
     public void trailingZeroes() {
-        final MigrationVersion v1 = MigrationVersion.fromVersion("1.00");
-        final MigrationVersion v2 = MigrationVersion.fromVersion("1");
-        assertTrue(v1.compareTo(v2) == 0);
-        assertTrue(v1.equals(v2));
-        assertEquals(v1.hashCode(), v2.hashCode());
+        final MigrationVersion v100 = MigrationVersion.fromVersion("1.00");
+        final MigrationVersion v1 = MigrationVersion.fromVersion("1");
+        assertTrue(v100.compareTo(v1) == 0);
+        assertTrue(v100.equals(v1));
+        assertEquals(v100.hashCode(), v1.hashCode());
     }
 
     @Test
     public void fromVersionFactory() {
-        assertEquals(MigrationVersion.LATEST, MigrationVersion.fromVersion(MigrationVersion.LATEST.getVersion()));
-        assertEquals(MigrationVersion.EMPTY, MigrationVersion.fromVersion(MigrationVersion.EMPTY.getVersion()));
+        assertEquals(LATEST, MigrationVersion.fromVersion(LATEST.getVersion()));
+        assertEquals(EMPTY, MigrationVersion.fromVersion(EMPTY.getVersion()));
         assertEquals("1.2.3", MigrationVersion.fromVersion("1.2.3").getVersion());
     }
 
     @Test
     public void empty() {
-        assertEquals(MigrationVersion.EMPTY, MigrationVersion.EMPTY);
-        assertTrue(MigrationVersion.EMPTY.compareTo(MigrationVersion.EMPTY) == 0);
+        assertEquals(EMPTY, EMPTY);
+        assertTrue(EMPTY.compareTo(EMPTY) == 0);
     }
 
 
     @Test
     public void latest() {
-        assertEquals(MigrationVersion.LATEST, MigrationVersion.LATEST);
-        assertTrue(MigrationVersion.LATEST.compareTo(MigrationVersion.LATEST) == 0);
+        assertEquals(LATEST, LATEST);
+        assertTrue(LATEST.compareTo(LATEST) == 0);
     }
 
     @Test
     public void zeros() {
-        final MigrationVersion v1 = MigrationVersion.fromVersion("0.0");
-        final MigrationVersion v2 = MigrationVersion.fromVersion("0");
-        assertTrue(v1.compareTo(v2) == 0);
-        assertTrue(v1.equals(v2));
-        assertEquals(v1.hashCode(), v2.hashCode());
+        final MigrationVersion v00 = MigrationVersion.fromVersion("0.0");
+        final MigrationVersion v0 = MigrationVersion.fromVersion("0");
+        assertTrue(v00.compareTo(v0) == 0);
+        assertTrue(v00.equals(v0));
+        assertEquals(v00.hashCode(), v0.hashCode());
     }
 
     @Test(expected = FlywayException.class)
-    public void missingNumber() {
+    public void doubleDot() {
         MigrationVersion.fromVersion("1..1");
     }
 
@@ -172,4 +174,3 @@ public class MigrationVersionSmallTest {
         assertEquals(raw, longVersions.getVersion());
     }
 }
-

@@ -22,15 +22,19 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
-import org.flywaydb.core.internal.util.logging.Log;
-import org.flywaydb.core.internal.util.logging.LogFactory;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -47,6 +51,8 @@ public abstract class ConcurrentMigrationTestCase {
      * The number of threads to use in this test.
      */
     private static final int NUM_THREADS = 10;
+
+    protected static Properties customProperties = new Properties();
 
     /**
      * The quoted schema placeholder for the tests.
@@ -69,8 +75,24 @@ public abstract class ConcurrentMigrationTestCase {
     private Flyway flyway;
     private String schemaName;
 
+    @BeforeClass
+    public static void loadProperties() throws Exception {
+        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
+        if (customPropertiesFile.canRead()) {
+            customProperties.load(new FileInputStream(customPropertiesFile));
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
+        concurrentMigrationDataSource = createDataSource(customProperties);
+
+        Connection connection = concurrentMigrationDataSource.getConnection();
+        final DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
+        schemaName = getSchemaName(dbSupport);
+        schemaQuoted = dbSupport.quote(schemaName);
+        connection.close();
+
         flyway = createFlyway();
         flyway.clean();
 
@@ -146,27 +168,17 @@ public abstract class ConcurrentMigrationTestCase {
         }
     }
 
-    private Flyway createFlyway() throws Exception {
-        File customPropertiesFile = new File(System.getProperty("user.home") + "/flyway-mediumtests.properties");
-        Properties customProperties = new Properties();
-        if (customPropertiesFile.canRead()) {
-            customProperties.load(new FileInputStream(customPropertiesFile));
-        }
-        concurrentMigrationDataSource = createDataSource(customProperties);
-        Connection connection = concurrentMigrationDataSource.getConnection();
-        final DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
-        schemaName = getSchemaName(dbSupport);
-        schemaQuoted = dbSupport.quote(schemaName);
-        connection.close();
-
+    private Flyway createFlyway() throws SQLException {
         Flyway newFlyway = new Flyway();
-        newFlyway.configure(customProperties);
         newFlyway.setDataSource(concurrentMigrationDataSource);
         newFlyway.setLocations(getBasedir());
         newFlyway.setSchemas(schemaName);
-        newFlyway.getPlaceholders().put("schema", schemaQuoted);
-        newFlyway.setBaselineVersionAsString("0.1");
 
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("schema", schemaQuoted);
+
+        newFlyway.setPlaceholders(placeholders);
+        newFlyway.setBaselineVersionAsString("0.1");
         return newFlyway;
     }
 }
