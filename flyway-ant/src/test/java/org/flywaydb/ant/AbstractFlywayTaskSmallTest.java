@@ -27,6 +27,15 @@ public class AbstractFlywayTaskSmallTest {
     public void adjustRelativeFileSystemLocationToBaseDir() {
         String root = File.listRoots()[0].getPath();
 
+        // Resolve the actual root directory in a Windows environment
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            File file = new File(".").getAbsoluteFile();
+            while (file.getParentFile() != null) {
+                file = file.getParentFile();
+            }
+            root = file.getPath();
+        }
+
         File baseDir = new File("/tempo");
         assertEquals("db/migration",
                 AbstractFlywayTask.adjustRelativeFileSystemLocationToBaseDir(baseDir, "db/migration"));

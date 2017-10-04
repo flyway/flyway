@@ -34,10 +34,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Main class and central entry point of the Flyway command-line tool.
@@ -391,6 +390,37 @@ public class Main {
     }
 
     /**
+     * Replace references to environment variables in configuration.
+     * An environment variable is referenced as "${VAR}".
+     *
+     * @param fileContents The configuration file contents
+     * @return The configuration file contents with resolved environment variables
+     */
+    static String resolveEnvironmentVariables(String fileContents) {
+        if (fileContents.length() == 0)
+            return fileContents;
+
+        String resolvedFileContents = fileContents;
+
+        String regex = "\\$\\{([A-Za-z0-9]+)\\}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(fileContents);
+
+        Map<String,String> environment = System.getenv();
+
+        while (matcher.find()) {
+            String resolvedValue = environment.get(matcher.group(1));
+            if (resolvedValue == null) {
+                resolvedValue = "";
+            }
+            Pattern variableNamePattern = Pattern.compile(Pattern.quote(matcher.group(0)));
+            resolvedFileContents = variableNamePattern.matcher(resolvedFileContents).replaceAll(resolvedValue);
+        }
+
+        return resolvedFileContents;
+    }
+
+    /**
      * Loads the configuration from the configuration file. If a configuration file is specified using the -configfile
      * argument it will be used, otherwise the default config file (<install-dir>/conf/flyway.conf) will be loaded.
      *
@@ -416,6 +446,7 @@ public class Main {
         LOG.debug("Loading config file: " + configFile.getAbsolutePath());
         try {
             String contents = FileCopyUtils.copyToString(new InputStreamReader(new FileInputStream(configFile), encoding));
+            contents = resolveEnvironmentVariables(contents);
             properties.load(new StringReader(contents.replace("\\", "\\\\")));
             return true;
         } catch (IOException e) {

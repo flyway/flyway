@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -45,10 +46,15 @@ public class MainClassLoaderSmallTest {
 
         Main.loadConfiguration(properties, args);
 
-        assertEquals(4, properties.size());
+        Map<String,String> env = System.getenv();
+        // Use common linux and windows environment variables
+        String expectedHome = env.getOrDefault("HOSTNAME","") + env.getOrDefault("COMPUTERNAME","");
+
+        assertEquals(5, properties.size());
         assertEquals("still there!", properties.getProperty("existing"));
         assertEquals("räbbit 123", properties.getProperty("roger"));
         assertEquals("wins :-)", properties.getProperty("override"));
+        assertEquals(expectedHome, properties.getProperty("envhome"));
     }
 
     @Test
