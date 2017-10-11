@@ -15,15 +15,13 @@
  */
 package org.flywaydb.core.internal.resolver;
 
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-
+import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
+
+import javax.sql.DataSource;
+import java.util.Map;
 
 /**
  * Dummy Implementation of {@link FlywayConfiguration} for unit tests.
@@ -254,6 +252,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     @Override
     public String getInstalledBy() {
+        return null;
+    }
+
+    @Override
+    public Long getMigrationTimeout() {
         return null;
     }
 

@@ -325,12 +325,12 @@ public class Flyway implements FlywayConfiguration {
      */
     private String installedBy;
 
-
-
-
-
-
-
+    /**
+     * The migration timeout.
+     * <p>
+     *  {@code null} no timeout. (default: {@code null}).
+     */
+    private Long migrationTimeout;
 
 
     /**
@@ -762,6 +762,18 @@ public class Flyway implements FlywayConfiguration {
     }
 
     /**
+     * Sets the migration timeout.
+     *
+     * @param migrationTimeout The migration timeout or null if not applicable.
+     */
+    public void setMigrationTimeout(Long migrationTimeout) {
+        if (migrationTimeout != null && migrationTimeout < 0) {
+            throw new FlywayException("migrationTimeout cannot be negative");
+        }
+        this.migrationTimeout = migrationTimeout;
+    }
+
+    /**
      * Sets the prefix of every placeholder.
      *
      * @param placeholderPrefix The prefix of every placeholder. (default: ${ )
@@ -949,6 +961,11 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setCallbacks(FlywayCallback... callbacks) {
         this.callbacks = callbacks;
+    }
+
+    @Override
+    public Long getMigrationTimeout() {
+        return migrationTimeout;
     }
 
     /**
@@ -1413,6 +1430,11 @@ public class Flyway implements FlywayConfiguration {
         String installedByProp = getValueAndRemoveEntry(props, "flyway.installedBy");
         if (installedByProp != null) {
             setInstalledBy(installedByProp);
+        }
+
+        String migrationTimeout = getValueAndRemoveEntry(props, "flyway.migrationTimeout");
+        if (migrationTimeout != null) {
+            setMigrationTimeout(Long.parseLong(installedByProp));
         }
 
 

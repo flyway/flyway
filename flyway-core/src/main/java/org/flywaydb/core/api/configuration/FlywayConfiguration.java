@@ -315,7 +315,12 @@ public interface FlywayConfiguration {
      */
     String getInstalledBy();
 
-
+    /**
+     * The migration timeout in milliseconds.
+     *
+     * @return The migration timeout in milliseconds or {@code null} if no timeout. (default: {@code null}).
+     */
+    Long getMigrationTimeout();
 
 
 
