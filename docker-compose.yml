@@ -16,10 +16,19 @@
 
 version: "3"
 services:
+  cockroach-11:
+    image: "cockroachdb/cockroach:v1.1.0"
+    ports:
+     - "62000:26257"
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/entrypoint.sh:/entrypoint.sh
+     - ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql:/createDatabase.sql
+    entrypoint:
+     - /entrypoint.sh
   db2-10:
     image: "ibmcom/db2express-c:10.5.0.5-3.10.0"
     ports:
-     - "62000:50000"
+     - "62010:50000"
     environment:
      - DB2INST1_PASSWORD=flywaypwd
      - LICENSE=accept
@@ -31,7 +40,7 @@ services:
   mariadb-55:
     image: "mariadb:5.5.57"
     ports:
-     - "62010:3306"
+     - "62020:3306"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -43,7 +52,7 @@ services:
   mariadb-100:
     image: "mariadb:10.0.32"
     ports:
-     - "62011:3306"
+     - "62021:3306"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -54,7 +63,7 @@ services:
   mysql-55:
     image: "mysql:5.5.57"
     ports:
-     - "62020:3306"
+     - "62030:3306"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -66,7 +75,7 @@ services:
   oracle-10:
     image: "aledv/docker-debian-oracle-xe-10g"
     ports:
-     - "62030:1521"
+     - "62040:1521"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
@@ -74,27 +83,27 @@ services:
   oracle-12:
     image: "sath89/oracle-12c"
     ports:
-     - "62031:1521"
+     - "62041:1521"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   # [pro]
   postgresql-92:
     image: "postgres:9.2.23-alpine"
     ports:
-     - "62040:5432"
+     - "62050:5432"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   # [/pro]
   postgresql-93:
     image: "postgres:9.3.19-alpine"
     ports:
-     - "62041:5432"
+     - "62051:5432"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   sqlserver-2017:
     image: "microsoft/mssql-server-linux"
     ports:
-     - "62050:1433"
+     - "62060:1433"
     cap_add:
      - SYS_PTRACE
     environment:

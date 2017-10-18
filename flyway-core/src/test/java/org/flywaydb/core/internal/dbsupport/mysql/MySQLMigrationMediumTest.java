@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.MySQL.class)
 public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
-    static final String JDBC_URL = "jdbc:mysql://localhost:62020/flyway_db";
+    static final String JDBC_URL = "jdbc:mysql://localhost:62030/flyway_db";
     static final String JDBC_USER = "root";
     static final String JDBC_PASSWORD = "flywayPWD000";
 

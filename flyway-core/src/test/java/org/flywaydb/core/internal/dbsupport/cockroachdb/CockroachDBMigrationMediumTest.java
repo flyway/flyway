@@ -19,11 +19,9 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
-import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.ExternalResource;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -36,26 +34,10 @@ import static org.junit.Assert.assertEquals;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.CockroachDB.class)
 public class CockroachDBMigrationMediumTest extends MigrationTestCase {
-    private static String jdbcUrl;
-    private static String jdbcUser;
-    private static String jdbcPassword;
-
-    @ClassRule
-    public static ExternalResource initCockroachDB() {
-        return new ExternalResource() {
-            @Override
-            protected void before() throws Throwable {
-                jdbcUrl = customProperties.getProperty("cockroachdb.url", "jdbc:postgresql://127.0.0.1:26257/flyway_db?sslmode=disable");
-                jdbcUser = customProperties.getProperty("cockroachdb.user", "flyway");
-                jdbcPassword = customProperties.getProperty("cockroachdb.password", "");
-            }
-        };
-    }
-
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                jdbcUrl, jdbcUser, jdbcPassword, null);
+                "jdbc:postgresql://127.0.0.1:62000/flyway_db?sslmode=disable", "flyway", "");
     }
 
     @Override

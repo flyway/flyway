@@ -55,9 +55,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     private static final Log LOG = LogFactory.getLog(OracleMigrationMediumTest.class);
 
     // [pro]
-    static final String JDBC_URL_ORACLE_10 = "jdbc:oracle:thin:@//localhost:62030/xe";
+    static final String JDBC_URL_ORACLE_10 = "jdbc:oracle:thin:@//localhost:62040/xe";
     // [/pro]
-    static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62031/xe";
+    static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62041/xe";
     static final String JDBC_USER = "flyway";
     static final String JDBC_PASSWORD = "flyway";
 

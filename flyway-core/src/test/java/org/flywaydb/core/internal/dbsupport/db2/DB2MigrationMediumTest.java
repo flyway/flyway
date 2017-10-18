@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
  */
 @Category(DbCategory.DB2.class)
 public class DB2MigrationMediumTest extends MigrationTestCase {
-    static final String JDBC_URL = "jdbc:db2://localhost:62000/flyway";
+    static final String JDBC_URL = "jdbc:db2://localhost:62010/flyway";
     static final String JDBC_USER = "db2inst1";
     static final String JDBC_PASSWORD = "flywaypwd";
 
