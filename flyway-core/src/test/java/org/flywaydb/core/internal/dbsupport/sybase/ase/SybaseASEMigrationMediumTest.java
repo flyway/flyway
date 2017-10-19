@@ -54,8 +54,8 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         String user = customProperties.getProperty("sybase.user", "sa");
-        String password = customProperties.getProperty("sybase.password", "test");
-        String url = customProperties.getProperty("sybase.jtds_url", "jdbc:jtds:sybase://127.0.0.1:5100/flyway_test");
+        String password = customProperties.getProperty("sybase.password", "password");
+        String url = customProperties.getProperty("sybase.jtds_url", "jdbc:jtds:sybase://127.0.0.1:5000/guest");
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, url, user, password, null);
     }
