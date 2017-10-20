@@ -2,19 +2,7 @@ sudo: required
 language: java
 jdk:
   - oraclejdk8
-services:
-  - docker
-before_install:
-  - docker-compose pull --parallel
-  - docker-compose up -d
-  - wget -qO- https://binaries.cockroachdb.com/cockroach-v1.1-alpha.20170817.linux-amd64.tgz | tar  xvz
-  - sudo cp -i cockroach-v1.1-alpha.20170817.linux-amd64/cockroach /usr/local/bin
-  - cockroach start --insecure --host=localhost --background
-  - cockroach node status --insecure
-  - cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
-  - echo "Waiting 4 minutes for databases to come up ..."
-  - sleep 240
-  - docker ps -a
-install: "sh ./mvnw install -P-CommandlinePlatformAssemblies -q -e"
+  - oraclejdk9
+install: "sh ./mvnw install -q -e"
 before_script: echo OK
 script: echo Done.

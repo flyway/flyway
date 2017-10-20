@@ -21,18 +21,14 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.cockroachdb.CockroachDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
-import org.flywaydb.core.internal.dbsupport.enterprisedb.EnterpriseDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
 import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
-import org.flywaydb.core.internal.dbsupport.saphana.SapHanaDbSupport;
-import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
-import org.flywaydb.core.internal.dbsupport.sybase.ase.SybaseASEDbSupport;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -90,9 +86,6 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
         }
-        if (databaseProductName.startsWith("EnterpriseDB")) {
-            return new EnterpriseDBDbSupport(connection);
-        }
         if (databaseProductName.startsWith("PostgreSQL")) {
             if (isCockroachDB(connection)) {
                 return new CockroachDBDbSupport(connection);
@@ -102,22 +95,8 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("DB2")) {
             return new DB2DbSupport(connection);
         }
-        if (databaseProductName.contains("solidDB")) {
-            // SolidDB was originally developed by a company named Solid and was sold afterwards to IBM.
-            // In the meanwhile IBM also sold solidDB to Unicom Systems.
-            // Therefore no vendor string in search criteria
-            return new SolidDbSupport(connection);
-        }
         if (databaseProductName.startsWith("Phoenix")) {
             return new PhoenixDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("ASE")
-                || databaseProductName.startsWith("Adaptive") //Newer Sybase ASE versions
-                || databaseProductName.startsWith("sql server")) { // Older Sybase ASE 12.5 installations
-            return new SybaseASEDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("HDB")) {
-            return new SapHanaDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

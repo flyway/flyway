@@ -156,7 +156,7 @@
         <profile>
             <id>CommandlinePlatformAssemblies</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>

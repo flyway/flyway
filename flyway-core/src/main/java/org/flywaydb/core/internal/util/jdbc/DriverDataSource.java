@@ -300,10 +300,6 @@ public class DriverDataSource implements DataSource {
             return "oracle.jdbc.OracleDriver";
         }
 
-        if (url.startsWith("jdbc:edb:")) {
-            return "com.edb.Driver";
-        }
-
         if (url.startsWith("jdbc:phoenix")) {
             return "org.apache.phoenix.jdbc.PhoenixDriver";
         }
@@ -318,10 +314,6 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:sqlserver:")) {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-        }
-
-        if (url.startsWith("jdbc:sap:")) {
-            return "com.sap.db.jdbc.Driver";
         }
 
         return null;

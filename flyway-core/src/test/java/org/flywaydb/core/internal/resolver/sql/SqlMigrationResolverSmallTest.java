@@ -64,7 +64,7 @@ public class SqlMigrationResolverSmallTest {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner, new Locations(""), PlaceholderReplacer.NO_PLACEHOLDERS, configuration);
 
-        assertEquals(2, sqlMigrationResolver.resolveMigrations().size());
+        assertEquals(1, sqlMigrationResolver.resolveMigrations().size());
     }
 
     @Test

@@ -57,28 +57,24 @@ public class ClassPathScannerSmallTest {
     public void scanForResourcesRoot() throws Exception {
         LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:"), "CheckValidate", ".sql");
 
-        assertEquals(2, resources.length);
+        assertEquals(1, resources.length);
 
         Set<String> validPaths = new HashSet<String>();
         validPaths.add("migration/validate/CheckValidate1__First.sql");
-        validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
 
         assertEquals(true, validPaths.contains(resources[0].getLocation()));
-        assertEquals(true, validPaths.contains(resources[1].getLocation()));
     }
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
         LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:migration"), "CheckValidate", ".sql");
 
-        assertEquals(2, resources.length);
+        assertEquals(1, resources.length);
 
         Set<String> validPaths = new HashSet<String>();
-        validPaths.add("migration/dbsupport/sybaseASE/validate/CheckValidate1__First.sql");
         validPaths.add("migration/validate/CheckValidate1__First.sql");
 
         assertEquals(true, validPaths.contains(resources[0].getLocation()));
-        assertEquals(true, validPaths.contains(resources[1].getLocation()));
     }
 
     @Test

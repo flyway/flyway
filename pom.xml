@@ -73,20 +73,22 @@
     <modules>
         <module>flyway-core</module>
         <module>flyway-gradle-plugin</module>
-        <module>flyway-gradle-plugin-largetest</module>
         <module>flyway-maven-plugin</module>
+        <module>flyway-ant</module>
+        <module>flyway-sbt</module>
+        <module>flyway-commandline</module>
+        <!-- [pro] -->
+        <module>flyway-gradle-plugin-largetest</module>
         <module>flyway-maven-plugin-largetest</module>
         <module>flyway-sample</module>
         <module>flyway-sample-webapp</module>
         <module>flyway-sample-osgi</module>
         <module>flyway-sample-osgi-fragment</module>
         <module>flyway-osgi-largetest</module>
-        <module>flyway-commandline</module>
         <module>flyway-commandline-largetest</module>
-        <module>flyway-ant</module>
         <module>flyway-ant-largetest</module>
-        <module>flyway-sbt</module>
         <module>flyway-sbt-largetest</module>
+        <!-- [/pro] -->
     </modules>
 
     <distributionManagement>
