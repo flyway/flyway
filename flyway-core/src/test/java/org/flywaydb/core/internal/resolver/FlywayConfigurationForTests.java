@@ -238,11 +238,6 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
-    public boolean isAllowMixedMigrations() {
-        return false;
-    }
-
-    @Override
     public boolean isMixed() {
         return false;
     }

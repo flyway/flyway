@@ -465,7 +465,7 @@ public abstract class MigrationTestCase {
             // Expected
         }
 
-        flyway.setIgnoreFailedFutureMigration(true);
+        flyway.setIgnoreFutureMigrations(true);
         flyway.setLocations(getBasedir());
         flyway.migrate();
     }
@@ -482,7 +482,7 @@ public abstract class MigrationTestCase {
             // Expected
         }
 
-        flyway.setIgnoreFailedFutureMigration(true);
+        flyway.setIgnoreFutureMigrations(true);
         try {
             flyway.migrate();
             fail();

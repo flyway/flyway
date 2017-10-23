@@ -85,11 +85,6 @@ public class DbMigrate {
     private final Connection connectionUserObjects;
 
     /**
-     * Flag whether to ignore failed future migrations or not.
-     */
-    private final boolean ignoreFailedFutureMigration;
-
-    /**
      * The DB support for the user objects connection.
      */
     private final DbSupport dbSupportUserObjects;
@@ -101,18 +96,16 @@ public class DbMigrate {
      * @param dbSupport                   Database-specific functionality.
      * @param metaDataTable               The database metadata table.
      * @param migrationResolver           The migration resolver.
-     * @param ignoreFailedFutureMigration Flag whether to ignore failed future migrations or not.
      * @param configuration               The Flyway configuration.
      */
     public DbMigrate(Connection connectionUserObjects, DbSupport dbSupport,
                      MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
-                     boolean ignoreFailedFutureMigration, FlywayConfiguration configuration) {
+                     FlywayConfiguration configuration) {
         this.connectionUserObjects = connectionUserObjects;
         this.dbSupport = dbSupport;
         this.metaDataTable = metaDataTable;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
-        this.ignoreFailedFutureMigration = ignoreFailedFutureMigration;
         this.configuration = configuration;
 
         dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
@@ -184,7 +177,7 @@ public class DbMigrate {
                         if (failed.length > 0) {
                             if ((failed.length == 1)
                                     && (failed[0].getState() == MigrationState.FUTURE_FAILED)
-                                    && (configuration.isIgnoreFutureMigrations() || ignoreFailedFutureMigration)) {
+                                    && configuration.isIgnoreFutureMigrations()) {
                                 LOG.warn("Schema " + schema + " contains a failed future migration to version " + failed[0].getVersion() + " !");
                             } else {
                                 if (failed[0].getVersion() == null) {

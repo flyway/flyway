@@ -17,10 +17,8 @@ package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
-import org.flywaydb.core.internal.util.UrlUtils;
 import org.flywaydb.gradle.FlywayExtension;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.ResolvedArtifact;
@@ -213,7 +211,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * (unknown to us) has also been applied. Instead of bombing out (fail fast) with an exception, a
      * warning is logged and Flyway continues normally. This is useful for situations where one must be able to deploy
      * a newer version of the application even though it doesn't contain migrations included with an older one anymore.
-     *
+     * <p>
      * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
      */
@@ -248,18 +246,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      * Be careful when enabling this as it removes the safety net that ensures
      * Flyway does not migrate the wrong database in case of a configuration mistake!
      * </p>
-     *
+     * <p>
      * <p>{@code true} if baseline should be called on migrate for non-empty schemas, {@code false} if not. (default: {@code false})</p>
      */
     public Boolean baselineOnMigrate;
-
-    /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration.
-     * <p>{@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})</p>
-     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
-     */
-    @Deprecated
-    public Boolean allowMixedMigrations;
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
@@ -312,10 +302,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.add(resourcesUrl);
                 }
 
-                addDependenciesWithScope(extraURLs,"compile");
-                addDependenciesWithScope(extraURLs,"runtime");
-                addDependenciesWithScope(extraURLs,"testCompile");
-                addDependenciesWithScope(extraURLs,"testRuntime");
+                addDependenciesWithScope(extraURLs, "compile");
+                addDependenciesWithScope(extraURLs, "runtime");
+                addDependenciesWithScope(extraURLs, "testCompile");
+                addDependenciesWithScope(extraURLs, "testRuntime");
             }
 
             ClassLoader classLoader = new URLClassLoader(
@@ -361,7 +351,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, "repeatableSqlMigrationPrefix", repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
         putIfSet(conf, "sqlMigrationSeparator", sqlMigrationSeparator, extension.sqlMigrationSeparator);
         putIfSet(conf, "sqlMigrationSuffix", sqlMigrationSuffix, extension.sqlMigrationSuffix);
-        putIfSet(conf, "allowMixedMigrations", allowMixedMigrations, extension.allowMixedMigrations);
         putIfSet(conf, "mixed", mixed, extension.mixed);
         putIfSet(conf, "group", group, extension.group);
         putIfSet(conf, "installedBy", installedBy, extension.installedBy);

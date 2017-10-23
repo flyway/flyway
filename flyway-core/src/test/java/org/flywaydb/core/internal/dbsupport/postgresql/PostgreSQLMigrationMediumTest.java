@@ -105,14 +105,14 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
         } catch (FlywayException e) {
             assertThat(e.getMessage(), containsString("non-transactional"));
         }
-        flyway.setAllowMixedMigrations(true);
+        flyway.setMixed(true);
         flyway.migrate();
     }
 
     @Test
     public void index() throws Exception {
         flyway.setLocations("migration/dbsupport/postgresql/sql/index");
-        flyway.setAllowMixedMigrations(true);
+        flyway.setMixed(true);
         flyway.migrate();
     }
 
