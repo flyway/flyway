@@ -70,6 +70,7 @@
             <artifactId>flyway-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- [pro] -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -80,6 +81,7 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- [/pro] -->
     </dependencies>
     <build>
         <plugins>

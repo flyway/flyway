@@ -20,7 +20,6 @@ import org.flywaydb.core.api.migration.spring.SpringJdbcMigration;
 import org.flywaydb.core.internal.util.scanner.Resource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathScanner;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,33 +35,23 @@ public class ClassUtilsSmallTest {
     /**
      * The old classloader, to be restored after a test completes.
      */
-    private static ClassLoader oldClassLoader;
+    private static ClassLoader newClassLoader;
 
     @BeforeClass
     public static void setUp() throws IOException {
-        oldClassLoader = getClassLoader();
-        String jar = new ClassPathResource("no-directory-entries.jar", getClassLoader()).getLocationOnDisk();
+        String jar = new ClassPathResource("no-directory-entries.jar", Thread.currentThread().getContextClassLoader()).getLocationOnDisk();
         assertTrue(new File(jar).isFile());
-        ClassUtils.addJarOrDirectoryToClasspath(jar);
-    }
-
-    private static ClassLoader getClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        Thread.currentThread().setContextClassLoader(oldClassLoader);
+        newClassLoader = ClassUtils.addJarOrDirectoryToClasspath(Thread.currentThread().getContextClassLoader(), jar);
     }
 
     @Test
     public void isPresent() {
-        assertTrue(ClassUtils.isPresent("org.flywaydb.core.Flyway", Thread.currentThread().getContextClassLoader()));
+        assertTrue(ClassUtils.isPresent("org.flywaydb.core.Flyway", newClassLoader));
     }
 
     @Test
     public void isPresentNot() {
-        assertFalse(ClassUtils.isPresent("com.example.FakeClass", Thread.currentThread().getContextClassLoader()));
+        assertFalse(ClassUtils.isPresent("com.example.FakeClass", newClassLoader));
     }
 
     /**
@@ -70,14 +59,14 @@ public class ClassUtilsSmallTest {
      */
     @Test
     public void addDirectoryToClasspath() throws Exception {
-        assertFalse(new ClassPathResource("pkg/runtime.conf", getClassLoader()).exists());
+        assertFalse(new ClassPathResource("pkg/runtime.conf", newClassLoader).exists());
 
-        String folder = new ClassPathResource("dynamic", getClassLoader()).getLocationOnDisk();
-        ClassUtils.addJarOrDirectoryToClasspath(folder);
+        String folder = new ClassPathResource("dynamic", newClassLoader).getLocationOnDisk();
+        ClassLoader classLoader = ClassUtils.addJarOrDirectoryToClasspath(newClassLoader, folder);
 
-        assertTrue(new ClassPathResource("pkg/runtime.conf", getClassLoader()).exists());
+        assertTrue(new ClassPathResource("pkg/runtime.conf", classLoader).exists());
 
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:pkg"), "run", ".conf");
+        Resource[] resources = new ClassPathScanner(classLoader).scanForResources(new Location("classpath:pkg"), "run", ".conf");
         assertEquals("pkg/runtime.conf", resources[0].getLocation());
     }
 
@@ -86,14 +75,14 @@ public class ClassUtilsSmallTest {
      */
     @Test
     public void addDirectoryToClasspathDefaultPackage() throws Exception {
-        assertFalse(new ClassPathResource("runtime.conf", getClassLoader()).exists());
+        assertFalse(new ClassPathResource("runtime.conf", newClassLoader).exists());
 
-        String folder = new ClassPathResource("dynamic/pkg2", getClassLoader()).getLocationOnDisk();
-        ClassUtils.addJarOrDirectoryToClasspath(folder);
+        String folder = new ClassPathResource("dynamic/pkg2", newClassLoader).getLocationOnDisk();
+        ClassLoader classLoader = ClassUtils.addJarOrDirectoryToClasspath(newClassLoader, folder);
 
-        assertTrue(new ClassPathResource("funtime.properties", getClassLoader()).exists());
+        assertTrue(new ClassPathResource("funtime.properties", classLoader).exists());
 
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:"), "fun", ".properties");
+        Resource[] resources = new ClassPathScanner(classLoader).scanForResources(new Location("classpath:"), "fun", ".properties");
         assertEquals("funtime.properties", resources[1].getLocation());
     }
 
@@ -102,20 +91,20 @@ public class ClassUtilsSmallTest {
      */
     @Test
     public void addJarToClasspath() throws Exception {
-        assertFalse(new ClassPathResource("db/migration/V1__Initial_structure.sql.sql", getClassLoader()).exists());
-        assertFalse(ClassUtils.isPresent("org.flywaydb.sample.migration.V1_2__Another_user", getClassLoader()));
+        assertFalse(new ClassPathResource("db/migration/V1__Initial_structure.sql.sql", newClassLoader).exists());
+        assertFalse(ClassUtils.isPresent("org.flywaydb.sample.migration.V1_2__Another_user", newClassLoader));
 
-        String jar = new ClassPathResource("flyway-sample.jar", getClassLoader()).getLocationOnDisk();
+        String jar = new ClassPathResource("flyway-sample.jar", newClassLoader).getLocationOnDisk();
         assertTrue(new File(jar).isFile());
-        ClassUtils.addJarOrDirectoryToClasspath(jar);
+        ClassLoader classLoader = ClassUtils.addJarOrDirectoryToClasspath(newClassLoader, jar);
 
-        assertTrue(new ClassPathResource("db/migration/V1__Initial_structure.sql", getClassLoader()).exists());
-        assertTrue(ClassUtils.isPresent("org.flywaydb.sample.migration.V1_2__Another_user", getClassLoader()));
+        assertTrue(new ClassPathResource("db/migration/V1__Initial_structure.sql", classLoader).exists());
+        assertTrue(ClassUtils.isPresent("org.flywaydb.sample.migration.V1_2__Another_user", classLoader));
 
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:db/migration"), "V1__", ".sql");
+        Resource[] resources = new ClassPathScanner(classLoader).scanForResources(new Location("classpath:db/migration"), "V1__", ".sql");
         assertEquals("db/migration/V1__Initial_structure.sql", resources[0].getLocation());
 
-        Class<?>[] classes = new ClassPathScanner(getClassLoader()).scanForClasses(new Location("classpath:org/flywaydb/sample/migration"), SpringJdbcMigration.class);
+        Class<?>[] classes = new ClassPathScanner(classLoader).scanForClasses(new Location("classpath:org/flywaydb/sample/migration"), SpringJdbcMigration.class);
         assertEquals("org.flywaydb.sample.migration.V1_2__Another_user", classes[0].getName());
     }
 
@@ -124,9 +113,9 @@ public class ClassUtilsSmallTest {
      */
     @Test
     public void addJarToClasspathNoDirectoryEntries() throws Exception {
-        assertTrue(new ClassPathResource("db/migration/V1_11__Create_tbl_bob.sql", getClassLoader()).exists());
-        Resource[] resources = new ClassPathScanner(getClassLoader()).scanForResources(new Location("classpath:db/migration"), "V1_11", ".sql");
-        Class[] classes = new ClassPathScanner(getClassLoader()).scanForClasses(new Location("classpath:db/migration"), JdbcMigration.class);
+        assertTrue(new ClassPathResource("db/migration/V1_11__Create_tbl_bob.sql", newClassLoader).exists());
+        Resource[] resources = new ClassPathScanner(newClassLoader).scanForResources(new Location("classpath:db/migration"), "V1_11", ".sql");
+        Class[] classes = new ClassPathScanner(newClassLoader).scanForClasses(new Location("classpath:db/migration"), JdbcMigration.class);
 
         assertEquals("db/migration/V1_11__Create_tbl_bob.sql", resources[0].getLocation());
         assertEquals(0, classes.length);

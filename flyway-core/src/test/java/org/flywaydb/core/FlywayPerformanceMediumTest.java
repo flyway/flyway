@@ -15,15 +15,16 @@
  */
 package org.flywaydb.core;
 
-import org.apache.commons.io.IOUtils;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
@@ -52,7 +53,7 @@ public class FlywayPerformanceMediumTest {
                 @Override
                 public void run() {
                     try {
-                        IOUtils.write("SELECT " + j + " FROM DUAL", new FileOutputStream(DIR + "/V" + j + "__Test.sql"));
+                        FileCopyUtils.copy(new StringReader("SELECT " + j + " FROM DUAL"), new FileWriter(DIR + "/V" + j + "__Test.sql"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

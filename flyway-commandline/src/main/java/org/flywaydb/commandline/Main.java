@@ -17,13 +17,13 @@ package org.flywaydb.commandline;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
 
@@ -95,10 +95,12 @@ public class Main {
 
             dumpConfiguration(properties);
 
-            loadJdbcDrivers();
-            loadJavaMigrationsFromJarDirs(properties);
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            classLoader = loadJdbcDrivers(classLoader);
+            classLoader = loadJavaMigrationsFromJarDirs(classLoader, properties);
 
             Flyway flyway = new Flyway();
+            flyway.setClassLoader(classLoader);
             filterProperties(properties);
             flyway.configure(properties);
 
@@ -119,7 +121,8 @@ public class Main {
         }
     }
 
-    /* private -> testing */  static void initSystemPropertiesFromConfig(Properties properties) {
+    /* private -> testing */
+    static void initSystemPropertiesFromConfig(Properties properties) {
         for (String name : properties.stringPropertyNames()) {
             if (name.startsWith("sysprops.")) {
                 defineSystemProperty(name.substring("sysprops.".length()), properties.getProperty(name));
@@ -127,7 +130,8 @@ public class Main {
         }
     }
 
-    /* private -> testing */ static void initSystemProperties(String[] args) {
+    /* private -> testing */
+    static void initSystemProperties(String[] args) {
         for (String arg : args) {
             if (isSystemPropertyArgument(arg)) {
                 defineSystemProperty(getArgumentSystemProperty(arg), getArgumentValue(arg));
@@ -314,9 +318,11 @@ public class Main {
     /**
      * Loads all the driver jars contained in the drivers folder. (For Jdbc drivers)
      *
+     * @param classLoader The current ClassLoader.
+     * @return The new ClassLoader containing the additional driver jars.
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJdbcDrivers() throws IOException {
+    private static ClassLoader loadJdbcDrivers(ClassLoader classLoader) throws IOException {
         File driversDir = new File(getInstallationDir(), "drivers");
         File[] files = driversDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -331,20 +337,24 @@ public class Main {
         }
 
         for (File file : files) {
-            ClassUtils.addJarOrDirectoryToClasspath(file.getPath());
+            classLoader = ClassUtils.addJarOrDirectoryToClasspath(classLoader, file.getPath());
         }
+
+        return classLoader;
     }
 
     /**
      * Loads all the jars contained in the jars folder. (For Java Migrations)
      *
+     * @param classLoader The current ClassLoader.
      * @param properties The configured properties.
+     * @return The new ClassLoader containing the additional jars.
      * @throws IOException When the jars could not be loaded.
      */
-    private static void loadJavaMigrationsFromJarDirs(Properties properties) throws IOException {
+    private static ClassLoader loadJavaMigrationsFromJarDirs(ClassLoader classLoader, Properties properties) throws IOException {
         String jarDirs = properties.getProperty(PROPERTY_JAR_DIRS);
         if (!StringUtils.hasLength(jarDirs)) {
-            return;
+            return classLoader;
         }
 
         jarDirs = jarDirs.replace(File.pathSeparator, ",");
@@ -365,9 +375,11 @@ public class Main {
             }
 
             for (File file : files) {
-                ClassUtils.addJarOrDirectoryToClasspath(file.getPath());
+                classLoader = ClassUtils.addJarOrDirectoryToClasspath(classLoader, file.getPath());
             }
         }
+
+        return classLoader;
     }
 
     /**

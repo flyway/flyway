@@ -31,6 +31,7 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.logging.StringLogCreator;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -52,35 +53,29 @@ import static org.junit.Assert.*;
  */
 @SuppressWarnings({"JavaDoc"})
 public class FlywayMediumTest {
-    /**
-     * The old classloader, to be restored after a test completes.
-     */
-    private static ClassLoader oldClassLoader;
+    private static ClassLoader newClassLoader;
+    private Flyway flyway;
 
     @BeforeClass
     public static void setUp() throws IOException {
-        oldClassLoader = getClassLoader();
-        String jar = new ClassPathResource("no-directory-entries.jar", getClassLoader()).getLocationOnDisk();
+        String jar = new ClassPathResource("no-directory-entries.jar", Thread.currentThread().getContextClassLoader()).getLocationOnDisk();
         assertTrue(new File(jar).isFile());
-        ClassUtils.addJarOrDirectoryToClasspath(jar);
+        newClassLoader = ClassUtils.addJarOrDirectoryToClasspath(Thread.currentThread().getContextClassLoader(), jar);
     }
 
-    private static ClassLoader getClassLoader() {
-        return Thread.currentThread().getContextClassLoader();
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        Thread.currentThread().setContextClassLoader(oldClassLoader);
+    @Before
+    public void before() {
+        flyway = new Flyway();
+        flyway.setClassLoader(newClassLoader);
     }
 
     @Test
     public void multipleSetDataSourceCalls() throws Exception {
         DriverDataSource dataSource1 =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_1;DB_CLOSE_DELAY=-1", "sa", "", null);
 
         DriverDataSource dataSource2 =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_2;DB_CLOSE_DELAY=-1", "sa", "", null);
 
         Connection connection1 = dataSource1.getConnection();
         Connection connection2 = dataSource2.getConnection();
@@ -90,8 +85,6 @@ public class FlywayMediumTest {
 
         assertTrue(schema1.empty());
         assertTrue(schema2.empty());
-
-        Flyway flyway = new Flyway();
 
         flyway.setDataSource(dataSource1);
         flyway.setDataSource(dataSource2);
@@ -109,9 +102,8 @@ public class FlywayMediumTest {
     @Test
     public void info() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", null, null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_info;DB_CLOSE_DELAY=-1", "sa", null, null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
 
         flyway.setLocations("migration/sql");
@@ -145,9 +137,8 @@ public class FlywayMediumTest {
     @Test
     public void infoPending() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_info_pending;DB_CLOSE_DELAY=-1", "sa", null, null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_info_pending;DB_CLOSE_DELAY=-1", "sa", null, null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
 
         assertEquals(2, flyway.info().pending().length);
@@ -156,9 +147,8 @@ public class FlywayMediumTest {
     @Test
     public void noDescription() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_no_description;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_no_description;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSqlMigrationSeparator(".sql");
         flyway.setSqlMigrationSuffix("");
@@ -173,9 +163,8 @@ public class FlywayMediumTest {
     @Test
     public void callback() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_callback;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_callback;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSqlMigrationPrefix("");
         flyway.setLocations("migration/callback");
@@ -189,9 +178,8 @@ public class FlywayMediumTest {
     @Test
     public void repairFirst() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_repair;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         Map<String, String> placeholders = new HashMap<String, String>();
         placeholders.put("tableName", "aaa");
@@ -215,9 +203,8 @@ public class FlywayMediumTest {
     @Test
     public void repairDescription() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_repair_description;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_repair_description;DB_CLOSE_DELAY=-1", "sa", "", null, "SET AUTOCOMMIT OFF");
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/quote");
         assertEquals(1, flyway.migrate());
@@ -238,9 +225,8 @@ public class FlywayMediumTest {
     @Test
     public void infoBaseline() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_info_init;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_info_init;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.baseline();
 
@@ -253,9 +239,8 @@ public class FlywayMediumTest {
     @Test
     public void baselineAgainWithSameVersion() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_init_same;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_init_same;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/sql");
         flyway.setBaselineVersionAsString("0.5");
@@ -272,9 +257,8 @@ public class FlywayMediumTest {
     @Test(expected = FlywayException.class)
     public void baselineAgainWithDifferentVersion() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_init_different;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_init_different;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.baseline();
 
@@ -285,9 +269,8 @@ public class FlywayMediumTest {
     @Test(expected = FlywayException.class)
     public void cleanDisabled() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_clean_disabled;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_clean_disabled;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         try {
             flyway.clean();
@@ -301,9 +284,8 @@ public class FlywayMediumTest {
     @Test
     public void cleanOnValidate() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_clean_validate;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_clean_validate;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
         flyway.setLocations("migration/validate");
@@ -320,9 +302,8 @@ public class FlywayMediumTest {
     @Test
     public void baselineAfterInit() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_init;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_baseline_init;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
         flyway.setLocations("migration/validate");
@@ -341,9 +322,8 @@ public class FlywayMediumTest {
     @Test
     public void baselineOnMigrate() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_migrate;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_baseline_migrate;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
         flyway.setLocations("migration/sql");
@@ -364,9 +344,8 @@ public class FlywayMediumTest {
     @Test
     public void baselineRepair() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_repair;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_baseline_repair;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
         flyway.setLocations("migration/sql");
@@ -390,9 +369,8 @@ public class FlywayMediumTest {
     @Test
     public void baselineOnMigrateCheck() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_migrate_check;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_baseline_migrate_check;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
         flyway.setLocations("migration/sql");
@@ -407,9 +385,8 @@ public class FlywayMediumTest {
     @Test
     public void baselineOnMigrateSkipFailed() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_baseline_migrate_failed;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_baseline_migrate_failed;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
         flyway.setLocations("migration/sql");
@@ -431,9 +408,8 @@ public class FlywayMediumTest {
     @Test
     public void cleanUnknownSchema() throws Exception {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_clean_unknown;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_db_clean_unknown;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setSchemas("new1");
         flyway.clean();
@@ -443,9 +419,8 @@ public class FlywayMediumTest {
     @Test
     public void outOfOrder() {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_out_of_order;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/sql");
         flyway.setTarget(MigrationVersion.fromVersion("1.2"));
@@ -482,9 +457,8 @@ public class FlywayMediumTest {
     @Test
     public void outOfOrderInOrder() {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_out_of_order_in_order;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_out_of_order_in_order;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -505,9 +479,8 @@ public class FlywayMediumTest {
     @Test
     public void repeatable() {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_repeatable;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setTargetAsString("1.1");
         flyway.setLocations("migration/sql", "migration/repeatable");
@@ -607,9 +580,8 @@ public class FlywayMediumTest {
     @Test
     public void repeatableFailed() {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable_failed;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_repeatable_failed;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
 
         flyway.setLocations("migration/repeatable_failed");
@@ -639,9 +611,8 @@ public class FlywayMediumTest {
     @Test
     public void repeatableOnly() {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable_only;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_repeatable_only;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/repeatable");
         assertEquals(2, flyway.migrate());
@@ -650,9 +621,8 @@ public class FlywayMediumTest {
     @Test(expected = FlywayException.class)
     public void repeatableVersion() {
         DriverDataSource dataSource =
-                new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_repeatable_version;DB_CLOSE_DELAY=-1", "sa", "", null);
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_repeatable_version;DB_CLOSE_DELAY=-1", "sa", "", null);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/repeatable_version");
         assertEquals(0, flyway.migrate());
@@ -660,7 +630,6 @@ public class FlywayMediumTest {
 
     @Test
     public void currentEmpty() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_current_empty;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setTargetAsString("current");
         assertEquals(0, flyway.migrate());
@@ -669,7 +638,6 @@ public class FlywayMediumTest {
 
     @Test
     public void emptyLocations() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_empty;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/empty");
         assertEquals(0, flyway.migrate());
@@ -679,7 +647,6 @@ public class FlywayMediumTest {
 
     @Test
     public void noPlaceholderReplacement() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_no_placeholder_replacement;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.setPlaceholderReplacement(false);
@@ -688,7 +655,6 @@ public class FlywayMediumTest {
 
     @Test
     public void missingMigrations() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_missing;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -701,7 +667,6 @@ public class FlywayMediumTest {
 
     @Test(expected = FlywayException.class)
     public void missingMigrationsNotAllowed() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_missing_not_allowed;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -713,7 +678,6 @@ public class FlywayMediumTest {
 
     @Test
     public void futureMigrations() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_future;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -726,7 +690,6 @@ public class FlywayMediumTest {
 
     @Test(expected = FlywayException.class)
     public void futureMigrationsNotAllowed() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_future_not_allowed;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -738,7 +701,6 @@ public class FlywayMediumTest {
 
     @Test
     public void validateApplied() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_applied;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -747,7 +709,6 @@ public class FlywayMediumTest {
 
     @Test
     public void installedBy() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_installed_by;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
 
@@ -769,7 +730,6 @@ public class FlywayMediumTest {
 
     @Test(expected = FlywayException.class)
     public void validateMissing() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_missing;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql", "migration/outoforder");
         flyway.migrate();
@@ -779,7 +739,6 @@ public class FlywayMediumTest {
 
     @Test
     public void placeholderDisabled() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_placeholder;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/placeholder");
         flyway.setPlaceholderReplacement(false);
@@ -788,7 +747,6 @@ public class FlywayMediumTest {
 
     @Test
     public void noLocations() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_locations;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations();
         flyway.migrate();
@@ -796,7 +754,6 @@ public class FlywayMediumTest {
 
     @Test
     public void invalidLocations() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_invalid;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("abcd", "efgh");
         flyway.migrate();
@@ -804,7 +761,6 @@ public class FlywayMediumTest {
 
     @Test
     public void validateOutOfOrder() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_outoforder;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.migrate();
@@ -829,7 +785,6 @@ public class FlywayMediumTest {
 
     @Test
     public void validateEmpty() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_empty;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/empty");
         flyway.validate();
@@ -837,7 +792,6 @@ public class FlywayMediumTest {
 
     @Test(expected = FlywayException.class)
     public void validateNotApplied() {
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.validate();
@@ -846,40 +800,39 @@ public class FlywayMediumTest {
     @Test(expected = FlywayException.class)
     public void validateWithPendingWithoutTarget() {
         // Populate database up to version 1.2
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.setTarget(MigrationVersion.fromVersion("1.2"));
         flyway.migrate();
 
         // Validate migrations with pending migration 2.0 on classpath
-        flyway = new Flyway();
-        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
-        flyway.setLocations("migration/sql");
-        flyway.validate();
+        Flyway flyway2 = new Flyway();
+        flyway2.setClassLoader(newClassLoader);
+        flyway2.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway2.setLocations("migration/sql");
+        flyway2.validate();
     }
 
     @Test
     public void validateWithPendingWithTarget() {
         // Populate database up to version 1.2
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.setTarget(MigrationVersion.fromVersion("1.2"));
         flyway.migrate();
 
         // Validate migrations with pending migration 2.0 on classpath
-        flyway = new Flyway();
-        flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
-        flyway.setLocations("migration/sql");
-        flyway.setTarget(MigrationVersion.CURRENT);
-        flyway.validate();
+        Flyway flyway2 = new Flyway();
+        flyway2.setClassLoader(newClassLoader);
+        flyway2.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway2.setLocations("migration/sql");
+        flyway2.setTarget(MigrationVersion.CURRENT);
+        flyway2.validate();
     }
 
     @Test
     public void migrateWithTargetCurrent() {
         // Populate database up to version 1.2
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");
         flyway.setTarget(MigrationVersion.fromVersion("1.2"));
@@ -909,7 +862,6 @@ public class FlywayMediumTest {
         LogFactory.setLogCreator(logCreator);
 
         try {
-            Flyway flyway = new Flyway();
             flyway.setDataSource("jdbc:h2:mem:flyway_failed;DB_CLOSE_DELAY=-1", "sa", "");
             flyway.setLocations("migration/failed");
             flyway.migrate();
@@ -926,7 +878,6 @@ public class FlywayMediumTest {
         OpenConnectionCountDriverDataSource dataSource = new OpenConnectionCountDriverDataSource();
 
         assertEquals(0, dataSource.getOpenConnectionCount());
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/sql");
         flyway.clean();
@@ -940,7 +891,6 @@ public class FlywayMediumTest {
         OpenConnectionCountDriverDataSource dataSource = new OpenConnectionCountDriverDataSource();
 
         assertEquals(0, dataSource.getOpenConnectionCount());
-        Flyway flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.setLocations("migration/failed");
         try {
@@ -1016,7 +966,6 @@ public class FlywayMediumTest {
     public void errorHandler() {
         final AtomicInteger error = new AtomicInteger(0);
 
-        Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_failed;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/failed");
         flyway.setPlaceholderReplacement(false);

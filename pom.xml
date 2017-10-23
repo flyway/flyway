@@ -75,7 +75,6 @@
         <module>flyway-gradle-plugin</module>
         <module>flyway-maven-plugin</module>
         <module>flyway-ant</module>
-        <module>flyway-sbt</module>
         <module>flyway-commandline</module>
         <!-- [pro] -->
         <module>flyway-gradle-plugin-largetest</module>
@@ -87,7 +86,6 @@
         <module>flyway-osgi-largetest</module>
         <module>flyway-commandline-largetest</module>
         <module>flyway-ant-largetest</module>
-        <module>flyway-sbt-largetest</module>
         <!-- [/pro] -->
     </modules>
 
@@ -209,6 +207,55 @@
                 <version>${version.equinox}</version>
             </dependency>
             <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${version.postgresql}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
+                <version>${version.derby}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derbyclient</artifactId>
+                <version>${version.derby}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${version.hsqldb}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${version.h2}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>${version.sqlite}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.mariadb.jdbc</groupId>
+                <artifactId>mariadb-java-client</artifactId>
+                <version>${version.mariadb}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.jtds</groupId>
+                <artifactId>jtds</artifactId>
+                <version>${version.jtds}</version>
+                <optional>true</optional>
+            </dependency>
+            <!-- [pro] -->
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
@@ -227,45 +274,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>${version.hsqldb}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${version.h2}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>${version.derby}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derbyclient</artifactId>
-                <version>${version.derby}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.xerial</groupId>
-                <artifactId>sqlite-jdbc</artifactId>
-                <version>${version.sqlite}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>5.1.12</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.mariadb.jdbc</groupId>
-                <artifactId>mariadb-java-client</artifactId>
-                <version>${version.mariadb}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -286,18 +297,6 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${version.postgresql}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>net.sourceforge.jtds</groupId>
-                <artifactId>jtds</artifactId>
-                <version>${version.jtds}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>sqljdbc4</artifactId>
                 <version>4.0</version>
@@ -307,12 +306,6 @@
                 <groupId>com.vertica</groupId>
                 <artifactId>vertica-jdbc</artifactId>
                 <version>7.0.0-0</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.pivotal.jdbc</groupId>
-                <artifactId>greenplumdriver</artifactId>
-                <version>5.1.1</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
@@ -400,6 +393,7 @@
                 <version>1.103.0</version>
                 <optional>true</optional>
             </dependency>
+            <!-- [/pro] -->
             <dependency>
                 <groupId>com.google.appengine</groupId>
                 <artifactId>appengine-api-1.0-sdk</artifactId>
@@ -574,6 +568,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- [pro] -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -595,6 +590,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- [/pro] -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -687,6 +683,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- [pro] -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
@@ -725,12 +722,13 @@
                             </systemPropertyVariables>
                             <parallel>classes</parallel>
                             <threadCount>2</threadCount>
-                            <perCoreThreadCount>false</perCoreThreadCount>
+                            <perCoreThreadCount>true</perCoreThreadCount>
                             <argLine>-XX:ReservedCodeCacheSize=128m -Xmx1536m</argLine>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            <!-- [/pro] -->
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>

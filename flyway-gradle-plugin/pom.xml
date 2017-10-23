@@ -70,11 +70,13 @@
             <version>1</version>
             <scope>provided</scope>
         </dependency>
+        <!-- [pro] -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- [/pro] -->
     </dependencies>
     <build>
         <plugins>

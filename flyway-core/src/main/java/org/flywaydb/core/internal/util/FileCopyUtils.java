@@ -77,7 +77,7 @@ public class FileCopyUtils {
      * @param out the Writer to copy to
      * @throws IOException in case of I/O errors
      */
-    private static void copy(Reader in, Writer out) throws IOException {
+    public static void copy(Reader in, Writer out) throws IOException {
         try {
             char[] buffer = new char[4096];
             int bytesRead;
@@ -108,7 +108,7 @@ public class FileCopyUtils {
      * @return the number of bytes copied
      * @throws IOException in case of I/O errors
      */
-    private static int copy(InputStream in, OutputStream out) throws IOException {
+    public static int copy(InputStream in, OutputStream out) throws IOException {
         try {
             int byteCount = 0;
             byte[] buffer = new byte[4096];
