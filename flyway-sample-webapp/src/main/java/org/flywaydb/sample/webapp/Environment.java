@@ -22,27 +22,13 @@ import org.flywaydb.core.Flyway;
  */
 public class Environment {
     /**
-     * Checks whether we are currently running on AppEngine.
-     *
-     * @return {@code true} if we are, {@code false} if not.
-     */
-    public static boolean runningOnGoogleAppEngine() {
-        return System.getProperty("com.google.appengine.runtime.environment") != null;
-    }
-
-    /**
      * Creates a new Flyway instance.
      *
      * @return The fully configured Flyway instance.
      */
     public static Flyway createFlyway() {
         Flyway flyway = new Flyway();
-
-        if (runningOnGoogleAppEngine()) {
-            flyway.setDataSource("jdbc:google:rdbms://flyway-test-project:flywaycloudsql/flyway_cloudsql_db", null, null);
-        } else {
-            flyway.setDataSource("jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
-        }
+        flyway.setDataSource("jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1", "sa", "");
 
         flyway.setLocations("db.migration",
                 "db/more/migrations",

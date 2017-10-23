@@ -50,12 +50,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <!-- JDBC Driver when running on AppEngine -->
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-1.0-sdk</artifactId>
-        </dependency>
-        <dependency>
-            <!-- JDBC Driver for all other environments -->
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>

@@ -41,17 +41,13 @@ public class EnvInfoServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String appserver;
-        if (Environment.runningOnGoogleAppEngine()) {
-            appserver = "Google AppEngine";
+        FeatureDetector featureDetector = new FeatureDetector(Thread.currentThread().getContextClassLoader());
+        if (featureDetector.isJBossVFSv2Available()) {
+            appserver = "JBoss 5";
+        } else if (featureDetector.isJBossVFSv3Available()) {
+            appserver = "JBoss 6+";
         } else {
-            FeatureDetector featureDetector = new FeatureDetector(Thread.currentThread().getContextClassLoader());
-            if (featureDetector.isJBossVFSv2Available()) {
-                appserver = "JBoss 5";
-            } else if (featureDetector.isJBossVFSv3Available()) {
-                appserver = "JBoss 6+";
-            } else {
-                appserver = "Other";
-            }
+            appserver = "Other";
         }
 
         String database = ((DriverDataSource) flyway.getDataSource()).getUrl();

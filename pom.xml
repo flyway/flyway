@@ -20,25 +20,11 @@
     <!--
     Detailed information how to contribute: https://flywaydb.org/documentation/contribute/code/
 
-    A number of Jdbc drivers are unfortunately not available from Maven Central due to licensing issues.
-    Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
-
-    If your contribution does not require changes to the database-specific code it is also possible to run the build
-    without having to install the Jdbc drivers or databases using:
-    mvn -P-InstallableDBTest -P-CommercialDBTest
-
-    If you do not wish to install Oracle, DB2 and SqlServer you can run the build with:
-    mvn -P-CommercialDBTest
-
-    If you wish to run to Vertica, RedShift oder DB2 zOS tests, you can run the build with on of the following:
-    mvn -PVerticaRedshiftDBTest
-    mvn -PDB2zOSDBTest
-
     The OS-specific JREs are unfortunately not available from Maven Central due to licensing issues.
     Instructions for installing them: https://flywaydb.org/documentation/contribute/devEnvironmentSetup.html
 
-    To avoid building the OS-specific flyway-commandline assemblies you can run the build with:
-    mvn -P-CommandlinePlatformAssemblies
+    To build the OS-specific flyway-commandline assemblies you can run the build with:
+    mvn clean install -PCommandlinePlatformAssemblies
     -->
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.boxfuse.flyway-pro</groupId>
@@ -107,6 +93,7 @@
             <id>maven-central</id>
             <url>https://repo1.maven.org/maven2</url>
         </repository>
+        <!-- [pro] -->
         <repository>
             <id>jcenter</id>
             <url>https://jcenter.bintray.com/</url>
@@ -127,6 +114,7 @@
             <id>alfresco</id>
             <url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
         </repository>
+        <!-- [/pro] -->
     </repositories>
 
     <properties>
@@ -141,14 +129,11 @@
         <version.mariadb>2.1.0</version.mariadb>
         <version.postgresql>42.1.4.jre6</version.postgresql>
         <version.sqlite>3.7.15-M1</version.sqlite>
-        <version.phoenix>4.4.0-HBase-0.98</version.phoenix>
-        <version.hbase>0.98.12-hadoop2</version.hbase>
         <version.equinox>3.6.0.v20100517</version.equinox>
         <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
         <version.jre>8.74</version.jre>
-        <version.testcontainers>1.4.2</version.testcontainers>
     </properties>
 
     <dependencyManagement>
@@ -395,30 +380,6 @@
             </dependency>
             <!-- [/pro] -->
             <dependency>
-                <groupId>com.google.appengine</groupId>
-                <artifactId>appengine-api-1.0-sdk</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.google.appengine</groupId>
-                <artifactId>appengine-api-labs</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.google.appengine</groupId>
-                <artifactId>appengine-testing</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.google.appengine</groupId>
-                <artifactId>appengine-api-stubs</artifactId>
-                <version>${version.appengine}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
                 <groupId>com.google.android</groupId>
                 <artifactId>android</artifactId>
                 <version>${version.android}</version>
@@ -525,6 +486,7 @@
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>2.3.7</version>
                 </plugin>
+                <!-- [pro] -->
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.19.1</version>
@@ -533,6 +495,7 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>2.19.1</version>
                 </plugin>
+                <!-- [/pro] -->
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>3.0.1</version>
@@ -728,7 +691,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- [/pro] -->
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>1.0.1</version>
@@ -748,6 +710,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- [/pro] -->
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
