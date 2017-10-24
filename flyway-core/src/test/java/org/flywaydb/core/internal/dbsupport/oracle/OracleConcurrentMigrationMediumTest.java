@@ -38,7 +38,8 @@ public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTest
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_ORACLE_12}
+                {JDBC_URL_ORACLE_12},
+                {JDBC_URL_ORACLE_12_TNS}
 
 
 
@@ -48,6 +49,7 @@ public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTest
     private final String jdbcUrl;
 
     public OracleConcurrentMigrationMediumTest(String jdbcUrl) throws Exception {
+        System.setProperty("oracle.net.tns_admin",  ClassLoader.getSystemResource("migration/dbsupport/oracle").getPath());
         this.jdbcUrl = jdbcUrl;
         ensureOracleIsUp(createDataSource(null));
     }
