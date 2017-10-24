@@ -28,11 +28,13 @@ import java.util.Map;
  */
 public interface FlywayConfiguration {
     /**
-     * Retrieves the ClassLoader to use for resolving migrations on the classpath.
+     * Retrieves the ClassLoader to use for loading migrations, resolvers, etc from the classpath.
      *
-     * @return The ClassLoader to use for resolving migrations on the classpath.
+     * @return The ClassLoader to use for loading migrations, resolvers, etc from the classpath.
      * (default: Thread.currentThread().getContextClassLoader() )
+     * @deprecated Will be removed in Flyway 6.0.
      */
+    @Deprecated
     ClassLoader getClassLoader();
 
     /**

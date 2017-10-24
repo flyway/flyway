@@ -21,6 +21,7 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.internal.configuration.ConfigurationUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -42,17 +43,12 @@ import java.util.Properties;
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public abstract class AbstractFlywayTask extends Task {
-    /**
-     * Property name prefix for placeholders that are configured through properties.
-     */
-    private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
-
     private Flyway flyway = new Flyway();
 
     /**
      * Logger.
      */
-    protected Log log;
+    Log log;
 
     /**
      * The classpath used to load the JDBC driver and the migrations.
@@ -279,10 +275,10 @@ public abstract class AbstractFlywayTask extends Task {
      * @throws Exception Thrown when the datasource could not be created.
      */
     /* private -> for testing */ DataSource createDataSource() throws Exception {
-        String driverValue = useValueIfPropertyNotSet(driver, "driver");
-        String urlValue = useValueIfPropertyNotSet(url, "url");
-        String userValue = useValueIfPropertyNotSet(user, "user");
-        String passwordValue = useValueIfPropertyNotSet(password, "password");
+        String driverValue = useValueIfPropertyNotSet(driver, ConfigurationUtils.DRIVER);
+        String urlValue = useValueIfPropertyNotSet(url, ConfigurationUtils.URL);
+        String userValue = useValueIfPropertyNotSet(user, ConfigurationUtils.USER);
+        String passwordValue = useValueIfPropertyNotSet(password, ConfigurationUtils.PASSWORD);
 
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), driverValue, urlValue, userValue, passwordValue, null);
     }
@@ -294,26 +290,10 @@ public abstract class AbstractFlywayTask extends Task {
      * @param flywayProperty The flyway Ant property. Ex. 'url' for 'flyway.url'
      * @return The value.
      */
-    protected String useValueIfPropertyNotSet(String value, String flywayProperty) {
-        String propertyValue = getProject().getProperty("flyway." + flywayProperty);
+    private String useValueIfPropertyNotSet(String value, String flywayProperty) {
+        String propertyValue = getProject().getProperty(flywayProperty);
         if (propertyValue != null) {
             return propertyValue;
-        }
-
-        return value;
-    }
-
-    /**
-     * Retrieves a boolean value either from an Ant property or if not set, directly.
-     *
-     * @param value          The boolean value to check.
-     * @param flywayProperty The flyway Ant property. Ex. 'url' for 'flyway.url'
-     * @return The boolean value.
-     */
-    protected boolean useValueIfPropertyNotSet(boolean value, String flywayProperty) {
-        String propertyValue = getProject().getProperty("flyway." + flywayProperty);
-        if (propertyValue != null) {
-            return Boolean.parseBoolean(propertyValue);
         }
 
         return value;
@@ -574,10 +554,12 @@ public abstract class AbstractFlywayTask extends Task {
                 flyway.setCallbacksAsClassNames(callbacks);
             }
 
-            Properties projectProperties = new Properties();
-            projectProperties.putAll(getProject().getProperties());
-            flyway.configure(projectProperties);
-            flyway.configure(System.getProperties());
+            Properties properties = new Properties();
+            properties.putAll(getProject().getProperties());
+            properties.putAll(System.getProperties());
+            properties.putAll(ConfigurationUtils.environmentVariablesToPropertyMap());
+            removeAntTaskSpecificPropertiesToAvoidWarnings(properties);
+            flyway.configure(properties);
 
             flyway.setLocations(getLocations());
 
@@ -588,6 +570,17 @@ public abstract class AbstractFlywayTask extends Task {
         } catch (Exception e) {
             throw new BuildException("Flyway Error: " + e.toString(), ExceptionUtils.getRootCause(e));
         }
+    }
+
+    /**
+     * Filters there properties to remove the Flyway Maven Plugin-specific ones to avoid warnings.
+     *
+     * @param properties The properties to filter.
+     */
+    private static void removeAntTaskSpecificPropertiesToAvoidWarnings(Properties properties) {
+        properties.remove("flyway.classpath");
+        properties.remove("flyway.classpathref");
+        properties.remove("flyway.version");
     }
 
     /**
@@ -642,9 +635,9 @@ public abstract class AbstractFlywayTask extends Task {
     private static void addPlaceholdersFromProperties(Map<String, String> placeholders, Hashtable properties) {
         for (Object property : properties.keySet()) {
             String propertyName = (String) property;
-            if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
-                    && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
-                String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
+            if (propertyName.startsWith(ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX)
+                    && propertyName.length() > ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX.length()) {
+                String placeholderName = propertyName.substring(ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX.length());
                 String placeholderValue = (String) properties.get(propertyName);
                 placeholders.put(placeholderName, placeholderValue);
             }

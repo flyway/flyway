@@ -22,7 +22,7 @@ package org.flywaydb.core.api.configuration;
  */
 public interface ConfigurationAware {
     /**
-     * Sets the current configuration. This method should not be called directly, it is called by the Flyway.
+     * Sets the current configuration. This method should not be called directly, it is called by Flyway itself.
      *
      * @param flywayConfiguration The current Flyway configuration.
      */

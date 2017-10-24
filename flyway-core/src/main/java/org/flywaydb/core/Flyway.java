@@ -21,6 +21,8 @@ import org.flywaydb.core.api.MigrationInfoService;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.pro.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
@@ -38,7 +40,7 @@ import org.flywaydb.core.internal.metadatatable.MetaDataTable;
 import org.flywaydb.core.internal.metadatatable.MetaDataTableImpl;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
 import org.flywaydb.core.internal.util.ClassUtils;
-import org.flywaydb.core.internal.util.ConfigurationInjectionUtils;
+import org.flywaydb.core.internal.configuration.ConfigurationUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -46,8 +48,6 @@ import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import javax.sql.DataSource;
@@ -72,11 +72,6 @@ import java.util.concurrent.Callable;
  */
 public class Flyway implements FlywayConfiguration {
     private static final Log LOG = LogFactory.getLog(Flyway.class);
-
-    /**
-     * Property name prefix for placeholders that are configured through properties.
-     */
-    private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
 
     /**
      * The locations to scan recursively for migrations.
@@ -323,7 +318,18 @@ public class Flyway implements FlywayConfiguration {
      * Creates a new instance of Flyway. This is your starting point.
      */
     public Flyway() {
-        // Do nothing
+        this(null);
+    }
+
+    /**
+     * Creates a new instance of Flyway. This is your starting point.
+     *
+     * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
+     */
+    public Flyway(ClassLoader classLoader) {
+        if (classLoader != null) {
+            this.classLoader = classLoader;
+        }
     }
 
     @Override
@@ -791,9 +797,12 @@ public class Flyway implements FlywayConfiguration {
     /**
      * Sets the ClassLoader to use for resolving migrations on the classpath.
      *
-     * @param classLoader The ClassLoader to use for resolving migrations on the classpath. (default: Thread.currentThread().getContextClassLoader() )
+     * @param classLoader The ClassLoader to use for loading migrations, resolvers, etc from the classpath. (default: Thread.currentThread().getContextClassLoader() )
+     * @deprecated Will be removed in Flyway 6.0. Use {@link #Flyway(ClassLoader)} instead.
      */
+    @Deprecated
     public void setClassLoader(ClassLoader classLoader) {
+        LOG.warn("Flyway.setClassLoader() is deprecated and will be removed in Flyway 6.0. Use new Flyway(ClassLoader) instead.");
         this.classLoader = classLoader;
     }
 
@@ -1145,7 +1154,7 @@ public class Flyway implements FlywayConfiguration {
      */
     private MigrationResolver createMigrationResolver(DbSupport dbSupport, Scanner scanner) {
         for (MigrationResolver resolver : resolvers) {
-            ConfigurationInjectionUtils.injectFlywayConfiguration(resolver, this);
+            ConfigurationUtils.injectFlywayConfiguration(resolver, this);
         }
 
         return new CompositeMigrationResolver(dbSupport, scanner, this, locations, createPlaceholderReplacer(), resolvers);
@@ -1184,121 +1193,121 @@ public class Flyway implements FlywayConfiguration {
      * Configures Flyway with these properties. This overwrites any existing configuration. Property names are
      * documented in the flyway maven plugin.
      * <p/>
-     * <p>To use a custom ClassLoader, setClassLoader() must be called prior to calling this method.</p>
+     * <p>To use a custom ClassLoader, it must be passed to the Flyway constructor prior to calling this method.</p>
      *
      * @param props Properties used for configuration.
      * @throws FlywayException when the configuration failed.
      */
     public void configure(Map<String, String> props) {
-        String driverProp = getValueAndRemoveEntry(props, "flyway.driver");
-        String urlProp = getValueAndRemoveEntry(props, "flyway.url");
-        String userProp = getValueAndRemoveEntry(props, "flyway.user");
-        String passwordProp = getValueAndRemoveEntry(props, "flyway.password");
+        String driverProp = getValueAndRemoveEntry(props, ConfigurationUtils.DRIVER);
+        String urlProp = getValueAndRemoveEntry(props, ConfigurationUtils.URL);
+        String userProp = getValueAndRemoveEntry(props, ConfigurationUtils.USER);
+        String passwordProp = getValueAndRemoveEntry(props, ConfigurationUtils.PASSWORD);
 
         if (StringUtils.hasText(urlProp)) {
             setDataSource(new DriverDataSource(classLoader, driverProp, urlProp, userProp, passwordProp, null));
         } else if (!StringUtils.hasText(urlProp) &&
                 (StringUtils.hasText(driverProp) || StringUtils.hasText(userProp) || StringUtils.hasText(passwordProp))) {
-            LOG.warn("Discarding INCOMPLETE dataSource configuration! flyway.url must be set.");
+            LOG.warn("Discarding INCOMPLETE dataSource configuration! " + ConfigurationUtils.URL + " must be set.");
         }
 
-        String locationsProp = getValueAndRemoveEntry(props, "flyway.locations");
+        String locationsProp = getValueAndRemoveEntry(props, ConfigurationUtils.LOCATIONS);
         if (locationsProp != null) {
             setLocations(StringUtils.tokenizeToStringArray(locationsProp, ","));
         }
-        String placeholderReplacementProp = getValueAndRemoveEntry(props, "flyway.placeholderReplacement");
+        String placeholderReplacementProp = getValueAndRemoveEntry(props, ConfigurationUtils.PLACEHOLDER_REPLACEMENT);
         if (placeholderReplacementProp != null) {
             setPlaceholderReplacement(Boolean.parseBoolean(placeholderReplacementProp));
         }
-        String placeholderPrefixProp = getValueAndRemoveEntry(props, "flyway.placeholderPrefix");
+        String placeholderPrefixProp = getValueAndRemoveEntry(props, ConfigurationUtils.PLACEHOLDER_PREFIX);
         if (placeholderPrefixProp != null) {
             setPlaceholderPrefix(placeholderPrefixProp);
         }
-        String placeholderSuffixProp = getValueAndRemoveEntry(props, "flyway.placeholderSuffix");
+        String placeholderSuffixProp = getValueAndRemoveEntry(props, ConfigurationUtils.PLACEHOLDER_SUFFIX);
         if (placeholderSuffixProp != null) {
             setPlaceholderSuffix(placeholderSuffixProp);
         }
-        String sqlMigrationPrefixProp = getValueAndRemoveEntry(props, "flyway.sqlMigrationPrefix");
+        String sqlMigrationPrefixProp = getValueAndRemoveEntry(props, ConfigurationUtils.SQL_MIGRATION_PREFIX);
         if (sqlMigrationPrefixProp != null) {
             setSqlMigrationPrefix(sqlMigrationPrefixProp);
         }
-        String repeatableSqlMigrationPrefixProp = getValueAndRemoveEntry(props, "flyway.repeatableSqlMigrationPrefix");
+        String repeatableSqlMigrationPrefixProp = getValueAndRemoveEntry(props, ConfigurationUtils.REPEATABLE_SQL_MIGRATION_PREFIX);
         if (repeatableSqlMigrationPrefixProp != null) {
             setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefixProp);
         }
-        String sqlMigrationSeparatorProp = getValueAndRemoveEntry(props, "flyway.sqlMigrationSeparator");
+        String sqlMigrationSeparatorProp = getValueAndRemoveEntry(props, ConfigurationUtils.SQL_MIGRATION_SEPARATOR);
         if (sqlMigrationSeparatorProp != null) {
             setSqlMigrationSeparator(sqlMigrationSeparatorProp);
         }
-        String sqlMigrationSuffixProp = getValueAndRemoveEntry(props, "flyway.sqlMigrationSuffix");
+        String sqlMigrationSuffixProp = getValueAndRemoveEntry(props, ConfigurationUtils.SQL_MIGRATION_SUFFIX);
         if (sqlMigrationSuffixProp != null) {
             setSqlMigrationSuffix(sqlMigrationSuffixProp);
         }
-        String encodingProp = getValueAndRemoveEntry(props, "flyway.encoding");
+        String encodingProp = getValueAndRemoveEntry(props, ConfigurationUtils.ENCODING);
         if (encodingProp != null) {
             setEncoding(encodingProp);
         }
-        String schemasProp = getValueAndRemoveEntry(props, "flyway.schemas");
+        String schemasProp = getValueAndRemoveEntry(props, ConfigurationUtils.SCHEMAS);
         if (schemasProp != null) {
             setSchemas(StringUtils.tokenizeToStringArray(schemasProp, ","));
         }
-        String tableProp = getValueAndRemoveEntry(props, "flyway.table");
+        String tableProp = getValueAndRemoveEntry(props, ConfigurationUtils.TABLE);
         if (tableProp != null) {
             setTable(tableProp);
         }
-        String cleanOnValidationErrorProp = getValueAndRemoveEntry(props, "flyway.cleanOnValidationError");
+        String cleanOnValidationErrorProp = getValueAndRemoveEntry(props, ConfigurationUtils.CLEAN_ON_VALIDATION_ERROR);
         if (cleanOnValidationErrorProp != null) {
             setCleanOnValidationError(Boolean.parseBoolean(cleanOnValidationErrorProp));
         }
-        String cleanDisabledProp = getValueAndRemoveEntry(props, "flyway.cleanDisabled");
+        String cleanDisabledProp = getValueAndRemoveEntry(props, ConfigurationUtils.CLEAN_DISABLED);
         if (cleanDisabledProp != null) {
             setCleanDisabled(Boolean.parseBoolean(cleanDisabledProp));
         }
-        String validateOnMigrateProp = getValueAndRemoveEntry(props, "flyway.validateOnMigrate");
+        String validateOnMigrateProp = getValueAndRemoveEntry(props, ConfigurationUtils.VALIDATE_ON_MIGRATE);
         if (validateOnMigrateProp != null) {
             setValidateOnMigrate(Boolean.parseBoolean(validateOnMigrateProp));
         }
-        String baselineVersionProp = getValueAndRemoveEntry(props, "flyway.baselineVersion");
+        String baselineVersionProp = getValueAndRemoveEntry(props, ConfigurationUtils.BASELINE_VERSION);
         if (baselineVersionProp != null) {
             setBaselineVersion(MigrationVersion.fromVersion(baselineVersionProp));
         }
-        String baselineDescriptionProp = getValueAndRemoveEntry(props, "flyway.baselineDescription");
+        String baselineDescriptionProp = getValueAndRemoveEntry(props, ConfigurationUtils.BASELINE_DESCRIPTION);
         if (baselineDescriptionProp != null) {
             setBaselineDescription(baselineDescriptionProp);
         }
-        String baselineOnMigrateProp = getValueAndRemoveEntry(props, "flyway.baselineOnMigrate");
+        String baselineOnMigrateProp = getValueAndRemoveEntry(props, ConfigurationUtils.BASELINE_ON_MIGRATE);
         if (baselineOnMigrateProp != null) {
             setBaselineOnMigrate(Boolean.parseBoolean(baselineOnMigrateProp));
         }
-        String ignoreMissingMigrationsProp = getValueAndRemoveEntry(props, "flyway.ignoreMissingMigrations");
+        String ignoreMissingMigrationsProp = getValueAndRemoveEntry(props, ConfigurationUtils.IGNORE_MISSING_MIGRATIONS);
         if (ignoreMissingMigrationsProp != null) {
             setIgnoreMissingMigrations(Boolean.parseBoolean(ignoreMissingMigrationsProp));
         }
-        String ignoreFutureMigrationsProp = getValueAndRemoveEntry(props, "flyway.ignoreFutureMigrations");
+        String ignoreFutureMigrationsProp = getValueAndRemoveEntry(props, ConfigurationUtils.IGNORE_FUTURE_MIGRATIONS);
         if (ignoreFutureMigrationsProp != null) {
             setIgnoreFutureMigrations(Boolean.parseBoolean(ignoreFutureMigrationsProp));
         }
-        String targetProp = getValueAndRemoveEntry(props, "flyway.target");
+        String targetProp = getValueAndRemoveEntry(props, ConfigurationUtils.TARGET);
         if (targetProp != null) {
             setTarget(MigrationVersion.fromVersion(targetProp));
         }
-        String outOfOrderProp = getValueAndRemoveEntry(props, "flyway.outOfOrder");
+        String outOfOrderProp = getValueAndRemoveEntry(props, ConfigurationUtils.OUT_OF_ORDER);
         if (outOfOrderProp != null) {
             setOutOfOrder(Boolean.parseBoolean(outOfOrderProp));
         }
-        String resolversProp = getValueAndRemoveEntry(props, "flyway.resolvers");
+        String resolversProp = getValueAndRemoveEntry(props, ConfigurationUtils.RESOLVERS);
         if (StringUtils.hasLength(resolversProp)) {
             setResolversAsClassNames(StringUtils.tokenizeToStringArray(resolversProp, ","));
         }
-        String skipDefaultResolversProp = getValueAndRemoveEntry(props, "flyway.skipDefaultResolvers");
+        String skipDefaultResolversProp = getValueAndRemoveEntry(props, ConfigurationUtils.SKIP_DEFAULT_RESOLVERS);
         if (skipDefaultResolversProp != null) {
             setSkipDefaultResolvers(Boolean.parseBoolean(skipDefaultResolversProp));
         }
-        String callbacksProp = getValueAndRemoveEntry(props, "flyway.callbacks");
+        String callbacksProp = getValueAndRemoveEntry(props, ConfigurationUtils.CALLBACKS);
         if (StringUtils.hasLength(callbacksProp)) {
             setCallbacksAsClassNames(StringUtils.tokenizeToStringArray(callbacksProp, ","));
         }
-        String skipDefaultCallbacksProp = getValueAndRemoveEntry(props, "flyway.skipDefaultCallbacks");
+        String skipDefaultCallbacksProp = getValueAndRemoveEntry(props, ConfigurationUtils.SKIP_DEFAULT_CALLBACKS);
         if (skipDefaultCallbacksProp != null) {
             setSkipDefaultCallbacks(Boolean.parseBoolean(skipDefaultCallbacksProp));
         }
@@ -1309,9 +1318,9 @@ public class Flyway implements FlywayConfiguration {
             Map.Entry<String, String> entry = iterator.next();
             String propertyName = entry.getKey();
 
-            if (propertyName.startsWith(PLACEHOLDERS_PROPERTY_PREFIX)
-                    && propertyName.length() > PLACEHOLDERS_PROPERTY_PREFIX.length()) {
-                String placeholderName = propertyName.substring(PLACEHOLDERS_PROPERTY_PREFIX.length());
+            if (propertyName.startsWith(ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX)
+                    && propertyName.length() > ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX.length()) {
+                String placeholderName = propertyName.substring(ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX.length());
                 String placeholderValue = entry.getValue();
                 placeholdersFromProps.put(placeholderName, placeholderValue);
                 iterator.remove();
@@ -1319,23 +1328,23 @@ public class Flyway implements FlywayConfiguration {
         }
         setPlaceholders(placeholdersFromProps);
 
-        String mixedProp = getValueAndRemoveEntry(props, "flyway.mixed");
+        String mixedProp = getValueAndRemoveEntry(props, ConfigurationUtils.MIXED);
         if (mixedProp != null) {
             setMixed(Boolean.parseBoolean(mixedProp));
         }
 
-        String groupProp = getValueAndRemoveEntry(props, "flyway.group");
+        String groupProp = getValueAndRemoveEntry(props, ConfigurationUtils.GROUP);
         if (groupProp != null) {
             setGroup(Boolean.parseBoolean(groupProp));
         }
 
-        String installedByProp = getValueAndRemoveEntry(props, "flyway.installedBy");
+        String installedByProp = getValueAndRemoveEntry(props, ConfigurationUtils.INSTALLED_BY);
         if (installedByProp != null) {
             setInstalledBy(installedByProp);
         }
 
         //[pro]
-        String errorHandlerProp = getValueAndRemoveEntry(props, "flyway.errorHandler");
+        String errorHandlerProp = getValueAndRemoveEntry(props, ConfigurationUtils.ERROR_HANDLER);
         if (errorHandlerProp != null) {
             setErrorHandlerAsClassName(errorHandlerProp);
         }
@@ -1346,6 +1355,48 @@ public class Flyway implements FlywayConfiguration {
                 LOG.warn("Unknown configuration property: " + key);
             }
         }
+    }
+
+    /**
+     * Configures Flyway using this FlywayConfiguration object.
+     *
+     * @param configuration The configuration to use.
+     */
+    public void configure(FlywayConfiguration configuration) {
+        setBaselineDescription(configuration.getBaselineDescription());
+        setBaselineOnMigrate(configuration.isBaselineOnMigrate());
+        setBaselineVersion(configuration.getBaselineVersion());
+        setCallbacks(configuration.getCallbacks());
+        setClassLoader(configuration.getClassLoader());
+        setCleanDisabled(configuration.isCleanDisabled());
+        setCleanOnValidationError(configuration.isCleanOnValidationError());
+        setDataSource(configuration.getDataSource());
+        setEncoding(configuration.getEncoding());
+        // [pro]
+        setErrorHandler(configuration.getErrorHandler());
+        // [/pro]
+        setGroup(configuration.isGroup());
+        setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
+        setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
+        setInstalledBy(configuration.getInstalledBy());
+        setLocations(configuration.getLocations());
+        setMixed(configuration.isMixed());
+        setOutOfOrder(configuration.isOutOfOrder());
+        setPlaceholderPrefix(configuration.getPlaceholderPrefix());
+        setPlaceholderReplacement(configuration.isPlaceholderReplacement());
+        setPlaceholders(configuration.getPlaceholders());
+        setPlaceholderSuffix(configuration.getPlaceholderSuffix());
+        setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
+        setResolvers(configuration.getResolvers());
+        setSchemas(configuration.getSchemas());
+        setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
+        setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
+        setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
+        setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
+        setSqlMigrationSuffix(configuration.getSqlMigrationSuffix());
+        setTable(configuration.getTable());
+        setTarget(configuration.getTarget());
+        setValidateOnMigrate(configuration.isValidateOnMigrate());
     }
 
     /**
@@ -1417,7 +1468,7 @@ public class Flyway implements FlywayConfiguration {
             }
 
             for (FlywayCallback callback : callbacks) {
-                ConfigurationInjectionUtils.injectFlywayConfiguration(callback, this);
+                ConfigurationUtils.injectFlywayConfiguration(callback, this);
             }
 
             MetaDataTable metaDataTable = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), installedBy);

@@ -17,6 +17,7 @@ package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.flywaydb.core.internal.configuration.ConfigurationUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
@@ -39,11 +40,6 @@ import java.util.Properties;
  * A base class for all flyway tasks.
  */
 public abstract class AbstractFlywayTask extends DefaultTask {
-    /**
-     * Property name prefix for placeholders that are configured through System properties.
-     */
-    private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
-
     /**
      * The flyway {} block in the build script.
      */
@@ -312,8 +308,7 @@ public abstract class AbstractFlywayTask extends DefaultTask {
                     extraURLs.toArray(new URL[extraURLs.size()]),
                     getProject().getBuildscript().getClassLoader());
 
-            Flyway flyway = new Flyway();
-            flyway.setClassLoader(classLoader);
+            Flyway flyway = new Flyway(classLoader);
             flyway.configure(createFlywayConfig());
             return run(flyway);
         } catch (Exception e) {
@@ -340,59 +335,60 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Map<String, String> createFlywayConfig() {
         Map<String, String> conf = new HashMap<String, String>();
-        putIfSet(conf, "driver", driver, extension.driver);
-        putIfSet(conf, "url", url, extension.url);
-        putIfSet(conf, "user", user, extension.user);
-        putIfSet(conf, "password", password, extension.password);
-        putIfSet(conf, "table", table, extension.table);
-        putIfSet(conf, "baselineVersion", baselineVersion, extension.baselineVersion);
-        putIfSet(conf, "baselineDescription", baselineDescription, extension.baselineDescription);
-        putIfSet(conf, "sqlMigrationPrefix", sqlMigrationPrefix, extension.sqlMigrationPrefix);
-        putIfSet(conf, "repeatableSqlMigrationPrefix", repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
-        putIfSet(conf, "sqlMigrationSeparator", sqlMigrationSeparator, extension.sqlMigrationSeparator);
-        putIfSet(conf, "sqlMigrationSuffix", sqlMigrationSuffix, extension.sqlMigrationSuffix);
-        putIfSet(conf, "mixed", mixed, extension.mixed);
-        putIfSet(conf, "group", group, extension.group);
-        putIfSet(conf, "installedBy", installedBy, extension.installedBy);
-        putIfSet(conf, "encoding", encoding, extension.encoding);
-        putIfSet(conf, "placeholderReplacement", placeholderReplacement, extension.placeholderReplacement);
-        putIfSet(conf, "placeholderPrefix", placeholderPrefix, extension.placeholderPrefix);
-        putIfSet(conf, "placeholderSuffix", placeholderSuffix, extension.placeholderSuffix);
-        putIfSet(conf, "target", target, extension.target);
-        putIfSet(conf, "outOfOrder", outOfOrder, extension.outOfOrder);
-        putIfSet(conf, "validateOnMigrate", validateOnMigrate, extension.validateOnMigrate);
-        putIfSet(conf, "cleanOnValidationError", cleanOnValidationError, extension.cleanOnValidationError);
-        putIfSet(conf, "ignoreMissingMigrations", ignoreMissingMigrations, extension.ignoreMissingMigrations);
-        putIfSet(conf, "ignoreFutureMigrations", ignoreFutureMigrations, extension.ignoreFutureMigrations);
-        putIfSet(conf, "cleanDisabled", cleanDisabled, extension.cleanDisabled);
-        putIfSet(conf, "baselineOnMigrate", baselineOnMigrate, extension.baselineOnMigrate);
-        putIfSet(conf, "skipDefaultResolvers", skipDefaultResolvers, extension.skipDefaultResolvers);
-        putIfSet(conf, "skipDefaultCallbacks", skipDefaultCallbacks, extension.skipDefaultCallbacks);
-        putIfSet(conf, "schemas", StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
+        putIfSet(conf, ConfigurationUtils.DRIVER, driver, extension.driver);
+        putIfSet(conf, ConfigurationUtils.URL, url, extension.url);
+        putIfSet(conf, ConfigurationUtils.USER, user, extension.user);
+        putIfSet(conf, ConfigurationUtils.PASSWORD, password, extension.password);
+        putIfSet(conf, ConfigurationUtils.TABLE, table, extension.table);
+        putIfSet(conf, ConfigurationUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
+        putIfSet(conf, ConfigurationUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
+        putIfSet(conf, ConfigurationUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.sqlMigrationPrefix);
+        putIfSet(conf, ConfigurationUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
+        putIfSet(conf, ConfigurationUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);
+        putIfSet(conf, ConfigurationUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix, extension.sqlMigrationSuffix);
+        putIfSet(conf, ConfigurationUtils.MIXED, mixed, extension.mixed);
+        putIfSet(conf, ConfigurationUtils.GROUP, group, extension.group);
+        putIfSet(conf, ConfigurationUtils.INSTALLED_BY, installedBy, extension.installedBy);
+        putIfSet(conf, ConfigurationUtils.ENCODING, encoding, extension.encoding);
+        putIfSet(conf, ConfigurationUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
+        putIfSet(conf, ConfigurationUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
+        putIfSet(conf, ConfigurationUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.placeholderSuffix);
+        putIfSet(conf, ConfigurationUtils.TARGET, target, extension.target);
+        putIfSet(conf, ConfigurationUtils.OUT_OF_ORDER, outOfOrder, extension.outOfOrder);
+        putIfSet(conf, ConfigurationUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
+        putIfSet(conf, ConfigurationUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
+        putIfSet(conf, ConfigurationUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations, extension.ignoreMissingMigrations);
+        putIfSet(conf, ConfigurationUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
+        putIfSet(conf, ConfigurationUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
+        putIfSet(conf, ConfigurationUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
+        putIfSet(conf, ConfigurationUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);
+        putIfSet(conf, ConfigurationUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
+        putIfSet(conf, ConfigurationUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
 
-        conf.put("flyway.locations", Location.FILESYSTEM_PREFIX + getProject().getProjectDir().getAbsolutePath() + "/src/main/resources/db/migration");
-        putIfSet(conf, "locations", StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));
+        conf.put(ConfigurationUtils.LOCATIONS, Location.FILESYSTEM_PREFIX + getProject().getProjectDir().getAbsolutePath() + "/src/main/resources/db/migration");
+        putIfSet(conf, ConfigurationUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));
 
-        putIfSet(conf, "resolvers", StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
-        putIfSet(conf, "callbacks", StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
+        putIfSet(conf, ConfigurationUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
+        putIfSet(conf, ConfigurationUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
 
         //[pro]
-        putIfSet(conf, "errorHandler", errorHandler, extension.errorHandler);
+        putIfSet(conf, ConfigurationUtils.ERROR_HANDLER, errorHandler, extension.errorHandler);
         //[/pro]
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {
-                conf.put(PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+                conf.put(ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
         if (extension.placeholders != null) {
             for (Map.Entry<Object, Object> entry : extension.placeholders.entrySet()) {
-                conf.put(PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+                conf.put(ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
 
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, System.getProperties());
+        addConfigFromProperties(conf, ConfigurationUtils.environmentVariablesToPropertyMap());
 
         return conf;
     }
@@ -446,9 +442,9 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private void putIfSet(Map<String, String> config, String key, Object propValue, Object extensionValue) {
         if (propValue != null) {
-            config.put("flyway." + key, propValue.toString());
+            config.put(key, propValue.toString());
         } else if (extensionValue != null) {
-            config.put("flyway." + key, extensionValue.toString());
+            config.put(key, extensionValue.toString());
         }
     }
 
