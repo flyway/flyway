@@ -57,6 +57,11 @@ if $linux; then
   JAVA_ARGS=-Djava.security.egd=file:/dev/../dev/urandom
 fi
 
+# If TNS_ADMIN is set lets make it available for TNSNames Alias when connecting to Oracle 
+if [ ! -z "$TNS_ADMIN" ]; then
+ JAVA_ARGS="$JAVA_ARGS -Doracle.net.tns_admin=$TNS_ADMIN"
+fi
+
 if $cygwin; then
   CP=$(cygpath -pw "$CP")
 fi

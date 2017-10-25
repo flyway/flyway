@@ -41,7 +41,8 @@ public class OracleDbSupportMediumTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_ORACLE_12}
+                {JDBC_URL_ORACLE_12},
+                {JDBC_URL_ORACLE_12_TNS}
 
 
 
@@ -51,6 +52,7 @@ public class OracleDbSupportMediumTest {
     private final String jdbcUrl;
 
     public OracleDbSupportMediumTest(String jdbcUrl) throws Exception {
+        System.setProperty("oracle.net.tns_admin",  ClassLoader.getSystemResource("migration/dbsupport/oracle").getPath());
         this.jdbcUrl = jdbcUrl;
         ensureOracleIsUp(createDataSource());
     }

@@ -33,9 +33,14 @@ if exist "%INSTALLDIR%\jre\bin\java.exe" (
 )
 SET CP=
 
+SET JAVA_ARGS=
+if NOT "%TNS_ADMIN%"=="" (
+  set JAVA_ARGS="-Doracle.net.tns_admin=%TNS_ADMIN%"
+)
+
 IF DEFINED CLASSPATH ( SET CP=%CLASSPATH%;)
 
-%JAVA_CMD% -cp "%CP%%INSTALLDIR%\lib\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
+%JAVA_CMD% %JAVA_ARGS% -cp "%CP%%INSTALLDIR%\lib\*;%INSTALLDIR%\drivers\*" org.flywaydb.commandline.Main %*
 
 @REM Exit using the same code returned from Java
 EXIT /B %ERRORLEVEL%

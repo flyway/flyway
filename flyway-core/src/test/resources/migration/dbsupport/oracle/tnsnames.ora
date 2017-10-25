@@ -1,0 +1,10 @@
+# tnsnames.ora Network Configuration File
+
+LOCAL_ORCL =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 127.0.0.1)(PORT = 62031))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = XE)
+    )
+  )
