@@ -254,4 +254,18 @@ public class FlywayExtension {
      */
     public String errorHandler;
     //[/pro]
+
+    /**
+     * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
+     * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
+     */
+    public String configFileEncoding;
+
+    /**
+     * Config files from which to load the Flyway configuration. The names of the individual properties match the ones you would
+     * use as Gradle or System properties. The encoding of the files is defined by the
+     * flyway.configFileEncoding property, which is UTF-8 by default. Relative paths are relative to the project root.
+     * <p>Also configurable with Gradle or System Property: ${flyway.configFiles}</p>
+     */
+    public String[] configFiles;
 }

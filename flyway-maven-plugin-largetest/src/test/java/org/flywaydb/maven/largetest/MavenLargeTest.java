@@ -27,7 +27,9 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -74,14 +76,16 @@ public class MavenLargeTest {
 
     @Test
     public void configFile() throws Exception {
-        String stdOut = runMaven(0, "configfile", "clean", "compile", "flyway:clean", "flyway:migrate");
+        Map<String, String> env = new HashMap<String, String>();
+        env.put("FLYWAY_CONFIG_FILES", "flyway.conf");
+        String stdOut = runMaven(env, 0, "configfile", "clean", "compile", "flyway:clean", "flyway:migrate");
         assertTrue(stdOut.contains("Successfully applied 5 migrations"));
     }
 
     @Test
     public void configFileInvalid() throws Exception {
         String stdOut = runMaven(1, "configfile", "-Dflyway.configFile=test.properties", "flyway:info");
-        assertTrue(stdOut.contains("Unable to read config file"));
+        assertTrue(stdOut.contains("Unable to load config file"));
     }
 
     @Test
@@ -146,6 +150,19 @@ public class MavenLargeTest {
      * @throws Exception When the execution failed.
      */
     private String runMaven(int expectedReturnCode, String dir, String... extraArgs) throws Exception {
+        return runMaven(new HashMap<String, String>(), expectedReturnCode, dir, extraArgs);
+    }
+
+    /**
+     * Runs Maven in this directory with these extra arguments.
+     *
+     * @param expectedReturnCode The expected return code for this invocation.
+     * @param dir                The directory below src/test/resources to run maven in.
+     * @param extraArgs          The extra arguments (if any) for Maven.
+     * @return The standard output.
+     * @throws Exception When the execution failed.
+     */
+    private String runMaven(Map<String, String> env, int expectedReturnCode, String dir, String... extraArgs) throws Exception {
         String flywayVersion = System.getProperty("flywayVersion", getPomVersion());
 
         String extension = "";
@@ -165,6 +182,7 @@ public class MavenLargeTest {
         builder.directory(new File(pomInstallDir + "/" + dir));
         builder.redirectErrorStream(true);
         builder.environment().put("M2_HOME", mavenHome);
+        builder.environment().putAll(env);
 
         System.out.println("Executing: " + StringUtils.collectionToDelimitedString(builder.command(), " "));
 

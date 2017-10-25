@@ -15,6 +15,7 @@
  */
 package org.flywaydb.commandline;
 
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class MainSmallTest {
 
     @Test
     public void getArgumentProperty() {
-        assertEquals("user", Main.getArgumentProperty("-user=SA"));
+        assertEquals(ConfigUtils.USER, Main.getArgumentProperty("-user=SA"));
     }
 
     @Test

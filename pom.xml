@@ -60,7 +60,6 @@
         <module>flyway-core</module>
         <module>flyway-gradle-plugin</module>
         <module>flyway-maven-plugin</module>
-        <module>flyway-ant</module>
         <module>flyway-commandline</module>
         <!-- [pro] -->
         <module>flyway-gradle-plugin-largetest</module>
@@ -71,7 +70,6 @@
         <module>flyway-sample-osgi-fragment</module>
         <module>flyway-osgi-largetest</module>
         <module>flyway-commandline-largetest</module>
-        <module>flyway-ant-largetest</module>
         <!-- [/pro] -->
     </modules>
 
@@ -119,7 +117,6 @@
 
     <properties>
         <version.spring>2.5.6</version.spring>
-        <version.appengine>1.9.10</version.appengine>
         <version.maven>3.0</version.maven>
         <version.gradle>2.3</version.gradle>
         <version.derby>10.12.1.1</version.derby>
@@ -446,6 +443,7 @@
     </dependencyManagement>
 
     <build>
+        <!-- [pro] -->
         <extensions>
             <extension>
                 <groupId>com.allogy.maven.wagon</groupId>
@@ -458,6 +456,7 @@
                 <version>2.8</version>
             </extension>
         </extensions>
+        <!-- [/pro] -->
 
         <pluginManagement>
             <plugins>

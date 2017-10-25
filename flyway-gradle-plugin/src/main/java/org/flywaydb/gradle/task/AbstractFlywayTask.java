@@ -17,7 +17,7 @@ package org.flywaydb.gradle.task;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.configuration.ConfigurationUtils;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.gradle.FlywayExtension;
@@ -27,6 +27,7 @@ import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -275,6 +276,20 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     public String errorHandler;
     //[/pro]
 
+    /**
+     * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
+     * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
+     */
+    public String configFileEncoding;
+
+    /**
+     * Config files from which to load the Flyway configuration. The names of the individual properties match the ones you would
+     * use as Gradle or System properties. The encoding of the files is defined by the
+     * flyway.configFileEncoding property, which is UTF-8 by default. Relative paths are relative to the project root.
+     * <p>Also configurable with Gradle or System Property: ${flyway.configFiles}</p>
+     */
+    public String[] configFiles;
+
     public AbstractFlywayTask() {
         super();
         setGroup("Flyway");
@@ -335,62 +350,177 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Map<String, String> createFlywayConfig() {
         Map<String, String> conf = new HashMap<String, String>();
-        putIfSet(conf, ConfigurationUtils.DRIVER, driver, extension.driver);
-        putIfSet(conf, ConfigurationUtils.URL, url, extension.url);
-        putIfSet(conf, ConfigurationUtils.USER, user, extension.user);
-        putIfSet(conf, ConfigurationUtils.PASSWORD, password, extension.password);
-        putIfSet(conf, ConfigurationUtils.TABLE, table, extension.table);
-        putIfSet(conf, ConfigurationUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
-        putIfSet(conf, ConfigurationUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
-        putIfSet(conf, ConfigurationUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.sqlMigrationPrefix);
-        putIfSet(conf, ConfigurationUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
-        putIfSet(conf, ConfigurationUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);
-        putIfSet(conf, ConfigurationUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix, extension.sqlMigrationSuffix);
-        putIfSet(conf, ConfigurationUtils.MIXED, mixed, extension.mixed);
-        putIfSet(conf, ConfigurationUtils.GROUP, group, extension.group);
-        putIfSet(conf, ConfigurationUtils.INSTALLED_BY, installedBy, extension.installedBy);
-        putIfSet(conf, ConfigurationUtils.ENCODING, encoding, extension.encoding);
-        putIfSet(conf, ConfigurationUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
-        putIfSet(conf, ConfigurationUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
-        putIfSet(conf, ConfigurationUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.placeholderSuffix);
-        putIfSet(conf, ConfigurationUtils.TARGET, target, extension.target);
-        putIfSet(conf, ConfigurationUtils.OUT_OF_ORDER, outOfOrder, extension.outOfOrder);
-        putIfSet(conf, ConfigurationUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
-        putIfSet(conf, ConfigurationUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
-        putIfSet(conf, ConfigurationUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations, extension.ignoreMissingMigrations);
-        putIfSet(conf, ConfigurationUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
-        putIfSet(conf, ConfigurationUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
-        putIfSet(conf, ConfigurationUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
-        putIfSet(conf, ConfigurationUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);
-        putIfSet(conf, ConfigurationUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
-        putIfSet(conf, ConfigurationUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
+        putIfSet(conf, ConfigUtils.DRIVER, driver, extension.driver);
+        putIfSet(conf, ConfigUtils.URL, url, extension.url);
+        putIfSet(conf, ConfigUtils.USER, user, extension.user);
+        putIfSet(conf, ConfigUtils.PASSWORD, password, extension.password);
+        putIfSet(conf, ConfigUtils.TABLE, table, extension.table);
+        putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion, extension.baselineVersion);
+        putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription, extension.baselineDescription);
+        putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix, extension.sqlMigrationPrefix);
+        putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix, extension.repeatableSqlMigrationPrefix);
+        putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator, extension.sqlMigrationSeparator);
+        putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix, extension.sqlMigrationSuffix);
+        putIfSet(conf, ConfigUtils.MIXED, mixed, extension.mixed);
+        putIfSet(conf, ConfigUtils.GROUP, group, extension.group);
+        putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy, extension.installedBy);
+        putIfSet(conf, ConfigUtils.ENCODING, encoding, extension.encoding);
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement, extension.placeholderReplacement);
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix, extension.placeholderPrefix);
+        putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix, extension.placeholderSuffix);
+        putIfSet(conf, ConfigUtils.TARGET, target, extension.target);
+        putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder, extension.outOfOrder);
+        putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate, extension.validateOnMigrate);
+        putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError, extension.cleanOnValidationError);
+        putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations, extension.ignoreMissingMigrations);
+        putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations, extension.ignoreFutureMigrations);
+        putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled, extension.cleanDisabled);
+        putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate, extension.baselineOnMigrate);
+        putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers, extension.skipDefaultResolvers);
+        putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
+        putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
 
-        conf.put(ConfigurationUtils.LOCATIONS, Location.FILESYSTEM_PREFIX + getProject().getProjectDir().getAbsolutePath() + "/src/main/resources/db/migration");
-        putIfSet(conf, ConfigurationUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));
+        conf.put(ConfigUtils.LOCATIONS, Location.FILESYSTEM_PREFIX + getProject().getProjectDir().getAbsolutePath() + "/src/main/resources/db/migration");
+        putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));
 
-        putIfSet(conf, ConfigurationUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
-        putIfSet(conf, ConfigurationUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
+        putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
+        putIfSet(conf, ConfigUtils.CALLBACKS, StringUtils.arrayToCommaDelimitedString(callbacks), StringUtils.arrayToCommaDelimitedString(extension.callbacks));
 
         //[pro]
-        putIfSet(conf, ConfigurationUtils.ERROR_HANDLER, errorHandler, extension.errorHandler);
+        putIfSet(conf, ConfigUtils.ERROR_HANDLER, errorHandler, extension.errorHandler);
         //[/pro]
 
         if (placeholders != null) {
             for (Map.Entry<Object, Object> entry : placeholders.entrySet()) {
-                conf.put(ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+                conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
         if (extension.placeholders != null) {
             for (Map.Entry<Object, Object> entry : extension.placeholders.entrySet()) {
-                conf.put(ConfigurationUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
+                conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + entry.getKey().toString(), entry.getValue().toString());
             }
         }
 
+        Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+        addConfigFromProperties(conf, loadConfigurationFromConfigFiles(envVars));
         addConfigFromProperties(conf, getProject().getProperties());
         addConfigFromProperties(conf, System.getProperties());
-        addConfigFromProperties(conf, ConfigurationUtils.environmentVariablesToPropertyMap());
+        addConfigFromProperties(conf, envVars);
+        removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
 
         return conf;
+    }
+
+    /**
+     * Retrieve the properties from the config files (if specified).
+     *
+     * @param envVars The environment variables converted to Flyway properties.
+     * @return The properties.
+     */
+    private Map<String, String> loadConfigurationFromConfigFiles(Map<String, String> envVars) {
+        String encoding = determineConfigurationFileEncoding(envVars);
+
+        Map<String, String> props = new HashMap<String, String>();
+        props.putAll(ConfigUtils.loadConfigurationFile(
+                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        for (File configFile : determineConfigFiles(envVars)) {
+            props.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
+        }
+        return props;
+    }
+
+    /**
+     * Determines the encoding to use for loading the configuration files.
+     *
+     * @param envVars The environment variables converted to Flyway properties.
+     * @return The encoding. (default: UTF-8)
+     */
+    private String determineConfigurationFileEncoding(Map<String, String> envVars) {
+        if (envVars.containsKey(ConfigUtils.CONFIG_FILE_ENCODING)) {
+            return envVars.get(ConfigUtils.CONFIG_FILE_ENCODING);
+        }
+        if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILE_ENCODING)) {
+            return System.getProperties().getProperty(ConfigUtils.CONFIG_FILE_ENCODING);
+        }
+        if (configFileEncoding != null) {
+            return configFileEncoding;
+        }
+        if (extension.configFileEncoding != null) {
+            return extension.configFileEncoding;
+        }
+        return "UTF-8";
+    }
+
+    /**
+     * Determines the files to use for loading the configuration.
+     *
+     * @param envVars The environment variables converted to Flyway properties.
+     * @return The configuration files.
+     */
+    private List<File> determineConfigFiles(Map<String, String> envVars) {
+        List<File> configFiles = new ArrayList<File>();
+
+        if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
+            for (String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
+                configFiles.add(toFile(file));
+            }
+            return configFiles;
+        }
+
+        if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
+            for (String file : StringUtils.tokenizeToStringArray(System.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
+                configFiles.add(toFile(file));
+            }
+            return configFiles;
+        }
+
+        if (getProject().getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
+            for (String file : StringUtils.tokenizeToStringArray(System.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
+                configFiles.add(toFile(file));
+            }
+            return configFiles;
+        }
+
+        if (this.configFiles != null) {
+            for (String file : this.configFiles) {
+                configFiles.add(toFile(file));
+            }
+            return configFiles;
+        }
+
+        if (extension.configFiles != null) {
+            for (String file : extension.configFiles) {
+                configFiles.add(toFile(file));
+            }
+            return configFiles;
+        }
+
+        return configFiles;
+    }
+
+    /**
+     * Converts this fileName into a file, adjusting relative paths if necessary to make them relative to the pom.
+     *
+     * @param fileName The name of the file, relative or absolute.
+     * @return The resulting file.
+     */
+    private File toFile(String fileName) {
+        File file = new File(fileName);
+        if (file.isAbsolute()) {
+            return file;
+        }
+        return new File(getProject().getProjectDir(), fileName);
+    }
+
+    /**
+     * Filters there properties to remove the Flyway Gradle Plugin-specific ones to avoid warnings.
+     *
+     * @param conf The properties to filter.
+     */
+    private static void removeGradlePluginSpecificPropertiesToAvoidWarnings(Map<String, String> conf) {
+        conf.remove(ConfigUtils.CONFIG_FILES);
+        conf.remove(ConfigUtils.CONFIG_FILE_ENCODING);
+        conf.remove("flyway.version");
     }
 
     private static void addConfigFromProperties(Map<String, String> config, Properties properties) {

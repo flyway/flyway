@@ -128,12 +128,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- [pro] -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <parallel>none</parallel>
                 </configuration>
             </plugin>
+            <!-- [/pro] -->
         </plugins>
     </build>
 </project>

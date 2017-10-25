@@ -142,12 +142,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- [pro] -->
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <!-- [/pro] -->
         </plugins>
     </build>
     <profiles>
@@ -221,6 +223,7 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- [pro] -->
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
@@ -230,6 +233,7 @@
                             </systemProperties>
                         </configuration>
                     </plugin>
+                    <!-- [/pro] -->
                 </plugins>
             </build>
         </profile>

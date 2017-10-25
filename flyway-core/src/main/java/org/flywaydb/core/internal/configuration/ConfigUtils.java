@@ -15,17 +15,40 @@
  */
 package org.flywaydb.core.internal.configuration;
 
+import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.ConfigurationAware;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.FileCopyUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Configuration-related utilities.
  */
-public class ConfigurationUtils {
+public class ConfigUtils {
+    private static Log LOG = LogFactory.getLog(ConfigUtils.class);
+
+    /**
+     * The default configuration file name.
+     */
+    public static final String CONFIG_FILE_NAME = "flyway.conf";
+
+    @Deprecated
+    public static final String CONFIG_FILE = "flyway.configFile";
+
+    public static final String CONFIG_FILES = "flyway.configFiles";
+    public static final String CONFIG_FILE_ENCODING = "flyway.configFileEncoding";
+
     public static final String BASELINE_DESCRIPTION = "flyway.baselineDescription";
     public static final String BASELINE_ON_MIGRATE = "flyway.baselineOnMigrate";
     public static final String BASELINE_VERSION = "flyway.baselineVersion";
@@ -63,7 +86,7 @@ public class ConfigurationUtils {
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
 
-    private ConfigurationUtils() {
+    private ConfigUtils() {
         // Utility class
     }
 
@@ -71,7 +94,7 @@ public class ConfigurationUtils {
      * Injects the given flyway configuration into the target object if target implements the
      * {@link ConfigurationAware} interface. Does nothing if target is not configuration aware.
      *
-     * @param target The object to inject the configuration into.
+     * @param target        The object to inject the configuration into.
      * @param configuration The configuration to inject.
      */
     public static void injectFlywayConfiguration(Object target, FlywayConfiguration configuration) {
@@ -117,6 +140,12 @@ public class ConfigurationUtils {
         }
         if ("FLYWAY_CLEAN_ON_VALIDATION_ERROR".equals(key)) {
             return CLEAN_ON_VALIDATION_ERROR;
+        }
+        if ("FLYWAY_CONFIG_FILE_ENCODING".equals(key)) {
+            return CONFIG_FILE_ENCODING;
+        }
+        if ("FLYWAY_CONFIG_FILES".equals(key)) {
+            return CONFIG_FILES;
         }
         if ("FLYWAY_DRIVER".equals(key)) {
             return DRIVER;
@@ -205,5 +234,50 @@ public class ConfigurationUtils {
             return VALIDATE_ON_MIGRATE;
         }
         return null;
+    }
+
+    /**
+     * Loads the configuration from this configuration file.
+     *
+     * @param configFile    The configuration file to load.
+     * @param encoding      The encoding of the configuration file.
+     * @param failIfMissing Whether to fail if the file is missing.
+     * @return The properties from the configuration file. An empty Map if none.
+     * @throws FlywayException when the configuration file could not be loaded.
+     */
+    public static Map<String, String> loadConfigurationFile(File configFile, String encoding, boolean failIfMissing) throws FlywayException {
+        String errorMessage = "Unable to load config file: " + configFile.getAbsolutePath();
+
+        if (!configFile.isFile() || !configFile.canRead()) {
+            if (!failIfMissing) {
+                LOG.debug(errorMessage);
+                return new HashMap<String, String>();
+            }
+            throw new FlywayException(errorMessage);
+        }
+
+        LOG.debug("Loading config file: " + configFile.getAbsolutePath());
+        try {
+            String contents = FileCopyUtils.copyToString(new InputStreamReader(new FileInputStream(configFile), encoding));
+            Properties properties = new Properties();
+            properties.load(new StringReader(contents.replace("\\", "\\\\")));
+            return propertiesToMap(properties);
+        } catch (IOException e) {
+            throw new FlywayException(errorMessage, e);
+        }
+    }
+
+    /**
+     * Converts this Properties object into a map.
+     *
+     * @param properties The Properties object to convert.
+     * @return The resulting map.
+     */
+    public static Map<String, String> propertiesToMap(Properties properties) {
+        Map<String, String> props = new HashMap<String, String>();
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            props.put(entry.getKey().toString(), entry.getValue().toString());
+        }
+        return props;
     }
 }

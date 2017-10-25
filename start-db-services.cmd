@@ -14,4 +14,4 @@
 @REM limitations under the License.
 @REM
 
-docker-compose up --force-recreate -d
+docker-compose up --force-recreate
