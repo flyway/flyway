@@ -48,7 +48,7 @@ public class SQLiteDbSupport extends DbSupport {
         int minorVersion = getMinorVersion();
         String version = majorVersion + "." + minorVersion;
 
-        if (majorVersion < 3 || (majorVersion == 3 && minorVersion < 7)) {
+        if (majorVersion < 3) {
             throw new FlywayDbUpgradeRequiredException("SQLite", version, "3.7.2");
         }
     }

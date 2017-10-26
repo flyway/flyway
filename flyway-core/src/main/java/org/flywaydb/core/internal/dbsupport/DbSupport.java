@@ -46,7 +46,9 @@ public abstract class DbSupport {
     public DbSupport(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
-        ensureSupported();
+        if (jdbcTemplate.getConnection() != null) {
+            ensureSupported();
+        }
     }
 
     /**

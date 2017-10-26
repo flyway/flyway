@@ -52,7 +52,7 @@ public class HsqlDbSupport extends DbSupport {
     }
 
     public String getDbName() {
-        return "hsql";
+        return "hsqldb";
     }
 
     public String getCurrentUserFunction() {
