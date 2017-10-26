@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.db2;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -49,6 +50,24 @@ public class DB2DbSupport extends DbSupport {
         } catch (Exception e) {
             LOG.warn("Unable to determine DB2 major version (" + e.getMessage() + "). Assuming DB2 11!");
             majorVersion = 11;
+        }
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        int majorVersion = getMajorVersion();
+        int minorVersion = getMinorVersion();
+        String version = majorVersion + "." + minorVersion;
+
+        if (majorVersion < 9 || (majorVersion == 9 && minorVersion < 7)) {
+            throw new FlywayDbUpgradeRequiredException("DB2", version, "9.7");
+        }
+        if (majorVersion == 9 || (majorVersion == 10 && minorVersion < 5)) {
+            // [oss-enabled]
+            //throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
+            // [/oss-enabled]
+        } else if (majorVersion > 11 || (majorVersion == 11 && minorVersion > 1)) {
+            recommendFlywayUpgrade("DB2", version);
         }
     }
 

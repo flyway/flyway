@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.sqlite;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -39,6 +40,17 @@ public class SQLiteDbSupport extends DbSupport {
      */
     public SQLiteDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        int majorVersion = getMajorVersion();
+        int minorVersion = getMinorVersion();
+        String version = majorVersion + "." + minorVersion;
+
+        if (majorVersion < 3 || (majorVersion == 3 && minorVersion < 7)) {
+            throw new FlywayDbUpgradeRequiredException("SQLite", version, "3.7.2");
+        }
     }
 
     public String getDbName() {

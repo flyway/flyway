@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.h2;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -37,6 +38,17 @@ public class H2DbSupport extends DbSupport {
      */
     public H2DbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        int majorVersion = getMajorVersion();
+        int minorVersion = getMinorVersion();
+        String version = majorVersion + "." + minorVersion;
+
+        if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 2)) {
+            throw new FlywayDbUpgradeRequiredException("H2", version, "1.2.137");
+        }
     }
 
     public String getDbName() {

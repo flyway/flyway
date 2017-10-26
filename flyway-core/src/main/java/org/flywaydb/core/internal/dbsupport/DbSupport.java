@@ -16,6 +16,8 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
@@ -24,6 +26,8 @@ import java.util.concurrent.Callable;
  * Abstraction for database-specific functionality.
  */
 public abstract class DbSupport {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DbSupport.class);
+
     /**
      * The JDBC template available for use.
      */
@@ -42,6 +46,16 @@ public abstract class DbSupport {
     public DbSupport(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
+        ensureSupported();
+    }
+
+    /**
+     * Ensures Flyway supports this version of this database.
+     */
+    protected abstract void ensureSupported();
+
+    protected void recommendFlywayUpgrade(String database, String version) {
+        LOGGER.warn("Flyway upgrade recommended: " + database + " " + version + " is newer than this version of Flyway and support has not been tested.");
     }
 
     /**
@@ -219,5 +233,31 @@ public abstract class DbSupport {
      */
     public boolean useSingleConnection() {
         return false;
+    }
+
+    /**
+     * Returns the major version number of the database.
+     *
+     * @return the major version number as int.
+     */
+    public int getMajorVersion() {
+        try {
+            return jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine the version of the database", e);
+        }
+    }
+
+    /**
+     * Returns the minor version number of the database.
+     *
+     * @return the minor version number as int.
+     */
+    protected int getMinorVersion() {
+        try {
+            return jdbcTemplate.getMetaData().getDatabaseMinorVersion();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine the version of the database", e);
+        }
     }
 }

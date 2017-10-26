@@ -22,7 +22,7 @@ import org.flywaydb.core.internal.dbsupport.cockroachdb.CockroachDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
-import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
+import org.flywaydb.core.internal.dbsupport.hsqldb.HsqlDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
@@ -54,6 +54,14 @@ public class DbSupportFactory {
      * @return The appropriate DbSupport class.
      */
     public static DbSupport createDbSupport(Connection connection, boolean printInfo) {
+        DbSupport dbSupport = doCreateDbSupport(connection, printInfo);
+
+
+
+        return dbSupport;
+    }
+
+    static DbSupport doCreateDbSupport(Connection connection, boolean printInfo) {
         String databaseProductName = getDatabaseProductName(connection);
 
         if (printInfo) {
@@ -70,7 +78,6 @@ public class DbSupportFactory {
             return new H2DbSupport(connection);
         }
         if (databaseProductName.contains("HSQL Database Engine")) {
-            // For regular Hsql and the Google Cloud SQL local default DB.
             return new HsqlDbSupport(connection);
         }
         if (databaseProductName.startsWith("Microsoft SQL Server")) {

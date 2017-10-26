@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.hsql;
+package org.flywaydb.core.internal.dbsupport.hsqldb;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -37,6 +38,17 @@ public class HsqlDbSupport extends DbSupport {
      */
     public HsqlDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        int majorVersion = getMajorVersion();
+        int minorVersion = getMinorVersion();
+        String version = majorVersion + "." + minorVersion;
+
+        if (majorVersion < 1 || (majorVersion == 18 && minorVersion < 8)) {
+            throw new FlywayDbUpgradeRequiredException("HSQLDB", version, "1.8");
+        }
     }
 
     public String getDbName() {

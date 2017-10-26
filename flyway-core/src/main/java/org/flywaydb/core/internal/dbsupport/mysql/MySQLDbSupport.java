@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.mysql;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -44,6 +45,29 @@ public class MySQLDbSupport extends DbSupport {
      */
     public MySQLDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        int majorVersion = getMajorVersion();
+        int minorVersion = getMinorVersion();
+        String version = majorVersion + "." + minorVersion;
+
+        if (majorVersion < 5) {
+            throw new FlywayDbUpgradeRequiredException("MySQL", version, "5.0");
+        }
+        if (majorVersion == 5) {
+            // [oss-enabled]
+            //if (minorVersion < 6) {
+            //    throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("Oracle", "MySQL", version);
+            //}
+            // [/oss-enabled]
+            if (minorVersion > 7) {
+                recommendFlywayUpgrade("MySQL", version);
+            }
+        } else {
+            recommendFlywayUpgrade("MySQL", version);
+        }
     }
 
     public String getDbName() {

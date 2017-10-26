@@ -16,4 +16,4 @@
 /**
  * Private API. No compatibility guarantees provided.
  */
-package org.flywaydb.core.internal.dbsupport.hsql;
+package org.flywaydb.core.internal.dbsupport.hsqldb;

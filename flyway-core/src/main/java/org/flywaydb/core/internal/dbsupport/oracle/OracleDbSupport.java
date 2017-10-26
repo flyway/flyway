@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -43,6 +44,21 @@ public class OracleDbSupport extends DbSupport {
      */
     public OracleDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        int majorVersion = getMajorVersion();
+        if (majorVersion < 10) {
+            throw new FlywayDbUpgradeRequiredException("Oracle", "" + majorVersion, "10");
+        }
+        if (majorVersion == 10 || majorVersion == 11) {
+            // [oss-enabled]
+            //throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
+            // [/oss-enabled]
+        } else if (majorVersion > 12) {
+            recommendFlywayUpgrade("Oracle", "" + majorVersion);
+        }
     }
 
     public String getDbName() {
@@ -121,18 +137,6 @@ public class OracleDbSupport extends DbSupport {
     boolean queryReturnsRows(String query, String... params) throws SQLException {
         return jdbcTemplate.queryForBoolean("SELECT CASE WHEN EXISTS(" + query + ") THEN 1 ELSE 0 END FROM DUAL", params);
     }
-
-    // [pro]
-    /**
-     * Returns the major version number of the database.
-     *
-     * @return the major version number as int.
-     * @throws SQLException when the query execution failed.
-     */
-    int getMajorVersion() throws SQLException {
-        return jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-    }
-    // [/pro]
 
     /**
      * Checks whether the specified privilege or role is granted to the current user.
