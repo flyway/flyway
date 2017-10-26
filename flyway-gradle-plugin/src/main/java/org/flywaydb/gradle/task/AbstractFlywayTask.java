@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
+
 /**
  * A base class for all flyway tasks.
  */
@@ -350,6 +352,11 @@ public abstract class AbstractFlywayTask extends DefaultTask {
      */
     private Map<String, String> createFlywayConfig() {
         Map<String, String> conf = new HashMap<String, String>();
+        conf.put(ConfigUtils.LOCATIONS, Location.FILESYSTEM_PREFIX + getProject().getProjectDir().getAbsolutePath() + "/src/main/resources/db/migration");
+
+        Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+        addConfigFromProperties(conf, loadConfigurationFromDefaultConfigFiles(envVars));
+
         putIfSet(conf, ConfigUtils.DRIVER, driver, extension.driver);
         putIfSet(conf, ConfigUtils.URL, url, extension.url);
         putIfSet(conf, ConfigUtils.USER, user, extension.user);
@@ -380,7 +387,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
         putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks, extension.skipDefaultCallbacks);
         putIfSet(conf, ConfigUtils.SCHEMAS, StringUtils.arrayToCommaDelimitedString(schemas), StringUtils.arrayToCommaDelimitedString(extension.schemas));
 
-        conf.put(ConfigUtils.LOCATIONS, Location.FILESYSTEM_PREFIX + getProject().getProjectDir().getAbsolutePath() + "/src/main/resources/db/migration");
         putIfSet(conf, ConfigUtils.LOCATIONS, StringUtils.arrayToCommaDelimitedString(locations), StringUtils.arrayToCommaDelimitedString(extension.locations));
 
         putIfSet(conf, ConfigUtils.RESOLVERS, StringUtils.arrayToCommaDelimitedString(resolvers), StringUtils.arrayToCommaDelimitedString(extension.resolvers));
@@ -401,11 +407,10 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             }
         }
 
-        Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
-        addConfigFromProperties(conf, loadConfigurationFromConfigFiles(envVars));
         addConfigFromProperties(conf, getProject().getProperties());
-        addConfigFromProperties(conf, System.getProperties());
+        addConfigFromProperties(conf, loadConfigurationFromConfigFiles(envVars));
         addConfigFromProperties(conf, envVars);
+        addConfigFromProperties(conf, System.getProperties());
         removeGradlePluginSpecificPropertiesToAvoidWarnings(conf);
 
         return conf;
@@ -420,13 +425,26 @@ public abstract class AbstractFlywayTask extends DefaultTask {
     private Map<String, String> loadConfigurationFromConfigFiles(Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(envVars);
 
-        Map<String, String> props = new HashMap<String, String>();
-        props.putAll(ConfigUtils.loadConfigurationFile(
-                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        Map<String, String> conf = new HashMap<String, String>();
         for (File configFile : determineConfigFiles(envVars)) {
-            props.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
+            conf.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
         }
-        return props;
+        return conf;
+    }
+
+    /**
+     * Retrieve the properties from the config files (if specified).
+     *
+     * @param envVars The environment variables converted to Flyway properties.
+     * @return The properties.
+     */
+    private Map<String, String> loadConfigurationFromDefaultConfigFiles(Map<String, String> envVars) {
+        String encoding = determineConfigurationFileEncoding(envVars);
+
+        Map<String, String> conf = new HashMap<String, String>();
+        conf.putAll(ConfigUtils.loadConfigurationFile(
+                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        return conf;
     }
 
     /**
@@ -560,22 +578,6 @@ public abstract class AbstractFlywayTask extends DefaultTask {
             return collectMessages(throwable.getCause(), message);
         }
         return message;
-    }
-
-    /**
-     * Puts this property in the config if it has been set either in the task or the extension.
-     *
-     * @param config         The config.
-     * @param key            The peoperty name.
-     * @param propValue      The value in the plugin.
-     * @param extensionValue The value in the extension.
-     */
-    private void putIfSet(Map<String, String> config, String key, Object propValue, Object extensionValue) {
-        if (propValue != null) {
-            config.put(key, propValue.toString());
-        } else if (extensionValue != null) {
-            config.put(key, extensionValue.toString());
-        }
     }
 
     private boolean isJavaProject() {

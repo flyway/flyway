@@ -21,6 +21,7 @@ import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.FileCopyUtils;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -85,6 +86,9 @@ public class ConfigUtils {
     public static final String URL = "flyway.url";
     public static final String USER = "flyway.user";
     public static final String VALIDATE_ON_MIGRATE = "flyway.validateOnMigrate";
+
+    // Command-line specific
+    public static final String JAR_DIRS = "flyway.jarDirs";
 
     private ConfigUtils() {
         // Utility class
@@ -233,6 +237,12 @@ public class ConfigUtils {
         if ("FLYWAY_VALIDATE_ON_MIGRATE".equals(key)) {
             return VALIDATE_ON_MIGRATE;
         }
+
+        // Command-line specific
+        if ("FLYWAY_JAR_DIRS".equals(key)) {
+            return JAR_DIRS;
+        }
+
         return null;
     }
 
@@ -279,5 +289,37 @@ public class ConfigUtils {
             props.put(entry.getKey().toString(), entry.getValue().toString());
         }
         return props;
+    }
+
+    /**
+     * Puts this property in the config if it has been set in any of these values.
+     *
+     * @param config The config.
+     * @param key    The peoperty name.
+     * @param values The values to try. The first non-null value will be set.
+     */
+    public static void putIfSet(Map<String, String> config, String key, Object... values) {
+        for (Object value : values) {
+            if (value != null) {
+                config.put(key, value.toString());
+                return;
+            }
+        }
+    }
+
+    /**
+     * Puts this property in the config if it has been set in any of these values.
+     *
+     * @param config The config.
+     * @param key    The peoperty name.
+     * @param values The values to try. The first non-null value will be set.
+     */
+    public static void putArrayIfSet(Map<String, String> config, String key, String[]... values) {
+        for (String[] value : values) {
+            if (value != null) {
+                config.put(key, StringUtils.arrayToCommaDelimitedString(value));
+                return;
+            }
+        }
     }
 }

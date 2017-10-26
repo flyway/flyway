@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -43,7 +44,7 @@ public class MainClassLoaderSmallTest {
         String filename = new ClassPathResource("test.properties", getClassLoader()).getLocationOnDisk();
         String[] args = new String[]{"-configFile=" + filename, "-configFileEncoding=UTF-8"};
 
-        Main.loadConfiguration(properties, args);
+        Main.loadConfigurationFromConfigFiles(properties, args, new HashMap<String, String>());
 
         assertEquals(4, properties.size());
         assertEquals("still there!", properties.getProperty("existing"));
@@ -58,7 +59,7 @@ public class MainClassLoaderSmallTest {
         String filename = new ClassPathResource("dynamic/pkg/runtime.conf", getClassLoader()).getLocationOnDisk();
         String[] args = new String[]{"-configFile=" + filename, "-configFileEncoding=UTF-8"};
 
-        Main.loadConfiguration(properties, args);
+        Main.loadConfigurationFromConfigFiles(properties, args, new HashMap<String, String>());
 
         assertEquals(1, properties.size());
         assertEquals("at\\runtime", properties.getProperty("loaded"));

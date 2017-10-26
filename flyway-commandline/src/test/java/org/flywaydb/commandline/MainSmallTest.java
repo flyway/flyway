@@ -57,7 +57,7 @@ public class MainSmallTest {
         Properties properties = new Properties();
         String[] args = new String[]{"-user=SA"};
 
-        Main.overrideConfiguration(properties, args);
+        Main.overrideConfigurationWithArgs(properties, args);
 
         assertEquals("SA", properties.getProperty("flyway.user"));
     }

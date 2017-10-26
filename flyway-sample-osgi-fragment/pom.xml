@@ -68,6 +68,7 @@
                             org.flywaydb.sample.osgi.fragment;version=${project.version}
                         </Export-Package>
                         <Import-Package>
+                            org.h2;version="[1.0.0,20.0.0)",
                             org.flywaydb.core.api.migration.*;version=${project.version}
                         </Import-Package>
                     </instructions>

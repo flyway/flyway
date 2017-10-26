@@ -64,7 +64,8 @@
                     <instructions>
                         <Bundle-Activator>org.flywaydb.sample.osgi.OsgiActivator</Bundle-Activator>
                         <Import-Package>
-                            org.osgi.framework;version="[1.0.0,2.0.0)",
+                            org.h2;version="[1.0.0,20.0.0)",
+                            org.osgi.framework;version="[1.0.0,20.0.0)",
                             org.flywaydb.core.*;version=${project.version}
                         </Import-Package>
                     </instructions>

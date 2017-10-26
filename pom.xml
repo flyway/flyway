@@ -126,8 +126,9 @@
         <version.mariadb>2.1.0</version.mariadb>
         <version.postgresql>42.1.4.jre6</version.postgresql>
         <version.sqlite>3.7.15-M1</version.sqlite>
-        <version.equinox>3.6.0.v20100517</version.equinox>
-        <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
+        <version.osgi>4.3.1</version.osgi>
+        <version.equinox>3.12.0</version.equinox>
+        <version.equinoxcommon>3.9.0</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.7.16</version.slf4j>
         <version.jre>8.74</version.jre>
@@ -178,15 +179,20 @@
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.equinox.common</artifactId>
                 <version>${version.equinoxcommon}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.osgi</groupId>
+                <groupId>org.eclipse.platform</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>${version.equinox}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${version.osgi}</version>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
@@ -267,12 +273,6 @@
                 <version>12.1.0.2</version>
             </dependency>
             <dependency>
-                <groupId>com.edb</groupId>
-                <artifactId>edb-jdbc17</artifactId>
-                <version>9.5.1.6</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
                 <groupId>com.ibm.db2.jcc</groupId>
                 <artifactId>db2jcc4</artifactId>
                 <version>10.1</version>
@@ -282,97 +282,6 @@
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>sqljdbc4</artifactId>
                 <version>4.0</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.vertica</groupId>
-                <artifactId>vertica-jdbc</artifactId>
-                <version>7.0.0-0</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.phoenix</groupId>
-                <artifactId>phoenix-core</artifactId>
-                <version>${version.phoenix}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>log4j</artifactId>
-                        <groupId>log4j</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>org.slf4j</artifactId>
-                        <groupId>slf4j-api</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-it</artifactId>
-                <version>${version.hbase}</version>
-                <type>test-jar</type>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-testing-util</artifactId>
-                <version>${version.hbase}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>slf4j-log4j12</artifactId>
-                        <groupId>org.slf4j</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-hadoop-compat</artifactId>
-                <version>${version.hbase}</version>
-                <type>test-jar</type>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hbase</groupId>
-                <artifactId>hbase-hadoop2-compat</artifactId>
-                <version>${version.hbase}</version>
-                <type>test-jar</type>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>commons-logging</artifactId>
-                        <groupId>commons-logging</groupId>
-                    </exclusion>
-                </exclusions>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <!-- force transitive dependency of HBase to a version available in Maven Central -->
-                <groupId>sqlline</groupId>
-                <artifactId>sqlline</artifactId>
-                <version>1.1.9</version>
-            </dependency>
-            <dependency>
-                <groupId>com.ibm</groupId>
-                <artifactId>SolidDriver</artifactId>
-                <version>6.5.0.14_IF21</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>com.sap.db.jdbc</groupId>
-                <artifactId>ngdbc</artifactId>
-                <version>1.103.0</version>
                 <optional>true</optional>
             </dependency>
             <!-- [/pro] -->

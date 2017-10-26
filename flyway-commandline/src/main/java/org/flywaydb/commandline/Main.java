@@ -43,11 +43,6 @@ public class Main {
     private static Log LOG;
 
     /**
-     * The property name for the directory containing a list of jars to load on the classpath.
-     */
-    private static final String PROPERTY_JAR_DIRS = "flyway.jarDirs";
-
-    /**
      * Initializes the logging.
      *
      * @param level The minimum level to log at.
@@ -78,11 +73,13 @@ public class Main {
                 return;
             }
 
+            Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+
             Properties properties = new Properties();
             initializeDefaults(properties);
-            loadConfiguration(properties, args);
-            overrideConfiguration(properties, args);
-            properties.putAll(ConfigUtils.environmentVariablesToPropertyMap());
+            loadConfigurationFromConfigFiles(properties, args, envVars);
+            properties.putAll(envVars);
+            overrideConfigurationWithArgs(properties, args);
 
             if (!isSuppressPrompt(args)) {
                 promptForCredentialsIfMissing(properties);
@@ -182,8 +179,8 @@ public class Main {
      * @param properties The properties object to initialize.
      */
     private static void initializeDefaults(Properties properties) {
-        properties.put("flyway.locations", "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
-        properties.put(PROPERTY_JAR_DIRS, new File(getInstallationDir(), "jars").getAbsolutePath());
+        properties.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
+        properties.put(ConfigUtils.JAR_DIRS, new File(getInstallationDir(), "jars").getAbsolutePath());
     }
 
     /**
@@ -192,9 +189,10 @@ public class Main {
      * @param properties The properties to filter.
      */
     private static void filterProperties(Properties properties) {
-        properties.remove(PROPERTY_JAR_DIRS);
-        properties.remove("flyway.configFile");
-        properties.remove("flyway.configFileEncoding");
+        properties.remove(ConfigUtils.JAR_DIRS);
+        properties.remove(ConfigUtils.CONFIG_FILE);
+        properties.remove(ConfigUtils.CONFIG_FILES);
+        properties.remove(ConfigUtils.CONFIG_FILE_ENCODING);
     }
 
     /**
@@ -324,7 +322,7 @@ public class Main {
      * @throws IOException When the jars could not be loaded.
      */
     private static ClassLoader loadJavaMigrationsFromJarDirs(ClassLoader classLoader, Properties properties) throws IOException {
-        String jarDirs = properties.getProperty(PROPERTY_JAR_DIRS);
+        String jarDirs = properties.getProperty(ConfigUtils.JAR_DIRS);
         if (!StringUtils.hasLength(jarDirs)) {
             return classLoader;
         }
@@ -359,10 +357,10 @@ public class Main {
      *
      * @param properties The properties object to load to configuration into.
      * @param args       The command-line arguments passed in.
+     * @param envVars    The environment variables, converted into properties.
      */
     /* private -> for testing */
-    static void loadConfiguration(Properties properties, String[] args) {
-        Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+    static void loadConfigurationFromConfigFiles(Properties properties, String[] args, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(args, envVars);
 
         properties.putAll(ConfigUtils.loadConfigurationFile(new File(getInstallationDir() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
@@ -485,7 +483,7 @@ public class Main {
      * @param args       The command-line arguments that were passed in.
      */
     /* private -> for testing*/
-    static void overrideConfiguration(Properties properties, String[] args) {
+    static void overrideConfigurationWithArgs(Properties properties, String[] args) {
         for (String arg : args) {
             if (isPropertyArgument(arg)) {
                 properties.put(getArgumentProperty(arg), getArgumentValue(arg));

@@ -29,13 +29,16 @@ public class OsgiActivator implements BundleActivator {
         System.out.println("Starting Flyway Sample OSGi");
 
         try {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            Class<?> h2 = classLoader.loadClass("org.h2.Driver");
+
             Properties properties = new Properties();
-            properties.setProperty("flyway.driver", "org.h2.Driver");
+            properties.setProperty("flyway.driver", h2.getName());
             properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_db;DB_CLOSE_DELAY=-1");
             properties.setProperty("flyway.user", "sa");
             properties.setProperty("flyway.password", "");
 
-            Flyway flyway = new Flyway();
+            Flyway flyway = new Flyway(classLoader);
             flyway.configure(properties);
             flyway.setLocations("db.migration", "org.flywaydb.sample.osgi.fragment");
             flyway.migrate();
@@ -45,7 +48,7 @@ public class OsgiActivator implements BundleActivator {
             System.exit(0);
         } catch (Throwable t) {
             t.printStackTrace();
-           // System.exit(0);
+            System.exit(1);
         }
     }
 

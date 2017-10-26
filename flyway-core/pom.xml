@@ -68,8 +68,8 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.common</artifactId>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
             <optional>true</optional>
             <scope>provided</scope>
         </dependency>

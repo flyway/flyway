@@ -43,7 +43,7 @@ public class OsgiLargeTest {
      * @return The standard output produced by the container.
      * @throws Exception thrown when the invocation failed.
      */
-    protected String runFlywayOsgi(int expectedReturnCode) throws Exception {
+    private String runFlywayOsgi(int expectedReturnCode) throws Exception {
         List<String> args = new ArrayList<String>();
 
         String installDir = new File(getInstallDir()).getAbsolutePath();
@@ -92,8 +92,7 @@ public class OsgiLargeTest {
     /**
      * @return The installation directory of the OSGi bundles to test.
      */
-    protected String getInstallDir() {
-        return System.getProperty("installDir",
-                "flyway-osgi-largetest/target/install");
+    private String getInstallDir() {
+        return System.getProperty("installDir", "flyway-osgi-largetest/target/install");
     }
 }
