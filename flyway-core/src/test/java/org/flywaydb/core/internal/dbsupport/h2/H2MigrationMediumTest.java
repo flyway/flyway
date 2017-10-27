@@ -18,16 +18,13 @@ package org.flywaydb.core.internal.dbsupport.h2;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -52,6 +49,15 @@ public class H2MigrationMediumTest extends MigrationTestCase {
         flyway.setDataSource("jdbc:h2:mem:mysql_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setSchemas("mysql_schema");
         flyway.baseline();
+    }
+
+    @Test
+    public void mysqlModeClean() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:mysql_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/dbsupport/h2/sql/domain");
+        flyway.migrate();
+        flyway.clean();
     }
 
     @Test
