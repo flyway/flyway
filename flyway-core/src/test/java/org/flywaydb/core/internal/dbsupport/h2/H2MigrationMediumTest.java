@@ -55,6 +55,15 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
+    public void mysqlModeWithUppercase() throws Exception {
+        Flyway flyway = new Flyway();
+        flyway.setDataSource("jdbc:h2:mem:mysql_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/dbsupport/h2/sql/uppercase");
+        flyway.migrate();
+        flyway.clean();
+    }
+
+    @Test
     public void mysqlModePublic() throws Exception {
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:mysql_public_db;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
