@@ -50,9 +50,14 @@ public class SnowflakeSchema extends Schema<SnowflakeDatabase> {
 
     @Override
     protected boolean doEmpty() throws SQLException {
-        List<HashMap<String, String>> tablesMetadata = getMetadataForObjectType("TABLES", "%","name");
-
-        return tablesMetadata.size() == 0;
+        if (doExists()) {
+            List<HashMap<String, String>> objectsMetadata = getMetadataForObjectType("OBJECTS", "%", "name");
+            return objectsMetadata.size() == 0;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     @Override
