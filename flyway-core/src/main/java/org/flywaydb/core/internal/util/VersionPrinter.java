@@ -43,7 +43,23 @@ public class VersionPrinter {
         printed = true;
         String version = new ClassPathResource("org/flywaydb/core/internal/version.txt", VersionPrinter.class.getClassLoader()).loadAsString("UTF-8");
         LOG.info("Flyway "
-                /*[pro]*/ + "Enterprise " //[/pro]
-                + version + " by Boxfuse");
+                //[opensource-only]
+                //+ "Open Source"
+                //[/opensource-only]
+                //[pro-only]
+                //+ "Pro"
+                //[/pro-only]
+                //[enterprise-only]
+                //+ "Enterprise"
+                //[/enterprise-only]
+                //[trial-only]
+                //+ "Trial"
+                //[/trial-only]
+                + " " + version + " by Boxfuse"
+        );
+        //[trial-only]
+        //LOG.warn("You are using a 30 day limited Flyway trial edition. After 30 days you must remove this version" +
+        //        " and either upgrade to Flyway Pro or Enterprise or downgrade to Flyway Open Source.");
+        //[/trial-only]
     }
 }
