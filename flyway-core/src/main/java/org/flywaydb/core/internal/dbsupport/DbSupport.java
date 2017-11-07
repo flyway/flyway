@@ -265,7 +265,7 @@ public abstract class DbSupport {
      *
      * @return the major version number as int.
      */
-    public final int getMajorVersion() {
+    public int getMajorVersion() {
         return majorVersion;
     }
 
@@ -274,7 +274,7 @@ public abstract class DbSupport {
      *
      * @return the minor version number as int.
      */
-    public final int getMinorVersion() {
+    public int getMinorVersion() {
         return minorVersion;
     }
 
