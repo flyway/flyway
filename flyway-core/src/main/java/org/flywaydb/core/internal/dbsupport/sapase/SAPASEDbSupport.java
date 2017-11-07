@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.sapase;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -38,7 +39,14 @@ public class SAPASEDbSupport extends DbSupport {
 
     @Override
     protected void ensureSupported() {
+        String version = majorVersion + "." + minorVersion;
 
+        if (majorVersion < 15 || (majorVersion == 15 && minorVersion < 70)) {
+            throw new FlywayDbUpgradeRequiredException("ASE", version, "15.7");
+        }
+        if (majorVersion > 16 || (majorVersion == 16 && minorVersion > 0)) {
+            recommendFlywayUpgrade("ASE", version);
+        }
     }
 
     @Override
