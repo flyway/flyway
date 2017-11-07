@@ -44,7 +44,7 @@ public class SAPASEDbSupport extends DbSupport {
         if (majorVersion < 15 || (majorVersion == 15 && minorVersion < 70)) {
             throw new FlywayDbUpgradeRequiredException("ASE", version, "15.7");
         }
-        if (majorVersion > 16 || (majorVersion == 16 && minorVersion > 0)) {
+        if (majorVersion > 16 || (majorVersion == 16 && minorVersion > 2)) {
             recommendFlywayUpgrade("ASE", version);
         }
     }
@@ -52,7 +52,7 @@ public class SAPASEDbSupport extends DbSupport {
     @Override
     public Schema getSchema(String name) {
         //Sybase does not support schema and changing user on the fly. Always return the same dummy schema.
-        return new SAPASESchema(jdbcTemplate, this, "SAPASE");
+        return new SAPASESchema(jdbcTemplate, this, "dbo");
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SAPASEDbSupport extends DbSupport {
 
     @Override
     protected String doGetCurrentSchemaName() throws SQLException {
-        return "SAPASE";
+        return "dbo";
     }
 
     @Override
