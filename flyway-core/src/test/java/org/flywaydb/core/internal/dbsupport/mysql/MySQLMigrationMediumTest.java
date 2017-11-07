@@ -47,7 +47,7 @@ public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
         Flyway flyway = new Flyway();
         flyway.setDataSource(createDataSource(null));
         flyway.setSchemas("non-existing-schema");
-        flyway.setLocations(BASEDIR);
+        flyway.setLocations(getBasedir());
         flyway.clean();
         assertEquals(4, flyway.migrate());
     }

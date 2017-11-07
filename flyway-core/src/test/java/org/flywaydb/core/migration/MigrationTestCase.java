@@ -71,7 +71,6 @@ public abstract class MigrationTestCase {
      * The base directory for the regular test migrations.
      */
     private static final String MIGRATIONDIR = "migration";
-    protected static final String BASEDIR = "migration/sql";
 
     protected static Properties customProperties = new Properties();
 
@@ -267,7 +266,7 @@ public abstract class MigrationTestCase {
     }
 
     protected String getBasedir() {
-        return BASEDIR;
+        return getMigrationDir() + "/sql";
     }
 
     @Test
@@ -384,6 +383,10 @@ public abstract class MigrationTestCase {
 
     @Test
     public void failedMigration() throws Exception {
+        doFailedMigration(21);
+    }
+
+    protected final void doFailedMigration(int lineNumber) {
         String tableName = "before_the_error";
 
         flyway.setLocations(getMigrationDir() + "/failed");
@@ -401,8 +404,8 @@ public abstract class MigrationTestCase {
             assertTrue(e.getCause() instanceof SQLException);
             // and make sure the failed statement was properly recorded
             assertEquals("1", e.getMigration().getVersion().getVersion());
-            assertEquals(21, e.getLineNumber());
-            assertEquals("THIS IS NOT VALID SQL", e.getStatement());
+            assertEquals(lineNumber, e.getLineNumber());
+            assertEquals("THIS IS NOT VALID SQL", e.getStatement().trim());
         }
 
         MigrationInfo migration = flyway.info().current();
@@ -710,18 +713,18 @@ public abstract class MigrationTestCase {
     }
 
     protected String getFutureFailedLocation() {
-        return "migration/future_failed";
+        return getMigrationDir() + "/future_failed";
     }
 
     protected String getValidateLocation() {
-        return "migration/validate";
+        return getMigrationDir() + "/validate";
     }
 
     protected String getSemiColonLocation() {
-        return "migration/semicolon";
+        return getMigrationDir() + "/semicolon";
     }
 
     protected String getCommentLocation() {
-        return "migration/comment";
+        return getMigrationDir() + "/comment";
     }
 }

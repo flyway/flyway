@@ -28,6 +28,7 @@ import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
+import org.flywaydb.core.internal.dbsupport.sapase.SAPASEDbSupport;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -100,6 +101,9 @@ public class DbSupportFactory {
         }
         if (databaseProductName.startsWith("DB2")) {
             return new DB2DbSupport(connection);
+        }
+        if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive")) {
+            return new SAPASEDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

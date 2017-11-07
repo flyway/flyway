@@ -162,10 +162,14 @@ public abstract class ConcurrentMigrationTestCase {
         try {
             connection = concurrentMigrationDataSource.getConnection();
             assertEquals(2, new JdbcTemplate(connection, 0).queryForInt(
-                    "SELECT COUNT(*) FROM " + schemaQuoted + ".test_user"));
+                    "SELECT COUNT(*) FROM " + getTableName()));
         } finally {
             JdbcUtils.closeConnection(connection);
         }
+    }
+
+    protected String getTableName() {
+        return schemaQuoted + ".test_user";
     }
 
     private Flyway createFlyway() throws SQLException {

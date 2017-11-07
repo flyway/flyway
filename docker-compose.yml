@@ -131,3 +131,8 @@ services:
      - ./flyway-core/src/test/resources/migration/dbsupport/sqlserver/createDatabase.sql:/createDatabase.sql
     entrypoint:
      - /entrypoint.sh
+  sybasease-157:
+    image: "datagrip/sybase:15.7"
+    hostname: dksybase
+    ports:
+     - "62070:5000"
