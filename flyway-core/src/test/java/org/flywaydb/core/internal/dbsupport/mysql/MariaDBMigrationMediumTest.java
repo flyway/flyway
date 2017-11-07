@@ -32,10 +32,10 @@ import java.util.Properties;
 @Category(DbCategory.MariaDB.class)
 @RunWith(Parameterized.class)
 public class MariaDBMigrationMediumTest extends MySQLMigrationTestCase {
-    // [pro]
-    private static final String JDBC_URL_MARIADB_55 = "jdbc:mysql://localhost:62020/flyway_db";
-    // [/pro]
-    private static final String JDBC_URL_MARIADB_100 = "jdbc:mysql://localhost:62021/flyway_db";
+    private static final String JDBC_URL_MARIADB_55 = "jdbc:mariadb://localhost:62020/flyway_db";
+    private static final String JDBC_URL_MARIADB_100 = "jdbc:mariadb://localhost:62021/flyway_db";
+    private static final String JDBC_URL_MARIADB_101 = "jdbc:mariadb://localhost:62022/flyway_db";
+    private static final String JDBC_URL_MARIADB_102 = "jdbc:mariadb://localhost:62023/flyway_db";
     private static final String JDBC_USER = "root";
     private static final String JDBC_PASSWORD = "flywayPWD000";
 
@@ -44,10 +44,10 @@ public class MariaDBMigrationMediumTest extends MySQLMigrationTestCase {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_MARIADB_100}
-                // [pro]
-                , {JDBC_URL_MARIADB_55}
-                // [/pro]
+                {JDBC_URL_MARIADB_102},
+                {JDBC_URL_MARIADB_101},
+                {JDBC_URL_MARIADB_100},
+                {JDBC_URL_MARIADB_55}
         });
     }
 

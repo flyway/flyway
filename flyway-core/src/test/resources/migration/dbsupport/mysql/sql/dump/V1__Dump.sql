@@ -296,11 +296,11 @@ CREATE TABLE envelope_instruction (
   ei_key varchar(255) DEFAULT NULL,
   pb_nr bit(1) NOT NULL,
   seal varchar(10) DEFAULT NULL,
-  window varchar(5) DEFAULT NULL,
+  windows varchar(5) DEFAULT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY ei_key (ei_key),
   KEY env_instr_seal_idx (seal),
-  KEY env_instr_window_idx (window),
+  KEY env_instr_windows_idx (windows),
   KEY env_instr_env_type_idx (envelope_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -49,24 +49,36 @@ public class MySQLDbSupport extends DbSupport {
 
     @Override
     protected final void ensureSupported() {
-        int majorVersion = getMajorVersion();
-        int minorVersion = getMinorVersion();
         String version = majorVersion + "." + minorVersion;
+        boolean isMariaDB;
+        try {
+            isMariaDB = jdbcTemplate.getMetaData().getDatabaseProductVersion().contains("MariaDB");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine database product version", e);
+        }
+        String productName = isMariaDB ? "MariaDB" : "MySQL";
 
         if (majorVersion < 5) {
-            throw new FlywayDbUpgradeRequiredException("MySQL", version, "5.0");
+            throw new FlywayDbUpgradeRequiredException(productName, version, "5.0");
         }
         if (majorVersion == 5) {
-            // [oss-enabled]
-            //if (minorVersion < 6) {
-            //    throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("Oracle", "MySQL", version);
+            // [enterprise-not]
+            //if (minorVersion < 5) {
+            //    throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException(
+            //        isMariaDB ? "MariaDB" : "Oracle", productName, version);
             //}
-            // [/oss-enabled]
+            // [/enterprise-not]
             if (minorVersion > 7) {
-                recommendFlywayUpgrade("MySQL", version);
+                recommendFlywayUpgrade(productName, version);
             }
         } else {
-            recommendFlywayUpgrade("MySQL", version);
+            if (isMariaDB) {
+                if (majorVersion > 10 || (majorVersion == 10 && minorVersion > 2)) {
+                    recommendFlywayUpgrade(productName, version);
+                }
+            } else {
+                recommendFlywayUpgrade(productName, version);
+            }
         }
     }
 

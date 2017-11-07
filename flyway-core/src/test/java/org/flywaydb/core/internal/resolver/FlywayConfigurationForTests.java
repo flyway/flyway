@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.api.pro.errorhandler.ErrorHandler;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 /**

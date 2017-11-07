@@ -32,7 +32,7 @@
     -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.boxfuse.flyway-pro</groupId>
+        <groupId>com.boxfuse.flyway-master</groupId>
         <artifactId>flyway-parent</artifactId>
         <version>0-SNAPSHOT</version>
     </parent>
@@ -83,7 +83,7 @@
             <artifactId>postgresql</artifactId>
             <optional>true</optional>
         </dependency>
-        <!-- [pro] -->
+        <!-- [master] -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -149,7 +149,7 @@
             <artifactId>sqljdbc4</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- [/pro] -->
+        <!-- [/master] -->
     </dependencies>
 
     <build>
@@ -259,7 +259,7 @@
         </plugins>
     </reporting>
 
-    <!-- [pro] -->
+    <!-- [master] -->
     <profiles>
         <profile>
             <id>EmbeddedDBTest</id>
@@ -315,5 +315,5 @@
             </build>
         </profile>
     </profiles>
-    <!-- [/pro] -->
+    <!-- [/master] -->
 </project>

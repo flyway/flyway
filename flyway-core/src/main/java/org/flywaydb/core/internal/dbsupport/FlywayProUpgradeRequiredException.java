@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.pro.errorhandler;
+package org.flywaydb.core.internal.dbsupport;
 
-import java.sql.SQLException;
+import org.flywaydb.core.api.FlywayException;
 
 /**
- * The context for an error passed to an error handler.
+ * Thrown when an attempt was made to use a Flyway Pro or Flyway Enterprise feature not supported by Flyway Open Source.
  */
-public interface ErrorContext {
-    /**
-     * @return The SQL Exception that was thrown by the JDBC driver.
-     */
-    SQLException getSQLException();
+public class FlywayProUpgradeRequiredException extends FlywayException {
+    public FlywayProUpgradeRequiredException(String feature) {
+        super("Flyway Pro or Flyway Enterprise upgrade required: " + feature
+                + " is not supported by Flyway Open Source.");
+    }
 }

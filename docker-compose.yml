@@ -36,7 +36,6 @@ services:
      - ./flyway-core/src/test/resources/migration/dbsupport/db2/entrypoint.sh:/entrypoint.sh
      - ./flyway-core/src/test/resources/migration/dbsupport/db2/createDatabase.sql:/createDatabase.sql
     command: "db2start"
-  # [pro]
   mariadb-55:
     image: "mariadb:5.5.57"
     ports:
@@ -48,11 +47,32 @@ services:
      - MYSQL_USER=flyway
      - MYSQL_PASSWORD=flywayPWD000
      - MYSQL_ROOT_PASSWORD=flywayPWD000
-  # [/pro]
   mariadb-100:
     image: "mariadb:10.0.32"
     ports:
      - "62021:3306"
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+    environment:
+     - MYSQL_DATABASE=flyway_db
+     - MYSQL_USER=flyway
+     - MYSQL_PASSWORD=flywayPWD000
+     - MYSQL_ROOT_PASSWORD=flywayPWD000
+  mariadb-101:
+    image: "mariadb:10.1.28"
+    ports:
+     - "62022:3306"
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+    environment:
+     - MYSQL_DATABASE=flyway_db
+     - MYSQL_USER=flyway
+     - MYSQL_PASSWORD=flywayPWD000
+     - MYSQL_ROOT_PASSWORD=flywayPWD000
+  mariadb-102:
+    image: "mariadb:10.2.10"
+    ports:
+     - "62023:3306"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -71,7 +91,6 @@ services:
      - MYSQL_USER=flyway
      - MYSQL_PASSWORD=flywayPWD000
      - MYSQL_ROOT_PASSWORD=flywayPWD000
-  # [pro]
   oracle-10:
     image: "aledv/docker-debian-oracle-xe-10g"
     ports:
@@ -79,21 +98,18 @@ services:
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
-  # [/pro]
   oracle-12:
     image: "sath89/oracle-12c"
     ports:
      - "62041:1521"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-  # [pro]
   postgresql-92:
     image: "postgres:9.2.23-alpine"
     ports:
      - "62050:5432"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-  # [/pro]
   postgresql-93:
     image: "postgres:9.3.19-alpine"
     ports:

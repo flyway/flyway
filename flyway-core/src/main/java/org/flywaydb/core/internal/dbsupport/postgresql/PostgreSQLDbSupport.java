@@ -44,20 +44,19 @@ public class PostgreSQLDbSupport extends DbSupport {
 
     @Override
     protected final void ensureSupported() {
-        int majorVersion = getMajorVersion();
-        int minorVersion = getMinorVersion();
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 9) {
             throw new FlywayDbUpgradeRequiredException("PostgreSQL", version, "9.0");
         }
-        if (majorVersion == 9) {
-            // [oss-enabled]
+        // [enterprise-not]
+        //if (majorVersion == 9) {
             //if (minorVersion < 3) {
             //    throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
             //}
-            // [/oss-enabled]
-        } else if (majorVersion > 10) {
+        //}
+        // [/enterprise-not]
+        if (majorVersion > 10) {
             recommendFlywayUpgrade("PostgreSQL", version);
         }
     }

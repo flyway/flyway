@@ -83,7 +83,9 @@ public class SqlMigrationExecutor implements MigrationExecutor {
     private synchronized SqlScript getSqlScript() {
         if (sqlScript == null) {
             sqlScript = new SqlScript(dbSupport, sqlScriptResource, placeholderReplacer, configuration.getEncoding(), configuration.isMixed()
-                    /*[pro]*/, configuration.getErrorHandler()//[/pro]
+                    //[pro]
+                    , configuration.getErrorHandler()
+                    //[/pro]
             );
         }
         return sqlScript;

@@ -25,7 +25,7 @@
     <name>${project.artifactId}</name>
     <dependencies>
         <dependency>
-            <groupId>com.boxfuse.flyway-pro</groupId>
+            <groupId>com.boxfuse.flyway-master</groupId>
             <artifactId>flyway-core</artifactId>
             <version>${flyway.version}</version>
         </dependency>
@@ -57,7 +57,7 @@
             </plugin>
 
             <plugin>
-                <groupId>com.boxfuse.flyway-pro</groupId>
+                <groupId>com.boxfuse.flyway-master</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${flyway.version}</version>
                 <configuration>

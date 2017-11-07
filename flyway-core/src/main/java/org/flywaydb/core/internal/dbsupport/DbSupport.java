@@ -15,10 +15,12 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
@@ -39,13 +41,27 @@ public abstract class DbSupport {
     protected final String originalSchema;
 
     /**
+     * The major version of the database.
+     */
+    protected final int majorVersion;
+
+    /**
+     * The minor version of the database.
+     */
+    protected final int minorVersion;
+
+    /**
      * Creates a new DbSupport instance with this JdbcTemplate.
      *
      * @param jdbcTemplate The JDBC template to use.
      */
     public DbSupport(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
+        originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
+        Pair<Integer, Integer> majorMinor =
+                jdbcTemplate.getConnection() == null ? Pair.of(0,0) : determineMajorAndMinorVersion();
+        majorVersion = majorMinor.getLeft();
+        minorVersion = majorMinor.getRight();
         if (jdbcTemplate.getConnection() != null) {
             ensureSupported();
         }
@@ -242,12 +258,8 @@ public abstract class DbSupport {
      *
      * @return the major version number as int.
      */
-    public int getMajorVersion() {
-        try {
-            return jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine the version of the database", e);
-        }
+    public final int getMajorVersion() {
+        return majorVersion;
     }
 
     /**
@@ -255,11 +267,19 @@ public abstract class DbSupport {
      *
      * @return the minor version number as int.
      */
-    protected int getMinorVersion() {
+    public final int getMinorVersion() {
+        return minorVersion;
+    }
+
+    /**
+     * @return The major and minor version of the database.
+     */
+    protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
         try {
-            return jdbcTemplate.getMetaData().getDatabaseMinorVersion();
+            DatabaseMetaData metaData = jdbcTemplate.getMetaData();
+            return Pair.of(metaData.getDatabaseMajorVersion(), metaData.getDatabaseMinorVersion());
         } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine the version of the database", e);
+            throw new FlywaySqlException("Unable to determine the major version of the database", e);
         }
     }
 }

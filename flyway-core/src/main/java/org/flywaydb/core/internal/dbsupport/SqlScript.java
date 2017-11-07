@@ -16,12 +16,12 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.api.pro.errorhandler.ErrorContext;
-import org.flywaydb.core.api.pro.errorhandler.ErrorHandler;
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.api.errorhandler.ErrorContext;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
@@ -88,8 +88,9 @@ public class SqlScript {
         this.mixed = false;
         this.sqlStatements = parse(sqlScriptSource);
         this.resource = null;
-        /*[pro]*/
-        this.errorHandler = null;//[/pro]
+        // [pro]
+        this.errorHandler = null;
+        // [/pro]
     }
 
     /**
@@ -105,7 +106,9 @@ public class SqlScript {
      *                            [/pro]
      */
     public SqlScript(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
-                     /*[pro]*/, ErrorHandler errorHandler//[/pro]
+                     // [pro]
+                     , ErrorHandler errorHandler
+                     // [/pro]
     ) {
         this.dbSupport = dbSupport;
         this.resource = sqlScriptResource;

@@ -50,18 +50,17 @@ public class SQLServerDbSupport extends DbSupport {
 
     @Override
     protected final void ensureSupported() {
-        int majorVersion = getMajorVersion();
-        int minorVersion = getMinorVersion();
         String release = versionToReleaseName(majorVersion, minorVersion);
 
         if (majorVersion < 10) {
             throw new FlywayDbUpgradeRequiredException("SQL Server", release, "2008");
         }
-        if (majorVersion < 12) {
-            // [oss-enabled]
+        // [enterprise-not]
+        //if (majorVersion < 12) {
             //throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
-            // [/oss-enabled]
-        } else if (majorVersion > 14 || (majorVersion == 14 && minorVersion > 0)) {
+        //}
+        // [/enterprise-not]
+        if (majorVersion > 14 || (majorVersion == 14 && minorVersion > 0)) {
             recommendFlywayUpgrade("SQL Server", release);
         }
     }

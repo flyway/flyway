@@ -23,7 +23,7 @@ import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.api.pro.errorhandler.ErrorHandler;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.callback.SqlScriptFlywayCallback;
 import org.flywaydb.core.internal.command.DbBaseline;
@@ -481,10 +481,14 @@ public class Flyway implements FlywayConfiguration {
         return group;
     }
 
-    //[pro]
     @Override
     public ErrorHandler getErrorHandler() {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("errorHandler");
+        // [/opensource-only]
+        // [pro]
         return errorHandler;
+        // [/pro]
     }
 
     /**
@@ -494,7 +498,12 @@ public class Flyway implements FlywayConfiguration {
      * @param errorHandler The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
      */
     public void setErrorHandler(ErrorHandler errorHandler) {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("errorHandler");
+        // [/opensource-only]
+        // [pro]
         this.errorHandler = errorHandler;
+        // [/pro]
     }
 
     /**
@@ -505,11 +514,15 @@ public class Flyway implements FlywayConfiguration {
      *                              {@code null} if the default internal handler should be used instead. (default: {@code null})
      */
     public void setErrorHandlerAsClassName(String errorHandlerClassName) {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("errorHandler");
+        // [/opensource-only]
+        // [pro]
         if (errorHandlerClassName != null) {
             this.errorHandler = ClassUtils.instantiate(errorHandlerClassName, classLoader);
         }
+        // [/pro]
     }
-    //[/pro]
 
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
@@ -1341,12 +1354,10 @@ public class Flyway implements FlywayConfiguration {
             setInstalledBy(installedByProp);
         }
 
-        //[pro]
         String errorHandlerProp = getValueAndRemoveEntry(props, ConfigUtils.ERROR_HANDLER);
         if (errorHandlerProp != null) {
             setErrorHandlerAsClassName(errorHandlerProp);
         }
-        //[/pro]
 
         for (String key : props.keySet()) {
             if (key.startsWith("flyway.")) {

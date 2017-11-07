@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.api.pro.errorhandler;
+package org.flywaydb.core.api.errorhandler;
 
 /**
  * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example

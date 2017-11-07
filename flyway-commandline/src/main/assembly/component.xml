@@ -94,8 +94,8 @@
             <!-- Workaround for https://issues.apache.org/jira/browse/MASSEMBLY-864 -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>com.boxfuse.flyway-pro:flyway-core</include>
-                <include>com.boxfuse.flyway-pro:flyway-commandline</include>
+                <include>com.boxfuse.flyway-master:flyway-core</include>
+                <include>com.boxfuse.flyway-master:flyway-commandline</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -106,7 +106,7 @@
                 <include>*</include>
             </includes>
             <excludes>
-                <exclude>com.boxfuse.flyway-pro:flyway-*</exclude>
+                <exclude>com.boxfuse.flyway-master:flyway-*</exclude>
             </excludes>
         </dependencySet>
     </dependencySets>

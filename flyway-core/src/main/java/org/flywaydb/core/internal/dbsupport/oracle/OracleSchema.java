@@ -486,35 +486,35 @@ public class OracleSchema extends Schema<OracleDbSupport> {
         },
 
         // Data mining models, have related objects, should be dropped prior to tables.
-        // [pro]
+        // [enterprise]
         // In Oracle 10g only user-owned models can be dropped.
-        // [/pro]
+        // [/enterprise]
         MINING_MODEL("MINING MODEL") {
             @Override
             public List<String> getObjectNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-                // [pro]
+                // [enterprise]
                 if (dbSupport.getMajorVersion() >= 11) {
-                    // [/pro]
+                    // [/enterprise]
                     return super.getObjectNames(jdbcTemplate, dbSupport, schema);
-                    // [pro]
+                    // [enterprise]
                 }
                 if (schema.isDefaultSchemaForUser() && dbSupport.isDataMiningAvailable()) {
                     return jdbcTemplate.queryForStringList("SELECT NAME FROM DM_USER_MODELS");
                 }
                 return Collections.emptyList();
-                // [/pro]
+                // [/enterprise]
             }
 
             @Override
             public String generateDropStatement(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema, String objectName) throws SQLException {
                 return "BEGIN DBMS_DATA_MINING.DROP_MODEL('" +
-                        // [pro]
+                        // [enterprise]
                         (dbSupport.getMajorVersion() >= 11 ?
-                                // [/pro]
+                                // [/enterprise]
                                 dbSupport.quote(schema.getName(), objectName)
-                                // [pro]
+                                // [enterprise]
                                 : objectName)
-                        // [/pro]
+                        // [/enterprise]
                         + "'); END;";
             }
         },
@@ -766,14 +766,13 @@ public class OracleSchema extends Schema<OracleDbSupport> {
          */
         public static Set<String> getObjectTypeNames(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
             boolean xmlDbAvailable = dbSupport.isXmlDbAvailable();
-            // [pro]
-            int oracleMajorVersion = dbSupport.getMajorVersion();
+            // [enterprise]
             boolean dataMining10gForCurrentUser =
                     schema.isDefaultSchemaForUser()
-                            && oracleMajorVersion < 11
+                            && dbSupport.getMajorVersion() < 11
                             && dbSupport.isDataMiningAvailable();
-            boolean oracle11gOrHigher = oracleMajorVersion >= 11;
-            // [/pro]
+            boolean oracle11gOrHigher = dbSupport.getMajorVersion() >= 11;
+            // [/enterprise]
 
             String query =
                     // Most object types can be correctly selected from DBA_/ALL_OBJECTS.
@@ -799,29 +798,29 @@ public class OracleSchema extends Schema<OracleDbSupport> {
                                     "SELECT * FROM " + dbSupport.dbaOrAll("XML_SCHEMAS") + " WHERE OWNER = ?) "
                                     : "") +
                             // Credentials.
-                            // [pro]
+                            // [enterprise]
                             (oracle11gOrHigher ?
-                                    // [/pro]
+                                    // [/enterprise]
                                     "UNION SELECT '" + CREDENTIAL.getName() + "' FROM DUAL WHERE EXISTS(" +
                                             "SELECT * FROM ALL_SCHEDULER_CREDENTIALS WHERE OWNER = ?) "
-                                    // [pro]
+                                    // [enterprise]
                                     : "")
                             // Mining models in Oracle 10.
                             + (dataMining10gForCurrentUser
                             ? "UNION SELECT '" + MINING_MODEL.getName() + "' FROM DUAL WHERE EXISTS(" +
                             "SELECT * FROM DM_USER_MODELS) "
                             : "")
-                    // [/pro]
+                    // [/enterprise]
                     ;
 
             int n = 6 + (xmlDbAvailable ? 1 : 0) +
-                    // [pro]
+                    // [enterprise]
                     (oracle11gOrHigher ?
-                            // [/pro]
+                            // [/enterprise]
                             1
-                            // [pro]
+                            // [enterprise]
                             : 0)
-                    // [/pro]
+                    // [/enterprise]
                     ;
             String[] params = new String[n];
             Arrays.fill(params, schema.getName());

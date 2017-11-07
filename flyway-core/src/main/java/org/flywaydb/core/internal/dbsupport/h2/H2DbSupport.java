@@ -42,8 +42,6 @@ public class H2DbSupport extends DbSupport {
 
     @Override
     protected final void ensureSupported() {
-        int majorVersion = getMajorVersion();
-        int minorVersion = getMinorVersion();
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 2)) {

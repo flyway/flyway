@@ -57,7 +57,7 @@ public class DB2SchemaSmallTest {
         when(jdbcTemplate.getMetaData().getUDTs(null, "SCHEMA", null, null)).thenReturn(mockResultSet);
         when(mockResultSet.next()).thenReturn(false);
 
-        when(dbSupport.getDb2MajorVersion()).thenReturn(9);
+        when(dbSupport.getMajorVersion()).thenReturn(9);
 
         db2Schema.clean();
 
@@ -81,7 +81,7 @@ public class DB2SchemaSmallTest {
         versionedTables.add("VERSIONED_TABLE");
         when(jdbcTemplate.queryForStringList("select TABNAME from SYSCAT.TABLES where TEMPORALTYPE <> 'N' and TABSCHEMA = ?", "SCHEMA")).thenReturn(versionedTables);
 
-        when(dbSupport.getDb2MajorVersion()).thenReturn(10);
+        when(dbSupport.getMajorVersion()).thenReturn(10);
         when(dbSupport.quote("SCHEMA", "VERSIONED_TABLE")).thenReturn("SCHEMA.VERSIONED_TABLE");
 
         db2Schema.clean();

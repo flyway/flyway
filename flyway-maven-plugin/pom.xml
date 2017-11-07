@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.boxfuse.flyway-pro</groupId>
+        <groupId>com.boxfuse.flyway-master</groupId>
         <artifactId>flyway-parent</artifactId>
         <version>0-SNAPSHOT</version>
     </parent>
@@ -70,7 +70,7 @@
             <artifactId>flyway-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- [pro] -->
+        <!-- [master] -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -81,7 +81,7 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- [/pro] -->
+        <!-- [/master] -->
     </dependencies>
     <build>
         <plugins>
@@ -128,14 +128,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- [pro] -->
+            <!-- [master] -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <parallel>none</parallel>
                 </configuration>
             </plugin>
-            <!-- [/pro] -->
+            <!-- [/master] -->
         </plugins>
     </build>
 </project>

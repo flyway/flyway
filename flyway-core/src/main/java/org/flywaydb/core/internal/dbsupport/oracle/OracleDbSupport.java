@@ -52,11 +52,12 @@ public class OracleDbSupport extends DbSupport {
         if (majorVersion < 10) {
             throw new FlywayDbUpgradeRequiredException("Oracle", "" + majorVersion, "10");
         }
-        if (majorVersion == 10 || majorVersion == 11) {
-            // [oss-enabled]
+        // [enterprise-not]
+        //if (majorVersion == 10 || majorVersion == 11) {
             //throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
-            // [/oss-enabled]
-        } else if (majorVersion > 12) {
+        //}
+        // [/enterprise-not]
+        if (majorVersion > 12) {
             recommendFlywayUpgrade("Oracle", "" + majorVersion);
         }
     }
@@ -278,23 +279,23 @@ public class OracleDbSupport extends DbSupport {
                 "TSMSYS" // Transparent Session Migration
         ));
 
-        // [pro]
+        // [enterprise]
         // APEX has a schema with a different name for each version, so get it from ALL_USERS. In addition, starting
         // from Oracle 12.1, there is a special column in ALL_USERS that marks Oracle-maintained schemas.
         boolean oracle12cOrHigher = getMajorVersion() >= 12;
-        // [/pro]
+        // [/enterprise]
         result.addAll(jdbcTemplate.queryForStringList("SELECT USERNAME FROM ALL_USERS " +
                         "WHERE REGEXP_LIKE(USERNAME, '^(APEX|FLOWS)_\\d+$')" +
-                        // [pro]
+                        // [enterprise]
                         (oracle12cOrHigher ?
-                                // [/pro]
+                                // [/enterprise]
                                 " OR ORACLE_MAINTAINED = 'Y'"
-                                // [pro]
+                                // [enterprise]
                                 : "")
-                // [/pro]
+                // [/enterprise]
         ));
 
-        // [pro]
+        // [enterprise]
         // For earlier Oracle versions check also DBA_REGISTRY if possible.
         if (!oracle12cOrHigher && isDataDictViewAccessible("DBA_REGISTRY")) {
             List<List<String>> schemaSuperList = jdbcTemplate.query(
@@ -315,7 +316,7 @@ public class OracleDbSupport extends DbSupport {
                 result.addAll(schemaList);
             }
         }
-        // [/pro]
+        // [/enterprise]
 
         return result;
     }

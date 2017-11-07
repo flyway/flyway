@@ -40,8 +40,6 @@ public class DerbyDbSupport extends DbSupport {
 
     @Override
     protected final void ensureSupported() {
-        int majorVersion = getMajorVersion();
-        int minorVersion = getMinorVersion();
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 10 || (majorVersion == 10 && minorVersion < 8)) {

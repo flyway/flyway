@@ -16,4 +16,4 @@
 /**
  * Interfaces for handling errors that occur during migration.
  */
-package org.flywaydb.core.api.pro.errorhandler;
+package org.flywaydb.core.api.errorhandler;
