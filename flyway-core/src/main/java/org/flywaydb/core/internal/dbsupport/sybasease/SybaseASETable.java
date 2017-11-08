@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.sapase;
+package org.flywaydb.core.internal.dbsupport.sybasease;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -23,9 +23,9 @@ import org.flywaydb.core.internal.dbsupport.Table;
 import java.sql.SQLException;
 
 /**
- * SAP ASE table.
+ * Sybase ASE table.
  */
-public class SAPASETable extends Table {
+public class SybaseASETable extends Table {
     /**
      * Creates a new SAP ASE table.
      *
@@ -34,8 +34,8 @@ public class SAPASETable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    SAPASETable(JdbcTemplate jdbcTemplate, DbSupport dbSupport,
-                Schema schema, String name) {
+    SybaseASETable(JdbcTemplate jdbcTemplate, DbSupport dbSupport,
+                   Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
     }
 

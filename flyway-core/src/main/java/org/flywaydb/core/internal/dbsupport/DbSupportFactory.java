@@ -28,7 +28,7 @@ import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
-import org.flywaydb.core.internal.dbsupport.sapase.SAPASEDbSupport;
+import org.flywaydb.core.internal.dbsupport.sybasease.SybaseASEDbSupport;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -103,7 +103,7 @@ public class DbSupportFactory {
             return new DB2DbSupport(connection);
         }
         if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive")) {
-            return new SAPASEDbSupport(connection);
+            return new SybaseASEDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);

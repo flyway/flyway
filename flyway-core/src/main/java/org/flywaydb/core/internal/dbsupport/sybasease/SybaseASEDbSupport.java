@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.sapase;
+package org.flywaydb.core.internal.dbsupport.sybasease;
 
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -28,12 +28,12 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * Sybase specific support
+ * Sybase ASE specific support.
  */
-public class SAPASEDbSupport extends DbSupport {
-    private static final Log LOG = LogFactory.getLog(SAPASEDbSupport.class);
+public class SybaseASEDbSupport extends DbSupport {
+    private static final Log LOG = LogFactory.getLog(SybaseASEDbSupport.class);
 
-    public SAPASEDbSupport(Connection connection) {
+    public SybaseASEDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.NULL));
     }
 
@@ -42,27 +42,27 @@ public class SAPASEDbSupport extends DbSupport {
         String version = majorVersion + "." + minorVersion;
 
         if (majorVersion < 15 || (majorVersion == 15 && minorVersion < 70)) {
-            throw new FlywayDbUpgradeRequiredException("ASE", version, "15.7");
+            throw new FlywayDbUpgradeRequiredException("Sybase ASE", version, "15.7");
         }
         if (majorVersion > 16 || (majorVersion == 16 && minorVersion > 2)) {
-            recommendFlywayUpgrade("ASE", version);
+            recommendFlywayUpgrade("Sybase ASE", version);
         }
     }
 
     @Override
     public Schema getSchema(String name) {
         //Sybase does not support schema and changing user on the fly. Always return the same dummy schema.
-        return new SAPASESchema(jdbcTemplate, this, "dbo");
+        return new SybaseASESchema(jdbcTemplate, this, "dbo");
     }
 
     @Override
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SAPASESqlStatementBuilder();
+        return new SybaseASESqlStatementBuilder();
     }
 
     @Override
     public String getDbName() {
-        return "sapase";
+        return "sybasease";
     }
 
     @Override

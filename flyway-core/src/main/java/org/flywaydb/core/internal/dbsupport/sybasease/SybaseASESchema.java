@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.sapase;
+package org.flywaydb.core.internal.dbsupport.sybasease;
 
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -23,10 +23,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * SAP ASE schema (database).
+ * Sybase ASE schema (database).
  */
-public class SAPASESchema extends Schema<SAPASEDbSupport> {
-    SAPASESchema(JdbcTemplate jdbcTemplate, SAPASEDbSupport dbSupport, String name) {
+public class SybaseASESchema extends Schema<SybaseASEDbSupport> {
+    SybaseASESchema(JdbcTemplate jdbcTemplate, SybaseASEDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -80,7 +80,7 @@ public class SAPASESchema extends Schema<SAPASEDbSupport> {
 
         for (int i = 0; i < tableNames.size(); i++) {
             String tableName = tableNames.get(i);
-            result[i] = new SAPASETable(jdbcTemplate, dbSupport, this, tableName);
+            result[i] = new SybaseASETable(jdbcTemplate, dbSupport, this, tableName);
         }
 
         return result;
@@ -88,7 +88,7 @@ public class SAPASESchema extends Schema<SAPASEDbSupport> {
 
     @Override
     public Table getTable(String tableName) {
-        return new SAPASETable(jdbcTemplate, dbSupport, this, tableName);
+        return new SybaseASETable(jdbcTemplate, dbSupport, this, tableName);
     }
 
     /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.sapase;
+package org.flywaydb.core.internal.dbsupport.sybasease;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
@@ -23,13 +23,13 @@ import org.junit.experimental.categories.Category;
 import javax.sql.DataSource;
 import java.util.Properties;
 
-import static org.flywaydb.core.internal.dbsupport.sapase.SAPASEMigrationMediumTest.*;
+import static org.flywaydb.core.internal.dbsupport.sybasease.SybaseASEMigrationMediumTest.*;
 
 /**
- * Test to demonstrate the migration functionality using SAP ASE with the Jtds driver.
+ * Test to demonstrate the migration functionality using Sybase ASE with the Jtds driver.
  */
 @Category(DbCategory.SQLServer.class)
-public class SAPASEConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+public class SybaseASEConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
@@ -37,7 +37,7 @@ public class SAPASEConcurrentMigrationMediumTest extends ConcurrentMigrationTest
     }
 
     protected String getBasedir() {
-        return "migration/dbsupport/sapase/sql/sql";
+        return "migration/dbsupport/sybasease/sql/sql";
     }
 
     @Override

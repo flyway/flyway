@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.sapase;
+package org.flywaydb.core.internal.dbsupport.sybasease;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
@@ -26,11 +26,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Test to demonstrate the migration functionality using SAP ASE with the Jtds driver.
+ * Test to demonstrate the migration functionality using Sybase ASE with the Jtds driver.
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.SybaseASE.class)
-public class SAPASEMigrationMediumTest extends MigrationTestCase {
+public class SybaseASEMigrationMediumTest extends MigrationTestCase {
     static final String JDBC_URL = "jdbc:jtds:sybase://127.0.0.1:62070/guest";
     static final String JDBC_USER = "sa";
     static final String JDBC_PASSWORD = "password";
@@ -47,14 +47,14 @@ public class SAPASEMigrationMediumTest extends MigrationTestCase {
         return getValidateLocation();
     }
 
-    @Ignore("Table quote is not supported in sybase.")
+    @Ignore("Table quote is not supported in Sybase ASE")
     @Override
     public void quotesAroundTableName() {
     }
 
     @Override
     protected String getMigrationDir() {
-        return "migration/dbsupport/sapase/sql";
+        return "migration/dbsupport/sybasease/sql";
     }
 
     @Override
@@ -87,13 +87,13 @@ public class SAPASEMigrationMediumTest extends MigrationTestCase {
         doFailedMigration(22);
     }
 
-    @Ignore("Not needed as SAP ASE support was first introduced in Flyway 4.0")
+    @Ignore("Not needed as Sybase ASE support was first introduced in Flyway 4.0")
     @Override
     public void upgradeMetadataTableTo40Format() throws Exception {
     }
 
     @Override
-    @Ignore("Not needed as SAP ASE support was first introduced in Flyway 4.0")
+    @Ignore("Not needed as Sybase ASE support was first introduced in Flyway 4.0")
     public void columnExists() throws Exception {
         //Skip
     }
