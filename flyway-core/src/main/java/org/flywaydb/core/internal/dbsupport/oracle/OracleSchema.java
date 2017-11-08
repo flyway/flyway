@@ -266,7 +266,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * Oracle object types.
      */
     public enum ObjectType {
-
         // Tables, including XML tables, except for nested tables, IOT overflow tables and other secondary objects.
         TABLE("TABLE", "CASCADE CONSTRAINTS PURGE") {
             @Override

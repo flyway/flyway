@@ -124,6 +124,7 @@
         <version.hsqldb>2.3.4</version.hsqldb>
         <version.jtds>1.3.1</version.jtds>
         <version.mariadb>2.1.0</version.mariadb>
+        <version.mssql-jdbc>6.2.2.jre8</version.mssql-jdbc>
         <version.postgresql>42.1.4.jre6</version.postgresql>
         <version.sqlite>3.7.15-M1</version.sqlite>
         <version.osgi>4.3.1</version.osgi>
@@ -282,7 +283,7 @@
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
-                <version>6.2.2.jre8</version>
+                <version>${version.mssql-jdbc}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
