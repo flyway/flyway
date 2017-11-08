@@ -15,5 +15,6 @@
  */
 /**
  * Interfaces for handling errors that occur during migration.
+ * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
  */
 package org.flywaydb.core.api.errorhandler;

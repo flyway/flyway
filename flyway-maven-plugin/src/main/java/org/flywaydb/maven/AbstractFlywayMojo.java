@@ -370,6 +370,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
      * <p>{@code null} if the default internal handler should be used instead. (default: {@code null})</p>
      * <p>Also configurable with Maven or System Property: ${flyway.errorHandler}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
     @Parameter(property = ConfigUtils.ERROR_HANDLER)
     private String errorHandler;

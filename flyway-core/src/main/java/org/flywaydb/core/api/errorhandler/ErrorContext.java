@@ -19,6 +19,7 @@ import java.sql.SQLException;
 
 /**
  * The context for an error passed to an error handler.
+ * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
  */
 public interface ErrorContext {
     /**

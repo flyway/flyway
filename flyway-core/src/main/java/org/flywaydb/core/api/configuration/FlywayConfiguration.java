@@ -311,6 +311,7 @@ public interface FlywayConfiguration {
     /**
      * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      *
      * @return The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
      */
