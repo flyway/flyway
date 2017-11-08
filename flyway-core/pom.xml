@@ -146,7 +146,7 @@
         </dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>sqljdbc4</artifactId>
+            <artifactId>mssql-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- [/master] -->
@@ -261,6 +261,18 @@
 
     <!-- [master] -->
     <profiles>
+        <profile>
+            <id>jdk9</id>
+            <activation>
+                <jdk>9</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
         <profile>
             <id>EmbeddedDBTest</id>
             <activation>
