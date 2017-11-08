@@ -257,12 +257,10 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
         return this.encoding;
     }
 
-    //[pro]
     @Override
     public ErrorHandler getErrorHandler() {
         return null;
     }
-    //[/pro]
 
     public void setRepeatableSqlMigrationPrefix(String repeatableSqlMigrationPrefix) {
         this.repeatableSqlMigrationPrefix = repeatableSqlMigrationPrefix;

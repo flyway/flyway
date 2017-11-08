@@ -960,7 +960,6 @@ public class FlywayMediumTest {
         }
     }
 
-    //[pro]
     @Test
     public void errorHandler() {
         final AtomicInteger error = new AtomicInteger(0);
@@ -980,5 +979,4 @@ public class FlywayMediumTest {
         flyway.migrate();
         assertEquals(42001, error.get());
     }
-    //[/pro]
 }

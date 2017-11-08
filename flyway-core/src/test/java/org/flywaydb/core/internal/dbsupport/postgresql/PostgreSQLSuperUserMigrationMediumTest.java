@@ -43,9 +43,7 @@ public class PostgreSQLSuperUserMigrationMediumTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.JDBC_URL_POSTGRESQL_93}
-                // [pro]
                 , {org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.JDBC_URL_POSTGRESQL_92}
-                // [/pro]
         });
     }
 

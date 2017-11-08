@@ -39,9 +39,7 @@ public class OracleConcurrentMigrationMediumTest extends ConcurrentMigrationTest
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {JDBC_URL_ORACLE_12}
-                // [pro]
                 , {JDBC_URL_ORACLE_10}
-                // [/pro]
         });
     }
 

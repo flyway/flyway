@@ -365,7 +365,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     @Parameter(property = ConfigUtils.INSTALLED_BY)
     private String installedBy;
 
-    //[pro]
     /**
      * The fully qualified class name of the ErrorHandler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
@@ -374,7 +373,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      */
     @Parameter(property = ConfigUtils.ERROR_HANDLER)
     private String errorHandler;
-    //[/pro]
 
     /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
@@ -540,9 +538,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
             putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
             putIfSet(conf, ConfigUtils.DRIVER, driver);
 
-            //[pro]
             putIfSet(conf, ConfigUtils.ERROR_HANDLER, errorHandler);
-            //[/pro]
 
             if (placeholders != null) {
                 for (String placeholder : placeholders.keySet()) {

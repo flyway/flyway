@@ -266,9 +266,7 @@ public class Main {
         LOG.info("configFiles                  : Comma-separated list of config files to use");
         LOG.info("configFileEncoding           : Encoding to use when loading the config files");
         LOG.info("jarDirs                      : Comma-separated list of dirs for Jdbc drivers & Java migrations");
-        //[pro]
         LOG.info("errorHandler                 : Handler for errors that occur during a migration");
-        //[/pro]
         LOG.info("");
         LOG.info("Flags");
         LOG.info("-----");

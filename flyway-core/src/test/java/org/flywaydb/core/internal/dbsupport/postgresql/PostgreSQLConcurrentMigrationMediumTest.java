@@ -41,9 +41,7 @@ public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigration
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {JDBC_URL_POSTGRESQL_93}
-                // [pro]
                 , {JDBC_URL_POSTGRESQL_92}
-                // [/pro]
         });
     }
 
