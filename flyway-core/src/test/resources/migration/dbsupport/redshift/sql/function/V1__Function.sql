@@ -14,10 +14,8 @@
 -- limitations under the License.
 --
 
-DROP INDEX "${schema}"."${table}_vr_idx";
-DROP INDEX "${schema}"."${table}_ir_idx";
-ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_rank";
-ALTER TABLE "${schema}"."${table}" DROP PRIMARY KEY DROP INDEX;
-ALTER TABLE "${schema}"."${table}" MODIFY "version" NULL;
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
-UPDATE "${schema}"."${table}" SET "type"='BASELINE' WHERE "type"='INIT';
+CREATE FUNCTION add(integer, integer) RETURNS integer
+     IMMUTABLE
+    AS $$
+    select $1 + $2;
+$$ LANGUAGE sql;

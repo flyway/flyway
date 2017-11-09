@@ -681,25 +681,4 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         flyway.setSchemas("OUTLN");
         flyway.clean();
     }
-
-    @Override
-    protected void createFlyway3MetadataTable() throws Exception {
-        jdbcTemplate.execute("CREATE TABLE \"schema_version\" (\n" +
-                "    \"version_rank\" INT NOT NULL,\n" +
-                "    \"installed_rank\" INT NOT NULL,\n" +
-                "    \"version\" VARCHAR2(50) NOT NULL,\n" +
-                "    \"description\" VARCHAR2(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR2(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR2(1000) NOT NULL,\n" +
-                "    \"checksum\" INT,\n" +
-                "    \"installed_by\" VARCHAR2(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n" +
-                "    \"execution_time\" INT NOT NULL,\n" +
-                "    \"success\" NUMBER(1) NOT NULL\n" +
-                ")");
-        jdbcTemplate.execute("ALTER TABLE \"schema_version\" ADD CONSTRAINT \"schema_version_pk\" PRIMARY KEY (\"version\")");
-        jdbcTemplate.execute("CREATE INDEX \"schema_version_vr_idx\" ON \"schema_version\" (\"version_rank\")");
-        jdbcTemplate.execute("CREATE INDEX \"schema_version_ir_idx\" ON \"schema_version\" (\"installed_rank\")");
-        jdbcTemplate.execute("CREATE INDEX \"schema_version_s_idx\" ON \"schema_version\" (\"success\")");
-    }
 }

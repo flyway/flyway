@@ -87,11 +87,6 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
         doFailedMigration(22);
     }
 
-    @Ignore("Not needed as Sybase ASE support was first introduced in Flyway 4.0")
-    @Override
-    public void upgradeMetadataTableTo40Format() throws Exception {
-    }
-
     @Override
     @Ignore("Not needed as Sybase ASE support was first introduced in Flyway 4.0")
     public void columnExists() throws Exception {

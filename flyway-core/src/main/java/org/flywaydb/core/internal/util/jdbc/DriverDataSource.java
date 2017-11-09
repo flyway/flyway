@@ -43,7 +43,8 @@ public class DriverDataSource implements DataSource {
     private static final String MARIADB_JDBC_DRIVER = "org.mariadb.jdbc.Driver";
     private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql:";
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
-    private static final String MYSQL_5_JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String REDSHIFT_JDBC_URL_PREFIX = "jdbc:redshift:";
+    private static final String MYSQL_JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
     /**
      * The JDBC Driver instance to use.
@@ -142,11 +143,7 @@ public class DriverDataSource implements DataSource {
 
         this.user = detectFallbackUser(user);
         this.password = detectFallbackPassword(password);
-
-        if (initSqls == null) {
-            initSqls = new String[0];
-        }
-        this.initSqls = initSqls;
+        this.initSqls = initSqls == null ? new String[0] : initSqls;
     }
 
     /**
@@ -232,14 +229,17 @@ public class DriverDataSource implements DataSource {
      */
     private String detectBackupDriverForUrl(String url) {
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
-            if (ClassUtils.isPresent(MYSQL_5_JDBC_DRIVER, classLoader)) {
-                return MYSQL_5_JDBC_DRIVER;
+            if (ClassUtils.isPresent(MYSQL_JDBC_DRIVER, classLoader)) {
+                return MYSQL_JDBC_DRIVER;
             }
 
             return MARIADB_JDBC_DRIVER;
         }
 
-        if (url.startsWith("jdbc:redshift:")) {
+        if (url.startsWith(REDSHIFT_JDBC_URL_PREFIX)) {
+            if (ClassUtils.isPresent("com.amazon.redshift.jdbc41.Driver", classLoader)) {
+                return "com.amazon.redshift.jdbc41.Driver";
+            }
             return "com.amazon.redshift.jdbc4.Driver";
         }
 
@@ -302,6 +302,10 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:postgresql:")) {
             return "org.postgresql.Driver";
+        }
+
+        if (url.startsWith(REDSHIFT_JDBC_URL_PREFIX)) {
+            return "com.amazon.redshift.jdbc42.Driver";
         }
 
         if (url.startsWith("jdbc:jtds:")) {

@@ -14,10 +14,15 @@
 -- limitations under the License.
 --
 
-DROP INDEX [${schema}].[${table}].[${table}_vr_idx];
-DROP INDEX [${schema}].[${table}].[${table}_ir_idx];
-ALTER TABLE [${schema}].[${table}] DROP COLUMN [version_rank];
-ALTER TABLE [${schema}].[${table}] DROP CONSTRAINT [${table}_pk];
-ALTER TABLE [${schema}].[${table}] ALTER COLUMN [version] NVARCHAR(50) NULL;
-ALTER TABLE [${schema}].[${table}] ADD CONSTRAINT [${table}_pk] PRIMARY KEY ([installed_rank]);
-UPDATE [${schema}].[${table}] SET [type]='BASELINE' WHERE [type]='INIT';
+CREATE TABLE address (
+    id bigint NOT NULL,
+    address character varying(256) NOT NULL
+);
+
+INSERT INTO address VALUES (1, '1. first
+2. second');
+
+COMMENT ON COLUMN address.address IS 'ATIVO = 1;
+CONCLUIDO = 2;
+CANCELADO = 0;';
+

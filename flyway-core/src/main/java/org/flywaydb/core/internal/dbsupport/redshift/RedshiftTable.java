@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.dbsupport.postgresql;
+package org.flywaydb.core.internal.dbsupport.redshift;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -25,7 +25,7 @@ import java.sql.SQLException;
 /**
  * PostgreSQL-specific table.
  */
-public class PostgreSQLTable extends Table {
+public class RedshiftTable extends Table {
     /**
      * Creates a new PostgreSQL table.
      *
@@ -34,7 +34,7 @@ public class PostgreSQLTable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    PostgreSQLTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    RedshiftTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
     }
 
@@ -45,18 +45,11 @@ public class PostgreSQLTable extends Table {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return jdbcTemplate.queryForBoolean("SELECT EXISTS (\n" +
-                "   SELECT 1\n" +
-                "   FROM   pg_catalog.pg_class c\n" +
-                "   JOIN   pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n" +
-                "   WHERE  n.nspname = ?\n" +
-                "   AND    c.relname = ?\n" +
-                "   AND    c.relkind = 'r'    -- only tables\n" +
-                "   );", schema.getName(), name);
+        return exists(null, schema, name);
     }
 
     @Override
     protected void doLock() throws SQLException {
-        jdbcTemplate.execute("SELECT * FROM " + this + " FOR UPDATE");
+        jdbcTemplate.execute("DELETE FROM " + this + " WHERE FALSE");
     }
 }

@@ -14,11 +14,11 @@
 -- limitations under the License.
 --
 
-DROP INDEX "${schema}"."${table}_vr_idx";
-DROP INDEX "${schema}"."${table}_ir_idx";
-ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_rank";
-ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT "${table}_pk";
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" DROP NOT NULL;
-call ADMIN_CMD('REORG TABLE "${schema}"."${table}"');
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
-UPDATE "${schema}"."${table}" SET "type"='BASELINE' WHERE "type"='INIT';
+CREATE FUNCTION Test() RETURNS VOID AS $$
+BEGIN
+  RAISE WARNING 'This is a warning';
+  RAISE EXCEPTION 'This is an error';
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT Test();

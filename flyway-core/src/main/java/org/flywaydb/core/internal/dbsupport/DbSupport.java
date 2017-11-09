@@ -238,7 +238,7 @@ public abstract class DbSupport {
      * @return The result of the callable.
      */
     public <T> T lock(final Table table, final Callable<T> callable) {
-        return new TransactionTemplate(jdbcTemplate.getConnection(), false).execute(new Callable<T>() {
+        return new TransactionTemplate(jdbcTemplate.getConnection(), supportsDdlTransactions()).execute(new Callable<T>() {
             @Override
             public T call() throws Exception {
                 table.lock();

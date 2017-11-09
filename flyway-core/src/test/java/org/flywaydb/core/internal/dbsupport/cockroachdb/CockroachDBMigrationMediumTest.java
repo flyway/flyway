@@ -85,11 +85,6 @@ public class CockroachDBMigrationMediumTest extends MigrationTestCase {
         // Log should contain "This is a warning"
     }
 
-    @Ignore("Not necessary")
-    @Override
-    public void upgradeMetadataTableTo40Format() throws Exception {
-    }
-
     @Ignore("Only works with root user")
     @Override
     public void setCurrentSchema() throws Exception {

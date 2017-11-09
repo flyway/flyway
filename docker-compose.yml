@@ -208,7 +208,7 @@ services:
     environment:
      - POSTGRES_PASSWORD=flywayPWD000
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/dbsupport/redshift/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   sqlserver-2017:
     image: "microsoft/mssql-server-linux"
     ports:

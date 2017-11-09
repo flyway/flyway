@@ -14,10 +14,11 @@
 -- limitations under the License.
 --
 
-DROP INDEX "${schema}"."${table}_vr_idx";
-DROP INDEX "${schema}"."${table}_ir_idx";
-ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_rank";
-ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT "${table}_pk";
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" NULL;
-ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
-UPDATE "${schema}"."${table}" SET "type"='BASELINE' WHERE "type"='INIT';
+ANALYZE;
+
+/*
+  ANALYZE is just an example. Depending on the LOCK MODE other SQL commands trying to access
+  SCHEMA_VERSION can also create the problem. Other example:
+  SELECT * FROM SCHEMA_VERSION;
+  hangs when lock mode is ACCESS EXCLUSIVE (the most restrictive one)
+*/

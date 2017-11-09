@@ -14,10 +14,16 @@
 -- limitations under the License.
 --
 
-DROP INDEX "${schema}"."${table}_vr_idx";
-DROP INDEX "${schema}"."${table}_ir_idx";
-ALTER TABLE "${schema}"."${table}" DROP COLUMN "version_rank";
-ALTER TABLE "${schema}"."${table}" DROP CONSTRAINT "${table}_pk";
-ALTER TABLE "${schema}"."${table}" ALTER COLUMN "version" DROP NOT NULL;
+CREATE TABLE "${schema}"."${table}" (
+    "installed_rank" INT NOT NULL SORTKEY,
+    "version" VARCHAR(50),
+    "description" VARCHAR(200) NOT NULL,
+    "type" VARCHAR(20) NOT NULL,
+    "script" VARCHAR(1000) NOT NULL,
+    "checksum" INTEGER,
+    "installed_by" VARCHAR(100) NOT NULL,
+    "installed_on" TIMESTAMP NOT NULL DEFAULT getdate(),
+    "execution_time" INTEGER NOT NULL,
+    "success" BOOLEAN NOT NULL
+);
 ALTER TABLE "${schema}"."${table}" ADD CONSTRAINT "${table}_pk" PRIMARY KEY ("installed_rank");
-UPDATE "${schema}"."${table}" SET "type"='BASELINE' WHERE "type"='INIT';

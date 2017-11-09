@@ -189,26 +189,4 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         //THE ONLY PROCEDURES DEFINED USES THE SAME NAME "SP_EQIP_HOURS_AGGRGT_DAY_VIS", SO IT SHOULD NOT EXIST ANYMORE ON SYSTEM CATALOG
         assertEquals(0, jdbcTemplate.queryForInt("SELECT COUNT(*) FROM SYSCAT.PROCEDURES WHERE PROCNAME = ?", "SP_EQIP_HOURS_AGGRGT_DAY_VIS"));
     }
-
-    @Override
-    protected void createFlyway3MetadataTable() throws Exception {
-        jdbcTemplate.execute("CREATE TABLE \"schema_version\" (\n" +
-                "    \"version_rank\" INT NOT NULL,\n" +
-                "    \"installed_rank\" INT NOT NULL,\n" +
-                "    \"version\" VARCHAR(50) NOT NULL,\n" +
-                "    \"description\" VARCHAR(200) NOT NULL,\n" +
-                "    \"type\" VARCHAR(20) NOT NULL,\n" +
-                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
-                "    \"checksum\" INT,\n" +
-                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
-                "    \"installed_on\" TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,\n" +
-                "    \"execution_time\" INT NOT NULL,\n" +
-                "    \"success\" SMALLINT NOT NULL,\n" +
-                "    CONSTRAINT \"schema_version_s\" CHECK (\"success\" in(0,1))\n" +
-                ")");
-        jdbcTemplate.execute("ALTER TABLE \"schema_version\" ADD CONSTRAINT \"schema_version_pk\" PRIMARY KEY (\"version\")");
-        jdbcTemplate.execute("CREATE INDEX \"schema_version_vr_idx\" ON \"schema_version\" (\"version_rank\")");
-        jdbcTemplate.execute("CREATE INDEX \"schema_version_ir_idx\" ON \"schema_version\" (\"installed_rank\")");
-        jdbcTemplate.execute("CREATE INDEX \"schema_version_s_idx\" ON \"schema_version\" (\"success\")");
-    }
 }

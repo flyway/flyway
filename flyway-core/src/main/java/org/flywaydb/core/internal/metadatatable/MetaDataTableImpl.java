@@ -18,6 +18,8 @@ package org.flywaydb.core.internal.metadatatable;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -27,9 +29,6 @@ import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
-import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.sql.ResultSet;
@@ -88,37 +87,6 @@ public class MetaDataTableImpl implements MetaDataTable {
         } else {
             this.installedBy = "'" + installedBy + "'";
         }
-    }
-
-    @Override
-    public boolean upgradeIfNecessary() {
-        if (table.exists() && table.hasColumn("version_rank")) {
-            new TransactionTemplate(jdbcTemplate.getConnection()).execute(new Callable<Object>() {
-                @Override
-                public Void call() {
-                    lock(new Callable<Object>() {
-                        @Override
-                        public Object call() throws Exception {
-                            LOG.info("Upgrading metadata table " + table + " to the Flyway 4.0 format ...");
-                            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/upgradeMetaDataTable.sql";
-                            String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
-
-                            Map<String, String> placeholders = new HashMap<String, String>();
-                            placeholders.put("schema", table.getSchema().getName());
-                            placeholders.put("table", table.getName());
-                            String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
-
-                            SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-                            sqlScript.execute(jdbcTemplate);
-                            return null;
-                        }
-                    });
-                    return null;
-                }
-            });
-            return true;
-        }
-        return false;
     }
 
     @Override
