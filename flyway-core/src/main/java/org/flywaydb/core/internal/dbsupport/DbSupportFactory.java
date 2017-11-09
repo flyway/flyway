@@ -55,14 +55,6 @@ public class DbSupportFactory {
      * @return The appropriate DbSupport class.
      */
     public static DbSupport createDbSupport(Connection connection, boolean printInfo) {
-        DbSupport dbSupport = doCreateDbSupport(connection, printInfo);
-
-
-
-        return dbSupport;
-    }
-
-    static DbSupport doCreateDbSupport(Connection connection, boolean printInfo) {
         String databaseProductName = getDatabaseProductName(connection);
 
         if (printInfo) {
@@ -94,7 +86,7 @@ public class DbSupportFactory {
             return new OracleDbSupport(connection);
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
-            if (isCockroachDB(connection)) {
+            if (CockroachDBDbSupport.isCockroachDB(connection)) {
                 return new CockroachDBDbSupport(connection);
             }
             return new PostgreSQLDbSupport(connection);
@@ -102,19 +94,11 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("DB2")) {
             return new DB2DbSupport(connection);
         }
-        if (databaseProductName.startsWith("ASE") || databaseProductName.startsWith("Adaptive")) {
+        if (databaseProductName.startsWith("ASE")) {
             return new SybaseASEDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
-    }
-
-    private static boolean isCockroachDB(Connection connection) {
-        try {
-            return new JdbcTemplate(connection).queryForString("SELECT version()").contains("CockroachDB");
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     /**
@@ -156,56 +140,6 @@ public class DbSupportFactory {
             return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
             throw new FlywaySqlException("Error while determining database product name", e);
-        }
-    }
-
-    /**
-     * Retrieves the database version.
-     *
-     * @param connection The connection to use to query the database.
-     * @return The version of the database product.
-     * Ex.: DSN11015 DB2 for z/OS Version 11
-     * SQL10050 DB" for Linux, UNIX and Windows Version 10.5
-     */
-    private static String getDatabaseProductVersion(Connection connection) {
-        try {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            if (databaseMetaData == null) {
-                throw new FlywayException("Unable to read database metadata while it is null!");
-            }
-
-            String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
-            if (databaseProductVersion == null) {
-                throw new FlywayException("Unable to determine database. Product version is null.");
-            }
-
-            return databaseProductVersion;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error while determining database product version", e);
-        }
-    }
-
-    /**
-     * Retrieves the name of the JDBC driver
-     *
-     * @param connection The connection to use to query the database.
-     * @return The name of the driver. Ex: RedshiftJDBC
-     */
-    private static String getDriverName(Connection connection) {
-        try {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            if (databaseMetaData == null) {
-                throw new FlywayException("Unable to read database metadata while it is null!");
-            }
-
-            String driverName = databaseMetaData.getDriverName();
-            if (driverName == null) {
-                throw new FlywayException("Unable to determine JDBC  driver name. JDBC driver name is null.");
-            }
-
-            return driverName;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error while determining JDBC driver name", e);
         }
     }
 }

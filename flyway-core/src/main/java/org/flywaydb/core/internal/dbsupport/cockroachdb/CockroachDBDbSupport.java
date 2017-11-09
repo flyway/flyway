@@ -33,6 +33,20 @@ import java.sql.Types;
  */
 public class CockroachDBDbSupport extends DbSupport {
     /**
+     * Checks whether this connection is pointing at a CockroachDB instance.
+     *
+     * @param connection The connection.
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    public static boolean isCockroachDB(Connection connection) {
+        try {
+            return new JdbcTemplate(connection).queryForString("SELECT version()").contains("CockroachDB");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
