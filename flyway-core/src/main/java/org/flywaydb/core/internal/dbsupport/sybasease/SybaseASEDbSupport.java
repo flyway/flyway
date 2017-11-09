@@ -105,9 +105,4 @@ public class SybaseASEDbSupport extends DbSupport {
     public boolean catalogIsSchema() {
         return false;
     }
-
-    @Override
-    public boolean supportsGroup() {
-        return false;
-    }
 }

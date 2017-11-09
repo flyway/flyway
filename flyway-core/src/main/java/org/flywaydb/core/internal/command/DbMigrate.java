@@ -197,10 +197,6 @@ public class DbMigrate {
                                 // Only include one pending migration if group is disabled
                                 break;
                             }
-                            if (!dbSupport.supportsGroup()) {
-                                LOG.warn("group is not supported by your database");
-                                break;
-                            }
                         }
 
                         if (!group.isEmpty()) {

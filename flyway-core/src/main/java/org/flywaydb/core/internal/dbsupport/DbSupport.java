@@ -231,13 +231,6 @@ public abstract class DbSupport {
     public abstract boolean catalogIsSchema();
 
     /**
-     * @return Whether this database supports grouping transactions.
-     */
-    public boolean supportsGroup() {
-        return true;
-    }
-
-    /**
      * Locks this table and executes this callable.
      *
      * @param table    The table to lock.
