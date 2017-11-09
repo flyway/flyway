@@ -56,6 +56,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test to demonstrate the migration functionality.
@@ -100,13 +101,23 @@ public abstract class MigrationTestCase {
         dbSupport = DbSupportFactory.createDbSupport(connection, false);
         jdbcTemplate = dbSupport.getJdbcTemplate();
 
-        configureFlyway();
+        flyway = new Flyway();
+        flyway.setDataSource(dataSource);
         flyway.clean();
     }
 
-    protected void configureFlyway() {
-        flyway = new Flyway();
-        flyway.setDataSource(dataSource);
+    protected void assumeDatabaseVersionNotLessThan(int expectedMajorVersion, int expectedMinorVersion) {
+        int majorVersion;
+        int minorVersion;
+        try {
+            majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
+            minorVersion = jdbcTemplate.getMetaData().getDatabaseMinorVersion();
+        } catch (SQLException e) {
+            throw new FlywayException(e);
+        }
+        assumeTrue("Database version is " + expectedMajorVersion + "." + expectedMinorVersion + " or higher",
+                majorVersion == expectedMajorVersion && minorVersion >= expectedMinorVersion ||
+                        majorVersion > expectedMajorVersion);
     }
 
     /**

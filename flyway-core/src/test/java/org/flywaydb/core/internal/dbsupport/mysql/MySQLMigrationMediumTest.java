@@ -20,8 +20,12 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -31,15 +35,36 @@ import static org.junit.Assert.assertEquals;
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.MySQL.class)
+@RunWith(Parameterized.class)
 public class MySQLMigrationMediumTest extends MySQLMigrationTestCase {
-    static final String JDBC_URL = "jdbc:mysql://localhost:62030/flyway_db";
+    static final String JDBC_URL_MYSQL_55 = "jdbc:mysql://localhost:62030/flyway_db";
+    static final String JDBC_URL_MYSQL_56 = "jdbc:mysql://localhost:62031/flyway_db";
+    static final String JDBC_URL_MYSQL_57 = "jdbc:mysql://localhost:62032/flyway_db";
+    static final String JDBC_URL_MYSQL_80 = "jdbc:mysql://localhost:62033/flyway_db";
+
     static final String JDBC_USER = "root";
     static final String JDBC_PASSWORD = "flywayPWD000";
+
+    private final String jdbcUrl;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_MYSQL_80},
+                {JDBC_URL_MYSQL_57},
+                {JDBC_URL_MYSQL_56},
+                {JDBC_URL_MYSQL_55}
+        });
+    }
+
+    public MySQLMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
 
     @Test

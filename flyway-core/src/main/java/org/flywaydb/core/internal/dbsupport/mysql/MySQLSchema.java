@@ -35,7 +35,7 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public MySQLSchema(JdbcTemplate jdbcTemplate, MySQLDbSupport dbSupport, String name) {
+    MySQLSchema(JdbcTemplate jdbcTemplate, MySQLDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -75,7 +75,7 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
         }
 
         for (String statement : cleanRoutines()) {
-            jdbcTemplate.execute(statement);
+            jdbcTemplate.executeStatement(statement);
         }
 
         for (String statement : cleanViews()) {
@@ -96,14 +96,14 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanEvents() throws SQLException {
-        List<Map<String, String>> eventNames =
-                jdbcTemplate.queryForList(
+        List<String> eventNames =
+                jdbcTemplate.queryForStringList(
                         "SELECT event_name FROM information_schema.events WHERE event_schema=?",
                         name);
 
         List<String> statements = new ArrayList<String>();
-        for (Map<String, String> row : eventNames) {
-            statements.add("DROP EVENT " + dbSupport.quote(name, row.get("event_name")));
+        for (String eventName : eventNames) {
+            statements.add("DROP EVENT " + dbSupport.quote(name, eventName));
         }
         return statements;
     }
@@ -117,13 +117,13 @@ public class MySQLSchema extends Schema<MySQLDbSupport> {
     private List<String> cleanRoutines() throws SQLException {
         List<Map<String, String>> routineNames =
                 jdbcTemplate.queryForList(
-                        "SELECT routine_name, routine_type FROM information_schema.routines WHERE routine_schema=?",
+                        "SELECT routine_name as 'N', routine_type as 'T' FROM information_schema.routines WHERE routine_schema=?",
                         name);
 
         List<String> statements = new ArrayList<String>();
         for (Map<String, String> row : routineNames) {
-            String routineName = row.get("routine_name");
-            String routineType = row.get("routine_type");
+            String routineName = row.get("N");
+            String routineType = row.get("T");
             statements.add("DROP " + routineType + " " + dbSupport.quote(name, routineName));
         }
         return statements;

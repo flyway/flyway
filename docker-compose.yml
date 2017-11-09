@@ -40,6 +40,8 @@ services:
     image: "mariadb:5.5.57"
     ports:
      - "62020:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -51,6 +53,8 @@ services:
     image: "mariadb:10.0.32"
     ports:
      - "62021:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -62,6 +66,8 @@ services:
     image: "mariadb:10.1.28"
     ports:
      - "62022:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -73,6 +79,8 @@ services:
     image: "mariadb:10.2.10"
     ports:
      - "62023:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -81,9 +89,50 @@ services:
      - MYSQL_PASSWORD=flywayPWD000
      - MYSQL_ROOT_PASSWORD=flywayPWD000
   mysql-55:
-    image: "mysql:5.5.57"
+    image: "mysql:5.5.58"
     ports:
      - "62030:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+    environment:
+     - MYSQL_DATABASE=flyway_db
+     - MYSQL_USER=flyway
+     - MYSQL_PASSWORD=flywayPWD000
+     - MYSQL_ROOT_PASSWORD=flywayPWD000
+  mysql-56:
+    image: "mysql:5.6.38"
+    ports:
+     - "62031:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+    environment:
+     - MYSQL_DATABASE=flyway_db
+     - MYSQL_USER=flyway
+     - MYSQL_PASSWORD=flywayPWD000
+     - MYSQL_ROOT_PASSWORD=flywayPWD000
+  mysql-57:
+    image: "mysql:5.7.20"
+    ports:
+     - "62032:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+    environment:
+     - MYSQL_DATABASE=flyway_db
+     - MYSQL_USER=flyway
+     - MYSQL_PASSWORD=flywayPWD000
+     - MYSQL_ROOT_PASSWORD=flywayPWD000
+  mysql-80:
+    image: "mysql:8.0.3"
+    ports:
+     - "62033:3306"
+    tmpfs:
+      - /var/lib/mysql:rw
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
@@ -108,18 +157,62 @@ services:
     image: "postgres:9.2.23-alpine"
     ports:
      - "62050:5432"
+    tmpfs:
+      - /var/lib/postgresql/data:rw
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-93:
     image: "postgres:9.3.19-alpine"
     ports:
      - "62051:5432"
+    tmpfs:
+      - /var/lib/postgresql/data:rw
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+  postgresql-94:
+    image: "postgres:9.4.14-alpine"
+    ports:
+     - "62052:5432"
+    tmpfs:
+      - /var/lib/postgresql/data:rw
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+  postgresql-95:
+    image: "postgres:9.5.9-alpine"
+    ports:
+     - "62053:5432"
+    tmpfs:
+      - /var/lib/postgresql/data:rw
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+  postgresql-96:
+    image: "postgres:9.6.5-alpine"
+    ports:
+     - "62054:5432"
+    tmpfs:
+      - /var/lib/postgresql/data:rw
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+  postgresql-100:
+    image: "postgres:10.0-alpine"
+    ports:
+     - "62055:5432"
+    tmpfs:
+      - /var/lib/postgresql/data:rw
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+  redshift:
+    image: "guildeducation/docker-amazon-redshift"
+    ports:
+     - "62060:5439"
+    environment:
+     - POSTGRES_PASSWORD=flywayPWD000
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   sqlserver-2017:
     image: "microsoft/mssql-server-linux"
     ports:
-     - "62060:1433"
+     - "62070:1433"
     cap_add:
      - SYS_PTRACE
     environment:
@@ -135,4 +228,4 @@ services:
     image: "datagrip/sybase:15.7"
     hostname: dksybase
     ports:
-     - "62070:5000"
+     - "62080:5000"

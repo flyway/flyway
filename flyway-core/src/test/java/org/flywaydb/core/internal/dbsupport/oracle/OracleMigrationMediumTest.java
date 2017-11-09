@@ -122,20 +122,6 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
         return "migration/quote";
     }
 
-    private void assumeOracleVersionNotLessThan(int expectedMajorVersion, int expectedMinorVersion) {
-        int majorVersion;
-        int minorVersion;
-        try {
-            majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-            minorVersion = jdbcTemplate.getMetaData().getDatabaseMinorVersion();
-        } catch (SQLException e) {
-            throw new FlywayException(e);
-        }
-        assumeTrue("Oracle version is " + expectedMajorVersion + "." + expectedMinorVersion + " or higher",
-                majorVersion == expectedMajorVersion && minorVersion >= expectedMinorVersion ||
-                        majorVersion > expectedMajorVersion);
-    }
-
     private enum OracleEdition {XE, SE, EE}
 
     private void assumeOracleEditionNotLessThan(OracleEdition expectedEdition) {
@@ -214,7 +200,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void schemaWithDash() throws FlywayException {
-        assumeOracleVersionNotLessThan(11, 1);
+        assumeDatabaseVersionNotLessThan(11, 1);
         flyway.setSchemas("my-schema");
         flyway.setLocations(getBasedir());
         flyway.clean();
@@ -224,7 +210,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
     @Override
     public void migrateMultipleSchemas() throws Exception {
-        assumeOracleVersionNotLessThan(11, 1);
+        assumeDatabaseVersionNotLessThan(11, 1);
         super.migrateMultipleSchemas();
     }
 
@@ -312,7 +298,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void scheduler112Enhancement() throws Exception {
-        assumeOracleVersionNotLessThan(11, 2);
+        assumeDatabaseVersionNotLessThan(11, 2);
         assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -499,7 +485,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void xml() throws FlywayException {
-        assumeOracleVersionNotLessThan(11, 1);
+        assumeDatabaseVersionNotLessThan(11, 1);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/xml");
@@ -515,7 +501,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void flashback() throws FlywayException {
-        assumeOracleVersionNotLessThan(11, 1);
+        assumeDatabaseVersionNotLessThan(11, 1);
         assumeOracleEditionNotLessThan(OracleEdition.SE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -531,7 +517,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void referencePartitionedTable() throws FlywayException {
-        assumeOracleVersionNotLessThan(11, 1);
+        assumeDatabaseVersionNotLessThan(11, 1);
         assumeOracleEditionNotLessThan(OracleEdition.EE);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
@@ -653,7 +639,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void streamsAndRules() throws FlywayException {
-        assumeOracleVersionNotLessThan(11, 1);
+        assumeDatabaseVersionNotLessThan(11, 1);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/streams_rules");
@@ -668,7 +654,7 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
      */
     @Test
     public void sqlTranslator() throws FlywayException {
-        assumeOracleVersionNotLessThan(12, 1);
+        assumeDatabaseVersionNotLessThan(12, 1);
         flyway.setSchemas("FLYWAY_AUX");
         flyway.clean();
         flyway.setLocations("migration/dbsupport/oracle/sql/sql_translator");

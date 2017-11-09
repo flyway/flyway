@@ -279,6 +279,12 @@
                 <version>10.1</version>
                 <optional>true</optional>
             </dependency>
+            <dependency>
+                <groupId>com.amazon.redshift.jdbc42</groupId>
+                <artifactId>redshift</artifactId>
+                <version>1.2.10.1009</version>
+                <optional>true</optional>
+            </dependency>
             <!-- [/master] -->
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
@@ -445,7 +451,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- [master] -->
+            <!-- [enterprise] -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -467,7 +473,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- [/master] -->
+            <!-- [/enterprise] -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>

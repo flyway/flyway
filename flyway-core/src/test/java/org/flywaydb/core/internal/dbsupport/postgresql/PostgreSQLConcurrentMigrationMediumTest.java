@@ -40,8 +40,12 @@ public class PostgreSQLConcurrentMigrationMediumTest extends ConcurrentMigration
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_POSTGRESQL_93}
-                , {JDBC_URL_POSTGRESQL_92}
+                {JDBC_URL_POSTGRESQL_100},
+                {JDBC_URL_POSTGRESQL_96},
+                {JDBC_URL_POSTGRESQL_95},
+                {JDBC_URL_POSTGRESQL_94},
+                {JDBC_URL_POSTGRESQL_93},
+                {JDBC_URL_POSTGRESQL_92}
         });
     }
 

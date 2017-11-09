@@ -149,6 +149,11 @@
             <artifactId>mssql-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.amazon.redshift.jdbc42</groupId>
+            <artifactId>redshift</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- [/master] -->
     </dependencies>
 

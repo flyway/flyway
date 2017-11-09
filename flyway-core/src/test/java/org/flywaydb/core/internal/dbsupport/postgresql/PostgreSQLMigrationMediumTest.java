@@ -21,7 +21,6 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.MigrationTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -48,6 +47,10 @@ import static org.junit.Assert.assertThat;
 public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     static final String JDBC_URL_POSTGRESQL_92 = "jdbc:postgresql://localhost:62050/flyway_db";
     static final String JDBC_URL_POSTGRESQL_93 = "jdbc:postgresql://localhost:62051/flyway_db";
+    static final String JDBC_URL_POSTGRESQL_94 = "jdbc:postgresql://localhost:62052/flyway_db";
+    static final String JDBC_URL_POSTGRESQL_95 = "jdbc:postgresql://localhost:62053/flyway_db";
+    static final String JDBC_URL_POSTGRESQL_96 = "jdbc:postgresql://localhost:62054/flyway_db";
+    static final String JDBC_URL_POSTGRESQL_100 = "jdbc:postgresql://localhost:62055/flyway_db";
     static final String JDBC_USER = "flyway";
     static final String JDBC_PASSWORD = "flyway";
 
@@ -56,8 +59,12 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_POSTGRESQL_93}
-                , {JDBC_URL_POSTGRESQL_92}
+                {JDBC_URL_POSTGRESQL_100},
+                {JDBC_URL_POSTGRESQL_96},
+                {JDBC_URL_POSTGRESQL_95},
+                {JDBC_URL_POSTGRESQL_94},
+                {JDBC_URL_POSTGRESQL_93},
+                {JDBC_URL_POSTGRESQL_92}
         });
     }
 
@@ -184,9 +191,9 @@ public class PostgreSQLMigrationMediumTest extends MigrationTestCase {
     /**
      * Tests clean and migrate for PostgreSQL Materialized Views.
      */
-    @Ignore("PostgreSQL 9.3 and newer only")
     @Test
     public void materializedview() throws Exception {
+        assumeDatabaseVersionNotLessThan(9, 3);
         flyway.setLocations("migration/dbsupport/postgresql/sql/materializedview");
         flyway.migrate();
 

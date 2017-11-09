@@ -31,7 +31,7 @@ import java.util.Properties;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.SybaseASE.class)
 public class SybaseASEMigrationMediumTest extends MigrationTestCase {
-    static final String JDBC_URL = "jdbc:jtds:sybase://127.0.0.1:62070/guest";
+    static final String JDBC_URL = "jdbc:jtds:sybase://127.0.0.1:62080/guest";
     static final String JDBC_USER = "sa";
     static final String JDBC_PASSWORD = "password";
 
