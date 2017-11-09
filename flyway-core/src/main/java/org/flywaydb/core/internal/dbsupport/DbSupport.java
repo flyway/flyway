@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -288,5 +289,10 @@ public abstract class DbSupport {
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to determine the major version of the database", e);
         }
+    }
+
+    public String getCreateScript() {
+        String resourceName = "org/flywaydb/core/internal/dbsupport/" + getDbName() + "/createMetaDataTable.sql";
+        return new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
     }
 }

@@ -142,13 +142,14 @@ public class MetaDataTableImpl implements MetaDataTable {
             }
 
             try {
-                String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/createMetaDataTable.sql";
-                String source = new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+                String source = dbSupport.getCreateScript();
 
                 Map<String, String> placeholders = new HashMap<String, String>();
                 placeholders.put("schema", table.getSchema().getName());
                 placeholders.put("table", table.getName());
-                String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+                String sourceNoPlaceholders =
+                        new PlaceholderReplacer(placeholders, "${", "}")
+                                .replacePlaceholders(source);
 
                 final SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
                 sqlScript.execute(jdbcTemplate);

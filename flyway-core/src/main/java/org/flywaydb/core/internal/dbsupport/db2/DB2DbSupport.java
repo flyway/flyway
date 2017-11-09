@@ -47,12 +47,38 @@ public class DB2DbSupport extends DbSupport {
         }
         // [enterprise-not]
         //if (majorVersion == 9 || (majorVersion == 10 && minorVersion < 5)) {
-            //throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
+        //throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
         //}
         // [/enterprise-not]
         if (majorVersion > 11 || (majorVersion == 11 && minorVersion > 1)) {
             recommendFlywayUpgrade("DB2", version);
         }
+    }
+
+    @Override
+    public String getCreateScript() {
+        return "CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+                "    \"installed_rank\" INT NOT NULL,\n" +
+                "    \"version\" VARCHAR(50),\n" +
+                "    \"description\" VARCHAR(200) NOT NULL,\n" +
+                "    \"type\" VARCHAR(20) NOT NULL,\n" +
+                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
+                "    \"checksum\" INT,\n" +
+                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+                "    \"installed_on\" TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,\n" +
+                "    \"execution_time\" INT NOT NULL,\n" +
+                "    \"success\" SMALLINT NOT NULL,\n" +
+                "    CONSTRAINT \"${table}_s\" CHECK (\"success\" in(0,1))\n" +
+                // [enterprise]
+                ((majorVersion < 10 || (majorVersion == 10 && minorVersion < 5)) ? ");\n" :
+                        // [/enterprise]
+                        ") ORGANIZE BY ROW;\n"
+                        // [enterprise]
+                )
+                // [/enterprise]
+                + "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
+                "\n" +
+                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");";
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
