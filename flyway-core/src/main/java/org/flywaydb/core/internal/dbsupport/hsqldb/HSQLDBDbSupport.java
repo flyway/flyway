@@ -28,15 +28,15 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
- * HsqlDb-specific support
+ * HSQLDB-specific support
  */
-public class HsqlDbSupport extends DbSupport {
+public class HSQLDBDbSupport extends DbSupport {
     /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
      */
-    public HsqlDbSupport(Connection connection) {
+    public HSQLDBDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
@@ -95,7 +95,7 @@ public class HsqlDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new HsqlSqlStatementBuilder();
+        return new HSQLDBSqlStatementBuilder();
     }
 
     @Override
@@ -105,7 +105,7 @@ public class HsqlDbSupport extends DbSupport {
 
     @Override
     public Schema getSchema(String name) {
-        return new HsqlSchema(jdbcTemplate, this, name);
+        return new HSQLDBSchema(jdbcTemplate, this, name);
     }
 
     @Override

@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Hsql implementation of Schema.
+ * HSQLDB implementation of Schema.
  */
-public class HsqlSchema extends Schema<HsqlDbSupport> {
+public class HSQLDBSchema extends Schema<HSQLDBDbSupport> {
     /**
      * Creates a new Hsql schema.
      *
@@ -34,7 +34,7 @@ public class HsqlSchema extends Schema<HsqlDbSupport> {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public HsqlSchema(JdbcTemplate jdbcTemplate, HsqlDbSupport dbSupport, String name) {
+    HSQLDBSchema(JdbcTemplate jdbcTemplate, HSQLDBDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -95,13 +95,13 @@ public class HsqlSchema extends Schema<HsqlDbSupport> {
 
         Table[] tables = new Table[tableNames.size()];
         for (int i = 0; i < tableNames.size(); i++) {
-            tables[i] = new HsqlTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
+            tables[i] = new HSQLDBTable(jdbcTemplate, dbSupport, this, tableNames.get(i));
         }
         return tables;
     }
 
     @Override
     public Table getTable(String tableName) {
-        return new HsqlTable(jdbcTemplate, dbSupport, this, tableName);
+        return new HSQLDBTable(jdbcTemplate, dbSupport, this, tableName);
     }
 }

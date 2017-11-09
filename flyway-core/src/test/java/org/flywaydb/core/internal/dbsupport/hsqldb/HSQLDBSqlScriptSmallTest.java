@@ -22,10 +22,10 @@ import static org.junit.Assert.assertEquals;
 /**
  * Small test for HsqlSqlScript.
  */
-public class HsqlSqlScriptSmallTest {
+public class HSQLDBSqlScriptSmallTest {
     @Test
     public void parseBeginAtomic() {
-        HsqlSqlStatementBuilder statementBuilder = new HsqlSqlStatementBuilder();
+        HSQLDBSqlStatementBuilder statementBuilder = new HSQLDBSqlStatementBuilder();
         String sqlScriptSource = "CREATE TRIGGER uniqueidx_trigger BEFORE INSERT ON usertable \n" +
                 "\tREFERENCING NEW ROW AS newrow\n" +
                 "    FOR EACH ROW WHEN (newrow.name is not null)\n" +

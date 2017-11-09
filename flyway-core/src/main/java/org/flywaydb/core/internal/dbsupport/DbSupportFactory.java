@@ -22,7 +22,7 @@ import org.flywaydb.core.internal.dbsupport.cockroachdb.CockroachDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
-import org.flywaydb.core.internal.dbsupport.hsqldb.HsqlDbSupport;
+import org.flywaydb.core.internal.dbsupport.hsqldb.HSQLDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
@@ -79,7 +79,7 @@ public class DbSupportFactory {
             return new H2DbSupport(connection);
         }
         if (databaseProductName.contains("HSQL Database Engine")) {
-            return new HsqlDbSupport(connection);
+            return new HSQLDBDbSupport(connection);
         }
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
             return new SQLServerDbSupport(connection);

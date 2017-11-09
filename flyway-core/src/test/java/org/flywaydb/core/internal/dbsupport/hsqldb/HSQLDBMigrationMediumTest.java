@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
  * Test to demonstrate the migration functionality using Hsql.
  */
 @Category(DbCategory.HSQL.class)
-public class HsqlMigrationMediumTest extends MigrationTestCase {
+public class HSQLDBMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null, "jdbc:hsqldb:mem:flyway_db", "SA", "", null);

@@ -18,7 +18,6 @@ package org.flywaydb.core.internal.dbsupport.hsqldb;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.Table;
@@ -26,15 +25,17 @@ import org.flywaydb.core.internal.dbsupport.Table;
 import java.sql.SQLException;
 
 /**
- * Hsql-specific table.
+ * HSQLDB-specific table.
  */
-public class HsqlTable extends Table {
-    private static final Log LOG = LogFactory.getLog(HsqlTable.class);
+public class HSQLDBTable extends Table {
+    private static final Log LOG = LogFactory.getLog(HSQLDBTable.class);
 
+    // [enterprise]
     /**
      * Flag indicating whether we are running against the old Hsql 1.8 instead of the newer 2.x.
      */
     private boolean version18;
+    // [/enterprise]
 
     /**
      * Creates a new Hsql table.
@@ -44,15 +45,12 @@ public class HsqlTable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public HsqlTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    HSQLDBTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
 
-        try {
-            int majorVersion = jdbcTemplate.getMetaData().getDatabaseMajorVersion();
-            version18 = majorVersion < 2;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Unable to determine the Hsql version", e);
-        }
+        // [enterprise]
+        version18 = dbSupport.getMajorVersion() < 2;
+        // [/enterprise]
     }
 
     @Override
@@ -67,10 +65,12 @@ public class HsqlTable extends Table {
 
     @Override
     protected void doLock() throws SQLException {
+        // [enterprise]
         if (version18) {
             LOG.debug("Unable to lock " + this + " as Hsql 1.8 does not support locking. No concurrent migration supported.");
-        } else {
-            jdbcTemplate.execute("LOCK TABLE " + this + " WRITE");
+            return;
         }
+        // [/enterprise]
+        jdbcTemplate.execute("LOCK TABLE " + this + " WRITE");
     }
 }

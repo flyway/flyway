@@ -19,9 +19,9 @@ import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 
 /**
- * SqlStatementBuilder supporting Hsql-specific delimiter changes.
+ * SqlStatementBuilder supporting HSQLDB-specific delimiter changes.
  */
-public class HsqlSqlStatementBuilder extends SqlStatementBuilder {
+public class HSQLDBSqlStatementBuilder extends SqlStatementBuilder {
     /**
      * Are we inside a BEGIN ATOMIC block.
      */
