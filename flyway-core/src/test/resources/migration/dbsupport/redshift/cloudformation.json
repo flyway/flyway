@@ -1,0 +1,40 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "rscluflyway": {
+      "Type": "AWS::Redshift::Cluster",
+      "Properties": {
+        "AllowVersionUpgrade": "true",
+        "AutomatedSnapshotRetentionPeriod": "1",
+        "ClusterType": "single-node",
+        "ClusterVersion": "1.0",
+        "DBName": "flywaydb",
+        "ElasticIp": "52.59.121.141",
+        "MasterUsername": "flyway",
+        "MasterUserPassword": "flywayPWD000",
+        "NodeType": "dc2.large",
+        "Port": "5439",
+        "PubliclyAccessible": "true",
+        "PreferredMaintenanceWindow": "thu:13:00-thu:13:30",
+        "ClusterSubnetGroupName": {
+          "Ref": "clusubnetdefault"
+        },
+        "VpcSecurityGroupIds": [
+          "sg-aa249ec0"
+        ]
+      }
+    },
+    "clusubnetdefault": {
+      "Type": "AWS::Redshift::ClusterSubnetGroup",
+      "Properties": {
+        "Description": "default",
+        "SubnetIds": [
+          "subnet-b6a764df",
+          "subnet-e11831ab",
+          "subnet-026a8979"
+        ]
+      }
+    }
+  },
+  "Description": "flyway-redshift"
+}
