@@ -604,7 +604,7 @@
                                 <user.timezone>+00:00</user.timezone>
                             </systemPropertyVariables>
                             <parallel>classes</parallel>
-                            <threadCount>2</threadCount>
+                            <threadCount>1</threadCount>
                             <perCoreThreadCount>true</perCoreThreadCount>
                             <argLine>-XX:ReservedCodeCacheSize=128m -Xmx1536m</argLine>
                         </configuration>

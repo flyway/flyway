@@ -95,6 +95,8 @@ public abstract class MigrationTestCase {
 
     @Before
     public void setUp() throws Exception {
+        ensureTestEnabled();
+
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
@@ -104,6 +106,10 @@ public abstract class MigrationTestCase {
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
         flyway.clean();
+    }
+
+    protected void ensureTestEnabled() {
+        // Tests are enabled by default.
     }
 
     protected void assumeDatabaseVersionNotLessThan(int expectedMajorVersion, int expectedMinorVersion) {

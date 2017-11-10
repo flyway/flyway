@@ -18,18 +18,25 @@ package org.flywaydb.core.internal.dbsupport.redshift;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.Before;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
 import static org.flywaydb.core.internal.dbsupport.redshift.RedshiftMigrationMediumTest.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test to demonstrate the migration functionality using PostgreSQL.
  */
 @Category(DbCategory.Redshift.class)
 public class RedshiftConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
+    @Before
+    public void ensureRedshiftEnabled() {
+        assumeTrue(Boolean.valueOf(System.getProperty("redshift")));
+    }
+
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,

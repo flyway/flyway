@@ -288,10 +288,7 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <!-- Don't run the embedded Phoenix test by default, it has its own profile -->
-                            <excludedGroups>
-                                org.flywaydb.core.DbCategory$InstallableDB,org.flywaydb.core.DbCategory$Phoenix
-                            </excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$InstallableDB</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -307,18 +304,16 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>
-                                org.flywaydb.core.DbCategory$CommercialDB,org.flywaydb.core.DbCategory$Phoenix
-                            </excludedGroups>
+                            <excludedGroups>org.flywaydb.core.DbCategory$Redshift</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
         <profile>
-            <id>CommercialDBTest</id>
+            <id>RedshiftTest</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -326,6 +321,9 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <excludedGroups>org.flywaydb.core.DbCategory$ContributorSupportedDB</excludedGroups>
+                            <systemProperties>
+                                <redshift>true</redshift>
+                            </systemProperties>
                         </configuration>
                     </plugin>
                 </plugins>

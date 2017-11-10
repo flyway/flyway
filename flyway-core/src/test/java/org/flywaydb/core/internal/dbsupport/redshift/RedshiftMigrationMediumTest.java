@@ -33,6 +33,7 @@ import java.util.Properties;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Test to demonstrate the migration functionality using PostgreSQL.
@@ -40,6 +41,11 @@ import static org.junit.Assert.assertThat;
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.Redshift.class)
 public class RedshiftMigrationMediumTest extends MigrationTestCase {
+    @Override
+    protected void ensureTestEnabled() {
+        assumeTrue(Boolean.valueOf(System.getProperty("redshift")));
+    }
+
     static final String JDBC_URL = "jdbc:redshift://52.59.121.141:5439/flywaydb";
     static final String JDBC_USER = "flyway";
     static final String JDBC_PASSWORD = "flywayPWD000";

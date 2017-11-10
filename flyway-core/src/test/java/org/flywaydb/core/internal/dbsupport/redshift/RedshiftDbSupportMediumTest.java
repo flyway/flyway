@@ -19,6 +19,7 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -27,9 +28,15 @@ import java.sql.Connection;
 
 import static org.flywaydb.core.internal.dbsupport.redshift.RedshiftMigrationMediumTest.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 @Category(DbCategory.Redshift.class)
 public class RedshiftDbSupportMediumTest {
+    @Before
+    public void ensureRedshiftEnabled() {
+        assumeTrue(Boolean.valueOf(System.getProperty("redshift")));
+    }
+
     protected DataSource createDataSource() {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 JDBC_URL, JDBC_USER, JDBC_PASSWORD);
