@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.dbsupport.redshift;
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -24,7 +23,6 @@ import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -52,35 +50,7 @@ public class RedshiftDbSupport extends DbSupport {
      * @param connection The connection to use.
      */
     public RedshiftDbSupport(Connection connection) {
-        super(new JdbcTemplate(connection,
-                "RedshiftJDBC".equals(getDriverName(connection)) ? Types.VARCHAR : Types.NULL));
-    }
-
-    /**
-     * Retrieves the name of the JDBC driver
-     *
-     * @param connection The connection to use to query the database.
-     * @return The name of the driver. Ex: RedshiftJDBC
-     */
-    private static String getDriverName(Connection connection) {
-        if (connection == null) {
-            return null;
-        }
-        try {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            if (databaseMetaData == null) {
-                throw new FlywayException("Unable to read database metadata while it is null!");
-            }
-
-            String driverName = databaseMetaData.getDriverName();
-            if (driverName == null) {
-                throw new FlywayException("Unable to determine JDBC  driver name. JDBC driver name is null.");
-            }
-
-            return driverName;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error while determining JDBC driver name", e);
-        }
+        super(new JdbcTemplate(connection, Types.VARCHAR));
     }
 
     @Override

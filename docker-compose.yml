@@ -17,15 +17,17 @@
 version: "3"
 services:
   cockroach-11:
-    image: "cockroachdb/cockroach:v1.1.0"
+    image: "cockroachdb/cockroach:v1.1.2"
     ports:
      - "62000:26257"
+    tmpfs:
+     - /cockroach/cockroach-data:rw
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/entrypoint.sh:/entrypoint.sh
      - ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql:/createDatabase.sql
     entrypoint:
      - /entrypoint.sh
-  db2-10:
+  db2-105:
     image: "ibmcom/db2express-c:10.5.0.5-3.10.0"
     ports:
      - "62010:50000"
@@ -201,16 +203,8 @@ services:
       - /var/lib/postgresql/data:rw
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-  redshift:
-    image: "guildeducation/docker-amazon-redshift"
-    ports:
-     - "62060:5439"
-    environment:
-     - POSTGRES_PASSWORD=flywayPWD000
-    volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/redshift/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   sqlserver-2017:
-    image: "microsoft/mssql-server-linux"
+    image: "microsoft/mssql-server-linux:2017-CU1"
     ports:
      - "62070:1433"
     cap_add:

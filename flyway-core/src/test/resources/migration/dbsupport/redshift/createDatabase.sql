@@ -14,5 +14,5 @@
 -- limitations under the License.
 --
 
-CREATE USER flyway PASSWORD 'flyway';
+CREATE USER flyway PASSWORD 'flywayPWD000';
 CREATE DATABASE flyway_db WITH OWNER = flyway;
