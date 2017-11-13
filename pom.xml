@@ -95,10 +95,10 @@
             <id>jcenter</id>
             <url>https://jcenter.bintray.com/</url>
         </repository>
-
-
-
-
+        <repository>
+            <id>flyway-repo</id>
+            <url>https://flywaydb.org/repo</url>
+        </repository>
 
 
 
