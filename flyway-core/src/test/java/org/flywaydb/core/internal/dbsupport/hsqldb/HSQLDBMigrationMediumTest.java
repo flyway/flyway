@@ -44,7 +44,7 @@ public class HSQLDBMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void sequence() throws Exception {
-        flyway.setLocations("migration/dbsupport/hsql/sql/sequence");
+        flyway.setLocations("migration/dbsupport/hsqldb/sql/sequence");
         flyway.migrate();
 
         assertEquals("1", flyway.info().current().getVersion().toString());
@@ -58,7 +58,7 @@ public class HSQLDBMigrationMediumTest extends MigrationTestCase {
 
     @Test
     public void trigger() throws Exception {
-        flyway.setLocations("migration/dbsupport/hsql/sql/trigger");
+        flyway.setLocations("migration/dbsupport/hsqldb/sql/trigger");
         flyway.migrate();
 
         flyway.clean();
@@ -71,7 +71,7 @@ public class HSQLDBMigrationMediumTest extends MigrationTestCase {
         schema.create();
 
         flyway.setSchemas("PUBLIC", "MY_VIEWS");
-        flyway.setLocations("migration/dbsupport/hsql/sql/view");
+        flyway.setLocations("migration/dbsupport/hsqldb/sql/view");
         flyway.migrate();
         flyway.clean();
 
