@@ -8,16 +8,16 @@
 Simple, focused and powerful.
 
 #### Works on
-Windows, Mac OSX, Linux, Java and Android
+Windows, macOS, Linux, Java and Android
 
 #### Supported build tools
-Maven, Gradle, Ant and SBT
+Maven and Gradle
 
 #### Supported databases
-Oracle, SQL Server, SQL Azure, DB2, DB2 z/OS, MySQL, MariaDB, Google Cloud SQL, PostgreSQL, Redshift, Greenplum, Vertica, EnterpriseDB, H2, Hsql, Derby, SQLite
+Oracle, SQL Server, DB2, MySQL, MariaDB, PostgreSQL, Redshift, Greenplum, Vertica, EnterpriseDB, H2, Hsql, Derby, SQLite
 
 #### Third party plugins
-Grails, Play!, Grunt, Griffon, Ninja, ...
+SBT, Ant, Spring Boot, Grails, Play!, DropWizard, Grunt, Griffon, Ninja, ...
 
 ## Documentation
 https://flywaydb.org
