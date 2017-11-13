@@ -39,7 +39,7 @@ public class H2Schema extends Schema<H2DbSupport> {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public H2Schema(JdbcTemplate jdbcTemplate, H2DbSupport dbSupport, String name) {
+    H2Schema(JdbcTemplate jdbcTemplate, H2DbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -70,19 +70,19 @@ public class H2Schema extends Schema<H2DbSupport> {
         }
 
         List<String> sequenceNames = listObjectNames("SEQUENCE", "IS_GENERATED = false");
-        for (String statement : generateDropStatements("SEQUENCE", sequenceNames, "")) {
+        for (String statement : generateDropStatements("SEQUENCE", sequenceNames)) {
             jdbcTemplate.execute(statement);
         }
 
         List<String> constantNames = listObjectNames("CONSTANT", "");
-        for (String statement : generateDropStatements("CONSTANT", constantNames, "")) {
+        for (String statement : generateDropStatements("CONSTANT", constantNames)) {
             jdbcTemplate.execute(statement);
         }
 
         List<String> domainNames = listObjectNames("DOMAIN", "");
         if (!domainNames.isEmpty()) {
             if (name.equals(dbSupport.getCurrentSchemaName())) {
-                for (String statement : generateDropStatementsForCurrentSchema("DOMAIN", domainNames, "")) {
+                for (String statement : generateDropStatementsForCurrentSchema("DOMAIN", domainNames)) {
                     jdbcTemplate.execute(statement);
                 }
             } else {
@@ -97,14 +97,13 @@ public class H2Schema extends Schema<H2DbSupport> {
      *
      * @param objectType          The type of object to drop (Sequence, constant, ...)
      * @param objectNames         The names of the objects to drop.
-     * @param dropStatementSuffix Suffix to append to the statement for dropping the objects.
      * @return The list of statements.
      */
-    private List<String> generateDropStatements(String objectType, List<String> objectNames, String dropStatementSuffix) {
+    private List<String> generateDropStatements(String objectType, List<String> objectNames) {
         List<String> statements = new ArrayList<>();
         for (String objectName : objectNames) {
             String dropStatement =
-                    "DROP " + objectType + dbSupport.quote(name, objectName) + " " + dropStatementSuffix;
+                    "DROP " + objectType + dbSupport.quote(name, objectName);
 
             statements.add(dropStatement);
         }
@@ -116,14 +115,13 @@ public class H2Schema extends Schema<H2DbSupport> {
      *
      * @param objectType          The type of object to drop (Sequence, constant, ...)
      * @param objectNames         The names of the objects to drop.
-     * @param dropStatementSuffix Suffix to append to the statement for dropping the objects.
      * @return The list of statements.
      */
-    private List<String> generateDropStatementsForCurrentSchema(String objectType, List<String> objectNames, String dropStatementSuffix) {
+    private List<String> generateDropStatementsForCurrentSchema(String objectType, List<String> objectNames) {
         List<String> statements = new ArrayList<>();
         for (String objectName : objectNames) {
             String dropStatement =
-                    "DROP " + objectType + dbSupport.quote(objectName) + " " + dropStatementSuffix;
+                    "DROP " + objectType + dbSupport.quote(objectName);
 
             statements.add(dropStatement);
         }

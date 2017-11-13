@@ -58,8 +58,8 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @param context           The current context.
      * @param outOfOrder        Whether this migration was applied out of order.
      */
-    public MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
-                             MigrationInfoContext context, boolean outOfOrder) {
+    MigrationInfoImpl(ResolvedMigration resolvedMigration, AppliedMigration appliedMigration,
+                      MigrationInfoContext context, boolean outOfOrder) {
         this.resolvedMigration = resolvedMigration;
         this.appliedMigration = appliedMigration;
         this.context = context;

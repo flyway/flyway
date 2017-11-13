@@ -21,6 +21,7 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
 import java.sql.Connection;
@@ -37,6 +38,8 @@ import java.util.Set;
  * Oracle-specific support.
  */
 public class OracleDbSupport extends DbSupport {
+    private static final String ORACLE_NET_TNS_ADMIN = "oracle.net.tns_admin";
+
     /**
      * Creates a new instance.
      *
@@ -44,6 +47,14 @@ public class OracleDbSupport extends DbSupport {
      */
     public OracleDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+
+        // If the TNS_ADMIN environment variable is set, enable tnsnames.ora support for the Oracle JDBC driver
+        // See http://www.orafaq.com/wiki/TNS_ADMIN
+        String tnsAdminEnvVar = System.getenv("TNS_ADMIN");
+        String tnsAdminSysProp = System.getProperty(ORACLE_NET_TNS_ADMIN);
+        if (StringUtils.hasLength(tnsAdminEnvVar) && tnsAdminSysProp == null) {
+            System.setProperty(ORACLE_NET_TNS_ADMIN, tnsAdminEnvVar);
+        }
     }
 
     @Override

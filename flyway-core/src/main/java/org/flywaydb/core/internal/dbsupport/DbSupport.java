@@ -15,11 +15,11 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
  * Abstraction for database-specific functionality.
  */
 public abstract class DbSupport {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DbSupport.class);
+    private static final Log LOG = LogFactory.getLog(DbSupport.class);
 
     /**
      * The JDBC template available for use.
@@ -60,7 +60,7 @@ public abstract class DbSupport {
         this.jdbcTemplate = jdbcTemplate;
         originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
         Pair<Integer, Integer> majorMinor =
-                jdbcTemplate.getConnection() == null ? Pair.of(0,0) : determineMajorAndMinorVersion();
+                jdbcTemplate.getConnection() == null ? Pair.of(0, 0) : determineMajorAndMinorVersion();
         majorVersion = majorMinor.getLeft();
         minorVersion = majorMinor.getRight();
         if (jdbcTemplate.getConnection() != null) {
@@ -74,7 +74,8 @@ public abstract class DbSupport {
     protected abstract void ensureSupported();
 
     protected void recommendFlywayUpgrade(String database, String version) {
-        LOGGER.warn("Flyway upgrade recommended: " + database + " " + version + " is newer than this version of Flyway and support has not been tested.");
+        LOG.warn("Flyway upgrade recommended: " + database + " " + version
+                + " is newer than this version of Flyway and support has not been tested.");
     }
 
     /**
