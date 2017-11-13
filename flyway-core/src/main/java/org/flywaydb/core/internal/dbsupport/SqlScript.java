@@ -16,12 +16,12 @@
 package org.flywaydb.core.internal.dbsupport;
 
 import org.flywaydb.core.api.FlywayException;
-
-
-import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.StringUtils;
+import org.flywaydb.core.api.errorhandler.ErrorContext;
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
 
@@ -90,6 +90,7 @@ public class SqlScript {
         this.resource = null;
 
 
+
     }
 
     /**
@@ -105,6 +106,8 @@ public class SqlScript {
 
      */
     public SqlScript(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
+
+
 
     ) {
         this.dbSupport = dbSupport;
@@ -198,7 +201,7 @@ public class SqlScript {
      */
     /* private -> for testing */
     List<SqlStatement> linesToStatements(List<String> lines) {
-        List<SqlStatement> statements = new ArrayList<SqlStatement>();
+        List<SqlStatement> statements = new ArrayList<>();
 
         Delimiter nonStandardDelimiter = null;
         SqlStatementBuilder sqlStatementBuilder = dbSupport.createSqlStatementBuilder();
@@ -278,7 +281,7 @@ public class SqlScript {
      * @throws IllegalStateException Thrown when the textual data parsing failed.
      */
     private List<String> readLines(Reader reader) {
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
 
         BufferedReader bufferedReader = new BufferedReader(reader);
         String line;

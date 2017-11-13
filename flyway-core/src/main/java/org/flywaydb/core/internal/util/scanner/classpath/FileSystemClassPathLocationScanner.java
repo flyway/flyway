@@ -36,7 +36,7 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
         File folder = new File(filePath);
         if (!folder.isDirectory()) {
             LOG.debug("Skipping path as it is not a directory: " + filePath);
-            return new TreeSet<String>();
+            return new TreeSet<>();
         }
 
         String classPathRootOnDisk = filePath.substring(0, filePath.length() - location.length());
@@ -61,7 +61,7 @@ public class FileSystemClassPathLocationScanner implements ClassPathLocationScan
     Set<String> findResourceNamesFromFileSystem(String classPathRootOnDisk, String scanRootLocation, File folder) throws IOException {
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
-        Set<String> resourceNames = new TreeSet<String>();
+        Set<String> resourceNames = new TreeSet<>();
 
         File[] files = folder.listFiles();
         for (File file : files) {

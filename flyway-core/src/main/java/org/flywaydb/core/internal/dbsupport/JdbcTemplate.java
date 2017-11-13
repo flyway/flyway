@@ -30,6 +30,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +100,7 @@ public class JdbcTemplate {
 
             result = new ArrayList<Map<String, String>>();
             while (resultSet.next()) {
-                Map<String, String> rowMap = new HashMap<String, String>();
+                Map<String, String> rowMap = new LinkedHashMap<>();
                 for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
                     rowMap.put(resultSet.getMetaData().getColumnLabel(i), resultSet.getString(i));
                 }
@@ -109,7 +110,6 @@ public class JdbcTemplate {
             JdbcUtils.closeResultSet(resultSet);
             JdbcUtils.closeStatement(statement);
         }
-
 
         return result;
     }
@@ -134,7 +134,7 @@ public class JdbcTemplate {
             }
             resultSet = statement.executeQuery();
 
-            result = new ArrayList<String>();
+            result = new ArrayList<>();
             while (resultSet.next()) {
                 result.add(resultSet.getString(1));
             }
@@ -360,7 +360,7 @@ public class JdbcTemplate {
             statement = connection.createStatement();
             resultSet = statement.executeQuery(query);
 
-            results = new ArrayList<T>();
+            results = new ArrayList<>();
             while (resultSet.next()) {
                 results.add(rowMapper.mapRow(resultSet));
             }

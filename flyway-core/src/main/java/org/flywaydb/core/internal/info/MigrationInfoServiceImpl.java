@@ -135,7 +135,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
 
         Map<MigrationVersion, Pair<AppliedMigration, Boolean>> appliedMigrationsMap =
                 new TreeMap<MigrationVersion, Pair<AppliedMigration, Boolean>>();
-        List<AppliedMigration> appliedRepeatableMigrations = new ArrayList<AppliedMigration>();
+        List<AppliedMigration> appliedRepeatableMigrations = new ArrayList<>();
         for (AppliedMigration appliedMigration : appliedMigrations) {
             MigrationVersion version = appliedMigration.getVersion();
             boolean outOfOrder1 = false;
@@ -163,11 +163,11 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             context.target = context.lastApplied;
         }
 
-        Set<MigrationVersion> allVersions = new HashSet<MigrationVersion>();
+        Set<MigrationVersion> allVersions = new HashSet<>();
         allVersions.addAll(resolvedMigrationsMap.keySet());
         allVersions.addAll(appliedMigrationsMap.keySet());
 
-        List<MigrationInfoImpl> migrationInfos1 = new ArrayList<MigrationInfoImpl>();
+        List<MigrationInfoImpl> migrationInfos1 = new ArrayList<>();
         for (MigrationVersion version : allVersions) {
             ResolvedMigration resolvedMigration = resolvedMigrationsMap.get(version);
             Pair<AppliedMigration, Boolean> appliedMigrationInfo = appliedMigrationsMap.get(version);
@@ -185,7 +185,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
             }
         }
 
-        Set<ResolvedMigration> pendingResolvedRepeatableMigrations = new HashSet<ResolvedMigration>(resolvedRepeatableMigrationsMap.values());
+        Set<ResolvedMigration> pendingResolvedRepeatableMigrations = new HashSet<>(resolvedRepeatableMigrationsMap.values());
         for (AppliedMigration appliedRepeatableMigration : appliedRepeatableMigrations) {
             ResolvedMigration resolvedMigration = resolvedRepeatableMigrationsMap.get(appliedRepeatableMigration.getDescription());
             int latestRank = context.latestRepeatableRuns.get(appliedRepeatableMigration.getDescription());
@@ -231,7 +231,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     }
 
     public MigrationInfoImpl[] pending() {
-        List<MigrationInfoImpl> pendingMigrations = new ArrayList<MigrationInfoImpl>();
+        List<MigrationInfoImpl> pendingMigrations = new ArrayList<>();
         for (MigrationInfoImpl migrationInfo : migrationInfos) {
             if (MigrationState.PENDING == migrationInfo.getState()) {
                 pendingMigrations.add(migrationInfo);
@@ -242,7 +242,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     }
 
     public MigrationInfo[] applied() {
-        List<MigrationInfo> appliedMigrations = new ArrayList<MigrationInfo>();
+        List<MigrationInfo> appliedMigrations = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
             if (migrationInfo.getState().isApplied()) {
                 appliedMigrations.add(migrationInfo);
@@ -258,7 +258,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @return The resolved migrations. An empty array if none.
      */
     public MigrationInfo[] resolved() {
-        List<MigrationInfo> resolvedMigrations = new ArrayList<MigrationInfo>();
+        List<MigrationInfo> resolvedMigrations = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
             if (migrationInfo.getState().isResolved()) {
                 resolvedMigrations.add(migrationInfo);
@@ -274,7 +274,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @return The failed migrations. An empty array if none.
      */
     public MigrationInfo[] failed() {
-        List<MigrationInfo> failedMigrations = new ArrayList<MigrationInfo>();
+        List<MigrationInfo> failedMigrations = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
             if (migrationInfo.getState().isFailed()) {
                 failedMigrations.add(migrationInfo);
@@ -290,7 +290,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @return The future migrations. An empty array if none.
      */
     public MigrationInfo[] future() {
-        List<MigrationInfo> futureMigrations = new ArrayList<MigrationInfo>();
+        List<MigrationInfo> futureMigrations = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
             if ((migrationInfo.getState() == MigrationState.FUTURE_SUCCESS)
                     || (migrationInfo.getState() == MigrationState.FUTURE_FAILED)) {
@@ -307,7 +307,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * @return The out of order migrations. An empty array if none.
      */
     public MigrationInfo[] outOfOrder() {
-        List<MigrationInfo> outOfOrderMigrations = new ArrayList<MigrationInfo>();
+        List<MigrationInfo> outOfOrderMigrations = new ArrayList<>();
         for (MigrationInfo migrationInfo : migrationInfos) {
             if (migrationInfo.getState() == MigrationState.OUT_OF_ORDER) {
                 outOfOrderMigrations.add(migrationInfo);

@@ -358,7 +358,7 @@ public class SqlStatementBuilder {
      * impact on string delimiting are discarded.
      */
     private List<TokenType> extractStringLiteralDelimitingTokens(String[] tokens) {
-        List<TokenType> delimitingTokens = new ArrayList<TokenType>();
+        List<TokenType> delimitingTokens = new ArrayList<>();
         for (String token : tokens) {
             String cleanToken = cleanToken(token);
             boolean handled = false;

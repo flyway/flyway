@@ -21,18 +21,15 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.cockroachdb.CockroachDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.db2.DB2DbSupport;
 import org.flywaydb.core.internal.dbsupport.derby.DerbyDbSupport;
-import org.flywaydb.core.internal.dbsupport.enterprisedb.EnterpriseDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
-import org.flywaydb.core.internal.dbsupport.hsql.HsqlDbSupport;
+import org.flywaydb.core.internal.dbsupport.hsqldb.HSQLDBDbSupport;
 import org.flywaydb.core.internal.dbsupport.mysql.MySQLDbSupport;
 import org.flywaydb.core.internal.dbsupport.oracle.OracleDbSupport;
-import org.flywaydb.core.internal.dbsupport.phoenix.PhoenixDbSupport;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLDbSupport;
-import org.flywaydb.core.internal.dbsupport.saphana.SapHanaDbSupport;
-import org.flywaydb.core.internal.dbsupport.solid.SolidDbSupport;
+import org.flywaydb.core.internal.dbsupport.redshift.RedshiftDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlite.SQLiteDbSupport;
 import org.flywaydb.core.internal.dbsupport.sqlserver.SQLServerDbSupport;
-import org.flywaydb.core.internal.dbsupport.sybase.ase.SybaseASEDbSupport;
+import org.flywaydb.core.internal.dbsupport.sybasease.SybaseASEDbSupport;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -75,8 +72,7 @@ public class DbSupportFactory {
             return new H2DbSupport(connection);
         }
         if (databaseProductName.contains("HSQL Database Engine")) {
-            // For regular Hsql and the Google Cloud SQL local default DB.
-            return new HsqlDbSupport(connection);
+            return new HSQLDBDbSupport(connection);
         }
         if (databaseProductName.startsWith("Microsoft SQL Server")) {
             return new SQLServerDbSupport(connection);
@@ -90,11 +86,13 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("Oracle")) {
             return new OracleDbSupport(connection);
         }
-        if (databaseProductName.startsWith("EnterpriseDB")) {
-            return new EnterpriseDBDbSupport(connection);
+        if (databaseProductName.startsWith("PostgreSQL 8")) {
+            if (RedshiftDbSupport.isRedshift(connection)) {
+                return new RedshiftDbSupport(connection);
+            }
         }
         if (databaseProductName.startsWith("PostgreSQL")) {
-            if (isCockroachDB(connection)) {
+            if (CockroachDBDbSupport.isCockroachDB(connection)) {
                 return new CockroachDBDbSupport(connection);
             }
             return new PostgreSQLDbSupport(connection);
@@ -102,33 +100,11 @@ public class DbSupportFactory {
         if (databaseProductName.startsWith("DB2")) {
             return new DB2DbSupport(connection);
         }
-        if (databaseProductName.contains("solidDB")) {
-            // SolidDB was originally developed by a company named Solid and was sold afterwards to IBM.
-            // In the meanwhile IBM also sold solidDB to Unicom Systems.
-            // Therefore no vendor string in search criteria
-            return new SolidDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("Phoenix")) {
-            return new PhoenixDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("ASE")
-                || databaseProductName.startsWith("Adaptive") //Newer Sybase ASE versions
-                || databaseProductName.startsWith("sql server")) { // Older Sybase ASE 12.5 installations
+        if (databaseProductName.startsWith("ASE")) {
             return new SybaseASEDbSupport(connection);
-        }
-        if (databaseProductName.startsWith("HDB")) {
-            return new SapHanaDbSupport(connection);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
-    }
-
-    private static boolean isCockroachDB(Connection connection) {
-        try {
-            return new JdbcTemplate(connection).queryForString("SELECT version()").contains("CockroachDB");
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     /**
@@ -170,56 +146,6 @@ public class DbSupportFactory {
             return databaseProductName + " " + databaseMajorVersion + "." + databaseMinorVersion;
         } catch (SQLException e) {
             throw new FlywaySqlException("Error while determining database product name", e);
-        }
-    }
-
-    /**
-     * Retrieves the database version.
-     *
-     * @param connection The connection to use to query the database.
-     * @return The version of the database product.
-     * Ex.: DSN11015 DB2 for z/OS Version 11
-     * SQL10050 DB" for Linux, UNIX and Windows Version 10.5
-     */
-    private static String getDatabaseProductVersion(Connection connection) {
-        try {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            if (databaseMetaData == null) {
-                throw new FlywayException("Unable to read database metadata while it is null!");
-            }
-
-            String databaseProductVersion = databaseMetaData.getDatabaseProductVersion();
-            if (databaseProductVersion == null) {
-                throw new FlywayException("Unable to determine database. Product version is null.");
-            }
-
-            return databaseProductVersion;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error while determining database product version", e);
-        }
-    }
-
-    /**
-     * Retrieves the name of the JDBC driver
-     *
-     * @param connection The connection to use to query the database.
-     * @return The name of the driver. Ex: RedshiftJDBC
-     */
-    private static String getDriverName(Connection connection) {
-        try {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            if (databaseMetaData == null) {
-                throw new FlywayException("Unable to read database metadata while it is null!");
-            }
-
-            String driverName = databaseMetaData.getDriverName();
-            if (driverName == null) {
-                throw new FlywayException("Unable to determine JDBC  driver name. JDBC driver name is null.");
-            }
-
-            return driverName;
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error while determining JDBC driver name", e);
         }
     }
 }

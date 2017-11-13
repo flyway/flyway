@@ -68,12 +68,12 @@
             <artifactId>hsqldb</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sourceforge.jtds</groupId>
-            <artifactId>jtds</artifactId>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.pivotal.jdbc</groupId>
-            <artifactId>greenplumdriver</artifactId>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -87,11 +87,13 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
+
+
+
+
+
+
+
     </dependencies>
     <build>
         <resources>
@@ -144,19 +146,36 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
+
+
+
+
+
+
+
+
         </plugins>
     </build>
     <profiles>
+        <!-- Not needed until the default for Command-line becomes Java 9 or until Microsoft fixes their JDBC driver -->
+        <!--
+        <profile>
+            <id>jdk9</id>
+            <activation>
+                <jdk>9</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        -->
         <profile>
             <id>CommandlinePlatformAssemblies</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
@@ -223,15 +242,17 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <skip>false</skip>
-                            <systemProperties>
-                                <target.dir>${project.build.directory}</target.dir>
-                            </systemProperties>
-                        </configuration>
-                    </plugin>
+
+
+
+
+
+
+
+
+
+
+
                 </plugins>
             </build>
         </profile>

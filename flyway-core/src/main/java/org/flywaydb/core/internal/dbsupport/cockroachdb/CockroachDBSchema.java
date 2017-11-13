@@ -87,7 +87,7 @@ public class CockroachDBSchema extends Schema<CockroachDBDbSupport> {
                                 " LEFT JOIN pg_depend dep ON dep.objid = c.oid AND dep.deptype = 'e'" +
                                 " WHERE c.relkind = 'v' AND  n.nspname = ? AND dep.objid IS NULL",
                         name);
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (String domainName : viewNames) {
             statements.add("DROP VIEW IF EXISTS " + dbSupport.quote(name, domainName) + " CASCADE");
         }

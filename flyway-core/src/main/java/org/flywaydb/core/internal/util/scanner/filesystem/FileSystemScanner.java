@@ -51,7 +51,7 @@ public class FileSystemScanner {
             return new LoadableResource[0];
         }
 
-        Set<LoadableResource> resources = new TreeSet<LoadableResource>();
+        Set<LoadableResource> resources = new TreeSet<>();
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffix);
         for (String resourceName : resourceNames) {
@@ -89,7 +89,7 @@ public class FileSystemScanner {
     private Set<String> findResourceNamesFromFileSystem(String scanRootLocation, File folder) throws IOException {
         LOG.debug("Scanning for resources in path: " + folder.getPath() + " (" + scanRootLocation + ")");
 
-        Set<String> resourceNames = new TreeSet<String>();
+        Set<String> resourceNames = new TreeSet<>();
 
         File[] files = folder.listFiles();
         for (File file : files) {
@@ -114,7 +114,7 @@ public class FileSystemScanner {
      * @return The filtered names set.
      */
     private Set<String> filterResourceNames(Set<String> resourceNames, String prefix, String suffix) {
-        Set<String> filteredResourceNames = new TreeSet<String>();
+        Set<String> filteredResourceNames = new TreeSet<>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf(File.separator) + 1);
             if (fileName.startsWith(prefix) && fileName.endsWith(suffix)

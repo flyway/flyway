@@ -32,15 +32,20 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.Location;
+import org.flywaydb.core.internal.util.StringUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putArrayIfSet;
+import static org.flywaydb.core.internal.configuration.ConfigUtils.putIfSet;
 
 /**
  * Common base class for all mojos with all common attributes.
@@ -51,8 +56,6 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * Property name prefix for placeholders that are configured through properties.
      */
     private static final String PLACEHOLDERS_PROPERTY_PREFIX = "flyway.placeholders.";
-
-    private Flyway flyway = new Flyway();
 
     Log log;
 
@@ -68,14 +71,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * By default, the driver is autodetected based on the url.<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.driver}</p>
      */
-    @Parameter(property = "flyway.driver")
+    @Parameter(property = ConfigUtils.DRIVER)
     /* private -> for testing */ String driver;
 
     /**
      * The jdbc url to use to connect to the database.<br>
      * <p>Also configurable with Maven or System Property: ${flyway.url}</p>
      */
-    @Parameter(property = "flyway.url")
+    @Parameter(property = ConfigUtils.URL)
     /* private -> for testing */ String url;
 
     /**
@@ -83,14 +86,14 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The credentials can be specified by user/password or {@code serverId} from settings.xml
      * <p>Also configurable with Maven or System Property: ${flyway.user}</p>
      */
-    @Parameter(property = "flyway.user")
+    @Parameter(property = ConfigUtils.USER)
     /* private -> for testing */ String user;
 
     /**
      * The password to use to connect to the database. (default: <i>blank</i>)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.password}</p>
      */
-    @Parameter(property = "flyway.password")
+    @Parameter(property = ConfigUtils.PASSWORD)
     private String password;
 
     /**
@@ -104,7 +107,7 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * </ul>
      * <p>Also configurable with Maven or System Property: ${flyway.schemas} (comma-separated list)</p>
      */
-    @Parameter(property = "flyway.schemas")
+    @Parameter
     private String[] schemas;
 
     /**
@@ -115,21 +118,21 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * the list. </p>
      * <p>Also configurable with Maven or System Property: ${flyway.table}</p>
      */
-    @Parameter(property = "flyway.table")
-    private String table = new Flyway().getTable();
+    @Parameter(property = ConfigUtils.TABLE)
+    private String table;
 
     /**
      * The version to tag an existing schema with when executing baseline. (default: 1)<br/>
      * <p>Also configurable with Maven or System Property: ${flyway.baselineVersion}</p>
      */
-    @Parameter(property = "flyway.baselineVersion")
+    @Parameter(property = ConfigUtils.BASELINE_VERSION)
     private String baselineVersion;
 
     /**
      * The description to tag an existing schema with when executing baseline. (default: << Flyway Baseline >>)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.baselineDescription}</p>
      */
-    @Parameter(property = "flyway.baselineDescription")
+    @Parameter(property = ConfigUtils.BASELINE_DESCRIPTION)
     private String baselineDescription;
 
     /**
@@ -147,22 +150,22 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Property: ${flyway.resolvers} (Comma-separated list)</p>
      */
     @Parameter
-    private String[] resolvers = new String[0];
+    private String[] resolvers;
 
     /**
      * When set to true, default resolvers are skipped, i.e. only custom resolvers as defined by 'resolvers'
      * are used. (default: false)<br> <p>Also configurable with Maven or System Property:
      * ${flyway.skipDefaultResolvers}</p>
      */
-    @Parameter(property = "flyway.skipDefaultResolvers")
-    private boolean skipDefaultResolvers;
+    @Parameter(property = ConfigUtils.SKIP_DEFAULT_RESOLVERS)
+    private Boolean skipDefaultResolvers;
 
     /**
      * The encoding of Sql migrations. (default: UTF-8)<br> <p>Also configurable with Maven or System Property:
      * ${flyway.encoding}</p>
      */
-    @Parameter(property = "flyway.encoding")
-    private String encoding = flyway.getEncoding();
+    @Parameter(property = ConfigUtils.ENCODING)
+    private String encoding;
 
     /**
      * The file name prefix for Sql migrations (default: V) <p>Also configurable with Maven or System Property:
@@ -171,8 +174,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
-    @Parameter(property = "flyway.sqlMigrationPrefix")
-    private String sqlMigrationPrefix = flyway.getSqlMigrationPrefix();
+    @Parameter(property = ConfigUtils.SQL_MIGRATION_PREFIX)
+    private String sqlMigrationPrefix;
 
     /**
      * The file name prefix for repeatable sql migrations (default: R) <p>Also configurable with Maven or System Property:
@@ -181,8 +184,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Repeatable sql migrations have the following file name structure: prefixSeparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to R__My_description.sql</p>
      */
-    @Parameter(property = "flyway.repeatableSqlMigrationPrefix")
-    private String repeatableSqlMigrationPrefix = flyway.getRepeatableSqlMigrationPrefix();
+    @Parameter(property = ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX)
+    private String repeatableSqlMigrationPrefix;
 
     /**
      * The file name separator for Sql migrations (default: __) <p>Also configurable with Maven or System Property:
@@ -191,8 +194,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
-    @Parameter(property = "flyway.sqlMigrationSeparator")
-    private String sqlMigrationSeparator = flyway.getSqlMigrationSeparator();
+    @Parameter(property = ConfigUtils.SQL_MIGRATION_SEPARATOR)
+    private String sqlMigrationSeparator;
 
     /**
      * The file name suffix for Sql migrations (default: .sql) <p>Also configurable with Maven or System Property:
@@ -201,8 +204,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Sql migrations have the following file name structure: prefixVERSIONseparatorDESCRIPTIONsuffix ,
      * which using the defaults translates to V1_1__My_description.sql</p>
      */
-    @Parameter(property = "flyway.sqlMigrationSuffix")
-    private String sqlMigrationSuffix = flyway.getSqlMigrationSuffix();
+    @Parameter(property = ConfigUtils.SQL_MIGRATION_SUFFIX)
+    private String sqlMigrationSuffix;
 
     /**
      * Whether to automatically call clean or not when a validation error occurs. (default: {@code false})<br/>
@@ -213,16 +216,16 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p><b>Warning ! Do not enable in production !</b></p><br/>
      * <p>Also configurable with Maven or System Property: ${flyway.cleanOnValidationError}</p>
      */
-    @Parameter(property = "flyway.cleanOnValidationError")
-    private boolean cleanOnValidationError = flyway.isCleanOnValidationError();
+    @Parameter(property = ConfigUtils.CLEAN_ON_VALIDATION_ERROR)
+    private Boolean cleanOnValidationError;
 
     /**
      * Whether to disable clean. (default: {@code false})
      * <p>This is especially useful for production environments where running clean can be quite a career limiting move.</p>
      * <p>Also configurable with Maven or System Property: ${flyway.cleanDisabled}</p>
      */
-    @Parameter(property = "flyway.cleanDisabled")
-    private boolean cleanDisabled;
+    @Parameter(property = ConfigUtils.CLEAN_DISABLED)
+    private Boolean cleanDisabled;
 
     /**
      * The target version up to which Flyway should consider migrations.
@@ -230,8 +233,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * The special value {@code current} designates the current version of the schema. (default: the latest version)
      * <p>Also configurable with Maven or System Property: ${flyway.target}</p>
      */
-    @Parameter(property = "flyway.target")
-    private String target = flyway.getTarget().getVersion();
+    @Parameter(property = ConfigUtils.TARGET)
+    private String target;
 
     /**
      * Allows migrations to be run "out of order" (default: {@code false}).
@@ -239,8 +242,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * it will be applied too instead of being ignored.</p>
      * <p>Also configurable with Maven or System Property: ${flyway.outOfOrder}</p>
      */
-    @Parameter(property = "flyway.outOfOrder")
-    private boolean outOfOrder = flyway.isOutOfOrder();
+    @Parameter(property = ConfigUtils.OUT_OF_ORDER)
+    private Boolean outOfOrder;
 
     /**
      * Ignore missing migrations when reading the metadata table. These are migrations that were performed by an
@@ -253,8 +256,8 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * {@code true} to continue normally and log a warning, {@code false} to fail fast with an exception.
      * (default: {@code false})
      */
-    @Parameter(property = "flyway.ignoreMissingMigrations")
-    private boolean ignoreMissingMigrations;
+    @Parameter(property = ConfigUtils.IGNORE_MISSING_MIGRATIONS)
+    private Boolean ignoreMissingMigrations;
 
     /**
      * Ignore future migrations when reading the metadata table. These are migrations that were performed by a
@@ -265,15 +268,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * an older version of the application after the database has been migrated by a newer one. (default: {@code true})
      * <p>Also configurable with Maven or System Property: ${flyway.ignoreFutureMigrations}</p>
      */
-    @Parameter(property = "flyway.ignoreFutureMigrations")
-    private boolean ignoreFutureMigrations = true;
+    @Parameter(property = ConfigUtils.IGNORE_FUTURE_MIGRATIONS)
+    private Boolean ignoreFutureMigrations;
 
     /**
      * Whether placeholders should be replaced. (default: true)<br>
      * <p>Also configurable with Maven or System Property: ${flyway.placeholderReplacement}</p>
      */
-    @Parameter(property = "flyway.placeholderReplacement")
-    private boolean placeholderReplacement = flyway.isPlaceholderReplacement();
+    @Parameter(property = ConfigUtils.PLACEHOLDER_REPLACEMENT)
+    private Boolean placeholderReplacement;
 
     /**
      * A map of &lt;placeholder, replacementValue&gt; to apply to sql migration scripts.
@@ -281,36 +284,36 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * <p>Also configurable with Maven or System Properties like ${flyway.placeholders.myplaceholder} or ${flyway.placeholders.otherone}</p>
      */
     @Parameter
-    private Map<String, String> placeholders = flyway.getPlaceholders();
+    private Map<String, String> placeholders;
 
     /**
      * The prefix of every placeholder. (default: ${ )<br>
      * <p>Also configurable with Maven or System Property: ${flyway.placeholderPrefix}</p>
      */
-    @Parameter(property = "flyway.placeholderPrefix")
-    private String placeholderPrefix = flyway.getPlaceholderPrefix();
+    @Parameter(property = ConfigUtils.PLACEHOLDER_PREFIX)
+    private String placeholderPrefix;
 
     /**
      * The suffix of every placeholder. (default: } )<br>
      * <p>Also configurable with Maven or System Property: ${flyway.placeholderSuffix}</p>
      */
-    @Parameter(property = "flyway.placeholderSuffix")
-    private String placeholderSuffix = flyway.getPlaceholderSuffix();
+    @Parameter(property = ConfigUtils.PLACEHOLDER_SUFFIX)
+    private String placeholderSuffix;
 
     /**
      * An array of FlywayCallback implementations. (default: empty )<br>
      * <p>Also configurable with Maven or System Property: ${flyway.callbacks}</p>
      */
     @Parameter
-    private String[] callbacks = new String[0];
+    private String[] callbacks;
 
     /**
      * When set to true, default callbacks are skipped, i.e. only custom callbacks as defined by 'resolvers'
      * are used. (default: false)<br> <p>Also configurable with Maven or System Property:
      * ${flyway.skipDefaultCallbacks}</p>
      */
-    @Parameter(property = "flyway.skipDefaultCallbacks")
-    private boolean skipDefaultCallbacks;
+    @Parameter(property = ConfigUtils.SKIP_DEFAULT_CALLBACKS)
+    private Boolean skipDefaultCallbacks;
 
     /**
      * <p>
@@ -327,15 +330,15 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * </p>
      * <p>Also configurable with Maven or System Property: ${flyway.baselineOnMigrate}</p>
      */
-    @Parameter(property = "flyway.baselineOnMigrate")
+    @Parameter(property = ConfigUtils.BASELINE_ON_MIGRATE)
     private Boolean baselineOnMigrate;
 
     /**
      * Whether to automatically call validate or not when running migrate. (default: {@code true})<br/>
-     * <p>Also configurable with Maven or System Property: ${flyway.validationErrorMode}</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.validateOnMigrate}</p>
      */
-    @Parameter(property = "flyway.validateOnMigrate")
-    private boolean validateOnMigrate = flyway.isValidateOnMigrate();
+    @Parameter(property = ConfigUtils.VALIDATE_ON_MIGRATE)
+    private Boolean validateOnMigrate;
 
     /**
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
@@ -343,45 +346,62 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      * <p>Also configurable with Maven or System Property: ${flyway.mixed}</p>
      */
-    @Parameter(property = "flyway.mixed")
-    private boolean mixed = flyway.isMixed();
+    @Parameter(property = ConfigUtils.MIXED)
+    private Boolean mixed;
 
     /**
      * Whether to group all pending migrations together in the same transaction when applying them (only recommended for databases with support for DDL transactions).
      * <p>{@code true} if migrations should be grouped. {@code false} if they should be applied individually instead. (default: {@code false})</p>
      * <p>Also configurable with Maven or System Property: ${flyway.group}</p>
      */
-    @Parameter(property = "flyway.group")
-    private boolean group = flyway.isGroup();
+    @Parameter(property = ConfigUtils.GROUP)
+    private Boolean group;
 
     /**
      * The username that will be recorded in the metadata table as having applied the migration.
      * <p>{@code null} for the current database user of the connection. (default: {@code null}).</p>
      * <p>Also configurable with Maven or System Property: ${flyway.installedBy}</p>
      */
-    @Parameter(property = "flyway.installedBy")
+    @Parameter(property = ConfigUtils.INSTALLED_BY)
     private String installedBy;
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * The fully qualified class name of the ErrorHandler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * <p>{@code null} if the default internal handler should be used instead. (default: {@code null})</p>
+     * <p>Also configurable with Maven or System Property: ${flyway.errorHandler}</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    @Parameter(property = ConfigUtils.ERROR_HANDLER)
+    private String errorHandler;
 
     /**
      * Properties file from which to load the Flyway configuration. The names of the individual properties match the ones you would
      * use as Maven or System properties. The encoding of the file must be the same as the encoding defined with the
-     * flyway.encoding property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
+     * {@code flyway.encoding) property, which is UTF-8 by default. Relative paths are relative to the POM. (default: flyway.properties)
      * <p/>
      * <p>Also configurable with Maven or System Property: ${flyway.configFile}</p>
      */
-    @Parameter(property = "flyway.configFile")
+    @Deprecated
+    @Parameter(property = ConfigUtils.CONFIG_FILE)
     private File configFile;
+
+    /**
+     * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
+     * <p/>
+     * <p>Also configurable with Maven or System Property: ${flyway.configFileEncoding}</p>
+     */
+    @Parameter(property = ConfigUtils.CONFIG_FILE_ENCODING)
+    private String configFileEncoding;
+
+    /**
+     * Config files from which to load the Flyway configuration. The names of the individual properties match the ones you would
+     * use as Maven or System properties. The encoding of the files is defined by the
+     * flyway.configFileEncoding property, which is UTF-8 by default. Relative paths are relative to the POM.
+     * <p/>
+     * <p>Also configurable with Maven or System Property: ${flyway.configFiles}</p>
+     */
+    private File[] configFiles;
 
     /**
      * The id of the server tag in settings.xml (default: flyway-db)<br/>
@@ -456,22 +476,11 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
         }
 
         try {
-            loadCredentialsFromSettings();
-
             ClassRealm classLoader = (ClassRealm) Thread.currentThread().getContextClassLoader();
             for (String runtimeClasspathElement : mavenProject.getRuntimeClasspathElements()) {
                 classLoader.addURL(new File(runtimeClasspathElement).toURI().toURL());
             }
-            flyway.setClassLoader(classLoader);
 
-            flyway.setSchemas(schemas);
-            flyway.setTable(table);
-            if (baselineVersion != null) {
-                flyway.setBaselineVersionAsString(baselineVersion);
-            }
-            if (baselineDescription != null) {
-                flyway.setBaselineDescription(baselineDescription);
-            }
             if (locations != null) {
                 for (int i = 0; i < locations.length; i++) {
                     if (locations[i].startsWith(Location.FILESYSTEM_PREFIX)) {
@@ -484,66 +493,69 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
                     }
                 }
             } else {
-                System.out.println(mavenProject.getBasedir());
                 locations = new String[]{
                         Location.FILESYSTEM_PREFIX + mavenProject.getBasedir().getAbsolutePath() + "/src/main/resources/db/migration"
                 };
             }
-            flyway.setLocations(locations);
-            flyway.setResolversAsClassNames(resolvers);
-            flyway.setSkipDefaultResolvers(skipDefaultResolvers);
-            flyway.setCallbacksAsClassNames(callbacks);
-            flyway.setSkipDefaultCallbacks(skipDefaultCallbacks);
-            flyway.setEncoding(encoding);
-            flyway.setSqlMigrationPrefix(sqlMigrationPrefix);
-            flyway.setRepeatableSqlMigrationPrefix(repeatableSqlMigrationPrefix);
-            flyway.setSqlMigrationSeparator(sqlMigrationSeparator);
-            flyway.setSqlMigrationSuffix(sqlMigrationSuffix);
-            flyway.setMixed(mixed);
-            flyway.setGroup(group);
-            flyway.setInstalledBy(installedBy);
-            flyway.setCleanOnValidationError(cleanOnValidationError);
-            flyway.setCleanDisabled(cleanDisabled);
-            flyway.setOutOfOrder(outOfOrder);
-            flyway.setTargetAsString(target);
-            flyway.setIgnoreMissingMigrations(ignoreMissingMigrations);
-            flyway.setIgnoreFutureMigrations(ignoreFutureMigrations);
-            flyway.setPlaceholderReplacement(placeholderReplacement);
-            flyway.setPlaceholderPrefix(placeholderPrefix);
-            flyway.setPlaceholderSuffix(placeholderSuffix);
 
-            if (baselineOnMigrate != null) {
-                flyway.setBaselineOnMigrate(baselineOnMigrate);
+            Map<String, String> envVars = ConfigUtils.environmentVariablesToPropertyMap();
+
+            Map<String, String> conf = new HashMap<>();
+            conf.putAll(loadConfigurationFromDefaultConfigFiles(envVars));
+
+            loadCredentialsFromSettings();
+
+            putIfSet(conf, ConfigUtils.DRIVER, driver);
+            putIfSet(conf, ConfigUtils.URL, url);
+            putIfSet(conf, ConfigUtils.USER, user);
+            putIfSet(conf, ConfigUtils.PASSWORD, password);
+            putArrayIfSet(conf, ConfigUtils.SCHEMAS, schemas);
+            putIfSet(conf, ConfigUtils.TABLE, table);
+            putIfSet(conf, ConfigUtils.BASELINE_VERSION, baselineVersion);
+            putIfSet(conf, ConfigUtils.BASELINE_DESCRIPTION, baselineDescription);
+            putArrayIfSet(conf, ConfigUtils.LOCATIONS, locations);
+            putArrayIfSet(conf, ConfigUtils.RESOLVERS, resolvers);
+            putIfSet(conf, ConfigUtils.SKIP_DEFAULT_RESOLVERS, skipDefaultResolvers);
+            putArrayIfSet(conf, ConfigUtils.CALLBACKS, callbacks);
+            putIfSet(conf, ConfigUtils.SKIP_DEFAULT_CALLBACKS, skipDefaultCallbacks);
+            putIfSet(conf, ConfigUtils.ENCODING, encoding);
+            putIfSet(conf, ConfigUtils.SQL_MIGRATION_PREFIX, sqlMigrationPrefix);
+            putIfSet(conf, ConfigUtils.REPEATABLE_SQL_MIGRATION_PREFIX, repeatableSqlMigrationPrefix);
+            putIfSet(conf, ConfigUtils.SQL_MIGRATION_SEPARATOR, sqlMigrationSeparator);
+            putIfSet(conf, ConfigUtils.SQL_MIGRATION_SUFFIX, sqlMigrationSuffix);
+            putIfSet(conf, ConfigUtils.MIXED, mixed);
+            putIfSet(conf, ConfigUtils.GROUP, group);
+            putIfSet(conf, ConfigUtils.INSTALLED_BY, installedBy);
+            putIfSet(conf, ConfigUtils.CLEAN_ON_VALIDATION_ERROR, cleanOnValidationError);
+            putIfSet(conf, ConfigUtils.CLEAN_DISABLED, cleanDisabled);
+            putIfSet(conf, ConfigUtils.OUT_OF_ORDER, outOfOrder);
+            putIfSet(conf, ConfigUtils.TARGET, target);
+            putIfSet(conf, ConfigUtils.IGNORE_MISSING_MIGRATIONS, ignoreMissingMigrations);
+            putIfSet(conf, ConfigUtils.IGNORE_FUTURE_MIGRATIONS, ignoreFutureMigrations);
+            putIfSet(conf, ConfigUtils.PLACEHOLDER_REPLACEMENT, placeholderReplacement);
+            putIfSet(conf, ConfigUtils.PLACEHOLDER_PREFIX, placeholderPrefix);
+            putIfSet(conf, ConfigUtils.PLACEHOLDER_SUFFIX, placeholderSuffix);
+            putIfSet(conf, ConfigUtils.BASELINE_ON_MIGRATE, baselineOnMigrate);
+            putIfSet(conf, ConfigUtils.VALIDATE_ON_MIGRATE, validateOnMigrate);
+            putIfSet(conf, ConfigUtils.DRIVER, driver);
+
+            putIfSet(conf, ConfigUtils.ERROR_HANDLER, errorHandler);
+
+            if (placeholders != null) {
+                for (String placeholder : placeholders.keySet()) {
+                    String value = placeholders.get(placeholder);
+                    conf.put(ConfigUtils.PLACEHOLDERS_PROPERTY_PREFIX + placeholder, value == null ? "" : value);
+                }
             }
-            flyway.setValidateOnMigrate(validateOnMigrate);
 
+            conf.putAll(ConfigUtils.propertiesToMap(mavenProject.getProperties()));
+            conf.putAll(loadConfigurationFromConfigFiles(envVars));
+            conf.putAll(envVars);
+            conf.putAll(ConfigUtils.propertiesToMap(System.getProperties()));
+            removeMavenPluginSpecificPropertiesToAvoidWarnings(conf);
 
-
-
-
-            Properties properties = new Properties();
-            properties.putAll(mavenProject.getProperties());
-            if (driver != null) {
-                properties.setProperty("flyway.driver", driver);
-            }
-            if (url != null) {
-                properties.setProperty("flyway.url", url);
-            }
-            if (user != null) {
-                properties.setProperty("flyway.user", user);
-            }
-            if (password != null) {
-                properties.setProperty("flyway.password", password);
-            }
-            for (String placeholer : placeholders.keySet()) {
-                String value = placeholders.get(placeholer);
-                properties.setProperty("flyway.placeholders." + placeholer, value == null ? "" : value);
-            }
-            properties.putAll(getConfigFileProperties());
-            properties.putAll(System.getProperties());
-            removeMavenPluginSpecificPropertiesToAvoidWarnings(properties);
-            flyway.configure(properties);
-
+            Flyway flyway = new Flyway(classLoader);
+            flyway.configure(conf);
             doExecute(flyway);
         } catch (Exception e) {
             throw new MojoExecutionException(e.toString(), ExceptionUtils.getRootCause(e));
@@ -551,43 +563,125 @@ abstract class AbstractFlywayMojo extends AbstractMojo {
     }
 
     /**
-     * Filters there properties to remove the Flyway Maven Plugin-specific ones to avoid warnings.
+     * Determines the files to use for loading the configuration.
      *
-     * @param properties The properties to filter.
+     * @param envVars The environment variables converted to Flyway properties.
+     * @return The configuration files.
      */
-    private static void removeMavenPluginSpecificPropertiesToAvoidWarnings(Properties properties) {
-        properties.remove("flyway.configFile");
-        properties.remove("flyway.current");
-        properties.remove("flyway.version");
-        properties.remove("flyway.serverId");
+    private List<File> determineConfigFiles(Map<String, String> envVars) {
+        List<File> configFiles = new ArrayList<>();
+
+        if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
+            for (String file : StringUtils.tokenizeToStringArray(envVars.get(ConfigUtils.CONFIG_FILES), ",")) {
+                configFiles.add(toFile(file));
+            }
+            return configFiles;
+        }
+
+        if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILE)) {
+            log.warn(ConfigUtils.CONFIG_FILE + " is deprecated and will be removed in Flyway 6.0. Use " + ConfigUtils.CONFIG_FILES + " instead.");
+            configFiles.add(toFile(System.getProperties().getProperty(ConfigUtils.CONFIG_FILE)));
+            return configFiles;
+        }
+        if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
+            for (String file : StringUtils.tokenizeToStringArray(System.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
+                configFiles.add(toFile(file));
+            }
+            return configFiles;
+        }
+
+        if (mavenProject.getProperties().containsKey(ConfigUtils.CONFIG_FILE)) {
+            log.warn(ConfigUtils.CONFIG_FILE + " is deprecated and will be removed in Flyway 6.0. Use " + ConfigUtils.CONFIG_FILES + " instead.");
+            configFiles.add(toFile(mavenProject.getProperties().getProperty(ConfigUtils.CONFIG_FILE)));
+        } else if (configFile != null) {
+            configFiles.add(configFile);
+        }
+        if (mavenProject.getProperties().containsKey(ConfigUtils.CONFIG_FILES)) {
+            for (String file : StringUtils.tokenizeToStringArray(mavenProject.getProperties().getProperty(ConfigUtils.CONFIG_FILES), ",")) {
+                configFiles.add(toFile(file));
+            }
+        } else if (this.configFiles != null) {
+            configFiles.addAll(Arrays.asList(this.configFiles));
+        }
+        return configFiles;
     }
 
     /**
-     * Retrieve the properties from the config file (if specified).
+     * Converts this fileName into a file, adjusting relative paths if necessary to make them relative to the pom.
+     *
+     * @param fileName The name of the file, relative or absolute.
+     * @return The resulting file.
      */
-    private Properties getConfigFileProperties() throws IOException {
-        Properties properties = new Properties();
-        String configFileProp = System.getProperty("flyway.configFile");
-        if (configFileProp != null) {
-            configFile = new File(configFileProp);
-            if (!configFile.isAbsolute()) {
-                configFile = new File(mavenProject.getBasedir(), configFileProp);
-            }
+    private File toFile(String fileName) {
+        File file = new File(fileName);
+        if (file.isAbsolute()) {
+            return file;
         }
-        if (configFile == null) {
-            File file = new File(mavenProject.getBasedir(), "flyway.properties");
-            if (file.isFile() && file.canRead()) {
-                configFile = file;
-            } else {
-                log.debug("flyway.properties not found. Skipping.");
-                return properties;
-            }
-        } else if (!configFile.canRead() || !configFile.isFile()) {
-            throw new FlywayException("Unable to read config file: " + configFile.getAbsolutePath());
-        }
+        return new File(mavenProject.getBasedir(), fileName);
+    }
 
-        properties.load(new InputStreamReader(new FileInputStream(configFile), encoding));
-        return properties;
+    /**
+     * Determines the encoding to use for loading the configuration files.
+     *
+     * @param envVars The environment variables converted to Flyway properties.
+     * @return The encoding. (default: UTF-8)
+     */
+    private String determineConfigurationFileEncoding(Map<String, String> envVars) {
+        if (envVars.containsKey(ConfigUtils.CONFIG_FILE_ENCODING)) {
+            return envVars.get(ConfigUtils.CONFIG_FILE_ENCODING);
+        }
+        if (System.getProperties().containsKey(ConfigUtils.CONFIG_FILE_ENCODING)) {
+            return System.getProperties().getProperty(ConfigUtils.CONFIG_FILE_ENCODING);
+        }
+        if (configFileEncoding != null) {
+            return configFileEncoding;
+        }
+        return "UTF-8";
+    }
+
+    /**
+     * Filters there properties to remove the Flyway Maven Plugin-specific ones to avoid warnings.
+     *
+     * @param conf The properties to filter.
+     */
+    private static void removeMavenPluginSpecificPropertiesToAvoidWarnings(Map<String, String> conf) {
+        conf.remove(ConfigUtils.CONFIG_FILE);
+        conf.remove(ConfigUtils.CONFIG_FILES);
+        conf.remove(ConfigUtils.CONFIG_FILE_ENCODING);
+        conf.remove("flyway.current");
+        conf.remove("flyway.version");
+        conf.remove("flyway.serverId");
+    }
+
+    /**
+     * Retrieve the properties from the config files (if specified).
+     *
+     * @param envVars The environment variables converted to Flyway properties.
+     * @return The properties.
+     */
+    private Map<String, String> loadConfigurationFromConfigFiles(Map<String, String> envVars) {
+        String encoding = determineConfigurationFileEncoding(envVars);
+
+        Map<String, String> conf = new HashMap<>();
+        for (File configFile : determineConfigFiles(envVars)) {
+            conf.putAll(ConfigUtils.loadConfigurationFile(configFile, encoding, true));
+        }
+        return conf;
+    }
+
+    /**
+     * Retrieve the properties from the config files (if specified).
+     *
+     * @param envVars The environment variables converted to Flyway properties.
+     * @return The properties.
+     */
+    private Map<String, String> loadConfigurationFromDefaultConfigFiles(Map<String, String> envVars) {
+        String encoding = determineConfigurationFileEncoding(envVars);
+
+        Map<String, String> conf = new HashMap<>();
+        conf.putAll(ConfigUtils.loadConfigurationFile(
+                new File(System.getProperty("user.home") + "/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
+        return conf;
     }
 
     /**

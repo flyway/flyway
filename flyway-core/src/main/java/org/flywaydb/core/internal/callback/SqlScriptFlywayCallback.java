@@ -19,14 +19,14 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.configuration.FlywayConfiguration;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
@@ -64,7 +64,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
             BEFORE_REPAIR, AFTER_REPAIR,
             BEFORE_INFO, AFTER_INFO);
 
-    private final Map<String, SqlScript> scripts = new HashMap<String, SqlScript>();
+    private final Map<String, SqlScript> scripts = new HashMap<>();
 
     /**
      * Creates a new instance.
@@ -102,6 +102,8 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                     }
                     scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, configuration.getEncoding(),
                             configuration.isMixed()
+
+
 
                     ));
                 }

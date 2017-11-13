@@ -91,7 +91,7 @@ public class SqlMigrationResolver implements MigrationResolver {
     }
 
     public List<ResolvedMigration> resolveMigrations() {
-        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+        List<ResolvedMigration> migrations = new ArrayList<>();
 
         for (Location location: locations.getLocations()) {
             scanForMigrations(location, migrations, configuration.getSqlMigrationPrefix(), configuration.getSqlMigrationSeparator(), configuration.getSqlMigrationSuffix(), false);

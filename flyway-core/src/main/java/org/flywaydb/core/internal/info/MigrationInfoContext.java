@@ -69,7 +69,7 @@ public class MigrationInfoContext {
      */
     public MigrationVersion lastApplied = MigrationVersion.EMPTY;
 
-    public Map<String, Integer> latestRepeatableRuns = new HashMap<String, Integer>();
+    public Map<String, Integer> latestRepeatableRuns = new HashMap<>();
 
     @Override
     public boolean equals(Object o) {

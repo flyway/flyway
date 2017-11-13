@@ -22,7 +22,6 @@ import org.flywaydb.core.api.logging.LogFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
@@ -51,13 +50,13 @@ public class ClassUtils {
      * @param classLoader The ClassLoader to use.
      * @param <T>         The type of the new instance.
      * @return The new instance.
-     * @throws Exception Thrown when the instantiation failed.
+     * @throws FlywayException Thrown when the instantiation failed.
      */
     @SuppressWarnings({"unchecked"})
     // Must be synchronized for the Maven Parallel Junit runner to work
     public static synchronized <T> T instantiate(String className, ClassLoader classLoader) {
         try {
-            return (T) Class.forName(className, true, classLoader).newInstance();
+            return (T) Class.forName(className, true, classLoader).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new FlywayException("Unable to instantiate class " + className + " : " + e.getMessage(), e);
         }
@@ -72,7 +71,7 @@ public class ClassUtils {
      * @return The list of instances.
      */
     public static <T> List<T> instantiateAll(String[] classes, ClassLoader classLoader) {
-        List<T> clazzes = new ArrayList<T>();
+        List<T> clazzes = new ArrayList<>();
         for (String clazz : classes) {
             if (StringUtils.hasLength(clazz)) {
                 clazzes.add(ClassUtils.<T>instantiate(clazz, classLoader));
@@ -140,18 +139,17 @@ public class ClassUtils {
     /**
      * Adds a jar or a directory with this name to the classpath.
      *
-     * @param name The name of the jar or directory to add.
+     * @param classLoader The current ClassLoader.
+     * @param name        The name of the jar or directory to add.
+     * @return The new ClassLoader containing the additional jar or directory.
      * @throws IOException when the jar or directory could not be found.
      */
-    public static void addJarOrDirectoryToClasspath(String name) throws IOException {
+    public static ClassLoader addJarOrDirectoryToClasspath(ClassLoader classLoader, String name) throws IOException {
         LOG.debug("Adding location to classpath: " + name);
 
         try {
             URL url = new File(name).toURI().toURL();
-            URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(sysloader, url);
+            return new URLClassLoader(new URL[]{url}, classLoader);
         } catch (Exception e) {
             throw new FlywayException("Unable to load " + name, e);
         }

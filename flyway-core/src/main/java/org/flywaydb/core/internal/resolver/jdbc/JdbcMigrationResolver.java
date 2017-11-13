@@ -24,6 +24,7 @@ import org.flywaydb.core.api.migration.MigrationInfoProvider;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
+import org.flywaydb.core.internal.configuration.ConfigUtils;
 import org.flywaydb.core.internal.resolver.MigrationInfoHelper;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationComparator;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
@@ -69,7 +70,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
 
     @Override
     public List<ResolvedMigration> resolveMigrations() {
-        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>();
+        List<ResolvedMigration> migrations = new ArrayList<>();
 
         for (Location location : locations.getLocations()) {
             if (!location.isClassPath()) {
@@ -88,7 +89,7 @@ public class JdbcMigrationResolver implements MigrationResolver {
             Class<?>[] classes = scanner.scanForClasses(location, JdbcMigration.class);
             for (Class<?> clazz : classes) {
                 JdbcMigration jdbcMigration = ClassUtils.instantiate(clazz.getName(), scanner.getClassLoader());
-                ConfigurationInjectionUtils.injectFlywayConfiguration(jdbcMigration, configuration);
+                ConfigUtils.injectFlywayConfiguration(jdbcMigration, configuration);
 
                 ResolvedMigrationImpl migrationInfo = extractMigrationInfo(jdbcMigration);
                 migrationInfo.setPhysicalLocation(ClassUtils.getLocationOnDisk(clazz));

@@ -102,7 +102,7 @@ public class JarFileClassPathLocationScanner implements ClassPathLocationScanner
      */
     private Set<String> findResourceNamesFromJarFile(JarFile jarFile, String prefix, String location) throws IOException {
         String toScan = prefix + location + (location.endsWith("/") ? "" : "/");
-        Set<String> resourceNames = new TreeSet<String>();
+        Set<String> resourceNames = new TreeSet<>();
 
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {

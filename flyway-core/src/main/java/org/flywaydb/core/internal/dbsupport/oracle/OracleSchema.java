@@ -266,7 +266,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
      * Oracle object types.
      */
     public enum ObjectType {
-
         // Tables, including XML tables, except for nested tables, IOT overflow tables and other secondary objects.
         TABLE("TABLE", "CASCADE CONSTRAINTS PURGE") {
             @Override
@@ -774,7 +773,6 @@ public class OracleSchema extends Schema<OracleDbSupport> {
 
 
 
-
             String query =
                     // Most object types can be correctly selected from DBA_/ALL_OBJECTS.
                     "SELECT DISTINCT OBJECT_TYPE FROM " + dbSupport.dbaOrAll("OBJECTS") + " WHERE OWNER = ? " +
@@ -826,7 +824,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
             String[] params = new String[n];
             Arrays.fill(params, schema.getName());
 
-            return new HashSet<String>(jdbcTemplate.queryForStringList(query, params));
+            return new HashSet<>(jdbcTemplate.queryForStringList(query, params));
         }
 
         /**
@@ -836,7 +834,7 @@ public class OracleSchema extends Schema<OracleDbSupport> {
          * @throws SQLException if retrieving of object types failed.
          */
         public static boolean supportedTypesExist(JdbcTemplate jdbcTemplate, OracleDbSupport dbSupport, OracleSchema schema) throws SQLException {
-            Set<String> existingTypeNames = new HashSet<String>(getObjectTypeNames(jdbcTemplate, dbSupport, schema));
+            Set<String> existingTypeNames = new HashSet<>(getObjectTypeNames(jdbcTemplate, dbSupport, schema));
 
             // Remove unsupported types.
             existingTypeNames.removeAll(Arrays.asList(

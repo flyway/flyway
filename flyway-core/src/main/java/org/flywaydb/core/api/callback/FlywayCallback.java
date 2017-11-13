@@ -32,8 +32,6 @@ import java.sql.Connection;
  * already implements {@link ConfigurationAware}</p>
  *
  * <p>Each callback method will run within its own transaction.</p>
- * 
- * @author Dan Bunker
  */
 public interface FlywayCallback {
 	/**

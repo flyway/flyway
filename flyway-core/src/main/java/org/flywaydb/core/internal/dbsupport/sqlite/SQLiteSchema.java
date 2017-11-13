@@ -59,7 +59,7 @@ public class SQLiteSchema extends Schema<SQLiteDbSupport> {
     @Override
     protected boolean doEmpty() throws SQLException {
         Table[] tables = allTables();
-        List<String> tableNames = new ArrayList<String>();
+        List<String> tableNames = new ArrayList<>();
         for (Table table : tables) {
             String tableName = table.getName();
             if (!IGNORED_SYSTEM_TABLE_NAMES.contains(tableName)) {

@@ -189,7 +189,7 @@ public abstract class Schema<S extends DbSupport> {
         try {
             resultSet = jdbcTemplate.getMetaData().getUDTs(null, name, null, null);
 
-            List<Type> types = new ArrayList<Type>();
+            List<Type> types = new ArrayList<>();
             while (resultSet.next()) {
                 types.add(getType(resultSet.getString("TYPE_NAME")));
             }

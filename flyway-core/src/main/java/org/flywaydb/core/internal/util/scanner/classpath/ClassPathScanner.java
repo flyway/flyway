@@ -61,7 +61,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     /**
      * Cache location scanners.
      */
-    private final Map<String, ClassPathLocationScanner> locationScannerCache = new HashMap<String, ClassPathLocationScanner>();
+    private final Map<String, ClassPathLocationScanner> locationScannerCache = new HashMap<>();
 
     /**
      * Cache resource names.
@@ -81,7 +81,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
     public LoadableResource[] scanForResources(Location path, String prefix, String suffix) throws IOException {
         LOG.debug("Scanning for classpath resources at '" + path + "' (Prefix: '" + prefix + "', Suffix: '" + suffix + "')");
 
-        Set<LoadableResource> resources = new TreeSet<LoadableResource>();
+        Set<LoadableResource> resources = new TreeSet<>();
 
         Set<String> resourceNames = findResourceNames(path, prefix, suffix);
         for (String resourceName : resourceNames) {
@@ -156,7 +156,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      * @throws IOException when scanning this location failed.
      */
     private Set<String> findResourceNames(Location location, String prefix, String suffix) throws IOException {
-        Set<String> resourceNames = new TreeSet<String>();
+        Set<String> resourceNames = new TreeSet<>();
 
         List<URL> locationUrls = getLocationUrlsForPath(location);
         for (URL locationUrl : locationUrls) {
@@ -247,7 +247,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
 
         LOG.debug("Determining location urls for " + location + " using ClassLoader " + classLoader + " ...");
 
-        List<URL> locationUrls = new ArrayList<URL>();
+        List<URL> locationUrls = new ArrayList<>();
 
         if (classLoader.getClass().getName().startsWith("com.ibm")) {
             // WebSphere
@@ -358,7 +358,7 @@ public class ClassPathScanner implements ResourceAndClassScanner {
      * @return The filtered names set.
      */
     private Set<String> filterResourceNames(Set<String> resourceNames, String prefix, String suffix) {
-        Set<String> filteredResourceNames = new TreeSet<String>();
+        Set<String> filteredResourceNames = new TreeSet<>();
         for (String resourceName : resourceNames) {
             String fileName = resourceName.substring(resourceName.lastIndexOf("/") + 1);
             if (fileName.startsWith(prefix) && fileName.endsWith(suffix)

@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -39,6 +40,25 @@ public class PostgreSQLDbSupport extends DbSupport {
      */
     public PostgreSQLDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.NULL));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        String version = majorVersion + "." + minorVersion;
+
+        if (majorVersion < 9) {
+            throw new FlywayDbUpgradeRequiredException("PostgreSQL", version, "9.0");
+        }
+
+        if (majorVersion == 9) {
+            if (minorVersion < 3) {
+                throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("PostgreSQL", "PostgreSQL", version);
+            }
+        }
+
+        if (majorVersion > 10) {
+            recommendFlywayUpgrade("PostgreSQL", version);
+        }
     }
 
     public String getDbName() {

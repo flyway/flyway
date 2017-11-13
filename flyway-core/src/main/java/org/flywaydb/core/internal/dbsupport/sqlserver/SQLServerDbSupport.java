@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.sqlserver;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -45,6 +46,54 @@ public class SQLServerDbSupport extends DbSupport {
      */
     public SQLServerDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        String release = versionToReleaseName(majorVersion, minorVersion);
+
+        if (majorVersion < 10) {
+            throw new FlywayDbUpgradeRequiredException("SQL Server", release, "2008");
+        }
+
+        if (majorVersion < 12) {
+            throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("Microsoft", "SQL Server", release);
+        }
+
+        if (majorVersion > 14 || (majorVersion == 14 && minorVersion > 0)) {
+            recommendFlywayUpgrade("SQL Server", release);
+        }
+    }
+
+    private String versionToReleaseName(int major, int minor) {
+        if (major < 8) {
+            return major + "." + minor;
+        }
+        if (major == 8) {
+            return "2000";
+        }
+        if (major == 9) {
+            return "2005";
+        }
+        if (major == 10) {
+            if (minor == 0) {
+                return "2008";
+            }
+            return "2008 R2";
+        }
+        if (major == 11) {
+            return "2012";
+        }
+        if (major == 12) {
+            return "2014";
+        }
+        if (major == 13) {
+            return "2016";
+        }
+        if (major == 14) {
+            return "2017";
+        }
+        return major + "." + minor;
     }
 
     public String getDbName() {

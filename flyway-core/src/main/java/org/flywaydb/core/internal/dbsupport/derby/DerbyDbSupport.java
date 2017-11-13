@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.derby;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -35,6 +36,15 @@ public class DerbyDbSupport extends DbSupport {
      */
     public DerbyDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        String version = majorVersion + "." + minorVersion;
+
+        if (majorVersion < 10 || (majorVersion == 10 && minorVersion < 8)) {
+            throw new FlywayDbUpgradeRequiredException("Derby", version, "10.8.1.2");
+        }
     }
 
     public String getDbName() {

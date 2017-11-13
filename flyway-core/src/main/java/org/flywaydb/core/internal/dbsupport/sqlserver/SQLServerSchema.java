@@ -291,7 +291,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanForeignKeys(List<DBObject> tables) throws SQLException {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
             List<DBObject> fks = queryDBObjectsWithParent(table, ObjectType.FOREIGN_KEY,
                     ObjectType.CHECK_CONSTRAINT);
@@ -311,7 +311,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanDefaultConstraints(List<DBObject> tables) throws SQLException {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (DBObject table : tables) {
             List<DBObject> dfs = queryDBObjectsWithParent(table, ObjectType.DEFAULT_CONSTRAINT);
             for (DBObject df : dfs) {
@@ -329,7 +329,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanProcedure() throws SQLException {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         List<DBObject> procedures = queryDBObjects(ObjectType.STORED_PROCEDURE, ObjectType.CLR_STORED_PROCEDURE);
         for (DBObject procedure : procedures) {
             statements.add("DROP PROCEDURE " + dbSupport.quote(name, procedure.name));
@@ -345,7 +345,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanFunctions() throws SQLException {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         List<DBObject> functions = queryDBObjects(ObjectType.SCALAR_FUNCTION, ObjectType.CLR_SCALAR_FUNCTION,
                 ObjectType.CLR_TABLE_VALUED_FUNCTION, ObjectType.TABLE_VALUED_FUNCTION,
                 ObjectType.INLINED_TABLE_FUNCTION);
@@ -362,7 +362,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanAggregates() throws SQLException {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         List<DBObject> aggregates = queryDBObjects(ObjectType.AGGREGATE);
         for (DBObject aggregate : aggregates) {
             statements.add("DROP AGGREGATE " + dbSupport.quote(name, aggregate.name));
@@ -377,7 +377,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanViews() throws SQLException {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         List<DBObject> views = queryDBObjects(ObjectType.VIEW);
         for (DBObject view : views) {
             statements.add("DROP VIEW " + dbSupport.quote(name, view.name));
@@ -400,7 +400,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
                         name
                 );
 
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (String typeName : typeNames) {
             statements.add("DROP TYPE " + dbSupport.quote(name, typeName));
         }
@@ -418,7 +418,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
                 jdbcTemplate.queryForStringList(
                         "SELECT * FROM sys.assemblies WHERE is_user_defined=1"
                 );
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (String assemblyName : assemblyNames) {
             statements.add("DROP ASSEMBLY " + dbSupport.quote(assemblyName));
         }
@@ -432,7 +432,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanSynonyms() throws SQLException {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         List<DBObject> synonyms = queryDBObjects(ObjectType.SYNONYM);
         for (DBObject synonym : synonyms) {
             statements.add("DROP SYNONYM " + dbSupport.quote(name, synonym.name));
@@ -448,7 +448,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @throws SQLException when the clean statements could not be generated.
      */
     private List<String> cleanSequences() throws SQLException {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         List<DBObject> sequences = queryDBObjects(ObjectType.SEQUENCE_OBJECT);
         for (DBObject sequence : sequences) {
             statements.add("DROP SEQUENCE " + dbSupport.quote(name, sequence.name));
@@ -459,7 +459,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-        List<String> tableNames = new ArrayList<String>();
+        List<String> tableNames = new ArrayList<>();
         for (DBObject table : queryDBObjects(ObjectType.USER_TABLE)) {
             tableNames.add(table.name);
         }

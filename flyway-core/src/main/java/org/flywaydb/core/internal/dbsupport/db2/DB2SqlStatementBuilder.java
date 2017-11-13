@@ -46,7 +46,7 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
     /**
      * The labels associated with nested BEGIN ... END blocks.
      */
-    private Deque<String> beginEndLabels = new LinkedList<String>();
+    private Deque<String> beginEndLabels = new LinkedList<>();
 
     /**
      * Holds the beginning of the statement.

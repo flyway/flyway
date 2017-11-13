@@ -230,16 +230,6 @@ public class FlywayExtension {
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      * <p>
      * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
-     *
-     * @deprecated Use <code>mixed</code> instead. Will be removed in Flyway 5.0.
-     */
-    @Deprecated
-    public Boolean allowMixedMigrations;
-
-    /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration.
-     * <p>
-     * {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false}</)
      */
     public Boolean mixed;
 
@@ -256,12 +246,25 @@ public class FlywayExtension {
      */
     public String installedBy;
 
+    /**
+     * The fully qualified class name of the ErrorHandler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * <p>{@code null} if the default internal handler should be used instead. (default: {@code null})</p>
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     */
+    public String errorHandler;
 
+    /**
+     * The encoding of the external config files specified with the {@code flyway.configFiles} property. (default: UTF-8).
+     * <p>Also configurable with Gradle or System Property: ${flyway.configFileEncoding}</p>
+     */
+    public String configFileEncoding;
 
-
-
-
-
-
-
+    /**
+     * Config files from which to load the Flyway configuration. The names of the individual properties match the ones you would
+     * use as Gradle or System properties. The encoding of the files is defined by the
+     * flyway.configFileEncoding property, which is UTF-8 by default. Relative paths are relative to the project root.
+     * <p>Also configurable with Gradle or System Property: ${flyway.configFiles}</p>
+     */
+    public String[] configFiles;
 }
