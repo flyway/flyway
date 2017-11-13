@@ -32,8 +32,8 @@ import static org.junit.Assume.assumeTrue;
  */
 @Category(DbCategory.Redshift.class)
 public class RedshiftConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
-    @Before
-    public void ensureRedshiftEnabled() {
+    @Override
+    protected void ensureTestEnabled() {
         assumeTrue(Boolean.valueOf(System.getProperty("redshift")));
     }
 

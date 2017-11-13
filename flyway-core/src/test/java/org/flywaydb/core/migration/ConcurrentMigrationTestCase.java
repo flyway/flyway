@@ -85,6 +85,8 @@ public abstract class ConcurrentMigrationTestCase {
 
     @Before
     public void setUp() throws Exception {
+        ensureTestEnabled();
+
         concurrentMigrationDataSource = createDataSource(customProperties);
 
         Connection connection = concurrentMigrationDataSource.getConnection();
@@ -99,6 +101,10 @@ public abstract class ConcurrentMigrationTestCase {
         if (needsBaseline()) {
             flyway.baseline();
         }
+    }
+
+    protected void ensureTestEnabled() {
+        // Tests are enabled by default.
     }
 
     protected boolean needsBaseline() {
