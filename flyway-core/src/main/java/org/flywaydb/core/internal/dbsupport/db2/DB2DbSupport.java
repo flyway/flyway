@@ -132,6 +132,6 @@ public class DB2DbSupport extends DbSupport {
 
     @Override
     public boolean useSingleConnection() {
-        return true;
+        return false;
     }
 }

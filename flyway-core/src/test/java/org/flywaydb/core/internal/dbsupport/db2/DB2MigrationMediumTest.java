@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
  */
 @Category(DbCategory.DB2.class)
 public class DB2MigrationMediumTest extends MigrationTestCase {
-    static final String JDBC_URL = "jdbc:db2://localhost:62010/flyway";
+    static final String JDBC_URL = "jdbc:db2://localhost:62010/flyway:retrieveMessagesFromServerOnGetMessage=true;";
     static final String JDBC_USER = "db2inst1";
     static final String JDBC_PASSWORD = "flywaypwd";
 
@@ -76,6 +76,14 @@ public class DB2MigrationMediumTest extends MigrationTestCase {
         flyway.migrate();
 
         assertEquals("1", flyway.info().current().getVersion().toString());
+    }
+
+    @Test
+    public void truncate() throws Exception {
+        flyway.setLocations("migration/dbsupport/db2/sql/truncate");
+        flyway.migrate();
+
+        assertEquals("2", flyway.info().current().getVersion().toString());
     }
 
     @Test
