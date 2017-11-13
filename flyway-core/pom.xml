@@ -122,8 +122,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.noraui</groupId>
-            <artifactId>ojdbc7</artifactId>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
