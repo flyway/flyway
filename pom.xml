@@ -95,11 +95,11 @@
             <id>jcenter</id>
             <url>https://jcenter.bintray.com/</url>
         </repository>
-        <!-- [master] -->
         <repository>
             <id>flyway-repo</id>
             <url>https://flywaydb.org/repo</url>
         </repository>
+        <!-- [master] -->
         <repository>
             <id>flyway-repo-private</id>
             <url>s3://flyway-repo/release</url>
