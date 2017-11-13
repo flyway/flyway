@@ -628,6 +628,18 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void repeatableJava() {
+        DriverDataSource dataSource =
+                new DriverDataSource(newClassLoader, null, "jdbc:h2:mem:flyway_repeatable_java;DB_CLOSE_DELAY=-1", "sa", "", null);
+
+        flyway.setDataSource(dataSource);
+        flyway.setLocations("org.flywaydb.core.internal.repeatable");
+        for (int i = 0; i < 10; i++) {
+            assertEquals(1, flyway.migrate());
+        }
+    }
+
+    @Test
     public void currentEmpty() {
         flyway.setDataSource("jdbc:h2:mem:flyway_current_empty;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setTargetAsString("current");
@@ -932,14 +944,14 @@ public class FlywayMediumTest {
          */
         private int openConnectionCount = 0;
 
-        public OpenConnectionCountDriverDataSource() {
+        OpenConnectionCountDriverDataSource() {
             super(Thread.currentThread().getContextClassLoader(), null, "jdbc:h2:mem:flyway_db_open_connection;DB_CLOSE_DELAY=-1", "sa", "", null);
         }
 
         /**
          * @return The number of connections currently open.
          */
-        public int getOpenConnectionCount() {
+        int getOpenConnectionCount() {
             return openConnectionCount;
         }
 

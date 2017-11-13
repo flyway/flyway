@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.sybasease;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
@@ -29,6 +30,7 @@ import static org.flywaydb.core.internal.dbsupport.sybasease.SybaseASEMigrationM
  * Test to demonstrate the migration functionality using Sybase ASE with the Jtds driver.
  */
 @Category(DbCategory.SQLServer.class)
+@Ignore("Disabled due to interference in build. Can be reenabled once Docker image contains a separate DB for this test")
 public class SybaseASEConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
