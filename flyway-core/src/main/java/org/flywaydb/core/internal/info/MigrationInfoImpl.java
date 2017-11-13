@@ -16,7 +16,6 @@
 package org.flywaydb.core.internal.info;
 
 
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
@@ -239,11 +238,11 @@ public class MigrationInfoImpl implements MigrationInfo {
         }
 
         if (resolvedMigration != null && appliedMigration != null) {
-            Object migrationIdentifier = appliedMigration.getVersion();
-            if (migrationIdentifier == null) {
-                // Repeatable migrations
-                migrationIdentifier = appliedMigration.getScript();
-            }
+            String migrationIdentifier = appliedMigration.getVersion() == null ?
+                    // Repeatable migrations
+                    appliedMigration.getScript() :
+                    // Versioned migrations
+                    "version " + appliedMigration.getVersion();
             if (getVersion() == null || getVersion().compareTo(context.baseline) > 0) {
                 if (resolvedMigration.getType() != appliedMigration.getType()) {
                     return createMismatchMessage("type", migrationIdentifier,
@@ -275,7 +274,7 @@ public class MigrationInfoImpl implements MigrationInfo {
      * @param resolved            The resolved value.
      * @return The message.
      */
-    private String createMismatchMessage(String mismatch, Object migrationIdentifier, Object applied, Object resolved) {
+    private String createMismatchMessage(String mismatch, String migrationIdentifier, Object applied, Object resolved) {
         return String.format("Migration " + mismatch + " mismatch for migration %s\n" +
                         "-> Applied to database : %s\n" +
                         "-> Resolved locally    : %s",
