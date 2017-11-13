@@ -34,7 +34,7 @@ public class PostgreSQLTable extends Table {
      * @param schema       The schema this table lives in.
      * @param name         The name of the table.
      */
-    public PostgreSQLTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    PostgreSQLTable(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
     }
 

@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.dbsupport.db2;
 
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
@@ -30,13 +29,6 @@ import java.sql.Types;
  * DB2 Support.
  */
 public class DB2DbSupport extends DbSupport {
-    private static final Log LOG = LogFactory.getLog(DB2DbSupport.class);
-
-    /**
-     * The major version of DB2. (9, 10, ...)
-     */
-    private int majorVersion;
-
     /**
      * Creates a new instance.
      *
@@ -44,12 +36,49 @@ public class DB2DbSupport extends DbSupport {
      */
     public DB2DbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
-        try {
-            majorVersion = connection.getMetaData().getDatabaseMajorVersion();
-        } catch (Exception e) {
-            LOG.warn("Unable to determine DB2 major version (" + e.getMessage() + "). Assuming DB2 11!");
-            majorVersion = 11;
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        String version = majorVersion + "." + minorVersion;
+
+        if (majorVersion < 9 || (majorVersion == 9 && minorVersion < 7)) {
+            throw new FlywayDbUpgradeRequiredException("DB2", version, "9.7");
         }
+
+        if (majorVersion == 9 || (majorVersion == 10 && minorVersion < 5)) {
+        throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("IBM", "DB2", version);
+        }
+
+        if (majorVersion > 11 || (majorVersion == 11 && minorVersion > 1)) {
+            recommendFlywayUpgrade("DB2", version);
+        }
+    }
+
+    @Override
+    public String getCreateScript() {
+        return "CREATE TABLE \"${schema}\".\"${table}\" (\n" +
+                "    \"installed_rank\" INT NOT NULL,\n" +
+                "    \"version\" VARCHAR(50),\n" +
+                "    \"description\" VARCHAR(200) NOT NULL,\n" +
+                "    \"type\" VARCHAR(20) NOT NULL,\n" +
+                "    \"script\" VARCHAR(1000) NOT NULL,\n" +
+                "    \"checksum\" INT,\n" +
+                "    \"installed_by\" VARCHAR(100) NOT NULL,\n" +
+                "    \"installed_on\" TIMESTAMP DEFAULT CURRENT TIMESTAMP NOT NULL,\n" +
+                "    \"execution_time\" INT NOT NULL,\n" +
+                "    \"success\" SMALLINT NOT NULL,\n" +
+                "    CONSTRAINT \"${table}_s\" CHECK (\"success\" in(0,1))\n" +
+
+
+
+                        ") ORGANIZE BY ROW;\n"
+
+
+
+                + "ALTER TABLE \"${schema}\".\"${table}\" ADD CONSTRAINT \"${table}_pk\" PRIMARY KEY (\"installed_rank\");\n" +
+                "\n" +
+                "CREATE INDEX \"${schema}\".\"${table}_s_idx\" ON \"${schema}\".\"${table}\" (\"success\");";
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
@@ -99,13 +128,6 @@ public class DB2DbSupport extends DbSupport {
     @Override
     public boolean catalogIsSchema() {
         return false;
-    }
-
-    /**
-     * @return The major version of DB2. (9, 10, ...)
-     */
-    public int getDb2MajorVersion() {
-        return majorVersion;
     }
 
     @Override

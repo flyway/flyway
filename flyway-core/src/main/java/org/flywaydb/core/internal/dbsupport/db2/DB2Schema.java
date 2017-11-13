@@ -38,7 +38,7 @@ public class DB2Schema extends Schema<DB2DbSupport> {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public DB2Schema(JdbcTemplate jdbcTemplate, DB2DbSupport dbSupport, String name) {
+    DB2Schema(JdbcTemplate jdbcTemplate, DB2DbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
@@ -75,7 +75,7 @@ public class DB2Schema extends Schema<DB2DbSupport> {
         // MQTs are dropped when the backing views or tables are dropped
         // Indexes in DB2 are dropped when the corresponding table is dropped
 
-        if (dbSupport.getDb2MajorVersion() >= 10) {
+        if (dbSupport.getMajorVersion() >= 10) {
             // drop versioned table link -> not supported for DB2 9.x
             List<String> dropVersioningStatements = generateDropVersioningStatement();
             if (!dropVersioningStatements.isEmpty()) {
@@ -203,7 +203,7 @@ public class DB2Schema extends Schema<DB2DbSupport> {
      * @throws SQLException when the drop statements could not be built.
      */
     private List<String> buildDropStatements(final String dropPrefix, final String query) throws SQLException {
-        List<String> dropStatements = new ArrayList<String>();
+        List<String> dropStatements = new ArrayList<>();
         List<String> dbObjects = jdbcTemplate.queryForStringList(query);
         for (String dbObject : dbObjects) {
             dropStatements.add(dropPrefix + " " + dbSupport.quote(name, dbObject));
@@ -215,7 +215,7 @@ public class DB2Schema extends Schema<DB2DbSupport> {
      * @return All tables that have versioning associated with them.
      */
     private List<String> generateDropVersioningStatement() throws SQLException {
-        List<String> dropVersioningStatements = new ArrayList<String>();
+        List<String> dropVersioningStatements = new ArrayList<>();
         Table[] versioningTables = findTables("select TABNAME from SYSCAT.TABLES where TEMPORALTYPE <> 'N' and TABSCHEMA = ?", name);
         for (Table table : versioningTables) {
             dropVersioningStatements.add("ALTER TABLE " + table.toString() + " DROP VERSIONING");
@@ -249,7 +249,7 @@ public class DB2Schema extends Schema<DB2DbSupport> {
                         " order by p.SPECIFICNAME", name
         );
 
-        List<Function> functions = new ArrayList<Function>();
+        List<Function> functions = new ArrayList<>();
         for (Map<String, String> row : rows) {
             functions.add(getFunction(
                     row.get("FUNCNAME"),

@@ -101,7 +101,7 @@ public class H2Schema extends Schema<H2DbSupport> {
      * @return The list of statements.
      */
     private List<String> generateDropStatements(String objectType, List<String> objectNames, String dropStatementSuffix) {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (String objectName : objectNames) {
             String dropStatement =
                     "DROP " + objectType + dbSupport.quote(name, objectName) + " " + dropStatementSuffix;
@@ -120,7 +120,7 @@ public class H2Schema extends Schema<H2DbSupport> {
      * @return The list of statements.
      */
     private List<String> generateDropStatementsForCurrentSchema(String objectType, List<String> objectNames, String dropStatementSuffix) {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (String objectName : objectNames) {
             String dropStatement =
                     "DROP " + objectType + dbSupport.quote(objectName) + " " + dropStatementSuffix;

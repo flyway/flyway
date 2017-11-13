@@ -16,22 +16,36 @@
 package org.flywaydb.core.internal.dbsupport.cockroachdb;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
-import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.concurrent.Callable;
 
 /**
  * CockroachDB-specific support.
  */
 public class CockroachDBDbSupport extends DbSupport {
+    /**
+     * Checks whether this connection is pointing at a CockroachDB instance.
+     *
+     * @param connection The connection.
+     * @return {@code true} if it is, {@code false} if not.
+     */
+    public static boolean isCockroachDB(Connection connection) {
+        try {
+            return new JdbcTemplate(connection).queryForString("SELECT version()").contains("CockroachDB");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * Creates a new instance.
      *
@@ -39,6 +53,35 @@ public class CockroachDBDbSupport extends DbSupport {
      */
     public CockroachDBDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.NULL));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        String version = majorVersion + "." + minorVersion;
+        if (majorVersion < 1 || (majorVersion == 1 && minorVersion < 1)) {
+            throw new FlywayDbUpgradeRequiredException("CockroachDB", version, "1.1");
+        }
+        if (majorVersion > 1) {
+            recommendFlywayUpgrade("CockroachDB", version);
+        }
+    }
+
+    @Override
+    protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
+        String version;
+        try {
+            version = jdbcTemplate.queryForString("SELECT value FROM crdb_internal.node_build_info where field='Version'");
+            if (version == null) {
+                version = jdbcTemplate.queryForString("SELECT value FROM crdb_internal.node_build_info where field='Tag'");
+            }
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine CockroachDB version", e);
+        }
+        int firstDot = version.indexOf(".");
+        int majorVersion = Integer.parseInt(version.substring(1, firstDot));
+        String minorPatch = version.substring(firstDot + 1);
+        int minorVersion = Integer.parseInt(minorPatch.substring(0, minorPatch.indexOf(".")));
+        return Pair.of(majorVersion, minorVersion);
     }
 
     public String getDbName() {

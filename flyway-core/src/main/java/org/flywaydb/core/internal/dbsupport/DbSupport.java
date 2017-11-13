@@ -15,8 +15,13 @@
  */
 package org.flywaydb.core.internal.dbsupport;
 
+import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
+import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
@@ -24,6 +29,8 @@ import java.util.concurrent.Callable;
  * Abstraction for database-specific functionality.
  */
 public abstract class DbSupport {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DbSupport.class);
+
     /**
      * The JDBC template available for use.
      */
@@ -35,13 +42,39 @@ public abstract class DbSupport {
     protected final String originalSchema;
 
     /**
+     * The major version of the database.
+     */
+    protected final int majorVersion;
+
+    /**
+     * The minor version of the database.
+     */
+    protected final int minorVersion;
+
+    /**
      * Creates a new DbSupport instance with this JdbcTemplate.
      *
      * @param jdbcTemplate The JDBC template to use.
      */
     public DbSupport(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
+        originalSchema = jdbcTemplate.getConnection() == null ? null : getCurrentSchemaName();
+        Pair<Integer, Integer> majorMinor =
+                jdbcTemplate.getConnection() == null ? Pair.of(0,0) : determineMajorAndMinorVersion();
+        majorVersion = majorMinor.getLeft();
+        minorVersion = majorMinor.getRight();
+        if (jdbcTemplate.getConnection() != null) {
+            ensureSupported();
+        }
+    }
+
+    /**
+     * Ensures Flyway supports this version of this database.
+     */
+    protected abstract void ensureSupported();
+
+    protected void recommendFlywayUpgrade(String database, String version) {
+        LOGGER.warn("Flyway upgrade recommended: " + database + " " + version + " is newer than this version of Flyway and support has not been tested.");
     }
 
     /**
@@ -205,7 +238,7 @@ public abstract class DbSupport {
      * @return The result of the callable.
      */
     public <T> T lock(final Table table, final Callable<T> callable) {
-        return new TransactionTemplate(jdbcTemplate.getConnection(), false).execute(new Callable<T>() {
+        return new TransactionTemplate(jdbcTemplate.getConnection(), supportsDdlTransactions()).execute(new Callable<T>() {
             @Override
             public T call() throws Exception {
                 table.lock();
@@ -219,5 +252,40 @@ public abstract class DbSupport {
      */
     public boolean useSingleConnection() {
         return false;
+    }
+
+    /**
+     * Returns the major version number of the database.
+     *
+     * @return the major version number as int.
+     */
+    public int getMajorVersion() {
+        return majorVersion;
+    }
+
+    /**
+     * Returns the minor version number of the database.
+     *
+     * @return the minor version number as int.
+     */
+    public int getMinorVersion() {
+        return minorVersion;
+    }
+
+    /**
+     * @return The major and minor version of the database.
+     */
+    protected Pair<Integer, Integer> determineMajorAndMinorVersion() {
+        try {
+            DatabaseMetaData metaData = jdbcTemplate.getMetaData();
+            return Pair.of(metaData.getDatabaseMajorVersion(), metaData.getDatabaseMinorVersion());
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine the major version of the database", e);
+        }
+    }
+
+    public String getCreateScript() {
+        String resourceName = "org/flywaydb/core/internal/dbsupport/" + getDbName() + "/createMetaDataTable.sql";
+        return new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
     }
 }

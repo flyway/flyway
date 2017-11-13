@@ -99,7 +99,7 @@ public class DerbySchema extends Schema<DerbyDbSupport> {
                 " INNER JOIN sys.sysschemas s ON c.schemaid = s.schemaid" +
                 " WHERE c.type = 'F' AND s.schemaname = ?", name);
 
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (Map<String, String> result : results) {
             String dropStatement = "ALTER TABLE " + dbSupport.quote(name, result.get("TABLENAME"))
                     + " DROP CONSTRAINT " + dbSupport.quote(result.get("CONSTRAINTNAME"));
@@ -118,7 +118,7 @@ public class DerbySchema extends Schema<DerbyDbSupport> {
      * @return The list of statements.
      */
     private List<String> generateDropStatements(String objectType, List<String> objectNames, String dropStatementSuffix) {
-        List<String> statements = new ArrayList<String>();
+        List<String> statements = new ArrayList<>();
         for (String objectName : objectNames) {
             String dropStatement =
                     "DROP " + objectType + " " + dbSupport.quote(name, objectName) + " " + dropStatementSuffix;

@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.mysql;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -44,6 +45,41 @@ public class MySQLDbSupport extends DbSupport {
      */
     public MySQLDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        String version = majorVersion + "." + minorVersion;
+        boolean isMariaDB;
+        try {
+            isMariaDB = jdbcTemplate.getMetaData().getDatabaseProductVersion().contains("MariaDB");
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Unable to determine database product version", e);
+        }
+        String productName = isMariaDB ? "MariaDB" : "MySQL";
+
+        if (majorVersion < 5) {
+            throw new FlywayDbUpgradeRequiredException(productName, version, "5.0");
+        }
+        if (majorVersion == 5) {
+
+            if (minorVersion < 5) {
+                throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException(
+                    isMariaDB ? "MariaDB" : "Oracle", productName, version);
+            }
+
+            if (minorVersion > 7) {
+                recommendFlywayUpgrade(productName, version);
+            }
+        } else {
+            if (isMariaDB) {
+                if (majorVersion > 10 || (majorVersion == 10 && minorVersion > 2)) {
+                    recommendFlywayUpgrade(productName, version);
+                }
+            } else {
+                recommendFlywayUpgrade(productName, version);
+            }
+        }
     }
 
     public String getDbName() {

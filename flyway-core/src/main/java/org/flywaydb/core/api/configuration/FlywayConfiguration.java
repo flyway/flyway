@@ -17,7 +17,7 @@ package org.flywaydb.core.api.configuration;
 
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-
+import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
@@ -28,11 +28,13 @@ import java.util.Map;
  */
 public interface FlywayConfiguration {
     /**
-     * Retrieves the ClassLoader to use for resolving migrations on the classpath.
+     * Retrieves the ClassLoader to use for loading migrations, resolvers, etc from the classpath.
      *
-     * @return The ClassLoader to use for resolving migrations on the classpath.
+     * @return The ClassLoader to use for loading migrations, resolvers, etc from the classpath.
      * (default: Thread.currentThread().getContextClassLoader() )
+     * @deprecated Will be removed in Flyway 6.0.
      */
+    @Deprecated
     ClassLoader getClassLoader();
 
     /**
@@ -289,15 +291,6 @@ public interface FlywayConfiguration {
      * Whether to allow mixing transactional and non-transactional statements within the same migration.
      *
      * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
-     * @deprecated Use <code>isMixed()</code> instead. Will be removed in Flyway 5.0.
-     */
-    @Deprecated
-    boolean isAllowMixedMigrations();
-
-    /**
-     * Whether to allow mixing transactional and non-transactional statements within the same migration.
-     *
-     * @return {@code true} if mixed migrations should be allowed. {@code false} if an error should be thrown instead. (default: {@code false})
      */
     boolean isMixed();
 
@@ -315,14 +308,12 @@ public interface FlywayConfiguration {
      */
     String getInstalledBy();
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
+     */
+    ErrorHandler getErrorHandler();
 }

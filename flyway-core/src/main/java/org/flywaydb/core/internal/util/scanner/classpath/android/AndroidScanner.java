@@ -51,7 +51,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
     }
 
     public LoadableResource[] scanForResources(Location location, String prefix, String suffix) throws Exception {
-        List<LoadableResource> resources = new ArrayList<LoadableResource>();
+        List<LoadableResource> resources = new ArrayList<>();
 
         String path = location.getPath();
         for (String asset : context.getAssets().list(path)) {
@@ -69,7 +69,7 @@ public class AndroidScanner implements ResourceAndClassScanner {
     public Class<?>[] scanForClasses(Location location, Class<?> implementedInterface) throws Exception {
         String pkg = location.getPath().replace("/", ".");
 
-        List<Class> classes = new ArrayList<Class>();
+        List<Class> classes = new ArrayList<>();
 
         DexFile dex = new DexFile(context.getApplicationInfo().sourceDir);
         Enumeration<String> entries = dex.entries();

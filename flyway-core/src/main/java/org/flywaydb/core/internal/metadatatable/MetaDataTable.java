@@ -115,13 +115,6 @@ public interface MetaDataTable {
     void update(MigrationVersion version, String description, Integer checksum);
 
     /**
-     * Upgrades the Metadata table to Flyway 4.0 format if necessary.
-     *
-     * @return {@code true} if it was upgraded.
-     */
-    boolean upgradeIfNecessary();
-
-    /**
      * Clears the applied migration cache.
      */
     void clearCache();

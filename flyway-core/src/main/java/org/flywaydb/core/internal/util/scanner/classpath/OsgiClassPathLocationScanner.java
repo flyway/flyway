@@ -42,7 +42,7 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
     private static final Pattern bundleIdPattern = Pattern.compile("^\\d+");
 
     public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
-        Set<String> resourceNames = new TreeSet<String>();
+        Set<String> resourceNames = new TreeSet<>();
 
         Bundle bundle = getTargetBundleOrCurrent(FrameworkUtil.getBundle(getClass()), locationUrl);
         @SuppressWarnings({"unchecked"})

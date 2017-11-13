@@ -45,7 +45,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
     /**
      * The migration resolvers to use internally.
      */
-    private Collection<MigrationResolver> migrationResolvers = new ArrayList<MigrationResolver>();
+    private Collection<MigrationResolver> migrationResolvers = new ArrayList<>();
 
     /**
      * The available migrations, sorted by version, newest first. An empty list is returned when no migrations can be
@@ -102,7 +102,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @throws FlywayException when the available migrations have overlapping versions.
      */
     private List<ResolvedMigration> doFindAvailableMigrations() throws FlywayException {
-        List<ResolvedMigration> migrations = new ArrayList<ResolvedMigration>(collectMigrations(migrationResolvers));
+        List<ResolvedMigration> migrations = new ArrayList<>(collectMigrations(migrationResolvers));
         Collections.sort(migrations, new ResolvedMigrationComparator());
 
         checkForIncompatibilities(migrations);
@@ -118,7 +118,7 @@ public class CompositeMigrationResolver implements MigrationResolver {
      */
     /* private -> for testing */
     static Collection<ResolvedMigration> collectMigrations(Collection<MigrationResolver> migrationResolvers) {
-        Set<ResolvedMigration> migrations = new HashSet<ResolvedMigration>();
+        Set<ResolvedMigration> migrations = new HashSet<>();
         for (MigrationResolver migrationResolver : migrationResolvers) {
             migrations.addAll(migrationResolver.resolveMigrations());
         }

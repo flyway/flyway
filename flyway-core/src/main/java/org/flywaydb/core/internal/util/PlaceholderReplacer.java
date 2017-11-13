@@ -31,7 +31,7 @@ public class PlaceholderReplacer {
     /**
      * PlaceholderReplacer that doesn't replace any placeholders.
      */
-    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<String, String>(), "", "") {
+    public static final PlaceholderReplacer NO_PLACEHOLDERS = new PlaceholderReplacer(new HashMap<>(), "", "") {
         @Override
         public String replacePlaceholders(String input) {
             return input;
@@ -96,7 +96,7 @@ public class PlaceholderReplacer {
         String regex = Pattern.quote(placeholderPrefix) + "(.+?)" + Pattern.quote(placeholderSuffix);
         Matcher matcher = Pattern.compile(regex).matcher(input);
 
-        Set<String> unmatchedPlaceHolderExpressions = new TreeSet<String>();
+        Set<String> unmatchedPlaceHolderExpressions = new TreeSet<>();
         while (matcher.find()) {
             unmatchedPlaceHolderExpressions.add(matcher.group());
         }

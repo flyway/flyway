@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -43,6 +44,22 @@ public class OracleDbSupport extends DbSupport {
      */
     public OracleDbSupport(Connection connection) {
         super(new JdbcTemplate(connection, Types.VARCHAR));
+    }
+
+    @Override
+    protected final void ensureSupported() {
+        int majorVersion = getMajorVersion();
+        if (majorVersion < 10) {
+            throw new FlywayDbUpgradeRequiredException("Oracle", "" + majorVersion, "10");
+        }
+
+        if (majorVersion == 10 || majorVersion == 11) {
+            throw new org.flywaydb.core.internal.dbsupport.FlywayEnterpriseUpgradeRequiredException("Oracle", "Oracle", "" + majorVersion);
+        }
+
+        if (majorVersion > 12) {
+            recommendFlywayUpgrade("Oracle", "" + majorVersion);
+        }
     }
 
     public String getDbName() {
@@ -122,18 +139,6 @@ public class OracleDbSupport extends DbSupport {
         return jdbcTemplate.queryForBoolean("SELECT CASE WHEN EXISTS(" + query + ") THEN 1 ELSE 0 END FROM DUAL", params);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Checks whether the specified privilege or role is granted to the current user.
      *
@@ -190,7 +195,7 @@ public class OracleDbSupport extends DbSupport {
      * @throws SQLException if retrieving of options failed.
      */
     private Set<String> getAvailableOptions() throws SQLException {
-        return new HashSet<String>(jdbcTemplate.queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
+        return new HashSet<>(jdbcTemplate.queryForStringList("SELECT PARAMETER FROM V$OPTION WHERE VALUE = 'TRUE'"));
     }
 
     /**
@@ -244,7 +249,7 @@ public class OracleDbSupport extends DbSupport {
     Set<String> getSystemSchemas() throws SQLException {
 
         // The list of known default system schemas
-        Set<String> result = new HashSet<String>(Arrays.asList(
+        Set<String> result = new HashSet<>(Arrays.asList(
                 "SYS", "SYSTEM", // Standard system accounts
                 "SYSBACKUP", "SYSDG", "SYSKM", "SYSRAC", "SYS$UMF", // Auxiliary system accounts
                 "DBSNMP", "MGMT_VIEW", "SYSMAN", // Enterprise Manager accounts
