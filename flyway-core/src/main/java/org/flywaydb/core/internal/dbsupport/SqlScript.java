@@ -170,7 +170,7 @@ public class SqlScript {
                         }
                     };
                     if (errorHandler.handleError(errorContext)) {
-                        return;
+                        continue;
                     }
                 }
                 //[/pro]

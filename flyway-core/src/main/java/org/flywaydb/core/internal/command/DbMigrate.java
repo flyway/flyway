@@ -44,7 +44,6 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Main workflow for migrating the database.
@@ -134,25 +133,21 @@ public class DbMigrate {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
 
-            final AtomicInteger migrationSuccessCount = new AtomicInteger(0);
-            // In the special case where we are migrating a whole group, yet for a database that doesn't
-            // support Flyway's single connection mode, we must start the transaction boundary early to
-            // ensure that all changes to the metadata table are either committed or rolled back atomically.
-            if (!dbSupport.useSingleConnection() && configuration.isGroup()) {
-                metaDataTable.lock(new Callable<Void>() {
-                    @Override
-                    public Void call() {
-                        migrateAll(migrationSuccessCount, true);
-                        return null;
-                    }
-                });
-            } else {
-                // For all regular cases, proceed with the migration as usual.
-                migrateAll(migrationSuccessCount, false);
-            }
+            int count = configuration.isGroup() ?
+                    // When group is active, start the transaction boundary early to
+                    // ensure that all changes to the metadata table are either committed or rolled back atomically.
+                    metaDataTable.lock(new Callable<Integer>() {
+                        @Override
+                        public Integer call() {
+                            return migrateAll();
+                        }
+                    }) :
+                    // For all regular cases, proceed with the migration as usual.
+                    migrateAll();
+
             stopWatch.stop();
 
-            logSummary(migrationSuccessCount.get(), stopWatch.getTotalTimeMillis());
+            logSummary(count, stopWatch.getTotalTimeMillis());
 
             for (final FlywayCallback callback : configuration.getCallbacks()) {
                 new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
@@ -165,33 +160,33 @@ public class DbMigrate {
                 });
             }
 
-            return migrationSuccessCount.get();
+            return count;
         } finally {
             dbSupportUserObjects.restoreCurrentSchema();
         }
     }
 
-    private void migrateAll(AtomicInteger migrationSuccessCount, boolean alreadyLocked) {
+    private int migrateAll() {
+        int total = 0;
         while (true) {
-            final boolean firstRun = migrationSuccessCount.get() == 0;
-            int count = alreadyLocked
-                    // If we have previously acquired a lock on the metadata table, we proceed normally.
+            final boolean firstRun = total == 0;
+            int count = configuration.isGroup()
+                    // With group active a lock on the metadata table has already been acquired.
                     ? migrateGroup(firstRun)
-                    // Otherwise we acquire the lock now.
-                    // In this case, when not running with group the lock will be released at the end of each migration.
+                    // Otherwise acquire the lock now. The lock will be released at the end of each migration.
                     : metaDataTable.lock(new Callable<Integer>() {
                 @Override
                 public Integer call() {
                     return migrateGroup(firstRun);
                 }
             });
+            total += count;
             if (count == 0) {
                 // No further migrations available
                 break;
             }
-
-            migrationSuccessCount.addAndGet(count);
         }
+        return total;
     }
 
     /**
