@@ -17,7 +17,6 @@ package org.flywaydb.core.internal.resolver.sql;
 
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
-import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.scanner.Scanner;
@@ -35,7 +34,6 @@ import static org.junit.Assert.assertEquals;
  * Medium test for SqlMigrationResolver.
  */
 public class SqlMigrationResolverMediumTest {
-
     @Test
     public void resolveMigrations() throws Exception {
         @SuppressWarnings("ConstantConditions")

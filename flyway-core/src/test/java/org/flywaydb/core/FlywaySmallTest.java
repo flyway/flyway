@@ -26,6 +26,7 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.Connection;
 import java.util.Properties;
 

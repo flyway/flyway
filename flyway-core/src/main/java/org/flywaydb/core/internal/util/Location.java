@@ -65,7 +65,7 @@ public final class Location implements Comparable<Location> {
                 path = path.substring(1);
             }
         } else if (isFileSystem()) {
-            path = new File(path).getPath();
+            path = new File(path).getPath().replace("\\", "/");
         } else {
             throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
                     + normalizedDescriptor);
