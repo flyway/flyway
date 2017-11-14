@@ -17,7 +17,9 @@ package org.flywaydb.core;
 
 import org.flywaydb.core.internal.util.FileCopyUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -26,9 +28,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(Parameterized.class)
 public class FlywayPerformanceMediumTest {
@@ -39,8 +42,11 @@ public class FlywayPerformanceMediumTest {
 
     @Parameterized.Parameters(name = "scriptCount={0}")
     public static Iterable<?> data() {
-        return Arrays.asList(1000);
+        return Collections.singletonList(1000);
     }
+
+    @Rule
+    public Timeout globalTimeout = new Timeout(180, TimeUnit.SECONDS);
 
     @Before
     public void generateLotsOfInstallerScripts() throws IOException {
