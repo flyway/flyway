@@ -20,9 +20,13 @@ import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -30,15 +34,31 @@ import java.util.Properties;
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.SybaseASE.class)
+@RunWith(Parameterized.class)
 public class SybaseASEMigrationMediumTest extends MigrationTestCase {
-    static final String JDBC_URL = "jdbc:jtds:sybase://127.0.0.1:62080/guest";
+    static final String JDBC_URL_JTDS = "jdbc:jtds:sybase://127.0.0.1:62080/guest";
+    private static final String JDBC_URL_JCONNECT = "jdbc:sybase:Tds:127.0.0.1:62080/guest";
     static final String JDBC_USER = "sa";
     static final String JDBC_PASSWORD = "password";
+
+    private final String jdbcUrl;
+
+    public SybaseASEMigrationMediumTest(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {JDBC_URL_JTDS},
+                {JDBC_URL_JCONNECT}
+        });
+    }
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+                jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
 
     @Override

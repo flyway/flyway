@@ -286,6 +286,12 @@
                 <version>1.2.10.1009</version>
                 <optional>true</optional>
             </dependency>
+            <dependency>
+                <groupId>com.sybase.ase</groupId>
+                <artifactId>jconnect</artifactId>
+                <version>7.07</version>
+                <optional>true</optional>
+            </dependency>
             <!-- [/master] -->
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>

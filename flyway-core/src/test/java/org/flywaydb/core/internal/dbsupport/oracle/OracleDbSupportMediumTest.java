@@ -41,8 +41,9 @@ public class OracleDbSupportMediumTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_ORACLE_12}
-                , {JDBC_URL_ORACLE_10}
+                {JDBC_URL_ORACLE_12},
+                {JDBC_URL_ORACLE_11},
+                {JDBC_URL_ORACLE_10}
         });
     }
 

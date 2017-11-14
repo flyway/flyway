@@ -149,10 +149,16 @@ services:
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
+  oracle-11:
+    image: "wnameless/oracle-xe-11g"
+    ports:
+     - "62041:1521"
+    volumes:
+     - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   oracle-12:
     image: "sath89/oracle-12c"
     ports:
-     - "62041:1521"
+     - "62042:1521"
     volumes:
      - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-92:

@@ -35,7 +35,7 @@ public class SybaseASEConcurrentMigrationMediumTest extends ConcurrentMigrationT
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                JDBC_URL, JDBC_USER, JDBC_PASSWORD);
+                JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
     }
 
     protected String getBasedir() {

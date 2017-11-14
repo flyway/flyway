@@ -141,6 +141,11 @@
             <artifactId>redshift</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sybase.ase</groupId>
+            <artifactId>jconnect</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- [/master] -->
     </dependencies>
 

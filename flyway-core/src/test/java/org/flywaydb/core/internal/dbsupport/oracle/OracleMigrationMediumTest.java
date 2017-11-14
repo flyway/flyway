@@ -54,8 +54,9 @@ import static org.junit.Assume.assumeTrue;
 public class OracleMigrationMediumTest extends MigrationTestCase {
     private static final Log LOG = LogFactory.getLog(OracleMigrationMediumTest.class);
 
+    static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62042/xe";
+    static final String JDBC_URL_ORACLE_11 = "jdbc:oracle:thin:@//localhost:62041/xe";
     static final String JDBC_URL_ORACLE_10 = "jdbc:oracle:thin:@//localhost:62040/xe";
-    static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62041/xe";
     static final String JDBC_USER = "flyway";
     static final String JDBC_PASSWORD = "flyway";
 
@@ -64,8 +65,9 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_ORACLE_12}
-                , {JDBC_URL_ORACLE_10}
+                {JDBC_URL_ORACLE_12},
+                {JDBC_URL_ORACLE_11},
+                {JDBC_URL_ORACLE_10}
         });
     }
 

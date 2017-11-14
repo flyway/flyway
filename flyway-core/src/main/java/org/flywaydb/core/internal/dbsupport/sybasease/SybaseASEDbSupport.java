@@ -33,15 +33,20 @@ import java.sql.Types;
 public class SybaseASEDbSupport extends DbSupport {
     private static final Log LOG = LogFactory.getLog(SybaseASEDbSupport.class);
 
-    public SybaseASEDbSupport(Connection connection) {
-        super(new JdbcTemplate(connection, Types.NULL));
+    /**
+     * Whether the warning message has already been printed.
+     */
+    private static boolean schemaMessagePrinted;
+
+    public SybaseASEDbSupport(Connection connection, boolean jconnect) {
+        super(new JdbcTemplate(connection, jconnect ? Types.VARCHAR : Types.NULL));
     }
 
     @Override
     protected void ensureSupported() {
         String version = majorVersion + "." + minorVersion;
 
-        if (majorVersion < 15 || (majorVersion == 15 && minorVersion < 70)) {
+        if (majorVersion < 15 || (majorVersion == 15 && minorVersion < 7)) {
             throw new FlywayDbUpgradeRequiredException("Sybase ASE", version, "15.7");
         }
         if (majorVersion > 16 || (majorVersion == 16 && minorVersion > 2)) {
@@ -72,7 +77,10 @@ public class SybaseASEDbSupport extends DbSupport {
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        LOG.info("SAP ASE does not support setting the schema for the current session. Default schema NOT changed to " + schema);
+        if (!schemaMessagePrinted) {
+            LOG.info("Sybase ASE does not support setting the schema for the current session. Default schema NOT changed to " + schema);
+            schemaMessagePrinted = true;
+        }
     }
 
     @Override
