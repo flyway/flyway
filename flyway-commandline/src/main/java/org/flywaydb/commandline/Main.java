@@ -231,7 +231,7 @@ public class Main {
         LOG.info("");
         LOG.info("Options (Format: -key=value)");
         LOG.info("-------");
-        LOG.info("driver                       : Fully qualified classname of the jdbc driver");
+        LOG.info("driver                       : Fully qualified classname of the JDBC driver");
         LOG.info("url                          : Jdbc url to use to connect to the database");
         LOG.info("user                         : User to use to connect to the database");
         LOG.info("password                     : Password to use to connect to the database");

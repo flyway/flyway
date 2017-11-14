@@ -17,3 +17,6 @@
 CREATE DOMAIN dom as VARCHAR(64);
 CREATE TABLE t (x dom);
 INSERT INTO T VALUES ('foo');
+
+CREATE SEQUENCE foo_seq;
+CREATE DOMAIN foo_seq_dom AS BIGINT NOT NULL DEFAULT nextval('foo_seq');
