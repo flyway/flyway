@@ -17,19 +17,15 @@ package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.rules.Timeout;
 
-import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
-import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.*;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_PASSWORD;
+import static org.flywaydb.core.internal.dbsupport.oracle.OracleMigrationMediumTest.JDBC_USER;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -37,9 +33,12 @@ import static org.junit.Assert.assertEquals;
  */
 @Category(DbCategory.Oracle.class)
 public class OracleTnsnamesMediumTest {
+    @Rule
+    public Timeout globalTimeout = new Timeout(180, TimeUnit.SECONDS);
+
     @Test
     public void tnsnamesOra() throws Exception {
-        System.setProperty("oracle.net.tns_admin",  ClassLoader.getSystemResource("migration/dbsupport/oracle").getPath());
+        System.setProperty("oracle.net.tns_admin", ClassLoader.getSystemResource("migration/dbsupport/oracle").getPath());
 
         Flyway flyway = new Flyway();
         flyway.setDataSource("jdbc:oracle:thin:@ORACLE_10_XE", JDBC_USER, JDBC_PASSWORD);

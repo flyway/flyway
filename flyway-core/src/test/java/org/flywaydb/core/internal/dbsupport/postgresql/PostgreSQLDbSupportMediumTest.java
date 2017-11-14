@@ -19,8 +19,10 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -28,6 +30,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.*;
 import static org.junit.Assert.assertEquals;
@@ -57,6 +60,9 @@ public class PostgreSQLDbSupportMediumTest {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, JDBC_USER, JDBC_PASSWORD);
     }
+
+    @Rule
+    public Timeout globalTimeout = new Timeout(180, TimeUnit.SECONDS);
 
     /**
      * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.

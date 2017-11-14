@@ -20,11 +20,14 @@ import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.Timeout;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.util.concurrent.TimeUnit;
 
 import static org.flywaydb.core.internal.dbsupport.redshift.RedshiftMigrationMediumTest.*;
 import static org.junit.Assert.assertEquals;
@@ -41,6 +44,9 @@ public class RedshiftDbSupportMediumTest {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 JDBC_URL, JDBC_USER, JDBC_PASSWORD);
     }
+
+    @Rule
+    public Timeout globalTimeout = new Timeout(180, TimeUnit.SECONDS);
 
     /**
      * Checks that the search_path is extended and not overwritten so that objects in PUBLIC can still be found.

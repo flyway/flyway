@@ -26,7 +26,9 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -36,6 +38,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -46,6 +49,9 @@ import static org.junit.Assert.assertNull;
 @SuppressWarnings({"JavaDoc"})
 public abstract class ConcurrentMigrationTestCase {
     private static final Log LOG = LogFactory.getLog(ConcurrentMigrationTestCase.class);
+
+    @Rule
+    public Timeout globalTimeout = new Timeout(180, TimeUnit.SECONDS);
 
     /**
      * The number of threads to use in this test.

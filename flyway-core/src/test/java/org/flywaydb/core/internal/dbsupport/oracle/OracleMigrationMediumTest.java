@@ -19,13 +19,7 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -33,9 +27,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLRecoverableException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,8 +44,6 @@ import static org.junit.Assume.assumeTrue;
 @Category(DbCategory.Oracle.class)
 @RunWith(Parameterized.class)
 public class OracleMigrationMediumTest extends MigrationTestCase {
-    private static final Log LOG = LogFactory.getLog(OracleMigrationMediumTest.class);
-
     static final String JDBC_URL_ORACLE_12 = "jdbc:oracle:thin:@//localhost:62042/xe";
     static final String JDBC_URL_ORACLE_11 = "jdbc:oracle:thin:@//localhost:62041/xe";
     static final String JDBC_URL_ORACLE_10 = "jdbc:oracle:thin:@//localhost:62040/xe";
@@ -73,44 +63,6 @@ public class OracleMigrationMediumTest extends MigrationTestCase {
 
     public OracleMigrationMediumTest(String jdbcUrl) throws Exception {
         this.jdbcUrl = jdbcUrl;
-        ensureOracleIsUp(createDataSource(null));
-    }
-
-    static void ensureOracleIsUp(DataSource dataSource) throws Exception {
-        while (true) {
-            Connection connection = null;
-            try {
-                connection = dataSource.getConnection();
-                String result = new JdbcTemplate(connection).queryForString("select ? from dual", "ok");
-                if ("ok".equals(result)) {
-                    break;
-                } else {
-                    throw new FlywayException("Unexpected result: " + result);
-                }
-            } catch (FlywaySqlException e) {
-                Throwable rootCause = ExceptionUtils.getRootCause(e);
-                if (rootCause instanceof SQLRecoverableException) {
-                    handleSQLException((SQLRecoverableException) rootCause);
-                } else {
-                    throw e;
-                }
-            } catch (SQLRecoverableException e) {
-                handleSQLException(e);
-            } finally {
-                JdbcUtils.closeConnection(connection);
-            }
-        }
-    }
-
-    private static void handleSQLException(SQLRecoverableException e) throws InterruptedException, SQLRecoverableException {
-        if (e.getErrorCode() == 1033 || e.getErrorCode() == 12528) {
-            // ORA-01033: ORACLE initialization or shutdown in progress
-            // ORA-12528: TNS:listener: all appropriate instances are blocking new connections
-            LOG.info("Oracle is not up yet. Retrying in 1 second...");
-            Thread.sleep(1000);
-        } else {
-            throw e;
-        }
     }
 
     @Override

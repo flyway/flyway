@@ -19,14 +19,17 @@ import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import static org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLMigrationMediumTest.*;
 
@@ -61,6 +64,9 @@ public class PostgreSQLSuperUserMigrationMediumTest {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
                 jdbcUrl, "postgres", "postgres");
     }
+
+    @Rule
+    public Timeout globalTimeout = new Timeout(180, TimeUnit.SECONDS);
 
     @Before
     public void setUp() throws Exception {
