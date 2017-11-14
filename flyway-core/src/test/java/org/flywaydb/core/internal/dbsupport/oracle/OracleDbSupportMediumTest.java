@@ -17,6 +17,7 @@ package org.flywaydb.core.internal.dbsupport.oracle;
 
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -134,12 +135,16 @@ public class OracleDbSupportMediumTest {
     public void tableExistsCursorLeak() throws Exception {
         DataSource dataSource = createDataSource();
 
-        Connection connection = dataSource.getConnection();
-        OracleDbSupport dbSupport = new OracleDbSupport(connection);
-        for (int i = 0; i < 200; i++) {
-            dbSupport.getSchema(dbSupport.getCurrentSchemaName()).getTable("schema_version").exists();
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            OracleDbSupport dbSupport = new OracleDbSupport(connection);
+            for (int i = 0; i < 200; i++) {
+                dbSupport.getSchema(dbSupport.getCurrentSchemaName()).getTable("schema_version").exists();
+            }
+        } finally {
+            JdbcUtils.closeConnection(connection);
         }
-        connection.close();
     }
 
     /**
@@ -149,12 +154,16 @@ public class OracleDbSupportMediumTest {
     public void isSchemaEmptyCursorLeak() throws Exception {
         DataSource dataSource = createDataSource();
 
-        Connection connection = dataSource.getConnection();
-        OracleDbSupport dbSupport = new OracleDbSupport(connection);
-        for (int i = 0; i < 200; i++) {
-            dbSupport.getSchema(dbSupport.getCurrentSchemaName()).empty();
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            OracleDbSupport dbSupport = new OracleDbSupport(connection);
+            for (int i = 0; i < 200; i++) {
+                dbSupport.getSchema(dbSupport.getCurrentSchemaName()).empty();
+            }
+        } finally {
+            JdbcUtils.closeConnection(connection);
         }
-        connection.close();
     }
 
     private DataSource createDataSource() throws Exception {
