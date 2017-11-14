@@ -101,7 +101,10 @@ public class DbSupportFactory {
             return new DB2DbSupport(connection);
         }
         if (databaseProductName.startsWith("ASE")) {
-            return new SybaseASEDbSupport(connection);
+            return new SybaseASEDbSupport(connection, false);
+        }
+        if (databaseProductName.startsWith("Adaptive Server Enterprise")) {
+            return new SybaseASEDbSupport(connection, true);
         }
 
         throw new FlywayException("Unsupported Database: " + databaseProductName);
