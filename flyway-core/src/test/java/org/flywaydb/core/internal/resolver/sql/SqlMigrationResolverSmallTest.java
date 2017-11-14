@@ -88,6 +88,17 @@ public class SqlMigrationResolverSmallTest {
     }
 
     @Test
+    public void extractScriptNameDoubleSlash() {
+        SqlMigrationResolver sqlMigrationResolver =
+                new SqlMigrationResolver(null, scanner,
+                        new Locations("filesystem:D:\\\\Scripts\\SQL"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.createWithPrefix("V"));
+
+        assertEquals("V17.5.0.0062__PROIRL-50.sql", sqlMigrationResolver.extractScriptName(
+                new FileSystemResource("D:\\\\Scripts\\SQL\\V17.5.0.0062__PROIRL-50.sql"),
+                new Location("filesystem:D:\\\\Scripts\\SQL")));
+    }
+
+    @Test
     public void extractScriptNameRootLocation() {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner, new Locations(""),
