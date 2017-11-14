@@ -86,10 +86,6 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
             table.drop();
         }
 
-        for (String statement : generateDropStatementsForSequences()) {
-            jdbcTemplate.execute(statement);
-        }
-
         for (String statement : generateDropStatementsForBaseTypes(true)) {
             jdbcTemplate.execute(statement);
         }
@@ -110,10 +106,13 @@ public class PostgreSQLSchema extends Schema<PostgreSQLDbSupport> {
             jdbcTemplate.execute(statement);
         }
 
-        for (String statement : generateDropStatementsForBaseTypes(false)) {
+        for (String statement : generateDropStatementsForSequences()) {
             jdbcTemplate.execute(statement);
         }
 
+        for (String statement : generateDropStatementsForBaseTypes(false)) {
+            jdbcTemplate.execute(statement);
+        }
     }
 
     /**
