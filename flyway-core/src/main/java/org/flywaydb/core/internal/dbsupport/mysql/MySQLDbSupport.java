@@ -95,23 +95,6 @@ public class MySQLDbSupport extends DbSupport {
         return jdbcTemplate.getConnection().getCatalog();
     }
 
-    /**
-     * Sets the current schema to this schema.
-     *
-     * @param schema The new current schema for this connection.
-     */
-    public void changeCurrentSchemaTo(Schema schema) {
-        if (schema.getName().equals(originalSchema) || !schema.exists()) {
-            return;
-        }
-
-        try {
-            doChangeCurrentSchemaTo(schema.getName());
-        } catch (SQLException e) {
-            throw new FlywaySqlException("Error setting current schema to " + schema, e);
-        }
-    }
-
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         if (!StringUtils.hasLength(schema)) {
