@@ -336,7 +336,7 @@ public class JdbcTemplate {
             } else if (params[i] instanceof Boolean) {
                 statement.setBoolean(i + 1, (Boolean) params[i]);
             } else {
-                statement.setString(i + 1, (String) params[i]);
+                statement.setString(i + 1, params[i].toString());
             }
         }
         return statement;
