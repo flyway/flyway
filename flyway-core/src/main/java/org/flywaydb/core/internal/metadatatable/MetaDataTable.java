@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.metadatatable;
 
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.Schema;
 
 import java.util.List;
@@ -106,13 +107,12 @@ public interface MetaDataTable {
     boolean hasSchemasMarker();
 
     /**
-     * Update the description and checksum for this version to these new values.
+     * Updates this applied migration to match this resolved migration.
      *
-     * @param version     The version to update.
-     * @param description The new description.
-     * @param checksum    The new checksum.
+     * @param appliedMigration  The applied migration to update.
+     * @param resolvedMigration The resolved migration to source the new values from.
      */
-    void update(MigrationVersion version, String description, Integer checksum);
+    void update(AppliedMigration appliedMigration, ResolvedMigration resolvedMigration);
 
     /**
      * Clears the applied migration cache.

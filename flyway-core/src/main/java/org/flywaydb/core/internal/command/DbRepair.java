@@ -18,6 +18,8 @@ package org.flywaydb.core.internal.command;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
+import org.flywaydb.core.api.logging.Log;
+import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
@@ -30,8 +32,6 @@ import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
-import org.flywaydb.core.api.logging.Log;
-import org.flywaydb.core.api.logging.LogFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -117,7 +117,7 @@ public class DbRepair {
                 public Void call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     metaDataTable.removeFailedMigrations();
-                    repairChecksumsAndDescriptions();
+                    alignAppliedMigrationsWithResolvedMigrations();
                     return null;
                 }
             });
@@ -145,19 +145,32 @@ public class DbRepair {
         }
     }
 
-    public void repairChecksumsAndDescriptions() {
+    private void alignAppliedMigrationsWithResolvedMigrations() {
         migrationInfoService.refresh();
         for (MigrationInfo migrationInfo : migrationInfoService.all()) {
             MigrationInfoImpl migrationInfoImpl = (MigrationInfoImpl) migrationInfo;
 
             ResolvedMigration resolved = migrationInfoImpl.getResolvedMigration();
             AppliedMigration applied = migrationInfoImpl.getAppliedMigration();
-            if (resolved != null && applied != null && resolved.getVersion() != null) {
-                if (!ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum())
-                        || !ObjectUtils.nullSafeEquals(resolved.getDescription(), applied.getDescription())) {
-                    metaDataTable.update(migrationInfoImpl.getVersion(), resolved.getDescription(), resolved.getChecksum());
-                }
+            if (resolved != null && applied != null && resolved.getVersion() != null
+                    && (checksumUpdateNeeded(resolved, applied)
+                    || descriptionUpdateNeeded(resolved, applied)
+                    || typeUpdateNeeded(resolved, applied))) {
+                metaDataTable.update(applied, resolved);
             }
         }
+    }
+
+    private boolean checksumUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {
+        return !ObjectUtils.nullSafeEquals(resolved.getChecksum(), applied.getChecksum());
+    }
+
+    private boolean descriptionUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {
+        return !ObjectUtils.nullSafeEquals(resolved.getDescription(), applied.getDescription());
+    }
+
+    private boolean typeUpdateNeeded(ResolvedMigration resolved, AppliedMigration applied) {
+        return !ObjectUtils.nullSafeEquals(resolved.getType(), applied.getType())
+                && applied.getType().isSynthetic();
     }
 }

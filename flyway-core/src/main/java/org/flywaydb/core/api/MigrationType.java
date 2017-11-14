@@ -22,30 +22,44 @@ public enum MigrationType {
     /**
      * The type for the schema creation migration.
      */
-    SCHEMA,
+    SCHEMA(true),
 
     /**
      * The type for the metadata baseline migration.
      */
-    BASELINE,
+    BASELINE(true),
 
     /**
      * The type for sql migrations.
      */
-    SQL,
+    SQL(false),
 
     /**
      * The type for Jdbc java-based migrations.
      */
-    JDBC,
+    JDBC(false),
 
     /**
      * The type for Spring Jdbc java-based migrations.
      */
-    SPRING_JDBC,
+    SPRING_JDBC(false),
 
     /**
      * The type for other migrations by custom MigrationResolvers.
      */
-    CUSTOM
+    CUSTOM(false);
+
+    private final boolean synthetic;
+
+    MigrationType(boolean synthetic) {
+        this.synthetic = synthetic;
+    }
+
+    /**
+     * @return Whether this is a synthetic migration type, which is only ever present in the metadata table,
+     * but never discovered by migration resolvers.
+     */
+    public boolean isSynthetic() {
+        return synthetic;
+    }
 }

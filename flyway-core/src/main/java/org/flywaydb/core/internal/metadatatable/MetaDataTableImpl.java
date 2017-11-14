@@ -20,6 +20,7 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
@@ -407,10 +408,19 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     @Override
-    public void update(MigrationVersion version, String description, Integer checksum) {
+    public void update(AppliedMigration appliedMigration, ResolvedMigration resolvedMigration) {
         clearCache();
 
-        LOG.info("Repairing metadata for version " + version + " (Description: " + description + ", Checksum: " + checksum + ")  ...");
+        MigrationVersion version = appliedMigration.getVersion();
+
+        String description = resolvedMigration.getDescription();
+        Integer checksum = resolvedMigration.getChecksum();
+        MigrationType type = appliedMigration.getType().isSynthetic()
+                ? appliedMigration.getType()
+                : resolvedMigration.getType();
+
+        LOG.info("Repairing metadata for version " + version
+                + " (Description: " + description + ", Type: " + type + ", Checksum: " + checksum + ")  ...");
 
         // Try load an update.sql file if it exists
         String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/update.sql";
@@ -426,6 +436,7 @@ public class MetaDataTableImpl implements MetaDataTable {
             // Placeholders for column values
             placeholders.put("version_val", version.toString());
             placeholders.put("description_val", description);
+            placeholders.put("type_val", type.name());
             placeholders.put("checksum_val", String.valueOf(checksum));
 
             String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
@@ -434,9 +445,12 @@ public class MetaDataTableImpl implements MetaDataTable {
         } else {
             try {
                 jdbcTemplate.update("UPDATE " + table
-                        + " SET " + dbSupport.quote("description") + "='" + description + "' , "
-                        + dbSupport.quote("checksum") + "=" + checksum
-                        + " WHERE " + dbSupport.quote("version") + "='" + version + "'");
+                                + " SET "
+                                + dbSupport.quote("description") + "=? , "
+                                + dbSupport.quote("type") + "=? , "
+                                + dbSupport.quote("checksum") + "=?"
+                                + " WHERE " + dbSupport.quote("version") + "=?",
+                        description, type, checksum, version);
             } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to repair metadata table " + table
                         + " for version " + version, e);
