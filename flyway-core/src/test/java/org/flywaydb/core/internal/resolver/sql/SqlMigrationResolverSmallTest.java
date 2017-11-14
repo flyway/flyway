@@ -93,9 +93,10 @@ public class SqlMigrationResolverSmallTest {
                 new SqlMigrationResolver(null, scanner,
                         new Locations("filesystem:D:\\\\Scripts\\SQL"), PlaceholderReplacer.NO_PLACEHOLDERS, FlywayConfigurationForTests.createWithPrefix("V"));
 
-        assertEquals("V17.5.0.0062__PROIRL-50.sql", sqlMigrationResolver.extractScriptName(
-                new FileSystemResource("D:\\\\Scripts\\SQL\\V17.5.0.0062__PROIRL-50.sql"),
-                new Location("filesystem:D:\\\\Scripts\\SQL")));
+        FileSystemResource resource = new FileSystemResource("D:\\\\Scripts\\SQL\\V17.5.0.0062__PROIRL-50.sql");
+        Location location = new Location("filesystem:D:\\\\Scripts\\SQL");
+        assertEquals(resource.getLocation(), location.getPath());
+        assertEquals("V17.5.0.0062__PROIRL-50.sql", sqlMigrationResolver.extractScriptName(resource,location));
     }
 
     @Test
