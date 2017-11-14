@@ -17,6 +17,8 @@ package org.flywaydb.core.internal.util;
 
 import org.flywaydb.core.api.FlywayException;
 
+import java.io.File;
+
 /**
  * A location to load migrations from.
  */
@@ -34,7 +36,7 @@ public final class Location implements Comparable<Location> {
     /**
      * The prefix part of the location. Can be either classpath: or filesystem:.
      */
-    private String prefix;
+    private final String prefix;
 
     /**
      * The path part of the location.
@@ -62,11 +64,11 @@ public final class Location implements Comparable<Location> {
             if (path.startsWith("/")) {
                 path = path.substring(1);
             }
+        } else if (isFileSystem()) {
+            path = new File(path).getPath();
         } else {
-            if (!isFileSystem()) {
-                throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
-                        + normalizedDescriptor);
-            }
+            throw new FlywayException("Unknown prefix for location (should be either filesystem: or classpath:): "
+                    + normalizedDescriptor);
         }
 
         if (path.endsWith("/")) {
