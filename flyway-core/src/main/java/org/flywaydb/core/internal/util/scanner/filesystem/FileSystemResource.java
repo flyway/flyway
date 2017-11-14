@@ -43,14 +43,14 @@ public class FileSystemResource implements LoadableResource, Comparable<FileSyst
      * @param location The location of the resource on the filesystem.
      */
     public FileSystemResource(String location) {
-        this.location = new File(location);
+        this.location = new File(location.trim().replace("\\", "/"));
     }
 
     /**
      * @return The location of the resource on the filesystem.
      */
     public String getLocation() {
-        return location.getPath().trim().replace("\\", "/");
+        return location.getPath();
     }
 
     /**
