@@ -20,7 +20,7 @@ repositories {
 dependencies {
     compile 'org.hsqldb:hsqldb:2.2.8'
     compile 'org.springframework:spring-jdbc:3.0.5.RELEASE'
-    compile "org.flywaydb:flyway-core:${flywayVersion}"
+    compile "com.boxfuse.flyway-master:flyway-core:${flywayVersion}"
 }
 
 flyway {
