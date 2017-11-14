@@ -312,6 +312,10 @@ public class DriverDataSource implements DataSource {
             return "net.sourceforge.jtds.jdbc.Driver";
         }
 
+        if (url.startsWith("jdbc:sybase:")) {
+            return "com.sybase.jdbc4.jdbc.SybDriver";
+        }
+
         if (url.startsWith("jdbc:sqlserver:")) {
             return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
         }
