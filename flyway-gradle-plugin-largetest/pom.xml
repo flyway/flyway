@@ -26,7 +26,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <dependencies>
-        <!-- Add Flyway dependencies to force order in reaction -->
+        <!-- Add Flyway dependencies to force correct Maven build order -->
         <dependency>
             <groupId>com.boxfuse.flyway-master</groupId>
             <artifactId>flyway-gradle-plugin</artifactId>

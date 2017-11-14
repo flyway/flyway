@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.hsqldb:hsqldb:2.3.4'
-        classpath "org.flywaydb:flyway-gradle-plugin:${flywayVersion}"
+        classpath "com.boxfuse.flyway-master:flyway-gradle-plugin:${flywayVersion}"
     }
 }
 
