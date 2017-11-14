@@ -61,10 +61,10 @@ public class SybaseASESchema extends Schema<SybaseASEDbSupport> {
      */
     @Override
     protected void doClean() throws SQLException {
-        //Drop tables
-        dropObjects("U");
         //Drop view
         dropObjects("V");
+        //Drop tables
+        dropObjects("U");
         //Drop stored procs
         dropObjects("P");
         //Drop triggers

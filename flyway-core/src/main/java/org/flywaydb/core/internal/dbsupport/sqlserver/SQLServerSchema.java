@@ -132,7 +132,7 @@ public class SQLServerSchema extends Schema<SQLServerDbSupport> {
      * @param dbSupport    The database-specific support.
      * @param name         The name of the schema.
      */
-    public SQLServerSchema(JdbcTemplate jdbcTemplate, SQLServerDbSupport dbSupport, String name) {
+    SQLServerSchema(JdbcTemplate jdbcTemplate, SQLServerDbSupport dbSupport, String name) {
         super(jdbcTemplate, dbSupport, name);
     }
 
