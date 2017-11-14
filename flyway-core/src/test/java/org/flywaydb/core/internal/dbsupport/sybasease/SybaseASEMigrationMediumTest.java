@@ -16,49 +16,67 @@
 package org.flywaydb.core.internal.dbsupport.sybasease;
 
 import org.flywaydb.core.DbCategory;
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.ConcurrentMigrationTestCase;
 import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test to demonstrate the migration functionality using Sybase ASE with the Jtds driver.
  */
 @SuppressWarnings({"JavaDoc"})
 @Category(DbCategory.SybaseASE.class)
-@RunWith(Parameterized.class)
 public class SybaseASEMigrationMediumTest extends MigrationTestCase {
-    static final String JDBC_URL_JTDS = "jdbc:jtds:sybase://127.0.0.1:62080/guest";
+    private static final String JDBC_URL_JTDS = "jdbc:jtds:sybase://127.0.0.1:62080/guest";
     private static final String JDBC_URL_JCONNECT = "jdbc:sybase:Tds:127.0.0.1:62080/guest";
-    static final String JDBC_USER = "sa";
-    static final String JDBC_PASSWORD = "password";
-
-    private final String jdbcUrl;
-
-    public SybaseASEMigrationMediumTest(String jdbcUrl) {
-        this.jdbcUrl = jdbcUrl;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {JDBC_URL_JTDS},
-                {JDBC_URL_JCONNECT}
-        });
-    }
+    private static final String JDBC_USER = "sa";
+    private static final String JDBC_PASSWORD = "password";
 
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                jdbcUrl, JDBC_USER, JDBC_PASSWORD);
+                JDBC_URL_JCONNECT, JDBC_USER, JDBC_PASSWORD);
+    }
+
+    @Test
+    public void concurrent() throws Exception {
+        ConcurrentMigrationTestCase testCase = new ConcurrentMigrationTestCase() {
+            @Override
+            protected DataSource createDataSource(Properties customProperties) {
+                return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
+                        JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
+            }
+
+            protected String getBasedir() {
+                return "migration/dbsupport/sybasease/sql/sql";
+            }
+
+            @Override
+            protected String getTableName() {
+                return "test_user";
+            }
+        };
+
+        testCase.setUp();
+        testCase.migrateConcurrently();
+    }
+
+    @Test
+    public void jtds() throws Exception {
+        flyway = new Flyway();
+        flyway.setDataSource(JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
+        flyway.clean();
+        flyway.setLocations(getMigrationDir() + "/sql");
+        assertEquals(4, flyway.migrate());
     }
 
     @Override
