@@ -44,7 +44,7 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
     @Override
     protected DataSource createDataSource(Properties customProperties) {
         return new DriverDataSource(Thread.currentThread().getContextClassLoader(), null,
-                JDBC_URL_JCONNECT, JDBC_USER, JDBC_PASSWORD);
+                JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
     }
 
     @Test
@@ -71,9 +71,9 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
-    public void jtds() throws Exception {
+    public void jconnect() throws Exception {
         flyway = new Flyway();
-        flyway.setDataSource(JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
+        flyway.setDataSource(JDBC_URL_JCONNECT, JDBC_USER, JDBC_PASSWORD);
         flyway.clean();
         flyway.setLocations(getMigrationDir() + "/sql");
         assertEquals(4, flyway.migrate());
