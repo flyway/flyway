@@ -95,7 +95,6 @@ public class SqlMigrationResolverSmallTest {
 
         FileSystemResource resource = new FileSystemResource("D:\\\\Scripts\\SQL\\V17.5.0.0062__PROIRL-50.sql");
         Location location = new Location("filesystem:D:\\\\Scripts\\SQL");
-        assertEquals(resource.getLocation(), location.getPath());
         assertEquals("V17.5.0.0062__PROIRL-50.sql", sqlMigrationResolver.extractScriptName(resource,location));
     }
 
