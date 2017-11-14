@@ -49,7 +49,8 @@ public final class Location implements Comparable<Location> {
      * @param descriptor The location descriptor.
      */
     public Location(String descriptor) {
-        String normalizedDescriptor = descriptor.trim().replace("\\", "/");
+        String normalizedDescriptor = descriptor.trim()
+                .replace("\\\\", "\\").replace("\\", "/");
 
         if (normalizedDescriptor.contains(":")) {
             prefix = normalizedDescriptor.substring(0, normalizedDescriptor.indexOf(":") + 1);
