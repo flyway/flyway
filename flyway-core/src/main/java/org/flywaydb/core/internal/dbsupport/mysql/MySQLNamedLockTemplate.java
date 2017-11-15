@@ -16,10 +16,10 @@
 package org.flywaydb.core.internal.dbsupport.mysql;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
@@ -56,7 +56,7 @@ public class MySQLNamedLockTemplate {
      */
     public <T> T execute(Callable<T> callable) {
         try {
-            jdbcTemplate.execute("SELECT GET_LOCK('" + lockName + "',100000)");
+            lock();
             return callable.call();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to acquire MySQL named lock: " + lockName, e);
@@ -75,5 +75,19 @@ public class MySQLNamedLockTemplate {
                 LOG.error("Unable to release MySQL named lock: " + lockName, e);
             }
         }
+    }
+
+    private void lock() throws SQLException {
+        while (!tryLock()) {
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                throw new FlywayException("Interrupted while attempting to acquire MySQL named lock: " + lockName, e);
+            }
+        }
+    }
+
+    private boolean tryLock() throws SQLException {
+        return jdbcTemplate.queryForInt("SELECT GET_LOCK(?,10)", lockName) == 1;
     }
 }
