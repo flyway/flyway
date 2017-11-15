@@ -42,3 +42,29 @@ create procedure init_fact_references()
 delimiter ;
 
 select 5;
+
+DROP FUNCTION IF EXISTS format_time;
+
+DELIMITER ||
+
+CREATE FUNCTION format_time( picoseconds BIGINT UNSIGNED )
+RETURNS varchar(16) CHARSET utf8
+   DETERMINISTIC
+BEGIN
+
+  IF picoseconds IS NULL THEN
+
+    RETURN NULL;
+
+  ELSE
+
+    RETURN CAST(CONCAT(ROUND(picoseconds / 1000000000000, 2)) AS DECIMAL(10,6));
+
+  END IF;
+
+END;
+||
+
+DELIMITER ;
+
+select format_time ( NULL );
