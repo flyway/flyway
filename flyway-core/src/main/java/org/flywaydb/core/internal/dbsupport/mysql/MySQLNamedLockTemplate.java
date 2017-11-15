@@ -88,10 +88,6 @@ public class MySQLNamedLockTemplate {
     }
 
     private boolean tryLock() throws SQLException {
-        if (jdbcTemplate.queryForString("SELECT IS_USED_LOCK(?)", lockName) != null) {
-            return false;
-        }
-
         return jdbcTemplate.queryForInt("SELECT GET_LOCK(?,100000)", lockName) == 1;
     }
 }

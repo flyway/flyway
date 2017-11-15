@@ -36,19 +36,26 @@ import static org.flywaydb.core.internal.dbsupport.mysql.MySQLMigrationMediumTes
 @RunWith(Parameterized.class)
 public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestCase {
     private final String jdbcUrl;
+    private final boolean needsBaseline;
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_MYSQL_80},
-                {JDBC_URL_MYSQL_57},
-                {JDBC_URL_MYSQL_56},
-                {JDBC_URL_MYSQL_55}
+                {JDBC_URL_MYSQL_80, false},
+                {JDBC_URL_MYSQL_57, false},
+                {JDBC_URL_MYSQL_56, true},
+                {JDBC_URL_MYSQL_55, true}
         });
     }
 
-    public MySQLConcurrentMigrationMediumTest(String jdbcUrl) {
+    public MySQLConcurrentMigrationMediumTest(String jdbcUrl, boolean needsBaseline) {
         this.jdbcUrl = jdbcUrl;
+        this.needsBaseline = needsBaseline;
+    }
+
+    @Override
+    protected boolean needsBaseline() {
+        return needsBaseline;
     }
 
     @Override

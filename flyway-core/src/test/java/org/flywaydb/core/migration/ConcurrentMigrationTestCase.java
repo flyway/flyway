@@ -97,7 +97,7 @@ public abstract class ConcurrentMigrationTestCase {
 
         Connection connection = concurrentMigrationDataSource.getConnection();
         final DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
-        schemaName = getSchemaName(dbSupport);
+        schemaName = "concurrent_test";
         schemaQuoted = dbSupport.quote(schemaName);
         connection.close();
 
@@ -119,10 +119,6 @@ public abstract class ConcurrentMigrationTestCase {
 
     protected String getBasedir() {
         return "migration/concurrent";
-    }
-
-    protected String getSchemaName(DbSupport dbSupport) {
-        return "concurrent_test";
     }
 
     /**
