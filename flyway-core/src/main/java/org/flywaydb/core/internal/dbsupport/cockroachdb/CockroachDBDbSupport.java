@@ -123,6 +123,19 @@ public class CockroachDBDbSupport extends DbSupport {
     }
 
     @Override
+    public void changeCurrentSchemaTo(Schema schema) {
+        try {
+            // Avoid unnecessary schema changes as this trips up CockroachDB
+            if (schema.getName().equals(originalSchema) || !schema.exists()) {
+                return;
+            }
+            doChangeCurrentSchemaTo(schema.getName());
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Error setting current schema to " + schema, e);
+        }
+    }
+
+    @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
         jdbcTemplate.execute("SET database = " + schema);
     }

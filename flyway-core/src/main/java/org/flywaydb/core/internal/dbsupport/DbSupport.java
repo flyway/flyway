@@ -145,11 +145,10 @@ public abstract class DbSupport {
      * @param schema The new current schema for this connection.
      */
     public void changeCurrentSchemaTo(Schema schema) {
-        if (schema.getName().equals(originalSchema) || !schema.exists()) {
-            return;
-        }
-
         try {
+            if (!schema.exists()) {
+                return;
+            }
             doChangeCurrentSchemaTo(schema.getName());
         } catch (SQLException e) {
             throw new FlywaySqlException("Error setting current schema to " + schema, e);
