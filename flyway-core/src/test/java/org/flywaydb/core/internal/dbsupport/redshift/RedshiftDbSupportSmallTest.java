@@ -32,4 +32,11 @@ public class RedshiftDbSupportSmallTest {
     public void getFirstSchemaFromSearchPath() {
         assertEquals("ABC", dbSupport.getFirstSchemaFromSearchPath("\"ABC\", def"));
     }
+
+    @Test
+    public void getFirstSchemaFromSearchPathDollarUser() {
+        assertEquals("public", dbSupport.getFirstSchemaFromSearchPath("$user,public"));
+        assertEquals("public", dbSupport.getFirstSchemaFromSearchPath("\"$user\",public"));
+        assertEquals("public", dbSupport.getFirstSchemaFromSearchPath("\"$user\",\"public\""));
+    }
 }
