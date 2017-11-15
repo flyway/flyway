@@ -56,6 +56,7 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
                         JDBC_URL_JTDS, JDBC_USER, JDBC_PASSWORD);
             }
 
+            @Override
             protected String getBasedir() {
                 return "migration/dbsupport/sybasease/sql/sql";
             }
@@ -63,6 +64,11 @@ public class SybaseASEMigrationMediumTest extends MigrationTestCase {
             @Override
             protected String getTableName() {
                 return "test_user";
+            }
+
+            @Override
+            protected boolean needsBaseline() {
+                return true;
             }
         };
 
