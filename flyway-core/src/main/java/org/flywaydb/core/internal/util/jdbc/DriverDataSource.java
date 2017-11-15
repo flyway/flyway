@@ -45,6 +45,8 @@ public class DriverDataSource implements DataSource {
     private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle:";
     private static final String REDSHIFT_JDBC_URL_PREFIX = "jdbc:redshift:";
     private static final String MYSQL_JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    private static final String REDSHIFT_JDBC41_DRIVER = "com.amazon.redshift.jdbc41.Driver";
+    private static final String SQLDROID_DRIVER = "org.sqldroid.SQLDroidDriver";
 
     /**
      * The JDBC Driver instance to use.
@@ -237,8 +239,8 @@ public class DriverDataSource implements DataSource {
         }
 
         if (url.startsWith(REDSHIFT_JDBC_URL_PREFIX)) {
-            if (ClassUtils.isPresent("com.amazon.redshift.jdbc41.Driver", classLoader)) {
-                return "com.amazon.redshift.jdbc41.Driver";
+            if (ClassUtils.isPresent(REDSHIFT_JDBC41_DRIVER, classLoader)) {
+                return REDSHIFT_JDBC41_DRIVER;
             }
             return "com.amazon.redshift.jdbc4.Driver";
         }
@@ -275,13 +277,13 @@ public class DriverDataSource implements DataSource {
 
         if (url.startsWith("jdbc:sqlite:")) {
             if (new FeatureDetector(classLoader).isAndroidAvailable()) {
-                return "org.sqldroid.SQLDroidDriver";
+                return SQLDROID_DRIVER;
             }
             return "org.sqlite.JDBC";
         }
 
         if (url.startsWith("jdbc:sqldroid:")) {
-            return "org.sqldroid.SQLDroidDriver";
+            return SQLDROID_DRIVER;
         }
 
         if (url.startsWith(MYSQL_JDBC_URL_PREFIX)) {
