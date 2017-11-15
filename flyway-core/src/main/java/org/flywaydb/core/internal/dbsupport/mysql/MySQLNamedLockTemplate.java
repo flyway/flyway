@@ -16,15 +16,12 @@
 package org.flywaydb.core.internal.dbsupport.mysql;
 
 import org.flywaydb.core.api.FlywayException;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.util.jdbc.RowMapper;
+import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
+import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -85,7 +82,7 @@ public class MySQLNamedLockTemplate {
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException e) {
-                throw new FlywayException("Interrupted while attempting to acquire Flyway advisory lock", e);
+                throw new FlywayException("Interrupted while attempting to acquire MySQL named lock: " + lockName, e);
             }
         }
     }
@@ -95,7 +92,6 @@ public class MySQLNamedLockTemplate {
             return false;
         }
 
-        jdbcTemplate.execute("SELECT GET_LOCK(?,100000)", lockName);
-        return true;
+        return jdbcTemplate.queryForInt("SELECT GET_LOCK(?,100000)", lockName) == 1;
     }
 }
