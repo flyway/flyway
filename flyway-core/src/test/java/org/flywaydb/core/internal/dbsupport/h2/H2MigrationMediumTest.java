@@ -18,16 +18,13 @@ package org.flywaydb.core.internal.dbsupport.h2;
 import org.flywaydb.core.DbCategory;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.migration.MigrationTestCase;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
+import org.flywaydb.core.migration.MigrationTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 

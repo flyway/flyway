@@ -20,8 +20,11 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -64,7 +67,7 @@ public class PostgreSQLAdvisoryLockTemplate {
      */
     public <T> T execute(Callable<T> callable) {
         try {
-            jdbcTemplate.execute("SELECT pg_advisory_lock(" + lockNum + ")");
+            lock();
             return callable.call();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to acquire Flyway advisory lock", e);
@@ -83,5 +86,27 @@ public class PostgreSQLAdvisoryLockTemplate {
                 LOG.error("Unable to release Flyway advisory lock", e);
             }
         }
+    }
+
+    private void lock() throws SQLException {
+        while (!tryLock()) {
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                throw new FlywayException("Interrupted while attempting to acquire Flyway advisory lock", e);
+            }
+        }
+    }
+
+    private boolean tryLock() throws SQLException {
+        List<Boolean> results = jdbcTemplate.query(
+                "SELECT pg_try_advisory_lock(" + lockNum + ")",
+                new RowMapper<Boolean>() {
+                    @Override
+                    public Boolean mapRow(ResultSet rs) throws SQLException {
+                        return "t".equals(rs.getString("pg_try_advisory_lock"));
+                    }
+                });
+        return results.size() == 1 && results.get(0);
     }
 }

@@ -20,8 +20,11 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
+import org.flywaydb.core.internal.util.jdbc.RowMapper;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -56,7 +59,7 @@ public class MySQLNamedLockTemplate {
      */
     public <T> T execute(Callable<T> callable) {
         try {
-            jdbcTemplate.execute("SELECT GET_LOCK('" + lockName + "',100000)");
+            lock();
             return callable.call();
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to acquire MySQL named lock: " + lockName, e);
@@ -75,5 +78,24 @@ public class MySQLNamedLockTemplate {
                 LOG.error("Unable to release MySQL named lock: " + lockName, e);
             }
         }
+    }
+
+    private void lock() throws SQLException {
+        while (!tryLock()) {
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                throw new FlywayException("Interrupted while attempting to acquire Flyway advisory lock", e);
+            }
+        }
+    }
+
+    private boolean tryLock() throws SQLException {
+        if (jdbcTemplate.queryForString("SELECT IS_USED_LOCK(?)", lockName) != null) {
+            return false;
+        }
+
+        jdbcTemplate.execute("SELECT GET_LOCK(?,100000)", lockName);
+        return true;
     }
 }

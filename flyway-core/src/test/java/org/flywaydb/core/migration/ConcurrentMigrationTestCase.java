@@ -194,7 +194,12 @@ public abstract class ConcurrentMigrationTestCase {
         placeholders.put("schema", schemaQuoted);
 
         newFlyway.setPlaceholders(placeholders);
+        newFlyway.setMixed(isMixed());
         newFlyway.setBaselineVersionAsString("0.1");
         return newFlyway;
+    }
+
+    protected boolean isMixed() {
+        return false;
     }
 }
