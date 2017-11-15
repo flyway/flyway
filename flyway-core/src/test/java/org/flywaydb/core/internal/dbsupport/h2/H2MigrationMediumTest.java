@@ -63,6 +63,13 @@ public class H2MigrationMediumTest extends MigrationTestCase {
     }
 
     @Test
+    public void schema() throws Exception {
+        flyway.setLocations("migration/dbsupport/h2/sql/schema");
+        flyway.setSchemas("main", "other");
+        assertEquals(2, flyway.migrate());
+    }
+
+    @Test
     public void dollarQuotedString() throws Exception {
         flyway.setLocations("migration/dbsupport/h2/sql/dollar_quoted_string");
         flyway.migrate();
