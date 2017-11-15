@@ -41,10 +41,10 @@ public class MySQLConcurrentMigrationMediumTest extends ConcurrentMigrationTestC
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {JDBC_URL_MYSQL_80, false},
-                {JDBC_URL_MYSQL_57, false},
-                {JDBC_URL_MYSQL_56, false},
-                {JDBC_URL_MYSQL_55, false}
+                {JDBC_URL_MYSQL_80, true},
+                {JDBC_URL_MYSQL_57, true},
+                {JDBC_URL_MYSQL_56, true},
+                {JDBC_URL_MYSQL_55, true}
         });
     }
 
