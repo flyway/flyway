@@ -76,7 +76,9 @@ public class RedshiftDbSupport extends DbSupport {
     }
 
     /* private -> testing */ String getFirstSchemaFromSearchPath(String searchPath) {
-        String result = searchPath.replace("$user", "").trim();
+        String result = searchPath
+                .replace("\"$user\"", "")
+                .replace("$user", "").trim();
         if (result.startsWith(",")) {
             result = result.substring(1);
         }
