@@ -23,6 +23,7 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway.cmd</include>
+                <include>sqlvault.cmd</include>
             </includes>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
@@ -32,6 +33,7 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>flyway</include>
+                <include>sqlvault</include>
             </includes>
             <fileMode>744</fileMode>
             <lineEnding>unix</lineEnding>

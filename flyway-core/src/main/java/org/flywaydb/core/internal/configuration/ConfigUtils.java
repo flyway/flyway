@@ -58,6 +58,10 @@ public class ConfigUtils {
     public static final String CLEAN_ON_VALIDATION_ERROR = "flyway.cleanOnValidationError";
     public static final String DRIVER = "flyway.driver";
     public static final String ENCODING = "flyway.encoding";
+    public static final String ASK_VAULT_PASSWORD = "flyway.askVaultPassword";
+    public static final String VAULT_PASSWORD = "flyway.vaultPassword";
+    public static final String VAULT_PASSWORD_FILE = "flyway.vaultPasswordFile";
+    public static final String VAULT_CIPHER = "flyway.vaultCipher";
     public static final String ERROR_HANDLER = "flyway.errorHandler";
     public static final String GROUP = "flyway.group";
     public static final String IGNORE_FUTURE_MIGRATIONS = "flyway.ignoreFutureMigrations";
@@ -154,6 +158,18 @@ public class ConfigUtils {
         }
         if ("FLYWAY_ENCODING".equals(key)) {
             return ENCODING;
+        }
+        if ("FLYWAY_ASK_VAULT_PASSWORD".equals(key)) {
+            return ASK_VAULT_PASSWORD;
+        }
+        if ("FLYWAY_VAULT_PASSWORD".equals(key)) {
+            return VAULT_PASSWORD;
+        }
+        if ("FLYWAY_VAULT_PASSWORD_FILE".equals(key)) {
+            return VAULT_PASSWORD_FILE;
+        }
+        if ("FLYWAY_VAULT_CIPHER".equals(key)) {
+            return VAULT_CIPHER;
         }
         if ("FLYWAY_ERROR_HANDLER".equals(key)) {
             return ERROR_HANDLER;

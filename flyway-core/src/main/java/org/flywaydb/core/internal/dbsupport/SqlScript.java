@@ -24,6 +24,8 @@ import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.LoadableResource;
 import org.flywaydb.core.internal.util.scanner.Resource;
+import org.flywaydb.core.internal.dbsupport.SqlScriptVault;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -105,7 +107,7 @@ public class SqlScript {
 
 
      */
-    public SqlScript(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed
+    public SqlScript(DbSupport dbSupport, LoadableResource sqlScriptResource, PlaceholderReplacer placeholderReplacer, String encoding, boolean mixed, String vaultPassword
 
 
 
@@ -115,6 +117,11 @@ public class SqlScript {
         this.mixed = mixed;
 
         String sqlScriptSource = sqlScriptResource.loadAsString(encoding);
+
+        if (SqlScriptVault.isEncrypted(sqlScriptSource)) {
+            sqlScriptSource = SqlScriptVault.decrypt(sqlScriptSource, vaultPassword);
+        }
+
         this.sqlStatements = parse(placeholderReplacer.replacePlaceholders(sqlScriptSource));
 
 

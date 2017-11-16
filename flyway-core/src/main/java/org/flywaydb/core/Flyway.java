@@ -92,6 +92,11 @@ public class Flyway implements FlywayConfiguration {
     private String encoding = "UTF-8";
 
     /**
+     * The vault password for encrypted Sql migrations.
+     */
+    private String vaultPassword = "";
+
+    /**
      * The schemas managed by Flyway.  These schema names are case-sensitive. (default: The default schema for the datasource connection)
      * <p>Consequences:</p>
      * <ul>
@@ -345,6 +350,11 @@ public class Flyway implements FlywayConfiguration {
     @Override
     public String getEncoding() {
         return encoding;
+    }
+
+    @Override
+    public String getVaultPassword() {
+        return vaultPassword;
     }
 
     @Override
@@ -641,6 +651,15 @@ public class Flyway implements FlywayConfiguration {
      */
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    /**
+     * Sets the vault password for encrypted Sql migrations.
+     *
+     * @param vaultPassword The vault password for encrypted Sql migrations.
+     */
+    public void setVaultPassword(String vaultPassword) {
+        this.vaultPassword = vaultPassword;
     }
 
     /**
@@ -1260,6 +1279,10 @@ public class Flyway implements FlywayConfiguration {
         if (encodingProp != null) {
             setEncoding(encodingProp);
         }
+        String vaultPasswordProp = getValueAndRemoveEntry(props, ConfigUtils.VAULT_PASSWORD);
+        if (vaultPasswordProp != null) {
+            setVaultPassword(vaultPasswordProp);
+        }
         String schemasProp = getValueAndRemoveEntry(props, ConfigUtils.SCHEMAS);
         if (schemasProp != null) {
             setSchemas(StringUtils.tokenizeToStringArray(schemasProp, ","));
@@ -1382,6 +1405,7 @@ public class Flyway implements FlywayConfiguration {
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
         setEncoding(configuration.getEncoding());
+        setVaultPassword(configuration.getVaultPassword());
 
 
 

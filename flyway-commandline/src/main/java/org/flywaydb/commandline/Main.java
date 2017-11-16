@@ -25,6 +25,8 @@ import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.VersionPrinter;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLog.Level;
+import org.flywaydb.core.internal.util.scanner.LoadableResource;
+import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemResource;
 import org.flywaydb.core.internal.util.logging.console.ConsoleLogCreator;
 
 import java.io.Console;
@@ -40,7 +42,7 @@ import java.util.Properties;
  * Main class and central entry point of the Flyway command-line tool.
  */
 public class Main {
-    private static Log LOG;
+    protected static Log LOG;
 
     /**
      * Initializes the logging.
@@ -81,8 +83,10 @@ public class Main {
             properties.putAll(envVars);
             overrideConfigurationWithArgs(properties, args);
 
+            loadVaultPasswordFile(properties);
             if (!isSuppressPrompt(args)) {
                 promptForCredentialsIfMissing(properties);
+                promptForVaultPassword(properties);
             }
 
             dumpConfiguration(properties);
@@ -112,15 +116,15 @@ public class Main {
         }
     }
 
-    private static boolean isPrintVersionAndExit(String[] args) {
+    protected static boolean isPrintVersionAndExit(String[] args) {
         return isFlagSet(args, "-v");
     }
 
-    private static boolean isSuppressPrompt(String[] args) {
+    protected static boolean isSuppressPrompt(String[] args) {
         return isFlagSet(args, "-n");
     }
 
-    private static boolean isFlagSet(String[] args, String flag) {
+    protected static boolean isFlagSet(String[] args, String flag) {
         for (String arg : args) {
             if (flag.equals(arg)) {
                 return true;
@@ -135,7 +139,7 @@ public class Main {
      * @param flyway    The Flyway instance.
      * @param operation The operation to execute.
      */
-    private static void executeOperation(Flyway flyway, String operation) {
+    protected static void executeOperation(Flyway flyway, String operation) {
         if ("clean".equals(operation)) {
             flyway.clean();
         } else if ("baseline".equals(operation)) {
@@ -161,7 +165,7 @@ public class Main {
      * @param args The command-line arguments.
      * @return The desired log level.
      */
-    private static Level getLogLevel(String[] args) {
+    protected static Level getLogLevel(String[] args) {
         for (String arg : args) {
             if ("-X".equals(arg)) {
                 return Level.DEBUG;
@@ -178,7 +182,7 @@ public class Main {
      *
      * @param properties The properties object to initialize.
      */
-    private static void initializeDefaults(Properties properties) {
+    protected static void initializeDefaults(Properties properties) {
         properties.put(ConfigUtils.LOCATIONS, "filesystem:" + new File(getInstallationDir(), "sql").getAbsolutePath());
         properties.put(ConfigUtils.JAR_DIRS, new File(getInstallationDir(), "jars").getAbsolutePath());
     }
@@ -188,7 +192,7 @@ public class Main {
      *
      * @param properties The properties to filter.
      */
-    private static void filterProperties(Properties properties) {
+    protected static void filterProperties(Properties properties) {
         properties.remove(ConfigUtils.JAR_DIRS);
         properties.remove(ConfigUtils.CONFIG_FILE);
         properties.remove(ConfigUtils.CONFIG_FILES);
@@ -200,7 +204,7 @@ public class Main {
      *
      * @throws IOException when the version could not be read.
      */
-    private static void printVersion() throws IOException {
+    protected static void printVersion() throws IOException {
         VersionPrinter.printVersion();
         LOG.info("");
 
@@ -211,7 +215,7 @@ public class Main {
     /**
      * Prints the usage instructions on the console.
      */
-    private static void printUsage() {
+    protected static void printUsage() {
         LOG.info("Usage");
         LOG.info("=====");
         LOG.info("");
@@ -246,6 +250,9 @@ public class Main {
         LOG.info("sqlMigrationSuffix           : File name suffix for sql migrations");
         LOG.info("mixed                        : Allow mixing transactional and non-transactional statements");
         LOG.info("encoding                     : Encoding of sql migrations");
+        LOG.info("vaultPassword                : Vault password to encrypt/decrypt SQL source file");
+        LOG.info("vaultPasswordFile            : Load vault password from a file to encrypt/decrypt SQL source file");
+        LOG.info("askVaultPassword             : Ask vault password to encrypt/decrypt SQL source file");
         LOG.info("placeholderReplacement       : Whether placeholders should be replaced");
         LOG.info("placeholders                 : Placeholders to replace in sql migrations");
         LOG.info("placeholderPrefix            : Prefix of every placeholder");
@@ -290,7 +297,7 @@ public class Main {
      * @return The new ClassLoader containing the additional driver jars.
      * @throws IOException When the jars could not be loaded.
      */
-    private static ClassLoader loadJdbcDrivers(ClassLoader classLoader) throws IOException {
+    protected static ClassLoader loadJdbcDrivers(ClassLoader classLoader) throws IOException {
         File driversDir = new File(getInstallationDir(), "drivers");
         File[] files = driversDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -319,7 +326,7 @@ public class Main {
      * @return The new ClassLoader containing the additional jars.
      * @throws IOException When the jars could not be loaded.
      */
-    private static ClassLoader loadJavaMigrationsFromJarDirs(ClassLoader classLoader, Properties properties) throws IOException {
+    protected static ClassLoader loadJavaMigrationsFromJarDirs(ClassLoader classLoader, Properties properties) throws IOException {
         String jarDirs = properties.getProperty(ConfigUtils.JAR_DIRS);
         if (!StringUtils.hasLength(jarDirs)) {
             return classLoader;
@@ -357,8 +364,8 @@ public class Main {
      * @param args       The command-line arguments passed in.
      * @param envVars    The environment variables, converted into properties.
      */
-    /* private -> for testing */
-    static void loadConfigurationFromConfigFiles(Properties properties, String[] args, Map<String, String> envVars) {
+    /* protected -> for testing */
+    protected static void loadConfigurationFromConfigFiles(Properties properties, String[] args, Map<String, String> envVars) {
         String encoding = determineConfigurationFileEncoding(args, envVars);
 
         properties.putAll(ConfigUtils.loadConfigurationFile(new File(getInstallationDir() + "/conf/" + ConfigUtils.CONFIG_FILE_NAME), encoding, false));
@@ -376,7 +383,7 @@ public class Main {
      *
      * @param properties The properties object to load to configuration into.
      */
-    private static void promptForCredentialsIfMissing(Properties properties) {
+    protected static void promptForCredentialsIfMissing(Properties properties) {
         Console console = System.console();
         if (console == null) {
             // We are running in an automated build. Prompting is not possible.
@@ -399,11 +406,44 @@ public class Main {
     }
 
     /**
+     * If vaultPasswordFile is defined, load content as vault password.
+     *
+     * @param properties The properties object to load to configuration into.
+     */
+    protected static void loadVaultPasswordFile(Properties properties) {
+        if (properties.containsKey(ConfigUtils.VAULT_PASSWORD_FILE)) {
+            LoadableResource resource =  new FileSystemResource(properties.getProperty(ConfigUtils.VAULT_PASSWORD_FILE));
+            String password = StringUtils.removeNewLines(resource.loadAsString("UTF-8"));
+            properties.put(ConfigUtils.VAULT_PASSWORD, password == null ? "" : password);
+        }
+    }
+
+    /**
+     * If askVaultPassword is True, prompt for vault password.
+     *
+     * @param properties The properties object to load to configuration into.
+     */
+    protected static void promptForVaultPassword(Properties properties) {
+        Console console = System.console();
+        if (console == null) {
+            // We are running in an automated build. Prompting is not possible.
+            return;
+        }
+
+        if (properties.containsKey(ConfigUtils.ASK_VAULT_PASSWORD)) {
+            if (!properties.containsKey(ConfigUtils.VAULT_PASSWORD)) {
+                char[] password = console.readPassword("Vault password: ");
+                properties.put(ConfigUtils.VAULT_PASSWORD, password == null ? "" : String.valueOf(password));
+            }
+        }
+    }
+
+    /**
      * Dumps the configuration to the console when debug output is activated.
      *
      * @param properties The configured properties.
      */
-    private static void dumpConfiguration(Properties properties) {
+    protected static void dumpConfiguration(Properties properties) {
         LOG.debug("Using configuration:");
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String value = entry.getValue().toString();
@@ -419,7 +459,7 @@ public class Main {
      * @param envVars The environment variables converted to Flyway properties.
      * @return The configuration files.
      */
-    private static List<File> determineConfigFilesFromArgs(String[] args, Map<String, String> envVars) {
+    protected static List<File> determineConfigFilesFromArgs(String[] args, Map<String, String> envVars) {
         List<File> configFiles = new ArrayList<>();
 
         if (envVars.containsKey(ConfigUtils.CONFIG_FILES)) {
@@ -448,7 +488,7 @@ public class Main {
      * @return The installation directory of the Flyway Command-line tool.
      */
     @SuppressWarnings("ConstantConditions")
-    private static String getInstallationDir() {
+    protected static String getInstallationDir() {
         String path = ClassUtils.getLocationOnDisk(Main.class);
         return new File(path).getParentFile().getParentFile().getAbsolutePath();
     }
@@ -460,7 +500,7 @@ public class Main {
      * @param envVars The environment variables converted to Flyway properties.
      * @return The encoding. (default: UTF-8)
      */
-    private static String determineConfigurationFileEncoding(String[] args, Map<String, String> envVars) {
+    protected static String determineConfigurationFileEncoding(String[] args, Map<String, String> envVars) {
         if (envVars.containsKey(ConfigUtils.CONFIG_FILE_ENCODING)) {
             return envVars.get(ConfigUtils.CONFIG_FILE_ENCODING);
         }
@@ -480,8 +520,8 @@ public class Main {
      * @param properties The properties to override.
      * @param args       The command-line arguments that were passed in.
      */
-    /* private -> for testing*/
-    static void overrideConfigurationWithArgs(Properties properties, String[] args) {
+    /* protected -> for testing*/
+    protected static void overrideConfigurationWithArgs(Properties properties, String[] args) {
         for (String arg : args) {
             if (isPropertyArgument(arg)) {
                 properties.put(getArgumentProperty(arg), getArgumentValue(arg));
@@ -495,7 +535,7 @@ public class Main {
      * @param arg The command-line argument to check.
      * @return {@code true} if it does, {@code false} if not.
      */
-    /* private -> for testing*/
+    /* protected -> for testing*/
     static boolean isPropertyArgument(String arg) {
         return arg.startsWith("-") && arg.contains("=");
     }
@@ -506,7 +546,7 @@ public class Main {
      * @param arg The command-line argument to check, typically in the form -key=value.
      * @return The property.
      */
-    /* private -> for testing*/
+    /* protected -> for testing*/
     static String getArgumentProperty(String arg) {
         int index = arg.indexOf("=");
 
@@ -519,7 +559,7 @@ public class Main {
      * @param arg The command-line argument to check, typically in the form -key=value.
      * @return The value or an empty string if no value is assigned.
      */
-    /* private -> for testing*/
+    /* protected -> for testing*/
     static String getArgumentValue(String arg) {
         int index = arg.indexOf("=");
 
@@ -536,7 +576,7 @@ public class Main {
      * @param args The command-line arguments passed in.
      * @return The operations. An empty list if none.
      */
-    private static List<String> determineOperations(String[] args) {
+    protected static List<String> determineOperations(String[] args) {
         List<String> operations = new ArrayList<>();
 
         for (String arg : args) {

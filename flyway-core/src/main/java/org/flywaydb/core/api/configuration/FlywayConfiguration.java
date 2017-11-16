@@ -195,6 +195,13 @@ public interface FlywayConfiguration {
     String getEncoding();
 
     /**
+     * Retrieves the vault password for encrypted Sql migrations
+     *
+     * @return The vault password for encrypted Sql migrations.
+     */
+    String getVaultPassword();
+
+    /**
      * Retrieves the locations to scan recursively for migrations.
      * <p/>
      * <p>The location type is determined by its prefix.

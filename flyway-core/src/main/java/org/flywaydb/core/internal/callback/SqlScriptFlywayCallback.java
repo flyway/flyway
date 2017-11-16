@@ -101,7 +101,7 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
                                 "-> " + resource.getLocationOnDisk());
                     }
                     scripts.put(key, new SqlScript(dbSupport, resource, placeholderReplacer, configuration.getEncoding(),
-                            configuration.isMixed()
+                            configuration.isMixed(), configuration.getVaultPassword()
 
 
 

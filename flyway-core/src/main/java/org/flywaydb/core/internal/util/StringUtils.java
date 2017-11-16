@@ -310,4 +310,46 @@ public class StringUtils {
         }
         return buf.toString();
     }
+
+    /**
+     * Remove new line characters: \r and \n
+     *
+     * @param str the String to edit
+     * @return The String without new line characters
+     */
+    public static String removeNewLines(String str) {
+        return str.replace("\n", "").replace("\r", "");
+    }
+
+    /**
+     * Format an one line String to a muliple lines of 80 characters
+     *
+     * @param str the String to edit
+     * @return The String formatted
+     */
+    public static String formartOnMultipleLines(String str) {
+        return formartOnMultipleLines(str, 80);
+    }
+
+    /**
+     * Format an one line String to muliple lines
+     *
+     * @param str the String to edit
+     * @param lineLength Length for each line
+     * @return The String formatted
+     */
+    public static String formartOnMultipleLines(String str, Integer lineLength) {
+        if (!hasLength(str)) {
+            return str;
+        }
+
+        // Print 80 chartacters by line
+        String strFormatted = "";
+        int index = 0;
+        while (index < str.length()) {
+            strFormatted += str.substring(index, Math.min(index + lineLength, str.length())) + "\n";
+            index += 80;
+        }
+        return strFormatted;
+    }
 }
