@@ -16,7 +16,7 @@
 
 version: "3"
 services:
-  cockroach-11:
+  cockroachdb-11:
     image: "cockroachdb/cockroach:v1.1.2"
     ports:
      - "62000:26257"
