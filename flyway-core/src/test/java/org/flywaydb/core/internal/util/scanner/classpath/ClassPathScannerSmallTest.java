@@ -15,9 +15,8 @@
  */
 package org.flywaydb.core.internal.util.scanner.classpath;
 
+import org.flywaydb.core.api.migration.MigrationChecksumProvider;
 import org.flywaydb.core.api.migration.jdbc.JdbcMigration;
-import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
-import org.flywaydb.core.internal.dbsupport.cockroachdb.CockroachDBSqlStatementBuilder;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V2__InterfaceBasedMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.V4__DummyExtendedAbstractJdbcMigration;
 import org.flywaydb.core.internal.resolver.jdbc.dummy.Version3dot5;
@@ -134,11 +133,10 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForClassesSubPackage() throws Exception {
-        Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal/dbsupport"), SqlStatementBuilder.class);
+        Class<?>[] classes = classPathScanner.scanForClasses(new Location("classpath:org/flywaydb/core/internal"), MigrationChecksumProvider.class);
 
-        assertTrue(classes.length >= 10);
-
-        assertEquals(CockroachDBSqlStatementBuilder.class, classes[1]);
+        assertEquals(3, classes.length);
+        assertEquals(Version3dot5.class, classes[1]);
     }
 
     @Test

@@ -52,7 +52,7 @@ public class DB2Function extends Function {
 	 * @param name         The name of the function.
 	 * @param args         The arguments of the function.
 	 */
-	public DB2Function(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name, String... args) {
+	DB2Function(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name, String... args) {
 		super(jdbcTemplate, dbSupport, schema, name, args);
 	}
 

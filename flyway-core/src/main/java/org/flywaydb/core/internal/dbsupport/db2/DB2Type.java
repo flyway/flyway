@@ -34,7 +34,7 @@ public class DB2Type extends Type {
      * @param schema       The schema this type lives in.
      * @param name         The name of the type.
      */
-    public DB2Type(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
+    DB2Type(JdbcTemplate jdbcTemplate, DbSupport dbSupport, Schema schema, String name) {
         super(jdbcTemplate, dbSupport, schema, name);
     }
 
