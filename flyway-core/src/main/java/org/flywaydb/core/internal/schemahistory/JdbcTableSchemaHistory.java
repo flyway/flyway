@@ -43,8 +43,8 @@ import java.util.concurrent.Callable;
 /**
  * Supports reading and writing to the metadata table.
  */
-public class MetaDataTableImpl extends SchemaHistory {
-    private static final Log LOG = LogFactory.getLog(MetaDataTableImpl.class);
+public class JdbcTableSchemaHistory extends SchemaHistory {
+    private static final Log LOG = LogFactory.getLog(JdbcTableSchemaHistory.class);
 
     /**
      * Database-specific functionality.
@@ -78,7 +78,7 @@ public class MetaDataTableImpl extends SchemaHistory {
      * @param table       The metadata table used by flyway.
      * @param installedBy The current user in the database.
      */
-    public MetaDataTableImpl(DbSupport dbSupport, Table table, String installedBy) {
+    public JdbcTableSchemaHistory(DbSupport dbSupport, Table table, String installedBy) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;

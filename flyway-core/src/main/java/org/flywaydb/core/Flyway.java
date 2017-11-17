@@ -38,8 +38,8 @@ import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
-import org.flywaydb.core.internal.schemahistory.MetaDataTableImpl;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
+import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
@@ -1480,7 +1480,7 @@ public class Flyway implements FlywayConfiguration {
                 ConfigUtils.injectFlywayConfiguration(callback, this);
             }
 
-            SchemaHistory schemaHistory = new MetaDataTableImpl(dbSupport, schemas[0].getTable(table), installedBy);
+            SchemaHistory schemaHistory = SchemaHistoryFactory.getSchemaHistory(this, dbSupport, schemas[0]);
             result = command.execute(connectionMetaDataTable, migrationResolver, schemaHistory, dbSupport, schemas, callbacks);
         } finally {
             JdbcUtils.closeConnection(connectionMetaDataTable);

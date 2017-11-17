@@ -20,8 +20,8 @@ public class SchemaHistoryFactory {
      * @param schema        The schema whose history to track.
      * @return The schema history.
      */
-    public SchemaHistory getSchemaHistory(FlywayConfiguration configuration, DbSupport dbSupport, Schema schema) {
-        return new MetaDataTableImpl(dbSupport, schema.getTable(configuration.getTable()),
+    public static SchemaHistory getSchemaHistory(FlywayConfiguration configuration, DbSupport dbSupport, Schema schema) {
+        return new JdbcTableSchemaHistory(dbSupport, schema.getTable(configuration.getTable()),
                 configuration.getInstalledBy() == null ? dbSupport.getCurrentUser() : configuration.getInstalledBy());
     }
 }
