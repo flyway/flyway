@@ -78,7 +78,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
      * @param table       The metadata table used by flyway.
      * @param installedBy The current user in the database.
      */
-    public JdbcTableSchemaHistory(DbSupport dbSupport, Table table, String installedBy) {
+    JdbcTableSchemaHistory(DbSupport dbSupport, Table table, String installedBy) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;
@@ -106,18 +106,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
             }
 
             try {
-                String source = dbSupport.getCreateScript();
-
-                Map<String, String> placeholders = new HashMap<String, String>();
-                placeholders.put("schema", table.getSchema().getName());
-                placeholders.put("table", table.getName());
-                String sourceNoPlaceholders =
-                        new PlaceholderReplacer(placeholders, "${", "}")
-                                .replacePlaceholders(source);
-
-                final SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-                sqlScript.execute(jdbcTemplate);
-
+                new SqlScript(dbSupport.getCreateScript(table), dbSupport).execute(jdbcTemplate);
                 LOG.debug("Metadata table " + table + " created.");
             } catch (FlywayException e) {
                 if (++retries >= 10) {
@@ -153,50 +142,9 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
             String versionStr = version == null ? null : version.toString();
             int installedRank = type == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
 
-            // Try load an updateMetaDataTable.sql file if it exists
-            String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateMetaDataTable.sql";
-            ClassPathResource classPathResource = new ClassPathResource(resourceName, getClass().getClassLoader());
-            if (classPathResource.exists()) {
-                String source = classPathResource.loadAsString("UTF-8");
-                Map<String, String> placeholders = new HashMap<String, String>();
-
-                // Placeholders for schema and table
-                placeholders.put("schema", table.getSchema().getName());
-                placeholders.put("table", table.getName());
-
-                // Placeholders for column values
-                placeholders.put("installed_rank_val", String.valueOf(installedRank));
-                placeholders.put("version_val", versionStr);
-                placeholders.put("description_val", description);
-                placeholders.put("type_val", type.name());
-                placeholders.put("script_val", script);
-                placeholders.put("checksum_val", String.valueOf(checksum));
-                placeholders.put("installed_by_val", installedBy);
-                placeholders.put("execution_time_val", String.valueOf(executionTime * 1000L));
-                placeholders.put("success_val", String.valueOf(success));
-
-                String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
-
-                SqlScript sqlScript = new SqlScript(sourceNoPlaceholders, dbSupport);
-
-                sqlScript.execute(jdbcTemplate);
-            } else {
-                // Fall back to hard-coded statements
-                jdbcTemplate.update("INSERT INTO " + table
-                                + " (" + dbSupport.quote("installed_rank")
-                                + "," + dbSupport.quote("version")
-                                + "," + dbSupport.quote("description")
-                                + "," + dbSupport.quote("type")
-                                + "," + dbSupport.quote("script")
-                                + "," + dbSupport.quote("checksum")
-                                + "," + dbSupport.quote("installed_by")
-                                + "," + dbSupport.quote("execution_time")
-                                + "," + dbSupport.quote("success")
-                                + ")"
-                                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        installedRank, versionStr, description, type.name(), script, checksum, installedBy,
-                        executionTime, success);
-            }
+            jdbcTemplate.update(dbSupport.getInsertStatement(table),
+                    installedRank, versionStr, description, type.name(), script, checksum, installedBy,
+                    executionTime, success);
 
             LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
         } catch (SQLException e) {

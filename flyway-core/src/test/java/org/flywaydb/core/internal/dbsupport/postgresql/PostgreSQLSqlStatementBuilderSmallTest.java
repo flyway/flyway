@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.postgresql;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class PostgreSQLSqlStatementBuilderSmallTest {
     /**
      * Class under test.
      */
-    private PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder();
+    private PostgreSQLSqlStatementBuilder statementBuilder = new PostgreSQLSqlStatementBuilder(new Delimiter(";", false));
 
     @Test
     public void columnColumnText() {

@@ -28,6 +28,10 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
+    SQLiteSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
+
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
         if (StringUtils.countOccurrencesOf(statementStart, " ") < 8) {
@@ -40,7 +44,7 @@ public class SQLiteSqlStatementBuilder extends SqlStatementBuilder {
         if (createTriggerStatement && !line.endsWith("END;")) {
             return null;
         }
-        return getDefaultDelimiter();
+        return defaultDelimiter;
     }
 
     @Override

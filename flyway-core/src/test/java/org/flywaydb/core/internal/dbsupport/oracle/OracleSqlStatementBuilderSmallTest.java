@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.oracle;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ import static org.junit.Assert.*;
  * Test for OracleSqlStatementBuilder.
  */
 public class OracleSqlStatementBuilderSmallTest {
-    private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder();
+    private OracleSqlStatementBuilder builder = new OracleSqlStatementBuilder(new Delimiter(";", false));
 
     @Test
     public void setDefineOff() {

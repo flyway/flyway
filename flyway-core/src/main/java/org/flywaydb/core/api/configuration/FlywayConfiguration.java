@@ -21,6 +21,7 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -316,4 +317,12 @@ public interface FlywayConfiguration {
      * @return The ErrorHandler or {@code null} if the default internal handler should be used instead. (default: {@code null})
      */
     ErrorHandler getErrorHandler();
+
+    /**
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @return The file where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
+     * are executed against the database directly.
+     */
+    File getDryRunOutput();
 }

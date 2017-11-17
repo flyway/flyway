@@ -29,25 +29,19 @@ import java.util.regex.Pattern;
  */
 public class RedshiftSqlStatementBuilder extends SqlStatementBuilder {
     /**
-     * Delimiter of COPY statements.
-     */
-    private static final Delimiter COPY_DELIMITER = new Delimiter("\\.", true);
-
-    /**
      * Matches $$, $BODY$, $xyz123$, ...
      */
     /*private -> for testing*/
     static final String DOLLAR_QUOTE_REGEX = "(\\$[A-Za-z0-9_]*\\$).*";
 
     /**
-     * Are we at the beginning of the statement.
-     */
-    private boolean firstLine = true;
-
-    /**
      * Holds the beginning of the statement.
      */
     private String statementStart = "";
+
+    RedshiftSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
 
     /**
      * @return The assembled statement, with the delimiter stripped off.

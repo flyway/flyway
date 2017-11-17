@@ -8,10 +8,12 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
+import org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -21,11 +23,14 @@ import java.util.concurrent.Callable;
 public class InMemorySchemaHistory extends SchemaHistory {
     private boolean exists;
     private final String installedBy;
+    private final DryRunStatementInterceptor dryRunStatementInterceptor;
     private final List<AppliedMigration> history = new ArrayList<AppliedMigration>();
 
-    public InMemorySchemaHistory(boolean exists, List<AppliedMigration> existingHistory, String installedBy) {
+    public InMemorySchemaHistory(boolean exists, List<AppliedMigration> existingHistory, String installedBy,
+                                 DryRunStatementInterceptor dryRunStatementInterceptor) {
         this.exists = exists;
         this.installedBy = installedBy;
+        this.dryRunStatementInterceptor = dryRunStatementInterceptor;
         history.addAll(existingHistory);
     }
 
@@ -58,17 +63,30 @@ public class InMemorySchemaHistory extends SchemaHistory {
 
     @Override
     public boolean hasBaselineMarker() {
-        return false;
+        return getBaselineMarker() != null;
     }
 
     @Override
     public AppliedMigration getBaselineMarker() {
+        // Baseline marker can only ever be in one of the first two positions in the history.
+        for (int i = 0; i < Math.min(history.size(), 2); i++) {
+            AppliedMigration appliedMigration = history.get(i);
+            if (appliedMigration.getType() == MigrationType.BASELINE) {
+                return appliedMigration;
+            }
+        }
         return null;
     }
 
     @Override
     public void removeFailedMigrations() {
-
+        Iterator<AppliedMigration> iterator = history.iterator();
+        while (iterator.hasNext()) {
+            AppliedMigration appliedMigration = iterator.next();
+            if (!appliedMigration.isSuccess()) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override
@@ -78,18 +96,35 @@ public class InMemorySchemaHistory extends SchemaHistory {
 
     @Override
     public boolean hasSchemasMarker() {
-        return false;
+        return !history.isEmpty() && history.get(0).getType() == MigrationType.SCHEMA;
     }
 
     @Override
-    public void update(AppliedMigration appliedMigration, ResolvedMigration resolvedMigration) {
-
+    public void update(AppliedMigration applied, ResolvedMigration resolved) {
+        AppliedMigration updated = new AppliedMigration(
+                applied.getInstalledRank(),
+                applied.getVersion(),
+                resolved.getDescription(),
+                resolved.getType(),
+                resolved.getScript(),
+                resolved.getChecksum(),
+                applied.getInstalledOn(),
+                applied.getInstalledBy(),
+                applied.getExecutionTime(),
+                applied.isSuccess());
+        dryRunStatementInterceptor.schemaHistoryTableInsert(updated);
+        history.set(applied.getInstalledRank(), updated);
     }
 
     @Override
     protected void doAddAppliedMigration(MigrationVersion version, String description, MigrationType type, String script, Integer checksum, int executionTime, boolean success) {
-        exists = true;
-        history.add(new AppliedMigration(history.size(), version, description, type, script, checksum, new Date(),
-                installedBy, executionTime, success));
+        if (!exists) {
+            dryRunStatementInterceptor.schemaHistoryTableCreate();
+            exists = true;
+        }
+        AppliedMigration appliedMigration = new AppliedMigration(history.size(), version, description, type, script, checksum, new Date(),
+                installedBy, executionTime, success);
+        dryRunStatementInterceptor.schemaHistoryTableInsert(appliedMigration);
+        history.add(appliedMigration);
     }
 }

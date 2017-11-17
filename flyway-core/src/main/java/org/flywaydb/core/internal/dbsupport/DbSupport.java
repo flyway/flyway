@@ -18,11 +18,14 @@ package org.flywaydb.core.internal.dbsupport;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.util.Pair;
+import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -99,6 +102,13 @@ public abstract class DbSupport {
      * @return The new SqlStatementBuilder.
      */
     public abstract SqlStatementBuilder createSqlStatementBuilder();
+
+    /**
+     * @return The default delimiter for this database.
+     */
+    public Delimiter getDefaultDelimiter() {
+        return new Delimiter(";", false);
+    }
 
     /**
      * @return The name of the db. Used for loading db-specific scripts such as <code>createMetaDataTable.sql</code>.
@@ -212,7 +222,7 @@ public abstract class DbSupport {
      * @param identifiers The identifiers to quote.
      * @return The fully qualified quoted identifiers.
      */
-    public String quote(String... identifiers) {
+    public final String quote(String... identifiers) {
         StringBuilder result = new StringBuilder();
 
         boolean first = true;
@@ -294,8 +304,32 @@ public abstract class DbSupport {
         }
     }
 
-    public String getCreateScript() {
+    public final String getCreateScript(Table table) {
+        String source = getRawCreateScript();
+
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("schema", table.getSchema().getName());
+        placeholders.put("table", table.getName());
+        return new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
+    }
+
+    protected String getRawCreateScript() {
         String resourceName = "org/flywaydb/core/internal/dbsupport/" + getDbName() + "/createMetaDataTable.sql";
         return new ClassPathResource(resourceName, getClass().getClassLoader()).loadAsString("UTF-8");
+    }
+
+    public String getInsertStatement(Table table) {
+        return "INSERT INTO " + table
+                + " (" + quote("installed_rank")
+                + "," + quote("version")
+                + "," + quote("description")
+                + "," + quote("type")
+                + "," + quote("script")
+                + "," + quote("checksum")
+                + "," + quote("installed_by")
+                + "," + quote("execution_time")
+                + "," + quote("success")
+                + ")"
+                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 }

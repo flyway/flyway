@@ -118,7 +118,7 @@ public class OracleDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new OracleSqlStatementBuilder();
+        return new OracleSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

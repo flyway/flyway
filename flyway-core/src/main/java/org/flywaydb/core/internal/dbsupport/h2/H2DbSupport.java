@@ -78,7 +78,7 @@ public class H2DbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new H2SqlStatementBuilder();
+        return new H2SqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

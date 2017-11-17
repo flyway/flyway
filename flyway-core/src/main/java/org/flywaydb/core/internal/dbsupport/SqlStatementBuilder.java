@@ -80,15 +80,23 @@ public class SqlStatementBuilder {
     protected boolean executeInTransaction = true;
 
     /**
-     * The current delimiter to look for to terminate the statement.
+     * The default delimiter for this database.
      */
-    protected Delimiter delimiter = getDefaultDelimiter();
+    protected final Delimiter defaultDelimiter;
 
     /**
-     * @return The default delimiter for this database.
+     * The current delimiter to look for to terminate the statement.
      */
-    protected Delimiter getDefaultDelimiter() {
-        return new Delimiter(";", false);
+    protected Delimiter delimiter;
+
+    /**
+     * Creates a new SqlStatementBuilder.
+     *
+     * @param defaultDelimiter The default delimiter for this database.
+     */
+    public SqlStatementBuilder(Delimiter defaultDelimiter) {
+        this.defaultDelimiter = defaultDelimiter;
+        this.delimiter = defaultDelimiter;
     }
 
     /**
@@ -197,6 +205,7 @@ public class SqlStatementBuilder {
 
     /**
      * Checks whether the statement currently ends with an open multiline string literal.
+     *
      * @return {@code true} if it does, {@code false} if it doesn't.
      */
     /* protected -> for testing */ boolean endWithOpenMultilineStringLiteral() {
@@ -343,6 +352,7 @@ public class SqlStatementBuilder {
 
     /**
      * Ignore all special characters that naturally occur in SQL, but are not opening or closing string literals.
+     *
      * @param line The line to tokenize.
      * @return The tokens.
      */

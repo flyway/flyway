@@ -59,6 +59,10 @@ public class PostgreSQLSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
+    public PostgreSQLSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
+
     /**
      * @return The assembled statement, with the delimiter stripped off.
      */

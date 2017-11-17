@@ -199,7 +199,7 @@ public class DB2SqlStatementBuilderSmallTest {
     }
 
     private void assertTerminated(String sqlScriptSource, String delimiter) throws IOException {
-        DB2SqlStatementBuilder builder = new DB2SqlStatementBuilder();
+        DB2SqlStatementBuilder builder = new DB2SqlStatementBuilder(new Delimiter(";", false));
         builder.setDelimiter(new Delimiter(delimiter, false));
 
         BufferedReader bufferedReader = new BufferedReader(new StringReader(sqlScriptSource));

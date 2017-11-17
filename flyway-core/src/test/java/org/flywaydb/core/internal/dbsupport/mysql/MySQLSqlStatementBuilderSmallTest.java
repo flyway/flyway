@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
  * Test for MySQLSqlStatementBuilder.
  */
 public class MySQLSqlStatementBuilderSmallTest {
-    private MySQLSqlStatementBuilder builder = new MySQLSqlStatementBuilder();
+    private MySQLSqlStatementBuilder builder = new MySQLSqlStatementBuilder(new Delimiter(";", false));
 
     @Test
     public void isCommentDirectiveRegularStatement() {

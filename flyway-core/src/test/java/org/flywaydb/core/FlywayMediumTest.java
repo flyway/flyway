@@ -65,6 +65,7 @@ public class FlywayMediumTest {
     @Before
     public void before() {
         flyway = new Flyway();
+        //noinspection deprecation
         flyway.setClassLoader(newClassLoader);
     }
 
@@ -842,6 +843,19 @@ public class FlywayMediumTest {
     }
 
     @Test
+    public void migrateDryRun() {
+        flyway.setDataSource("jdbc:h2:mem:flyway_migrate_dryrun;DB_CLOSE_DELAY=-1", "sa", "");
+        flyway.setLocations("migration/sql");
+        flyway.setDryRunOutput(new File("test.txt"));
+        assertEquals(4, flyway.migrate());
+        assertEquals(4, flyway.migrate());
+
+        flyway.setDryRunOutput(null);
+        assertEquals(4, flyway.migrate());
+        assertEquals(0, flyway.migrate());
+    }
+
+    @Test
     public void migrateWithTargetCurrent() {
         // Populate database up to version 1.2
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
@@ -854,7 +868,7 @@ public class FlywayMediumTest {
         assertEquals(0, flyway.info().pending().length);
         assertEquals(MigrationState.ABOVE_TARGET, flyway.info().all()[3].getState());
 
-        // This should be a no-op as target=current will ignore future migrations 
+        // This should be a no-op as target=current will ignore future migrations
         flyway = new Flyway();
         flyway.setDataSource("jdbc:h2:mem:flyway_validate_pending;DB_CLOSE_DELAY=-1", "sa", "");
         flyway.setLocations("migration/sql");

@@ -82,7 +82,7 @@ public class SQLiteDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SQLiteSqlStatementBuilder();
+        return new SQLiteSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

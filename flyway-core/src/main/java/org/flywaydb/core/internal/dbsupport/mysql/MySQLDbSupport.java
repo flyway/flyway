@@ -126,7 +126,7 @@ public class MySQLDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new MySQLSqlStatementBuilder();
+        return new MySQLSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

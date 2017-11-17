@@ -137,7 +137,7 @@ public class RedshiftDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new RedshiftSqlStatementBuilder();
+        return new RedshiftSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

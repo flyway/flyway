@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.sqlserver;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -101,6 +102,11 @@ public class SQLServerDbSupport extends DbSupport {
     }
 
     @Override
+    public Delimiter getDefaultDelimiter() {
+        return new Delimiter("GO", true);
+    }
+
+    @Override
     protected String doGetCurrentUser() throws SQLException {
         return jdbcTemplate.queryForString("SELECT SUSER_SNAME()");
     }
@@ -133,7 +139,7 @@ public class SQLServerDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SQLServerSqlStatementBuilder();
+        return new SQLServerSqlStatementBuilder(getDefaultDelimiter());
     }
 
     /**

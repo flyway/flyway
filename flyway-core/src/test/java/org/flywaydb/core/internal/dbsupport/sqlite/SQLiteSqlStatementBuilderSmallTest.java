@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.sqlite;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class SQLiteSqlStatementBuilderSmallTest {
     /**
      * Class under test.
      */
-    private SQLiteSqlStatementBuilder statementBuilder = new SQLiteSqlStatementBuilder();
+    private SQLiteSqlStatementBuilder statementBuilder = new SQLiteSqlStatementBuilder(new Delimiter(";", false));
 
     @Test
     public void beginEnd() {

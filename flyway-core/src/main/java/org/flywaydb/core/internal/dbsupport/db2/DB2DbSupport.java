@@ -56,7 +56,7 @@ public class DB2DbSupport extends DbSupport {
     }
 
     @Override
-    public String getCreateScript() {
+    public String getRawCreateScript() {
         return "CREATE TABLE \"${schema}\".\"${table}\" (\n" +
                 "    \"installed_rank\" INT NOT NULL,\n" +
                 "    \"version\" VARCHAR(50),\n" +
@@ -82,7 +82,7 @@ public class DB2DbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new DB2SqlStatementBuilder();
+        return new DB2SqlStatementBuilder(getDefaultDelimiter());
     }
 
     public String getDbName() {

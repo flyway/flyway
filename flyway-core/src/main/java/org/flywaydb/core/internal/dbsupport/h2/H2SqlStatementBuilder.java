@@ -15,12 +15,17 @@
  */
 package org.flywaydb.core.internal.dbsupport.h2;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 
 /**
  * SqlStatementBuilder supporting H2-specific delimiter changes.
  */
 public class H2SqlStatementBuilder extends SqlStatementBuilder {
+    public H2SqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
+
     @Override
     protected String extractAlternateOpenQuote(String token) {
         if (token.startsWith("$$")) {

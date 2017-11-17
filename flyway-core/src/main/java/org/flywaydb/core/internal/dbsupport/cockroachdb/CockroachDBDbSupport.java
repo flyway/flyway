@@ -154,7 +154,7 @@ public class CockroachDBDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new CockroachDBSqlStatementBuilder();
+        return new CockroachDBSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

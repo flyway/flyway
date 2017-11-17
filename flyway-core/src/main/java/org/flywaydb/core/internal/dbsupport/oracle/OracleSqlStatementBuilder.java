@@ -46,6 +46,10 @@ public class OracleSqlStatementBuilder extends SqlStatementBuilder {
      */
     private String statementStart = "";
 
+    public OracleSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
+
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
         if (line.matches("DECLARE|DECLARE\\s.*") || line.matches("BEGIN|BEGIN\\s.*")) {

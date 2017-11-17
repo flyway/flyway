@@ -15,12 +15,17 @@
  */
 package org.flywaydb.core.internal.dbsupport.derby;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 
 /**
  * SqlStatementBuilder supporting Derby-specific delimiter changes.
  */
 public class DerbySqlStatementBuilder extends SqlStatementBuilder {
+    public DerbySqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
+
     @Override
     protected String extractAlternateOpenQuote(String token) {
         if (token.startsWith("$$")) {

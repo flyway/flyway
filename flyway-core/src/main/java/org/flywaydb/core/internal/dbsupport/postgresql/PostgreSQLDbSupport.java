@@ -142,7 +142,7 @@ public class PostgreSQLDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new PostgreSQLSqlStatementBuilder();
+        return new PostgreSQLSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

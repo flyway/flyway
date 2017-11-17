@@ -91,7 +91,7 @@ public class HSQLDBDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new HSQLDBSqlStatementBuilder();
+        return new HSQLDBSqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

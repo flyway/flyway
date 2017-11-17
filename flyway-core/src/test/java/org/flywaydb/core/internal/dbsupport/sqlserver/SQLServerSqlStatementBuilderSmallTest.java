@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.sqlserver;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class SQLServerSqlStatementBuilderSmallTest {
     /**
      * Class under test.
      */
-    private SQLServerSqlStatementBuilder statementBuilder = new SQLServerSqlStatementBuilder();
+    private SQLServerSqlStatementBuilder statementBuilder = new SQLServerSqlStatementBuilder(new Delimiter("GO", true));
 
     @Test
     public void go() {

@@ -57,7 +57,16 @@ public class DB2SqlStatementBuilder extends SqlStatementBuilder {
      * The current delimiter to use. This delimiter can be changed
      * as well as temporarily disabled inside BEGIN END; blocks.
      */
-    private Delimiter currentDelimiter = getDefaultDelimiter();
+    private Delimiter currentDelimiter = defaultDelimiter;
+
+    /**
+     * Creates a new SqlStatementBuilder.
+     *
+     * @param defaultDelimiter The default delimiter for this database.
+     */
+    public DB2SqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
 
     @Override
     public Delimiter extractNewDelimiterFromLine(String line) {

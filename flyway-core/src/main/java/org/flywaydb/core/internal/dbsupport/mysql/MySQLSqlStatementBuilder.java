@@ -37,6 +37,10 @@ public class MySQLSqlStatementBuilder extends SqlStatementBuilder {
 
     /*private -> testing*/ boolean isInMultiLineCommentDirective = false;
 
+    MySQLSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
+
     @Override
     public Delimiter extractNewDelimiterFromLine(String line) {
         if (line.toUpperCase().startsWith(DELIMITER_KEYWORD)) {

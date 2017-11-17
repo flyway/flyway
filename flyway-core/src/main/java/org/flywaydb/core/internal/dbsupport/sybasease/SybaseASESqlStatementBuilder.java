@@ -22,11 +22,10 @@ import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
  * SqlStatementBuilder supporting Sybase ASE-specific delimiter changes.
  */
 public class SybaseASESqlStatementBuilder extends SqlStatementBuilder {
-	@Override
-    protected Delimiter getDefaultDelimiter() {
-        return new Delimiter("GO", true);
+    SybaseASESqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
     }
-	
+
 	@Override
     protected String computeAlternateCloseQuote(String openQuote) {
         char specialChar = openQuote.charAt(2);

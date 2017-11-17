@@ -79,7 +79,7 @@ public class DerbyDbSupport extends DbSupport {
     }
 
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new DerbySqlStatementBuilder();
+        return new DerbySqlStatementBuilder(getDefaultDelimiter());
     }
 
     @Override

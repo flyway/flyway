@@ -18,6 +18,7 @@ package org.flywaydb.core.internal.dbsupport.sybasease;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
@@ -62,7 +63,12 @@ public class SybaseASEDbSupport extends DbSupport {
 
     @Override
     public SqlStatementBuilder createSqlStatementBuilder() {
-        return new SybaseASESqlStatementBuilder();
+        return new SybaseASESqlStatementBuilder(getDefaultDelimiter());
+    }
+
+    @Override
+    public Delimiter getDefaultDelimiter() {
+        return new Delimiter("GO", true);
     }
 
     @Override

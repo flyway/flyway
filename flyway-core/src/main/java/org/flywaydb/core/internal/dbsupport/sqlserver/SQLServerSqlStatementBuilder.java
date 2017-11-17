@@ -30,9 +30,8 @@ public class SQLServerSqlStatementBuilder extends SqlStatementBuilder {
      */
     private static final Pattern KEYWORDS_BEFORE_STRING_LITERAL_REGEX = Pattern.compile("^(LIKE)('.*)");
 
-    @Override
-    protected Delimiter getDefaultDelimiter() {
-        return new Delimiter("GO", true);
+    public SQLServerSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
     }
 
     @Override

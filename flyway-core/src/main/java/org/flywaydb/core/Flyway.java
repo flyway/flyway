@@ -37,8 +37,8 @@ import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
-import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.resolver.CompositeMigrationResolver;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.schemahistory.SchemaHistoryFactory;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.Locations;
@@ -51,6 +51,7 @@ import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -309,10 +310,17 @@ public class Flyway implements FlywayConfiguration {
     //[pro]
     /**
      * Handler errors that occur during a migration. This can be used to customize Flyway's behavior by for example
-     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
+     * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a
+     * FlywaySqlException. (default: {@code null}).
      * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
      */
     private ErrorHandler errorHandler;
+
+    /**
+     * The file where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
+     * are executed against the database directly. (default: {@code null}).
+     */
+    private File dryRunOutput;
     //[/pro]
 
     /**
@@ -492,6 +500,51 @@ public class Flyway implements FlywayConfiguration {
         // [/pro]
     }
 
+    @Override
+    public File getDryRunOutput() {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("dryRunOutput");
+        // [/opensource-only]
+        // [pro]
+        return dryRunOutput;
+        // [/pro]
+    }
+
+    /**
+     * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
+     * directly against the database. If the file specified is in a non-existent directly, Flyway will create all
+     * directories and parent directories as needed.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
+     */
+    public void setDryRunOutput(File dryRunOutput) {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("dryRunOutput");
+        // [/opensource-only]
+        // [pro]
+        this.dryRunOutput = dryRunOutput;
+        // [/pro]
+    }
+
+    /**
+     * Sets the file where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
+     * directly against the database. If the file specified is in a non-existent directly, Flyway will create all
+     * directories and parent directories as needed.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param dryRunOutputFileName The name of the output file or {@code null} to execute the SQL statements directly
+     *                             against the database.
+     */
+    public void setDryRunOutputAsFileName(String dryRunOutputFileName) {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("dryRunOutput");
+        // [/opensource-only]
+        // [pro]
+        this.dryRunOutput = dryRunOutputFileName == null ? null : new File(dryRunOutputFileName);
+        // [/pro]
+    }
+
     /**
      * Handler for errors that occur during a migration. This can be used to customize Flyway's behavior by for example
      * throwing another runtime exception, outputting a warning or suppressing the error instead of throwing a FlywaySqlException.
@@ -520,7 +573,9 @@ public class Flyway implements FlywayConfiguration {
         //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("errorHandler");
         // [/opensource-only]
         // [pro]
-        if (errorHandlerClassName != null) {
+        if (errorHandlerClassName == null) {
+            this.errorHandler = null;
+        } else {
             this.errorHandler = ClassUtils.instantiate(errorHandlerClassName, classLoader);
         }
         // [/pro]
@@ -960,8 +1015,13 @@ public class Flyway implements FlywayConfiguration {
      */
     public int migrate() throws FlywayException {
         return execute(new Command<Integer>() {
-            public Integer execute(Connection connectionMetaDataTable,
-                                   MigrationResolver migrationResolver, SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+            public Integer execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver,
+                                   SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas,
+                                   FlywayCallback[] flywayCallbacks
+                                   // [pro]
+                    , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                   // [/pro]
+            ) {
                 if (validateOnMigrate) {
                     doValidate(connectionMetaDataTable, dbSupport, migrationResolver, schemaHistory, schemas, flywayCallbacks, true);
                 }
@@ -993,8 +1053,14 @@ public class Flyway implements FlywayConfiguration {
 
                 Connection connectionUserObjects = null;
                 try {
-                    connectionUserObjects =
-                            dbSupport.useSingleConnection() ? connectionMetaDataTable : JdbcUtils.openConnection(dataSource);
+                    connectionUserObjects = dbSupport.useSingleConnection()
+                            ? connectionMetaDataTable
+                            : JdbcUtils.openConnection(dataSource
+                            // [pro]
+                            , classLoader
+                            , dryRunStatementInterceptor
+                            // [/pro]
+                    );
                     DbMigrate dbMigrate =
                             new DbMigrate(connectionUserObjects, dbSupport, schemaHistory,
                                     schemas[0], migrationResolver, Flyway.this);
@@ -1025,7 +1091,12 @@ public class Flyway implements FlywayConfiguration {
     public void validate() throws FlywayException {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable,
-                                MigrationResolver migrationResolver, SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+                                MigrationResolver migrationResolver, SchemaHistory schemaHistory, DbSupport dbSupport,
+                                Schema[] schemas, FlywayCallback[] flywayCallbacks
+                                // [pro]
+                    , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                // [/pro]
+            ) {
                 doValidate(connectionMetaDataTable, dbSupport, migrationResolver, schemaHistory, schemas, flywayCallbacks, false);
                 return null;
             }
@@ -1068,7 +1139,11 @@ public class Flyway implements FlywayConfiguration {
         execute(new Command<Void>() {
             public Void execute(Connection connectionMetaDataTable,
                                 MigrationResolver migrationResolver, SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas,
-                                FlywayCallback[] flywayCallbacks) {
+                                FlywayCallback[] flywayCallbacks
+                                // [pro]
+                    , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                // [/pro]
+            ) {
                 new DbClean(connectionMetaDataTable, dbSupport, schemaHistory, schemas, flywayCallbacks, cleanDisabled).clean();
                 return null;
             }
@@ -1086,7 +1161,13 @@ public class Flyway implements FlywayConfiguration {
     public MigrationInfoService info() {
         return execute(new Command<MigrationInfoService>() {
             public MigrationInfoService execute(final Connection connectionMetaDataTable,
-                                                MigrationResolver migrationResolver, SchemaHistory schemaHistory, final DbSupport dbSupport, final Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+                                                MigrationResolver migrationResolver, SchemaHistory schemaHistory,
+                                                final DbSupport dbSupport, final Schema[] schemas,
+                                                FlywayCallback[] flywayCallbacks
+                                                // [pro]
+                    , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                                // [/pro]
+            ) {
                 try {
                     for (final FlywayCallback callback : flywayCallbacks) {
                         new TransactionTemplate(connectionMetaDataTable).execute(new Callable<Object>() {
@@ -1132,7 +1213,13 @@ public class Flyway implements FlywayConfiguration {
      */
     public void baseline() throws FlywayException {
         execute(new Command<Void>() {
-            public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver, SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+            public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver,
+                                SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas,
+                                FlywayCallback[] flywayCallbacks
+                                // [pro]
+                    , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                // [/pro]
+            ) {
                 new DbSchemas(connectionMetaDataTable, schemas, schemaHistory).create();
                 new DbBaseline(connectionMetaDataTable, dbSupport, schemaHistory, schemas[0], baselineVersion, baselineDescription, flywayCallbacks).baseline();
                 return null;
@@ -1152,7 +1239,13 @@ public class Flyway implements FlywayConfiguration {
      */
     public void repair() throws FlywayException {
         execute(new Command<Void>() {
-            public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver, SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+            public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver,
+                                SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas,
+                                FlywayCallback[] flywayCallbacks
+                                // [pro]
+                    , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                                // [/pro]
+            ) {
                 new DbRepair(dbSupport, connectionMetaDataTable, schemas[0], migrationResolver, schemaHistory, flywayCallbacks).repair();
                 return null;
             }
@@ -1355,6 +1448,11 @@ public class Flyway implements FlywayConfiguration {
             setInstalledBy(installedByProp);
         }
 
+        String dryRunOutputProp = getValueAndRemoveEntry(props, ConfigUtils.DRYRUN_OUTPUT);
+        if (dryRunOutputProp != null) {
+            setDryRunOutputAsFileName(dryRunOutputProp);
+        }
+
         String errorHandlerProp = getValueAndRemoveEntry(props, ConfigUtils.ERROR_HANDLER);
         if (errorHandlerProp != null) {
             setErrorHandlerAsClassName(errorHandlerProp);
@@ -1380,10 +1478,11 @@ public class Flyway implements FlywayConfiguration {
         setCleanDisabled(configuration.isCleanDisabled());
         setCleanOnValidationError(configuration.isCleanOnValidationError());
         setDataSource(configuration.getDataSource());
-        setEncoding(configuration.getEncoding());
         // [pro]
+        setDryRunOutput(configuration.getDryRunOutput());
         setErrorHandler(configuration.getErrorHandler());
         // [/pro]
+        setEncoding(configuration.getEncoding());
         setGroup(configuration.isGroup());
         setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
         setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
@@ -1435,12 +1534,23 @@ public class Flyway implements FlywayConfiguration {
 
         Connection connectionMetaDataTable = null;
 
+        // [pro]
+        org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor =
+                dryRunOutput == null ? null :
+                        org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor.of(dryRunOutput, encoding);
+        // [/pro]
+
         try {
             if (dataSource == null) {
                 throw new FlywayException("Unable to connect to the database. Configure the url, user and password!");
             }
 
-            connectionMetaDataTable = JdbcUtils.openConnection(dataSource);
+            connectionMetaDataTable = JdbcUtils.openConnection(dataSource
+                    // [pro]
+                    , classLoader
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
 
             DbSupport dbSupport = DbSupportFactory.createDbSupport(connectionMetaDataTable, !dbConnectionInfoPrinted);
             dbConnectionInfoPrinted = true;
@@ -1480,10 +1590,23 @@ public class Flyway implements FlywayConfiguration {
                 ConfigUtils.injectFlywayConfiguration(callback, this);
             }
 
-            SchemaHistory schemaHistory = SchemaHistoryFactory.getSchemaHistory(this, dbSupport, schemas[0]);
-            result = command.execute(connectionMetaDataTable, migrationResolver, schemaHistory, dbSupport, schemas, callbacks);
+            SchemaHistory schemaHistory = SchemaHistoryFactory.getSchemaHistory(this, dbSupport, schemas[0]
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
+            result = command.execute(connectionMetaDataTable, migrationResolver, schemaHistory, dbSupport, schemas, callbacks
+                    // [pro]
+                    , dryRunStatementInterceptor
+                    // [/pro]
+            );
         } finally {
             JdbcUtils.closeConnection(connectionMetaDataTable);
+            // [pro]
+            if (dryRunStatementInterceptor != null) {
+                dryRunStatementInterceptor.close();
+            }
+            // [/pro]
         }
         return result;
     }
@@ -1504,6 +1627,11 @@ public class Flyway implements FlywayConfiguration {
          * @param schemas                 The schemas managed by Flyway.   @return The result of the operation.
          * @param flywayCallbacks         The callbacks to use.
          */
-        T execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver, SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks);
+        T execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver, SchemaHistory schemaHistory,
+                  DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks
+                  // [pro]
+                , org.flywaydb.core.internal.util.jdbc.pro.DryRunStatementInterceptor dryRunStatementInterceptor
+                  // [/pro]
+        );
     }
 }

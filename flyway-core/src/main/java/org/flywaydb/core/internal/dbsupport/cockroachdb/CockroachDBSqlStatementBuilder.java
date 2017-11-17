@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.cockroachdb;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
 import org.flywaydb.core.internal.util.StringUtils;
 
@@ -30,6 +31,10 @@ public class CockroachDBSqlStatementBuilder extends SqlStatementBuilder {
      */
     /*private -> for testing*/
     static final String DOLLAR_QUOTE_REGEX = "(\\$[A-Za-z0-9_]*\\$).*";
+
+    CockroachDBSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
 
     @Override
     protected String[] tokenizeLine(String line) {

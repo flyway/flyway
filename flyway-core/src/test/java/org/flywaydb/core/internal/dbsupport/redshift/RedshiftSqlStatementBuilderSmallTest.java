@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.redshift;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.flywaydb.core.internal.dbsupport.postgresql.PostgreSQLCopyStatement;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class RedshiftSqlStatementBuilderSmallTest {
     /**
      * Class under test.
      */
-    private RedshiftSqlStatementBuilder statementBuilder = new RedshiftSqlStatementBuilder();
+    private RedshiftSqlStatementBuilder statementBuilder = new RedshiftSqlStatementBuilder(new Delimiter(";", false));
 
     @Test
     public void columnColumnText() {

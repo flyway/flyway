@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import java.io.File;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -259,6 +260,11 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
 
     @Override
     public ErrorHandler getErrorHandler() {
+        return null;
+    }
+
+    @Override
+    public File getDryRunOutput() {
         return null;
     }
 

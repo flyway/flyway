@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.dbsupport.hsqldb;
 
+import org.flywaydb.core.internal.dbsupport.Delimiter;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 public class HSQLDBSqlScriptSmallTest {
     @Test
     public void parseBeginAtomic() {
-        HSQLDBSqlStatementBuilder statementBuilder = new HSQLDBSqlStatementBuilder();
+        HSQLDBSqlStatementBuilder statementBuilder = new HSQLDBSqlStatementBuilder(new Delimiter(";", false));
         String sqlScriptSource = "CREATE TRIGGER uniqueidx_trigger BEFORE INSERT ON usertable \n" +
                 "\tREFERENCING NEW ROW AS newrow\n" +
                 "    FOR EACH ROW WHEN (newrow.name is not null)\n" +

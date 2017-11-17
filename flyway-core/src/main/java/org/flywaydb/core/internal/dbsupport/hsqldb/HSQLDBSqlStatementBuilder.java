@@ -27,6 +27,10 @@ public class HSQLDBSqlStatementBuilder extends SqlStatementBuilder {
      */
     private boolean insideAtomicBlock;
 
+    HSQLDBSqlStatementBuilder(Delimiter defaultDelimiter) {
+        super(defaultDelimiter);
+    }
+
     @Override
     protected Delimiter changeDelimiterIfNecessary(String line, Delimiter delimiter) {
         if (line.contains("BEGIN ATOMIC")) {
@@ -40,6 +44,6 @@ public class HSQLDBSqlStatementBuilder extends SqlStatementBuilder {
         if (insideAtomicBlock) {
             return null;
         }
-        return getDefaultDelimiter();
+        return defaultDelimiter;
     }
 }
