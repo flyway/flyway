@@ -55,7 +55,7 @@ public class HSQLDBDbSupport extends DbSupport {
 
     @Override
     protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT USER()");
+        return jdbcTemplate.queryForString("SELECT USER() FROM (VALUES(0))");
     }
 
     @Override
