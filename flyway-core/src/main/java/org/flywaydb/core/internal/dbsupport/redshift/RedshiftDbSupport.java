@@ -62,8 +62,9 @@ public class RedshiftDbSupport extends DbSupport {
         return "redshift";
     }
 
-    public String getCurrentUserFunction() {
-        return "current_user";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT current_user");
     }
 
     @Override

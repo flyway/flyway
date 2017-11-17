@@ -77,8 +77,9 @@ public class OracleDbSupport extends DbSupport {
         return "oracle";
     }
 
-    public String getCurrentUserFunction() {
-        return "USER";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT USER FROM DUAL");
     }
 
     /**

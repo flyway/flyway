@@ -20,10 +20,8 @@ import org.flywaydb.core.internal.dbsupport.FlywayDbUpgradeRequiredException;
 import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlStatementBuilder;
-import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -53,8 +51,9 @@ public class H2DbSupport extends DbSupport {
         return "h2";
     }
 
-    public String getCurrentUserFunction() {
-        return "USER()";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT USER()");
     }
 
     protected String doGetCurrentSchemaName() throws SQLException {

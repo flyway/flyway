@@ -99,8 +99,9 @@ public class DB2DbSupport extends DbSupport {
         jdbcTemplate.execute("SET SCHEMA " + quote(schema));
     }
 
-    public String getCurrentUserFunction() {
-        return "CURRENT_USER";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("select CURRENT_USER from sysibm.sysdummy1");
     }
 
     public boolean supportsDdlTransactions() {

@@ -51,8 +51,9 @@ public class DerbyDbSupport extends DbSupport {
         return "derby";
     }
 
-    public String getCurrentUserFunction() {
-        return "CURRENT_USER";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT CURRENT_USER FROM SYSIBM.SYSDUMMY1");
     }
 
     @Override

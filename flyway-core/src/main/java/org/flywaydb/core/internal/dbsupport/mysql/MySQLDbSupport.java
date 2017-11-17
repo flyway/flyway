@@ -86,8 +86,9 @@ public class MySQLDbSupport extends DbSupport {
         return "mysql";
     }
 
-    public String getCurrentUserFunction() {
-        return "SUBSTRING_INDEX(USER(),'@',1)";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT SUBSTRING_INDEX(USER(),'@',1)");
     }
 
     @Override

@@ -32,7 +32,6 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
-import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
@@ -312,9 +311,8 @@ public class DbMigrate {
 
                 stopWatch.stop();
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
-                AppliedMigration appliedMigration = new AppliedMigration(migration.getVersion(), migration.getDescription(),
+                schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(),
                         migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
-                schemaHistory.addAppliedMigration(appliedMigration);
             }
             throw e;
         }

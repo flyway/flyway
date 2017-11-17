@@ -88,8 +88,9 @@ public class CockroachDBDbSupport extends DbSupport {
         return "cockroachdb";
     }
 
-    public String getCurrentUserFunction() {
-        return "(SELECT * FROM [SHOW SESSION_USER])";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("(SELECT * FROM [SHOW SESSION_USER])");
     }
 
     @Override
@@ -101,7 +102,7 @@ public class CockroachDBDbSupport extends DbSupport {
         return getSchema(getFirstSchemaFromSearchPath(this.originalSchema));
     }
 
-    /* private -> testing */ String getFirstSchemaFromSearchPath(String searchPath) {
+    private String getFirstSchemaFromSearchPath(String searchPath) {
         String result = searchPath.replace(doQuote("$user"), "").trim();
         if (result.startsWith(",")) {
             result = result.substring(1);

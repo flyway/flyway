@@ -65,8 +65,9 @@ public class PostgreSQLDbSupport extends DbSupport {
         return "postgresql";
     }
 
-    public String getCurrentUserFunction() {
-        return "current_user";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT current_user");
     }
 
     @Override

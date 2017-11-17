@@ -175,9 +175,19 @@ public abstract class DbSupport {
     protected abstract void doChangeCurrentSchemaTo(String schema) throws SQLException;
 
     /**
-     * @return The database function that returns the current user.
+     * @return The current database user.
      */
-    public abstract String getCurrentUserFunction();
+    public final String getCurrentUser() {
+        try {
+            return doGetCurrentUser();
+        } catch (SQLException e) {
+            throw new FlywaySqlException("Error retrieving the database user", e);
+        }
+    }
+
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.getMetaData().getUserName();
+    }
 
     /**
      * Checks whether ddl transactions are supported by this database.

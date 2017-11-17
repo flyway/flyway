@@ -100,8 +100,9 @@ public class SQLServerDbSupport extends DbSupport {
         return "sqlserver";
     }
 
-    public String getCurrentUserFunction() {
-        return "SUSER_SNAME()";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT SUSER_SNAME()");
     }
 
     @Override

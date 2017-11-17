@@ -84,8 +84,8 @@ public class SybaseASEDbSupport extends DbSupport {
     }
 
     @Override
-    public String getCurrentUserFunction() {
-        return "user_name()";
+    protected String doGetCurrentUser() throws SQLException {
+        return jdbcTemplate.queryForString("SELECT user_name()");
     }
 
     @Override

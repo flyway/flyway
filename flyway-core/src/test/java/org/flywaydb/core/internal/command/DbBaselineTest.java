@@ -15,7 +15,6 @@
  */
 package org.flywaydb.core.internal.command;
 
-import java.sql.Connection;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -29,15 +28,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+
+import java.sql.Connection;
+import java.util.Date;
+
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 public class DbBaselineTest {
-
     private static final MigrationVersion TEST_BASELINE_VERSION = MigrationVersion.fromVersion("2.0.0");
     private static final String TEST_BASELINE_DESCRIPTION = "test baseline";
 
@@ -58,7 +57,7 @@ public class DbBaselineTest {
         this.dbSupport = mock(DbSupport.class);
         this.schema = mock(Schema.class);
         testCallback = mock(FlywayCallback.class);
-        callbacks = new FlywayCallback[] { this.testCallback };
+        callbacks = new FlywayCallback[]{this.testCallback};
         this.schemaHistory = mock(SchemaHistory.class);
 
         this.testBaseline = createTestBaselinie(TEST_BASELINE_VERSION);
@@ -95,7 +94,7 @@ public class DbBaselineTest {
     @Test
     public void sameBaselineMarkerPresentWithoutMigrations() {
         // arrange
-        AppliedMigration baseline = new AppliedMigration(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
+        AppliedMigration baseline = new AppliedMigration(1, TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, new Date(), "test", 100, true);
         when(this.schemaHistory.hasBaselineMarker()).thenReturn(true);
         when(this.schemaHistory.getBaselineMarker()).thenReturn(baseline);
         when(this.schemaHistory.hasAppliedMigrations()).thenReturn(false);
@@ -104,13 +103,13 @@ public class DbBaselineTest {
         this.testBaseline.baseline();
 
         // assert
-        verify(schemaHistory, never()).addBaselineMarker(Mockito.<MigrationVersion>anyObject(), anyString());
+        verify(this.schemaHistory, never()).addBaselineMarker(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION);
     }
 
     @Test
     public void sameBaselineMarkerPresentWithMigrations() {
         // arrange
-        AppliedMigration baseline = new AppliedMigration(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
+        AppliedMigration baseline = new AppliedMigration(1, TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, new Date(), "test", 100, true);
         when(this.schemaHistory.hasBaselineMarker()).thenReturn(true);
         when(this.schemaHistory.getBaselineMarker()).thenReturn(baseline);
         when(this.schemaHistory.hasAppliedMigrations()).thenReturn(true);
@@ -119,14 +118,14 @@ public class DbBaselineTest {
         this.testBaseline.baseline();
 
         // assert
-        verify(schemaHistory, never()).addBaselineMarker(Mockito.<MigrationVersion>anyObject(), anyString());
+        verify(this.schemaHistory, never()).addBaselineMarker(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION);
     }
 
     @Test
     public void differentBaselineMarkerVersionPresent() {
         // arrange
         MigrationVersion baselineVersion = MigrationVersion.fromVersion("3.0.0");
-        AppliedMigration baseline = new AppliedMigration(baselineVersion, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
+        AppliedMigration baseline = new AppliedMigration(1, baselineVersion, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, new Date(), "test", 100, true);
         when(this.schemaHistory.hasBaselineMarker()).thenReturn(true);
         when(this.schemaHistory.getBaselineMarker()).thenReturn(baseline);
 
@@ -144,7 +143,7 @@ public class DbBaselineTest {
     public void differentBaselineMarkerDescriptionPresent() {
         // arrange
         String baselineDescription = "Differen description";
-        AppliedMigration baseline = new AppliedMigration(TEST_BASELINE_VERSION, baselineDescription, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
+        AppliedMigration baseline = new AppliedMigration(1, TEST_BASELINE_VERSION, baselineDescription, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, new Date(), "test", 100, true);
         when(this.schemaHistory.hasBaselineMarker()).thenReturn(true);
         when(this.schemaHistory.getBaselineMarker()).thenReturn(baseline);
 

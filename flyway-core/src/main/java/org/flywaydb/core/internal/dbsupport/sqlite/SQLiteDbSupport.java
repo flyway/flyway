@@ -55,8 +55,9 @@ public class SQLiteDbSupport extends DbSupport {
         return "sqlite";
     }
 
-    public String getCurrentUserFunction() {
-        return "''";
+    @Override
+    protected String doGetCurrentUser() throws SQLException {
+        return "";
     }
 
     protected String doGetCurrentSchemaName() throws SQLException {
