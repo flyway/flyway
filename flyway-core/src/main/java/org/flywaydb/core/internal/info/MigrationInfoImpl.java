@@ -21,7 +21,7 @@ import org.flywaydb.core.api.MigrationState;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.util.ObjectUtils;
 
 import java.util.Date;

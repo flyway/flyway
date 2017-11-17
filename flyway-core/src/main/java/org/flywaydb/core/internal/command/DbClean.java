@@ -19,7 +19,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
@@ -44,7 +44,7 @@ public class DbClean {
     /**
      * The metadata table.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * The schemas to clean.
@@ -74,16 +74,16 @@ public class DbClean {
      *
      * @param connection    The connection to use.
      * @param dbSupport     The DB support for the connection.
-     * @param metaDataTable The metadata table.
+     * @param schemaHistory The metadata table.
      * @param schemas       The schemas to clean.
      * @param callbacks     The list of callbacks that fire before or after the clean task is executed.
      * @param cleanDisabled Whether to disable clean.
      */
-    public DbClean(Connection connection, DbSupport dbSupport, MetaDataTable metaDataTable, Schema[] schemas,
+    public DbClean(Connection connection, DbSupport dbSupport, SchemaHistory schemaHistory, Schema[] schemas,
                    FlywayCallback[] callbacks, boolean cleanDisabled) {
         this.connection = connection;
         this.dbSupport = dbSupport;
-        this.metaDataTable = metaDataTable;
+        this.schemaHistory = schemaHistory;
         this.schemas = schemas;
         this.callbacks = callbacks;
         this.cleanDisabled = cleanDisabled;
@@ -113,7 +113,7 @@ public class DbClean {
             dbSupport.changeCurrentSchemaTo(schemas[0]);
             boolean dropSchemas = false;
             try {
-                dropSchemas = metaDataTable.hasSchemasMarker();
+                dropSchemas = schemaHistory.hasSchemasMarker();
             } catch (Exception e) {
                 LOG.error("Error while checking whether the schemas should be dropped", e);
             }
@@ -141,6 +141,7 @@ public class DbClean {
                     }
                 });
             }
+            schemaHistory.clearCache();
         } finally {
             dbSupport.restoreCurrentSchema();
         }

@@ -21,8 +21,8 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.junit.Test;
 
@@ -288,9 +288,9 @@ public class MigrationInfoServiceImplSmallTest {
      * @param appliedMigrations The applied migrations.
      * @return The metadata table.
      */
-    private MetaDataTable createMetaDataTable(final AppliedMigration... appliedMigrations) {
-        MetaDataTable metaDataTable = mock(MetaDataTable.class);
-        when(metaDataTable.allAppliedMigrations()).thenReturn(Arrays.asList(appliedMigrations));
-        return metaDataTable;
+    private SchemaHistory createMetaDataTable(final AppliedMigration... appliedMigrations) {
+        SchemaHistory schemaHistory = mock(SchemaHistory.class);
+        when(schemaHistory.allAppliedMigrations()).thenReturn(Arrays.asList(appliedMigrations));
+        return schemaHistory;
     }
 }

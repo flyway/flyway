@@ -32,8 +32,8 @@ import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.TimeFormat;
@@ -62,7 +62,7 @@ public class DbMigrate {
     /**
      * The database metadata table.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * The schema containing the metadata table.
@@ -94,16 +94,16 @@ public class DbMigrate {
      *
      * @param connectionUserObjects The connection to use to perform the actual database migrations.
      * @param dbSupport             Database-specific functionality.
-     * @param metaDataTable         The database metadata table.
+     * @param schemaHistory         The database metadata table.
      * @param migrationResolver     The migration resolver.
      * @param configuration         The Flyway configuration.
      */
     public DbMigrate(Connection connectionUserObjects, DbSupport dbSupport,
-                     MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
+                     SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                      FlywayConfiguration configuration) {
         this.connectionUserObjects = connectionUserObjects;
         this.dbSupport = dbSupport;
-        this.metaDataTable = metaDataTable;
+        this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
@@ -136,7 +136,7 @@ public class DbMigrate {
             int count = configuration.isGroup() ?
                     // When group is active, start the transaction boundary early to
                     // ensure that all changes to the metadata table are either committed or rolled back atomically.
-                    metaDataTable.lock(new Callable<Integer>() {
+                    schemaHistory.lock(new Callable<Integer>() {
                         @Override
                         public Integer call() {
                             return migrateAll();
@@ -174,7 +174,7 @@ public class DbMigrate {
                     // With group active a lock on the metadata table has already been acquired.
                     ? migrateGroup(firstRun)
                     // Otherwise acquire the lock now. The lock will be released at the end of each migration.
-                    : metaDataTable.lock(new Callable<Integer>() {
+                    : schemaHistory.lock(new Callable<Integer>() {
                 @Override
                 public Integer call() {
                     return migrateGroup(firstRun);
@@ -197,7 +197,7 @@ public class DbMigrate {
      */
     private Integer migrateGroup(boolean firstRun) {
         MigrationInfoServiceImpl infoService =
-                new MigrationInfoServiceImpl(migrationResolver, metaDataTable, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
+                new MigrationInfoServiceImpl(migrationResolver, schemaHistory, configuration.getTarget(), configuration.isOutOfOrder(), true, true, true);
         infoService.refresh();
 
         MigrationVersion currentSchemaVersion = MigrationVersion.EMPTY;
@@ -314,7 +314,7 @@ public class DbMigrate {
                 int executionTime = (int) stopWatch.getTotalTimeMillis();
                 AppliedMigration appliedMigration = new AppliedMigration(migration.getVersion(), migration.getDescription(),
                         migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, false);
-                metaDataTable.addAppliedMigration(appliedMigration);
+                schemaHistory.addAppliedMigration(appliedMigration);
             }
             throw e;
         }
@@ -377,9 +377,8 @@ public class DbMigrate {
             stopWatch.stop();
             int executionTime = (int) stopWatch.getTotalTimeMillis();
 
-            AppliedMigration appliedMigration = new AppliedMigration(migration.getVersion(), migration.getDescription(),
-                    migration.getType(), migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
-            metaDataTable.addAppliedMigration(appliedMigration);
+            schemaHistory.addAppliedMigration(migration.getVersion(), migration.getDescription(), migration.getType(),
+                    migration.getScript(), migration.getResolvedMigration().getChecksum(), executionTime, true);
         }
     }
 

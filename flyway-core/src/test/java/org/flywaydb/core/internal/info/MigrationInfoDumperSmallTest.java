@@ -20,8 +20,8 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.resolver.ResolvedMigrationImpl;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.junit.Test;
@@ -100,9 +100,9 @@ public class MigrationInfoDumperSmallTest {
      *
      * @return The metadata table.
      */
-    private MetaDataTable createMetaDataTable() {
-        MetaDataTable metaDataTable = mock(MetaDataTable.class);
-        when(metaDataTable.allAppliedMigrations()).thenReturn(new ArrayList<AppliedMigration>());
-        return metaDataTable;
+    private SchemaHistory createMetaDataTable() {
+        SchemaHistory schemaHistory = mock(SchemaHistory.class);
+        when(schemaHistory.allAppliedMigrations()).thenReturn(new ArrayList<AppliedMigration>());
+        return schemaHistory;
     }
 }

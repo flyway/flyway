@@ -16,7 +16,7 @@
 package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -43,19 +43,19 @@ public class DbSchemas {
     /**
      * The metadata table.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * Creates a new DbSchemas.
      *
      * @param connection    The database connection to use for accessing the metadata table.
      * @param schemas       The schemas managed by Flyway.
-     * @param metaDataTable The metadata table.
+     * @param schemaHistory The metadata table.
      */
-    public DbSchemas(Connection connection, Schema[] schemas, MetaDataTable metaDataTable) {
+    public DbSchemas(Connection connection, Schema[] schemas, SchemaHistory schemaHistory) {
         this.connection = connection;
         this.schemas = schemas;
-        this.metaDataTable = metaDataTable;
+        this.schemaHistory = schemaHistory;
     }
 
     /**
@@ -80,7 +80,7 @@ public class DbSchemas {
                             schema.create();
                         }
 
-                        metaDataTable.addSchemasMarker(schemas);
+                        schemaHistory.addSchemasMarker(schemas);
 
                         return null;
                     }

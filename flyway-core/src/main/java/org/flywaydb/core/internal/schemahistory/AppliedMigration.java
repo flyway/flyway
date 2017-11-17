@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.metadatatable;
+package org.flywaydb.core.internal.schemahistory;
 
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -28,52 +28,52 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
     /**
      * The order in which this migration was applied amongst all others. (For out of order detection)
      */
-    private int installedRank;
+    private final int installedRank;
 
     /**
      * The target version of this migration. {@code null} if it is a repeatable migration.
      */
-    private MigrationVersion version;
+    private final MigrationVersion version;
 
     /**
      * The description of the migration.
      */
-    private String description;
+    private final String description;
 
     /**
      * The type of migration (BASELINE, SQL, ...)
      */
-    private MigrationType type;
+    private final MigrationType type;
 
     /**
      * The name of the script to execute for this migration, relative to its classpath location.
      */
-    private String script;
+    private final String script;
 
     /**
      * The checksum of the migration. (Optional)
      */
-    private Integer checksum;
+    private final Integer checksum;
 
     /**
      * The timestamp when this migration was installed.
      */
-    private Date installedOn;
+    private final Date installedOn;
 
     /**
      * The user that installed this migration.
      */
-    private String installedBy;
+    private final String installedBy;
 
     /**
      * The execution time (in millis) of this migration.
      */
-    private int executionTime;
+    private final int executionTime;
 
     /**
      * Flag indicating whether the migration was successful or not.
      */
-    private boolean success;
+    private final boolean success;
 
     /**
      * Creates a new applied migration. Only called from the RowMapper.
@@ -102,64 +102,6 @@ public class AppliedMigration implements Comparable<AppliedMigration> {
         this.installedBy = installedBy;
         this.executionTime = executionTime;
         this.success = success;
-    }
-
-    /**
-     * Creates a new applied migration.
-     *
-     * @param version       The target version of this migration.
-     * @param description   The description of the migration.
-     * @param type          The type of migration (BASELINE, SQL, ...)
-     * @param script        The name of the script to execute for this migration, relative to its classpath location.
-     * @param checksum      The checksum of the migration. (Optional)
-     * @param executionTime The execution time (in millis) of this migration.
-     * @param success       Flag indicating whether the migration was successful or not.
-     */
-    public AppliedMigration(MigrationVersion version, String description, MigrationType type, String script,
-                            Integer checksum, int executionTime, boolean success) {
-        this.version = version;
-        this.description = abbreviateDescription(description);
-        this.type = type;
-        this.script = abbreviateScript(script);
-        this.checksum = checksum;
-        this.executionTime = executionTime;
-        this.success = success;
-    }
-
-    /**
-     * Abbreviates this description to a length that will fit in the database.
-     *
-     * @param description The description to process.
-     * @return The abbreviated version.
-     */
-    private String abbreviateDescription(String description) {
-        if (description == null) {
-            return null;
-        }
-
-        if (description.length() <= 200) {
-            return description;
-        }
-
-        return description.substring(0, 197) + "...";
-    }
-
-    /**
-     * Abbreviates this script to a length that will fit in the database.
-     *
-     * @param script The script to process.
-     * @return The abbreviated version.
-     */
-    private String abbreviateScript(String script) {
-        if (script == null) {
-            return null;
-        }
-
-        if (script.length() <= 1000) {
-            return script;
-        }
-
-        return "..." + script.substring(3, 1000);
     }
 
     /**

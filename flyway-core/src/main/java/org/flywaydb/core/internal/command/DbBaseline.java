@@ -20,8 +20,8 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -44,7 +44,7 @@ public class DbBaseline {
     /**
      * The metadata table.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * The version to tag an existing schema with when executing baseline.
@@ -78,15 +78,15 @@ public class DbBaseline {
      *
      * @param connection          The database connection to use for accessing the metadata table.
      * @param dbSupport           The DB support for the connection.
-     * @param metaDataTable       The database metadata table.
+     * @param schemaHistory       The database metadata table.
      * @param schema              The database schema to use by default.
      * @param baselineVersion     The version to tag an existing schema with when executing baseline.
      * @param baselineDescription The description to tag an existing schema with when executing baseline.
      */
-    public DbBaseline(Connection connection, DbSupport dbSupport, MetaDataTable metaDataTable, Schema schema, MigrationVersion baselineVersion, String baselineDescription, FlywayCallback[] callbacks) {
+    public DbBaseline(Connection connection, DbSupport dbSupport, SchemaHistory schemaHistory, Schema schema, MigrationVersion baselineVersion, String baselineDescription, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.dbSupport = dbSupport;
-        this.metaDataTable = metaDataTable;
+        this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.baselineVersion = baselineVersion;
         this.baselineDescription = baselineDescription;
@@ -113,26 +113,26 @@ public class DbBaseline {
                 @Override
                 public Void call() {
                     dbSupport.changeCurrentSchemaTo(schema);
-                    if (metaDataTable.hasBaselineMarker()) {
-                        AppliedMigration baselineMarker = metaDataTable.getBaselineMarker();
+                    if (schemaHistory.hasBaselineMarker()) {
+                        AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
                         if (baselineVersion.equals(baselineMarker.getVersion())
                                 && baselineDescription.equals(baselineMarker.getDescription())) {
-                            LOG.info("Metadata table " + metaDataTable + " already initialized with ("
+                            LOG.info("Metadata table " + schemaHistory + " already initialized with ("
                                     + baselineVersion + "," + baselineDescription + "). Skipping.");
                             return null;
                         }
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with ("
+                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " with ("
                                 + baselineVersion + "," + baselineDescription
                                 + ") as it has already been initialized with ("
                                 + baselineMarker.getVersion() + "," + baselineMarker.getDescription() + ")");
                     }
-                    if (metaDataTable.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " with version 0 as this version was used for schema creation");
+                    if (schemaHistory.hasSchemasMarker() && baselineVersion.equals(MigrationVersion.fromVersion("0"))) {
+                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " with version 0 as this version was used for schema creation");
                     }
-                    if (metaDataTable.hasAppliedMigrations()) {
-                        throw new FlywayException("Unable to baseline metadata table " + metaDataTable + " as it already contains migrations");
+                    if (schemaHistory.hasAppliedMigrations()) {
+                        throw new FlywayException("Unable to baseline metadata table " + schemaHistory + " as it already contains migrations");
                     }
-                    metaDataTable.addBaselineMarker(baselineVersion, baselineDescription);
+                    schemaHistory.addBaselineMarker(baselineVersion, baselineDescription);
 
                     return null;
                 }

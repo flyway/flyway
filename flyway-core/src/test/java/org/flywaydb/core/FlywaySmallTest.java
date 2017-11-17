@@ -20,13 +20,12 @@ import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.junit.Test;
 
 import javax.sql.DataSource;
-import java.io.File;
 import java.sql.Connection;
 import java.util.Properties;
 
@@ -50,7 +49,7 @@ public class FlywaySmallTest {
         assertNotNull(flyway.getDataSource());
 
         flyway.execute(new Flyway.Command<Void>() {
-            public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver, MetaDataTable metaDataTable, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
+            public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver, SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas, FlywayCallback[] flywayCallbacks) {
                 assertEquals("PUBLIC", flyway.getSchemas()[0]);
                 return null;
             }

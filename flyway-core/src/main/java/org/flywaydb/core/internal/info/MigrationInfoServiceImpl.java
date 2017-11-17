@@ -22,8 +22,8 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.ObjectUtils;
 import org.flywaydb.core.internal.util.Pair;
 
@@ -48,7 +48,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
     /**
      * The metadata table for applied migrations.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * The target version up to which to retrieve the info.
@@ -87,17 +87,17 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      * Creates a new MigrationInfoServiceImpl.
      *
      * @param migrationResolver The migration resolver for available migrations.
-     * @param metaDataTable     The metadata table for applied migrations.
+     * @param schemaHistory     The metadata table for applied migrations.
      * @param target            The target version up to which to retrieve the info.
      * @param outOfOrder        Allows migrations to be run "out of order".
      * @param pending           Whether pending migrations are allowed.
      * @param missing           Whether missing migrations are allowed.
      * @param future            Whether future migrations are allowed.
      */
-    public MigrationInfoServiceImpl(MigrationResolver migrationResolver, MetaDataTable metaDataTable,
+    public MigrationInfoServiceImpl(MigrationResolver migrationResolver, SchemaHistory schemaHistory,
                                     MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future) {
         this.migrationResolver = migrationResolver;
-        this.metaDataTable = metaDataTable;
+        this.schemaHistory = schemaHistory;
         this.target = target;
         this.outOfOrder = outOfOrder;
         this.pending = pending;
@@ -110,7 +110,7 @@ public class MigrationInfoServiceImpl implements MigrationInfoService {
      */
     public void refresh() {
         Collection<ResolvedMigration> availableMigrations = migrationResolver.resolveMigrations();
-        List<AppliedMigration> appliedMigrations = metaDataTable.allAppliedMigrations();
+        List<AppliedMigration> appliedMigrations = schemaHistory.allAppliedMigrations();
 
         MigrationInfoContext context = new MigrationInfoContext();
         context.outOfOrder = outOfOrder;

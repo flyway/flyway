@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.flywaydb.core.internal.metadatatable;
+package org.flywaydb.core.internal.schemahistory;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
@@ -28,7 +28,6 @@ import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.dbsupport.SqlScript;
 import org.flywaydb.core.internal.dbsupport.Table;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 
@@ -44,8 +43,8 @@ import java.util.concurrent.Callable;
 /**
  * Supports reading and writing to the metadata table.
  */
-public class MetaDataTableImpl implements MetaDataTable {
-    private static final Log LOG = LogFactory.getLog(MetaDataTableImpl.class);
+public class JdbcTableSchemaHistory extends SchemaHistory {
+    private static final Log LOG = LogFactory.getLog(JdbcTableSchemaHistory.class);
 
     /**
      * Database-specific functionality.
@@ -79,15 +78,11 @@ public class MetaDataTableImpl implements MetaDataTable {
      * @param table       The metadata table used by flyway.
      * @param installedBy The current user in the database.
      */
-    public MetaDataTableImpl(DbSupport dbSupport, Table table, String installedBy) {
+    public JdbcTableSchemaHistory(DbSupport dbSupport, Table table, String installedBy) {
         this.jdbcTemplate = dbSupport.getJdbcTemplate();
         this.dbSupport = dbSupport;
         this.table = table;
-        if (installedBy == null) {
-            this.installedBy = dbSupport.getCurrentUserFunction();
-        } else {
-            this.installedBy = "'" + installedBy + "'";
-        }
+        this.installedBy = installedBy;
     }
 
     @Override
@@ -145,7 +140,7 @@ public class MetaDataTableImpl implements MetaDataTable {
     }
 
     @Override
-    public void addAppliedMigration(AppliedMigration appliedMigration) {
+    protected void doAddAppliedMigration(MigrationVersion version, String description, MigrationType type, String script, Integer checksum, int executionTime, boolean success) {
         dbSupport.changeCurrentSchemaTo(table.getSchema());
 
         createIfNotExists();
@@ -154,11 +149,9 @@ public class MetaDataTableImpl implements MetaDataTable {
         // in highly concurrent environments
         table.lock();
 
-        MigrationVersion version = appliedMigration.getVersion();
-
         try {
             String versionStr = version == null ? null : version.toString();
-            int installedRank = appliedMigration.getType() == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
+            int installedRank = type == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
 
             // Try load an updateMetaDataTable.sql file if it exists
             String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/updateMetaDataTable.sql";
@@ -174,13 +167,13 @@ public class MetaDataTableImpl implements MetaDataTable {
                 // Placeholders for column values
                 placeholders.put("installed_rank_val", String.valueOf(installedRank));
                 placeholders.put("version_val", versionStr);
-                placeholders.put("description_val", appliedMigration.getDescription());
-                placeholders.put("type_val", appliedMigration.getType().name());
-                placeholders.put("script_val", appliedMigration.getScript());
-                placeholders.put("checksum_val", String.valueOf(appliedMigration.getChecksum()));
+                placeholders.put("description_val", description);
+                placeholders.put("type_val", type.name());
+                placeholders.put("script_val", script);
+                placeholders.put("checksum_val", String.valueOf(checksum));
                 placeholders.put("installed_by_val", installedBy);
-                placeholders.put("execution_time_val", String.valueOf(appliedMigration.getExecutionTime() * 1000L));
-                placeholders.put("success_val", String.valueOf(appliedMigration.isSuccess()));
+                placeholders.put("execution_time_val", String.valueOf(executionTime * 1000L));
+                placeholders.put("success_val", String.valueOf(success));
 
                 String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
@@ -200,16 +193,9 @@ public class MetaDataTableImpl implements MetaDataTable {
                                 + "," + dbSupport.quote("execution_time")
                                 + "," + dbSupport.quote("success")
                                 + ")"
-                                + " VALUES (?, ?, ?, ?, ?, ?, " + installedBy + ", ?, ?)",
-                        installedRank,
-                        versionStr,
-                        appliedMigration.getDescription(),
-                        appliedMigration.getType().name(),
-                        appliedMigration.getScript(),
-                        appliedMigration.getChecksum(),
-                        appliedMigration.getExecutionTime(),
-                        appliedMigration.isSuccess()
-                );
+                                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        installedRank, versionStr, description, type.name(), script, checksum, installedBy,
+                        executionTime, success);
             }
 
             LOG.debug("MetaData table " + table + " successfully updated to reflect changes");
@@ -264,12 +250,14 @@ public class MetaDataTableImpl implements MetaDataTable {
 
         if (migrationTypes.length > 0) {
             query += " AND " + dbSupport.quote("type") + " IN (";
+            StringBuilder queryBuilder = new StringBuilder(query);
             for (int i = 0; i < migrationTypes.length; i++) {
                 if (i > 0) {
-                    query += ",";
+                    queryBuilder.append(",");
                 }
-                query += "'" + migrationTypes[i] + "'";
+                queryBuilder.append("'").append(migrationTypes[i]).append("'");
             }
+            query = queryBuilder.toString();
             query += ")";
         }
 
@@ -302,12 +290,6 @@ public class MetaDataTableImpl implements MetaDataTable {
             throw new FlywaySqlException("Error while retrieving the list of applied migrations from metadata table "
                     + table, e);
         }
-    }
-
-    @Override
-    public void addBaselineMarker(final MigrationVersion baselineVersion, final String baselineDescription) {
-        addAppliedMigration(new AppliedMigration(baselineVersion, baselineDescription, MigrationType.BASELINE, baselineDescription, null,
-                0, true));
     }
 
     @Override
@@ -346,8 +328,7 @@ public class MetaDataTableImpl implements MetaDataTable {
         // in highly concurrent environments
         table.lock();
 
-        addAppliedMigration(new AppliedMigration(null, "<< Flyway Schema Creation >>",
-                MigrationType.SCHEMA, StringUtils.arrayToCommaDelimitedString(schemas), null, 0, true));
+        doAddSchemasMarker(schemas);
     }
 
     @Override

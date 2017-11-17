@@ -21,7 +21,7 @@ import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
@@ -49,7 +49,7 @@ public class DbValidate {
     /**
      * The database metadata table.
      */
-    private final MetaDataTable metaDataTable;
+    private final SchemaHistory schemaHistory;
 
     /**
      * The schema containing the metadata table.
@@ -106,7 +106,7 @@ public class DbValidate {
      *
      * @param connection        The connection to use.
      * @param dbSupport         The DB support for the connection.
-     * @param metaDataTable     The database metadata table.
+     * @param schemaHistory     The database metadata table.
      * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
      * @param target            The target version of the migration.
@@ -117,11 +117,11 @@ public class DbValidate {
      * @param callbacks         The lifecycle callbacks.
      */
     public DbValidate(Connection connection,
-                      DbSupport dbSupport, MetaDataTable metaDataTable, Schema schema, MigrationResolver migrationResolver,
+                      DbSupport dbSupport, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                       MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future, FlywayCallback[] callbacks) {
         this.connection = connection;
         this.dbSupport = dbSupport;
-        this.metaDataTable = metaDataTable;
+        this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.target = target;
@@ -166,7 +166,7 @@ public class DbValidate {
                 public Pair<Integer, String> call() {
                     dbSupport.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
-                            new MigrationInfoServiceImpl(migrationResolver, metaDataTable, target, outOfOrder, pending, missing, future);
+                            new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, future);
 
                     migrationInfoService.refresh();
 

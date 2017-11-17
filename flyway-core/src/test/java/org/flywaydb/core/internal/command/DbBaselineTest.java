@@ -22,8 +22,8 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.internal.dbsupport.DbSupport;
 import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.metadatatable.AppliedMigration;
-import org.flywaydb.core.internal.metadatatable.MetaDataTable;
+import org.flywaydb.core.internal.schemahistory.AppliedMigration;
+import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class DbBaselineTest {
     private Schema schema;
     private FlywayCallback testCallback;
     private FlywayCallback[] callbacks;
-    private MetaDataTable metaDataTable;
+    private SchemaHistory schemaHistory;
     private DbBaseline testBaseline;
 
     @Rule
@@ -59,7 +59,7 @@ public class DbBaselineTest {
         this.schema = mock(Schema.class);
         testCallback = mock(FlywayCallback.class);
         callbacks = new FlywayCallback[] { this.testCallback };
-        this.metaDataTable = mock(MetaDataTable.class);
+        this.schemaHistory = mock(SchemaHistory.class);
 
         this.testBaseline = createTestBaselinie(TEST_BASELINE_VERSION);
     }
@@ -67,13 +67,13 @@ public class DbBaselineTest {
     @Test
     public void newBaseline() {
         // arrange
-        when(this.metaDataTable.hasBaselineMarker()).thenReturn(false);
+        when(this.schemaHistory.hasBaselineMarker()).thenReturn(false);
 
         // act
         this.testBaseline.baseline();
 
         // assert
-        verify(this.metaDataTable).addBaselineMarker(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION);
+        verify(this.schemaHistory).addBaselineMarker(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION);
         verify(this.testCallback).beforeBaseline(this.connection);
         verify(this.testCallback).afterBaseline(this.connection);
     }
@@ -81,8 +81,8 @@ public class DbBaselineTest {
     @Test
     public void newBaselineWithMigrations() {
         // arrange
-        when(this.metaDataTable.hasBaselineMarker()).thenReturn(false);
-        when(this.metaDataTable.hasAppliedMigrations()).thenReturn(true);
+        when(this.schemaHistory.hasBaselineMarker()).thenReturn(false);
+        when(this.schemaHistory.hasAppliedMigrations()).thenReturn(true);
 
         // assert
         this.expectedException.expect(FlywayException.class);
@@ -96,30 +96,30 @@ public class DbBaselineTest {
     public void sameBaselineMarkerPresentWithoutMigrations() {
         // arrange
         AppliedMigration baseline = new AppliedMigration(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
-        when(this.metaDataTable.hasBaselineMarker()).thenReturn(true);
-        when(this.metaDataTable.getBaselineMarker()).thenReturn(baseline);
-        when(this.metaDataTable.hasAppliedMigrations()).thenReturn(false);
+        when(this.schemaHistory.hasBaselineMarker()).thenReturn(true);
+        when(this.schemaHistory.getBaselineMarker()).thenReturn(baseline);
+        when(this.schemaHistory.hasAppliedMigrations()).thenReturn(false);
 
         // act
         this.testBaseline.baseline();
 
         // assert
-        verify(metaDataTable, never()).addBaselineMarker(Mockito.<MigrationVersion>anyObject(), anyString());
+        verify(schemaHistory, never()).addBaselineMarker(Mockito.<MigrationVersion>anyObject(), anyString());
     }
 
     @Test
     public void sameBaselineMarkerPresentWithMigrations() {
         // arrange
         AppliedMigration baseline = new AppliedMigration(TEST_BASELINE_VERSION, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
-        when(this.metaDataTable.hasBaselineMarker()).thenReturn(true);
-        when(this.metaDataTable.getBaselineMarker()).thenReturn(baseline);
-        when(this.metaDataTable.hasAppliedMigrations()).thenReturn(true);
+        when(this.schemaHistory.hasBaselineMarker()).thenReturn(true);
+        when(this.schemaHistory.getBaselineMarker()).thenReturn(baseline);
+        when(this.schemaHistory.hasAppliedMigrations()).thenReturn(true);
 
         // act
         this.testBaseline.baseline();
 
         // assert
-        verify(metaDataTable, never()).addBaselineMarker(Mockito.<MigrationVersion>anyObject(), anyString());
+        verify(schemaHistory, never()).addBaselineMarker(Mockito.<MigrationVersion>anyObject(), anyString());
     }
 
     @Test
@@ -127,8 +127,8 @@ public class DbBaselineTest {
         // arrange
         MigrationVersion baselineVersion = MigrationVersion.fromVersion("3.0.0");
         AppliedMigration baseline = new AppliedMigration(baselineVersion, TEST_BASELINE_DESCRIPTION, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
-        when(this.metaDataTable.hasBaselineMarker()).thenReturn(true);
-        when(this.metaDataTable.getBaselineMarker()).thenReturn(baseline);
+        when(this.schemaHistory.hasBaselineMarker()).thenReturn(true);
+        when(this.schemaHistory.getBaselineMarker()).thenReturn(baseline);
 
         // assert
         this.expectedException.expect(FlywayException.class);
@@ -145,8 +145,8 @@ public class DbBaselineTest {
         // arrange
         String baselineDescription = "Differen description";
         AppliedMigration baseline = new AppliedMigration(TEST_BASELINE_VERSION, baselineDescription, MigrationType.BASELINE, "V2.0.0__test-migration.sql", 12345, 100, true);
-        when(this.metaDataTable.hasBaselineMarker()).thenReturn(true);
-        when(this.metaDataTable.getBaselineMarker()).thenReturn(baseline);
+        when(this.schemaHistory.hasBaselineMarker()).thenReturn(true);
+        when(this.schemaHistory.getBaselineMarker()).thenReturn(baseline);
 
         // assert
         this.expectedException.expect(FlywayException.class);
@@ -163,7 +163,7 @@ public class DbBaselineTest {
     public void schemaMarkerPresentAndBaselineVersionZero() {
         // arrange
         DbBaseline versionZeroBaseline = createTestBaselinie(MigrationVersion.fromVersion("0"));
-        when(this.metaDataTable.hasSchemasMarker()).thenReturn(true);
+        when(this.schemaHistory.hasSchemasMarker()).thenReturn(true);
 
         // assert
         this.expectedException.expect(FlywayException.class);
@@ -174,7 +174,7 @@ public class DbBaselineTest {
     }
 
     private DbBaseline createTestBaselinie(MigrationVersion version) {
-        return new DbBaseline(connection, dbSupport, metaDataTable, schema, version, TEST_BASELINE_DESCRIPTION, callbacks);
+        return new DbBaseline(connection, dbSupport, schemaHistory, schema, version, TEST_BASELINE_DESCRIPTION, callbacks);
     }
 
 }
