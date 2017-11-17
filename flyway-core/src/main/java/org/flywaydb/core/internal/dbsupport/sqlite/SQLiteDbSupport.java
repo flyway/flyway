@@ -34,6 +34,11 @@ public class SQLiteDbSupport extends DbSupport {
     private static final Log LOG = LogFactory.getLog(SQLiteDbSupport.class);
 
     /**
+     * Whether the warning message has already been printed.
+     */
+    private static boolean schemaMessagePrinted;
+
+    /**
      * Creates a new instance.
      *
      * @param connection The connection to use.
@@ -65,7 +70,10 @@ public class SQLiteDbSupport extends DbSupport {
 
     @Override
     protected void doChangeCurrentSchemaTo(String schema) throws SQLException {
-        LOG.info("SQLite does not support setting the schema. Default schema NOT changed to " + schema);
+        if(!schemaMessagePrinted) {
+            LOG.info("SQLite does not support setting the schema. Default schema NOT changed to " + schema);
+            schemaMessagePrinted = true;
+        }
     }
 
     public boolean supportsDdlTransactions() {
