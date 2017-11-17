@@ -54,11 +54,6 @@ public class HSQLDBDbSupport extends DbSupport {
     }
 
     @Override
-    protected String doGetCurrentUser() throws SQLException {
-        return jdbcTemplate.queryForString("SELECT USER() FROM (VALUES(0))");
-    }
-
-    @Override
     protected String doGetCurrentSchemaName() throws SQLException {
         ResultSet resultSet = null;
         String schema = null;
