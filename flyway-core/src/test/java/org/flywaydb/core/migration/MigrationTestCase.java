@@ -378,7 +378,6 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (DbMigrate.FlywayMigrateSqlException e) {
-            System.out.println(e.getMessage());
             // root cause of exception must be defined, and it should be FlywaySqlScriptException
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof SQLException);
