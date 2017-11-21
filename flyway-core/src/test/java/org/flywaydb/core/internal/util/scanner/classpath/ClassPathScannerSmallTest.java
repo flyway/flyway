@@ -66,7 +66,8 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSomewhereInSubDir() throws Exception {
-        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:migration"), "CheckValidate", ".sql");
+        LoadableResource[] resources = classPathScanner.scanForResources(
+                new Location("classpath:migration"), "CheckValidate", ".sql");
 
         assertEquals(2, resources.length);
 

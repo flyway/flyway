@@ -20,6 +20,7 @@ import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.util.Location;
 import org.flywaydb.core.internal.util.Locations;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
+import org.flywaydb.core.internal.util.StringUtils;
 import org.flywaydb.core.internal.util.scanner.Scanner;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
 import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemResource;
@@ -64,7 +65,8 @@ public class SqlMigrationResolverSmallTest {
         SqlMigrationResolver sqlMigrationResolver =
                 new SqlMigrationResolver(null, scanner, new Locations(""), PlaceholderReplacer.NO_PLACEHOLDERS, configuration);
 
-        assertEquals(2, sqlMigrationResolver.resolveMigrations().size());
+        List<ResolvedMigration> resolved = sqlMigrationResolver.resolveMigrations();
+        assertEquals(StringUtils.collectionToCommaDelimitedString(resolved), 2, resolved.size());
     }
 
     @Test

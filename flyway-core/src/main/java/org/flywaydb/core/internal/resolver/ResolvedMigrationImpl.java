@@ -174,4 +174,17 @@ public class ResolvedMigrationImpl implements ResolvedMigration {
         result = 31 * result + type.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "ResolvedMigrationImpl{" +
+                "version=" + version +
+                ", description='" + description + '\'' +
+                ", script='" + script + '\'' +
+                ", checksum=" + checksum +
+                ", type=" + type +
+                ", physicalLocation='" + physicalLocation + '\'' +
+                ", executor=" + executor +
+                '}';
+    }
 }
