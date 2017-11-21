@@ -52,6 +52,10 @@ import org.flywaydb.core.internal.util.scanner.Scanner;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -317,17 +321,17 @@ public class Flyway implements FlywayConfiguration {
     private ErrorHandler errorHandler;
 
     /**
-     * The file where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
+     * The output stream to write the SQL statements of a migration dry run to. {@code null} if the SQL statements
      * are executed against the database directly. (default: {@code null}).
      */
-    private File dryRunOutput;
+    private OutputStream dryRunOutput;
     //[/pro]
 
     /**
      * Creates a new instance of Flyway. This is your starting point.
      */
     public Flyway() {
-        this(null);
+        // Nothing to do.
     }
 
     /**
@@ -339,6 +343,50 @@ public class Flyway implements FlywayConfiguration {
         if (classLoader != null) {
             this.classLoader = classLoader;
         }
+    }
+
+    /**
+     * Creates a new instance of Flyway. This is your starting point.
+     *
+     * @param configuration The configuration to use.
+     */
+    public Flyway(FlywayConfiguration configuration) {
+        this(configuration.getClassLoader());
+
+        setBaselineDescription(configuration.getBaselineDescription());
+        setBaselineOnMigrate(configuration.isBaselineOnMigrate());
+        setBaselineVersion(configuration.getBaselineVersion());
+        setCallbacks(configuration.getCallbacks());
+        setCleanDisabled(configuration.isCleanDisabled());
+        setCleanOnValidationError(configuration.isCleanOnValidationError());
+        setDataSource(configuration.getDataSource());
+        // [pro]
+        setDryRunOutput(configuration.getDryRunOutput());
+        setErrorHandler(configuration.getErrorHandler());
+        // [/pro]
+        setEncoding(configuration.getEncoding());
+        setGroup(configuration.isGroup());
+        setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
+        setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
+        setInstalledBy(configuration.getInstalledBy());
+        setLocations(configuration.getLocations());
+        setMixed(configuration.isMixed());
+        setOutOfOrder(configuration.isOutOfOrder());
+        setPlaceholderPrefix(configuration.getPlaceholderPrefix());
+        setPlaceholderReplacement(configuration.isPlaceholderReplacement());
+        setPlaceholders(configuration.getPlaceholders());
+        setPlaceholderSuffix(configuration.getPlaceholderSuffix());
+        setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
+        setResolvers(configuration.getResolvers());
+        setSchemas(configuration.getSchemas());
+        setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
+        setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
+        setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
+        setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
+        setSqlMigrationSuffix(configuration.getSqlMigrationSuffix());
+        setTable(configuration.getTable());
+        setTarget(configuration.getTarget());
+        setValidateOnMigrate(configuration.isValidateOnMigrate());
     }
 
     @Override
@@ -501,12 +549,28 @@ public class Flyway implements FlywayConfiguration {
     }
 
     @Override
-    public File getDryRunOutput() {
+    public OutputStream getDryRunOutput() {
         // [opensource-only]
         //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("dryRunOutput");
         // [/opensource-only]
         // [pro]
         return dryRunOutput;
+        // [/pro]
+    }
+
+    /**
+     * Sets the stream where to output the SQL statements of a migration dry run. {@code null} to execute the SQL statements
+     * directly against the database. The stream when be closing when Flyway finishes writing the output.
+     * <p><i>Flyway Pro and Flyway Enterprise only</i></p>
+     *
+     * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
+     */
+    public void setDryRunOutput(OutputStream dryRunOutput) {
+        // [opensource-only]
+        //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("dryRunOutput");
+        // [/opensource-only]
+        // [pro]
+        this.dryRunOutput = dryRunOutput;
         // [/pro]
     }
 
@@ -518,12 +582,41 @@ public class Flyway implements FlywayConfiguration {
      *
      * @param dryRunOutput The output file or {@code null} to execute the SQL statements directly against the database.
      */
-    public void setDryRunOutput(File dryRunOutput) {
+    public void setDryRunOutputAsFile(File dryRunOutput) {
         // [opensource-only]
         //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("dryRunOutput");
         // [/opensource-only]
         // [pro]
-        this.dryRunOutput = dryRunOutput;
+        File file;
+        try {
+            file = dryRunOutput.getCanonicalFile();
+        } catch (IOException e) {
+            throw new FlywayException("Unable to get canonical path for dry run output "
+                    + dryRunOutput.getAbsolutePath() + ": " + e.getMessage(), e);
+        }
+        String path = file.getAbsolutePath();
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                throw new FlywayException("Unable to write dry run output to " + path + " as it is a directory and not a file");
+            }
+            if (!file.canWrite()) {
+                throw new FlywayException("Unable to write dry run output to " + path + " as it is write-protected");
+            }
+            LOG.warn("Overwriting existing dry run out file " + path + " ...");
+        } else {
+            File dir = file.getParentFile();
+            if (dir != null && !dir.exists()) {
+                if (!dir.mkdirs()) {
+                    throw new FlywayException("Unable to create parent directories for dry run output to " + path);
+                }
+            }
+        }
+
+        try {
+            setDryRunOutput(new FileOutputStream(dryRunOutput));
+        } catch (FileNotFoundException e) {
+            throw new FlywayException("Unable to use " + dryRunOutput.getAbsolutePath() + " as a dry run output: " + e.getMessage(), e);
+        }
         // [/pro]
     }
 
@@ -541,7 +634,7 @@ public class Flyway implements FlywayConfiguration {
         //throw new org.flywaydb.core.internal.dbsupport.FlywayProUpgradeRequiredException("dryRunOutput");
         // [/opensource-only]
         // [pro]
-        this.dryRunOutput = dryRunOutputFileName == null ? null : new File(dryRunOutputFileName);
+        setDryRunOutputAsFile(new File(dryRunOutputFileName));
         // [/pro]
     }
 
@@ -1463,48 +1556,6 @@ public class Flyway implements FlywayConfiguration {
                 LOG.warn("Unknown configuration property: " + key);
             }
         }
-    }
-
-    /**
-     * Configures Flyway using this FlywayConfiguration object.
-     *
-     * @param configuration The configuration to use.
-     */
-    public void configure(FlywayConfiguration configuration) {
-        setBaselineDescription(configuration.getBaselineDescription());
-        setBaselineOnMigrate(configuration.isBaselineOnMigrate());
-        setBaselineVersion(configuration.getBaselineVersion());
-        setCallbacks(configuration.getCallbacks());
-        setCleanDisabled(configuration.isCleanDisabled());
-        setCleanOnValidationError(configuration.isCleanOnValidationError());
-        setDataSource(configuration.getDataSource());
-        // [pro]
-        setDryRunOutput(configuration.getDryRunOutput());
-        setErrorHandler(configuration.getErrorHandler());
-        // [/pro]
-        setEncoding(configuration.getEncoding());
-        setGroup(configuration.isGroup());
-        setIgnoreFutureMigrations(configuration.isIgnoreFutureMigrations());
-        setIgnoreMissingMigrations(configuration.isIgnoreMissingMigrations());
-        setInstalledBy(configuration.getInstalledBy());
-        setLocations(configuration.getLocations());
-        setMixed(configuration.isMixed());
-        setOutOfOrder(configuration.isOutOfOrder());
-        setPlaceholderPrefix(configuration.getPlaceholderPrefix());
-        setPlaceholderReplacement(configuration.isPlaceholderReplacement());
-        setPlaceholders(configuration.getPlaceholders());
-        setPlaceholderSuffix(configuration.getPlaceholderSuffix());
-        setRepeatableSqlMigrationPrefix(configuration.getRepeatableSqlMigrationPrefix());
-        setResolvers(configuration.getResolvers());
-        setSchemas(configuration.getSchemas());
-        setSkipDefaultCallbacks(configuration.isSkipDefaultCallbacks());
-        setSkipDefaultResolvers(configuration.isSkipDefaultResolvers());
-        setSqlMigrationPrefix(configuration.getSqlMigrationPrefix());
-        setSqlMigrationSeparator(configuration.getSqlMigrationSeparator());
-        setSqlMigrationSuffix(configuration.getSqlMigrationSuffix());
-        setTable(configuration.getTable());
-        setTarget(configuration.getTarget());
-        setValidateOnMigrate(configuration.isValidateOnMigrate());
     }
 
     /**

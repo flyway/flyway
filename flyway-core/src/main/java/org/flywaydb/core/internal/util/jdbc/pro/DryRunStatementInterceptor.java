@@ -11,9 +11,8 @@ import org.flywaydb.core.internal.util.DateUtils;
 
 import java.io.BufferedWriter;
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
@@ -26,37 +25,12 @@ public class DryRunStatementInterceptor implements Closeable {
     private Table table;
     private String delimiterStr;
 
-    public static DryRunStatementInterceptor of(File dryRunOutput, String encoding) {
-        File file;
-        try {
-            file = dryRunOutput.getCanonicalFile();
-        } catch (IOException e) {
-            throw new FlywayException("Unable to get canonical path for dry run output "
-                    + dryRunOutput.getAbsolutePath() + ": " + e.getMessage(), e);
-        }
-        String path = file.getAbsolutePath();
-        if (file.exists()) {
-            if (file.isDirectory()) {
-                throw new FlywayException("Unable to write dry run output to " + path + " as it is a directory and not a file");
-            }
-            if (!file.canWrite()) {
-                throw new FlywayException("Unable to write dry run output to " + path + " as it is write-protected");
-            }
-            LOG.warn("Overwriting existing dry run out file " + path + " ...");
-        } else {
-            File dir = file.getParentFile();
-            if (dir != null && !dir.exists()) {
-                if (!dir.mkdirs()) {
-                    throw new FlywayException("Unable to create parent directories for dry run output to " + path);
-                }
-            }
-        }
-
+    public static DryRunStatementInterceptor of(OutputStream dryRunOutput, String encoding) {
         try {
             return new DryRunStatementInterceptor(
-                    new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), encoding)));
+                    new BufferedWriter(new OutputStreamWriter(dryRunOutput, encoding)));
         } catch (IOException e) {
-            throw new FlywayException("Unable to write dry run output to " + path + ": " + e.getMessage(), e);
+            throw new FlywayException("Unable to write dry run output: " + e.getMessage(), e);
         }
     }
 

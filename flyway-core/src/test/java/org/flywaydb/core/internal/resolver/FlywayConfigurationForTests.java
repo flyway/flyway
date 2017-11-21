@@ -16,6 +16,7 @@
 package org.flywaydb.core.internal.resolver;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -264,7 +265,7 @@ public class FlywayConfigurationForTests implements FlywayConfiguration {
     }
 
     @Override
-    public File getDryRunOutput() {
+    public OutputStream getDryRunOutput() {
         return null;
     }
 

@@ -64,7 +64,7 @@ public class JdbcUtils {
             }
             // [pro]
             if (dryRunStatementInterceptor != null) {
-                connection.setReadOnly(true);
+                //connection.setReadOnly(true);
                 return JdbcProxies.createConnectionProxy(classLoader, connection, dryRunStatementInterceptor);
             }
             // [/pro]

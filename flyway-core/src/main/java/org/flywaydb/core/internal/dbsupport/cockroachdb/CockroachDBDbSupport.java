@@ -145,6 +145,13 @@ public class CockroachDBDbSupport extends DbSupport {
         return false;
     }
 
+    // [pro]
+    @Override
+    public boolean supportsReadOnlyTransactions() {
+        return false;
+    }
+    // [/pro]
+
     public String getBooleanTrue() {
         return "TRUE";
     }

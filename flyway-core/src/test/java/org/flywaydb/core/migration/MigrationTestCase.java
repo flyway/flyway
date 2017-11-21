@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
@@ -180,6 +181,25 @@ public abstract class MigrationTestCase {
             assertEquals("3", flyway.info().current().getVersion().toString());
             assertEquals(MigrationState.FAILED, flyway.info().current().getState());
         }
+    }
+
+    @Test
+    public void migrateDryRun() throws Exception {
+        ByteArrayOutputStream dryRunOutput = new ByteArrayOutputStream();
+
+        flyway.setLocations(getBasedir());
+        flyway.setDryRunOutput(dryRunOutput);
+        assertEquals(4, flyway.migrate());
+        String dryRunOutputStr = new String(dryRunOutput.toByteArray(), flyway.getEncoding());
+        assertTrue(dryRunOutputStr, dryRunOutputStr.contains("CREATE TABLE couple"));
+
+        dryRunOutput = new ByteArrayOutputStream();
+        flyway.setDryRunOutput(dryRunOutput);
+        assertEquals(4, flyway.migrate());
+
+        flyway.setDryRunOutput(null);
+        assertEquals(4, flyway.migrate());
+        assertEquals(0, flyway.migrate());
     }
 
     @Test

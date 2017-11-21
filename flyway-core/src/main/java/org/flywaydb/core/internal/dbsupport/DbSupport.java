@@ -200,11 +200,22 @@ public abstract class DbSupport {
     }
 
     /**
-     * Checks whether ddl transactions are supported by this database.
+     * Checks whether DDL transactions are supported by this database.
      *
-     * @return {@code true} if ddl transactions are supported, {@code false} if not.
+     * @return {@code true} if DDL transactions are supported, {@code false} if not.
      */
     public abstract boolean supportsDdlTransactions();
+
+    // [pro]
+    /**
+     * Checks whether read-only transactions are supported by this database.
+     *
+     * @return {@code true} if read-only transactions are supported, {@code false} if not.
+     */
+    public boolean supportsReadOnlyTransactions() {
+        return true;
+    }
+    // [/pro]
 
     /**
      * @return The representation of the value {@code true} in a boolean column.

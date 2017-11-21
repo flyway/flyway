@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -840,19 +841,6 @@ public class FlywayMediumTest {
         flyway2.setLocations("migration/sql");
         flyway2.setTarget(MigrationVersion.CURRENT);
         flyway2.validate();
-    }
-
-    @Test
-    public void migrateDryRun() {
-        flyway.setDataSource("jdbc:h2:mem:flyway_migrate_dryrun;DB_CLOSE_DELAY=-1", "sa", "");
-        flyway.setLocations("migration/sql");
-        flyway.setDryRunOutput(new File("test.txt"));
-        assertEquals(4, flyway.migrate());
-        assertEquals(4, flyway.migrate());
-
-        flyway.setDryRunOutput(null);
-        assertEquals(4, flyway.migrate());
-        assertEquals(0, flyway.migrate());
     }
 
     @Test

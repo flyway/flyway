@@ -21,7 +21,7 @@ import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 
 import javax.sql.DataSource;
-import java.io.File;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -33,9 +33,7 @@ public interface FlywayConfiguration {
      *
      * @return The ClassLoader to use for loading migrations, resolvers, etc from the classpath.
      * (default: Thread.currentThread().getContextClassLoader() )
-     * @deprecated Will be removed in Flyway 6.0.
      */
-    @Deprecated
     ClassLoader getClassLoader();
 
     /**
@@ -324,5 +322,5 @@ public interface FlywayConfiguration {
      * @return The file where to output the SQL statements of a migration dry run. {@code null} if the SQL statements
      * are executed against the database directly.
      */
-    File getDryRunOutput();
+    OutputStream getDryRunOutput();
 }
