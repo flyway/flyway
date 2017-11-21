@@ -26,10 +26,10 @@ import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationExecutor;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlScriptException;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.DatabaseFactory;
+import org.flywaydb.core.internal.database.FlywaySqlScriptException;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
@@ -56,7 +56,7 @@ public class DbMigrate {
     /**
      * Database-specific functionality.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * The database metadata table.
@@ -86,28 +86,28 @@ public class DbMigrate {
     /**
      * The DB support for the user objects connection.
      */
-    private final DbSupport dbSupportUserObjects;
+    private final Database databaseUserObjects;
 
     /**
      * Creates a new database migrator.
      *
      * @param connectionUserObjects The connection to use to perform the actual database migrations.
-     * @param dbSupport             Database-specific functionality.
+     * @param database             Database-specific functionality.
      * @param schemaHistory         The database metadata table.
      * @param migrationResolver     The migration resolver.
      * @param configuration         The Flyway configuration.
      */
-    public DbMigrate(Connection connectionUserObjects, DbSupport dbSupport,
+    public DbMigrate(Connection connectionUserObjects, Database database,
                      SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                      FlywayConfiguration configuration) {
         this.connectionUserObjects = connectionUserObjects;
-        this.dbSupport = dbSupport;
+        this.database = database;
         this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
         this.configuration = configuration;
 
-        dbSupportUserObjects = DbSupportFactory.createDbSupport(connectionUserObjects, false);
+        databaseUserObjects = DatabaseFactory.createDbSupport(connectionUserObjects, false);
     }
 
     /**
@@ -122,7 +122,7 @@ public class DbMigrate {
                 new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupportUserObjects.changeCurrentSchemaTo(schema);
+                        databaseUserObjects.changeCurrentSchemaTo(schema);
                         callback.beforeMigrate(connectionUserObjects);
                         return null;
                     }
@@ -152,7 +152,7 @@ public class DbMigrate {
                 new TransactionTemplate(connectionUserObjects).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupportUserObjects.changeCurrentSchemaTo(schema);
+                        databaseUserObjects.changeCurrentSchemaTo(schema);
                         callback.afterMigrate(connectionUserObjects);
                         return null;
                     }
@@ -161,7 +161,7 @@ public class DbMigrate {
 
             return count;
         } finally {
-            dbSupportUserObjects.restoreCurrentSchema();
+            databaseUserObjects.restoreCurrentSchema();
         }
     }
 
@@ -304,7 +304,7 @@ public class DbMigrate {
         } catch (FlywayMigrateSqlException e) {
             MigrationInfoImpl migration = e.getMigration();
             String failedMsg = "Migration of " + toMigrationText(migration, e.isOutOfOrder()) + " failed!";
-            if (dbSupport.supportsDdlTransactions() && executeGroupInTransaction) {
+            if (database.supportsDdlTransactions() && executeGroupInTransaction) {
                 LOG.error(failedMsg + " Changes successfully rolled back.");
             } else {
                 LOG.error(failedMsg + " Please restore backups and roll back database and code!");
@@ -353,7 +353,7 @@ public class DbMigrate {
 
             LOG.info("Migrating " + migrationText);
 
-            dbSupportUserObjects.changeCurrentSchemaTo(schema);
+            databaseUserObjects.changeCurrentSchemaTo(schema);
 
             for (final FlywayCallback callback : configuration.getCallbacks()) {
                 callback.beforeEachMigrate(connectionUserObjects, migration);

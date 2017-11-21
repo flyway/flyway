@@ -21,23 +21,23 @@ setlocal
 echo Creating DBs...
 
 echo MySQL...
-mysql -uroot -pflyway < flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
+mysql -uroot -pflyway < flyway-core/src/test/resources/migration/database/mysql/createDatabase.sql
 
 echo MariaDB...
-mysql -uroot -pflyway -P3333 < flyway-core/src/test/resources/migration/dbsupport/mysql/createDatabase.sql
+mysql -uroot -pflyway -P3333 < flyway-core/src/test/resources/migration/database/mysql/createDatabase.sql
 
 echo EnterpriseDB...
 set PGPASSWORD=flyway
-edb-psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
+edb-psql -Uenterprisedb < flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql
 
 echo PostgreSQL
 set PGPASSWORD=flyway
-psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql
+psql -Upostgres < flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql
 
 echo SolidDB...
-solsql -f flyway-core/src/test/resources/migration/dbsupport/solid/createDatabase.sql "tcp localhost 1313"
+solsql -f flyway-core/src/test/resources/migration/database/solid/createDatabase.sql "tcp localhost 1313"
 
 echo CockroackDB
-cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql
+cockroach sql --insecure < ./flyway-core/src/test/resources/migration/database/cockroachdb/createDatabase.sql
 
 echo Done.

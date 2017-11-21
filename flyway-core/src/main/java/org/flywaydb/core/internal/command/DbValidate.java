@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.command;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.Pair;
@@ -99,13 +99,13 @@ public class DbValidate {
     /**
      * The DB support for the connection.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * Creates a new database validator.
      *
      * @param connection        The connection to use.
-     * @param dbSupport         The DB support for the connection.
+     * @param database         The DB support for the connection.
      * @param schemaHistory     The database metadata table.
      * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
@@ -117,10 +117,10 @@ public class DbValidate {
      * @param callbacks         The lifecycle callbacks.
      */
     public DbValidate(Connection connection,
-                      DbSupport dbSupport, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
+                      Database database, SchemaHistory schemaHistory, Schema schema, MigrationResolver migrationResolver,
                       MigrationVersion target, boolean outOfOrder, boolean pending, boolean missing, boolean future, FlywayCallback[] callbacks) {
         this.connection = connection;
-        this.dbSupport = dbSupport;
+        this.database = database;
         this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.migrationResolver = migrationResolver;
@@ -150,7 +150,7 @@ public class DbValidate {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
+                        database.changeCurrentSchemaTo(schema);
                         callback.beforeValidate(connection);
                         return null;
                     }
@@ -164,7 +164,7 @@ public class DbValidate {
             Pair<Integer, String> result = new TransactionTemplate(connection).execute(new Callable<Pair<Integer, String>>() {
                 @Override
                 public Pair<Integer, String> call() {
-                    dbSupport.changeCurrentSchemaTo(schema);
+                    database.changeCurrentSchemaTo(schema);
                     MigrationInfoServiceImpl migrationInfoService =
                             new MigrationInfoServiceImpl(migrationResolver, schemaHistory, target, outOfOrder, pending, missing, future);
 
@@ -194,7 +194,7 @@ public class DbValidate {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
+                        database.changeCurrentSchemaTo(schema);
                         callback.afterValidate(connection);
                         return null;
                     }
@@ -203,7 +203,7 @@ public class DbValidate {
 
             return error;
         } finally {
-            dbSupport.restoreCurrentSchema();
+            database.restoreCurrentSchema();
         }
     }
 }

@@ -23,9 +23,9 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.errorhandler.ErrorContext;
 import org.flywaydb.core.api.errorhandler.ErrorHandler;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.h2.H2DbSupport;
+import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.h2.H2Database;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
 import org.flywaydb.core.internal.util.logging.StringLogCreator;
@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -81,8 +80,8 @@ public class FlywayMediumTest {
         Connection connection1 = dataSource1.getConnection();
         Connection connection2 = dataSource2.getConnection();
 
-        Schema schema1 = new H2DbSupport(connection1).getSchema("PUBLIC");
-        Schema schema2 = new H2DbSupport(connection2).getSchema("PUBLIC");
+        Schema schema1 = new H2Database(connection1).getSchema("PUBLIC");
+        Schema schema2 = new H2Database(connection2).getSchema("PUBLIC");
 
         assertTrue(schema1.empty());
         assertTrue(schema2.empty());

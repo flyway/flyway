@@ -15,7 +15,7 @@
  */
 package org.flywaydb.core.internal.command;
 
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
 import org.flywaydb.core.api.logging.Log;

@@ -314,7 +314,7 @@ public class FlywayCallbackSmallTest {
         properties.setProperty("flyway.password", "");
         properties.setProperty("flyway.url", "jdbc:h2:mem:flyway_test_callback_" + name + ";DB_CLOSE_DELAY=-1");
         properties.setProperty("flyway.driver", "org.h2.Driver");
-        properties.setProperty("flyway.locations", "migration/dbsupport/h2/sql/domain");
+        properties.setProperty("flyway.locations", "migration/database/h2/sql/domain");
         properties.setProperty("flyway.validateOnMigrate", "false");
         return properties;
     }

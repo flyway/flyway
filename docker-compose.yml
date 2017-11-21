@@ -23,8 +23,8 @@ services:
     tmpfs:
      - /cockroach/cockroach-data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/entrypoint.sh:/entrypoint.sh
-     - ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/createDatabase.sql:/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/cockroachdb/entrypoint.sh:/entrypoint.sh
+     - ./flyway-core/src/test/resources/migration/database/cockroachdb/createDatabase.sql:/createDatabase.sql
     entrypoint:
      - /entrypoint.sh
   db2-105:
@@ -35,8 +35,8 @@ services:
      - DB2INST1_PASSWORD=flywaypwd
      - LICENSE=accept
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/db2/entrypoint.sh:/entrypoint.sh
-     - ./flyway-core/src/test/resources/migration/dbsupport/db2/createDatabase.sql:/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/db2/entrypoint.sh:/entrypoint.sh
+     - ./flyway-core/src/test/resources/migration/database/db2/createDatabase.sql:/createDatabase.sql
     command: "db2start"
   mariadb-55:
     image: "mariadb:5.5.57"
@@ -45,7 +45,7 @@ services:
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
      - MYSQL_DATABASE=flyway_db
      - MYSQL_USER=flyway
@@ -58,7 +58,7 @@ services:
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
      - MYSQL_DATABASE=flyway_db
      - MYSQL_USER=flyway
@@ -71,7 +71,7 @@ services:
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
      - MYSQL_DATABASE=flyway_db
      - MYSQL_USER=flyway
@@ -84,7 +84,7 @@ services:
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
      - MYSQL_DATABASE=flyway_db
      - MYSQL_USER=flyway
@@ -97,7 +97,7 @@ services:
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
      - MYSQL_DATABASE=flyway_db
      - MYSQL_USER=flyway
@@ -110,7 +110,7 @@ services:
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
      - MYSQL_DATABASE=flyway_db
      - MYSQL_USER=flyway
@@ -123,7 +123,7 @@ services:
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
      - MYSQL_DATABASE=flyway_db
      - MYSQL_USER=flyway
@@ -136,7 +136,7 @@ services:
     tmpfs:
       - /var/lib/mysql:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
+     - ./flyway-core/src/test/resources/migration/database/mysql/my.cnf:/etc/mysql/conf.d/config-file.cnf
     environment:
      - MYSQL_DATABASE=flyway_db
      - MYSQL_USER=flyway
@@ -147,20 +147,20 @@ services:
     ports:
      - "62040:1521"
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
-     - ./flyway-core/src/test/resources/migration/dbsupport/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
+     - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/oracle/tuneDatabase.sh:/docker-entrypoint-initdb.d/tuneDatabase.sh
   oracle-11:
     image: "wnameless/oracle-xe-11g"
     ports:
      - "62041:1521"
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   oracle-12:
     image: "sath89/oracle-12c"
     ports:
      - "62042:1521"
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/oracle/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-92:
     image: "postgres:9.2.23-alpine"
     ports:
@@ -168,7 +168,7 @@ services:
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-93:
     image: "postgres:9.3.19-alpine"
     ports:
@@ -176,7 +176,7 @@ services:
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-94:
     image: "postgres:9.4.14-alpine"
     ports:
@@ -184,7 +184,7 @@ services:
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-95:
     image: "postgres:9.5.9-alpine"
     ports:
@@ -192,7 +192,7 @@ services:
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-96:
     image: "postgres:9.6.5-alpine"
     ports:
@@ -200,7 +200,7 @@ services:
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   postgresql-100:
     image: "postgres:10.0-alpine"
     ports:
@@ -208,7 +208,7 @@ services:
     tmpfs:
       - /var/lib/postgresql/data:rw
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/postgresql/createDatabase.sql:/docker-entrypoint-initdb.d/createDatabase.sql
   sqlserver-2017:
     image: "microsoft/mssql-server-linux:2017-CU1"
     ports:
@@ -220,8 +220,8 @@ services:
      - MSSQL_PID=Developer
      - MSSQL_SA_PASSWORD=flywayPWD000
     volumes:
-     - ./flyway-core/src/test/resources/migration/dbsupport/sqlserver/entrypoint.sh:/entrypoint.sh
-     - ./flyway-core/src/test/resources/migration/dbsupport/sqlserver/createDatabase.sql:/createDatabase.sql
+     - ./flyway-core/src/test/resources/migration/database/sqlserver/entrypoint.sh:/entrypoint.sh
+     - ./flyway-core/src/test/resources/migration/database/sqlserver/createDatabase.sql:/createDatabase.sql
     entrypoint:
      - /entrypoint.sh
   sybasease-157:

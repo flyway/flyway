@@ -19,20 +19,18 @@ import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import java.sql.Connection;
 import java.util.Date;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 
@@ -41,7 +39,7 @@ public class DbBaselineTest {
     private static final String TEST_BASELINE_DESCRIPTION = "test baseline";
 
     private Connection connection;
-    private DbSupport dbSupport;
+    private Database database;
     private Schema schema;
     private FlywayCallback testCallback;
     private FlywayCallback[] callbacks;
@@ -54,7 +52,7 @@ public class DbBaselineTest {
     @Before
     public void before() {
         this.connection = mock(Connection.class);
-        this.dbSupport = mock(DbSupport.class);
+        this.database = mock(Database.class);
         this.schema = mock(Schema.class);
         testCallback = mock(FlywayCallback.class);
         callbacks = new FlywayCallback[]{this.testCallback};
@@ -173,7 +171,7 @@ public class DbBaselineTest {
     }
 
     private DbBaseline createTestBaselinie(MigrationVersion version) {
-        return new DbBaseline(connection, dbSupport, schemaHistory, schema, version, TEST_BASELINE_DESCRIPTION, callbacks);
+        return new DbBaseline(connection, database, schemaHistory, schema, version, TEST_BASELINE_DESCRIPTION, callbacks);
     }
 
 }

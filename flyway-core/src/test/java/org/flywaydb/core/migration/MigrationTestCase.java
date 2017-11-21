@@ -23,10 +23,10 @@ import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.command.DbMigrate;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.DatabaseFactory;
+import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoDumper;
 import org.flywaydb.core.internal.resolver.FlywayConfigurationForTests;
 import org.flywaydb.core.internal.resolver.sql.SqlMigrationResolver;
@@ -78,7 +78,7 @@ public abstract class MigrationTestCase {
 
     protected DataSource dataSource;
     private Connection connection;
-    protected DbSupport dbSupport;
+    protected Database database;
 
     protected JdbcTemplate jdbcTemplate;
     protected Flyway flyway;
@@ -101,8 +101,8 @@ public abstract class MigrationTestCase {
         dataSource = createDataSource(customProperties);
 
         connection = dataSource.getConnection();
-        dbSupport = DbSupportFactory.createDbSupport(connection, false);
-        jdbcTemplate = dbSupport.getJdbcTemplate();
+        database = DatabaseFactory.createDbSupport(connection, false);
+        jdbcTemplate = database.getJdbcTemplate();
 
         flyway = new Flyway();
         flyway.setDataSource(dataSource);
@@ -175,7 +175,7 @@ public abstract class MigrationTestCase {
         }
 
         LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
-        if (dbSupport.supportsDdlTransactions()) {
+        if (database.supportsDdlTransactions()) {
             assertEquals(4, flyway.info().pending().length);
         } else {
             assertEquals("3", flyway.info().current().getVersion().toString());
@@ -215,7 +215,7 @@ public abstract class MigrationTestCase {
         }
 
         LOG.info("\n" + MigrationInfoDumper.dumpToAsciiTable(flyway.info().all()));
-        if (dbSupport.supportsDdlTransactions()) {
+        if (database.supportsDdlTransactions()) {
             assertEquals("2.0", flyway.info().current().getVersion().toString());
             assertEquals(MigrationState.SUCCESS, flyway.info().current().getState());
         } else {
@@ -315,7 +315,7 @@ public abstract class MigrationTestCase {
         flyway.setLocations(getBasedir());
         flyway.setTable("my_custom_table");
         flyway.migrate();
-        int count = jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("my_custom_table"));
+        int count = jdbcTemplate.queryForInt("select count(*) from " + database.quote("my_custom_table"));
 
         // Same as 'migrate()', count is 5 when we have a schema creation marker
         if (flyway.info().applied()[0].getType() == MigrationType.SCHEMA) {
@@ -332,7 +332,7 @@ public abstract class MigrationTestCase {
      */
     protected void assertChecksum(MigrationInfo migrationInfo) {
         SqlMigrationResolver sqlMigrationResolver = new SqlMigrationResolver(
-                dbSupport, new Scanner(Thread.currentThread().getContextClassLoader()),
+                database, new Scanner(Thread.currentThread().getContextClassLoader()),
                 new Locations(getBasedir()),
                 PlaceholderReplacer.NO_PLACEHOLDERS,
                 FlywayConfigurationForTests.create());
@@ -391,7 +391,7 @@ public abstract class MigrationTestCase {
 
         flyway.setLocations(getMigrationDir() + "/failed");
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("tableName", dbSupport.quote(tableName));
+        placeholders.put("tableName", database.quote(tableName));
         flyway.setPlaceholders(placeholders);
 
         try {
@@ -409,9 +409,9 @@ public abstract class MigrationTestCase {
 
         MigrationInfo migration = flyway.info().current();
         assertEquals(
-                dbSupport.supportsDdlTransactions(),
-                !dbSupport.getSchema(dbSupport.getCurrentSchemaName()).getTable(tableName).exists());
-        if (dbSupport.supportsDdlTransactions()) {
+                database.supportsDdlTransactions(),
+                !database.getSchema(database.getCurrentSchemaName()).getTable(tableName).exists());
+        if (database.supportsDdlTransactions()) {
             assertNull(migration);
         } else {
             MigrationVersion version = migration.getVersion();
@@ -443,7 +443,7 @@ public abstract class MigrationTestCase {
 
         flyway.setIgnoreFutureMigrations(false);
         flyway.setLocations(getBasedir());
-        if (dbSupport.supportsDdlTransactions()) {
+        if (database.supportsDdlTransactions()) {
             flyway.migrate();
         } else {
             try {
@@ -489,7 +489,7 @@ public abstract class MigrationTestCase {
             flyway.migrate();
             fail();
         } catch (FlywayException e) {
-            if (dbSupport.supportsDdlTransactions()) {
+            if (database.supportsDdlTransactions()) {
                 assertTrue(e.getMessage().contains("THIS IS NOT VALID SQL"));
             } else {
                 assertTrue(e.getMessage().contains("contains a failed migration"));
@@ -500,15 +500,15 @@ public abstract class MigrationTestCase {
     @Test
     public void tableExists() throws Exception {
         flyway.baseline();
-        assertTrue(dbSupport.getOriginalSchema().getTable(flyway.getTable()).exists());
-        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
+        assertTrue(database.getOriginalSchema().getTable(flyway.getTable()).exists());
+        assertTrue(database.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).exists());
     }
 
     @Test
     public void columnExists() throws Exception {
         flyway.baseline();
-        assertTrue(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("installed_rank"));
-        assertFalse(dbSupport.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
+        assertTrue(database.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("installed_rank"));
+        assertFalse(database.getSchema(flyway.getSchemas()[0]).getTable(flyway.getTable()).hasColumn("dummy"));
     }
 
     @Test
@@ -516,7 +516,7 @@ public abstract class MigrationTestCase {
         flyway.setLocations(getQuoteLocation());
         flyway.migrate();
         assertEquals("0",
-                jdbcTemplate.queryForString("SELECT COUNT(name) FROM " + dbSupport.quote(flyway.getSchemas()[0], "table")));
+                jdbcTemplate.queryForString("SELECT COUNT(name) FROM " + database.quote(flyway.getSchemas()[0], "table")));
     }
 
     /**
@@ -530,7 +530,7 @@ public abstract class MigrationTestCase {
         flyway.migrate();
         assertEquals("1.1", flyway.info().current().getVersion().toString());
 
-        jdbcTemplate.update("DROP TABLE " + dbSupport.quote(flyway.getTable()));
+        jdbcTemplate.update("DROP TABLE " + database.quote(flyway.getTable()));
         flyway.setBaselineVersion(MigrationVersion.fromVersion("1.1"));
         flyway.setBaselineDescription("initial version 1.1");
         flyway.baseline();
@@ -543,7 +543,7 @@ public abstract class MigrationTestCase {
 
     @Test
     public void isSchemaEmpty() throws Exception {
-        Schema schema = dbSupport.getOriginalSchema();
+        Schema schema = database.getOriginalSchema();
 
         assertTrue(schema.empty());
 
@@ -638,9 +638,9 @@ public abstract class MigrationTestCase {
 
         flyway.setLocations(getMigrationDir() + "/multi");
         Map<String, String> placeholders = new HashMap<String, String>();
-        placeholders.put("schema1", dbSupport.quote("flyway_1"));
-        placeholders.put("schema2", dbSupport.quote("flyway_2"));
-        placeholders.put("schema3", dbSupport.quote("flyway_3"));
+        placeholders.put("schema1", database.quote("flyway_1"));
+        placeholders.put("schema2", database.quote("flyway_2"));
+        placeholders.put("schema3", database.quote("flyway_3"));
         flyway.setPlaceholders(placeholders);
         flyway.migrate();
         assertEquals("2.0", flyway.info().current().getVersion().toString());
@@ -648,16 +648,16 @@ public abstract class MigrationTestCase {
         assertEquals(0, flyway.migrate());
 
         assertEquals(4, flyway.info().applied().length);
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_1") + ".test_user1"));
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_2") + ".test_user2"));
-        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + dbSupport.quote("flyway_3") + ".test_user3"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + database.quote("flyway_1") + ".test_user1"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + database.quote("flyway_2") + ".test_user2"));
+        assertEquals(2, jdbcTemplate.queryForInt("select count(*) from " + database.quote("flyway_3") + ".test_user3"));
 
         flyway.clean();
     }
 
     @Test
     public void setCurrentSchema() throws Exception {
-        Schema schema = dbSupport.getSchema("current_schema_test");
+        Schema schema = database.getSchema("current_schema_test");
         try {
             schema.create();
 
@@ -666,7 +666,7 @@ public abstract class MigrationTestCase {
 
             flyway.setLocations(getMigrationDir() + "/current_schema");
             Map<String, String> placeholders = new HashMap<String, String>();
-            placeholders.put("schema1", dbSupport.quote("current_schema_test"));
+            placeholders.put("schema1", database.quote("current_schema_test"));
             flyway.setPlaceholders(placeholders);
             flyway.migrate();
         } finally {
@@ -701,8 +701,8 @@ public abstract class MigrationTestCase {
 
     @Test
     public void schemaExists() throws SQLException {
-        assertTrue(dbSupport.getOriginalSchema().exists());
-        assertFalse(dbSupport.getSchema("InVaLidScHeMa").exists());
+        assertTrue(database.getOriginalSchema().exists());
+        assertFalse(database.getSchema("InVaLidScHeMa").exists());
     }
 
     protected void createTestTable() throws SQLException {

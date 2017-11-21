@@ -22,8 +22,8 @@ import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.info.MigrationInfoImpl;
 import org.flywaydb.core.internal.info.MigrationInfoServiceImpl;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
@@ -73,20 +73,20 @@ public class DbRepair {
     /**
      * The database-specific support.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * Creates a new DbRepair.
      *
-     * @param dbSupport         The database-specific support.
+     * @param database         The database-specific support.
      * @param connection        The database connection to use for accessing the metadata table.
      * @param schema            The database schema to use by default.
      * @param migrationResolver The migration resolver.
      * @param schemaHistory     The metadata table.
      * @param callbacks         Callbacks for the Flyway lifecycle.
      */
-    public DbRepair(DbSupport dbSupport, Connection connection, Schema schema, MigrationResolver migrationResolver, SchemaHistory schemaHistory, FlywayCallback[] callbacks) {
-        this.dbSupport = dbSupport;
+    public DbRepair(Database database, Connection connection, Schema schema, MigrationResolver migrationResolver, SchemaHistory schemaHistory, FlywayCallback[] callbacks) {
+        this.database = database;
         this.connection = connection;
         this.schema = schema;
         this.migrationInfoService = new MigrationInfoServiceImpl(migrationResolver, schemaHistory, MigrationVersion.LATEST, true, true, true, true);
@@ -103,7 +103,7 @@ public class DbRepair {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
+                        database.changeCurrentSchemaTo(schema);
                         callback.beforeRepair(connection);
                         return null;
                     }
@@ -115,7 +115,7 @@ public class DbRepair {
 
             new TransactionTemplate(connection).execute(new Callable<Object>() {
                 public Void call() {
-                    dbSupport.changeCurrentSchemaTo(schema);
+                    database.changeCurrentSchemaTo(schema);
                     schemaHistory.removeFailedMigrations();
                     alignAppliedMigrationsWithResolvedMigrations();
                     return null;
@@ -126,7 +126,7 @@ public class DbRepair {
 
             LOG.info("Successfully repaired metadata table " + schemaHistory + " (execution time "
                     + TimeFormat.format(stopWatch.getTotalTimeMillis()) + ").");
-            if (!dbSupport.supportsDdlTransactions()) {
+            if (!database.supportsDdlTransactions()) {
                 LOG.info("Manual cleanup of the remaining effects the failed migration may still be required.");
             }
 
@@ -134,14 +134,14 @@ public class DbRepair {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
+                        database.changeCurrentSchemaTo(schema);
                         callback.afterRepair(connection);
                         return null;
                     }
                 });
             }
         } finally {
-            dbSupport.restoreCurrentSchema();
+            database.restoreCurrentSchema();
         }
     }
 

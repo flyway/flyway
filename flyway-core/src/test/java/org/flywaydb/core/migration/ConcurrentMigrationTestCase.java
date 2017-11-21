@@ -18,9 +18,9 @@ package org.flywaydb.core.migration;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationType;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.DbSupportFactory;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.DatabaseFactory;
+import org.flywaydb.core.internal.database.JdbcTemplate;
 import org.flywaydb.core.internal.util.jdbc.JdbcUtils;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
@@ -96,9 +96,9 @@ public abstract class ConcurrentMigrationTestCase {
         concurrentMigrationDataSource = createDataSource(customProperties);
 
         Connection connection = concurrentMigrationDataSource.getConnection();
-        final DbSupport dbSupport = DbSupportFactory.createDbSupport(connection, false);
+        final Database database = DatabaseFactory.createDbSupport(connection, false);
         schemaName = "concurrent_test";
-        schemaQuoted = dbSupport.quote(schemaName);
+        schemaQuoted = database.quote(schemaName);
         connection.close();
 
         flyway = createFlyway();

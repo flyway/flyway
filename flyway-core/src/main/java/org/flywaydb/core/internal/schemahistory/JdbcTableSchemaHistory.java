@@ -21,12 +21,12 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.FlywaySqlException;
-import org.flywaydb.core.internal.dbsupport.JdbcTemplate;
-import org.flywaydb.core.internal.dbsupport.Schema;
-import org.flywaydb.core.internal.dbsupport.SqlScript;
-import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.FlywaySqlException;
+import org.flywaydb.core.internal.database.JdbcTemplate;
+import org.flywaydb.core.internal.database.Schema;
+import org.flywaydb.core.internal.database.SqlScript;
+import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.util.PlaceholderReplacer;
 import org.flywaydb.core.internal.util.jdbc.RowMapper;
 import org.flywaydb.core.internal.util.scanner.classpath.ClassPathResource;
@@ -49,7 +49,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     /**
      * Database-specific functionality.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * The metadata table used by flyway.
@@ -74,13 +74,13 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     /**
      * Creates a new instance of the metadata table support.
      *
-     * @param dbSupport   Database-specific functionality.
+     * @param database   Database-specific functionality.
      * @param table       The metadata table used by flyway.
      * @param installedBy The current user in the database.
      */
-    JdbcTableSchemaHistory(DbSupport dbSupport, Table table, String installedBy) {
-        this.jdbcTemplate = dbSupport.getJdbcTemplate();
-        this.dbSupport = dbSupport;
+    JdbcTableSchemaHistory(Database database, Table table, String installedBy) {
+        this.jdbcTemplate = database.getJdbcTemplate();
+        this.database = database;
         this.table = table;
         this.installedBy = installedBy;
     }
@@ -106,7 +106,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
             }
 
             try {
-                new SqlScript(dbSupport.getCreateScript(table), dbSupport).execute(jdbcTemplate);
+                new SqlScript(database.getCreateScript(table), database).execute(jdbcTemplate);
                 LOG.debug("Metadata table " + table + " created.");
             } catch (FlywayException e) {
                 if (++retries >= 10) {
@@ -125,12 +125,12 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
     @Override
     public <T> T lock(Callable<T> callable) {
         createIfNotExists();
-        return dbSupport.lock(table, callable);
+        return database.lock(table, callable);
     }
 
     @Override
     protected void doAddAppliedMigration(MigrationVersion version, String description, MigrationType type, String script, Integer checksum, int executionTime, boolean success) {
-        dbSupport.changeCurrentSchemaTo(table.getSchema());
+        database.changeCurrentSchemaTo(table.getSchema());
 
         createIfNotExists();
 
@@ -142,7 +142,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
             String versionStr = version == null ? null : version.toString();
             int installedRank = type == MigrationType.SCHEMA ? 0 : calculateInstalledRank();
 
-            jdbcTemplate.update(dbSupport.getInsertStatement(table),
+            jdbcTemplate.update(database.getInsertStatement(table),
                     installedRank, versionStr, description, type.name(), script, checksum, installedBy,
                     executionTime, success);
 
@@ -158,7 +158,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
      * @return The installed rank.
      */
     private int calculateInstalledRank() throws SQLException {
-        int currentMax = jdbcTemplate.queryForInt("SELECT MAX(" + dbSupport.quote("installed_rank") + ")"
+        int currentMax = jdbcTemplate.queryForInt("SELECT MAX(" + database.quote("installed_rank") + ")"
                 + " FROM " + table);
         return currentMax + 1;
     }
@@ -183,21 +183,21 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
         int minInstalledRank = cache.isEmpty() ? -1 : cache.getLast().getInstalledRank();
 
-        String query = "SELECT " + dbSupport.quote("installed_rank")
-                + "," + dbSupport.quote("version")
-                + "," + dbSupport.quote("description")
-                + "," + dbSupport.quote("type")
-                + "," + dbSupport.quote("script")
-                + "," + dbSupport.quote("checksum")
-                + "," + dbSupport.quote("installed_on")
-                + "," + dbSupport.quote("installed_by")
-                + "," + dbSupport.quote("execution_time")
-                + "," + dbSupport.quote("success")
+        String query = "SELECT " + database.quote("installed_rank")
+                + "," + database.quote("version")
+                + "," + database.quote("description")
+                + "," + database.quote("type")
+                + "," + database.quote("script")
+                + "," + database.quote("checksum")
+                + "," + database.quote("installed_on")
+                + "," + database.quote("installed_by")
+                + "," + database.quote("execution_time")
+                + "," + database.quote("success")
                 + " FROM " + table
-                + " WHERE " + dbSupport.quote("installed_rank") + " > " + minInstalledRank;
+                + " WHERE " + database.quote("installed_rank") + " > " + minInstalledRank;
 
         if (migrationTypes.length > 0) {
-            query += " AND " + dbSupport.quote("type") + " IN (";
+            query += " AND " + database.quote("type") + " IN (";
             StringBuilder queryBuilder = new StringBuilder(query);
             for (int i = 0; i < migrationTypes.length; i++) {
                 if (i > 0) {
@@ -209,7 +209,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
             query += ")";
         }
 
-        query += " ORDER BY " + dbSupport.quote("installed_rank");
+        query += " ORDER BY " + database.quote("installed_rank");
 
         try {
             cache.addAll(jdbcTemplate.query(query, new RowMapper<AppliedMigration>() {
@@ -251,7 +251,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             int failedCount = jdbcTemplate.queryForInt("SELECT COUNT(*) FROM " + table
-                    + " WHERE " + dbSupport.quote("success") + "=" + dbSupport.getBooleanFalse());
+                    + " WHERE " + database.quote("success") + "=" + database.getBooleanFalse());
             if (failedCount == 0) {
                 LOG.info("Repair of failed migration in metadata table " + table + " not necessary. No failed migration detected.");
                 return;
@@ -262,7 +262,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             jdbcTemplate.execute("DELETE FROM " + table
-                    + " WHERE " + dbSupport.quote("success") + " = " + dbSupport.getBooleanFalse());
+                    + " WHERE " + database.quote("success") + " = " + database.getBooleanFalse());
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to repair metadata table " + table, e);
         }
@@ -289,7 +289,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             int count = jdbcTemplate.queryForInt(
-                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='SCHEMA'");
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + database.quote("type") + "='SCHEMA'");
             return count > 0;
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has a schema marker migration", e);
@@ -306,7 +306,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             int count = jdbcTemplate.queryForInt(
-                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + "='INIT' OR " + dbSupport.quote("type") + "='BASELINE'");
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + database.quote("type") + "='INIT' OR " + database.quote("type") + "='BASELINE'");
             return count > 0;
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has an baseline marker migration", e);
@@ -329,7 +329,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
         try {
             int count = jdbcTemplate.queryForInt(
-                    "SELECT COUNT(*) FROM " + table + " WHERE " + dbSupport.quote("type") + " NOT IN ('SCHEMA', 'INIT', 'BASELINE')");
+                    "SELECT COUNT(*) FROM " + table + " WHERE " + database.quote("type") + " NOT IN ('SCHEMA', 'INIT', 'BASELINE')");
             return count > 0;
         } catch (SQLException e) {
             throw new FlywaySqlException("Unable to check whether the metadata table " + table + " has applied migrations", e);
@@ -352,7 +352,7 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
                 + " (Description: " + description + ", Type: " + type + ", Checksum: " + checksum + ")  ...");
 
         // Try load an update.sql file if it exists
-        String resourceName = "org/flywaydb/core/internal/dbsupport/" + dbSupport.getDbName() + "/update.sql";
+        String resourceName = "org/flywaydb/core/internal/database/" + database.getDbName() + "/update.sql";
         ClassPathResource resource = new ClassPathResource(resourceName, getClass().getClassLoader());
         if (resource.exists()) {
             String source = resource.loadAsString("UTF-8");
@@ -370,15 +370,15 @@ public class JdbcTableSchemaHistory extends SchemaHistory {
 
             String sourceNoPlaceholders = new PlaceholderReplacer(placeholders, "${", "}").replacePlaceholders(source);
 
-            new SqlScript(sourceNoPlaceholders, dbSupport).execute(jdbcTemplate);
+            new SqlScript(sourceNoPlaceholders, database).execute(jdbcTemplate);
         } else {
             try {
                 jdbcTemplate.update("UPDATE " + table
                                 + " SET "
-                                + dbSupport.quote("description") + "=? , "
-                                + dbSupport.quote("type") + "=? , "
-                                + dbSupport.quote("checksum") + "=?"
-                                + " WHERE " + dbSupport.quote("version") + "=?",
+                                + database.quote("description") + "=? , "
+                                + database.quote("type") + "=? , "
+                                + database.quote("checksum") + "=?"
+                                + " WHERE " + database.quote("version") + "=?",
                         description, type, checksum, version);
             } catch (SQLException e) {
                 throw new FlywaySqlException("Unable to repair metadata table " + table

@@ -21,20 +21,20 @@ setlocal
 echo Dropping DBs...
 
 echo MySQL...
-mysql -uroot -pflyway < flyway-core/src/test/resources/migration/dbsupport/mysql/dropDatabase.sql
+mysql -uroot -pflyway < flyway-core/src/test/resources/migration/database/mysql/dropDatabase.sql
 
 echo MariaDB...
-mysql -uroot -pflyway -P3333 < flyway-core/src/test/resources/migration/dbsupport/mysql/dropDatabase.sql
+mysql -uroot -pflyway -P3333 < flyway-core/src/test/resources/migration/database/mysql/dropDatabase.sql
 
 echo EnterpriseDB...
 set PGPASSWORD=flyway
-edb-psql -Uenterprisedb < flyway-core/src/test/resources/migration/dbsupport/edb/dropDatabase.sql
+edb-psql -Uenterprisedb < flyway-core/src/test/resources/migration/database/edb/dropDatabase.sql
 
 echo PostgreSQL...
 set PGPASSWORD=flyway
-psql -Upostgres < flyway-core/src/test/resources/migration/dbsupport/postgresql/dropDatabase.sql
+psql -Upostgres < flyway-core/src/test/resources/migration/database/postgresql/dropDatabase.sql
 
 echo CockroachDB...
-cockroach sql --insecure < ./flyway-core/src/test/resources/migration/dbsupport/cockroachdb/dropDatabase.sql
+cockroach sql --insecure < ./flyway-core/src/test/resources/migration/database/cockroachdb/dropDatabase.sql
 
 echo Done.

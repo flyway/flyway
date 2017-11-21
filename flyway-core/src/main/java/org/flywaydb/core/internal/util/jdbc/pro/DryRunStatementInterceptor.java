@@ -3,9 +3,9 @@ package org.flywaydb.core.internal.util.jdbc.pro;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.logging.Log;
 import org.flywaydb.core.api.logging.LogFactory;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Delimiter;
-import org.flywaydb.core.internal.dbsupport.Table;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Delimiter;
+import org.flywaydb.core.internal.database.Table;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.util.DateUtils;
 
@@ -21,7 +21,7 @@ public class DryRunStatementInterceptor implements Closeable {
     private static final Log LOG = LogFactory.getLog(DryRunStatementInterceptor.class);
 
     private final Writer dryRunOutput;
-    private DbSupport dbSupport;
+    private Database database;
     private Table table;
     private String delimiterStr;
 
@@ -40,20 +40,20 @@ public class DryRunStatementInterceptor implements Closeable {
         append("--------------------------------------- ");
     }
 
-    public void init(DbSupport dbSupport, Table table) {
-        this.dbSupport = dbSupport;
+    public void init(Database database, Table table) {
+        this.database = database;
         this.table = table;
-        Delimiter defaultDelimiter = dbSupport.getDefaultDelimiter();
+        Delimiter defaultDelimiter = database.getDefaultDelimiter();
         this.delimiterStr = (defaultDelimiter.isAloneOnLine() ? "\n" : "") + defaultDelimiter.getDelimiter();
     }
 
     public void schemaHistoryTableCreate() {
-        append(dbSupport.getCreateScript(table));
+        append(database.getCreateScript(table));
     }
 
     public void schemaHistoryTableInsert(AppliedMigration appliedMigration) {
         String insertStatement = String.format(
-                dbSupport.getInsertStatement(table).replace("?", "%s"),
+                database.getInsertStatement(table).replace("?", "%s"),
                 appliedMigration.getInstalledRank(),
                 "'" + appliedMigration.getVersion() + "'",
                 "'" + appliedMigration.getDescription() + "'",
@@ -62,7 +62,7 @@ public class DryRunStatementInterceptor implements Closeable {
                 appliedMigration.getChecksum(),
                 "'" + appliedMigration.getInstalledBy() + "'",
                 appliedMigration.getExecutionTime(),
-                appliedMigration.isSuccess() ? dbSupport.getBooleanTrue() : dbSupport.getBooleanFalse());
+                appliedMigration.isSuccess() ? database.getBooleanTrue() : database.getBooleanFalse());
         append(insertStatement);
     }
 

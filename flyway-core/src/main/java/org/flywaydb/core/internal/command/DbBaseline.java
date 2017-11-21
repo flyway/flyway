@@ -18,8 +18,8 @@ package org.flywaydb.core.internal.command;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.schemahistory.AppliedMigration;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.jdbc.TransactionTemplate;
@@ -66,7 +66,7 @@ public class DbBaseline {
     /**
      * The DB support for the connection.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * The schema containing the metadata table.
@@ -77,15 +77,15 @@ public class DbBaseline {
      * Creates a new DbBaseline.
      *
      * @param connection          The database connection to use for accessing the metadata table.
-     * @param dbSupport           The DB support for the connection.
+     * @param database           The DB support for the connection.
      * @param schemaHistory       The database metadata table.
      * @param schema              The database schema to use by default.
      * @param baselineVersion     The version to tag an existing schema with when executing baseline.
      * @param baselineDescription The description to tag an existing schema with when executing baseline.
      */
-    public DbBaseline(Connection connection, DbSupport dbSupport, SchemaHistory schemaHistory, Schema schema, MigrationVersion baselineVersion, String baselineDescription, FlywayCallback[] callbacks) {
+    public DbBaseline(Connection connection, Database database, SchemaHistory schemaHistory, Schema schema, MigrationVersion baselineVersion, String baselineDescription, FlywayCallback[] callbacks) {
         this.connection = connection;
-        this.dbSupport = dbSupport;
+        this.database = database;
         this.schemaHistory = schemaHistory;
         this.schema = schema;
         this.baselineVersion = baselineVersion;
@@ -102,7 +102,7 @@ public class DbBaseline {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
+                        database.changeCurrentSchemaTo(schema);
                         callback.beforeBaseline(connection);
                         return null;
                     }
@@ -112,7 +112,7 @@ public class DbBaseline {
             new TransactionTemplate(connection).execute(new Callable<Object>() {
                 @Override
                 public Void call() {
-                    dbSupport.changeCurrentSchemaTo(schema);
+                    database.changeCurrentSchemaTo(schema);
                     if (schemaHistory.hasBaselineMarker()) {
                         AppliedMigration baselineMarker = schemaHistory.getBaselineMarker();
                         if (baselineVersion.equals(baselineMarker.getVersion())
@@ -144,14 +144,14 @@ public class DbBaseline {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schema);
+                        database.changeCurrentSchemaTo(schema);
                         callback.afterBaseline(connection);
                         return null;
                     }
                 });
             }
         } finally {
-            dbSupport.restoreCurrentSchema();
+            database.restoreCurrentSchema();
         }
     }
 }

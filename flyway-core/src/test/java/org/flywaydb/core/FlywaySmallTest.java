@@ -18,8 +18,8 @@ package org.flywaydb.core;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.FlywayCallback;
 import org.flywaydb.core.api.resolver.MigrationResolver;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.resolver.MyCustomMigrationResolver;
 import org.flywaydb.core.internal.util.jdbc.DriverDataSource;
@@ -51,7 +51,7 @@ public class FlywaySmallTest {
 
         flyway.execute(new Flyway.Command<Void>() {
             public Void execute(Connection connectionMetaDataTable, MigrationResolver migrationResolver,
-                                SchemaHistory schemaHistory, DbSupport dbSupport, Schema[] schemas,
+                                SchemaHistory schemaHistory, Database database, Schema[] schemas,
                                 FlywayCallback[] flywayCallbacks, DryRunStatementInterceptor dryRunStatementInterceptor) {
                 assertEquals("PUBLIC", flyway.getSchemas()[0]);
                 return null;

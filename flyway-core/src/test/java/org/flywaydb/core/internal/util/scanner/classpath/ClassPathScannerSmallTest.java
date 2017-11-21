@@ -103,11 +103,11 @@ public class ClassPathScannerSmallTest {
 
     @Test
     public void scanForResourcesSplitDirectory() throws Exception {
-        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:org/flywaydb/core/internal/dbsupport"), "create", ".sql");
+        LoadableResource[] resources = classPathScanner.scanForResources(new Location("classpath:org/flywaydb/core/internal/database"), "create", ".sql");
 
         assertTrue(resources.length > 7);
 
-        assertEquals("org/flywaydb/core/internal/dbsupport/cockroachdb/createMetaDataTable.sql", resources[0].getLocation());
+        assertEquals("org/flywaydb/core/internal/database/cockroachdb/createMetaDataTable.sql", resources[0].getLocation());
     }
 
     @Test

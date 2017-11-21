@@ -17,8 +17,8 @@ package org.flywaydb.core.internal.command;
 
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.callback.FlywayCallback;
-import org.flywaydb.core.internal.dbsupport.DbSupport;
-import org.flywaydb.core.internal.dbsupport.Schema;
+import org.flywaydb.core.internal.database.Database;
+import org.flywaydb.core.internal.database.Schema;
 import org.flywaydb.core.internal.schemahistory.SchemaHistory;
 import org.flywaydb.core.internal.util.StopWatch;
 import org.flywaydb.core.internal.util.TimeFormat;
@@ -67,22 +67,22 @@ public class DbClean {
     /**
      * The DB support for the connection.
      */
-    private final DbSupport dbSupport;
+    private final Database database;
 
     /**
      * Creates a new database cleaner.
      *
      * @param connection    The connection to use.
-     * @param dbSupport     The DB support for the connection.
+     * @param database     The DB support for the connection.
      * @param schemaHistory The metadata table.
      * @param schemas       The schemas to clean.
      * @param callbacks     The list of callbacks that fire before or after the clean task is executed.
      * @param cleanDisabled Whether to disable clean.
      */
-    public DbClean(Connection connection, DbSupport dbSupport, SchemaHistory schemaHistory, Schema[] schemas,
+    public DbClean(Connection connection, Database database, SchemaHistory schemaHistory, Schema[] schemas,
                    FlywayCallback[] callbacks, boolean cleanDisabled) {
         this.connection = connection;
-        this.dbSupport = dbSupport;
+        this.database = database;
         this.schemaHistory = schemaHistory;
         this.schemas = schemas;
         this.callbacks = callbacks;
@@ -103,14 +103,14 @@ public class DbClean {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schemas[0]);
+                        database.changeCurrentSchemaTo(schemas[0]);
                         callback.beforeClean(connection);
                         return null;
                     }
                 });
             }
 
-            dbSupport.changeCurrentSchemaTo(schemas[0]);
+            database.changeCurrentSchemaTo(schemas[0]);
             boolean dropSchemas = false;
             try {
                 dropSchemas = schemaHistory.hasSchemasMarker();
@@ -135,7 +135,7 @@ public class DbClean {
                 new TransactionTemplate(connection).execute(new Callable<Object>() {
                     @Override
                     public Object call() throws SQLException {
-                        dbSupport.changeCurrentSchemaTo(schemas[0]);
+                        database.changeCurrentSchemaTo(schemas[0]);
                         callback.afterClean(connection);
                         return null;
                     }
@@ -143,7 +143,7 @@ public class DbClean {
             }
             schemaHistory.clearCache();
         } finally {
-            dbSupport.restoreCurrentSchema();
+            database.restoreCurrentSchema();
         }
     }
 
